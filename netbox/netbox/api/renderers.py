@@ -1,4 +1,9 @@
-from rest_framework.renderers import BrowsableAPIRenderer
+from rest_framework.renderers import BaseRenderer, BrowsableAPIRenderer
+
+__all__ = (
+    'FormlessBrowsableAPIRenderer',
+    'TextRenderer',
+)
 
 
 class FormlessBrowsableAPIRenderer(BrowsableAPIRenderer):
@@ -10,3 +15,14 @@ class FormlessBrowsableAPIRenderer(BrowsableAPIRenderer):
 
     def get_filter_form(self, data, view, request):
         return None
+
+
+class TextRenderer(BaseRenderer):
+    """
+    Return raw data as plain text.
+    """
+    media_type = 'text/plain'
+    format = 'txt'
+
+    def render(self, data, accepted_media_type=None, renderer_context=None):
+        return str(data)

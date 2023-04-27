@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from ipam.choices import *
 from ipam.constants import *
@@ -85,7 +86,8 @@ class Service(ServiceBase, PrimaryModel):
         to='ipam.IPAddress',
         related_name='services',
         blank=True,
-        verbose_name='IP addresses'
+        verbose_name='IP addresses',
+        help_text=_("The specific IP addresses (if any) to which this service is bound")
     )
 
     clone_fields = ['protocol', 'ports', 'description', 'device', 'virtual_machine', 'ipaddresses', ]

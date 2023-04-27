@@ -97,7 +97,7 @@ sudo git pull origin master
 
 ## 4. Run the Upgrade Script
 
-Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `napalm` or `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
+Once the new code is in place, verify that any optional Python packages required by your deployment (e.g. `django-auth-ldap`) are listed in `local_requirements.txt`. Then, run the upgrade script:
 
 ```no-highlight
 sudo ./upgrade.sh

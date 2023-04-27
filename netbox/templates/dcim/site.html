@@ -126,112 +126,7 @@
     {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-      <div class="card">
-        <h5 class="card-header">Related Objects</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">Locations</th>
-              <td class="text-end">
-                {% if stats.location_count %}
-                  <a href="{% url 'dcim:location_list' %}?site_id={{ object.pk }}">{{ stats.location_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Racks</th>
-              <td class="text-end">
-                {% if stats.rack_count %}
-                  <div class="dropdown">
-                    <button class="btn btn-sm btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                      {{ stats.rack_count }}
-                    </button>
-                    <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="{% url 'dcim:rack_list' %}?site_id={{ object.pk }}">View Racks</a></li>
-                      <li><a class="dropdown-item" href="{% url 'dcim:rack_elevation_list' %}?site_id={{ object.pk }}">View Elevations</a></li>
-                    </ul>
-                  </div>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Devices</th>
-              <td class="text-end">
-                {% if stats.device_count %}
-                  <a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}">{{ stats.device_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Virtual Machines</th>
-              <td class="text-end">
-                {% if stats.vm_count %}
-                  <a href="{% url 'virtualization:virtualmachine_list' %}?site_id={{ object.pk }}">{{ stats.vm_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Prefixes</th>
-              <td class="text-end">
-                {% if stats.prefix_count %}
-                  <a href="{% url 'ipam:prefix_list' %}?site_id={{ object.pk }}">{{ stats.prefix_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">VLAN Groups</th>
-              <td class="text-end">
-                {% if stats.vlangroup_count %}
-                  <a href="{% url 'ipam:vlangroup_list' %}?site={{ object.pk }}">{{ stats.vlangroup_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">VLANs</th>
-              <td class="text-end">
-                {% if stats.vlan_count %}
-                  <a href="{% url 'ipam:vlan_list' %}?site_id={{ object.pk }}">{{ stats.vlan_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">ASNs</th>
-              <td class="text-end">
-                {% if stats.asn_count %}
-                  <a href="{% url 'ipam:asn_list' %}?site_id={{ object.pk }}">{{ stats.asn_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Circuits</th>
-              <td class="text-end">
-                {% if stats.circuit_count %}
-                <a href="{% url 'circuits:circuit_list' %}?site_id={{ object.pk }}">{{ stats.circuit_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-          </table>
-        </div>
-      </div>
-      {% include 'dcim/inc/nonracked_devices.html' %}
+      {% include 'inc/panels/related_objects.html' with filter_name='site_id' %}
       {% include 'inc/panels/contacts.html' %}
       <div class="card">
         <h5 class="card-header">Locations</h5>
@@ -276,40 +171,13 @@
           </div>
         {% endif %}
       </div>
-      <div class="card">
-        <h5 class="card-header">ASNs</h5>
-        <div class='card-body'>
-          {% if asns %}
-            <table class="table table-hover">
-              <tr>
-                <th>ASN</th>
-                <th>Description</th>
-              </tr>
-            {% for asn in asns %}
-              <tr>
-                <td>{{ asn|linkify }}</td>
-                <td>{{ asn.description|placeholder }}</td>
-              </tr>
-            {% endfor %}
-            </table>
-          {% else %}
-            <span class="text-muted">None</span>
-          {% endif %}
-        </div>
-        {% if perms.ipam.add_asn %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'ipam:asn_add' %}?sites={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add an ASN
-            </a>
-          </div>
-        {% endif %}
-      </div>
       {% include 'inc/panels/image_attachments.html' %}
       {% plugin_right_page object %}
 	</div>
 </div>
 <div class="row">
   <div class="col col-md-12">
+    {% include 'dcim/inc/nonracked_devices.html' %}
     {% plugin_full_width_page object %}
   </div>
 </div>

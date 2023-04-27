@@ -58,7 +58,9 @@ class ContactTable(NetBoxTable):
         linkify=linkify_phone,
     )
     comments = columns.MarkdownColumn()
-    assignment_count = tables.Column(
+    assignment_count = columns.LinkedCountColumn(
+        viewname='tenancy:contactassignment_list',
+        url_params={'contact_id': 'pk'},
         verbose_name='Assignments'
     )
     tags = columns.TagColumn(

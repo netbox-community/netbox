@@ -1,20 +1,24 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from drf_yasg.utils import swagger_serializer_method
 from rest_framework import serializers
 
+from core.api.serializers import JobSerializer
+from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
+from netbox.api.serializers.features import TaggableModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -28,12 +32,13 @@ from .nested_serializers import *
 
 __all__ = (
     'ConfigContextSerializer',
+    'ConfigTemplateSerializer',
     'ContentTypeSerializer',
     'CustomFieldSerializer',
     'CustomLinkSerializer',
+    'DashboardSerializer',
     'ExportTemplateSerializer',
     'ImageAttachmentSerializer',
-    'JobResultSerializer',
     'JournalEntrySerializer',
     'ObjectChangeSerializer',
     'ReportDetailSerializer',
@@ -64,9 +69,10 @@ class WebhookSerializer(ValidatedModelSerializer):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete', 'payload_url',
-            'enabled', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-            'conditions', 'ssl_verification', 'ca_file_path', 'created', 'last_updated',
+            'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
+            'type_job_start', 'type_job_end', 'payload_url', 'enabled', 'http_method', 'http_content_type',
+            'additional_headers', 'body_template', 'secret', 'conditions', 'ssl_verification', 'ca_file_path',
+            'created', 'last_updated',
         ]
 
 
@@ -93,8 +99,9 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         model = CustomField
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
-            'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'default', 'weight',
-            'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created', 'last_updated',
+            'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'default',
+            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
+            'last_updated',
         ]
 
     def validate_type(self, value):
@@ -103,6 +110,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
 
         return value
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_data_type(self, obj):
         types = CustomFieldTypeChoices
         if obj.type == types.TYPE_INTEGER:
@@ -147,12 +155,19 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
         many=True
     )
+    data_source = NestedDataSourceSerializer(
+        required=False
+    )
+    data_file = NestedDataFileSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = ExportTemplate
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'description', 'template_code', 'mime_type',
-            'file_extension', 'as_attachment', 'created', 'last_updated',
+            'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file', 'data_synced', 'created',
+            'last_updated',
         ]
 
 
@@ -223,7 +238,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_parent(self, obj):
         serializer = get_serializer_for_model(obj.parent, prefix=NESTED_SERIALIZER_PREFIX)
         return serializer(obj.parent, context={'request': self.context['request']}).data
@@ -273,7 +288,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
 
         return data
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
         serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
@@ -364,35 +379,41 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
+    data_source = NestedDataSourceSerializer(
+        required=False
+    )
+    data_file = NestedDataFileSerializer(
+        read_only=True
+    )
 
     class Meta:
         model = ConfigContext
         fields = [
             'id', 'url', 'display', 'name', 'weight', 'description', 'is_active', 'regions', 'site_groups', 'sites',
             'locations', 'device_types', 'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-            'tenant_groups', 'tenants', 'tags', 'data', 'created', 'last_updated',
+            'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path', 'data_file', 'data_synced', 'data',
+            'created', 'last_updated',
         ]
 
 
 #
-# Job Results
+# Config templates
 #
 
-class JobResultSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:jobresult-detail')
-    user = NestedUserSerializer(
-        read_only=True
+class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
+    data_source = NestedDataSourceSerializer(
+        required=False
     )
-    status = ChoiceField(choices=JobResultStatusChoices, read_only=True)
-    obj_type = ContentTypeField(
+    data_file = NestedDataFileSerializer(
         read_only=True
     )
 
     class Meta:
-        model = JobResult
+        model = ConfigTemplate
         fields = [
-            'id', 'url', 'display', 'status', 'created', 'scheduled', 'interval', 'started', 'completed', 'name',
-            'obj_type', 'user', 'data', 'job_id',
+            'id', 'url', 'display', 'name', 'description', 'environment_params', 'template_code', 'data_source',
+            'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         ]
 
 
@@ -411,16 +432,26 @@ class ReportSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=255)
     description = serializers.CharField(max_length=255, required=False)
     test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
-    result = NestedJobResultSerializer()
+    result = NestedJobSerializer()
 
 
 class ReportDetailSerializer(ReportSerializer):
-    result = JobResultSerializer()
+    result = JobSerializer()
 
 
 class ReportInputSerializer(serializers.Serializer):
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
     interval = serializers.IntegerField(required=False, allow_null=True)
+
+    def validate_schedule_at(self, value):
+        if value and not self.context['report'].scheduling_enabled:
+            raise serializers.ValidationError("Scheduling is not enabled for this report.")
+        return value
+
+    def validate_interval(self, value):
+        if value and not self.context['report'].scheduling_enabled:
+            raise serializers.ValidationError("Scheduling is not enabled for this report.")
+        return value
 
 
 #
@@ -438,9 +469,9 @@ class ScriptSerializer(serializers.Serializer):
     name = serializers.CharField(read_only=True)
     description = serializers.CharField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = NestedJobResultSerializer()
+    result = NestedJobSerializer()
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_vars(self, instance):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()
@@ -448,7 +479,7 @@ class ScriptSerializer(serializers.Serializer):
 
 
 class ScriptDetailSerializer(ScriptSerializer):
-    result = JobResultSerializer()
+    result = JobSerializer()
 
 
 class ScriptInputSerializer(serializers.Serializer):
@@ -456,6 +487,16 @@ class ScriptInputSerializer(serializers.Serializer):
     commit = serializers.BooleanField()
     schedule_at = serializers.DateTimeField(required=False, allow_null=True)
     interval = serializers.IntegerField(required=False, allow_null=True)
+
+    def validate_schedule_at(self, value):
+        if value and not self.context['script'].scheduling_enabled:
+            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+        return value
+
+    def validate_interval(self, value):
+        if value and not self.context['script'].scheduling_enabled:
+            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+        return value
 
 
 class ScriptLogMessageSerializer(serializers.Serializer):
@@ -501,7 +542,7 @@ class ObjectChangeSerializer(BaseModelSerializer):
             'changed_object_id', 'changed_object', 'prechange_data', 'postchange_data',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_changed_object(self, obj):
         """
         Serialize a nested representation of the changed object.
@@ -531,3 +572,13 @@ class ContentTypeSerializer(BaseModelSerializer):
     class Meta:
         model = ContentType
         fields = ['id', 'url', 'display', 'app_label', 'model']
+
+
+#
+# User dashboard
+#
+
+class DashboardSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dashboard
+        fields = ('layout', 'config')

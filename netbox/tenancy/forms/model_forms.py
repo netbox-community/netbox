@@ -2,9 +2,8 @@ from django import forms
 
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
-from utilities.forms import (
-    BootstrapMixin, CommentField, DynamicModelChoiceField, SlugField, SmallTextarea, StaticSelect,
-)
+from utilities.forms import BootstrapMixin
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
 
 __all__ = (
     'ContactAssignmentForm',
@@ -112,7 +111,7 @@ class ContactForm(NetBoxModelForm):
             'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments', 'tags',
         )
         widgets = {
-            'address': SmallTextarea(attrs={'rows': 3}),
+            'address': forms.Textarea(attrs={'rows': 3}),
         }
 
 
@@ -142,5 +141,4 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
         widgets = {
             'content_type': forms.HiddenInput(),
             'object_id': forms.HiddenInput(),
-            'priority': StaticSelect(),
         }

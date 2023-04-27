@@ -47,7 +47,10 @@ urlpatterns = [
     path('contacts/<int:pk>/', include(get_model_urls('tenancy', 'contact'))),
 
     # Contact assignments
+    path('contact-assignments/', views.ContactAssignmentListView.as_view(), name='contactassignment_list'),
     path('contact-assignments/add/', views.ContactAssignmentEditView.as_view(), name='contactassignment_add'),
+    path('contact-assignments/edit/', views.ContactAssignmentBulkEditView.as_view(), name='contactassignment_bulk_edit'),
+    path('contact-assignments/delete/', views.ContactAssignmentBulkDeleteView.as_view(), name='contactassignment_bulk_delete'),
     path('contact-assignments/<int:pk>/', include(get_model_urls('tenancy', 'contactassignment'))),
 
 ]

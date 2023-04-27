@@ -32,36 +32,6 @@
             <th scope="row">Weight</th>
             <td>{{ object.weight }}</td>
           </tr>
-          <tr>
-            <th scope="row">Prefixes</th>
-            <td>
-              <a href="{% url 'ipam:prefix_list' %}?role_id={{ object.pk }}">{{ prefixes_table.rows|length }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">IP Ranges</th>
-            <td>
-              {% with ipranges_count=object.ip_ranges.count %}
-                {% if ipranges_count %}
-                  <a href="{% url 'ipam:iprange_list' %}?role_id={{ object.pk }}">{{ ipranges_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              {% endwith %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">VLANs</th>
-            <td>
-              {% with vlans_count=object.vlans.count %}
-                {% if vlans_count %}
-                  <a href="{% url 'ipam:vlan_list' %}?role_id={{ object.pk }}">{{ vlans_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              {% endwith %}
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -69,19 +39,13 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Prefixes</h5>
-      <div class="card-body table-responsive">
-        {% render_table prefixes_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=prefixes_table.paginator page=prefixes_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

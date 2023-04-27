@@ -74,7 +74,6 @@ This template is used by the `ObjectView` generic view to display a single objec
 | `breadcrumbs`       | -        | Breadcrumb list items (HTML `<li>` elements) |
 | `object_identifier` | -        | A unique identifier (string) for the object  |
 | `extra_controls`    | -        | Additional action buttons to display         |
-| `extra_tabs`        | -        | Additional tabs to include                   |
 
 #### Context
 

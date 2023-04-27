@@ -1,10 +1,11 @@
 from django.forms import PasswordInput
 from django.utils.translation import gettext as _
-from dcim.models import Device, Interface, Location, Region, Site, SiteGroup
-from ipam.models import VLAN, VLANGroup
+
+from dcim.models import Device, Interface, Location, Site
+from ipam.models import VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import CommentField, DynamicModelChoiceField, SlugField, StaticSelect
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
 from wireless.models import *
 
 __all__ = (
@@ -39,55 +40,16 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
-    region = DynamicModelChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    site_group = DynamicModelChoiceField(
-        queryset=SiteGroup.objects.all(),
-        required=False,
-        initial_params={
-            'sites': '$site'
-        }
-    )
-    site = DynamicModelChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region',
-            'group_id': '$site_group',
-        }
-    )
-    vlan_group = DynamicModelChoiceField(
-        queryset=VLANGroup.objects.all(),
-        required=False,
-        label=_('VLAN group'),
-        null_option='None',
-        query_params={
-            'site': '$site'
-        },
-        initial_params={
-            'vlans': '$vlan'
-        }
-    )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
-        label=_('VLAN'),
-        query_params={
-            'site_id': '$site',
-            'group_id': '$vlan_group',
-        }
+        selector=True,
+        label=_('VLAN')
     )
     comments = CommentField()
 
     fieldsets = (
-        ('Wireless LAN', ('ssid', 'group', 'status', 'description', 'tags')),
-        ('VLAN', ('region', 'site_group', 'site', 'vlan_group', 'vlan',)),
+        ('Wireless LAN', ('ssid', 'group', 'vlan', 'status', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
         ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
     )
@@ -95,13 +57,10 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = WirelessLAN
         fields = [
-            'ssid', 'group', 'region', 'site_group', 'site', 'status', 'vlan_group', 'vlan', 'tenant_group', 'tenant',
-            'auth_type', 'auth_cipher', 'auth_psk', 'description', 'comments', 'tags',
+            'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
+            'description', 'comments', 'tags',
         ]
         widgets = {
-            'status': StaticSelect,
-            'auth_type': StaticSelect,
-            'auth_cipher': StaticSelect,
             'auth_psk': PasswordInput(
                 render_value=True,
                 attrs={'data-toggle': 'password'}
@@ -208,9 +167,6 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'comments', 'tags',
         ]
         widgets = {
-            'status': StaticSelect,
-            'auth_type': StaticSelect,
-            'auth_cipher': StaticSelect,
             'auth_psk': PasswordInput(
                 render_value=True,
                 attrs={'data-toggle': 'password'}

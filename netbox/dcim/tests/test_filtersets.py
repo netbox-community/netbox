@@ -699,9 +699,16 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0]),
+            Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1]),
+            Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2]),
+        )
+        Platform.objects.bulk_create(platforms)
+
         device_types = (
-            DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
-            DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[0], default_platform=platforms[0], model='Model 1', slug='model-1', part_number='Part Number 1', u_height=1, is_full_depth=True, front_image='front.png', rear_image='rear.png', weight=10, weight_unit=WeightUnitChoices.UNIT_POUND),
+            DeviceType(manufacturer=manufacturers[1], default_platform=platforms[1], model='Model 2', slug='model-2', part_number='Part Number 2', u_height=2, is_full_depth=True, subdevice_role=SubdeviceRoleChoices.ROLE_PARENT, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, weight=20, weight_unit=WeightUnitChoices.UNIT_POUND),
             DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', part_number='Part Number 3', u_height=3, is_full_depth=False, subdevice_role=SubdeviceRoleChoices.ROLE_CHILD, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, weight=30, weight_unit=WeightUnitChoices.UNIT_KILOGRAM),
         )
         DeviceType.objects.bulk_create(device_types)
@@ -783,6 +790,13 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_default_platform(self):
+        platforms = Platform.objects.all()[:2]
+        params = {'default_platform_id': [platforms[0].pk, platforms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'default_platform': [platforms[0].slug, platforms[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_has_front_image(self):
@@ -1128,11 +1142,36 @@ class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         DeviceType.objects.bulk_create(device_types)
 
-        InterfaceTemplate.objects.bulk_create((
-            InterfaceTemplate(device_type=device_types[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED, mgmt_only=True, poe_mode=InterfacePoEModeChoices.MODE_PD, poe_type=InterfacePoETypeChoices.TYPE_1_8023AF),
-            InterfaceTemplate(device_type=device_types[1], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_GBIC, mgmt_only=False, poe_mode=InterfacePoEModeChoices.MODE_PSE, poe_type=InterfacePoETypeChoices.TYPE_2_8023AT),
-            InterfaceTemplate(device_type=device_types[2], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_SFP, mgmt_only=False),
-        ))
+        interface_templates = (
+            InterfaceTemplate(
+                device_type=device_types[0],
+                name='Interface 1',
+                type=InterfaceTypeChoices.TYPE_1GE_FIXED,
+                enabled=True,
+                mgmt_only=True,
+                poe_mode=InterfacePoEModeChoices.MODE_PD,
+                poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
+            ),
+            InterfaceTemplate(
+                device_type=device_types[1],
+                name='Interface 2',
+                type=InterfaceTypeChoices.TYPE_1GE_GBIC,
+                enabled=False,
+                mgmt_only=False,
+                poe_mode=InterfacePoEModeChoices.MODE_PSE,
+                poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
+            ),
+            InterfaceTemplate(
+                device_type=device_types[2],
+                name='Interface 3',
+                type=InterfaceTypeChoices.TYPE_1GE_SFP,
+                mgmt_only=False
+            ),
+        )
+        InterfaceTemplate.objects.bulk_create(interface_templates)
+        interface_templates[0].bridge = interface_templates[1]
+        interface_templates[1].bridge = interface_templates[0]
+        InterfaceTemplate.objects.bulk_update(interface_templates, ['bridge'])
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
@@ -1147,11 +1186,21 @@ class InterfaceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'type': [InterfaceTypeChoices.TYPE_1GE_FIXED, InterfaceTypeChoices.TYPE_1GE_GBIC]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_enabled(self):
+        params = {'enabled': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_mgmt_only(self):
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'mgmt_only': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_bridge(self):
+        params = {'bridge_id': [InterfaceTemplate.objects.filter(bridge__isnull=False).first().bridge_id]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_poe_mode(self):
         params = {'poe_mode': [InterfacePoEModeChoices.MODE_PD, InterfacePoEModeChoices.MODE_PSE]}

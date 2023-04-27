@@ -2,7 +2,6 @@ from functools import partial
 
 import graphene
 from graphene_django import DjangoListField
-
 from .utils import get_graphene_type
 
 __all__ = (
@@ -56,10 +55,14 @@ class ObjectListField(DjangoListField):
     def list_resolver(django_object_type, resolver, default_manager, root, info, **args):
         queryset = super(ObjectListField, ObjectListField).list_resolver(django_object_type, resolver, default_manager, root, info, **args)
 
-        # Instantiate and apply the FilterSet, if defined
+        # if there are no filter params then don't need to filter
+        if not args:
+            return queryset
+
         filterset_class = django_object_type._meta.filterset_class
         if filterset_class:
-            filterset = filterset_class(data=args, queryset=queryset, request=info.context)
+            filterset = filterset_class(data=args if args else None, queryset=queryset, request=info.context)
+
             if not filterset.is_valid():
                 return queryset.none()
             return filterset.qs

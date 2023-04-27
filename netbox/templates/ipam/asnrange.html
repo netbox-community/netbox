@@ -1,0 +1,57 @@
+{% extends 'ipam/asnrange/base.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">ASN Range</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <td>Name</td>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <td>RIR</td>
+              <td>
+                <a href="{% url 'ipam:asnrange_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+              </td>
+            </tr>
+            <tr>
+              <td>Range</td>
+              <td>{{ object.range_as_string }}</td>
+            </tr>
+            <tr>
+              <td>Tenant</td>
+              <td>
+                {% if object.tenant.group %}
+                  {{ object.tenant.group|linkify }} /
+                {% endif %}
+                {{ object.tenant|linkify|placeholder }}
+              </td>
+            </tr>
+            <tr>
+              <td>Description</td>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+      {% include 'inc/panels/tags.html' %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock content %}

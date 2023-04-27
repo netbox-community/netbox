@@ -56,7 +56,7 @@ Below is the (rough) recommended order in which NetBox objects should be created
 4. Manufacturers, device types, and module types
 5. Platforms and device roles
 6. Devices and modules
-7. Providers and provider networks
+7. Providers, provider accounts, and provider networks
 8. Circuit types and circuits
 9. Wireless LAN groups and wireless LANs
 10. Route targets and VRFs

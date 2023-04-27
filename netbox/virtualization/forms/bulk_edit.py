@@ -7,10 +7,9 @@ from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    add_blank_choice, BulkEditNullBooleanSelect, BulkRenameForm, CommentField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, StaticSelect
-)
+from utilities.forms import BulkRenameForm, add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -62,8 +61,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         choices=add_blank_choice(ClusterStatusChoices),
         required=False,
-        initial='',
-        widget=StaticSelect()
+        initial=''
     )
     tenant = DynamicModelChoiceField(
         queryset=Tenant.objects.all(),
@@ -108,7 +106,6 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
-        widget=StaticSelect(),
     )
     site = DynamicModelChoiceField(
         queryset=Site.objects.all(),
@@ -206,8 +203,7 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     )
     mode = forms.ChoiceField(
         choices=add_blank_choice(InterfaceModeChoices),
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from netbox.api.serializers import WritableNestedSerializer
@@ -16,6 +17,9 @@ __all__ = [
 #
 
 
+@extend_schema_serializer(
+    exclude_fields=('cluster_count',),
+)
 class NestedClusterTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
     cluster_count = serializers.IntegerField(read_only=True)
@@ -25,6 +29,9 @@ class NestedClusterTypeSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'cluster_count']
 
 
+@extend_schema_serializer(
+    exclude_fields=('cluster_count',),
+)
 class NestedClusterGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
     cluster_count = serializers.IntegerField(read_only=True)
@@ -34,6 +41,9 @@ class NestedClusterGroupSerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'name', 'slug', 'cluster_count']
 
 
+@extend_schema_serializer(
+    exclude_fields=('virtualmachine_count',),
+)
 class NestedClusterSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
     virtualmachine_count = serializers.IntegerField(read_only=True)

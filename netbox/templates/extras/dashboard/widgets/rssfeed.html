@@ -1,0 +1,22 @@
+{% if not feed.bozo %}
+  <div class="list-group list-group-flush">
+    {% for entry in feed.entries %}
+      <div class="list-group-item px-1">
+        <h6><a href="{{ entry.link }}">{{ entry.title }}</a></h6>
+        <div>
+          {{ entry.summary|safe }}
+        </div>
+      </div>
+    {% empty %}
+      <div class="list-group-item text-muted">No content found</div>
+    {% endfor %}
+  </div>
+{% else %}
+  {# There was an error retrieving/parsing the feed #}
+  <span class="text-danger">
+    <i class="mdi mdi-alert"></i> There was a problem fetching the RSS feed:
+  </span>
+  <pre class="m-2">
+Response status: {{ feed.status }}
+Error: {{ feed.bozo_exception|escape }}</pre>
+{% endif %}

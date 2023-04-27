@@ -13,84 +13,160 @@ from tenancy.models import Tenant, TenantGroup
 from rest_framework import serializers
 
 
+class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ASNRange.objects.all()
+    filterset = ASNRangeFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        rirs = [
+            RIR(name='RIR 1', slug='rir-1'),
+            RIR(name='RIR 2', slug='rir-2'),
+            RIR(name='RIR 3', slug='rir-3'),
+        ]
+        RIR.objects.bulk_create(rirs)
+
+        tenants = [
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        ]
+        Tenant.objects.bulk_create(tenants)
+
+        asn_ranges = (
+            ASNRange(
+                name='ASN Range 1',
+                slug='asn-range-1',
+                rir=rirs[0],
+                tenant=None,
+                start=65000,
+                end=65009,
+                description='aaa'
+            ),
+            ASNRange(
+                name='ASN Range 2',
+                slug='asn-range-2',
+                rir=rirs[1],
+                tenant=tenants[0],
+                start=65010,
+                end=65019,
+                description='bbb'
+            ),
+            ASNRange(
+                name='ASN Range 3',
+                slug='asn-range-3',
+                rir=rirs[2],
+                tenant=tenants[1],
+                start=65020,
+                end=65029,
+                description='ccc'
+            ),
+        )
+        ASNRange.objects.bulk_create(asn_ranges)
+
+    def test_name(self):
+        params = {'name': ['ASN Range 1', 'ASN Range 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_rir(self):
+        rirs = RIR.objects.all()[:2]
+        params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_start(self):
+        params = {'start': [65000, 65010]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_end(self):
+        params = {'end': [65009, 65019]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['aaa', 'bbb']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ASN.objects.all()
     filterset = ASNFilterSet
 
     @classmethod
     def setUpTestData(cls):
-
         rirs = [
-            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
-            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+            RIR(name='RIR 1', slug='rir-1', is_private=True),
+            RIR(name='RIR 2', slug='rir-2', is_private=True),
+            RIR(name='RIR 3', slug='rir-3', is_private=True),
         ]
+        RIR.objects.bulk_create(rirs)
+
         sites = [
-            Site.objects.create(name='Site 1', slug='site-1'),
-            Site.objects.create(name='Site 2', slug='site-2'),
-            Site.objects.create(name='Site 3', slug='site-3')
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3')
         ]
+        Site.objects.bulk_create(sites)
+
         tenants = [
-            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
-            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
-            Tenant.objects.create(name='Tenant 3', slug='tenant-3'),
-            Tenant.objects.create(name='Tenant 4', slug='tenant-4'),
-            Tenant.objects.create(name='Tenant 5', slug='tenant-5'),
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+            Tenant(name='Tenant 4', slug='tenant-4'),
+            Tenant(name='Tenant 5', slug='tenant-5'),
         ]
+        Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=64512, rir=rirs[0], tenant=tenants[0], description='foobar1'),
-            ASN(asn=64513, rir=rirs[0], tenant=tenants[0], description='foobar2'),
-            ASN(asn=64514, rir=rirs[0], tenant=tenants[1]),
-            ASN(asn=64515, rir=rirs[0], tenant=tenants[2]),
-            ASN(asn=64516, rir=rirs[0], tenant=tenants[3]),
-            ASN(asn=65535, rir=rirs[1], tenant=tenants[4]),
+            ASN(asn=65001, rir=rirs[0], tenant=tenants[0], description='aaa'),
+            ASN(asn=65002, rir=rirs[1], tenant=tenants[1], description='bbb'),
+            ASN(asn=65003, rir=rirs[2], tenant=tenants[2], description='ccc'),
             ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=4200000001, rir=rirs[0], tenant=tenants[1]),
-            ASN(asn=4200000002, rir=rirs[0], tenant=tenants[2]),
-            ASN(asn=4200000003, rir=rirs[0], tenant=tenants[3]),
-            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[4]),
+            ASN(asn=4200000001, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=4200000002, rir=rirs[2], tenant=tenants[2]),
         )
         ASN.objects.bulk_create(asns)
 
         asns[0].sites.set([sites[0]])
-        asns[1].sites.set([sites[0]])
-        asns[2].sites.set([sites[1]])
-        asns[3].sites.set([sites[2]])
-        asns[4].sites.set([sites[0]])
-        asns[5].sites.set([sites[1]])
-        asns[6].sites.set([sites[0]])
-        asns[7].sites.set([sites[1]])
-        asns[8].sites.set([sites[2]])
-        asns[9].sites.set([sites[0]])
-        asns[10].sites.set([sites[1]])
+        asns[1].sites.set([sites[1]])
+        asns[2].sites.set([sites[2]])
+        asns[3].sites.set([sites[0]])
+        asns[4].sites.set([sites[1]])
+        asns[5].sites.set([sites[2]])
 
     def test_asn(self):
-        params = {'asn': ['64512', '65535']}
+        params = {'asn': [65001, 4200000000]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
         tenants = Tenant.objects.all()[:2]
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_rir(self):
-        rirs = RIR.objects.all()[:1]
-        params = {'rir_id': [rirs[0].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
-        params = {'rir': [rirs[0].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
+        rirs = RIR.objects.all()[:2]
+        params = {'rir_id': [rirs[0].pk, rirs[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'rir': [rirs[0].slug, rirs[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'site': [sites[0].slug, sites[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 9)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_description(self):
-        params = {'description': ['foobar1', 'foobar2']}
+        params = {'description': ['aaa', 'bbb']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

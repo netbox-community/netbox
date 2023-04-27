@@ -37,12 +37,13 @@
                 </table>
             </div>
         </div>
+        {% include 'inc/panels/tags.html' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/tags.html' %}
+        {% include 'inc/panels/related_objects.html' %}
         {% include 'inc/panels/comments.html' %}
+        {% include 'inc/panels/custom_fields.html' %}
         {% plugin_right_page object %}
     </div>
 </div>
@@ -50,10 +51,10 @@
   <div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">Circuits</h5>
-      <div class="card-body table-responsive">
-        {% render_table circuits_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
-      </div>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'circuits:circuit_list' %}?provider_network_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

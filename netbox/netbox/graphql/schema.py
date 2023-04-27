@@ -1,6 +1,7 @@
 import graphene
 
 from circuits.graphql.schema import CircuitsQuery
+from core.graphql.schema import CoreQuery
 from dcim.graphql.schema import DCIMQuery
 from extras.graphql.schema import ExtrasQuery
 from ipam.graphql.schema import IPAMQuery
@@ -14,6 +15,7 @@ from wireless.graphql.schema import WirelessQuery
 class Query(
     UsersQuery,
     CircuitsQuery,
+    CoreQuery,
     DCIMQuery,
     ExtrasQuery,
     IPAMQuery,

@@ -3,124 +3,87 @@
 {% load helpers %}
 {% load form_helpers %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    {% render_errors form %}
-    <form method="post">
-      {% csrf_token %}
-      {% for field in form.hidden_fields %}
-          {{ field }}
-      {% endfor %}
-      <div class="row my-3">
-          <div class="col col-md-5">
-              <div class="card h-100">
-                  <h5 class="card-header offset-sm-3">A Side</h5>
-                  <div class="card-body">
-                      {% render_field form.termination_a_region %}
-                      {% render_field form.termination_a_sitegroup %}
-                      {% render_field form.termination_a_site %}
-                      {% render_field form.termination_a_location %}
-                      {% if 'termination_a_rack' in form.fields %}
-                          {% render_field form.termination_a_rack %}
-                      {% endif %}
-                      {% if 'termination_a_device' in form.fields %}
-                          {% render_field form.termination_a_device %}
-                      {% endif %}
-                      {% if 'termination_a_powerpanel' in form.fields %}
-                          {% render_field form.termination_a_powerpanel %}
-                      {% endif %}
-                      {% if 'termination_a_provider' in form.fields %}
-                          {% render_field form.termination_a_provider %}
-                      {% endif %}
-                      {% if 'termination_a_circuit' in form.fields %}
-                          {% render_field form.termination_a_circuit %}
-                      {% endif %}
-                      {% render_field form.a_terminations %}
-                  </div>
-              </div>
-          </div>
-          <div class="col col-md-2 flex-column justify-content-center align-items-center d-none d-md-flex">
-              <i class="mdi mdi-swap-horizontal-bold mdi-48px"></i>
-          </div>
-          <div class="col col-md-5">
-              <div class="card h-100">
-                  <h5 class="card-header offset-sm-3">B Side</h5>
-                  <div class="card-body">
-                      {% render_field form.termination_b_region %}
-                      {% render_field form.termination_b_sitegroup %}
-                      {% render_field form.termination_b_site %}
-                      {% render_field form.termination_b_location %}
-                      {% if 'termination_b_rack' in form.fields %}
-                          {% render_field form.termination_b_rack %}
-                      {% endif %}
-                      {% if 'termination_b_device' in form.fields %}
-                          {% render_field form.termination_b_device %}
-                      {% endif %}
-                      {% if 'termination_b_powerpanel' in form.fields %}
-                          {% render_field form.termination_b_powerpanel %}
-                      {% endif %}
-                      {% if 'termination_b_provider' in form.fields %}
-                          {% render_field form.termination_b_provider %}
-                      {% endif %}
-                      {% if 'termination_b_circuit' in form.fields %}
-                          {% render_field form.termination_b_circuit %}
-                      {% endif %}
-                      {% render_field form.b_terminations %}
-                  </div>
-              </div>
-          </div>
-      </div>
-      <div class="row my-3 justify-content-center">
-        <div class="col col-md-8">
-          <div class="card">
-            <h5 class="card-header offset-sm-3">Cable</h5>
-            <div class="card-body">
-              {% render_field form.status %}
-              {% render_field form.type %}
-              {% render_field form.tenant_group %}
-              {% render_field form.tenant %}
-              {% render_field form.label %}
-              {% render_field form.description %}
-              {% render_field form.color %}
-              <div class="row mb-3">
-                <label class="col-sm-3 col-form-label text-lg-end">{{ form.length.label }}</label>
-                <div class="col-md-5">
-                  {{ form.length }}
-                </div>
-                <div class="col-md-4">
-                  {{ form.length_unit }}
-                </div>
-                <div class="invalid-feedback"></div>
-              </div>
-              {% render_field form.tags %}
-            </div>
-          </div>
-            <div class="card">
-              <h5 class="card-header text-center">Comments</h5>
-              <div class="card-body">
-                {% render_field form.comments %}
-              </div>
-            </div>
-          {% if form.custom_fields %}
-            <div class="card">
-              <h5 class="card-header offset-sm-3">Custom Fields</h5>
-              <div class="card-body">
-                {% render_custom_fields form %}
-              </div>
-            </div>
-          {% endif %}
-        </div>
-      </div>
-      <div class="row my-3">
-        <div class="col col-md-12 text-center">
-          {% if object.pk %}
-            <button type="submit" name="_update" class="btn btn-primary">Save</button>
-          {% else %}
-            <button type="submit" name="_create" class="btn btn-primary">Create</button>
-          {% endif %}
-          <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-        </div>
-      </div>
-    </form>
+{% block form %}
+
+  {# A side termination #}
+  <div class="field-group mb-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">A Side</h5>
+    </div>
+    {% if 'termination_a_device' in form.fields %}
+      {% render_field form.termination_a_device %}
+    {% endif %}
+    {% if 'termination_a_powerpanel' in form.fields %}
+      {% render_field form.termination_a_powerpanel %}
+    {% endif %}
+    {% if 'termination_a_circuit' in form.fields %}
+      {% render_field form.termination_a_circuit %}
+    {% endif %}
+    {% render_field form.a_terminations %}
   </div>
+
+  {# B side termination #}
+  <div class="field-group mb-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">B Side</h5>
+    </div>
+    {% if 'termination_b_device' in form.fields %}
+      {% render_field form.termination_b_device %}
+    {% endif %}
+    {% if 'termination_b_powerpanel' in form.fields %}
+      {% render_field form.termination_b_powerpanel %}
+    {% endif %}
+    {% if 'termination_b_circuit' in form.fields %}
+      {% render_field form.termination_b_circuit %}
+    {% endif %}
+    {% render_field form.b_terminations %}
+  </div>
+
+  {# Cable attributes #}
+  <div class="field-group mb-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Cable</h5>
+    </div>
+    {% render_field form.status %}
+    {% render_field form.type %}
+    {% render_field form.label %}
+    {% render_field form.description %}
+    {% render_field form.color %}
+    <div class="row mb-3">
+      <label class="col-sm-3 col-form-label text-lg-end">{{ form.length.label }}</label>
+      <div class="col-md-5">
+        {{ form.length }}
+      </div>
+      <div class="col-md-4">
+        {{ form.length_unit }}
+      </div>
+      <div class="invalid-feedback"></div>
+    </div>
+    {% render_field form.tags %}
+  </div>
+
+  <div class="field-group mb-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">Tenancy</h5>
+    </div>
+    {% render_field form.tenant_group %}
+    {% render_field form.tenant %}
+  </div>
+
+  {% if form.custom_fields %}
+    <div class="field-group mb-5">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Custom Fields</h5>
+      </div>
+      {% render_custom_fields form %}
+    </div>
+  {% endif %}
+
+  {% if form.comments %}
+    <div class="field-group mb-5">
+      <h5 class="text-center">Comments</h5>
+      {% render_field form.comments %}
+    </div>
+  {% endif %}
+
 {% endblock %}

@@ -16,8 +16,8 @@
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
           <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=class_name %}">{{ script }}</a></li>
-          <li class="breadcrumb-item">{{ result.created|annotated_date }}</li>
+          <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
+          <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
         </ol>
       </nav>
     </div>
@@ -28,8 +28,8 @@
 {% block controls %}
   <div class="controls">
     <div class="control-group">
-      {% if request.user|can_delete:result %}
-        {% delete_button result %}
+      {% if request.user|can_delete:job %}
+        {% delete_button job %}
       {% endif %}
     </div>
   </div>
@@ -47,7 +47,7 @@
   <div class="tab-content mb-3">
     <div role="tabpanel" class="tab-pane active" id="log">
       <div class="row">
-        <div class="col col-md-12"{% if not result.completed %} hx-get="{% url 'extras:script_result' job_result_pk=result.pk %}" hx-trigger="every 5s"{% endif %}>
+        <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="every 5s"{% endif %}>
           {% include 'extras/htmx/script_result.html' %}
         </div>
       </div>

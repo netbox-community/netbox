@@ -10,6 +10,7 @@ import { initDateSelector } from './dateSelector';
 import { initTableConfig } from './tableConfig';
 import { initInterfaceTable } from './tables';
 import { initSideNav } from './sidenav';
+import { initDashboard } from './dashboard';
 import { initRackElevation } from './racks';
 import { initLinks } from './links';
 import { initHtmx } from './htmx';
@@ -28,6 +29,7 @@ function initDocument(): void {
     initTableConfig,
     initInterfaceTable,
     initSideNav,
+    initDashboard,
     initRackElevation,
     initLinks,
     initHtmx,

@@ -8,6 +8,7 @@ from django.urls import reverse
 
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
+from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
 from utilities.choices import ImportFormatChoices
 from .base import ModelTestCase
@@ -350,12 +351,13 @@ class ViewTestCases:
                 self._get_queryset().get(pk=instance.pk)
 
             # Verify ObjectChange creation
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_DELETE)
+            if issubclass(instance.__class__, ChangeLoggingMixin):
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_DELETE)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_delete_object_with_constrained_permission(self):
@@ -590,7 +592,7 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
@@ -615,7 +617,7 @@ class ViewTestCases:
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
             # Test POST with permission
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
             self.assertEqual(initial_count, self._get_queryset().count())
 
             reader = csv.DictReader(array, delimiter=',')
@@ -657,7 +659,7 @@ class ViewTestCases:
             obj_perm.save()
 
             # Import permitted objects
-            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
             self.assertEqual(self._get_queryset().count(), initial_count + len(self.csv_data) - 1)
 
     class BulkEditObjectsViewTestCase(ModelViewTestCase):

@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from netbox.api.serializers import WritableNestedSerializer
@@ -10,6 +11,9 @@ __all__ = (
 )
 
 
+@extend_schema_serializer(
+    exclude_fields=('wirelesslan_count',),
+)
 class NestedWirelessLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslangroup-detail')
     wirelesslan_count = serializers.IntegerField(read_only=True)

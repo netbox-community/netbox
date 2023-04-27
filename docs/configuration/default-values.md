@@ -1,5 +1,50 @@
 # Default Value Parameters
 
+## DEFAULT_DASHBOARD
+
+This parameter controls the content and layout of user's default dashboard. Once the dashboard has been created, the user is free to customize it as they please by adding, removing, and reconfiguring widgets.
+
+This parameter must specify an iterable of dictionaries, each representing a discrete dashboard widget and its configuration. The follow widget attributes are supported:
+
+* `widget`: Dotted path to the Python class (required)
+* `width`: Default widget width (between 1 and 12, inclusive)
+* `height`: Default widget height, in rows
+* `title`: Widget title
+* `color`: Color of the widget's title bar, specified by name
+* `config`: Dictionary mapping of any widget configuration parameters
+
+A brief example configuration is provided below.
+
+```python
+DEFAULT_DASHBOARD = [
+    {
+        'widget': 'extras.ObjectCountsWidget',
+        'width': 4,
+        'height': 2,
+        'title': 'Organization',
+        'config': {
+            'models': [
+                'dcim.site',
+                'tenancy.tenant',
+                'tenancy.contact',
+            ]
+        }
+    },
+    {
+        'widget': 'extras.ObjectCountsWidget',
+        'title': 'IPAM',
+        'color': 'blue',
+        'config': {
+            'models': [
+                'ipam.prefix',
+                'ipam.iprange',
+                'ipam.ipaddress',
+            ]
+        }
+    },
+]
+```
+
 ## DEFAULT_USER_PREFERENCES
 
 !!! tip "Dynamic Configuration Parameter"

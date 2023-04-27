@@ -43,12 +43,9 @@
       </div>
       <div class="tab-content p-0 border-0">
         <div class="tab-pane{% if not site_tab_active %} active{% endif %}" id="group">
-          {% render_field form.scope_type %}
           {% render_field form.group %}
         </div>
         <div class="tab-pane{% if site_tab_active %} active{% endif %}" id="site">
-          {% render_field form.region %}
-          {% render_field form.sitegroup %}
           {% render_field form.site %}
         </div>
       </div>

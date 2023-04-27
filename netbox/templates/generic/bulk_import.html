@@ -15,13 +15,18 @@ Context:
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="data-import-tab" data-bs-toggle="tab" data-bs-target="#data-import-form" data-href="#tab_data-import-form" type="button" role="tab" aria-controls="data-import-form" aria-selected="true">
-        Data Import
+      <button class="nav-link active" id="import-form-tab" data-bs-toggle="tab" data-bs-target="#import-form" data-href="#tab_import-form" type="button" role="tab" aria-controls="import-form" aria-selected="true">
+        Direct Import
       </button>
     </li>
     <li class="nav-item" role="presentation">
-      <button class="nav-link" id="file-upload-tab" data-bs-toggle="tab" data-bs-target="#file-upload-form" data-href="#tab_file-upload-form" type="button" role="tab" aria-controls="file-upload-form" aria-selected="false">
+      <button class="nav-link" id="upload-form-tab" data-bs-toggle="tab" data-bs-target="#upload-form" data-href="#tab_upload-form" type="button" role="tab" aria-controls="upload-form" aria-selected="false">
         Upload File
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="datafile-form-tab" data-bs-toggle="tab" data-bs-target="#datafile-form" data-href="#tab_datafile-form" type="button" role="tab" aria-controls="datafile-form" aria-selected="false">
+        Data File
       </button>
     </li>
   </ul>
@@ -31,45 +36,66 @@ Context:
   <div class="tab-content">
 
     {# Data Import Form #}
-    <div class="tab-pane show active" id="data-import-form" role="tabpanel" aria-labelledby="data-import-tab">
-      {% block content %}
-          <div class="row">
-              <div class="col col-md-12 col-lg-10">
-                  <form action="" method="post" enctype="multipart/form-data" class="form">
-                    {% csrf_token %}
-                    {% render_field form.data %}
-                    {% render_field form.format %}
-                    <div class="form-group">
-                      <div class="col col-md-12 text-end">
-                        <button type="submit" name="data_submit" class="btn btn-primary">Submit</button>
-                        {% if return_url %}
-                          <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </form>
+    <div class="tab-pane show active" id="import-form" role="tabpanel" aria-labelledby="import-form-tab">
+      <div class="row">
+        <div class="col col-md-12 col-lg-10 offset-lg-1">
+          <form action="" method="post" enctype="multipart/form-data" class="form">
+            {% csrf_token %}
+            <input type="hidden" name="import_method" value="direct" />
+            {% render_field form.data %}
+            {% render_field form.format %}
+            <div class="form-group">
+              <div class="col col-md-12 text-end">
+                <button type="submit" name="data_submit" class="btn btn-primary">Submit</button>
+                {% if return_url %}
+                  <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                {% endif %}
               </div>
-          </div>
-      {% endblock content %}
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     {# File Upload Form #}
-    <div class="tab-pane show" id="file-upload-form" role="tabpanel" aria-labelledby="file-upload-tab">
-              <div class="col col-md-12 col-lg-10">
-                  <form action="" method="post" enctype="multipart/form-data" class="form">
-                    {% csrf_token %}
-                    {% render_field form.data_file %}
-                    {% render_field form.format %}
-                    <div class="form-group">
-                      <div class="col col-md-12 text-end">
-                        <button type="submit" name="file_submit" class="btn btn-primary">Submit</button>
-                        {% if return_url %}
-                          <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                        {% endif %}
-                      </div>
-                    </div>
-                  </form>
-              </div>
+    <div class="tab-pane show" id="upload-form" role="tabpanel" aria-labelledby="upload-form-tab">
+      <div class="col col-md-12 col-lg-10 offset-lg-1">
+        <form action="" method="post" enctype="multipart/form-data" class="form">
+          {% csrf_token %}
+          <input type="hidden" name="import_method" value="upload" />
+          {% render_field form.upload_file %}
+          {% render_field form.format %}
+          <div class="form-group">
+            <div class="col col-md-12 text-end">
+              <button type="submit" name="file_submit" class="btn btn-primary">Submit</button>
+              {% if return_url %}
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+              {% endif %}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    {# DataFile Form #}
+    <div class="tab-pane show" id="datafile-form" role="tabpanel" aria-labelledby="datafile-form-tab">
+      <div class="col col-md-12 col-lg-10 offset-lg-1">
+        <form action="" method="post" enctype="multipart/form-data" class="form">
+          {% csrf_token %}
+          <input type="hidden" name="import_method" value="datafile" />
+          {% render_field form.data_source %}
+          {% render_field form.data_file %}
+          {% render_field form.format %}
+          <div class="form-group">
+            <div class="col col-md-12 text-end">
+              <button type="submit" name="file_submit" class="btn btn-primary">Submit</button>
+              {% if return_url %}
+                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+              {% endif %}
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
 
     {% if fields %}

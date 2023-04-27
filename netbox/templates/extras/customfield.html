@@ -60,6 +60,10 @@
             <th scope="row">UI Visibility</th>
             <td>{{ object.get_ui_visibility_display }}</td>
           </tr>
+          <tr>
+            <th scope="row">Cloneable</th>
+            <td>{% checkmark object.is_cloneable %}</td>
+          </tr>
         </table>
       </div>
     </div>

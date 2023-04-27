@@ -1,0 +1,21 @@
+{% load helpers %}
+
+<div class="card">
+  <h5 class="card-header">Related Objects</h5>
+  <ul class="list-group list-group-flush">
+    {% for qs, filter_param in related_models %}
+      {% with viewname=qs.model|viewname:"list" %}
+        <a href="{% url viewname %}?{{ filter_param }}={{ object.pk }}" class="list-group-item list-group-item-action d-flex justify-content-between">
+          {{ qs.model|meta:"verbose_name_plural"|bettertitle }}
+          {% with count=qs.count %}
+            {% if count %}
+              <span class="badge bg-primary rounded-pill">{{ count }}</span>
+            {% else %}
+              <span class="badge bg-light rounded-pill">&mdash;</span>
+            {% endif %}
+          {% endwith %}
+        </a>
+      {% endwith %}
+    {% endfor %}
+  </ul>
+</div>

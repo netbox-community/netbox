@@ -27,7 +27,6 @@ The following context data is available within the template when rendering a cus
 | Variable  | Description                                                                                                       |
 |-----------|-------------------------------------------------------------------------------------------------------------------|
 | `object`  | The NetBox object being displayed                                                                                 |
-| `obj`     | Same as `object`; maintained for backward compatability until NetBox v3.5                                         |
 | `debug`   | A boolean indicating whether debugging is enabled                                                                 |
 | `request` | The current WSGI request                                                                                          |
 | `user`    | The current user (if authenticated)                                                                               |

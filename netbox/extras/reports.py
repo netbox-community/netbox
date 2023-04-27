@@ -1,106 +1,60 @@
 import inspect
 import logging
-import pkgutil
 import traceback
 from datetime import timedelta
 
-from django.conf import settings
 from django.utils import timezone
+from django.utils.functional import classproperty
 from django_rq import job
 
-from .choices import JobResultStatusChoices, LogLevelChoices
-from .models import JobResult
+from core.choices import JobStatusChoices
+from core.models import Job
+from .choices import LogLevelChoices
+from .models import ReportModule
+
+__all__ = (
+    'Report',
+    'get_module_and_report',
+    'run_report',
+)
 
 logger = logging.getLogger(__name__)
 
 
-def is_report(obj):
-    """
-    Returns True if the given object is a Report.
-    """
-    return obj in Report.__subclasses__()
-
-
-def get_report(module_name, report_name):
-    """
-    Return a specific report from within a module.
-    """
-    reports = get_reports()
-    module = reports.get(module_name)
-
-    if module is None:
-        return None
-
-    report = module.get(report_name)
-
-    if report is None:
-        return None
-
-    return report
-
-
-def get_reports():
-    """
-    Compile a list of all reports available across all modules in the reports path. Returns a list of tuples:
-
-    [
-        (module_name, (report, report, report, ...)),
-        (module_name, (report, report, report, ...)),
-        ...
-    ]
-    """
-    module_list = {}
-
-    # Iterate through all modules within the reports path. These are the user-created files in which reports are
-    # defined.
-    for importer, module_name, _ in pkgutil.iter_modules([settings.REPORTS_ROOT]):
-        module = importer.find_module(module_name).load_module(module_name)
-        report_order = getattr(module, "report_order", ())
-        ordered_reports = [cls() for cls in report_order if is_report(cls)]
-        unordered_reports = [cls() for _, cls in inspect.getmembers(module, is_report) if cls not in report_order]
-
-        module_reports = {}
-
-        for cls in [*ordered_reports, *unordered_reports]:
-            # For reports in submodules use the full import path w/o the root module as the name
-            report_name = cls.full_name.split(".", maxsplit=1)[1]
-            module_reports[report_name] = cls
-
-        if module_reports:
-            module_list[module_name] = module_reports
-
-    return module_list
+def get_module_and_report(module_name, report_name):
+    module = ReportModule.objects.get(file_path=f'{module_name}.py')
+    report = module.reports.get(report_name)
+    return module, report
 
 
 @job('default')
-def run_report(job_result, *args, **kwargs):
+def run_report(job, *args, **kwargs):
     """
     Helper function to call the run method on a report. This is needed to get around the inability to pickle an instance
     method for queueing into the background processor.
     """
-    module_name, report_name = job_result.name.split('.', 1)
-    report = get_report(module_name, report_name)
+    job.start()
+
+    module = ReportModule.objects.get(pk=job.object_id)
+    report = module.reports.get(job.name)()
 
     try:
-        job_result.start()
-        report.run(job_result)
+        report.run(job)
     except Exception:
-        job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-        job_result.save()
-        logging.error(f"Error during execution of report {job_result.name}")
+        job.terminate(status=JobStatusChoices.STATUS_ERRORED)
+        logging.error(f"Error during execution of report {job.name}")
     finally:
         # Schedule the next job if an interval has been set
-        start_time = job_result.scheduled or job_result.started
-        if start_time and job_result.interval:
-            new_scheduled_time = start_time + timedelta(minutes=job_result.interval)
-            JobResult.enqueue_job(
+        if job.interval:
+            new_scheduled_time = job.scheduled + timedelta(minutes=job.interval)
+            Job.enqueue(
                 run_report,
-                name=job_result.name,
-                obj_type=job_result.obj_type,
-                user=job_result.user,
+                instance=job.object,
+                name=job.name,
+                user=job.user,
                 job_timeout=report.job_timeout,
                 schedule_at=new_scheduled_time,
-                interval=job_result.interval
+                interval=job.interval
             )
 
 
@@ -129,6 +83,7 @@ class Report(object):
     }
     """
     description = None
+    scheduling_enabled = True
     job_timeout = None
 
     def __init__(self):
@@ -137,7 +92,7 @@ class Report(object):
         self.active_test = None
         self.failed = False
 
-        self.logger = logging.getLogger(f"netbox.reports.{self.full_name}")
+        self.logger = logging.getLogger(f"netbox.reports.{self.__module__}.{self.__class__.__name__}")
 
         # Compile test methods and initialize results skeleton
         test_methods = []
@@ -155,13 +110,17 @@ class Report(object):
             raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods
 
-    @property
+    @classproperty
     def module(self):
         return self.__module__
 
-    @property
+    @classproperty
     def class_name(self):
-        return self.__class__.__name__
+        return self.__name__
+
+    @classproperty
+    def full_name(self):
+        return f'{self.module}.{self.class_name}'
 
     @property
     def name(self):
@@ -171,8 +130,16 @@ class Report(object):
         return self.class_name
 
     @property
-    def full_name(self):
-        return f'{self.module}.{self.class_name}'
+    def filename(self):
+        return inspect.getfile(self.__class__)
+
+    @property
+    def source(self):
+        return inspect.getsource(self.__class__)
+
+    #
+    # Logging methods
+    #
 
     def _log(self, obj, message, level=LogLevelChoices.LOG_DEFAULT):
         """
@@ -229,40 +196,38 @@ class Report(object):
         self.logger.info(f"Failure | {obj}: {message}")
         self.failed = True
 
-    def run(self, job_result):
+    #
+    # Run methods
+    #
+
+    def run(self, job):
         """
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
-        job_result.status = JobResultStatusChoices.STATUS_RUNNING
-        job_result.save()
 
         # Perform any post-run tasks
         self.pre_run()
 
         try:
-
             for method_name in self.test_methods:
                 self.active_test = method_name
                 test_method = getattr(self, method_name)
                 test_method()
-
             if self.failed:
                 self.logger.warning("Report failed")
-                job_result.status = JobResultStatusChoices.STATUS_FAILED
+                job.status = JobStatusChoices.STATUS_FAILED
             else:
                 self.logger.info("Report completed successfully")
-                job_result.status = JobResultStatusChoices.STATUS_COMPLETED
-
+                job.status = JobStatusChoices.STATUS_COMPLETED
         except Exception as e:
             stacktrace = traceback.format_exc()
             self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
             logger.error(f"Exception raised during report execution: {e}")
-            job_result.set_status(JobResultStatusChoices.STATUS_ERRORED)
-
-        job_result.data = self._results
-        job_result.completed = timezone.now()
-        job_result.save()
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED)
+        finally:
+            job.data = self._results
+            job.terminate()
 
         # Perform any post-run tasks
         self.post_run()

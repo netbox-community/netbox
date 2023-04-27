@@ -21,6 +21,118 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class ASNRangeTest(APIViewTestCases.APIViewTestCase):
+    model = ASNRange
+    brief_fields = ['display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        rirs = (
+            RIR(name='RIR 1', slug='rir-1', is_private=True),
+            RIR(name='RIR 2', slug='rir-2', is_private=True),
+        )
+        RIR.objects.bulk_create(rirs)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        asn_ranges = (
+            ASNRange(name='ASN Range 1', slug='asn-range-1', rir=rirs[0], tenant=tenants[0], start=100, end=199),
+            ASNRange(name='ASN Range 2', slug='asn-range-2', rir=rirs[0], tenant=tenants[0], start=200, end=299),
+            ASNRange(name='ASN Range 3', slug='asn-range-3', rir=rirs[0], tenant=tenants[0], start=300, end=399),
+        )
+        ASNRange.objects.bulk_create(asn_ranges)
+
+        cls.create_data = [
+            {
+                'name': 'ASN Range 4',
+                'slug': 'asn-range-4',
+                'rir': rirs[1].pk,
+                'start': 400,
+                'end': 499,
+                'tenant': tenants[1].pk,
+            },
+            {
+                'name': 'ASN Range 5',
+                'slug': 'asn-range-5',
+                'rir': rirs[1].pk,
+                'start': 500,
+                'end': 599,
+                'tenant': tenants[1].pk,
+            },
+            {
+                'name': 'ASN Range 6',
+                'slug': 'asn-range-6',
+                'rir': rirs[1].pk,
+                'start': 600,
+                'end': 699,
+                'tenant': tenants[1].pk,
+            },
+        ]
+
+    def test_list_available_asns(self):
+        """
+        Test retrieval of all available ASNs within a parent range.
+        """
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.view_asn')
+
+        response = self.client.get(url, **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 10)
+
+    def test_create_single_available_asn(self):
+        """
+        Test creation of the first available ASN within a range.
+        """
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn')
+
+        data = {
+            'description': 'New ASN'
+        }
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(response.data['rir']['id'], asnrange.rir.pk)
+        self.assertEqual(response.data['description'], data['description'])
+
+    def test_create_multiple_available_asns(self):
+        """
+        Test the creation of several available ASNs within a parent range.
+        """
+        rir = RIR.objects.first()
+        asnrange = ASNRange.objects.create(name='Range 1', slug='range-1', rir=rir, start=101, end=110)
+        url = reverse('ipam-api:asnrange-available-asns', kwargs={'pk': asnrange.pk})
+        self.add_permissions('ipam.view_asnrange', 'ipam.add_asn')
+
+        # Try to create eleven ASNs (only ten are available)
+        data = [
+            {'description': f'New ASN {i}'}
+            for i in range(1, 12)
+        ]
+        assert len(data) == 11
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_409_CONFLICT)
+        self.assertIn('detail', response.data)
+
+        # Create all ten available ASNs in a single request
+        data.pop()
+        assert len(data) == 10
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(len(response.data), 10)
+
+
 class ASNTest(APIViewTestCases.APIViewTestCase):
     model = ASN
     brief_fields = ['asn', 'display', 'id', 'url']
@@ -30,25 +142,29 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        rirs = (
+            RIR(name='RIR 1', slug='rir-1', is_private=True),
+            RIR(name='RIR 2', slug='rir-2', is_private=True),
+        )
+        RIR.objects.bulk_create(rirs)
 
-        rirs = [
-            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
-            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
-        ]
-        sites = [
-            Site.objects.create(name='Site 1', slug='site-1'),
-            Site.objects.create(name='Site 2', slug='site-2')
-        ]
-        tenants = [
-            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
-            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
-        ]
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2')
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=65534, rir=rirs[0], tenant=tenants[1]),
-            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=65000, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65001, rir=rirs[0], tenant=tenants[1]),
+            ASN(asn=4200000000, rir=rirs[1], tenant=tenants[0]),
+            ASN(asn=4200000001, rir=rirs[1], tenant=tenants[1]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -63,12 +179,12 @@ class ASNTest(APIViewTestCases.APIViewTestCase):
                 'rir': rirs[0].pk,
             },
             {
-                'asn': 65543,
+                'asn': 65002,
                 'rir': rirs[0].pk,
             },
             {
-                'asn': 4294967294,
-                'rir': rirs[0].pk,
+                'asn': 4200000002,
+                'rir': rirs[1].pk,
             },
         ]
 

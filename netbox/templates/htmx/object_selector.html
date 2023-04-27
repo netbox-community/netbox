@@ -1,0 +1,32 @@
+{% load form_helpers %}
+
+<div class="modal-header">
+  <h5 class="modal-title">Select {{ model|meta:"verbose_name"|bettertitle }}</h5>
+  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+<div class="modal-body row">
+  <div class="col-3">
+    <div class="list-group list-group-flush">
+      {% for field in form.visible_fields %}
+        <a href="#" class="list-group-item list-group-item-action px-0 py-1" data-bs-toggle="collapse" data-bs-target="#checkmark{{ forloop.counter }}, #selector{{ forloop.counter }}">
+          <span id="checkmark{{ forloop.counter }}" class="collapse{% if forloop.counter < 3 %} show{% endif %}"><i class="mdi mdi-check-bold"></i></span>
+          {{ field.label }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-9">
+    <form hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"label_lower" }}" hx-target="#selector_results" hx-trigger="load, submit, keyup from:#id_q delay:500ms">
+      <input type="hidden" name="_search" value="true" />
+      <div class="tab-content p-1">
+        {% for field in form.visible_fields %}
+          <div class="collapse{% if forloop.counter < 3 %} show{% endif %}" id="selector{{ forloop.counter }}">{% render_field field %}</div>
+        {% endfor %}
+      </div>
+      <div class="text-end">
+        <button type="submit" class="btn btn-sm btn-primary">Search</button>
+      </div>
+    </form>
+    <div id="selector_results" class="mt-3" data-selector-target="{{ target_id }}"></div>
+  </div>
+</div>

@@ -35,11 +35,8 @@ class MyScript(Script):
 
 The `run()` method should accept two arguments:
 
-* `data` - A dictionary containing all of the variable data passed via the web form.
+* `data` - A dictionary containing all the variable data passed via the web form.
 * `commit` - A boolean indicating whether database changes will be committed.
-
-!!! note
-    The `commit` argument was introduced in NetBox v2.7.8. Backward compatibility is maintained for scripts which accept only the `data` argument, however beginning with v2.10 NetBox will require the `run()` method of every script to accept both arguments. (Either argument may still be ignored within the method.)
 
 Defining script variables is optional: You may create a script with only a `run()` method if no user input is needed.
 
@@ -104,11 +101,13 @@ The checkbox to commit database changes when executing a script is checked by de
 commit_default = False
 ```
 
+### `scheduling_enabled`
+
+By default, a script can be scheduled for execution at a later time. Setting `scheduling_enabled` to False disables this ability: Only immediate execution will be possible. (This also disables the ability to set a recurring execution interval.)
+
 ### `job_timeout`
 
 Set the maximum allowed runtime for the script. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
-
-!!! info "This feature was introduced in v3.2.1"
 
 ## Accessing Request Data
 

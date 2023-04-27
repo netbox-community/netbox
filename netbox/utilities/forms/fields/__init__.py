@@ -1,3 +1,4 @@
+from .array import *
 from .content_types import *
 from .csv import *
 from .dynamic import *

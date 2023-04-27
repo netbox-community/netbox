@@ -43,20 +43,8 @@
             <td>{% checkmark object.vm_role %}</td>
           </tr>
           <tr>
-            <th scope="row">Devices</th>
-            <td>
-              <a href="{% url 'dcim:device_list' %}?role_id={{ object.pk }}">{{ device_count }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th>Virtual Machines</th>
-            <td>
-              {% if object.vm_role %}
-                <a href="{% url 'virtualization:virtualmachine_list' %}?role_id={{ object.pk }}">{{ virtualmachine_count }}</a>
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
+            <th scope="row">Config Template</th>
+            <td>{{ object.config_template|linkify|placeholder }}</td>
           </tr>
         </table>
       </div>
@@ -65,6 +53,7 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>

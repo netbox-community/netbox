@@ -33,6 +33,9 @@ class CustomFieldModelFormTest(TestCase):
         cf_date = CustomField.objects.create(name='date', type=CustomFieldTypeChoices.TYPE_DATE)
         cf_date.content_types.set([obj_type])
 
+        cf_datetime = CustomField.objects.create(name='datetime', type=CustomFieldTypeChoices.TYPE_DATETIME)
+        cf_datetime.content_types.set([obj_type])
+
         cf_url = CustomField.objects.create(name='url', type=CustomFieldTypeChoices.TYPE_URL)
         cf_url.content_types.set([obj_type])
 

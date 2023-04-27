@@ -1,9 +1,9 @@
-from django.contrib.contenttypes.models import ContentType
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from extras.models import *
 from extras.choices import CustomFieldVisibilityChoices
+from extras.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
 __all__ = (

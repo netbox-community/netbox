@@ -4,6 +4,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models.fields.related import RelatedField
+from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_tables2.data import TableQuerysetData
@@ -12,7 +14,7 @@ from extras.models import CustomField, CustomLink
 from extras.choices import CustomFieldVisibilityChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import highlight_string, title
+from utilities.utils import get_viewname, highlight_string, title
 
 __all__ = (
     'BaseTable',
@@ -196,6 +198,19 @@ class NetBoxTable(BaseTable):
         ])
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
+
+    @property
+    def htmx_url(self):
+        """
+        Return the base HTML request URL for embedded tables.
+        """
+        if getattr(self, 'embedded', False):
+            viewname = get_viewname(self._meta.model, action='list')
+            try:
+                return reverse(viewname)
+            except NoReverseMatch:
+                pass
+        return ''
 
 
 class SearchTable(tables.Table):
