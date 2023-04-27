@@ -1,6 +1,6 @@
 # NetBox v3.5
 
-## v3.5-beta2 (2023-04-18)
+## v3.5.0 (2023-04-27)
 
 ### Breaking Changes
 
@@ -29,7 +29,7 @@ NetBox now has the ability to synchronize arbitrary data from external sources t
 
 This release introduces the ability to render device configurations from Jinja2 templates natively within NetBox, via both the UI and REST API. The new [ConfigTemplate](../models/extras/configtemplate.md) model stores template code (which may be defined locally or sourced from remote data files). The rendering engine passes data gleaned from both config contexts and request parameters to generate complete configurations suitable for direct application to network devices.
 
-#### NAPALM Plugin ([#10520](https://github.com/netbox-community/netbox/issues/10520))
+#### NAPALM Integration Plugin ([#10520](https://github.com/netbox-community/netbox/issues/10520))
 
 The NAPALM integration feature found in previous NetBox releases has been moved from the core application to a [dedicated plugin](https://github.com/netbox-community/netbox-napalm). This allows greater control over the feature's configuration and will unlock additional potential as a separate project.
 
