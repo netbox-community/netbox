@@ -279,7 +279,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, WebhooksMixin, ChangeLogged
         text = clean_html(text, allowed_schemes)
 
         # Sanitize link
-        link = urllib.parse.quote_plus(link, safe='/:?&')
+        link = urllib.parse.quote_plus(link, safe='/:?&=%+[]@#')
 
         # Verify link scheme is allowed
         result = urllib.parse.urlparse(link)
