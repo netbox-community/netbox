@@ -1,4 +1,5 @@
 import json
+import urllib.parse
 
 from django.conf import settings
 from django.contrib import admin
@@ -19,12 +20,13 @@ from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
 from extras.utils import FeatureQuery, image_upload
+from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import render_jinja2
+from utilities.utils import clean_html, render_jinja2
 
 __all__ = (
     'ConfigRevision',
@@ -277,6 +279,18 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             return {}
         link = render_jinja2(self.link_url, context)
         link_target = ' target="_blank"' if self.new_window else ''
+
+        # Sanitize link text
+        allowed_schemes = get_config().ALLOWED_URL_SCHEMES
+        text = clean_html(text, allowed_schemes)
+
+        # Sanitize link
+        link = urllib.parse.quote_plus(link, safe='/:?&')
+
+        # Verify link scheme is allowed
+        result = urllib.parse.urlparse(link)
+        if result.scheme and result.scheme not in allowed_schemes:
+            link = ""
 
         return {
             'text': text,

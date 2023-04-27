@@ -1,3 +1,4 @@
+from django.forms import PasswordInput
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Location, Site
@@ -59,6 +60,12 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
             'ssid', 'group', 'status', 'vlan', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk',
             'description', 'comments', 'tags',
         ]
+        widgets = {
+            'auth_psk': PasswordInput(
+                render_value=True,
+                attrs={'data-toggle': 'password'}
+            ),
+        }
 
 
 class WirelessLinkForm(TenancyForm, NetBoxModelForm):
@@ -159,6 +166,12 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'status', 'ssid', 'tenant_group', 'tenant', 'auth_type', 'auth_cipher', 'auth_psk', 'description',
             'comments', 'tags',
         ]
+        widgets = {
+            'auth_psk': PasswordInput(
+                render_value=True,
+                attrs={'data-toggle': 'password'}
+            ),
+        }
         labels = {
             'auth_type': 'Type',
             'auth_cipher': 'Cipher',

@@ -29,9 +29,18 @@ as the cornerstone for network automation in thousands of organizations.
 
 ## Getting Started
 
+<div align="center">
+
+  [![NetBox logo](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/deploy/deploy1.png)](https://github.com/netbox-community/netbox)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  [![Docker logo](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/deploy/deploy2.png)](https://github.com/netbox-community/netbox-docker)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  [![NetBox Labs logo](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/deploy/deploy3.png)](https://netboxlabs.com/netbox-cloud/)
+
+</div>
+
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
 * The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
-* Choose your deployment: [self-hosted](https://github.com/netbox-community/netbox), [Docker](https://github.com/netbox-community/netbox-docker), or [NetBox Cloud](https://netboxlabs.com/netbox-cloud/).
 * Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
 
 ## Get Involved

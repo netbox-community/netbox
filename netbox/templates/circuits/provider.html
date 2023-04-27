@@ -30,7 +30,14 @@
                       </td>
                     </tr>
                     <tr>
-                        <th scope="row">Account</th>
+                        <th scope="row">
+                          Account <i
+                            class="mdi mdi-alert-box text-warning"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="This field has been deprecated, and will be removed in NetBox v3.5."
+                          ></i>
+                        </th>
                         <td>{{ object.account|placeholder }}</td>
                     </tr>
                     <tr>
