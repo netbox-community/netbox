@@ -8,6 +8,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
@@ -33,7 +34,7 @@ def get_content_type_labels():
     return [
         (content_type_identifier(ct), content_type_name(ct))
         for ct in ContentType.objects.filter(
-            FeatureQuery('export_templates').get_query()
+            FeatureQuery('export_templates').get_query() | Q(app_label='extras', model='objectchange')
         ).order_by('app_label', 'model')
     ]
 
