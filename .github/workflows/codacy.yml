@@ -46,7 +46,7 @@ jobs:
           # You can also omit the token and run the tools that support default configurations
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           verbose: true
-          output: results.sarif
+          output: results.sarif1
           format: sarif
           # Adjust severity of non-security issues
           gh-code-scanning-compat: true
