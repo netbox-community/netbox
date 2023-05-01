@@ -4,6 +4,7 @@ from hashlib import sha256
 from urllib.parse import urlencode
 
 import feedparser
+import requests
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -269,12 +270,9 @@ class RSSFeedWidget(DashboardWidget):
         )
 
     def render(self, request):
-        url = self.config['feed_url']
-        feed = self.get_feed()
-
         return render_to_string(self.template_name, {
-            'url': url,
-            'feed': feed,
+            'url': self.config['feed_url'],
+            **self.get_feed()
         })
 
     @cached_property
@@ -286,17 +284,33 @@ class RSSFeedWidget(DashboardWidget):
     def get_feed(self):
         # Fetch RSS content from cache if available
         if feed_content := cache.get(self.cache_key):
-            feed = feedparser.FeedParserDict(feed_content)
-        else:
-            feed = feedparser.parse(
-                self.config['feed_url'],
-                request_headers={'User-Agent': f'NetBox/{settings.VERSION}'}
-            )
-            if not feed.bozo:
-                # Cap number of entries
-                max_entries = self.config.get('max_entries')
-                feed['entries'] = feed['entries'][:max_entries]
-                # Cache the feed content
-                cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+            return {
+                'feed': feedparser.FeedParserDict(feed_content),
+            }
 
-        return feed
+        # Fetch feed content from remote server
+        try:
+            response = requests.get(
+                url=self.config['feed_url'],
+                headers={'User-Agent': f'NetBox/{settings.VERSION}'},
+                proxies=settings.HTTP_PROXIES,
+                timeout=3
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return {
+                'error': e,
+            }
+
+        # Parse feed content
+        feed = feedparser.parse(response.content)
+        if not feed.bozo:
+            # Cap number of entries
+            max_entries = self.config.get('max_entries')
+            feed['entries'] = feed['entries'][:max_entries]
+            # Cache the feed content
+            cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+
+        return {
+            'feed': feed,
+        }
