@@ -2,6 +2,14 @@
 
 ## v3.5.1 (FUTURE)
 
+### Bug Fixes
+
+* [#12380](https://github.com/netbox-community/netbox/issues/12380) - Allow selecting object change as model under object list widget configuration
+* [#12395](https://github.com/netbox-community/netbox/issues/12395) - Fix "create & add another" action for objects with custom fields
+* [#12396](https://github.com/netbox-community/netbox/issues/12396) - Provider account should not be a required field in REST API serializer
+* [#12405](https://github.com/netbox-community/netbox/issues/12405) - Fix filtering for VLAN groups displayed under site view
+* [#12412](https://github.com/netbox-community/netbox/issues/12412) - Device/VM interface MAC addresses can be nullified via REST API
+
 ---
 
 ## v3.5.0 (2023-04-27)
