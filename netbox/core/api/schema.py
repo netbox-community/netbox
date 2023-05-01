@@ -1,23 +1,12 @@
 import re
 import typing
 
-from drf_spectacular.extensions import (
-    OpenApiSerializerFieldExtension,
-    OpenApiViewExtension,
-)
+from drf_spectacular.extensions import OpenApiSerializerFieldExtension
 from drf_spectacular.openapi import AutoSchema
 from drf_spectacular.plumbing import (
-    ComponentRegistry,
-    ResolvedComponent,
-    build_basic_type,
-    build_choice_field,
-    build_media_type_object,
-    build_object_type,
-    get_doc,
-    is_serializer,
+    build_basic_type, build_choice_field, build_media_type_object, build_object_type, get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import extend_schema
 from rest_framework.relations import ManyRelatedField
 
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
