@@ -74,7 +74,8 @@ class CircuitImportForm(NetBoxModelImportForm):
     provider_account = CSVModelChoiceField(
         queryset=ProviderAccount.objects.all(),
         to_field_name='name',
-        help_text=_('Assigned provider account')
+        help_text=_('Assigned provider account'),
+        required=False
     )
     type = CSVModelChoiceField(
         queryset=CircuitType.objects.all(),
