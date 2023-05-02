@@ -11,6 +11,8 @@ from markdown import markdown
 
 from netbox.config import get_config
 from utilities.markdown import StrikethroughExtension
+from utilities.choices import ButtonColorChoices
+from utilities.colors import lighten_color
 from utilities.utils import clean_html, foreground_color, title
 
 __all__ = (
@@ -30,10 +32,35 @@ __all__ = (
 
 register = template.Library()
 
+BOOTSTRAP_BUTTON_COLOR_MAP = {
+    "outline-dark": "ffffff",
+    "primary": "337ab7",
+    "secondary": "6c757d",
+    "success": "198754",
+    "info": "54d6f0",
+    "warning": "ffc107",
+    "danger": "dc3545",
+    "light": "e9ecef",
+    "dark": "343a40",
+    "blue": "0d6efd",
+    "indigo": "6610f2",
+    "purple": "6f42c1",
+    "pink": "d63384",
+    "red": "dc3545",
+    "orange": "fd7e14",
+    "yellow": "ffc107",
+    "green": "198754",
+    "teal": "20c997",
+    "cyan": "0dcaf0",
+    "gray": "adb5bd",
+    "black": "000000",
+    "white": "ffffff",
+}
 
 #
 # General
 #
+
 
 @register.filter()
 def linkify(instance, attr=None):
@@ -77,8 +104,18 @@ def fgcolor(value, dark='000000', light='ffffff'):
     """
     value = value.lower().strip('#')
     if not re.match('^[0-9a-f]{6}$', value):
-        return ''
+        colors = [color[0] for color in ButtonColorChoices.CHOICES]
+        if value in colors:
+            value = BOOTSTRAP_BUTTON_COLOR_MAP[value]
+        else:
+            return ''
     return f'#{foreground_color(value, dark, light)}'
+
+
+@register.filter()
+def lighten(color, amount=0.5):
+    c = lighten_color(color, factor=0.5)
+    return f'#{c}'
 
 
 @register.filter()

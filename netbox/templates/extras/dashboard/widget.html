@@ -1,4 +1,5 @@
 {% load dashboard %}
+{% load helpers %}
 
 <div
     class="grid-stack-item"
@@ -16,7 +17,7 @@
           hx-target="#htmx-modal-content"
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
-        ><i class="mdi mdi-cog text-gray"></i></a>
+        ><i class="mdi mdi-cog {% if not widget.color %}text-gray{% endif %}" {% if widget.color %}style="color: {{ widget.color|fgcolor|lighten }};"{% endif %}></i></a>
       </div>
       <div class="float-end pe-1">
         <a href="#"
@@ -24,10 +25,10 @@
           hx-target="#htmx-modal-content"
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
-        ><i class="mdi mdi-close text-gray"></i></a>
+        ><i class="mdi mdi-close {% if not widget.color %}text-gray{% endif %}" {% if widget.color %}style="color: {{ widget.color|fgcolor|lighten }};"{% endif %}></i></a>
       </div>
       {% if widget.title %}
-        <strong>{{ widget.title }}</strong>
+        <strong {% if widget.color %}style="color: {{ widget.color|fgcolor }};"{% endif %}>{{ widget.title }}</strong>
       {% endif %}
     </div>
     <div class="card-body p-2 overflow-auto">
