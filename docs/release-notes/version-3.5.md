@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#12367](https://github.com/netbox-community/netbox/issues/12367) - Fix `RelatedObjectDoesNotExist` exception under certain conditions (regression from #11550)
 * [#12380](https://github.com/netbox-community/netbox/issues/12380) - Allow selecting object change as model under object list widget configuration
 * [#12384](https://github.com/netbox-community/netbox/issues/12384) - Add a three-second timeout for RSS reader widget
 * [#12395](https://github.com/netbox-community/netbox/issues/12395) - Fix "create & add another" action for objects with custom fields
@@ -11,8 +12,10 @@
 * [#12400](https://github.com/netbox-community/netbox/issues/12400) - Validate default values for object and multi-object custom fields
 * [#12401](https://github.com/netbox-community/netbox/issues/12401) - Support the creation of front ports without a pre-populated device ID
 * [#12405](https://github.com/netbox-community/netbox/issues/12405) - Fix filtering for VLAN groups displayed under site view
+* [#12410](https://github.com/netbox-community/netbox/issues/12410) - Fix base path for OpenAPI schema (fixes Swagger UI requests)
 * [#12412](https://github.com/netbox-community/netbox/issues/12412) - Device/VM interface MAC addresses can be nullified via REST API
 * [#12415](https://github.com/netbox-community/netbox/issues/12415) - Fix `ImportError` exception when running RQ worker
+* [#12436](https://github.com/netbox-community/netbox/issues/12436) - Remove extraneous "add" button from contact assignments list
 
 ---
 
