@@ -8,6 +8,7 @@
 * [#12384](https://github.com/netbox-community/netbox/issues/12384) - Add a three-second timeout for RSS reader widget
 * [#12395](https://github.com/netbox-community/netbox/issues/12395) - Fix "create & add another" action for objects with custom fields
 * [#12396](https://github.com/netbox-community/netbox/issues/12396) - Provider account should not be a required field in REST API serializer
+* [#12400](https://github.com/netbox-community/netbox/issues/12400) - Validate default values for object and multi-object custom fields
 * [#12401](https://github.com/netbox-community/netbox/issues/12401) - Support the creation of front ports without a pre-populated device ID
 * [#12405](https://github.com/netbox-community/netbox/issues/12405) - Fix filtering for VLAN groups displayed under site view
 * [#12412](https://github.com/netbox-community/netbox/issues/12412) - Device/VM interface MAC addresses can be nullified via REST API
