@@ -11,7 +11,7 @@
 * [#12401](https://github.com/netbox-community/netbox/issues/12401) - Support the creation of front ports without a pre-populated device ID
 * [#12405](https://github.com/netbox-community/netbox/issues/12405) - Fix filtering for VLAN groups displayed under site view
 * [#12412](https://github.com/netbox-community/netbox/issues/12412) - Device/VM interface MAC addresses can be nullified via REST API
-* [#12415](https://github.com/netbox-community/netbox/issues/12415) - Pin `rq` to v1.13.0 to fix `ImportError` exception from `django-rq`
+* [#12415](https://github.com/netbox-community/netbox/issues/12415) - Fix `ImportError` exception when running RQ worker
 
 ---
 
