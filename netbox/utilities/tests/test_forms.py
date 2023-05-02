@@ -1,10 +1,8 @@
 from django import forms
 from django.test import TestCase
 
-from ipam.forms import IPAddressImportForm
 from utilities.choices import ImportFormatChoices
-from utilities.forms import ImportForm
-from utilities.forms.fields import CSVDataField
+from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 
@@ -287,108 +285,10 @@ class ExpandAlphanumeric(TestCase):
             sorted(expand_alphanumeric_pattern('r[a,,b]a'))
 
 
-class CSVDataFieldTest(TestCase):
-
-    def setUp(self):
-        self.field = CSVDataField(from_form=IPAddressImportForm)
-
-    def test_clean(self):
-        input = """
-        address,status,vrf
-        192.0.2.1/32,Active,Test VRF
-        """
-        output = (
-            {'address': None, 'status': None, 'vrf': None},
-            [{'address': '192.0.2.1/32', 'status': 'Active', 'vrf': 'Test VRF'}]
-        )
-        self.assertEqual(self.field.clean(input), output)
-
-    def test_clean_invalid_header(self):
-        input = """
-        address,status,vrf,xxx
-        192.0.2.1/32,Active,Test VRF,123
-        """
-        with self.assertRaises(forms.ValidationError):
-            self.field.clean(input)
-
-    def test_clean_missing_required_header(self):
-        input = """
-        status,vrf
-        Active,Test VRF
-        """
-        with self.assertRaises(forms.ValidationError):
-            self.field.clean(input)
-
-    def test_duplicate_header(self):
-        input = """
-        status,status
-        Active,Active
-        """
-        with self.assertRaisesRegex(forms.ValidationError, 'Duplicate'):
-            self.field.clean(input)
-
-    def test_duplicate_header_key(self):
-        input = """
-        vrf.name,vrf.rd
-        Test VRF,123:456
-        """
-        with self.assertRaisesRegex(forms.ValidationError, 'Duplicate'):
-            self.field.clean(input)
-
-    def test_clean_default_to_field(self):
-        input = """
-        address,status,vrf.name
-        192.0.2.1/32,Active,Test VRF
-        """
-        output = (
-            {'address': None, 'status': None, 'vrf': 'name'},
-            [{'address': '192.0.2.1/32', 'status': 'Active', 'vrf': 'Test VRF'}]
-        )
-        self.assertEqual(self.field.clean(input), output)
-
-    def test_clean_pk_to_field(self):
-        input = """
-        address,status,vrf.pk
-        192.0.2.1/32,Active,123
-        """
-        output = (
-            {'address': None, 'status': None, 'vrf': 'pk'},
-            [{'address': '192.0.2.1/32', 'status': 'Active', 'vrf': '123'}]
-        )
-        self.assertEqual(self.field.clean(input), output)
-
-    def test_clean_custom_to_field(self):
-        input = """
-        address,status,vrf.rd
-        192.0.2.1/32,Active,123:456
-        """
-        output = (
-            {'address': None, 'status': None, 'vrf': 'rd'},
-            [{'address': '192.0.2.1/32', 'status': 'Active', 'vrf': '123:456'}]
-        )
-        self.assertEqual(self.field.clean(input), output)
-
-    def test_clean_invalid_to_field(self):
-        input = """
-        address,status,vrf.xxx
-        192.0.2.1/32,Active,123:456
-        """
-        with self.assertRaises(forms.ValidationError):
-            self.field.clean(input)
-
-    def test_clean_to_field_on_non_object(self):
-        input = """
-        address,status.foo,vrf
-        192.0.2.1/32,Bar,Test VRF
-        """
-        with self.assertRaises(forms.ValidationError):
-            self.field.clean(input)
-
-
 class ImportFormTest(TestCase):
 
     def test_format_detection(self):
-        form = ImportForm()
+        form = BulkImportForm()
 
         data = (
             "a,b,c\n"

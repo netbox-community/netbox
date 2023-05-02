@@ -46,6 +46,7 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'contact', _('Contacts')),
                 get_model_item('tenancy', 'contactgroup', _('Contact Groups')),
                 get_model_item('tenancy', 'contactrole', _('Contact Roles')),
+                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=[]),
             ),
         ),
     ),
@@ -77,16 +78,16 @@ DEVICES_MENU = Menu(
         MenuGroup(
             label=_('Device Components'),
             items=(
-                get_model_item('dcim', 'interface', _('Interfaces'), actions=['import']),
-                get_model_item('dcim', 'frontport', _('Front Ports'), actions=['import']),
-                get_model_item('dcim', 'rearport', _('Rear Ports'), actions=['import']),
-                get_model_item('dcim', 'consoleport', _('Console Ports'), actions=['import']),
-                get_model_item('dcim', 'consoleserverport', _('Console Server Ports'), actions=['import']),
-                get_model_item('dcim', 'powerport', _('Power Ports'), actions=['import']),
-                get_model_item('dcim', 'poweroutlet', _('Power Outlets'), actions=['import']),
-                get_model_item('dcim', 'modulebay', _('Module Bays'), actions=['import']),
-                get_model_item('dcim', 'devicebay', _('Device Bays'), actions=['import']),
-                get_model_item('dcim', 'inventoryitem', _('Inventory Items'), actions=['import']),
+                get_model_item('dcim', 'interface', _('Interfaces')),
+                get_model_item('dcim', 'frontport', _('Front Ports')),
+                get_model_item('dcim', 'rearport', _('Rear Ports')),
+                get_model_item('dcim', 'consoleport', _('Console Ports')),
+                get_model_item('dcim', 'consoleserverport', _('Console Server Ports')),
+                get_model_item('dcim', 'powerport', _('Power Ports')),
+                get_model_item('dcim', 'poweroutlet', _('Power Outlets')),
+                get_model_item('dcim', 'modulebay', _('Module Bays')),
+                get_model_item('dcim', 'devicebay', _('Device Bays')),
+                get_model_item('dcim', 'inventoryitem', _('Inventory Items')),
                 get_model_item('dcim', 'inventoryitemrole', _('Inventory Item Roles')),
             ),
         ),
@@ -157,6 +158,7 @@ IPAM_MENU = Menu(
         MenuGroup(
             label=_('ASNs'),
             items=(
+                get_model_item('ipam', 'asnrange', _('ASN Ranges')),
                 get_model_item('ipam', 'asn', _('ASNs')),
             ),
         ),
@@ -214,7 +216,7 @@ VIRTUALIZATION_MENU = Menu(
             label=_('Virtual Machines'),
             items=(
                 get_model_item('virtualization', 'virtualmachine', _('Virtual Machines')),
-                get_model_item('virtualization', 'vminterface', _('Interfaces'), actions=['import']),
+                get_model_item('virtualization', 'vminterface', _('Interfaces')),
             ),
         ),
         MenuGroup(
@@ -243,6 +245,7 @@ CIRCUITS_MENU = Menu(
             label=_('Providers'),
             items=(
                 get_model_item('circuits', 'provider', _('Providers')),
+                get_model_item('circuits', 'provideraccount', _('Provider Accounts')),
                 get_model_item('circuits', 'providernetwork', _('Provider Networks')),
             ),
         ),
@@ -263,17 +266,24 @@ POWER_MENU = Menu(
     ),
 )
 
-OTHER_MENU = Menu(
-    label=_('Other'),
-    icon_class='mdi mdi-notification-clear-all',
+PROVISIONING_MENU = Menu(
+    label=_('Provisioning'),
+    icon_class='mdi mdi-file-document-multiple-outline',
     groups=(
         MenuGroup(
-            label=_('Logging'),
+            label=_('Configurations'),
             items=(
-                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=[]),
-                get_model_item('extras', 'objectchange', _('Change Log'), actions=[]),
+                get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'configtemplate', _('Config Templates'), actions=['add']),
             ),
         ),
+    ),
+)
+
+CUSTOMIZATION_MENU = Menu(
+    label=_('Customization'),
+    icon_class='mdi mdi-toolbox-outline',
+    groups=(
         MenuGroup(
             label=_('Customization'),
             items=(
@@ -281,12 +291,12 @@ OTHER_MENU = Menu(
                 get_model_item('extras', 'customlink', _('Custom Links')),
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),
+                get_model_item('extras', 'tag', 'Tags'),
             ),
         ),
         MenuGroup(
-            label=_('Integrations'),
+            label=_('Reports & Scripts'),
             items=(
-                get_model_item('extras', 'webhook', _('Webhooks')),
                 MenuItem(
                     link='extras:report_list',
                     link_text=_('Reports'),
@@ -297,18 +307,37 @@ OTHER_MENU = Menu(
                     link_text=_('Scripts'),
                     permissions=['extras.view_script']
                 ),
+            ),
+        ),
+    ),
+)
+
+OPERATIONS_MENU = Menu(
+    label=_('Operations'),
+    icon_class='mdi mdi-cogs',
+    groups=(
+        MenuGroup(
+            label=_('Integrations'),
+            items=(
+                get_model_item('core', 'datasource', _('Data Sources')),
+                get_model_item('extras', 'webhook', _('Webhooks')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Jobs'),
+            items=(
                 MenuItem(
-                    link='extras:jobresult_list',
+                    link='core:job_list',
                     link_text=_('Jobs'),
-                    permissions=['extras.view_jobresult'],
+                    permissions=['core.view_job'],
                 ),
             ),
         ),
         MenuGroup(
-            label=_('Other'),
+            label=_('Logging'),
             items=(
-                get_model_item('extras', 'tag', 'Tags'),
-                get_model_item('extras', 'configcontext', _('Config Contexts'), actions=['add']),
+                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=[]),
+                get_model_item('extras', 'objectchange', _('Change Log'), actions=[]),
             ),
         ),
     ),
@@ -325,7 +354,9 @@ MENUS = [
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,
-    OTHER_MENU,
+    PROVISIONING_MENU,
+    CUSTOMIZATION_MENU,
+    OPERATIONS_MENU,
 ]
 
 #

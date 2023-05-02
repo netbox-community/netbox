@@ -42,7 +42,7 @@ class CSVImportTestCase(ModelViewTestCase):
         self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
 
         # Test POST with permission
-        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
         regions = Region.objects.all()
         self.assertEqual(regions.count(), 4)
         region = Region.objects.get(slug="region-4")

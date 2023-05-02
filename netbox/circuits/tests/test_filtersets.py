@@ -25,11 +25,11 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         ASN.objects.bulk_create(asns)
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1', account='1234'),
-            Provider(name='Provider 2', slug='provider-2', account='2345'),
-            Provider(name='Provider 3', slug='provider-3', account='3456'),
-            Provider(name='Provider 4', slug='provider-4', account='4567'),
-            Provider(name='Provider 5', slug='provider-5', account='5678'),
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+            Provider(name='Provider 4', slug='provider-4'),
+            Provider(name='Provider 5', slug='provider-5'),
         )
         Provider.objects.bulk_create(providers)
         providers[0].asns.set([asns[0]])
@@ -64,8 +64,8 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         CircuitType.objects.bulk_create(circuit_types)
 
         circuits = (
-            Circuit(provider=providers[0], type=circuit_types[0], cid='Test Circuit 1'),
-            Circuit(provider=providers[1], type=circuit_types[1], cid='Test Circuit 1'),
+            Circuit(provider=providers[0], type=circuit_types[0], cid='Circuit 1'),
+            Circuit(provider=providers[1], type=circuit_types[1], cid='Circuit 2'),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -85,10 +85,6 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_asn_id(self):  # ASN object assignment
         asns = ASN.objects.all()[:2]
         params = {'asn_id': [asns[0].pk, asns[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_account(self):
-        params = {'account': ['1234', '2345']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -193,8 +189,16 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         providers = (
             Provider(name='Provider 1', slug='provider-1'),
             Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
         )
         Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], account='A'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], account='B'),
+            ProviderAccount(name='Provider Account 3', provider=providers[2], account='C'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
 
         provider_networks = (
             ProviderNetwork(name='Provider Network 1', provider=providers[1]),
@@ -204,12 +208,12 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         ProviderNetwork.objects.bulk_create(provider_networks)
 
         circuits = (
-            Circuit(provider=providers[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1'),
-            Circuit(provider=providers[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2'),
-            Circuit(provider=providers[0], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
-            Circuit(provider=providers[1], tenant=tenants[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
-            Circuit(provider=providers[1], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
-            Circuit(provider=providers[1], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 1', install_date='2020-01-01', termination_date='2021-01-01', commit_rate=1000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar1'),
+            Circuit(provider=providers[0], provider_account=provider_accounts[0], tenant=tenants[0], type=circuit_types[0], cid='Test Circuit 2', install_date='2020-01-02', termination_date='2021-01-02', commit_rate=2000, status=CircuitStatusChoices.STATUS_ACTIVE, description='foobar2'),
+            Circuit(provider=providers[0], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[0], cid='Test Circuit 3', install_date='2020-01-03', termination_date='2021-01-03', commit_rate=3000, status=CircuitStatusChoices.STATUS_PLANNED),
+            Circuit(provider=providers[1], provider_account=provider_accounts[1], tenant=tenants[1], type=circuit_types[1], cid='Test Circuit 4', install_date='2020-01-04', termination_date='2021-01-04', commit_rate=4000, status=CircuitStatusChoices.STATUS_PLANNED),
+            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 5', install_date='2020-01-05', termination_date='2021-01-05', commit_rate=5000, status=CircuitStatusChoices.STATUS_OFFLINE),
+            Circuit(provider=providers[1], provider_account=provider_accounts[2], tenant=tenants[2], type=circuit_types[1], cid='Test Circuit 6', install_date='2020-01-06', termination_date='2021-01-06', commit_rate=6000, status=CircuitStatusChoices.STATUS_OFFLINE),
         )
         Circuit.objects.bulk_create(circuits)
 
@@ -245,6 +249,11 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'provider': [provider.slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_provider_account(self):
+        provider_accounts = ProviderAccount.objects.all()[:2]
+        params = {'provider_account_id': [provider_accounts[0].pk, provider_accounts[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_provider_network(self):
         provider_networks = ProviderNetwork.objects.all()[:2]
@@ -433,6 +442,47 @@ class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_name(self):
         params = {'name': ['Provider Network 1', 'Provider Network 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = ProviderAccount.objects.all()
+    filterset = ProviderAccountFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+        )
+        Provider.objects.bulk_create(providers)
+
+        provider_accounts = (
+            ProviderAccount(name='Provider Account 1', provider=providers[0], description='foobar1', account='1234'),
+            ProviderAccount(name='Provider Account 2', provider=providers[1], description='foobar2', account='2345'),
+            ProviderAccount(name='Provider Account 3', provider=providers[2], account='3456'),
+        )
+        ProviderAccount.objects.bulk_create(provider_accounts)
+
+    def test_name(self):
+        params = {'name': ['Provider Account 1', 'Provider Account 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_account(self):
+        params = {'account': ['1234', '3456']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

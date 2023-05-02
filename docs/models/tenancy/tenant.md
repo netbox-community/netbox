@@ -6,11 +6,11 @@ A tenant represents a discrete grouping of resources used for administrative pur
 
 ### Name
 
-A unique human-friendly name.
+A human-friendly name, unique to the assigned group.
 
 ### Slug
 
-A unique URL-friendly identifier. (This value can be used for filtering.)
+A URL-friendly identifier, unique to the assigned group. (This value can be used for filtering.)
 
 ### Group
 

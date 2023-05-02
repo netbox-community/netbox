@@ -40,49 +40,49 @@
             <td>{{ object.manufacturer|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">NAPALM Driver</th>
+            <th scope="row">Config Template</th>
+            <td>{{ object.config_template|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              NAPALM Driver
+              <i
+                class="mdi mdi-alert-box text-warning"
+                data-bs-toggle="tooltip"
+                data-bs-placement="right"
+                title="This field has been deprecated, and will be removed in NetBox v3.6."
+              ></i>
+            </th>
             <td>{{ object.napalm_driver|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Devices</th>
-            <td>
-              <a href="{% url 'dcim:device_list' %}?platform_id={{ object.pk }}">{{ devices_table.rows|length }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Virtual Machines</th>
-            <td>
-              <a href="{% url 'virtualization:virtualmachine_list' %}?platform_id={{ object.pk }}">{{ virtualmachine_count }}</a>
-            </td>
           </tr>
         </table>
       </div>
     </div>
     {% include 'inc/panels/tags.html' %}
-    {% plugin_left_page object %}
-	</div>
-	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
         NAPALM Arguments
+        <i
+          class="mdi mdi-alert-box text-warning"
+          data-bs-toggle="tooltip"
+          data-bs-placement="right"
+          title="This field has been deprecated, and will be removed in NetBox v3.6."
+        ></i>
       </h5>
       <div class="card-body">
         <pre>{{ object.napalm_args|json }}</pre>
       </div>
     </div>
+    {% plugin_left_page object %}
+	</div>
+	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Devices</h5>
-      <div class="card-body table-responsive">
-        {% render_table devices_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=devices_table.paginator page=devices_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

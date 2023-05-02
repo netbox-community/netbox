@@ -2,7 +2,6 @@ import json
 
 import django_tables2 as tables
 from django.conf import settings
-from django.utils.translation import gettext as _
 
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
@@ -10,10 +9,10 @@ from .template_code import *
 
 __all__ = (
     'ConfigContextTable',
+    'ConfigTemplateTable',
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
-    'JobResultTable',
     'JournalEntryTable',
     'ObjectChangeTable',
     'SavedFilterTable',
@@ -31,43 +30,16 @@ class CustomFieldTable(NetBoxTable):
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
     description = columns.MarkdownColumn()
+    is_cloneable = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
-            'search_weight', 'filter_logic', 'ui_visibility', 'weight', 'choices', 'created', 'last_updated',
+            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choices', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
-
-
-class JobResultTable(NetBoxTable):
-    name = tables.Column(
-        linkify=True
-    )
-    obj_type = columns.ContentTypeColumn(
-        verbose_name=_('Type')
-    )
-    status = columns.ChoiceFieldColumn()
-    created = columns.DateTimeColumn()
-    scheduled = columns.DateTimeColumn()
-    interval = columns.DurationColumn()
-    started = columns.DateTimeColumn()
-    completed = columns.DateTimeColumn()
-    actions = columns.ActionsColumn(
-        actions=('delete',)
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = JobResult
-        fields = (
-            'pk', 'id', 'obj_type', 'name', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
-            'user', 'job_id',
-        )
-        default_columns = (
-            'pk', 'id', 'obj_type', 'name', 'status', 'created', 'scheduled', 'interval', 'started', 'completed',
-            'user',
-        )
 
 
 class CustomLinkTable(NetBoxTable):
@@ -93,15 +65,24 @@ class ExportTemplateTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     as_attachment = columns.BooleanColumn()
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
             'pk', 'id', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
-            'created', 'last_updated',
+            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
         )
 
 
@@ -142,6 +123,12 @@ class WebhookTable(NetBoxTable):
     type_delete = columns.BooleanColumn(
         verbose_name='Delete'
     )
+    type_job_start = columns.BooleanColumn(
+        verbose_name='Job start'
+    )
+    type_job_end = columns.BooleanColumn(
+        verbose_name='Job end'
+    )
     ssl_validation = columns.BooleanColumn(
         verbose_name='SSL Validation'
     )
@@ -149,12 +136,13 @@ class WebhookTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Webhook
         fields = (
-            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
-            'payload_url', 'secret', 'ssl_validation', 'ca_file_path', 'created', 'last_updated',
+            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
+            'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
+            'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'http_method',
-            'payload_url',
+            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'type_job_end', 'http_method', 'payload_url',
         )
 
 
@@ -194,21 +182,58 @@ class TaggedItemTable(NetBoxTable):
 
 
 class ConfigContextTable(NetBoxTable):
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
     name = tables.Column(
         linkify=True
     )
     is_active = columns.BooleanColumn(
         verbose_name='Active'
     )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigContext
         fields = (
-            'pk', 'id', 'name', 'weight', 'is_active', 'description', 'regions', 'sites', 'locations', 'roles',
-            'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'weight', 'is_active', 'is_synced', 'description', 'regions', 'sites', 'locations',
+            'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters', 'tenant_groups', 'tenants',
+            'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'weight', 'is_active', 'description')
+        default_columns = ('pk', 'name', 'weight', 'is_active', 'is_synced', 'description')
+
+
+class ConfigTemplateTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+    data_source = tables.Column(
+        linkify=True
+    )
+    data_file = tables.Column(
+        linkify=True
+    )
+    is_synced = columns.BooleanColumn(
+        verbose_name='Synced'
+    )
+    tags = columns.TagColumn(
+        url_name='extras:configtemplate_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigTemplate
+        fields = (
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
+            'tags',
+        )
+        default_columns = (
+            'pk', 'name', 'description', 'is_synced',
+        )
 
 
 class ObjectChangeTable(NetBoxTable):

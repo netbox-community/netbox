@@ -3,81 +3,93 @@
 {% load static %}
 
 {% block content %}
-    <div class="row">
-        <div class="col col-md-5">
-            <div class="card">
-                <h5 class="card-header">
-                    Config Context
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">Name</th>
-                            <td>
-                                {{ object.name }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Weight</th>
-                            <td>
-                                {{ object.weight }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Description</th>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Active</th>
-                            <td>
-                                {% if object.is_active %}
-                                    <span class="text-success">
-                                        <i class="mdi mdi-check-bold"></i>
-                                    </span>
-                                {% else %}
-                                    <span class="text-danger">
-                                        <i class="mdi mdi-close"></i>
-                                    </span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-            <div class="card">
-                <h5 class="card-header">
-                    Assignment
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                      {% for title, objects in assigned_objects %}
-                        <tr>
-                          <th scope="row">{{ title }}</th>
-                          <td>
-                            <ul class="list-unstyled mb-0">
-                              {% for object in objects %}
-                                <li>{{ object|linkify }}</li>
-                              {% empty %}
-                                <li class="text-muted">None</li>
-                              {% endfor %}
-                            </ul>
-                          </td>
-                        </tr>
-                      {% endfor %}
-                    </table>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col col-md-5">
+      <div class="card">
+        <h5 class="card-header">Config Context</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Weight</th>
+              <td>{{ object.weight }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Active</th>
+              <td>{% checkmark object.is_active %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Data Source</th>
+              <td>
+                {% if object.data_source %}
+                  <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Data File</th>
+              <td>
+                {% if object.data_file %}
+                  <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
+                {% elif object.data_path %}
+                  <div class="float-end text-warning">
+                    <i class="mdi mdi-alert" title="The data file associated with this object has been deleted."></i>
+                  </div>
+                  {{ object.data_path }}
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Data Synced</th>
+              <td>{{ object.data_synced|placeholder }}</td>
+            </tr>
+          </table>
         </div>
-        <div class="col col-md-7">
-            <div class="card">
-                <div class="card-header">
-                    <h5>Data</h5>
-                    {% include 'extras/inc/configcontext_format.html' %}
-                </div>
-                <div class="card-body">
-                    {% include 'extras/inc/configcontext_data.html' with data=object.data format=format %}
-                </div>
-            </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">Assignment</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            {% for title, objects in assigned_objects %}
+              <tr>
+                <th scope="row">{{ title }}</th>
+                <td>
+                  <ul class="list-unstyled mb-0">
+                    {% for object in objects %}
+                      <li>{{ object|linkify }}</li>
+                    {% empty %}
+                      <li class="text-muted">None</li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
         </div>
+      </div>
     </div>
+    <div class="col col-md-7">
+      <div class="card">
+        <div class="card-header">
+          <h5>Data</h5>
+          {% include 'extras/inc/configcontext_format.html' %}
+        </div>
+        <div class="card-body">
+          {% include 'inc/sync_warning.html' %}
+          {% include 'extras/inc/configcontext_data.html' with data=object.data format=format %}
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock %}

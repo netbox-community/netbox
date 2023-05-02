@@ -4,6 +4,10 @@ from django.template import Context
 
 from netbox.navigation.menu import MENUS
 
+__all__ = (
+    'nav',
+)
+
 
 register = template.Library()
 

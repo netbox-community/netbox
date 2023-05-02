@@ -1,4 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.fields import Field
 from rest_framework.serializers import ValidationError
 
@@ -36,6 +38,7 @@ class CustomFieldDefaultValues:
         return value
 
 
+@extend_schema_field(OpenApiTypes.OBJECT)
 class CustomFieldsDataField(Field):
 
     def _get_custom_fields(self):

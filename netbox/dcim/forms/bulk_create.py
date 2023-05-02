@@ -4,7 +4,8 @@ from dcim.models import *
 from django.utils.translation import gettext as _
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
-from utilities.forms import BootstrapMixin, DynamicModelMultipleChoiceField, ExpandableNameField, form_from_model
+from utilities.forms import BootstrapMixin, form_from_model
+from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField
 from .object_create import ComponentCreateForm
 
 __all__ = (

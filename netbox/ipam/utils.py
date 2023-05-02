@@ -1,7 +1,7 @@
 import netaddr
 
 from .constants import *
-from .models import Prefix, VLAN
+from .models import ASN, Prefix, VLAN
 
 
 def add_requested_prefixes(parent, prefix_list, show_available=True, show_assigned=True):

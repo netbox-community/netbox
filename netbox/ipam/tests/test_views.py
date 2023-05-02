@@ -11,30 +11,91 @@ from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_test_device, create_tags
 
 
+class ASNRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = ASNRange
+
+    @classmethod
+    def setUpTestData(cls):
+        rirs = [
+            RIR(name='RIR 1', slug='rir-1', is_private=True),
+            RIR(name='RIR 2', slug='rir-2', is_private=True),
+        ]
+        RIR.objects.bulk_create(rirs)
+
+        tenants = [
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        ]
+        Tenant.objects.bulk_create(tenants)
+
+        asn_ranges = (
+            ASNRange(name='ASN Range 1', slug='asn-range-1', rir=rirs[0], tenant=tenants[0], start=100, end=199),
+            ASNRange(name='ASN Range 2', slug='asn-range-2', rir=rirs[0], tenant=tenants[0], start=200, end=299),
+            ASNRange(name='ASN Range 3', slug='asn-range-3', rir=rirs[0], tenant=tenants[0], start=300, end=399),
+        )
+        ASNRange.objects.bulk_create(asn_ranges)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'ASN Range X',
+            'slug': 'asn-range-x',
+            'rir': rirs[1].pk,
+            'tenant': tenants[1].pk,
+            'start': 1000,
+            'end': 1099,
+            'description': 'A new ASN range',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            f"name,slug,rir,tenant,start,end,description",
+            f"ASN Range 4,asn-range-4,{rirs[1].name},{tenants[1].name},400,499,Fourth range",
+            f"ASN Range 5,asn-range-5,{rirs[1].name},{tenants[1].name},500,599,Fifth range",
+            f"ASN Range 6,asn-range-6,{rirs[1].name},{tenants[1].name},600,699,Sixth range",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{asn_ranges[0].pk},New description 1",
+            f"{asn_ranges[1].pk},New description 2",
+            f"{asn_ranges[2].pk},New description 3",
+        )
+
+        cls.bulk_edit_data = {
+            'rir': rirs[1].pk,
+            'description': 'Next description',
+        }
+
+
 class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ASN
 
     @classmethod
     def setUpTestData(cls):
-
         rirs = [
-            RIR.objects.create(name='RFC 6996', slug='rfc-6996', description='Private Use', is_private=True),
-            RIR.objects.create(name='RFC 7300', slug='rfc-7300', description='IANA Use', is_private=True),
+            RIR(name='RIR 1', slug='rir-1', is_private=True),
+            RIR(name='RIR 2', slug='rir-2', is_private=True),
         ]
-        sites = [
-            Site.objects.create(name='Site 1', slug='site-1'),
-            Site.objects.create(name='Site 2', slug='site-2')
-        ]
-        tenants = [
-            Tenant.objects.create(name='Tenant 1', slug='tenant-1'),
-            Tenant.objects.create(name='Tenant 2', slug='tenant-2'),
-        ]
+        RIR.objects.bulk_create(rirs)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2')
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+        )
+        Tenant.objects.bulk_create(tenants)
 
         asns = (
-            ASN(asn=64513, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=65535, rir=rirs[1], tenant=tenants[1]),
-            ASN(asn=4200000000, rir=rirs[0], tenant=tenants[0]),
-            ASN(asn=4200002301, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=65001, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=65002, rir=rirs[1], tenant=tenants[1]),
+            ASN(asn=4200000001, rir=rirs[0], tenant=tenants[0]),
+            ASN(asn=4200000002, rir=rirs[1], tenant=tenants[1]),
         )
         ASN.objects.bulk_create(asns)
 
@@ -46,18 +107,20 @@ class ASNTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'asn': 64512,
+            'asn': 65000,
             'rir': rirs[0].pk,
             'tenant': tenants[0].pk,
             'site': sites[0].pk,
             'description': 'A new ASN',
+            'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
             "asn,rir",
-            "64533,RFC 6996",
-            "64523,RFC 6996",
-            "4200000002,RFC 6996",
+            "65003,RIR 1",
+            "65004,RIR 2",
+            "4200000003,RIR 1",
+            "4200000004,RIR 2",
         )
 
         cls.csv_update_data = (
@@ -964,6 +1027,10 @@ class L2VPNTerminationTestCase(
         )
 
         cls.bulk_edit_data = {}
+
+    # TODO: Fix L2VPNTerminationImportForm validation to support bulk updates
+    def test_bulk_update_objects_with_permission(self):
+        pass
 
     #
     # Custom assertions

@@ -22,11 +22,13 @@ If not selected, the webhook will be inactive.
 
 The events which will trigger the webhook. At least one event type must be selected.
 
-| Name      | Description                          |
-|-----------|--------------------------------------|
-| Creations | A new object has been created        |
-| Updates   | An existing object has been modified |
-| Deletions | An object has been deleted           |
+| Name       | Description                          |
+|------------|--------------------------------------|
+| Creations  | A new object has been created        |
+| Updates    | An existing object has been modified |
+| Deletions  | An object has been deleted           |
+| Job starts | A job for an object starts           |
+| Job ends   | A job for an object terminates       |
 
 ### URL
 
@@ -57,6 +59,10 @@ Jinja2 template for a custom request body, if desired. If not defined, NetBox wi
 ### Secret
 
 A secret string used to prove authenticity of the request (optional). This will append a `X-Hook-Signature` header to the request, consisting of a HMAC (SHA-512) hex digest of the request body using the secret as the key.
+
+### Conditions
+
+A set of [prescribed conditions](../../reference/conditions.md) against which the triggering object will be evaluated. If the conditions are defined but not met by the object, the webhook will not be sent. A webhook that does not define any conditions will _always_ trigger.
 
 ### SSL Verification
 

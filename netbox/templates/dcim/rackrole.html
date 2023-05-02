@@ -34,12 +34,6 @@
               <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
             </td>
           </tr>
-          <tr>
-            <th scope="row">Racks</th>
-            <td>
-              <a href="{% url 'dcim:rack_list' %}?role_id={{ object.pk }}">{{ racks_table.rows|length }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -47,19 +41,13 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Racks</h5>
-      <div class="card-body table-responsive">
-        {% render_table racks_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=racks_table.paginator page=racks_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

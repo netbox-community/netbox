@@ -39,7 +39,7 @@ class NetBoxFeatureSet(
 # Base model classes
 #
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, models.Model):
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, WebhooksMixin, models.Model):
     """
     Base model for ancillary models; provides limited functionality for models which don't
     support NetBox's full feature set.
@@ -67,8 +67,8 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
 
         for field in self._meta.get_fields():
             if isinstance(field, GenericForeignKey):
-                ct_value = getattr(self, field.ct_field)
-                fk_value = getattr(self, field.fk_field)
+                ct_value = getattr(self, field.ct_field, None)
+                fk_value = getattr(self, field.fk_field, None)
 
                 if ct_value is None and fk_value is not None:
                     raise ValidationError({

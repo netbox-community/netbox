@@ -1,30 +1,8 @@
-{% extends 'generic/object.html' %}
+{% extends 'dcim/rack/base.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load static %}
 {% load plugins %}
-
-{% block title %}Rack {{ object }}{% endblock %}
-
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
-  {% if object.location %}
-    {% for location in object.location.get_ancestors %}
-      <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location }}</a></li>
-    {% endfor %}
-    <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ object.location.pk }}">{{ object.location }}</a></li>
-  {% endif %}
-{% endblock %}
-
-{% block extra_controls %}
-  <a {% if prev_rack %}href="{% url 'dcim:rack' pk=prev_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not prev_rack %} disabled{% endif %}">
-    <i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous
-  </a>
-  <a {% if next_rack %}href="{% url 'dcim:rack' pk=next_rack.pk %}{% endif %}" class="btn btn-sm btn-primary{% if not next_rack %} disabled{% endif %}">
-    <i class="mdi mdi-chevron-right" aria-hidden="true"></i> Next
-  </a>
-{% endblock %}
 
 {% block content %}
   <div class="row">
@@ -89,12 +67,6 @@
                     <tr>
                         <th scope="row">Asset Tag</th>
                         <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Devices</th>
-                        <td>
-                            <a href="{% url 'dcim:device_list' %}?rack_id={{ object.id }}">{{ device_count }}</a>
-                        </td>
                     </tr>
                     <tr>
                         <th scope="row">Space Utilization</th>
@@ -192,90 +164,7 @@
         {% include 'inc/panels/custom_fields.html' %}
         {% include 'inc/panels/tags.html' %}
         {% include 'inc/panels/comments.html' %}
-        {% if power_feeds %}
-            <div class="card">
-                <h5 class="card-header">
-                    Power Feeds
-                </h5>
-                <div class="card-body">
-                    <table class="table">
-                        <tr>
-                            <th>Panel</th>
-                            <th>Feed</th>
-                            <th>Status</th>
-                            <th>Type</th>
-                            <th>Utilization</th>
-                        </tr>
-                        {% for powerfeed in power_feeds %}
-                            <tr>
-                                <td>{{ powerfeed.power_panel|linkify }}</td>
-                                <td>{{ powerfeed|linkify }}</td>
-                                <td>{% badge powerfeed.get_status_display bg_color=powerfeed.get_status_color %}</td>
-                                <td>{% badge powerfeed.get_type_display bg_color=powerfeed.get_type_color %}</td>
-                                {% with power_port=powerfeed.connected_endpoints.0 %}
-                                    {% if power_port %}
-                                        <td>{% utilization_graph power_port.get_power_draw.allocated|percentage:powerfeed.available_power %}</td>
-                                    {% else %}
-                                        <td class="text-muted">N/A</td>
-                                    {% endif %}
-                                {% endwith %}
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        {% endif %}
-
         {% include 'inc/panels/image_attachments.html' %}
-        <div class="card">
-            <h5 class="card-header">
-                Reservations
-            </h5>
-            <div class="card-body">
-            {% if reservations %}
-                <table class="table table-hover">
-                    <tr>
-                        <th>Units</th>
-                        <th>Tenant</th>
-                        <th>Description</th>
-                        <th></th>
-                    </tr>
-                    {% for resv in reservations %}
-                        <tr>
-                            <td>{{ resv|linkify:"unit_list" }}</td>
-                            <td>{{ resv.tenant|linkify|placeholder }}</td>
-                            <td>
-                                {{ resv.description }}<br />
-                                <small>{{ resv.user }} &middot; {{ resv.created|annotated_date }}</small>
-                            </td>
-                            <td class="text-end noprint">
-                                {% if perms.dcim.change_rackreservation %}
-                                    <a href="{% url 'dcim:rackreservation_edit' pk=resv.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm" title="Edit Reservation">
-                                        <i class="mdi mdi-pencil" aria-hidden="true"></i>
-                                    </a>
-                                {% endif %}
-                                {% if perms.dcim.delete_rackreservation %}
-                                    <a href="{% url 'dcim:rackreservation_delete' pk=resv.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-sm" title="Delete Reservation">
-                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
-                                    </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </table>
-            {% else %}
-                <div class="text-muted">None</div>
-            {% endif %}
-            </div>
-            {% if perms.dcim.add_rackreservation %}
-                <div class="card-footer text-end noprint">
-                    <a href="{% url 'dcim:rackreservation_add' %}?rack={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                        Add a Reservation
-                    </a>
-                </div>
-            {% endif %}
-        </div>
         {% plugin_left_page object %}
 	  </div>
     <div class="col col-12 col-xl-7">
@@ -300,6 +189,7 @@
               </div>
             </div>
         </div>
+        {% include 'inc/panels/related_objects.html' %}
         {% include 'dcim/inc/nonracked_devices.html' %}
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}

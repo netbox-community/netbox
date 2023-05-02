@@ -82,6 +82,10 @@ The default value to populate for the custom field when creating new objects (op
 
 For choice and multi-choice custom fields only. A comma-delimited list of the available choices.
 
+### Cloneable
+
+If enabled, values from this field will be automatically pre-populated when cloning existing objects.
+
 ### Minimum Value
 
 For numeric custom fields only. The minimum valid value (optional).

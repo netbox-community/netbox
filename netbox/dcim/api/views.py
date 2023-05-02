@@ -1,12 +1,11 @@
-import socket
-
-from django.http import Http404, HttpResponse, HttpResponseForbidden
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_yasg import openapi
-from drf_yasg.openapi import Parameter
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
@@ -15,14 +14,14 @@ from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from extras.api.views import ConfigContextQuerySetMixin
+from extras.api.nested_serializers import NestedConfigTemplateSerializer
+from extras.api.mixins import ConfigContextQuerySetMixin, ConfigTemplateRenderMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
-from netbox.api.exceptions import ServiceUnavailable
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
+from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
-from netbox.config import get_config
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
@@ -194,10 +193,6 @@ class RackViewSet(NetBoxModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filtersets.RackFilterSet
 
-    @swagger_auto_schema(
-        responses={200: serializers.RackUnitSerializer(many=True)},
-        query_serializer=serializers.RackElevationDetailFilterSerializer
-    )
     @action(detail=True)
     def elevation(self, request, pk=None):
         """
@@ -280,7 +275,7 @@ class ManufacturerViewSet(NetBoxModelViewSet):
 #
 
 class DeviceTypeViewSet(NetBoxModelViewSet):
-    queryset = DeviceType.objects.prefetch_related('manufacturer', 'tags').annotate(
+    queryset = DeviceType.objects.prefetch_related('manufacturer', 'default_platform', 'tags').annotate(
         device_count=count_related(Device, 'device_type')
     )
     serializer_class = serializers.DeviceTypeSerializer
@@ -366,7 +361,7 @@ class InventoryItemTemplateViewSet(NetBoxModelViewSet):
 #
 
 class DeviceRoleViewSet(NetBoxModelViewSet):
-    queryset = DeviceRole.objects.prefetch_related('tags').annotate(
+    queryset = DeviceRole.objects.prefetch_related('config_template', 'tags').annotate(
         device_count=count_related(Device, 'device_role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
     )
@@ -379,7 +374,7 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 #
 
 class PlatformViewSet(NetBoxModelViewSet):
-    queryset = Platform.objects.prefetch_related('tags').annotate(
+    queryset = Platform.objects.prefetch_related('config_template', 'tags').annotate(
         device_count=count_related(Device, 'platform'),
         virtualmachine_count=count_related(VirtualMachine, 'platform')
     )
@@ -391,10 +386,10 @@ class PlatformViewSet(NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
+class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
-        'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'tags',
+        'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'config_template', 'tags',
     )
     filterset_class = filtersets.DeviceFilterSet
     pagination_class = StripCountAnnotationsPaginator
@@ -419,123 +414,22 @@ class DeviceViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
 
         return serializers.DeviceWithConfigContextSerializer
 
-    @swagger_auto_schema(
-        manual_parameters=[
-            Parameter(
-                name='method',
-                in_='query',
-                required=True,
-                type=openapi.TYPE_STRING
-            )
-        ],
-        responses={'200': serializers.DeviceNAPALMSerializer}
-    )
-    @action(detail=True, url_path='napalm')
-    def napalm(self, request, pk):
+    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
+    def render_config(self, request, pk):
         """
-        Execute a NAPALM method on a Device
+        Resolve and render the preferred ConfigTemplate for this Device.
         """
-        device = get_object_or_404(self.queryset, pk=pk)
-        if not device.primary_ip:
-            raise ServiceUnavailable("This device does not have a primary IP address configured.")
-        if device.platform is None:
-            raise ServiceUnavailable("No platform is configured for this device.")
-        if not device.platform.napalm_driver:
-            raise ServiceUnavailable(f"No NAPALM driver is configured for this device's platform: {device.platform}.")
+        device = self.get_object()
+        configtemplate = device.get_config_template()
+        if not configtemplate:
+            return Response({'error': 'No config template found for this device.'}, status=HTTP_400_BAD_REQUEST)
 
-        # Check for primary IP address from NetBox object
-        if device.primary_ip:
-            host = str(device.primary_ip.address.ip)
-        else:
-            # Raise exception for no IP address and no Name if device.name does not exist
-            if not device.name:
-                raise ServiceUnavailable(
-                    "This device does not have a primary IP address or device name to lookup configured."
-                )
-            try:
-                # Attempt to complete a DNS name resolution if no primary_ip is set
-                host = socket.gethostbyname(device.name)
-            except socket.gaierror:
-                # Name lookup failure
-                raise ServiceUnavailable(
-                    f"Name lookup failure, unable to resolve IP address for {device.name}. Please set Primary IP or "
-                    f"setup name resolution.")
+        # Compile context data
+        context_data = device.get_config_context()
+        context_data.update(request.data)
+        context_data.update({'device': device})
 
-        # Check that NAPALM is installed
-        try:
-            import napalm
-            from napalm.base.exceptions import ModuleImportError
-        except ModuleNotFoundError as e:
-            if getattr(e, 'name') == 'napalm':
-                raise ServiceUnavailable("NAPALM is not installed. Please see the documentation for instructions.")
-            raise e
-
-        # Validate the configured driver
-        try:
-            driver = napalm.get_network_driver(device.platform.napalm_driver)
-        except ModuleImportError:
-            raise ServiceUnavailable("NAPALM driver for platform {} not found: {}.".format(
-                device.platform, device.platform.napalm_driver
-            ))
-
-        # Verify user permission
-        if not request.user.has_perm('dcim.napalm_read_device'):
-            return HttpResponseForbidden()
-
-        napalm_methods = request.GET.getlist('method')
-        response = {m: None for m in napalm_methods}
-
-        config = get_config()
-        username = config.NAPALM_USERNAME
-        password = config.NAPALM_PASSWORD
-        timeout = config.NAPALM_TIMEOUT
-        optional_args = config.NAPALM_ARGS.copy()
-        if device.platform.napalm_args is not None:
-            optional_args.update(device.platform.napalm_args)
-
-        # Update NAPALM parameters according to the request headers
-        for header in request.headers:
-            if header[:9].lower() != 'x-napalm-':
-                continue
-
-            key = header[9:]
-            if key.lower() == 'username':
-                username = request.headers[header]
-            elif key.lower() == 'password':
-                password = request.headers[header]
-            elif key:
-                optional_args[key.lower()] = request.headers[header]
-
-        # Connect to the device
-        d = driver(
-            hostname=host,
-            username=username,
-            password=password,
-            timeout=timeout,
-            optional_args=optional_args
-        )
-        try:
-            d.open()
-        except Exception as e:
-            raise ServiceUnavailable("Error connecting to the device at {}: {}".format(host, e))
-
-        # Validate and execute each specified NAPALM method
-        for method in napalm_methods:
-            if not hasattr(driver, method):
-                response[method] = {'error': 'Unknown NAPALM method'}
-                continue
-            if not method.startswith('get_'):
-                response[method] = {'error': 'Only get_* NAPALM methods are supported'}
-                continue
-            try:
-                response[method] = getattr(d, method)()
-            except NotImplementedError:
-                response[method] = {'error': 'Method {} not implemented for NAPALM driver {}'.format(method, driver)}
-            except Exception as e:
-                response[method] = {'error': 'Method {} failed: {}'.format(method, e)}
-        d.close()
-
-        return Response(response)
+        return self.render_configtemplate(request, configtemplate, context_data)
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):
@@ -727,28 +621,26 @@ class ConnectedDeviceViewSet(ViewSet):
     * `peer_interface`: The name of the peer interface
     """
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    _device_param = Parameter(
+    _device_param = OpenApiParameter(
         name='peer_device',
-        in_='query',
+        location='query',
         description='The name of the peer device',
         required=True,
-        type=openapi.TYPE_STRING
+        type=OpenApiTypes.STR
     )
-    _interface_param = Parameter(
+    _interface_param = OpenApiParameter(
         name='peer_interface',
-        in_='query',
+        location='query',
         description='The name of the peer interface',
         required=True,
-        type=openapi.TYPE_STRING
+        type=OpenApiTypes.STR
     )
+    serializer_class = serializers.DeviceSerializer
 
     def get_view_name(self):
         return "Connected Device Locator"
 
-    @swagger_auto_schema(
-        manual_parameters=[_device_param, _interface_param],
-        responses={'200': serializers.DeviceSerializer}
-    )
+    @extend_schema(responses={200: OpenApiTypes.OBJECT})
     def list(self, request):
 
         peer_device_name = request.query_params.get(self._device_param.name)

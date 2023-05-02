@@ -22,9 +22,7 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        Site Group
-      </h5>
+      <h5 class="card-header">Site Group</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
@@ -39,12 +37,6 @@
             <th scope="row">Parent</th>
             <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
-          <tr>
-            <th scope="row">Sites</th>
-            <td>
-              <a href="{% url 'dcim:site_list' %}?group_id={{ object.pk }}">{{ sites_table.rows|length }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -54,13 +46,18 @@
     {% plugin_left_page object %}
   </div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
+    {% plugin_right_page object %}
+	</div>
+</div>
+<div class="row mb-3">
+	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">
-        Child Groups
-      </h5>
-      <div class="card-body table-responsive">
-        {% render_table child_groups_table 'inc/table.html' %}
-      </div>
+      <h5 class="card-header">Child Groups</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:sitegroup_list' %}?parent_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
       {% if perms.dcim.add_sitegroup %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'dcim:sitegroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
@@ -68,18 +65,6 @@
           </a>
         </div>
       {% endif %}
-    </div>
-    {% plugin_right_page object %}
-	</div>
-</div>
-<div class="row mb-3">
-	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Sites</h5>
-      <div class="card-body table-responsive">
-        {% render_table sites_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
-      </div>
     </div>
     {% plugin_full_width_page object %}
   </div>

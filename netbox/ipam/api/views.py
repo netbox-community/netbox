@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
-from drf_yasg.utils import swagger_auto_schema
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -15,7 +15,7 @@ from ipam.models import *
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
-from utilities.constants import ADVISORY_LOCK_KEYS
+from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.utils import count_related
 from . import serializers
 from ipam.models import L2VPN, L2VPNTermination
@@ -32,6 +32,12 @@ class IPAMRootView(APIRootView):
 #
 # Viewsets
 #
+
+class ASNRangeViewSet(NetBoxModelViewSet):
+    queryset = ASNRange.objects.prefetch_related('tenant', 'rir').all()
+    serializer_class = serializers.ASNRangeSerializer
+    filterset_class = filtersets.ASNRangeFilterSet
+
 
 class ASNViewSet(NetBoxModelViewSet):
     queryset = ASN.objects.prefetch_related('tenant', 'rir').annotate(
@@ -201,10 +207,81 @@ def get_results_limit(request):
     return limit
 
 
+class AvailableASNsView(ObjectValidationMixin, APIView):
+    queryset = ASN.objects.all()
+
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableASNSerializer(many=True)})
+    def get(self, request, pk):
+        asnrange = get_object_or_404(ASNRange.objects.restrict(request.user), pk=pk)
+        limit = get_results_limit(request)
+
+        available_asns = asnrange.get_available_asns()[:limit]
+
+        serializer = serializers.AvailableASNSerializer(available_asns, many=True, context={
+            'request': request,
+            'range': asnrange,
+        })
+
+        return Response(serializer.data)
+
+    @extend_schema(methods=["post"], responses={201: serializers.ASNSerializer(many=True)})
+    @advisory_lock(ADVISORY_LOCK_KEYS['available-asns'])
+    def post(self, request, pk):
+        self.queryset = self.queryset.restrict(request.user, 'add')
+        asnrange = get_object_or_404(ASNRange.objects.restrict(request.user), pk=pk)
+
+        # Normalize to a list of objects
+        requested_asns = request.data if isinstance(request.data, list) else [request.data]
+
+        # Determine if the requested number of IPs is available
+        available_asns = asnrange.get_available_asns()
+        if len(available_asns) < len(requested_asns):
+            return Response(
+                {
+                    "detail": f"An insufficient number of ASNs are available within {asnrange} "
+                              f"({len(requested_asns)} requested, {len(available_asns)} available)"
+                },
+                status=status.HTTP_409_CONFLICT
+            )
+
+        # Assign ASNs from the list of available IPs and copy VRF assignment from the parent
+        for i, requested_asn in enumerate(requested_asns):
+            requested_asn.update({
+                'rir': asnrange.rir.pk,
+                'range': asnrange.pk,
+                'asn': available_asns[i],
+            })
+
+        # Initialize the serializer with a list or a single object depending on what was requested
+        context = {'request': request}
+        if isinstance(request.data, list):
+            serializer = serializers.ASNSerializer(data=requested_asns, many=True, context=context)
+        else:
+            serializer = serializers.ASNSerializer(data=requested_asns[0], context=context)
+
+        # Create the new IP address(es)
+        if serializer.is_valid():
+            try:
+                with transaction.atomic():
+                    created = serializer.save()
+                    self._validate_objects(created)
+            except ObjectDoesNotExist:
+                raise PermissionDenied()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailableASNSerializer
+
+        return serializers.ASNSerializer
+
+
 class AvailablePrefixesView(ObjectValidationMixin, APIView):
     queryset = Prefix.objects.all()
 
-    @swagger_auto_schema(responses={200: serializers.AvailablePrefixSerializer(many=True)})
+    @extend_schema(methods=["get"], responses={200: serializers.AvailablePrefixSerializer(many=True)})
     def get(self, request, pk):
         prefix = get_object_or_404(Prefix.objects.restrict(request.user), pk=pk)
         available_prefixes = prefix.get_available_prefixes()
@@ -216,10 +293,7 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @swagger_auto_schema(
-        request_body=serializers.PrefixLengthSerializer,
-        responses={201: serializers.PrefixSerializer(many=True)}
-    )
+    @extend_schema(methods=["post"], responses={201: serializers.PrefixSerializer(many=True)})
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -282,6 +356,12 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailablePrefixSerializer
+
+        return serializers.PrefixLengthSerializer
+
 
 class AvailableIPAddressesView(ObjectValidationMixin, APIView):
     queryset = IPAddress.objects.all()
@@ -289,7 +369,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
     def get_parent(self, request, pk):
         raise NotImplemented()
 
-    @swagger_auto_schema(responses={200: serializers.AvailableIPSerializer(many=True)})
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableIPSerializer(many=True)})
     def get(self, request, pk):
         parent = self.get_parent(request, pk)
         limit = get_results_limit(request)
@@ -308,10 +388,7 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @swagger_auto_schema(
-        request_body=serializers.AvailableIPSerializer,
-        responses={201: serializers.IPAddressSerializer(many=True)}
-    )
+    @extend_schema(methods=["post"], responses={201: serializers.IPAddressSerializer(many=True)})
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -356,6 +433,12 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailableIPSerializer
+
+        return serializers.IPAddressSerializer
+
 
 class PrefixAvailableIPAddressesView(AvailableIPAddressesView):
 
@@ -372,7 +455,7 @@ class IPRangeAvailableIPAddressesView(AvailableIPAddressesView):
 class AvailableVLANsView(ObjectValidationMixin, APIView):
     queryset = VLAN.objects.all()
 
-    @swagger_auto_schema(responses={200: serializers.AvailableVLANSerializer(many=True)})
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableVLANSerializer(many=True)})
     def get(self, request, pk):
         vlangroup = get_object_or_404(VLANGroup.objects.restrict(request.user), pk=pk)
         limit = get_results_limit(request)
@@ -385,10 +468,7 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @swagger_auto_schema(
-        request_body=serializers.CreateAvailableVLANSerializer,
-        responses={201: serializers.VLANSerializer(many=True)}
-    )
+    @extend_schema(methods=["post"], responses={201: serializers.VLANSerializer(many=True)})
     @advisory_lock(ADVISORY_LOCK_KEYS['available-vlans'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -440,3 +520,9 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            return serializers.AvailableVLANSerializer
+
+        return serializers.VLANSerializer

@@ -28,6 +28,10 @@
                             <td>{{ object.part_number|placeholder }}</td>
                         </tr>
                         <tr>
+                            <td>Default Platform</td>
+                            <td>{{ object.default_platform|linkify }}</td>
+                        </tr>
+                        <tr>
                             <td>Description</td>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
@@ -85,18 +89,15 @@
                                 {% endif %}
                             </td>
                         </tr>
-                        <tr>
-                            <td>Instances</td>
-                            <td><a href="{% url 'dcim:device_list' %}?device_type_id={{ object.pk }}">{{ instance_count }}</a></td>
-                        </tr>
                     </table>
                 </div>
             </div>
+            {% include 'inc/panels/tags.html' %}
             {% plugin_left_page object %}
         </div>
         <div class="col col-md-6">
+            {% include 'inc/panels/related_objects.html' %}
             {% include 'inc/panels/custom_fields.html' %}
-            {% include 'inc/panels/tags.html' %}
             {% include 'inc/panels/comments.html' %}
             {% include 'inc/panels/image_attachments.html' %}
             {% plugin_right_page object %}

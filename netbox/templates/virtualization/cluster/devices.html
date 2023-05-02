@@ -8,7 +8,7 @@
   <form action="{% url 'virtualization:cluster_remove_devices' pk=object.pk %}" method="post">
     {% csrf_token %}
     <div class="card">
-      <div class="card-body" id="object_list">
+      <div class="card-body htmx-container table-responsive" id="object_list">
         {% include 'htmx/table.html' %}
       </div>
     </div>

@@ -1,0 +1,81 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'core:datafile_list' %}?source_id={{ object.source.pk }}">{{ object.source }}</a></li>
+{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% plugin_buttons object %}
+    </div>
+    {% if request.user|can_delete:object %}
+      {% delete_button object %}
+    {% endif %}
+    <div class="control-group">
+      {% custom_links object %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col">
+      <div class="card">
+        <h5 class="card-header">Data File</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Source</th>
+              <td>{{ object.source|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Path</th>
+              <td>
+                <span class="font-monospace" id="datafile_path">{{ object.path }}</span>
+                <a class="btn btn-sm btn-primary copy-token" data-clipboard-target="#datafile_path" title="Copy to clipboard">
+                  <i class="mdi mdi-content-copy"></i>
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Last Updated</th>
+              <td>{{ object.last_updated }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Size</th>
+              <td>{{ object.size }} byte{{ object.size|pluralize }}</td>
+            </tr>
+            <tr>
+              <th scope="row">SHA256 Hash</th>
+              <td>
+              <span class="font-monospace" id="datafile_hash">{{ object.hash }}</span>
+                <a class="btn btn-sm btn-primary copy-token" data-clipboard-target="#datafile_hash" title="Copy to clipboard">
+                  <i class="mdi mdi-content-copy"></i>
+                </a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">Content</h5>
+        <div class="card-body">
+          <pre>{{ object.data_as_string }}</pre>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load form_helpers %}
+
+{% block title %}{{ report.name }}{% endblock %}
+
+{% block object_identifier %}
+  {{ report.full_name }}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module{{ module.pk }}">{{ report.module|bettertitle }}</a></li>
+{% endblock breadcrumbs %}
+
+{% block subtitle %}
+  {% if report.description %}
+    <div class="object-subtitle">
+      <div class="text-muted">{{ report.description|markdown }}</div>
+    </div>
+  {% endif %}
+{% endblock subtitle %}
+
+{% block controls %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:report' module=report.module name=report.class_name %}">Report</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:report_source' module=report.module name=report.class_name %}">Source</a>
+    </li>
+    <li class="nav-item" role="presentation">
+      <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:report_jobs' module=report.module name=report.class_name %}">
+        Jobs {% badge module.jobs.count %}
+      </a>
+    </li>
+  </ul>
+{% endblock tabs %}

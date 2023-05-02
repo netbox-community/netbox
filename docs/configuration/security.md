@@ -67,6 +67,12 @@ The name of the cookie to use for the cross-site request forgery (CSRF) authenti
 
 ---
 
+## CSRF_COOKIE_SECURE
+
+Default: False
+
+If true, the cookie employed for cross-site request forgery (CSRF) protection will be marked as secure, meaning that it can only be sent across an HTTPS connection.
+
 ---
 
 ## CSRF_TRUSTED_ORIGINS
@@ -145,11 +151,30 @@ The view name or URL to which a user is redirected after logging out.
 
 ---
 
+## SECURE_SSL_REDIRECT
+
+Default: False
+
+If true, all non-HTTPS requests will be automatically redirected to use HTTPS.
+
+!!! warning
+    Ensure that your frontend HTTP daemon has been configured to forward the HTTP scheme correctly before enabling this option. An incorrectly configured frontend may result in a looping redirect.
+
+---
+
 ## SESSION_COOKIE_NAME
 
 Default: `sessionid`
 
 The name used for the session cookie. See the [Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#session-cookie-name) for more detail.
+
+---
+
+## SESSION_COOKIE_SECURE
+
+Default: False
+
+If true, the cookie employed for session authentication will be marked as secure, meaning that it can only be sent across an HTTPS connection.
 
 ---
 

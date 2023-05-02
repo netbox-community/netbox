@@ -249,9 +249,9 @@ class APIDocsTestCase(TestCase):
     def test_api_docs(self):
 
         url = reverse('api_docs')
-        params = {
-            "format": "openapi",
-        }
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
-        response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
+        url = reverse('schema')
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

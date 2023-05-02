@@ -38,47 +38,50 @@
     {% plugin_left_page object %}
   </div>
 	<div class="col col-md-6">
-        {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/contacts.html' %}
-        {% include 'inc/panels/image_attachments.html' %}
-        {% plugin_right_page object %}
-    </div>
+    {% include 'inc/panels/related_objects.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/contacts.html' %}
+    {% include 'inc/panels/image_attachments.html' %}
+    {% plugin_right_page object %}
+  </div>
 </div>
 <div class="row my-3">
-    <div class="col col-md-12">
-        <form method="post">
-            {% csrf_token %}
-            <div class="card">
-                <div class="card-body table-responsive">
-                    {% render_table powerfeed_table 'inc/table.html' %}
-                </div>
-                <div class="card-footer noprint">
-                    {% if perms.dcim.change_powerfeed %}
-                        <button type="submit" name="_edit" formaction="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning btn-sm">
-                            <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.delete_cable %}
-                        <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
-                            <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.delete_powerfeed %}
-                        <button type="submit" name="_delete" formaction="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-sm">
-                            <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
-                        </button>
-                    {% endif %}
-                    {% if perms.dcim.add_powerfeed %}
-                        <div class="float-end">
-                            <a href="{% url 'dcim:powerfeed_add' %}?power_panel={{ object.pk }}&return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-primary btn-sm">
-                                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Power Feeds
-                            </a>
-                        </div>
-                    {% endif %}
-                 </div>
+  <div class="col col-md-12">
+    <form method="post">
+      {% csrf_token %}
+      <div class="card">
+        <h5 class="card-header">Power Feeds</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+        <div class="card-footer noprint">
+          {% if perms.dcim.change_powerfeed %}
+            <button type="submit" name="_edit" formaction="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning btn-sm">
+              <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
+            </button>
+          {% endif %}
+          {% if perms.dcim.delete_cable %}
+            <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
+              <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+            </button>
+          {% endif %}
+          {% if perms.dcim.delete_powerfeed %}
+            <button type="submit" name="_delete" formaction="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger btn-sm">
+              <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> Delete
+            </button>
+          {% endif %}
+          {% if perms.dcim.add_powerfeed %}
+            <div class="float-end">
+              <a href="{% url 'dcim:powerfeed_add' %}?power_panel={{ object.pk }}&return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Power Feeds
+              </a>
             </div>
-        </form>
-        {% plugin_full_width_page object %}
-    </div>
+          {% endif %}
+        </div>
+      </div>
+    </form>
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

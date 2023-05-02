@@ -503,6 +503,12 @@ class DeviceTypeTestCase(
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
+        platforms = (
+            Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0]),
+            Platform(name='Platform 2', slug='platform-3', manufacturer=manufacturers[1]),
+        )
+        Platform.objects.bulk_create(platforms)
+
         DeviceType.objects.bulk_create([
             DeviceType(model='Device Type 1', slug='device-type-1', manufacturer=manufacturers[0]),
             DeviceType(model='Device Type 2', slug='device-type-2', manufacturer=manufacturers[0]),
@@ -513,6 +519,7 @@ class DeviceTypeTestCase(
 
         cls.form_data = {
             'manufacturer': manufacturers[1].pk,
+            'default_platform': platforms[0].pk,
             'model': 'Device Type X',
             'slug': 'device-type-x',
             'part_number': '123ABC',
@@ -525,6 +532,7 @@ class DeviceTypeTestCase(
 
         cls.bulk_edit_data = {
             'manufacturer': manufacturers[1].pk,
+            'default_platform': platforms[1].pk,
             'u_height': 3,
             'is_full_depth': False,
         }
@@ -673,6 +681,7 @@ class DeviceTypeTestCase(
         """
         IMPORT_DATA = """
 manufacturer: Generic
+default_platform: Platform
 model: TEST-1000
 slug: test-1000
 u_height: 2
@@ -718,6 +727,7 @@ interfaces:
     mgmt_only: true
   - name: Interface 2
     type: 1000base-t
+    enabled: false
   - name: Interface 3
     type: 1000base-t
 rear-ports:
@@ -754,8 +764,11 @@ inventory-items:
     manufacturer: Generic
 """
 
-        # Create the manufacturer
-        Manufacturer(name='Generic', slug='generic').save()
+        # Create the manufacturer and platform
+        manufacturer = Manufacturer(name='Generic', slug='generic')
+        manufacturer.save()
+        platform = Platform(name='Platform', slug='test-platform', manufacturer=manufacturer)
+        platform.save()
 
         # Add all required permissions to the test user
         self.add_permissions(
@@ -782,6 +795,7 @@ inventory-items:
 
         device_type = DeviceType.objects.get(model='TEST-1000')
         self.assertEqual(device_type.comments, 'Test comment')
+        self.assertEqual(device_type.default_platform.pk, platform.pk)
 
         # Verify all of the components were created
         self.assertEqual(device_type.consoleporttemplates.count(), 3)
@@ -811,6 +825,10 @@ inventory-items:
         self.assertEqual(iface1.name, 'Interface 1')
         self.assertEqual(iface1.type, InterfaceTypeChoices.TYPE_1GE_FIXED)
         self.assertTrue(iface1.mgmt_only)
+        self.assertTrue(iface1.enabled)
+
+        iface2 = InterfaceTemplate.objects.filter(name="Interface 2").first()
+        self.assertFalse(iface2.enabled)
 
         self.assertEqual(device_type.rearporttemplates.count(), 3)
         rp1 = RearPortTemplate.objects.first()
@@ -1979,7 +1997,7 @@ class ModuleTestCase(
         }
 
         initial_count = Module.objects.count()
-        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(Module.objects.count(), initial_count + len(csv_data) - 1)
         self.assertEqual(Interface.objects.filter(device=device).count(), 0)
 
@@ -1995,7 +2013,7 @@ class ModuleTestCase(
         }
 
         initial_count = Module.objects.count()
-        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(Module.objects.count(), initial_count + len(csv_data) - 1)
         self.assertEqual(Interface.objects.filter(device=device).count(), 5)
 
@@ -2071,7 +2089,7 @@ class ModuleTestCase(
         }
 
         initial_count = self._get_queryset().count()
-        self.assertHttpStatus(self.client.post(**request), 200)
+        self.assertHttpStatus(self.client.post(**request), 302)
         self.assertEqual(self._get_queryset().count(), initial_count + len(csv_data) - 1)
 
         # Re-retrieve interface to get new module id

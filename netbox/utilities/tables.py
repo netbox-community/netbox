@@ -1,3 +1,8 @@
+__all__ = (
+    'linkify_phone',
+)
+
+
 def linkify_phone(value):
     """
     Render a telephone number as a hyperlink.

@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import Provider
+from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from dcim.models import Location
 from extras.choices import *
@@ -89,12 +90,16 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+        content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device'])
 
         webhooks = (
             Webhook(
                 name='Webhook 1',
                 type_create=True,
+                type_update=False,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=False,
                 payload_url='http://example.com/?1',
                 enabled=True,
                 http_method='GET',
@@ -102,7 +107,11 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
             ),
             Webhook(
                 name='Webhook 2',
+                type_create=False,
                 type_update=True,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=False,
                 payload_url='http://example.com/?2',
                 enabled=True,
                 http_method='POST',
@@ -110,8 +119,36 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
             ),
             Webhook(
                 name='Webhook 3',
+                type_create=False,
+                type_update=False,
                 type_delete=True,
+                type_job_start=False,
+                type_job_end=False,
                 payload_url='http://example.com/?3',
+                enabled=False,
+                http_method='PATCH',
+                ssl_verification=False,
+            ),
+            Webhook(
+                name='Webhook 4',
+                type_create=False,
+                type_update=False,
+                type_delete=False,
+                type_job_start=True,
+                type_job_end=False,
+                payload_url='http://example.com/?4',
+                enabled=False,
+                http_method='PATCH',
+                ssl_verification=False,
+            ),
+            Webhook(
+                name='Webhook 5',
+                type_create=False,
+                type_update=False,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=True,
+                payload_url='http://example.com/?5',
                 enabled=False,
                 http_method='PATCH',
                 ssl_verification=False,
@@ -121,15 +158,17 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
         webhooks[0].content_types.add(content_types[0])
         webhooks[1].content_types.add(content_types[1])
         webhooks[2].content_types.add(content_types[2])
+        webhooks[3].content_types.add(content_types[3])
+        webhooks[4].content_types.add(content_types[4])
 
     def test_name(self):
         params = {'name': ['Webhook 1', 'Webhook 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_types(self):
-        params = {'content_types': 'dcim.site'}
+        params = {'content_types': 'dcim.region'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'content_type_id': [ContentType.objects.get_for_model(Region).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_type_create(self):
@@ -142,6 +181,14 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 
     def test_type_delete(self):
         params = {'type_delete': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_job_start(self):
+        params = {'type_job_start': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_job_end(self):
+        params = {'type_job_end': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_enabled(self):
@@ -743,6 +790,28 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class ConfigTemplateTestCase(TestCase, BaseFilterSetTests):
+    queryset = ConfigTemplate.objects.all()
+    filterset = ConfigTemplateFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        config_templates = (
+            ConfigTemplate(name='Config Template 1', template_code='TESTING', description='foobar1'),
+            ConfigTemplate(name='Config Template 2', template_code='TESTING', description='foobar2'),
+            ConfigTemplate(name='Config Template 3', template_code='TESTING'),
+        )
+        ConfigTemplate.objects.bulk_create(config_templates)
+
+    def test_name(self):
+        params = {'name': ['Config Template 1', 'Config Template 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
@@ -878,3 +947,71 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
         params = {'changed_object_type_id': [ContentType.objects.get(app_label='dcim', model='site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+
+class ChangeLoggedFilterSetTestCase(TestCase):
+    """
+    Evaluate base ChangeLoggedFilterSet filters using the Site model.
+    """
+    queryset = Site.objects.all()
+    filterset = SiteFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_type = ContentType.objects.get_for_model(Site)
+
+        # Create three sites
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        # Simulate *creation* changelog records for two of the sites
+        request_id = uuid.uuid4()
+        objectchanges = (
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[0].pk,
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                request_id=request_id
+            ),
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[1].pk,
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                request_id=request_id
+            ),
+        )
+        ObjectChange.objects.bulk_create(objectchanges)
+
+        # Simulate *update* changelog records for two of the sites
+        request_id = uuid.uuid4()
+        objectchanges = (
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[0].pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                request_id=request_id
+            ),
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[1].pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                request_id=request_id
+            ),
+        )
+        ObjectChange.objects.bulk_create(objectchanges)
+
+    def test_created_by_request(self):
+        request_id = ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_CREATE).first().request_id
+        params = {'created_by_request': request_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.queryset.count(), 3)
+
+    def test_updated_by_request(self):
+        request_id = ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_UPDATE).first().request_id
+        params = {'updated_by_request': request_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.queryset.count(), 3)

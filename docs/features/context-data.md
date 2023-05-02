@@ -11,6 +11,8 @@ Configuration context data (or "config contexts" for short) is a powerful featur
 }
 ```
 
+Context data can be consumed by remote API clients, or it can be employed natively to render [configuration templates](./configuration-rendering.md).
+
 Config contexts can be computed for objects based on the following criteria:
 
 | Type          | Devices          | Virtual Machines |

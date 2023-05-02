@@ -1,0 +1,18 @@
+{% if widget.attrs.selector and not widget.attrs.disabled %}
+  <div class="d-flex">
+    {% include 'django/forms/widgets/select.html' %}
+    <button
+      type="button"
+      title="Open selector"
+      class="btn btn-sm btn-outline-dark border-input ms-1"
+      data-bs-toggle="modal"
+      data-bs-target="#htmx-modal"
+      hx-get="{% url 'htmx_object_selector' %}?_model={{ widget.attrs.selector }}&target={{ widget.attrs.id }}"
+      hx-target="#htmx-modal-content"
+    >
+      <i class="mdi mdi-database-search-outline"></i>
+    </button>
+  </div>
+{% else %}
+  {% include 'django/forms/widgets/select.html' %}
+{% endif %}

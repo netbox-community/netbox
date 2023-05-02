@@ -1,0 +1,13 @@
+<div class="list-group">
+  {% for object in results %}
+    <a href="#" class="list-group-item list-group-item-action" data-label="{{ object }}" data-value="{{ object.pk }}" data-bs-dismiss="modal">
+      <h6 class="mb-1">
+        {{ object }}
+        {% if object.status %}{% badge object.get_status_display bg_color=object.get_status_color %}{% endif %}
+      </h6>
+      {% if object.description %}
+        <small>{{ object.description }}</small>
+      {% endif %}
+    </a>
+  {% endfor %}
+</div>

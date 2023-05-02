@@ -42,24 +42,6 @@
             <th scope="row">Description</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
-          <tr>
-            <th scope="row">Device types</th>
-            <td>
-              <a href="{% url 'dcim:devicetype_list' %}?manufacturer_id={{ object.pk }}">{{ devicetypes_table.rows|length }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Module types</th>
-            <td>
-              <a href="{% url 'dcim:moduletype_list' %}?manufacturer_id={{ object.pk }}">{{ module_type_count }}</a>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">Inventory Items</th>
-            <td>
-              <a href="{% url 'dcim:inventoryitem_list' %}?manufacturer_id={{ object.pk }}">{{ inventory_item_count }}</a>
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -67,6 +49,7 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/contacts.html' %}
     {% plugin_right_page object %}
@@ -74,13 +57,6 @@
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Device Types</h5>
-      <div class="card-body table-responsive">
-        {% render_table devicetypes_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=devicetypes_table.paginator page=devicetypes_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

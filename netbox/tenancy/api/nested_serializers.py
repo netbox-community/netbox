@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from netbox.api.serializers import WritableNestedSerializer
@@ -17,6 +18,9 @@ __all__ = [
 # Tenants
 #
 
+@extend_schema_serializer(
+    exclude_fields=('tenant_count',),
+)
 class NestedTenantGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
     tenant_count = serializers.IntegerField(read_only=True)
@@ -39,6 +43,9 @@ class NestedTenantSerializer(WritableNestedSerializer):
 # Contacts
 #
 
+@extend_schema_serializer(
+    exclude_fields=('contact_count',),
+)
 class NestedContactGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactgroup-detail')
     contact_count = serializers.IntegerField(read_only=True)

@@ -6,7 +6,7 @@ from django.utils.html import format_html
 
 from netbox.config import get_config, PARAMS
 from .forms import ConfigRevisionForm
-from .models import ConfigRevision, JobResult
+from .models import ConfigRevision
 
 
 @admin.register(ConfigRevision)
@@ -35,15 +35,11 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('CUSTOM_VALIDATORS',),
             'classes': ('monospace',),
         }),
-        ('NAPALM', {
-            'fields': ('NAPALM_USERNAME', 'NAPALM_PASSWORD', 'NAPALM_TIMEOUT', 'NAPALM_ARGS'),
-            'classes': ('monospace',),
-        }),
         ('User Preferences', {
             'fields': ('DEFAULT_USER_PREFERENCES',),
         }),
         ('Miscellaneous', {
-            'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOBRESULT_RETENTION', 'MAPS_URL'),
+            'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL'),
         }),
         ('Config Revision', {
             'fields': ('comment',),

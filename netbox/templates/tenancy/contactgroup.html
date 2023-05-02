@@ -31,12 +31,6 @@
               <th scope="row">Parent</th>
               <td>{{ object.parent|linkify|placeholder }}</td>
             </tr>
-            <tr>
-              <th scope="row">Contacts</th>
-              <td>
-                <a href="{% url 'tenancy:contact_list' %}?group_id={{ object.pk }}">{{ contacts_table.rows|length }}</a>
-              </td>
-            </tr>
           </table>
         </div>
       </div>
@@ -44,35 +38,26 @@
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+      {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
-      <div class="card">
-        <h5 class="card-header">
-          Child Groups
-        </h5>
-        <div class="card-body table-responsive">
-          {% render_table child_groups_table 'inc/table.html' %}
-        </div>
-        {% if perms.tenancy.add_contactgroup %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
-              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Contact Group
-            </a>
-          </div>
-        {% endif %}
-      </div>
       {% plugin_right_page object %}
     </div>
   </div>
-  <div class="row mb-3">
-    <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">Contacts</h5>
-        <div class="card-body table-responsive">
-          {% render_table contacts_table 'inc/table.html' %}
-          {% include 'inc/paginator.html' with paginator=contacts_table.paginator page=contacts_table.page %}
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">Child Groups</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'tenancy:contactgroup_list' %}?parent_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
+      {% if perms.tenancy.add_contactgroup %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Contact Group
+          </a>
         </div>
-      </div>
-      {% plugin_full_width_page object %}
+      {% endif %}
     </div>
+    {% plugin_full_width_page object %}
   </div>
 {% endblock %}

@@ -1,7 +1,7 @@
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import *
-from utilities.forms import CSVModelChoiceField, SlugField
+from utilities.forms.fields import CSVModelChoiceField, SlugField
 
 __all__ = (
     'ContactImportForm',

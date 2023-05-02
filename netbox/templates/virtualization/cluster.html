@@ -44,10 +44,6 @@
                     <th scope="row">Site</th>
                     <td>{{ object.site|linkify|placeholder }}</td>
                 </tr>
-                <tr>
-                    <th scope="row">Virtual Machines</th>
-                    <td><a href="{% url 'virtualization:virtualmachine_list' %}?cluster_id={{ object.pk }}">{{ object.virtual_machines.count }}</a></td>
-                </tr>
             </table>
         </div>
     </div>

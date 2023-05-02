@@ -2,7 +2,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from tenancy.models import *
-from utilities.forms import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
     'ContactModelFilterForm',

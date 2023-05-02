@@ -5,8 +5,8 @@ from django.conf import settings
 from django_rq import job
 from jinja2.exceptions import TemplateError
 
-from .choices import ObjectChangeActionChoices
 from .conditions import ConditionSet
+from .constants import WEBHOOK_EVENT_TYPES
 from .webhooks import generate_signature
 
 logger = logging.getLogger('netbox.webhooks_worker')
@@ -28,7 +28,7 @@ def eval_conditions(webhook, data):
 
 
 @job('default')
-def process_webhook(webhook, model_name, event, data, snapshots, timestamp, username, request_id):
+def process_webhook(webhook, model_name, event, data, timestamp, username, request_id=None, snapshots=None):
     """
     Make a POST request to the defined Webhook
     """
@@ -38,14 +38,17 @@ def process_webhook(webhook, model_name, event, data, snapshots, timestamp, user
 
     # Prepare context data for headers & body templates
     context = {
-        'event': dict(ObjectChangeActionChoices)[event].lower(),
+        'event': WEBHOOK_EVENT_TYPES[event],
         'timestamp': timestamp,
         'model': model_name,
         'username': username,
         'request_id': request_id,
         'data': data,
-        'snapshots': snapshots,
     }
+    if snapshots:
+        context.update({
+            'snapshots': snapshots
+        })
 
     # Build the headers for the HTTP request
     headers = {

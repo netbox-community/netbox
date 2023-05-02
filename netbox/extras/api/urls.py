@@ -1,3 +1,5 @@
+from django.urls import include, path
+
 from netbox.api.routers import NetBoxRouter
 from . import views
 
@@ -14,11 +16,14 @@ router.register('tags', views.TagViewSet)
 router.register('image-attachments', views.ImageAttachmentViewSet)
 router.register('journal-entries', views.JournalEntryViewSet)
 router.register('config-contexts', views.ConfigContextViewSet)
+router.register('config-templates', views.ConfigTemplateViewSet)
 router.register('reports', views.ReportViewSet, basename='report')
 router.register('scripts', views.ScriptViewSet, basename='script')
 router.register('object-changes', views.ObjectChangeViewSet)
-router.register('job-results', views.JobResultViewSet)
 router.register('content-types', views.ContentTypeViewSet)
 
 app_name = 'extras-api'
-urlpatterns = router.urls
+urlpatterns = [
+    path('dashboard/', views.DashboardView.as_view(), name='dashboard'),
+    path('', include(router.urls)),
+]

@@ -28,14 +28,13 @@ class WirelessLANGroupView(generic.ObjectView):
     queryset = WirelessLANGroup.objects.all()
 
     def get_extra_context(self, request, instance):
-        wirelesslans = WirelessLAN.objects.restrict(request.user, 'view').filter(
-            group=instance
+        groups = instance.get_descendants(include_self=True)
+        related_models = (
+            (WirelessLAN.objects.restrict(request.user, 'view').filter(group__in=groups), 'group_id'),
         )
-        wirelesslans_table = tables.WirelessLANTable(wirelesslans, user=request.user, exclude=('group',))
-        wirelesslans_table.configure(request)
 
         return {
-            'wirelesslans_table': wirelesslans_table,
+            'related_models': related_models,
         }
 
 
@@ -53,7 +52,6 @@ class WirelessLANGroupDeleteView(generic.ObjectDeleteView):
 class WirelessLANGroupBulkImportView(generic.BulkImportView):
     queryset = WirelessLANGroup.objects.all()
     model_form = forms.WirelessLANGroupImportForm
-    table = tables.WirelessLANGroupTable
 
 
 class WirelessLANGroupBulkEditView(generic.BulkEditView):
@@ -124,7 +122,6 @@ class WirelessLANDeleteView(generic.ObjectDeleteView):
 class WirelessLANBulkImportView(generic.BulkImportView):
     queryset = WirelessLAN.objects.all()
     model_form = forms.WirelessLANImportForm
-    table = tables.WirelessLANTable
 
 
 class WirelessLANBulkEditView(generic.BulkEditView):
@@ -170,7 +167,6 @@ class WirelessLinkDeleteView(generic.ObjectDeleteView):
 class WirelessLinkBulkImportView(generic.BulkImportView):
     queryset = WirelessLink.objects.all()
     model_form = forms.WirelessLinkImportForm
-    table = tables.WirelessLinkTable
 
 
 class WirelessLinkBulkEditView(generic.BulkEditView):
