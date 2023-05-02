@@ -6,7 +6,7 @@
 
 {% block content %}
   <div class="card">
-    <div class="card-body table-responsive journal-table">
+    <div class="card-body table-responsive spaced-paragraph-table">
       {% render_table table 'inc/table.html' %}
       {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
