@@ -29,6 +29,7 @@ class CustomFieldTable(NetBoxTable):
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
+    description = columns.MarkdownColumn()
     is_cloneable = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
