@@ -229,7 +229,13 @@ class ObjectListWidget(DashboardWidget):
             htmx_url = reverse(viewname)
         except NoReverseMatch:
             htmx_url = None
-        if parameters := self.config.get('url_params'):
+        parameters = self.config.get('url_params')
+        if page_size := self.config.get('page_size'):
+            if not parameters:
+                parameters = {}
+            parameters['page_size'] = page_size
+
+        if parameters:
             try:
                 htmx_url = f'{htmx_url}?{urlencode(parameters, doseq=True)}'
             except ValueError:
@@ -238,7 +244,6 @@ class ObjectListWidget(DashboardWidget):
             'viewname': viewname,
             'has_permission': has_permission,
             'htmx_url': htmx_url,
-            'page_size': self.config.get('page_size'),
         })
 
 

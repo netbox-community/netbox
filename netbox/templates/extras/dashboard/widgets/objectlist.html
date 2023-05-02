@@ -1,5 +1,5 @@
 {% if htmx_url and has_permission %}
-  <div class="htmx-container" hx-get="{{ htmx_url }}{% if page_size %}?per_page={{ page_size }}{% endif %}" hx-trigger="load"></div>
+  <div class="htmx-container" hx-get="{{ htmx_url }}" hx-trigger="load"></div>
 {% elif htmx_url %}
   <div class="text-muted text-center">
     <i class="mdi mdi-lock-outline"></i> No permission to view this content.
