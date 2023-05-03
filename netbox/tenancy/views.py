@@ -14,7 +14,6 @@ from . import filtersets, forms, tables
 from .models import *
 
 
-
 class ChildContactView(generic.ObjectChildrenView):
     child_model = Contact
     table = tables.ContactTable
@@ -32,11 +31,10 @@ class ChildContactView(generic.ObjectChildrenView):
             assignment_count=count_related(ContactAssignment, 'contact')
         ).restrict(request.user, 'view').filter(assignments__object_id=parent.pk)
 
-
-
 #
 # Tenant groups
 #
+
 
 class TenantGroupListView(generic.ObjectListView):
     queryset = TenantGroup.objects.add_related_count(
@@ -370,6 +368,7 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
 #
 # Contact assignments
 #
+
 
 class ContactAssignmentListView(generic.ObjectListView):
     queryset = ContactAssignment.objects.all()
