@@ -262,30 +262,18 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
 
 class IPAddressForm(TenancyForm, NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        initial_params={
-            'interfaces': '$interface'
-        }
-    )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
+        selector=True,
         query_params={
             'device_id': '$device'
-        }
-    )
-    virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        initial_params={
-            'interfaces': '$vminterface'
         }
     )
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
+        selector=True,
         label=_('Interface'),
         query_params={
             'virtual_machine_id': '$virtual_machine'
@@ -294,24 +282,13 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     fhrpgroup = DynamicModelChoiceField(
         queryset=FHRPGroup.objects.all(),
         required=False,
+        selector=True,
         label=_('FHRP Group')
     )
     vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
         label=_('VRF')
-    )
-    nat_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        selector=True,
-        label=_('Device')
-    )
-    nat_virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        selector=True,
-        label=_('Virtual Machine')
     )
     nat_vrf = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
@@ -322,10 +299,9 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     nat_inside = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
+        selector=True,
         label=_('IP Address'),
         query_params={
-            'device_id': '$nat_device',
-            'virtual_machine_id': '$nat_virtual_machine',
             'vrf_id': '$nat_vrf',
         }
     )
@@ -338,8 +314,8 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_device', 'nat_virtual_machine',
-            'nat_vrf', 'nat_inside', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_vrf', 'nat_inside',
+            'tenant_group', 'tenant', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -354,17 +330,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 initial['vminterface'] = instance.assigned_object
             elif type(instance.assigned_object) is FHRPGroup:
                 initial['fhrpgroup'] = instance.assigned_object
-            if instance.nat_inside:
-                nat_inside_parent = instance.nat_inside.assigned_object
-                if type(nat_inside_parent) is Interface:
-                    initial['nat_site'] = nat_inside_parent.device.site.pk
-                    if nat_inside_parent.device.rack:
-                        initial['nat_rack'] = nat_inside_parent.device.rack.pk
-                    initial['nat_device'] = nat_inside_parent.device.pk
-                elif type(nat_inside_parent) is VMInterface:
-                    if cluster := nat_inside_parent.virtual_machine.cluster:
-                        initial['nat_cluster'] = cluster.pk
-                    initial['nat_virtual_machine'] = nat_inside_parent.virtual_machine.pk
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
