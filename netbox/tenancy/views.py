@@ -7,11 +7,31 @@ from dcim.models import Cable, Device, Location, Rack, RackReservation, Site, Vi
 from ipam.models import Aggregate, ASN, IPAddress, IPRange, L2VPN, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.utils import count_related
-from utilities.views import register_model_view
+from utilities.views import register_model_view, ViewTab
 from virtualization.models import VirtualMachine, Cluster
 from wireless.models import WirelessLAN, WirelessLink
 from . import filtersets, forms, tables
 from .models import *
+
+
+
+class ChildContactView(generic.ObjectChildrenView):
+    child_model = Contact
+    table = tables.ContactTable
+    filterset = filtersets.ContactFilterSet
+    template_name = 'tenancy/contact_children.html'
+    tab = ViewTab(
+        label=_('Contacts'),
+        badge=lambda obj: obj.contacts.count(),
+        permission='tenancy.view_contact',
+        weight=5000
+    )
+
+    def get_children(self, request, parent):
+        return Contact.objects.annotate(
+            assignment_count=count_related(ContactAssignment, 'contact')
+        ).restrict(request.user, 'view').filter(assignments__object_id=parent.pk)
+
 
 
 #
@@ -163,6 +183,11 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
+
+
+@register_model_view(Tenant, 'contacts')
+class TenantContactsView(ChildContactView):
+    queryset = Tenant.objects.all()
 
 
 #
@@ -341,7 +366,6 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
-
 
 #
 # Contact assignments

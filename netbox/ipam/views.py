@@ -9,6 +9,7 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from tenancy.views import ChildContactView
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
@@ -1289,6 +1290,11 @@ class L2VPNBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPN.objects.all()
     filterset = filtersets.L2VPNFilterSet
     table = tables.L2VPNTable
+
+
+@register_model_view(L2VPN, 'contacts')
+class L2VPNContactsView(ChildContactView):
+    queryset = L2VPN.objects.all()
 
 
 #

@@ -9,9 +9,10 @@ from dcim.filtersets import DeviceFilterSet
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
-from ipam.models import IPAddress, Service
+from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
+from tenancy.views import ChildContactView
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
@@ -138,6 +139,11 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ClusterGroupFilterSet
     table = tables.ClusterGroupTable
+
+
+@register_model_view(ClusterGroup, 'contacts')
+class ClusterGroupContactsView(ChildContactView):
+    queryset = ClusterGroup.objects.all()
 
 
 #
@@ -312,6 +318,11 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
         })
 
 
+@register_model_view(Cluster, 'contacts')
+class ClusterContactsView(ChildContactView):
+    queryset = Cluster.objects.all()
+
+
 #
 # Virtual machines
 #
@@ -388,6 +399,11 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
     queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
     table = tables.VirtualMachineTable
+
+
+@register_model_view(VirtualMachine, 'contacts')
+class VirtualMachineContactsView(ChildContactView):
+    queryset = VirtualMachine.objects.all()
 
 
 #
