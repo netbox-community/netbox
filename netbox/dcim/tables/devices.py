@@ -39,6 +39,10 @@ __all__ = (
     'VirtualDeviceContextTable'
 )
 
+MODULEBAY_STATUS = """
+{% badge record.installed_module.get_status_display bg_color=record.installed_module.get_status_color %}
+"""
+
 
 def get_cabletermination_row_class(record):
     if record.mark_connected:
@@ -781,14 +785,17 @@ class ModuleBayTable(DeviceComponentTable):
     tags = columns.TagColumn(
         url_name='dcim:modulebay_list'
     )
+    status = columns.TemplateColumn(
+        template_code=MODULEBAY_STATUS
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'module_serial', 'module_asset_tag',
-            'description', 'tags',
+            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'status', 'module_serial',
+            'module_asset_tag', 'description', 'tags',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'description')
+        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'status', 'description')
 
 
 class DeviceModuleBayTable(ModuleBayTable):
@@ -796,13 +803,17 @@ class DeviceModuleBayTable(ModuleBayTable):
         extra_buttons=MODULEBAY_BUTTONS
     )
 
+    status = columns.TemplateColumn(
+        template_code=MODULEBAY_STATUS,
+    )
+
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'module_serial', 'module_asset_tag',
+            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'status', 'module_serial', 'module_asset_tag',
             'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'installed_module', 'description')
+        default_columns = ('pk', 'name', 'label', 'installed_module', 'status', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):
