@@ -266,18 +266,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         queryset=Interface.objects.all(),
         required=False,
         selector=True,
-        query_params={
-            'device_id': '$device'
-        }
     )
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
         selector=True,
         label=_('Interface'),
-        query_params={
-            'virtual_machine_id': '$virtual_machine'
-        }
     )
     fhrpgroup = DynamicModelChoiceField(
         queryset=FHRPGroup.objects.all(),
@@ -290,20 +284,11 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('VRF')
     )
-    nat_vrf = DynamicModelChoiceField(
-        queryset=VRF.objects.all(),
-        required=False,
-        selector=True,
-        label=_('VRF')
-    )
     nat_inside = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
         selector=True,
         label=_('IP Address'),
-        query_params={
-            'vrf_id': '$nat_vrf',
-        }
     )
     primary_for_parent = forms.BooleanField(
         required=False,
@@ -314,8 +299,8 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_vrf', 'nat_inside',
-            'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_inside', 'tenant_group',
+            'tenant', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
