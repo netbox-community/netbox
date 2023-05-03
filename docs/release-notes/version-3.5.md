@@ -2,6 +2,12 @@
 
 ## v3.5.1 (FUTURE)
 
+## Enhancements
+
+* [#10759](https://github.com/netbox-community/netbox/issues/10759) - Support Markdown rendering for custom field descriptions
+* [#11422](https://github.com/netbox-community/netbox/issues/11422) - Match on power panel name when searching for power feeds
+* [#11504](https://github.com/netbox-community/netbox/issues/11504) - Add filter to select individual racks under rack elevations view
+
 ### Bug Fixes
 
 * [#12367](https://github.com/netbox-community/netbox/issues/12367) - Fix `RelatedObjectDoesNotExist` exception under certain conditions (regression from #11550)
@@ -15,6 +21,7 @@
 * [#12410](https://github.com/netbox-community/netbox/issues/12410) - Fix base path for OpenAPI schema (fixes Swagger UI requests)
 * [#12412](https://github.com/netbox-community/netbox/issues/12412) - Device/VM interface MAC addresses can be nullified via REST API
 * [#12415](https://github.com/netbox-community/netbox/issues/12415) - Fix `ImportError` exception when running RQ worker
+* [#12433](https://github.com/netbox-community/netbox/issues/12433) - Correct the application of URL query parameters for object list dashboard widgets
 * [#12436](https://github.com/netbox-community/netbox/issues/12436) - Remove extraneous "add" button from contact assignments list
 
 ---
