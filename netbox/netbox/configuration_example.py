@@ -13,7 +13,7 @@ ALLOWED_HOSTS = []
 # PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
 #   https://docs.djangoproject.com/en/stable/ref/settings/#databases
 DATABASE = {
-    'ENGINE': 'django.db.backends.postgresql', # Database engine
+    'ENGINE': 'django.db.backends.postgresql',  # Database engine
     'NAME': 'netbox',         # Database name
     'USER': '',               # PostgreSQL username
     'PASSWORD': '',           # PostgreSQL password
