@@ -229,6 +229,10 @@ table {
       line-height: $line-height-xs;
     }
 
+    p {
+      margin-bottom: 0.5em;
+    }
+
     p:last-child {
       // Remove spacing from paragraph elements within tables.
       margin-bottom: 0;
