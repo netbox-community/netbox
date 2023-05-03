@@ -229,7 +229,7 @@ table {
       line-height: $line-height-xs;
     }
 
-    p {
+    p:last-child {
       // Remove spacing from paragraph elements within tables.
       margin-bottom: 0;
     }
@@ -262,16 +262,6 @@ table {
     th {
       font-weight: normal;
       width: 25%;
-    }
-  }
-}
-
-.spaced-paragraph-table table {
-  td,
-  th {
-    p {
-      // Remove spacing from paragraph elements within tables.
-      margin-bottom: 1rem;
     }
   }
 }
