@@ -229,9 +229,9 @@ class ObjectListWidget(DashboardWidget):
             htmx_url = reverse(viewname)
         except NoReverseMatch:
             htmx_url = None
-        parameters = self.config.get('url_params', {})
+        parameters = self.config.get('url_params') or {}
         if page_size := self.config.get('page_size'):
-            parameters['page_size'] = page_size
+            parameters['per_page'] = page_size
 
         if parameters:
             try:
