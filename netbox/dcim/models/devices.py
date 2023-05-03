@@ -184,6 +184,8 @@ class DeviceType(PrimaryModel, WeightMixin):
             'subdevice_role': self.subdevice_role,
             'airflow': self.airflow,
             'comments': self.comments,
+            'weight': float(self.weight) if self.weight is not None else None,
+            'weight_unit': self.weight_unit,
         }
 
         # Component templates

@@ -293,11 +293,22 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         help_text=_('The default platform for devices of this type (optional)')
     )
 
+    weight = forms.DecimalField(
+        required=False,
+        help_text=_("Device weight"),
+    )
+
+    weight_unit = CSVChoiceField(
+        choices=WeightUnitChoices,
+        required=False,
+        help_text=_('Unit for device weight')
+    )
+
     class Meta:
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'description', 'comments',
+            'subdevice_role', 'airflow', 'description', 'comments', 'weight', 'weight_unit',
         ]
 
 

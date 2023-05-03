@@ -852,6 +852,56 @@ inventory-items:
         ii1 = InventoryItemTemplate.objects.first()
         self.assertEqual(ii1.name, 'Inventory Item 1')
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_import_devicetype_with_weight(self):
+        """
+        Custom import test for JSON-based imports specifically including device weight
+        """
+        IMPORT_DATA = """
+{
+    "manufacturer": "Manufacturer 1",
+    "model": "ABCDEFG",
+    "slug": "abcdefg",
+    "u_height": 1,
+    "is_full_depth": false,
+    "airflow": "front-to-rear",
+    "description": "DeviceType with weight",
+    "weight": 10,
+    "weight_unit": "kg"
+}
+"""
+        # Add all required permissions to the test user
+        self.add_permissions(
+            'dcim.view_devicetype',
+            'dcim.add_devicetype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+            'dcim.add_modulebaytemplate',
+            'dcim.add_devicebaytemplate',
+            'dcim.add_inventoryitemtemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'json'
+        }
+        response = self.client.post(reverse('dcim:devicetype_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        device_type = DeviceType.objects.get(model='ABCDEFG')
+        self.assertEqual(device_type.slug, "abcdefg")
+        self.assertEqual(device_type.u_height, 1)
+        self.assertFalse(device_type.is_full_depth)
+        self.assertEqual(device_type.airflow, DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR)
+        self.assertEqual(device_type.description, 'DeviceType with weight')
+        self.assertEqual(device_type.weight, 10)
+        self.assertEqual(device_type.weight_unit, WeightUnitChoices.UNIT_KILOGRAM)
+
     def test_export_objects(self):
         url = reverse('dcim:devicetype_list')
         self.add_permissions('dcim.view_devicetype')
