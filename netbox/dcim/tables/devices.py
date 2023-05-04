@@ -803,10 +803,6 @@ class DeviceModuleBayTable(ModuleBayTable):
         extra_buttons=MODULEBAY_BUTTONS
     )
 
-    status = columns.TemplateColumn(
-        template_code=MODULEBAY_STATUS,
-    )
-
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
