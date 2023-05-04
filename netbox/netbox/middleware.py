@@ -180,7 +180,7 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if settings.MAINTENANCE_MODE:
+        if getattr(settings, 'MAINTENANCE_MODE', False):
             self._prevent_db_write_operations()
 
         return self.get_response(request)
