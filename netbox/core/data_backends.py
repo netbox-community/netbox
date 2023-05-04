@@ -12,7 +12,7 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext as _
 from dulwich import porcelain
-from dulwich.config import StackedConfig
+from dulwich.config import ConfigDict
 
 from netbox.registry import registry
 from .choices import DataSourceTypeChoices
@@ -91,7 +91,7 @@ class GitBackend(DataBackend):
     def fetch(self):
         local_path = tempfile.TemporaryDirectory()
 
-        config = StackedConfig.default()
+        config = ConfigDict()
         clone_args = {
             "branch": self.params.get('branch'),
             "config": config,
