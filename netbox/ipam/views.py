@@ -496,7 +496,7 @@ class PrefixView(generic.ObjectView):
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
-            Q(vrf=instance.vrf) | Q(Q(vrf__isnull=True) & Q(status=PrefixStatusChoices.STATUS_CONTAINER))
+            Q(vrf=instance.vrf) | Q(vrf__isnull=True, status=PrefixStatusChoices.STATUS_CONTAINER)
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
