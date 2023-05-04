@@ -46,14 +46,14 @@ def get_device_description(device):
     Device Type: Device Type Manufacturer Device Type Model (Device Type U Height) (Device Asset Tag) (Device Serial)
     """
     description = f'Name: {device.name}'
-    description += f'\nRole: {device.device_role}'
-    if device.description:
-        description += f'\nDescription: {device.description}'
-    description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({floatformat(device.device_type.u_height)})'
     if device.asset_tag:
         description += f' {device.asset_tag}'
     if device.serial:
         description += f' {device.serial}'
+    description += f'\nRole: {device.device_role}'
+    if device.description:
+        description += f'\nDescription: {device.description}'
+    description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({floatformat(device.device_type.u_height)})'
 
     return description
 
