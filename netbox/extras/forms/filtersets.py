@@ -144,7 +144,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
         ('Attributes', ('content_type', 'name',)),
     )
 
-    content_type = ContentTypeChoiceField(
+    content_type_id = ContentTypeChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
         required=False
     )
