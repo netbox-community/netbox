@@ -31,6 +31,7 @@ def register_backend(name):
     """
     Decorator for registering a DataBackend class.
     """
+
     def _wrapper(cls):
         registry['data_backends'][name] = cls
         return cls
@@ -56,7 +57,6 @@ class DataBackend:
 
 @register_backend(DataSourceTypeChoices.LOCAL)
 class LocalBackend(DataBackend):
-
     @contextmanager
     def fetch(self):
         logger.debug(f"Data source type is local; skipping fetch")
@@ -71,12 +71,14 @@ class GitBackend(DataBackend):
         'username': forms.CharField(
             required=False,
             label=_('Username'),
-            widget=forms.TextInput(attrs={'class': 'form-control'})
+            widget=forms.TextInput(attrs={'class': 'form-control'}),
+            help_text=_("Only used for cloning with HTTP / HTTPS"),
         ),
         'password': forms.CharField(
             required=False,
             label=_('Password'),
-            widget=forms.TextInput(attrs={'class': 'form-control'})
+            widget=forms.TextInput(attrs={'class': 'form-control'}),
+            help_text=_("Only used for cloning with HTTP / HTTPS"),
         ),
         'branch': forms.CharField(
             required=False,
@@ -89,10 +91,22 @@ class GitBackend(DataBackend):
     def fetch(self):
         local_path = tempfile.TemporaryDirectory()
 
-        username = self.params.get('username')
-        password = self.params.get('password')
-        branch = self.params.get('branch')
         config = StackedConfig.default()
+        clone_args = {
+            "branch": self.params.get('branch'),
+            "config": config,
+            "depth": 1,
+            "errstream": porcelain.NoneStream(),
+            "quiet": True,
+        }
+
+        if self.url_scheme in ('http', 'https'):
+            clone_args.update(
+                {
+                    "username": self.params.get('username'),
+                    "password": self.params.get('password'),
+                }
+            )
 
         if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
             if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
@@ -100,10 +114,7 @@ class GitBackend(DataBackend):
 
         logger.debug(f"Cloning git repo: {self.url}")
         try:
-            porcelain.clone(
-                self.url, local_path.name, depth=1, branch=branch, username=username, password=password,
-                config=config, quiet=True, errstream=porcelain.NoneStream()
-            )
+            porcelain.clone(self.url, local_path.name, **clone_args)
         except BaseException as e:
             raise SyncError(f"Fetching remote data failed ({type(e).__name__}): {e}")
 
