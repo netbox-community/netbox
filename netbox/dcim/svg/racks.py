@@ -37,16 +37,25 @@ def get_device_name(device):
 
 
 def get_device_description(device):
-    return '{} ({}) {} — {} {} ({}U) {} {}'.format(
-        device.name,
-        device.device_role,
-        device.description,
-        device.device_type.manufacturer.name,
-        device.device_type.model,
-        floatformat(device.device_type.u_height),
-        device.asset_tag or '',
-        device.serial or ''
-    )
+    """
+    Return a description for a device to be rendered in the rack elevation in the following format
+
+    Name: Device Name
+    Role: Device Role
+    Description: Device Description
+    Device Type: Device Type Manufacturer Device Type Model (Device Type U Height) (Device Asset Tag) (Device Serial)
+    """
+    description = f'Name: {device.name}'
+    description += f'\nRole: {device.device_role}'
+    if device.description:
+        description += f'\nDescription: {device.description}'
+    description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({floatformat(device.device_type.u_height)})'
+    if device.asset_tag:
+        description += f' {device.asset_tag}'
+    if device.serial:
+        description += f' {device.serial}'
+
+    return description
 
 
 class RackElevationSVG:
