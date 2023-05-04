@@ -39,9 +39,7 @@
           {% include 'inc/sync_warning.html' with object=module %}
           {% if not module.scripts %}
             <div class="alert alert-warning d-flex align-items-center" role="alert">
-              <div>
-                Warning: Script file at: <strong>{{ module.full_path }}"</strong> is either missing or has a problem with the script code, please check the file.
-              </div>
+              <i class="mdi mdi-alert"></i>&nbsp; Script file at: {{module.full_path}} could not be loaded.
             </div>
           {% else %}
             <table class="table table-hover table-headings reports">

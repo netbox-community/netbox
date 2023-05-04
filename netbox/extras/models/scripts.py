@@ -1,4 +1,5 @@
 import inspect
+import logging
 from functools import cached_property
 
 from django.db import models
@@ -15,6 +16,8 @@ __all__ = (
     'Script',
     'ScriptModule',
 )
+
+logger = logging.getLogger('netbox.data_backends')
 
 
 class Script(WebhooksMixin, models.Model):
@@ -56,6 +59,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         try:
             module = self.get_module()
         except Exception as e:
+            logger.debug(f"Failed to load script: {self.python_name} error: {e}")
             module = None
 
         scripts = {}
