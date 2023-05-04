@@ -56,7 +56,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         module = None
         try:
             module = self.get_module()
-        except OSError as e:
+        except Exception as e:
             pass
 
         scripts = {}
