@@ -37,9 +37,10 @@ def get_device_name(device):
 
 
 def get_device_description(device):
-    return '{} ({}) — {} {} ({}U) {} {}'.format(
+    return '{} ({}) {} — {} {} ({}U) {} {}'.format(
         device.name,
         device.device_role,
+        device.description,
         device.device_type.manufacturer.name,
         device.device_type.model,
         floatformat(device.device_type.u_height),
