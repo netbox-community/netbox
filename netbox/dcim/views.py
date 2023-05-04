@@ -377,16 +377,8 @@ class SiteView(generic.ObjectView):
             (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
         )
 
-        nonracked_devices = Device.objects.filter(
-            site=instance,
-            rack__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         return {
             'related_models': related_models,
-            'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
-            'total_nonracked_devices_count': nonracked_devices.count(),
         }
 
 
