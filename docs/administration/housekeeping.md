@@ -9,7 +9,9 @@ NetBox includes a `housekeeping` management command that should be run nightly. 
 
 This command can be invoked directly, or by using the shell script provided at `/opt/netbox/contrib/netbox-housekeeping.sh`.
 
-## Using Cron
+## Scheduling
+
+### Using Cron
 
 This script can be linked from your cron scheduler's daily jobs directory (e.g. `/etc/cron.daily`) or referenced directly within the cron configuration file.
 
@@ -20,27 +22,21 @@ sudo ln -s /opt/netbox/contrib/netbox-housekeeping.sh /etc/cron.daily/netbox-hou
 !!! note
     On Debian-based systems, be sure to omit the `.sh` file extension when linking to the script from within a cron directory. Otherwise, the task may not run.
 
-## Using Systemd
+### Using Systemd
 
-1. Create symbolic links for the systemd service and timer files:
-
-Link the existing service and timer files from the `/opt/netbox/contrib/` directory to the `/etc/systemd/system/` directory:
+First, create symbolic links for the systemd service and timer files. Link the existing service and timer files from the `/opt/netbox/contrib/` directory to the `/etc/systemd/system/` directory:
 
 ```bash
 sudo ln -s /opt/netbox/contrib/netbox-housekeeping.service /etc/systemd/system/netbox-housekeeping.service
 sudo ln -s /opt/netbox/contrib/netbox-housekeeping.timer /etc/systemd/system/netbox-housekeeping.timer
 ```
 
-2. Reload and enable the systemd services:
-
-Reload the systemd configuration and enable the timer to start automatically at boot:
+Then, reload the systemd configuration and enable the timer to start automatically at boot:
 
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now netbox-housekeeping.timer
 ```
-
-3. Verify the timer status:
 
 Check the status of your timer by running:
 
