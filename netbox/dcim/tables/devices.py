@@ -785,17 +785,17 @@ class ModuleBayTable(DeviceComponentTable):
     tags = columns.TagColumn(
         url_name='dcim:modulebay_list'
     )
-    status = columns.TemplateColumn(
+    module_status = columns.TemplateColumn(
         template_code=MODULEBAY_STATUS
     )
 
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'status', 'module_serial',
+            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
             'module_asset_tag', 'description', 'tags',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'status', 'description')
+        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'module_status', 'description')
 
 
 class DeviceModuleBayTable(ModuleBayTable):
@@ -806,10 +806,10 @@ class DeviceModuleBayTable(ModuleBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'status', 'module_serial', 'module_asset_tag',
+            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial', 'module_asset_tag',
             'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'installed_module', 'status', 'description')
+        default_columns = ('pk', 'name', 'label', 'installed_module', 'module_status', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):
