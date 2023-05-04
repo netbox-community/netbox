@@ -33,11 +33,13 @@ NetBox requires access to a PostgreSQL 11 or later database service to store dat
 * `HOST` - Name or IP address of the database server (use `localhost` if running locally)
 * `PORT` - TCP port of the PostgreSQL service; leave blank for default port (TCP/5432)
 * `CONN_MAX_AGE` - Lifetime of a [persistent database connection](https://docs.djangoproject.com/en/stable/ref/databases/#persistent-connections), in seconds (300 is the default)
+* `ENGINE` - The database backend to use; must be a PostgreSQL-compatible backend (e.g. `django.db.backends.postgresql`)
 
 Example:
 
 ```python
 DATABASE = {
+    'ENGINE': 'django.db.backends.postgresql',
     'NAME': 'netbox',               # Database name
     'USER': 'netbox',               # PostgreSQL username
     'PASSWORD': 'J5brHrAXFLQSif0K', # PostgreSQL password
@@ -49,6 +51,9 @@ DATABASE = {
 
 !!! note
     NetBox supports all PostgreSQL database options supported by the underlying Django framework. For a complete list of available parameters, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/settings/#databases).
+
+!!! warning
+    Make sure to use a PostgreSQL-compatible backend for the ENGINE setting. If you don't specify an ENGINE, the default will be django.db.backends.postgresql.
 
 ---
 
