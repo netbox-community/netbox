@@ -31,7 +31,7 @@
           <tr>
             <th scope="row">Clusters</th>
             <td>
-              <a href="{% url 'virtualization:cluster_list' %}?type_id={{ object.pk }}">{{ clusters_table.rows|length }}</a>
+              <a href="{% url 'virtualization:cluster_list' %}?type_id={{ object.pk }}">{{ object.clusters.count }}</a>
             </td>
           </tr>
         </table>
@@ -41,19 +41,13 @@
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
+    {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
   </div>
 </div>
 <div class="row">
 	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">Clusters</h5>
-      <div class="card-body table-responsive">
-        {% render_table clusters_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=clusters_table.paginator page=clusters_table.page %}
-      </div>
-    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

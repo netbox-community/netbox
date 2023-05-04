@@ -4,6 +4,11 @@ from mptt.querysets import TreeQuerySet as TreeQuerySet_
 from django.db.models import Manager
 from .querysets import RestrictedQuerySet
 
+__all__ = (
+    'TreeManager',
+    'TreeQuerySet',
+)
+
 
 class TreeQuerySet(TreeQuerySet_, RestrictedQuerySet):
     """

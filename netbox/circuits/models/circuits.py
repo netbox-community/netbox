@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -10,7 +9,6 @@ from dcim.models import CabledObjectModel
 from netbox.models import (
     ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, PrimaryModel, TagsMixin,
 )
-from netbox.models.features import WebhooksMixin
 
 __all__ = (
     'Circuit',
@@ -31,17 +29,25 @@ class CircuitType(OrganizationalModel):
 class Circuit(PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
-    circuits. Each circuit is also assigned a CircuitType and a Site.  Circuit port speed and commit rate are measured
-    in Kbps.
+    circuits. Each circuit is also assigned a CircuitType and a Site, and may optionally be assigned to a particular
+    ProviderAccount. Circuit port speed and commit rate are measured in Kbps.
     """
     cid = models.CharField(
         max_length=100,
-        verbose_name='Circuit ID'
+        verbose_name='Circuit ID',
+        help_text=_("Unique circuit ID")
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
         on_delete=models.PROTECT,
         related_name='circuits'
+    )
+    provider_account = models.ForeignKey(
+        to='circuits.ProviderAccount',
+        on_delete=models.PROTECT,
+        related_name='circuits',
+        blank=True,
+        null=True
     )
     type = models.ForeignKey(
         to='CircuitType',
@@ -73,7 +79,9 @@ class Circuit(PrimaryModel):
     commit_rate = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Commit rate (Kbps)')
+        verbose_name='Commit rate (Kbps)',
+        help_text=_("Committed rate")
+    )
 
     # Generic relations
     contacts = GenericRelation(
@@ -102,7 +110,8 @@ class Circuit(PrimaryModel):
     )
 
     clone_fields = (
-        'provider', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate', 'description',
+        'provider', 'provider_account', 'type', 'status', 'tenant', 'install_date', 'termination_date', 'commit_rate',
+        'description',
     )
     prerequisite_models = (
         'circuits.CircuitType',
@@ -110,11 +119,15 @@ class Circuit(PrimaryModel):
     )
 
     class Meta:
-        ordering = ['provider', 'cid']
+        ordering = ['provider', 'provider_account', 'cid']
         constraints = (
             models.UniqueConstraint(
                 fields=('provider', 'cid'),
                 name='%(app_label)s_%(class)s_unique_provider_cid'
+            ),
+            models.UniqueConstraint(
+                fields=('provider_account', 'cid'),
+                name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
         )
 
@@ -127,12 +140,17 @@ class Circuit(PrimaryModel):
     def get_status_color(self):
         return CircuitStatusChoices.colors.get(self.status)
 
+    def clean(self):
+        super().clean()
+
+        if self.provider_account and self.provider != self.provider_account.provider:
+            raise ValidationError({'provider_account': "The assigned account must belong to the assigned provider."})
+
 
 class CircuitTermination(
     CustomFieldsMixin,
     CustomLinksMixin,
     TagsMixin,
-    WebhooksMixin,
     ChangeLoggedModel,
     CabledObjectModel
 ):
@@ -163,7 +181,8 @@ class CircuitTermination(
     port_speed = models.PositiveIntegerField(
         verbose_name='Port speed (Kbps)',
         blank=True,
-        null=True
+        null=True,
+        help_text=_("Physical circuit speed")
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,
@@ -174,12 +193,14 @@ class CircuitTermination(
     xconnect_id = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Cross-connect ID'
+        verbose_name='Cross-connect ID',
+        help_text=_("ID of the local cross-connect")
     )
     pp_info = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Patch panel/port(s)'
+        verbose_name='Patch panel/port(s)',
+        help_text=_("Patch panel ID and port number(s)")
     )
     description = models.CharField(
         max_length=200,

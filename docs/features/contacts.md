@@ -31,6 +31,7 @@ The following models support the assignment of contacts:
 
 * circuits.Circuit
 * circuits.Provider
+* circuits.ProviderAccount
 * dcim.Device
 * dcim.Location
 * dcim.Manufacturer

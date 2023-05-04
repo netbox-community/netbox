@@ -16,11 +16,10 @@ from virtualization.models import VirtualMachine, VMInterface
 from .choices import *
 from .models import *
 
-from rest_framework import serializers
-
 __all__ = (
     'AggregateFilterSet',
     'ASNFilterSet',
+    'ASNRangeFilterSet',
     'FHRPGroupAssignmentFilterSet',
     'FHRPGroupFilterSet',
     'IPAddressFilterSet',
@@ -166,6 +165,29 @@ class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             return queryset.filter(prefix=query)
         except (AddrFormatError, ValueError):
             return queryset.none()
+
+
+class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
+    rir_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=RIR.objects.all(),
+        label=_('RIR (ID)'),
+    )
+    rir = django_filters.ModelMultipleChoiceFilter(
+        field_name='rir__slug',
+        queryset=RIR.objects.all(),
+        to_field_name='slug',
+        label=_('RIR (slug)'),
+    )
+
+    class Meta:
+        model = ASNRange
+        fields = ['id', 'name', 'start', 'end', 'description']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(description__icontains=value)
+        return queryset.filter(qs_filter)
 
 
 class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
@@ -445,7 +467,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = IPRange
-        fields = ['id', 'description']
+        fields = ['id', 'mark_utilized', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

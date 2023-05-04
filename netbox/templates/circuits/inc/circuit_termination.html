@@ -74,10 +74,10 @@
                       <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
                     </button>
                     <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.interface&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Interface</a></li>
-                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.frontport&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Front Port</a></li>
-                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.rearport&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Rear Port</a></li>
-                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=circuits.circuittermination&termination_b_site={{ termination.site.pk }}&return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.interface&return_url={{ object.get_absolute_url }}">Interface</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}">Front Port</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}">Rear Port</a></li>
+                      <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">Circuit Termination</a></li>
                     </ul>
                   </div>
                 {% endif %}

@@ -1,4 +1,4 @@
-import dcim.fields
+import ipam.fields
 from utilities.json import CustomFieldJSONEncoder
 from django.db import migrations, models
 import django.db.models.deletion
@@ -77,7 +77,7 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('slug', models.SlugField(max_length=100, unique=True)),
-                ('asn', dcim.fields.ASNField(blank=True, null=True)),
+                ('asn', ipam.fields.ASNField(blank=True, null=True)),
                 ('account', models.CharField(blank=True, max_length=30)),
                 ('portal_url', models.URLField(blank=True)),
                 ('noc_contact', models.TextField(blank=True)),

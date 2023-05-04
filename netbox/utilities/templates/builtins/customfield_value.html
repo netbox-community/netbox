@@ -9,6 +9,8 @@
   {% checkmark value false="False" %}
 {% elif customfield.type == 'date' and value %}
   {{ value|annotated_date }}
+{% elif customfield.type == 'datetime' and value %}
+  {{ value|annotated_date }}
 {% elif customfield.type == 'url' and value %}
   <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
 {% elif customfield.type == 'json' and value %}

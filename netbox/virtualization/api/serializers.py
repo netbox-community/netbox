@@ -1,4 +1,4 @@
-from drf_yasg.utils import swagger_serializer_method
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from dcim.api.nested_serializers import (
@@ -100,7 +100,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
             'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
         ]
 
-    @swagger_serializer_method(serializer_or_field=serializers.JSONField)
+    @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_config_context(self, obj):
         return obj.get_config_context()
 
@@ -123,9 +123,14 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
         many=True
     )
     vrf = NestedVRFSerializer(required=False, allow_null=True)
-    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
+    mac_address = serializers.CharField(
+        required=False,
+        default=None,
+        allow_null=True
+    )
 
     class Meta:
         model = VMInterface

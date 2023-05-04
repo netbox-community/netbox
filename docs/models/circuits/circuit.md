@@ -8,6 +8,10 @@ A circuit represents a physical point-to-point data connection, typically used t
 
 The [provider](./provider.md) to which this circuit belongs.
 
+### Provider Account
+
+Circuits may optionally be assigned to a specific [provider account](./provideraccount.md).
+
 ### Circuit ID
 
 An identifier for this circuit. This must be unique to the assigned provider. (Circuits assigned to different providers may have the same circuit ID.)

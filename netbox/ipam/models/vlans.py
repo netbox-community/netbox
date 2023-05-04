@@ -138,21 +138,24 @@ class VLAN(PrimaryModel):
         on_delete=models.PROTECT,
         related_name='vlans',
         blank=True,
-        null=True
+        null=True,
+        help_text=_("The specific site to which this VLAN is assigned (if any)")
     )
     group = models.ForeignKey(
         to='ipam.VLANGroup',
         on_delete=models.PROTECT,
         related_name='vlans',
         blank=True,
-        null=True
+        null=True,
+        help_text=_("VLAN group (optional)")
     )
     vid = models.PositiveSmallIntegerField(
         verbose_name='ID',
         validators=(
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
-        )
+        ),
+        help_text=_("Numeric VLAN ID (1-4094)")
     )
     name = models.CharField(
         max_length=64
@@ -167,14 +170,16 @@ class VLAN(PrimaryModel):
     status = models.CharField(
         max_length=50,
         choices=VLANStatusChoices,
-        default=VLANStatusChoices.STATUS_ACTIVE
+        default=VLANStatusChoices.STATUS_ACTIVE,
+        help_text=_("Operational status of this VLAN")
     )
     role = models.ForeignKey(
         to='ipam.Role',
         on_delete=models.SET_NULL,
         related_name='vlans',
         blank=True,
-        null=True
+        null=True,
+        help_text=_("The primary function of this VLAN")
     )
 
     l2vpn_terminations = GenericRelation(

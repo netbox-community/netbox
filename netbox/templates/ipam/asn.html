@@ -7,6 +7,9 @@
 {% block breadcrumbs %}
   {{ block.super }}
   <li class="breadcrumb-item"><a href="{% url 'ipam:asn_list' %}?rir_id={{ object.rir.pk }}">{{ object.rir }}</a></li>
+  {% if object.range %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:asn_list' %}?range_id={{ object.range.pk }}">{{ object.range }}</a></li>
+  {% endif %}
 {% endblock breadcrumbs %}
 
 {% block content %}
@@ -39,54 +42,21 @@
               <td>Description</td>
               <td>{{ object.description|placeholder }}</td>
             </tr>
-            <tr>
-              <td>Sites</td>
-              <td>
-                {% if sites_count %}
-                  <a href="{% url 'dcim:site_list' %}?asn_id={{ object.pk }}">{{ sites_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <td>Providers</td>
-              <td>
-                {% if providers_count %}
-                  <a href="{% url 'circuits:provider_list' %}?asn_id={{ object.pk }}">{{ providers_count }}</a>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
           </table>
         </div>
       </div>
       {% plugin_left_page object %}
+      {% include 'inc/panels/tags.html' %}
     </div>
     <div class="col col-md-6">
+      {% include 'inc/panels/related_objects.html' %}
       {% include 'inc/panels/custom_fields.html' %}
-      {% include 'inc/panels/tags.html' with tags=object.tags.all url='ipam:asn_list' %}
       {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}
     </div>
   </div>
   <div class="row">
     <div class="col col-md-12">
-      <div class="card">
-        <h5 class="card-header">Sites</h5>
-        <div class="card-body table-responsive">
-          {% render_table sites_table 'inc/table.html' %}
-          {% include 'inc/paginator.html' with paginator=sites_table.paginator page=sites_table.page %}
-        </div>
-      </div>
-      <div class="card">
-        <h5 class="card-header">Providers</h5>
-        <div class="card-body table-responsive">
-          {% render_table providers_table 'inc/table.html' %}
-          {% include 'inc/paginator.html' with paginator=providers_table.paginator page=providers_table.page %}
-        </div>
-      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>

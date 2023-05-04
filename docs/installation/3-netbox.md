@@ -199,14 +199,6 @@ When you have finished modifying the configuration, remember to save the file.
 
 All Python packages required by NetBox are listed in `requirements.txt` and will be installed automatically. NetBox also supports some optional packages. If desired, these packages must be listed in `local_requirements.txt` within the NetBox root directory.
 
-### NAPALM
-
-Integration with the [NAPALM automation](../integrations/napalm.md) library allows NetBox to fetch live data from devices and return it to a requester via its REST API. The `NAPALM_USERNAME` and `NAPALM_PASSWORD` configuration parameters define the credentials to be used when connecting to a device.
-
-```no-highlight
-sudo sh -c "echo 'napalm' >> /opt/netbox/local_requirements.txt"
-```
-
 ### Remote File Storage
 
 By default, NetBox will use the local filesystem to store uploaded files. To use a remote filesystem, install the [`django-storages`](https://django-storages.readthedocs.io/en/stable/) library and configure your [desired storage backend](../configuration/system.md#storage_backend) in `configuration.py`.

@@ -1,0 +1,42 @@
+{% extends 'generic/object.html' %}
+
+{% block title %}Rack {{ object }}{% endblock %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?site_id={{ object.site.pk }}">{{ object.site }}</a></li>
+  {% if object.location %}
+    {% for location in object.location.get_ancestors %}
+      <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location }}</a></li>
+    {% endfor %}
+    <li class="breadcrumb-item"><a href="{% url 'dcim:rack_list' %}?location_id={{ object.location.pk }}">{{ object.location }}</a></li>
+  {% endif %}
+{% endblock %}
+
+{% block extra_controls %}
+  <div class="btn-group" role="group" aria-label="RackNavigation">
+    {% if prev_rack %}
+      <a href="{{ prev_rack.get_absolute_url }}" class="btn btn-sm btn-primary">
+        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {{ prev_rack }}
+      </a>
+    {% endif %}
+
+    {% if peer_racks %}
+      <div class="btn-group" role="group">
+        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ object }}</button>
+        <ul class="dropdown-menu">
+          {% for peer_rack in peer_racks %}
+            <li><a class="dropdown-item{% if peer_rack.pk == object.pk %} active{% endif %}" href="{{ peer_rack.get_absolute_url }}">{{ peer_rack }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if next_rack %}
+      <a href="{{ next_rack.get_absolute_url }}" class="btn btn-sm btn-primary">
+        {{ next_rack }} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+      </a>
+    {% endif %}
+
+  </div>
+{% endblock %}

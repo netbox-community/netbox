@@ -45,6 +45,16 @@ Sets content for the top banner in the user interface.
 
 ---
 
+## CENSUS_REPORTING_ENABLED
+
+Default: True
+
+Enables anonymous census reporting. To opt out of census reporting, set this to False.
+
+This data enables the project maintainers to estimate how many NetBox deployments exist and track the adoption of new versions over time. Census reporting effects a single HTTP request each time a worker starts. The only data reported by this function are the NetBox version, Python version, and a pseudorandom unique identifier.
+
+---
+
 ## CHANGELOG_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"
@@ -87,14 +97,16 @@ Setting this to False will disable the GraphQL API.
 
 ---
 
-## JOBRESULT_RETENTION
+## JOB_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"
 
+!!! note
+    This parameter was renamed from `JOBRESULT_RETENTION` in NetBox v3.5.
+
 Default: 90
 
-The number of days to retain job results (scripts and reports). Set this to `0` to retain
-job results in the database indefinitely.
+The number of days to retain job results (scripts and reports). Set this to `0` to retain job results in the database indefinitely.
 
 !!! warning
     If enabling indefinite job results retention, it is recommended to periodically delete old entries. Otherwise, the database may eventually exceed capacity.

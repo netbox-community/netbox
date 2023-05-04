@@ -28,3 +28,7 @@ The IP range's operational status. Note that the status of a range does _not_ ha
 
 !!! tip
     Additional statuses may be defined by setting `IPRange.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
+### Mark Utilized
+
+If enabled, the IP range will be considered 100% utilized regardless of how many IP addresses are defined within it. This is useful for documenting DHCP ranges, for example.

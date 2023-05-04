@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.contrib.auth.models import Group, User
 from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
 
@@ -48,6 +50,7 @@ class UserSerializer(ValidatedModelSerializer):
 
         return user
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
         if full_name := obj.get_full_name():
             return f"{obj.username} ({full_name})"

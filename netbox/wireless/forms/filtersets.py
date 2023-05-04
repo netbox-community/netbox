@@ -4,7 +4,8 @@ from django.utils.translation import gettext as _
 from dcim.choices import LinkStatusChoices
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
-from utilities.forms import add_blank_choice, DynamicModelMultipleChoiceField, StaticSelect, TagFilterField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from wireless.choices import *
 from wireless.models import *
 
@@ -45,18 +46,15 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(WirelessLANStatusChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(WirelessLANStatusChoices)
     )
     auth_type = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(WirelessAuthTypeChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(WirelessAuthTypeChoices)
     )
     auth_cipher = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(WirelessAuthCipherChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(WirelessAuthCipherChoices)
     )
     auth_psk = forms.CharField(
         required=False
@@ -78,18 +76,15 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     status = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(LinkStatusChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(LinkStatusChoices)
     )
     auth_type = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(WirelessAuthTypeChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(WirelessAuthTypeChoices)
     )
     auth_cipher = forms.ChoiceField(
         required=False,
-        choices=add_blank_choice(WirelessAuthCipherChoices),
-        widget=StaticSelect()
+        choices=add_blank_choice(WirelessAuthCipherChoices)
     )
     auth_psk = forms.CharField(
         required=False

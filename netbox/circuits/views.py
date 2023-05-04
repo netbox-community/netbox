@@ -30,17 +30,13 @@ class ProviderView(generic.ObjectView):
     queryset = Provider.objects.all()
 
     def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            provider=instance
-        ).prefetch_related(
-            'tenant__group', 'termination_a__site', 'termination_z__site',
-            'termination_a__provider_network', 'termination_z__provider_network',
+        related_models = (
+            (ProviderAccount.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
+            (Circuit.objects.restrict(request.user, 'view').filter(provider=instance), 'provider_id'),
         )
-        circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('provider',))
-        circuits_table.configure(request)
 
         return {
-            'circuits_table': circuits_table,
+            'related_models': related_models,
         }
 
 
@@ -58,7 +54,6 @@ class ProviderDeleteView(generic.ObjectDeleteView):
 class ProviderBulkImportView(generic.BulkImportView):
     queryset = Provider.objects.all()
     model_form = forms.ProviderImportForm
-    table = tables.ProviderTable
 
 
 class ProviderBulkEditView(generic.BulkEditView):
@@ -79,6 +74,67 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# ProviderAccounts
+#
+
+class ProviderAccountListView(generic.ObjectListView):
+    queryset = ProviderAccount.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider_account')
+    )
+    filterset = filtersets.ProviderAccountFilterSet
+    filterset_form = forms.ProviderAccountFilterForm
+    table = tables.ProviderAccountTable
+
+
+@register_model_view(ProviderAccount)
+class ProviderAccountView(generic.ObjectView):
+    queryset = ProviderAccount.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Circuit.objects.restrict(request.user, 'view').filter(provider_account=instance), 'provider_account_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
+
+@register_model_view(ProviderAccount, 'edit')
+class ProviderAccountEditView(generic.ObjectEditView):
+    queryset = ProviderAccount.objects.all()
+    form = forms.ProviderAccountForm
+
+
+@register_model_view(ProviderAccount, 'delete')
+class ProviderAccountDeleteView(generic.ObjectDeleteView):
+    queryset = ProviderAccount.objects.all()
+
+
+class ProviderAccountBulkImportView(generic.BulkImportView):
+    queryset = ProviderAccount.objects.all()
+    model_form = forms.ProviderAccountImportForm
+    table = tables.ProviderAccountTable
+
+
+class ProviderAccountBulkEditView(generic.BulkEditView):
+    queryset = ProviderAccount.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider_account')
+    )
+    filterset = filtersets.ProviderAccountFilterSet
+    table = tables.ProviderAccountTable
+    form = forms.ProviderAccountBulkEditForm
+
+
+class ProviderAccountBulkDeleteView(generic.BulkDeleteView):
+    queryset = ProviderAccount.objects.annotate(
+        count_circuits=count_related(Circuit, 'provider_account')
+    )
+    filterset = filtersets.ProviderAccountFilterSet
+    table = tables.ProviderAccountTable
+
+
+#
 # Provider networks
 #
 
@@ -94,18 +150,15 @@ class ProviderNetworkView(generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
 
     def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(
-            Q(termination_a__provider_network=instance.pk) |
-            Q(termination_z__provider_network=instance.pk)
-        ).prefetch_related(
-            'tenant__group', 'termination_a__site', 'termination_z__site',
-            'termination_a__provider_network', 'termination_z__provider_network',
+        related_models = (
+            (
+                Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
+                'providernetwork_id',
+            ),
         )
-        circuits_table = tables.CircuitTable(circuits, user=request.user)
-        circuits_table.configure(request)
 
         return {
-            'circuits_table': circuits_table,
+            'related_models': related_models,
         }
 
 
@@ -123,7 +176,6 @@ class ProviderNetworkDeleteView(generic.ObjectDeleteView):
 class ProviderNetworkBulkImportView(generic.BulkImportView):
     queryset = ProviderNetwork.objects.all()
     model_form = forms.ProviderNetworkImportForm
-    table = tables.ProviderNetworkTable
 
 
 class ProviderNetworkBulkEditView(generic.BulkEditView):
@@ -157,12 +209,12 @@ class CircuitTypeView(generic.ObjectView):
     queryset = CircuitType.objects.all()
 
     def get_extra_context(self, request, instance):
-        circuits = Circuit.objects.restrict(request.user, 'view').filter(type=instance)
-        circuits_table = tables.CircuitTable(circuits, user=request.user, exclude=('type',))
-        circuits_table.configure(request)
+        related_models = (
+            (Circuit.objects.restrict(request.user, 'view').filter(type=instance), 'type_id'),
+        )
 
         return {
-            'circuits_table': circuits_table,
+            'related_models': related_models,
         }
 
 
@@ -180,7 +232,6 @@ class CircuitTypeDeleteView(generic.ObjectDeleteView):
 class CircuitTypeBulkImportView(generic.BulkImportView):
     queryset = CircuitType.objects.all()
     model_form = forms.CircuitTypeImportForm
-    table = tables.CircuitTypeTable
 
 
 class CircuitTypeBulkEditView(generic.BulkEditView):
@@ -233,7 +284,6 @@ class CircuitDeleteView(generic.ObjectDeleteView):
 class CircuitBulkImportView(generic.BulkImportView):
     queryset = Circuit.objects.all()
     model_form = forms.CircuitImportForm
-    table = tables.CircuitTable
     additional_permissions = [
         'circuits.add_circuittermination',
     ]

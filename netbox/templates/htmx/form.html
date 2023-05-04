@@ -1,0 +1,50 @@
+{% load form_helpers %}
+
+{% if form.fieldsets %}
+
+  {# Render hidden fields #}
+  {% for field in form.hidden_fields %}
+    {{ field }}
+  {% endfor %}
+
+  {# Render grouped fields according to Form #}
+  {% for group, fields in form.fieldsets %}
+    <div class="field-group mb-5">
+      {% if group %}
+        <div class="row mb-2">
+          <h5 class="offset-sm-3">{{ group }}</h5>
+        </div>
+      {% endif %}
+      {% for name in fields %}
+        {% with field=form|getfield:name %}
+          {% if field and not field.field.widget.is_hidden %}
+            {% render_field field %}
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+
+  {% if form.custom_fields %}
+    <div class="field-group mb-5">
+      <div class="row mb-2">
+        <h5 class="offset-sm-3">Custom Fields</h5>
+      </div>
+      {% render_custom_fields form %}
+    </div>
+  {% endif %}
+
+  {% if form.comments %}
+    <div class="field-group mb-5">
+      {% render_field form.comments %}
+    </div>
+  {% endif %}
+
+{% else %}
+
+  {# Render all fields in a single group #}
+  <div class="field-group mb-5">
+    {% render_form form %}
+  </div>
+
+{% endif %}

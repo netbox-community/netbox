@@ -30,28 +30,30 @@
                       </td>
                     </tr>
                     <tr>
-                        <th scope="row">Account</th>
+                        <th scope="row">
+                          Account <i
+                            class="mdi mdi-alert-box text-warning"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="right"
+                            title="This field has been deprecated, and will be removed in NetBox v3.5."
+                          ></i>
+                        </th>
                         <td>{{ object.account|placeholder }}</td>
                     </tr>
                     <tr>
                         <th scope="row">Description</th>
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
-                    <tr>
-                        <th scope="row">Circuits</th>
-                        <td>
-                            <a href="{% url 'circuits:circuit_list' %}?provider={{ object.slug }}">{{ circuits_table.rows|length }}</a>
-                        </td>
-                    </tr>
                 </table>
             </div>
         </div>
         {% include 'inc/panels/tags.html' %}
+        {% include 'inc/panels/comments.html' %}
         {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
+        {% include 'inc/panels/related_objects.html' %}
         {% include 'inc/panels/custom_fields.html' %}
-        {% include 'inc/panels/comments.html' %}
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>
@@ -59,11 +61,19 @@
 <div class="row mb-3">
   <div class="col col-md-12">
     <div class="card">
+      <h5 class="card-header">Provider Accounts</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'circuits:provideraccount_list' %}?provider_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
+    </div>
+  <div class="col col-md-12">
+    <div class="card">
       <h5 class="card-header">Circuits</h5>
-      <div class="card-body table-responsive">
-        {% render_table circuits_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=circuits_table.paginator page=circuits_table.page %}
-      </div>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'circuits:circuit_list' %}?provider_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
     </div>
     {% plugin_full_width_page object %}
   </div>

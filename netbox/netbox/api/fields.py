@@ -1,4 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from netaddr import IPNetwork
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -86,6 +88,7 @@ class ChoiceField(serializers.Field):
         return self._choices
 
 
+@extend_schema_field(OpenApiTypes.STR)
 class ContentTypeField(RelatedField):
     """
     Represent a ContentType as '<app_label>.<model>'

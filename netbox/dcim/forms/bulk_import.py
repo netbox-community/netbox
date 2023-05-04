@@ -8,11 +8,13 @@ from django.utils.translation import gettext as _
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import (
-    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVTypedChoiceField, SlugField, CSVModelMultipleChoiceField
+from utilities.forms.fields import (
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVTypedChoiceField,
+    SlugField,
 )
 from virtualization.models import Cluster
 from wireless.choices import WirelessRoleChoices
@@ -281,14 +283,21 @@ class ManufacturerImportForm(NetBoxModelImportForm):
 class DeviceTypeImportForm(NetBoxModelImportForm):
     manufacturer = forms.ModelChoiceField(
         queryset=Manufacturer.objects.all(),
-        to_field_name='name'
+        to_field_name='name',
+        help_text=_('The manufacturer which produces this device type')
+    )
+    default_platform = forms.ModelChoiceField(
+        queryset=Platform.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('The default platform for devices of this type (optional)')
     )
 
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow',
-            'description', 'comments',
+            'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'airflow', 'description', 'comments',
         ]
 
 
@@ -304,11 +313,17 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
     slug = SlugField()
 
     class Meta:
         model = DeviceRole
-        fields = ('name', 'slug', 'color', 'vm_role', 'description', 'tags')
+        fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
         help_texts = {
             'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
@@ -322,10 +337,18 @@ class PlatformImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Limit platform assignments to this manufacturer')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
 
     class Meta:
         model = Platform
-        fields = ('name', 'slug', 'manufacturer', 'napalm_driver', 'napalm_args', 'description', 'tags')
+        fields = (
+            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+        )
 
 
 class BaseDeviceImportForm(NetBoxModelImportForm):
@@ -376,10 +399,6 @@ class BaseDeviceImportForm(NetBoxModelImportForm):
     class Meta:
         fields = []
         model = Device
-        help_texts = {
-            'vc_position': 'Virtual chassis position',
-            'vc_priority': 'Virtual chassis priority',
-        }
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -431,12 +450,18 @@ class DeviceImportForm(BaseDeviceImportForm):
         required=False,
         help_text=_('Airflow direction')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Config template')
+    )
 
     class Meta(BaseDeviceImportForm.Meta):
         fields = [
             'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'parent', 'device_bay', 'airflow', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'cluster', 'description', 'comments', 'tags',
+            'vc_position', 'vc_priority', 'cluster', 'description', 'config_template', 'comments', 'tags',
         ]
 
     def __init__(self, data=None, *args, **kwargs):
@@ -767,9 +792,6 @@ class FrontPortImportForm(NetBoxModelImportForm):
             'device', 'name', 'label', 'type', 'color', 'mark_connected', 'rear_port', 'rear_port_position',
             'description', 'tags'
         )
-        help_texts = {
-            'rear_port_position': _('Mapped position on corresponding rear port'),
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -807,9 +829,6 @@ class RearPortImportForm(NetBoxModelImportForm):
     class Meta:
         model = RearPort
         fields = ('device', 'name', 'label', 'type', 'color', 'mark_connected', 'positions', 'description', 'tags')
-        help_texts = {
-            'positions': _('Number of front ports which may be mapped')
-        }
 
 
 class ModuleBayImportForm(NetBoxModelImportForm):
@@ -928,7 +947,7 @@ class InventoryItemImportForm(NetBoxModelImportForm):
         component_name = self.cleaned_data.get('component_name')
         device = self.cleaned_data.get("device")
 
-        if not device and hasattr(self, 'instance'):
+        if not device and hasattr(self, 'instance') and hasattr(self.instance, 'device'):
             device = self.instance.device
 
         if not all([device, content_type, component_name]):
@@ -1196,4 +1215,3 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
             'name', 'device', 'status', 'tenant', 'identifier', 'comments',
         ]
         model = VirtualDeviceContext
-        help_texts = {}

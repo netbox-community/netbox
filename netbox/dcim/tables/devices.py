@@ -39,6 +39,10 @@ __all__ = (
     'VirtualDeviceContextTable'
 )
 
+MODULEBAY_STATUS = """
+{% badge record.installed_module.get_status_display bg_color=record.installed_module.get_status_color %}
+"""
+
 
 def get_cabletermination_row_class(record):
     if record.mark_connected:
@@ -86,6 +90,9 @@ class DeviceRoleTable(NetBoxTable):
     )
     color = columns.ColorColumn()
     vm_role = columns.BooleanColumn()
+    config_template = tables.Column(
+        linkify=True
+    )
     tags = columns.TagColumn(
         url_name='dcim:devicerole_list'
     )
@@ -93,8 +100,8 @@ class DeviceRoleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.DeviceRole
         fields = (
-            'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description', 'slug', 'tags',
-            'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'config_template', 'description',
+            'slug', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device_count', 'vm_count', 'color', 'vm_role', 'description')
 
@@ -105,6 +112,12 @@ class DeviceRoleTable(NetBoxTable):
 
 class PlatformTable(NetBoxTable):
     name = tables.Column(
+        linkify=True
+    )
+    manufacturer = tables.Column(
+        linkify=True
+    )
+    config_template = tables.Column(
         linkify=True
     )
     device_count = columns.LinkedCountColumn(
@@ -124,8 +137,8 @@ class PlatformTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Platform
         fields = (
-            'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'napalm_driver', 'napalm_args',
-            'description', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template', 'napalm_driver',
+            'napalm_args', 'description', 'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description',
@@ -200,6 +213,9 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     vc_priority = tables.Column(
         verbose_name='VC Priority'
     )
+    config_template = tables.Column(
+        linkify=True
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:device_list'
@@ -211,7 +227,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
             'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'position', 'face',
             'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position',
-            'vc_priority', 'description', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'vc_priority', 'description', 'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
@@ -769,14 +785,17 @@ class ModuleBayTable(DeviceComponentTable):
     tags = columns.TagColumn(
         url_name='dcim:modulebay_list'
     )
+    module_status = columns.TemplateColumn(
+        template_code=MODULEBAY_STATUS
+    )
 
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'module_serial', 'module_asset_tag',
-            'description', 'tags',
+            'pk', 'id', 'name', 'device', 'label', 'position', 'installed_module', 'module_status', 'module_serial',
+            'module_asset_tag', 'description', 'tags',
         )
-        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'description')
+        default_columns = ('pk', 'name', 'device', 'label', 'installed_module', 'module_status', 'description')
 
 
 class DeviceModuleBayTable(ModuleBayTable):
@@ -787,10 +806,10 @@ class DeviceModuleBayTable(ModuleBayTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.ModuleBay
         fields = (
-            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'module_serial', 'module_asset_tag',
+            'pk', 'id', 'name', 'label', 'position', 'installed_module', 'module_status', 'module_serial', 'module_asset_tag',
             'description', 'tags', 'actions',
         )
-        default_columns = ('pk', 'name', 'label', 'installed_module', 'description')
+        default_columns = ('pk', 'name', 'label', 'installed_module', 'module_status', 'description')
 
 
 class InventoryItemTable(DeviceComponentTable):

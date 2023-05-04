@@ -203,6 +203,18 @@ class ButtonColorChoices(ChoiceSet):
 # Import Choices
 #
 
+class ImportMethodChoices(ChoiceSet):
+    DIRECT = 'direct'
+    UPLOAD = 'upload'
+    DATA_FILE = 'datafile'
+
+    CHOICES = [
+        (DIRECT, 'Direct'),
+        (UPLOAD, 'Upload'),
+        (DATA_FILE, 'Data file'),
+    ]
+
+
 class ImportFormatChoices(ChoiceSet):
     AUTO = 'auto'
     CSV = 'csv'

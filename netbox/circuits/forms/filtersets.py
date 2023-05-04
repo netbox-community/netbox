@@ -1,18 +1,20 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitStatusChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms import DatePicker, DynamicModelMultipleChoiceField, MultipleChoiceField, TagFilterField
+from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitFilterForm',
     'CircuitTypeFilterForm',
     'ProviderFilterForm',
+    'ProviderAccountFilterForm',
     'ProviderNetworkFilterForm',
 )
 
@@ -56,6 +58,23 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
+    model = ProviderAccount
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Attributes', ('provider_id', 'account')),
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
+    )
+    account = forms.CharField(
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
 class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
@@ -83,7 +102,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     model = Circuit
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Provider', ('provider_id', 'provider_network_id')),
+        ('Provider', ('provider_id', 'provider_account_id', 'provider_network_id')),
         ('Attributes', ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
         ('Location', ('region_id', 'site_group_id', 'site_id')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
@@ -99,6 +118,14 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         required=False,
         label=_('Provider')
     )
+    provider_account_id = DynamicModelMultipleChoiceField(
+        queryset=ProviderAccount.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Provider account')
+    )
     provider_network_id = DynamicModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
         required=False,
@@ -107,7 +134,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         },
         label=_('Provider network')
     )
-    status = MultipleChoiceField(
+    status = forms.MultipleChoiceField(
         choices=CircuitStatusChoices,
         required=False
     )
@@ -141,6 +168,9 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     commit_rate = forms.IntegerField(
         required=False,
         min_value=0,
-        label=_('Commit rate (Kbps)')
+        label=_('Commit rate (Kbps)'),
+        widget=NumberWithOptions(
+            options=CircuitCommitRateChoices
+        )
     )
     tag = TagFilterField(model)

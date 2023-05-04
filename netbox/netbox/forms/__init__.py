@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
-from utilities.forms import BootstrapMixin, StaticSelect, StaticSelectMultiple
+from utilities.forms import BootstrapMixin
 
 from .base import *
 
@@ -32,14 +32,12 @@ class SearchForm(BootstrapMixin, forms.Form):
     obj_types = forms.MultipleChoiceField(
         choices=[],
         required=False,
-        label=_('Object type(s)'),
-        widget=StaticSelectMultiple()
+        label=_('Object type(s)')
     )
     lookup = forms.ChoiceField(
         choices=LOOKUP_CHOICES,
         initial=LookupTypes.PARTIAL,
-        required=False,
-        widget=StaticSelect()
+        required=False
     )
 
     def __init__(self, *args, **kwargs):

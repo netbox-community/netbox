@@ -1,12 +1,10 @@
 import collections
 
-from extras.constants import EXTRAS_FEATURES
-
 
 class Registry(dict):
     """
-    Central registry for registration of functionality. Once a store (key) is defined, it cannot be overwritten or
-    deleted (although its value may be manipulated).
+    Central registry for registration of functionality. Once a Registry is initialized, keys cannot be added or
+    removed (though the value of each key is mutable).
     """
     def __getitem__(self, key):
         try:
@@ -15,19 +13,19 @@ class Registry(dict):
             raise KeyError(f"Invalid store: {key}")
 
     def __setitem__(self, key, value):
-        if key in self:
-            raise KeyError(f"Store already set: {key}")
-        super().__setitem__(key, value)
+        raise TypeError("Cannot add stores to registry after initialization")
 
     def __delitem__(self, key):
         raise TypeError("Cannot delete stores from registry")
 
 
 # Initialize the global registry
-registry = Registry()
-registry['model_features'] = {
-    feature: collections.defaultdict(set) for feature in EXTRAS_FEATURES
-}
-registry['denormalized_fields'] = collections.defaultdict(list)
-registry['search'] = dict()
-registry['views'] = collections.defaultdict(dict)
+registry = Registry({
+    'data_backends': dict(),
+    'denormalized_fields': collections.defaultdict(list),
+    'model_features': dict(),
+    'plugins': dict(),
+    'search': dict(),
+    'views': collections.defaultdict(dict),
+    'widgets': dict(),
+})

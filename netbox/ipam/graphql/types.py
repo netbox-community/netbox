@@ -1,6 +1,5 @@
 import graphene
 
-from graphene_django import DjangoObjectType
 from extras.graphql.mixins import ContactsMixin
 from ipam import filtersets, models
 from netbox.graphql.scalars import BigInt
@@ -8,6 +7,7 @@ from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBo
 
 __all__ = (
     'ASNType',
+    'ASNRangeType',
     'AggregateType',
     'FHRPGroupType',
     'FHRPGroupAssignmentType',
@@ -38,9 +38,9 @@ class IPAddressFamilyType(graphene.ObjectType):
 
 
 class BaseIPAddressFamilyType:
-    '''
+    """
     Base type for models that need to expose their IPAddress family type.
-    '''
+    """
     family = graphene.Field(IPAddressFamilyType)
 
     def resolve_family(self, _):
@@ -56,6 +56,14 @@ class ASNType(NetBoxObjectType):
         model = models.ASN
         fields = '__all__'
         filterset_class = filtersets.ASNFilterSet
+
+
+class ASNRangeType(NetBoxObjectType):
+
+    class Meta:
+        model = models.ASNRange
+        fields = '__all__'
+        filterset_class = filtersets.ASNRangeFilterSet
 
 
 class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):

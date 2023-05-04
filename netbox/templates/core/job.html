@@ -1,0 +1,81 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load perms %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:object %}
+        {% delete_button object %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Job</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Object Type</th>
+              <td>
+                <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object_type }}</a>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Status</th>
+              <td>{% badge object.get_status_display object.get_status_color %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Created By</th>
+              <td>{{ object.user|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Scheduling</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Created</th>
+              <td>{{ object.created|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Scheduled</th>
+              <td>{{ object.scheduled|annotated_date|placeholder }}{% if object.interval %} (every {{ object.interval }} seconds){% endif %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Started</th>
+              <td>{{ object.started|annotated_date|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Completed</th>
+              <td>{{ object.completed|annotated_date|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-12">
+      <div class="card">
+        <h5 class="card-header">Data</h5>
+        <div class="card-body">
+          <pre>{{ object.data|json }}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

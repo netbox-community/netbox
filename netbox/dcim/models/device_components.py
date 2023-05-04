@@ -97,7 +97,8 @@ class ComponentModel(NetBoxModel):
     def clean(self):
         super().clean()
 
-        if self.pk is not None and self._original_device != self.device_id:
+        # Check list of Modules that allow device field to be changed
+        if (type(self) not in [InventoryItem]) and (self.pk is not None) and (self._original_device != self.device_id):
             raise ValidationError({
                 "device": "Components cannot be moved to a different device."
             })
@@ -492,7 +493,8 @@ class BaseInterface(models.Model):
     mode = models.CharField(
         max_length=50,
         choices=InterfaceModeChoices,
-        blank=True
+        blank=True,
+        help_text=_("IEEE 802.1Q tagging strategy")
     )
     parent = models.ForeignKey(
         to='self',
@@ -601,14 +603,16 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         decimal_places=2,
         blank=True,
         null=True,
-        verbose_name='Channel frequency (MHz)'
+        verbose_name='Channel frequency (MHz)',
+        help_text=_("Populated by selected channel (if set)")
     )
     rf_channel_width = models.DecimalField(
         max_digits=7,
         decimal_places=3,
         blank=True,
         null=True,
-        verbose_name='Channel width (MHz)'
+        verbose_name='Channel width (MHz)',
+        help_text=_("Populated by selected channel (if set)")
     )
     tx_power = models.PositiveSmallIntegerField(
         blank=True,
@@ -905,7 +909,8 @@ class FrontPort(ModularComponentModel, CabledObjectModel):
         validators=[
             MinValueValidator(REARPORT_POSITIONS_MIN),
             MaxValueValidator(REARPORT_POSITIONS_MAX)
-        ]
+        ],
+        help_text=_('Mapped position on corresponding rear port')
     )
 
     clone_fields = ('device', 'type', 'color')
@@ -960,7 +965,8 @@ class RearPort(ModularComponentModel, CabledObjectModel):
         validators=[
             MinValueValidator(REARPORT_POSITIONS_MIN),
             MaxValueValidator(REARPORT_POSITIONS_MAX)
-        ]
+        ],
+        help_text=_('Number of front ports which may be mapped')
     )
     clone_fields = ('device', 'type', 'color', 'positions')
 

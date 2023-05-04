@@ -398,16 +398,6 @@ export function createElement<
 }
 
 /**
- * Convert Celsius to Fahrenheit, for NAPALM temperature sensors.
- *
- * @param celsius Degrees in Celsius.
- * @returns Degrees in Fahrenheit.
- */
-export function cToF(celsius: number): number {
-  return Math.round((celsius * (9 / 5) + 32 + Number.EPSILON) * 10) / 10;
-}
-
-/**
  * Deduplicate an array of objects based on the value of a property.
  *
  * @example

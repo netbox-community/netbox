@@ -13,6 +13,7 @@ ALLOWED_HOSTS = []
 # PostgreSQL database configuration. See the Django documentation for a complete list of available parameters:
 #   https://docs.djangoproject.com/en/stable/ref/settings/#databases
 DATABASE = {
+    'ENGINE': 'django.db.backends.postgresql',  # Database engine
     'NAME': 'netbox',         # Database name
     'USER': '',               # PostgreSQL username
     'PASSWORD': '',           # PostgreSQL password
@@ -193,6 +194,9 @@ PLUGINS = []
 REMOTE_AUTH_ENABLED = False
 REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
 REMOTE_AUTH_HEADER = 'HTTP_REMOTE_USER'
+REMOTE_AUTH_USER_FIRST_NAME = 'HTTP_REMOTE_USER_FIRST_NAME'
+REMOTE_AUTH_USER_LAST_NAME = 'HTTP_REMOTE_USER_LAST_NAME'
+REMOTE_AUTH_USER_EMAIL = 'HTTP_REMOTE_USER_EMAIL'
 REMOTE_AUTH_AUTO_CREATE_USER = True
 REMOTE_AUTH_DEFAULT_GROUPS = []
 REMOTE_AUTH_DEFAULT_PERMISSIONS = {}

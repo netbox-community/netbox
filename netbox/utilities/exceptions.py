@@ -3,6 +3,7 @@ from rest_framework.exceptions import APIException
 
 __all__ = (
     'AbortRequest',
+    'AbortScript',
     'AbortTransaction',
     'PermissionsViolation',
     'RQWorkerNotRunningException',

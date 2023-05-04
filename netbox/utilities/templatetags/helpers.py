@@ -1,5 +1,4 @@
 import datetime
-import decimal
 import json
 from urllib.parse import quote
 from typing import Dict, Any
@@ -14,6 +13,29 @@ from django.utils.safestring import mark_safe
 
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.utils import get_viewname
+
+__all__ = (
+    'annotated_date',
+    'annotated_now',
+    'applied_filters',
+    'as_range',
+    'divide',
+    'get_item',
+    'get_key',
+    'humanize_megabytes',
+    'humanize_speed',
+    'icon_from_status',
+    'kg_to_pounds',
+    'meters_to_feet',
+    'percentage',
+    'querystring',
+    'startswith',
+    'status_from_tag',
+    'table_config_form',
+    'utilization_graph',
+    'validated_viewname',
+    'viewname',
+)
 
 register = template.Library()
 
@@ -83,19 +105,6 @@ def humanize_megabytes(mb):
     return f'{mb} MB'
 
 
-@register.filter()
-def simplify_decimal(value):
-    """
-    Return the simplest expression of a decimal value. Examples:
-      1.00 => '1'
-      1.20 => '1.2'
-      1.23 => '1.23'
-    """
-    if type(value) is not decimal.Decimal:
-        return value
-    return str(value).rstrip('0').rstrip('.')
-
-
 @register.filter(expects_localtime=True)
 def annotated_date(date_value):
     """
@@ -143,14 +152,6 @@ def percentage(x, y):
         return None
 
     return round(x / y * 100, 1)
-
-
-@register.filter()
-def has_perms(user, permissions_list):
-    """
-    Return True if the user has *all* permissions in the list.
-    """
-    return user.has_perms(permissions_list)
 
 
 @register.filter()
@@ -322,7 +323,7 @@ def applied_filters(context, model, form, query_params):
     save_link = None
     if user.has_perm('extras.add_savedfilter') and 'filter_id' not in context['request'].GET:
         content_type = ContentType.objects.get_for_model(model).pk
-        parameters = json.dumps(context['request'].GET)
+        parameters = json.dumps(dict(context['request'].GET.lists()))
         url = reverse('extras:savedfilter_add')
         save_link = f"{url}?content_types={content_type}&parameters={quote(parameters)}"
 

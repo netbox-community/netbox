@@ -68,7 +68,6 @@ class TagFilterField(forms.MultipleChoiceField):
 
     :param model: The model of the filter
     """
-    widget = widgets.StaticSelectMultiple
 
     def __init__(self, model, *args, **kwargs):
         def get_choices():
@@ -137,13 +136,16 @@ class MACAddressField(forms.Field):
 
 class ChoiceField(forms.ChoiceField):
     """
-    Overrides Django's built-in `ChoiceField` to use NetBox's `StaticSelect` widget
+    Previously used to override Django's built-in `ChoiceField` to use NetBox's now-obsolete `StaticSelect` widget.
     """
-    widget = widgets.StaticSelect
+    # TODO: Remove in v3.6
+    pass
 
 
 class MultipleChoiceField(forms.MultipleChoiceField):
     """
-    Overrides Django's built-in `MultipleChoiceField` to use NetBox's `StaticSelectMultiple` widget
+    Previously used to override Django's built-in `MultipleChoiceField` to use NetBox's now-obsolete
+    `StaticSelectMultiple` widget.
     """
-    widget = widgets.StaticSelectMultiple
+    # TODO: Remove in v3.6
+    pass

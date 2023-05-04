@@ -4,6 +4,7 @@ from netbox.graphql.types import BaseObjectType, ObjectType
 
 __all__ = (
     'ConfigContextType',
+    'ConfigTemplateType',
     'CustomFieldType',
     'CustomLinkType',
     'ExportTemplateType',
@@ -22,6 +23,14 @@ class ConfigContextType(ObjectType):
         model = models.ConfigContext
         fields = '__all__'
         filterset_class = filtersets.ConfigContextFilterSet
+
+
+class ConfigTemplateType(TagsMixin, ObjectType):
+
+    class Meta:
+        model = models.ConfigTemplate
+        fields = '__all__'
+        filterset_class = filtersets.ConfigTemplateFilterSet
 
 
 class CustomFieldType(ObjectType):

@@ -1,7 +1,7 @@
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.views import ConfigContextQuerySetMixin
+from extras.api.mixins import ConfigContextQuerySetMixin
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.utils import count_related
 from virtualization import filtersets

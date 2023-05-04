@@ -7,9 +7,11 @@ from django.utils.translation import gettext as _
 from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
 from extras.models import *
 from extras.utils import FeatureQuery
-from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelForm, CSVMultipleContentTypeField, SlugField
+from utilities.forms import CSVModelForm
+from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
+    'ConfigTemplateImportForm',
     'CustomFieldImportForm',
     'CustomLinkImportForm',
     'ExportTemplateImportForm',
@@ -50,7 +52,7 @@ class CustomFieldImportForm(CSVModelForm):
         fields = (
             'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
             'search_weight', 'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'ui_visibility',
+            'validation_regex', 'ui_visibility', 'is_cloneable',
         )
 
 
@@ -83,6 +85,15 @@ class ExportTemplateImportForm(CSVModelForm):
         )
 
 
+class ConfigTemplateImportForm(CSVModelForm):
+
+    class Meta:
+        model = ConfigTemplate
+        fields = (
+            'name', 'description', 'environment_params', 'template_code', 'tags',
+        )
+
+
 class SavedFilterImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         queryset=ContentType.objects.all(),
@@ -106,9 +117,9 @@ class WebhookImportForm(CSVModelForm):
     class Meta:
         model = Webhook
         fields = (
-            'name', 'enabled', 'content_types', 'type_create', 'type_update', 'type_delete', 'payload_url',
-            'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret', 'ssl_verification',
-            'ca_file_path'
+            'name', 'enabled', 'content_types', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'type_job_end', 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template',
+            'secret', 'ssl_verification', 'ca_file_path'
         )
 
 

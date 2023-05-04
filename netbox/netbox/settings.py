@@ -3,9 +3,10 @@ import importlib
 import importlib.util
 import os
 import platform
+import requests
 import sys
 import warnings
-from urllib.parse import urlsplit
+from urllib.parse import urlencode, urlsplit
 
 import django
 import sentry_sdk
@@ -24,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.4.9-dev'
+VERSION = '3.5.1-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -67,6 +68,15 @@ DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
 
+# Enforce minimum length for SECRET_KEY
+if type(SECRET_KEY) is not str:
+    raise ImproperlyConfigured(f"SECRET_KEY must be a string (found {type(SECRET_KEY).__name__})")
+if len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured(
+        f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
+        f"  python {BASE_DIR}/generate_secret_key.py"
+    )
+
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 
@@ -78,20 +88,24 @@ BASE_PATH = getattr(configuration, 'BASE_PATH', '')
 if BASE_PATH:
     BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
 CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
+CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 CSRF_COOKIE_NAME = getattr(configuration, 'CSRF_COOKIE_NAME', 'csrftoken')
+CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
+DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+GIT_PATH = getattr(configuration, 'GIT_PATH', 'git')
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
@@ -113,6 +127,9 @@ REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS'
 REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', {})
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
 REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
+REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
+REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
+REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL')
 REMOTE_AUTH_GROUP_HEADER = getattr(configuration, 'REMOTE_AUTH_GROUP_HEADER', 'HTTP_REMOTE_USER_GROUP')
 REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(configuration, 'REMOTE_AUTH_GROUP_SYNC_ENABLED', False)
 REMOTE_AUTH_SUPERUSER_GROUPS = getattr(configuration, 'REMOTE_AUTH_SUPERUSER_GROUPS', [])
@@ -124,6 +141,7 @@ REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 're
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
+SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
@@ -131,6 +149,7 @@ SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
 SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
+SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -163,15 +182,16 @@ if RELEASE_CHECK_URL:
 # Database
 #
 
-# Only PostgreSQL is supported
-if METRICS_ENABLED:
-    DATABASE.update({
-        'ENGINE': 'django_prometheus.db.backends.postgresql'
-    })
-else:
-    DATABASE.update({
-        'ENGINE': 'django.db.backends.postgresql'
-    })
+if 'ENGINE' not in DATABASE:
+    # Only PostgreSQL is supported
+    if METRICS_ENABLED:
+        DATABASE.update({
+            'ENGINE': 'django_prometheus.db.backends.postgresql'
+        })
+    else:
+        DATABASE.update({
+            'ENGINE': 'django.db.backends.postgresql'
+        })
 
 DATABASES = {
     'default': DATABASE,
@@ -332,6 +352,7 @@ INSTALLED_APPS = [
     'social_django',
     'taggit',
     'timezone_field',
+    'core',
     'circuits',
     'dcim',
     'ipam',
@@ -342,7 +363,8 @@ INSTALLED_APPS = [
     'virtualization',
     'wireless',
     'django_rq',  # Must come after extras to allow overriding management commands
-    'drf_yasg',
+    'drf_spectacular',
+    'drf_spectacular_sidecar',
 ]
 
 # Middleware
@@ -358,12 +380,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'netbox.middleware.ExceptionHandlingMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
-    'netbox.middleware.LoginRequiredMiddleware',
-    'netbox.middleware.DynamicConfigMiddleware',
-    'netbox.middleware.APIVersionMiddleware',
-    'netbox.middleware.ObjectChangeMiddleware',
+    'netbox.middleware.CoreMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
@@ -450,7 +468,7 @@ EXEMPT_EXCLUDE_MODELS = (
 )
 
 # All URLs starting with a string listed here are exempt from login enforcement
-EXEMPT_PATHS = (
+AUTH_EXEMPT_PATHS = (
     f'/{BASE_PATH}api/',
     f'/{BASE_PATH}graphql/',
     f'/{BASE_PATH}login/',
@@ -491,6 +509,24 @@ if SENTRY_ENABLED:
     # If using the default DSN, append a unique deployment ID tag for error correlation
     if SENTRY_DSN == DEFAULT_SENTRY_DSN:
         sentry_sdk.set_tag('netbox.deployment_id', DEPLOYMENT_ID)
+
+
+#
+# Census collection
+#
+
+CENSUS_URL = 'https://census.netbox.dev/api/v1/'
+CENSUS_PARAMS = {
+    'version': VERSION,
+    'python_version': sys.version.split()[0],
+    'deployment_id': DEPLOYMENT_ID,
+}
+if CENSUS_REPORTING_ENABLED and not DEBUG and 'test' not in sys.argv:
+    try:
+        # Report anonymous census data
+        requests.get(f'{CENSUS_URL}?{urlencode(CENSUS_PARAMS)}', timeout=3, proxies=HTTP_PROXIES)
+    except requests.exceptions.RequestException:
+        pass
 
 
 #
@@ -563,6 +599,7 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'netbox.api.renderers.FormlessBrowsableAPIRenderer',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'core.api.schema.NetBoxAutoSchema',
     'DEFAULT_VERSION': REST_FRAMEWORK_VERSION,
     'DEFAULT_VERSIONING_CLASS': 'rest_framework.versioning.AcceptHeaderVersioning',
     'SCHEMA_COERCE_METHOD_NAMES': {
@@ -575,6 +612,24 @@ REST_FRAMEWORK = {
     'VIEW_NAME_FUNCTION': 'utilities.api.get_view_name',
 }
 
+#
+# DRF Spectacular
+#
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'NetBox REST API',
+    'LICENSE': {'name': 'Apache v2 License'},
+    'VERSION': VERSION,
+    'COMPONENT_SPLIT_REQUEST': True,
+    'REDOC_DIST': 'SIDECAR',
+    'SERVERS': [{
+        'url': BASE_PATH,
+        'description': 'NetBox',
+    }],
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'POSTPROCESSING_HOOKS': [],
+}
 
 #
 # Graphene
@@ -584,49 +639,6 @@ GRAPHENE = {
     # Avoids naming collision on models with 'type' field; see
     # https://github.com/graphql-python/graphene-django/issues/185
     'DJANGO_CHOICE_FIELD_ENUM_V3_NAMING': True,
-}
-
-
-#
-# drf_yasg (OpenAPI/Swagger)
-#
-
-SWAGGER_SETTINGS = {
-    'DEFAULT_AUTO_SCHEMA_CLASS': 'utilities.custom_inspectors.NetBoxSwaggerAutoSchema',
-    'DEFAULT_FIELD_INSPECTORS': [
-        'utilities.custom_inspectors.CustomFieldsDataFieldInspector',
-        'utilities.custom_inspectors.NullableBooleanFieldInspector',
-        'utilities.custom_inspectors.ChoiceFieldInspector',
-        'utilities.custom_inspectors.SerializedPKRelatedFieldInspector',
-        'drf_yasg.inspectors.CamelCaseJSONFilter',
-        'drf_yasg.inspectors.ReferencingSerializerInspector',
-        'drf_yasg.inspectors.RelatedFieldInspector',
-        'drf_yasg.inspectors.ChoiceFieldInspector',
-        'drf_yasg.inspectors.FileFieldInspector',
-        'drf_yasg.inspectors.DictFieldInspector',
-        'drf_yasg.inspectors.JSONFieldInspector',
-        'drf_yasg.inspectors.SerializerMethodFieldInspector',
-        'drf_yasg.inspectors.SimpleFieldInspector',
-        'drf_yasg.inspectors.StringDefaultFieldInspector',
-    ],
-    'DEFAULT_FILTER_INSPECTORS': [
-        'drf_yasg.inspectors.CoreAPICompatInspector',
-    ],
-    'DEFAULT_INFO': 'netbox.urls.openapi_info',
-    'DEFAULT_MODEL_DEPTH': 1,
-    'DEFAULT_PAGINATOR_INSPECTORS': [
-        'utilities.custom_inspectors.NullablePaginatorInspector',
-        'drf_yasg.inspectors.DjangoRestResponsePagination',
-        'drf_yasg.inspectors.CoreAPICompatInspector',
-    ],
-    'SECURITY_DEFINITIONS': {
-        'Bearer': {
-            'type': 'apiKey',
-            'name': 'Authorization',
-            'in': 'header',
-        }
-    },
-    'VALIDATOR_URL': None,
 }
 
 

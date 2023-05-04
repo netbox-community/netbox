@@ -25,16 +25,52 @@
         </div>
       </div>
       {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/custom_fields.html' %}
-      {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-      <div class="mb-4">
-        {% include 'inc/panel_table.html' with table=importing_vrfs_table heading="Importing VRFs" %}
-      </div>
-      {% include 'inc/panel_table.html' with table=exporting_vrfs_table heading="Exporting VRFs" %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Importing VRFs</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'ipam:vrf_list' %}?import_target_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Exporting VRFs</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'ipam:vrf_list' %}?export_target_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Importing L2VPNs</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'ipam:l2vpn_list' %}?import_target_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Exporting L2VPNs</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'ipam:l2vpn_list' %}?export_target_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
     </div>
   </div>
   <div class="row">

@@ -5,7 +5,8 @@ from dcim.choices import LinkStatusChoices
 from ipam.models import VLAN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
-from utilities.forms import add_blank_choice, CommentField, DynamicModelChoiceField
+from utilities.forms import add_blank_choice
+from utilities.forms.fields import CommentField, DynamicModelChoiceField
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *

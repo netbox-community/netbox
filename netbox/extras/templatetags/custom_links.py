@@ -40,7 +40,6 @@ def custom_links(context, obj):
     # Pass select context data when rendering the CustomLink
     link_context = {
         'object': obj,
-        'obj': obj,  # TODO: Remove in NetBox v3.5
         'debug': context.get('debug', False),  # django.template.context_processors.debug
         'request': context['request'],  # django.template.context_processors.request
         'user': context['user'],  # django.contrib.auth.context_processors.auth

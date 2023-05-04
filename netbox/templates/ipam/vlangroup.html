@@ -48,10 +48,6 @@
               <a href="{% url 'ipam:vlan_list' %}?group_id={{ object.pk }}">{{ vlans_count }}</a>
             </td>
           </tr>
-          <tr>
-            <th scope="row">Utilization</th>
-            <td>{% utilization_graph object.get_utilization %}</td>
-          </tr>
         </table>
       </div>
     </div>
