@@ -1196,6 +1196,46 @@ front-ports:
         self.assertEqual(fp1.rear_port, rp1)
         self.assertEqual(fp1.rear_port_position, 1)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_import_moduletype_with_weight(self):
+        """
+        Custom import test for JSON-based imports specifically including module weight
+        """
+        IMPORT_DATA = """
+{
+    "manufacturer": "Manufacturer 2",
+    "model": "TEST-1001",
+    "weight": 10,
+    "weight_unit": "lb"
+}
+"""
+
+        # Add all required permissions to the test user
+        self.add_permissions(
+            'dcim.view_moduletype',
+            'dcim.add_moduletype',
+            'dcim.add_consoleporttemplate',
+            'dcim.add_consoleserverporttemplate',
+            'dcim.add_powerporttemplate',
+            'dcim.add_poweroutlettemplate',
+            'dcim.add_interfacetemplate',
+            'dcim.add_frontporttemplate',
+            'dcim.add_rearporttemplate',
+        )
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'json'
+        }
+        response = self.client.post(reverse('dcim:moduletype_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        module_type = ModuleType.objects.get(model='TEST-1001')
+
+        # Verify the weight is correct
+        self.assertEqual(module_type.weight, 10)
+        self.assertEqual(module_type.weight_unit, WeightUnitChoices.UNIT_POUND)
+
     def test_export_objects(self):
         url = reverse('dcim:moduletype_list')
         self.add_permissions('dcim.view_moduletype')

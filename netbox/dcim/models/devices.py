@@ -363,6 +363,8 @@ class ModuleType(PrimaryModel, WeightMixin):
             'model': self.model,
             'part_number': self.part_number,
             'comments': self.comments,
+            'weight': float(self.weight) if self.weight is not None else None,
+            'weight_unit': self.weight_unit,
         }
 
         # Component templates

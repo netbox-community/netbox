@@ -318,9 +318,20 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
         to_field_name='name'
     )
 
+    weight = forms.DecimalField(
+        required=False,
+        help_text=_("Module weight"),
+    )
+
+    weight_unit = CSVChoiceField(
+        choices=WeightUnitChoices,
+        required=False,
+        help_text=_('Unit for module weight')
+    )
+
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'comments']
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'comments', 'weight', 'weight_unit']
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
