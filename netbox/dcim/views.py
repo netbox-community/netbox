@@ -377,21 +377,6 @@ class SiteView(generic.ObjectView):
             (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
         )
 
-        locations = Location.objects.add_related_count(
-            Location.objects.all(),
-            Rack,
-            'location',
-            'rack_count',
-            cumulative=True
-        )
-        locations = Location.objects.add_related_count(
-            locations,
-            Device,
-            'location',
-            'device_count',
-            cumulative=True
-        ).restrict(request.user, 'view').filter(site=instance)
-
         nonracked_devices = Device.objects.filter(
             site=instance,
             rack__isnull=True,
@@ -400,7 +385,6 @@ class SiteView(generic.ObjectView):
 
         return {
             'related_models': related_models,
-            'locations': locations,
             'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
             'total_nonracked_devices_count': nonracked_devices.count(),
         }
