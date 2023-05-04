@@ -617,7 +617,7 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    actions = ('export', 'bulk_edit', 'bulk_delete')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(JournalEntry)
@@ -664,6 +664,11 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
     queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
+
+
+class JournalEntryBulkImportView(generic.BulkImportView):
+    queryset = JournalEntry.objects.all()
+    model_form = forms.JournalEntryImportForm
 
 
 #
