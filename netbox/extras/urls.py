@@ -73,6 +73,7 @@ urlpatterns = [
     path('config-templates/<int:pk>/', include(get_model_urls('extras', 'configtemplate'))),
 
     # Image attachments
+    path('image-attachments/', views.ImageAttachmentListView.as_view(), name='imageattachment_list'),
     path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),
     path('image-attachments/<int:pk>/', include(get_model_urls('extras', 'imageattachment'))),
 
