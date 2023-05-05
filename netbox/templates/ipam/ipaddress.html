@@ -116,7 +116,6 @@
     {% if duplicate_ips_table.rows %}
       {% include 'inc/panel_table.html' with table=duplicate_ips_table heading='Duplicate IPs' panel_class='danger' %}
     {% endif %}
-    {% include 'inc/panel_table.html' with table=related_ips_table heading='Related IPs' %}
     <div class="card">
       <h5 class="card-header">Services</h5>
       <div class="card-body htmx-container table-responsive"
