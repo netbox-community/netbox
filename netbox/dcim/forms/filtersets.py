@@ -1083,7 +1083,7 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         ('Attributes', ('name', 'label', 'type', 'speed')),
         ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id', 'virtual_chassis_id')),
-        ('Device', ('device_type_id','device_role_id', 'device_id')),
+        ('Device', ('device_type_id', 'device_role_id', 'device_id')),
         ('Connection', ('cabled', 'connected', 'occupied')),
     )
     type = forms.MultipleChoiceField(
