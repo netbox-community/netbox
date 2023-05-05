@@ -4,7 +4,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
+from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices, JournalEntryKindChoices
 from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelImportForm
@@ -140,6 +140,10 @@ class JournalEntryImportForm(NetBoxModelImportForm):
     assigned_object_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         label=_('Assigned object type'),
+    )
+    kind = CSVChoiceField(
+        choices=JournalEntryKindChoices,
+        help_text=_('The classification of entry')
     )
 
     class Meta:
