@@ -12,11 +12,14 @@
           <table class="table table-hover attr-table">
             {% for field, value in fields.items %}
               <tr>
-                <th scope="row">
-                  <span title="{{ field.description|escape }}">{{ field }}</span>
-                </th>
                 <td>
                   {% customfield_value field value %}
+                    <i
+                      class="mdi mdi-information text-primary"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="right"
+                      title="{{ field.description }}"
+                    ></i>
                 </td>
               </tr>
             {% endfor %}
