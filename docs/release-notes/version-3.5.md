@@ -2,7 +2,7 @@
 
 ## v3.5.1 (2023-05-05)
 
-## Enhancements
+### Enhancements
 
 * [#10759](https://github.com/netbox-community/netbox/issues/10759) - Support Markdown rendering for custom field descriptions
 * [#11190](https://github.com/netbox-community/netbox/issues/11190) - Including systemd service & timer configurations for housekeeping tasks
