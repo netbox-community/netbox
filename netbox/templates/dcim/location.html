@@ -66,13 +66,13 @@
 	<div class="col col-md-6">
     {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/contacts.html' %}
-    {% include 'dcim/inc/nonracked_devices.html' %}
     {% include 'inc/panels/image_attachments.html' %}
     {% plugin_right_page object %}
 	</div>
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
+    {% include 'dcim/inc/nonracked_devices.html' %}
     <div class="card">
       <h5 class="card-header">Child Locations</h5>
       <div class="card-body htmx-container table-responsive"

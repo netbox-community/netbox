@@ -190,13 +190,13 @@
             </div>
         </div>
         {% include 'inc/panels/related_objects.html' %}
-        {% include 'dcim/inc/nonracked_devices.html' %}
         {% include 'inc/panels/contacts.html' %}
         {% plugin_right_page object %}
     </div>
   </div>
   <div class="row">
       <div class="col col-md-12">
+          {% include 'dcim/inc/nonracked_devices.html' %}
           {% plugin_full_width_page object %}
       </div>
   </div>
