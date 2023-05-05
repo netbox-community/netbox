@@ -13,6 +13,7 @@ from tenancy.models import Tenant
 from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
+from wireless.models import WirelessLAN, WirelessLANGroup
 
 __all__ = (
     'CableBulkEditForm',
@@ -1139,7 +1140,7 @@ class InterfaceBulkEditForm(
     form_from_model(Interface, [
         'label', 'type', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'mtu', 'mgmt_only',
         'mark_connected', 'description', 'mode', 'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width',
-        'tx_power',
+        'tx_power', 'wireless_lans'
     ]),
     ComponentBulkEditForm
 ):
@@ -1229,6 +1230,19 @@ class InterfaceBulkEditForm(
         required=False,
         label=_('VRF')
     )
+    wireless_lan_group = DynamicModelChoiceField(
+        queryset=WirelessLANGroup.objects.all(),
+        required=False,
+        label=_('Wireless LAN group')
+    )
+    wireless_lans = DynamicModelMultipleChoiceField(
+        queryset=WirelessLAN.objects.all(),
+        required=False,
+        label=_('Wireless LANs'),
+        query_params={
+            'group_id': '$wireless_lan_group',
+        }
+    )
 
     model = Interface
     fieldsets = (
@@ -1238,12 +1252,14 @@ class InterfaceBulkEditForm(
         ('PoE', ('poe_mode', 'poe_type')),
         ('Related Interfaces', ('parent', 'bridge', 'lag')),
         ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
-        ('Wireless', ('rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width')),
+        ('Wireless', (
+            'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
+        )),
     )
     nullable_fields = (
         'module', 'label', 'parent', 'bridge', 'lag', 'speed', 'duplex', 'mac_address', 'wwn', 'vdcs', 'mtu', 'description',
         'poe_mode', 'poe_type', 'mode', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power',
-        'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf',
+        'vlan_group', 'untagged_vlan', 'tagged_vlans', 'vrf', 'wireless_lans'
     )
 
     def __init__(self, *args, **kwargs):
