@@ -96,6 +96,7 @@ class ImageAttachmentTable(NetBoxTable):
         linkify=True
     )
     size = tables.Column(
+        orderable=False,
         verbose_name='Size (bytes)'
     )
 
