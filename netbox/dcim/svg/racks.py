@@ -40,20 +40,23 @@ def get_device_description(device):
     """
     Return a description for a device to be rendered in the rack elevation in the following format
 
-    Name: Device Name
-    Role: Device Role
-    Description: Device Description
-    Device Type: Device Type Manufacturer Device Type Model (Device Type U Height) (Device Asset Tag) (Device Serial)
+    Name: <name>
+    Role: <device_role>
+    Device Type: <manufacturer> <model> (<u_height>)
+    Asset tag: <asset_tag> (if defined)
+    Serial: <serial> (if defined)
+    Description: <description> (if defined)
     """
     description = f'Name: {device.name}'
-    if device.asset_tag:
-        description += f' {device.asset_tag}'
-    if device.serial:
-        description += f' {device.serial}'
     description += f'\nRole: {device.device_role}'
+    u_height = f'{floatformat(device.device_type.u_height)}U'
+    description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({u_height})'
+    if device.asset_tag:
+        description += f'\nAsset tag: {device.asset_tag}'
+    if device.serial:
+        description += f'\nSerial: {device.serial}'
     if device.description:
         description += f'\nDescription: {device.description}'
-    description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({floatformat(device.device_type.u_height)})'
 
     return description
 
