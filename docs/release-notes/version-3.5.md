@@ -43,7 +43,6 @@
 * [#12415](https://github.com/netbox-community/netbox/issues/12415) - Fix `ImportError` exception when running RQ worker
 * [#12433](https://github.com/netbox-community/netbox/issues/12433) - Correct the application of URL query parameters for object list dashboard widgets
 * [#12436](https://github.com/netbox-community/netbox/issues/12436) - Remove extraneous "add" button from contact assignments list
-* [#12463](https://github.com/netbox-community/netbox/issues/12463) - Fix the association of completed jobs with reports & scripts in the REST API
 * [#12464](https://github.com/netbox-community/netbox/issues/12464) - Apply credentials for git data source only when connecting via HTTP/S
 * [#12476](https://github.com/netbox-community/netbox/issues/12476) - Fix `TypeError` exception when running the `runscript` management command
 * [#12483](https://github.com/netbox-community/netbox/issues/12483) - Fix git remote data syncing when with HTTP proxies defined
