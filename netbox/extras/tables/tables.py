@@ -91,13 +91,10 @@ class ImageAttachmentTable(NetBoxTable):
     id = tables.Column(
         linkify=False
     )
-
     content_type = columns.ContentTypeColumn()
-
     parent = tables.Column(
         linkify=True
     )
-
     size = tables.Column(
         verbose_name='Size (bytes)'
     )
