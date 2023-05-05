@@ -2,6 +2,11 @@
 
 ## v3.5.2 (FUTURE)
 
+### Enhancements
+
+* [#12223](https://github.com/netbox-community/netbox/issues/12223) - Add columns for parent device bay and position to devices list
+* [#12498](https://github.com/netbox-community/netbox/issues/12498) - Hide map button if `MAPS_URL` is empty
+
 ---
 
 ## v3.5.1 (2023-05-05)
