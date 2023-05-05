@@ -14,12 +14,14 @@
               <tr>
                 <td>
                   {% customfield_value field value %}
+                    {% if field.description %}
                     <i
                       class="mdi mdi-information text-primary"
                       data-bs-toggle="tooltip"
                       data-bs-placement="right"
                       title="{{ field.description }}"
                     ></i>
+                    {% endif %}
                 </td>
               </tr>
             {% endfor %}
