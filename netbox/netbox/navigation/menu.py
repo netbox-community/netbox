@@ -292,6 +292,7 @@ CUSTOMIZATION_MENU = Menu(
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),
                 get_model_item('extras', 'tag', 'Tags'),
+                get_model_item('extras', 'imageattachment', _('Image Attachments'), actions=()),
             ),
         ),
         MenuGroup(

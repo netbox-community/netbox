@@ -577,6 +577,14 @@ class ObjectChangeView(generic.ObjectView):
 # Image attachments
 #
 
+class ImageAttachmentListView(generic.ObjectListView):
+    queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
+    filterset_form = forms.ImageAttachmentFilterForm
+    table = tables.ImageAttachmentTable
+    actions = ('export',)
+
+
 @register_model_view(ImageAttachment, 'edit')
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()

@@ -13,6 +13,7 @@ __all__ = (
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
+    'ImageAttachmentTable',
     'JournalEntryTable',
     'ObjectChangeTable',
     'SavedFilterTable',
@@ -84,6 +85,28 @@ class ExportTemplateTable(NetBoxTable):
         default_columns = (
             'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
         )
+
+
+class ImageAttachmentTable(NetBoxTable):
+    id = tables.Column(
+        linkify=False
+    )
+    content_type = columns.ContentTypeColumn()
+    parent = tables.Column(
+        linkify=True
+    )
+    size = tables.Column(
+        orderable=False,
+        verbose_name='Size (bytes)'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ImageAttachment
+        fields = (
+            'pk', 'content_type', 'parent', 'image', 'name', 'image_height', 'image_width', 'size', 'created',
+            'last_updated',
+        )
+        default_columns = ('content_type', 'parent', 'image', 'name', 'size', 'created')
 
 
 class SavedFilterTable(NetBoxTable):
