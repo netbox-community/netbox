@@ -4,10 +4,12 @@ from hashlib import sha256
 from urllib.parse import urlencode
 
 import feedparser
+import requests
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
+from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, reverse
 from django.utils.translation import gettext as _
@@ -33,7 +35,7 @@ def get_content_type_labels():
     return [
         (content_type_identifier(ct), content_type_name(ct))
         for ct in ContentType.objects.filter(
-            FeatureQuery('export_templates').get_query()
+            FeatureQuery('export_templates').get_query() | Q(app_label='extras', model='objectchange')
         ).order_by('app_label', 'model')
     ]
 
@@ -227,7 +229,11 @@ class ObjectListWidget(DashboardWidget):
             htmx_url = reverse(viewname)
         except NoReverseMatch:
             htmx_url = None
-        if parameters := self.config.get('url_params'):
+        parameters = self.config.get('url_params') or {}
+        if page_size := self.config.get('page_size'):
+            parameters['per_page'] = page_size
+
+        if parameters:
             try:
                 htmx_url = f'{htmx_url}?{urlencode(parameters, doseq=True)}'
             except ValueError:
@@ -236,7 +242,6 @@ class ObjectListWidget(DashboardWidget):
             'viewname': viewname,
             'has_permission': has_permission,
             'htmx_url': htmx_url,
-            'page_size': self.config.get('page_size'),
         })
 
 
@@ -268,12 +273,9 @@ class RSSFeedWidget(DashboardWidget):
         )
 
     def render(self, request):
-        url = self.config['feed_url']
-        feed = self.get_feed()
-
         return render_to_string(self.template_name, {
-            'url': url,
-            'feed': feed,
+            'url': self.config['feed_url'],
+            **self.get_feed()
         })
 
     @cached_property
@@ -285,17 +287,33 @@ class RSSFeedWidget(DashboardWidget):
     def get_feed(self):
         # Fetch RSS content from cache if available
         if feed_content := cache.get(self.cache_key):
-            feed = feedparser.FeedParserDict(feed_content)
-        else:
-            feed = feedparser.parse(
-                self.config['feed_url'],
-                request_headers={'User-Agent': f'NetBox/{settings.VERSION}'}
-            )
-            if not feed.bozo:
-                # Cap number of entries
-                max_entries = self.config.get('max_entries')
-                feed['entries'] = feed['entries'][:max_entries]
-                # Cache the feed content
-                cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+            return {
+                'feed': feedparser.FeedParserDict(feed_content),
+            }
 
-        return feed
+        # Fetch feed content from remote server
+        try:
+            response = requests.get(
+                url=self.config['feed_url'],
+                headers={'User-Agent': f'NetBox/{settings.VERSION}'},
+                proxies=settings.HTTP_PROXIES,
+                timeout=3
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            return {
+                'error': e,
+            }
+
+        # Parse feed content
+        feed = feedparser.parse(response.content)
+        if not feed.bozo:
+            # Cap number of entries
+            max_entries = self.config.get('max_entries')
+            feed['entries'] = feed['entries'][:max_entries]
+            # Cache the feed content
+            cache.set(self.cache_key, dict(feed), self.config.get('cache_timeout'))
+
+        return {
+            'feed': feed,
+        }

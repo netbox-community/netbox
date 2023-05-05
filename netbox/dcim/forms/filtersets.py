@@ -298,6 +298,15 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
 
 
 class RackElevationFilterForm(RackFilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id', 'id')),
+        ('Function', ('status', 'role_id')),
+        ('Hardware', ('type', 'width', 'serial', 'asset_tag')),
+        ('Tenant', ('tenant_group_id', 'tenant_id')),
+        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        ('Weight', ('weight', 'max_weight', 'weight_unit')),
+    )
     id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
         label=_('Rack'),

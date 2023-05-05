@@ -4,8 +4,6 @@ A platform defines the type of software running on a [device](./device.md) or [v
 
 Platforms may optionally be limited by [manufacturer](./manufacturer.md): If a platform is assigned to a particular manufacturer, it can only be assigned to devices with a type belonging to that manufacturer.
 
-The platform model is also used to indicate which [NAPALM driver](../../integrations/napalm.md) (if any) and any associated arguments NetBox should use when connecting to a remote device. The name of the driver along with optional parameters are stored with the platform.
-
 The assignment of platforms to devices is an optional feature, and may be disregarded if not desired.
 
 ## Fields

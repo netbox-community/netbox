@@ -126,7 +126,11 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
     count_ipaddresses = serializers.IntegerField(read_only=True)
     count_fhrp_groups = serializers.IntegerField(read_only=True)
-    mac_address = serializers.CharField(required=False, default=None)
+    mac_address = serializers.CharField(
+        required=False,
+        default=None,
+        allow_null=True
+    )
 
     class Meta:
         model = VMInterface

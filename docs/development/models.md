@@ -32,7 +32,7 @@ These are considered the "core" application models which are used to model netwo
 
 * [circuits.Circuit](../models/circuits/circuit.md)
 * [circuits.Provider](../models/circuits/provider.md)
-* [circuits.ProviderAccount](../models/circuits/provideracount.md)
+* [circuits.ProviderAccount](../models/circuits/provideraccount.md)
 * [circuits.ProviderNetwork](../models/circuits/providernetwork.md)
 * [core.DataSource](../models/core/datasource.md)
 * [dcim.Cable](../models/dcim/cable.md)

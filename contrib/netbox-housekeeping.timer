@@ -1,0 +1,13 @@
+[Unit]
+Description=NetBox Housekeeping Timer
+Documentation=https://docs.netbox.dev/
+After=network-online.target
+Wants=network-online.target
+
+[Timer]
+OnCalendar=daily
+AccuracySec=1h
+Persistent=true
+
+[Install]
+WantedBy=multi-user.target

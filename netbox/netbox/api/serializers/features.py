@@ -14,34 +14,12 @@ __all__ = (
 
 class CustomFieldModelSerializer(serializers.Serializer):
     """
-    Introduces support for custom field assignment. Adds `custom_fields` serialization and ensures
-    that custom field data is populated upon initialization.
+    Introduces support for custom field assignment and representation.
     """
     custom_fields = CustomFieldsDataField(
         source='custom_field_data',
         default=CreateOnlyDefault(CustomFieldDefaultValues())
     )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        if self.instance is not None:
-
-            # Retrieve the set of CustomFields which apply to this type of object
-            content_type = ContentType.objects.get_for_model(self.Meta.model)
-            fields = CustomField.objects.filter(content_types=content_type)
-
-            # Populate custom field values for each instance from database
-            if type(self.instance) in (list, tuple):
-                for obj in self.instance:
-                    self._populate_custom_fields(obj, fields)
-            else:
-                self._populate_custom_fields(self.instance, fields)
-
-    def _populate_custom_fields(self, instance, custom_fields):
-        instance.custom_fields = {}
-        for field in custom_fields:
-            instance.custom_fields[field.name] = instance.cf.get(field.name)
 
 
 class TaggableModelSerializer(serializers.Serializer):

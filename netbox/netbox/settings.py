@@ -25,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.5.0'
+VERSION = '3.5.1'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -182,15 +182,16 @@ if RELEASE_CHECK_URL:
 # Database
 #
 
-# Only PostgreSQL is supported
-if METRICS_ENABLED:
-    DATABASE.update({
-        'ENGINE': 'django_prometheus.db.backends.postgresql'
-    })
-else:
-    DATABASE.update({
-        'ENGINE': 'django.db.backends.postgresql'
-    })
+if 'ENGINE' not in DATABASE:
+    # Only PostgreSQL is supported
+    if METRICS_ENABLED:
+        DATABASE.update({
+            'ENGINE': 'django_prometheus.db.backends.postgresql'
+        })
+    else:
+        DATABASE.update({
+            'ENGINE': 'django.db.backends.postgresql'
+        })
 
 DATABASES = {
     'default': DATABASE,
@@ -616,13 +617,15 @@ REST_FRAMEWORK = {
 #
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'NetBox API',
-    'DESCRIPTION': 'API to access NetBox',
+    'TITLE': 'NetBox REST API',
     'LICENSE': {'name': 'Apache v2 License'},
     'VERSION': VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
-    'SERVERS': [{'url': f'/{BASE_PATH}api'}],
+    'SERVERS': [{
+        'url': BASE_PATH,
+        'description': 'NetBox',
+    }],
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'POSTPROCESSING_HOOKS': [],
