@@ -82,6 +82,7 @@ urlpatterns = [
     path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
     path('journal-entries/edit/', views.JournalEntryBulkEditView.as_view(), name='journalentry_bulk_edit'),
     path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
+    path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
 
     # Change logging
