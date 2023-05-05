@@ -1,7 +1,8 @@
+import json
+
 import django_tables2 as tables
 from django.conf import settings
 
-import json
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
 from .template_code import *
