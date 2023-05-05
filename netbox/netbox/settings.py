@@ -25,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.5.1-dev'
+VERSION = '3.5.1'
 
 # Hostname
 HOSTNAME = platform.node()
