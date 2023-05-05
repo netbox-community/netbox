@@ -252,7 +252,7 @@ class RackElevationSVG:
                 link = Hyperlink(href=f'{self.base_url}{reservation.get_absolute_url()}', target='_parent')
                 link.set_desc(f'Reservation #{reservation.pk}: {reservation.description}')
                 link.add(
-                    Rect(coords, size, class_='reservation')
+                    Rect(coords, size, class_='reservation', stroke='red', stroke_width=2)
                 )
                 self.drawing.add(link)
 
