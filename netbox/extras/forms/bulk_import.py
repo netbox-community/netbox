@@ -4,9 +4,10 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices
+from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices, JournalEntryKindChoices
 from extras.models import *
 from extras.utils import FeatureQuery
+from netbox.forms import NetBoxModelImportForm
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVMultipleContentTypeField, SlugField
 
@@ -15,6 +16,7 @@ __all__ = (
     'CustomFieldImportForm',
     'CustomLinkImportForm',
     'ExportTemplateImportForm',
+    'JournalEntryImportForm',
     'SavedFilterImportForm',
     'TagImportForm',
     'WebhookImportForm',
@@ -132,3 +134,20 @@ class TagImportForm(CSVModelForm):
         help_texts = {
             'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
         }
+
+
+class JournalEntryImportForm(NetBoxModelImportForm):
+    assigned_object_type = CSVContentTypeField(
+        queryset=ContentType.objects.all(),
+        label=_('Assigned object type'),
+    )
+    kind = CSVChoiceField(
+        choices=JournalEntryKindChoices,
+        help_text=_('The classification of entry')
+    )
+
+    class Meta:
+        model = JournalEntry
+        fields = (
+            'assigned_object_type', 'assigned_object_id', 'created_by', 'kind', 'comments', 'tags'
+        )

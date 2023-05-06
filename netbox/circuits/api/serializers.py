@@ -106,7 +106,7 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
 class CircuitSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
     provider = NestedProviderSerializer()
-    provider_account = NestedProviderAccountSerializer()
+    provider_account = NestedProviderAccountSerializer(required=False, allow_null=True)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
     type = NestedCircuitTypeSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)

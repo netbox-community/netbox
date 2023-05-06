@@ -1900,6 +1900,7 @@ class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpoi
             return queryset
         qs_filter = (
             Q(name__icontains=value) |
+            Q(power_panel__name__icontains=value) |
             Q(comments__icontains=value)
         )
         return queryset.filter(qs_filter)

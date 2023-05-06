@@ -14,6 +14,7 @@ from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
 from . import filtersets, forms, tables
+from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
 from .tables.l2vpn import L2VPNTable, L2VPNTerminationTable
@@ -495,7 +496,7 @@ class PrefixView(generic.ObjectView):
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
-            Q(vrf=instance.vrf) | Q(vrf__isnull=True)
+            Q(vrf=instance.vrf) | Q(vrf__isnull=True, status=PrefixStatusChoices.STATUS_CONTAINER)
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(

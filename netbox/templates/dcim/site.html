@@ -87,11 +87,13 @@
             <th scope="row">Physical Address</th>
             <td class="position-relative">
               {% if object.physical_address %}
-                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                  <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="mdi mdi-map-marker"></i> Map
-                  </a>
-                </div>
+                {% if config.MAPS_URL %}
+                  <div class="position-absolute top-50 end-0 translate-middle-y noprint">
+                    <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
+                      <i class="mdi mdi-map-marker"></i> Map
+                    </a>
+                  </div>
+                {% endif %}
                 <span>{{ object.physical_address|linebreaksbr }}</span>
               {% else %}
                 {{ ''|placeholder }}
@@ -106,11 +108,13 @@
             <th scope="row">GPS Coordinates</th>
             <td class="position-relative">
               {% if object.latitude and object.longitude %}
-                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                  <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
-                    <i class="mdi mdi-map-marker"></i> Map It
-                  </a>
-                </div>
+                {% if config.MAPS_URL %}
+                  <div class="position-absolute top-50 end-0 translate-middle-y noprint">
+                    <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
+                      <i class="mdi mdi-map-marker"></i> Map It
+                    </a>
+                  </div>
+                  {% endif %}
                 <span>{{ object.latitude }}, {{ object.longitude }}</span>
               {% else %}
                 {{ ''|placeholder }}

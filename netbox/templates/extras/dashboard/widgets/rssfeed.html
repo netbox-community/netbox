@@ -1,4 +1,4 @@
-{% if not feed.bozo %}
+{% if feed and not feed.bozo %}
   <div class="list-group list-group-flush">
     {% for entry in feed.entries %}
       <div class="list-group-item px-1">
@@ -16,7 +16,9 @@
   <span class="text-danger">
     <i class="mdi mdi-alert"></i> There was a problem fetching the RSS feed:
   </span>
-  <pre class="m-2">
-Response status: {{ feed.status }}
-Error: {{ feed.bozo_exception|escape }}</pre>
+  {% if feed %}
+    {{ feed.bozo_exception|escape }} (HTTP {{ feed.status }})
+  {% else %}
+    {{ error }}
+  {% endif %}
 {% endif %}

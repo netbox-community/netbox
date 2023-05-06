@@ -67,8 +67,8 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
 
         for field in self._meta.get_fields():
             if isinstance(field, GenericForeignKey):
-                ct_value = getattr(self, field.ct_field)
-                fk_value = getattr(self, field.fk_field)
+                ct_value = getattr(self, field.ct_field, None)
+                fk_value = getattr(self, field.fk_field, None)
 
                 if ct_value is None and fk_value is not None:
                     raise ValidationError({

@@ -1,10 +1,62 @@
 # NetBox v3.5
 
-## v3.5-beta2 (2023-04-18)
+## v3.5.2 (FUTURE)
+
+### Enhancements
+
+* [#12223](https://github.com/netbox-community/netbox/issues/12223) - Add columns for parent device bay and position to devices list
+* [#12498](https://github.com/netbox-community/netbox/issues/12498) - Hide map button if `MAPS_URL` is empty
+
+---
+
+## v3.5.1 (2023-05-05)
+
+### Enhancements
+
+* [#10759](https://github.com/netbox-community/netbox/issues/10759) - Support Markdown rendering for custom field descriptions
+* [#11190](https://github.com/netbox-community/netbox/issues/11190) - Including systemd service & timer configurations for housekeeping tasks
+* [#11422](https://github.com/netbox-community/netbox/issues/11422) - Match on power panel name when searching for power feeds
+* [#11504](https://github.com/netbox-community/netbox/issues/11504) - Add filter to select individual racks under rack elevations view
+* [#11652](https://github.com/netbox-community/netbox/issues/11652) - Add a module status column to module bay tables
+* [#11791](https://github.com/netbox-community/netbox/issues/11791) - Enable configuration of custom database backend via `ENGINE` parameter
+* [#11801](https://github.com/netbox-community/netbox/issues/11801) - Include device description within rack elevation tooltip
+* [#11932](https://github.com/netbox-community/netbox/issues/11932) - Introduce a list view for image attachments, orderable by date and other attributes
+* [#12122](https://github.com/netbox-community/netbox/issues/12122) - Enable bulk import oj journal entries
+* [#12245](https://github.com/netbox-community/netbox/issues/12245) - Enable the assignment of wireless LANs to interfaces under bulk edit
+
+### Bug Fixes
+
+* [#10757](https://github.com/netbox-community/netbox/issues/10757) - Simplify IP address interface and NAT IP assignment form fields to avoid confusion
+* [#11715](https://github.com/netbox-community/netbox/issues/11715) - Prefix within a VRF should list global prefixes as parents only if they are containers
+* [#12363](https://github.com/netbox-community/netbox/issues/12363) - Fix whitespace for paragraph elements in Markdown-rendered table columns
+* [#12367](https://github.com/netbox-community/netbox/issues/12367) - Fix `RelatedObjectDoesNotExist` exception under certain conditions (regression from #11550)
+* [#12380](https://github.com/netbox-community/netbox/issues/12380) - Allow selecting object change as model under object list widget configuration
+* [#12384](https://github.com/netbox-community/netbox/issues/12384) - Add a three-second timeout for RSS reader widget
+* [#12395](https://github.com/netbox-community/netbox/issues/12395) - Fix "create & add another" action for objects with custom fields
+* [#12396](https://github.com/netbox-community/netbox/issues/12396) - Provider account should not be a required field in REST API serializer
+* [#12400](https://github.com/netbox-community/netbox/issues/12400) - Validate default values for object and multi-object custom fields
+* [#12401](https://github.com/netbox-community/netbox/issues/12401) - Support the creation of front ports without a pre-populated device ID
+* [#12405](https://github.com/netbox-community/netbox/issues/12405) - Fix filtering for VLAN groups displayed under site view
+* [#12410](https://github.com/netbox-community/netbox/issues/12410) - Fix base path for OpenAPI schema (fixes Swagger UI requests)
+* [#12416](https://github.com/netbox-community/netbox/issues/12416) - Fix `FileNotFoundError` exception when a managed script file is missing from disk
+* [#12412](https://github.com/netbox-community/netbox/issues/12412) - Device/VM interface MAC addresses can be nullified via REST API
+* [#12415](https://github.com/netbox-community/netbox/issues/12415) - Fix `ImportError` exception when running RQ worker
+* [#12433](https://github.com/netbox-community/netbox/issues/12433) - Correct the application of URL query parameters for object list dashboard widgets
+* [#12436](https://github.com/netbox-community/netbox/issues/12436) - Remove extraneous "add" button from contact assignments list
+* [#12463](https://github.com/netbox-community/netbox/issues/12463) - Fix the association of completed jobs with reports & scripts in the REST API
+* [#12464](https://github.com/netbox-community/netbox/issues/12464) - Apply credentials for git data source only when connecting via HTTP/S
+* [#12476](https://github.com/netbox-community/netbox/issues/12476) - Fix `TypeError` exception when running the `runscript` management command
+* [#12483](https://github.com/netbox-community/netbox/issues/12483) - Fix git remote data syncing when with HTTP proxies defined
+* [#12496](https://github.com/netbox-community/netbox/issues/12496) - Remove obsolete account field from provider UI view
+
+---
+
+## v3.5.0 (2023-04-27)
 
 ### Breaking Changes
 
 * The `account` field has been removed from the provider model. This information is now tracked using the new provider account model. Multiple accounts can be assigned per provider.
+* A minimum length of 50 characters is now enforced for the `SECRET_KEY` configuration parameter.
 * The JobResult model has been moved from the `extras` app to `core` and renamed to Job. Accordingly, its REST API endpoint has been moved from `/api/extras/job-results/` to `/api/core/jobs/`.
 * The `obj_type` field on the Job model (previously JobResult) has been renamed to `object_type` for consistency with other models.
 * The `JOBRESULT_RETENTION` configuration parameter has been renamed to `JOB_RETENTION`.
@@ -28,7 +80,7 @@ NetBox now has the ability to synchronize arbitrary data from external sources t
 
 This release introduces the ability to render device configurations from Jinja2 templates natively within NetBox, via both the UI and REST API. The new [ConfigTemplate](../models/extras/configtemplate.md) model stores template code (which may be defined locally or sourced from remote data files). The rendering engine passes data gleaned from both config contexts and request parameters to generate complete configurations suitable for direct application to network devices.
 
-#### NAPALM Plugin ([#10520](https://github.com/netbox-community/netbox/issues/10520))
+#### NAPALM Integration Plugin ([#10520](https://github.com/netbox-community/netbox/issues/10520))
 
 The NAPALM integration feature found in previous NetBox releases has been moved from the core application to a [dedicated plugin](https://github.com/netbox-community/netbox-napalm). This allows greater control over the feature's configuration and will unlock additional potential as a separate project.
 
@@ -72,6 +124,7 @@ Two new webhook trigger events have been introduced: `job_start` and `job_end`. 
 * [#12068](https://github.com/netbox-community/netbox/issues/12068) - Enable generic foreign key relationships from jobs to NetBox objects
 * [#12085](https://github.com/netbox-community/netbox/issues/12085) - Add a file source view for reports
 * [#12218](https://github.com/netbox-community/netbox/issues/12218) - Provide more relevant API endpoint descriptions in schema
+* [#12343](https://github.com/netbox-community/netbox/issues/12343) - Enforce a minimum length for `SECRET_KEY` configuration parameter
 
 ### Bug Fixes (From Beta2)
 

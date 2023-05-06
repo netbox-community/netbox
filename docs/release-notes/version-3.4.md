@@ -1,5 +1,15 @@
 # NetBox v3.4
 
+## v3.4.10 (2023-04-27)
+
+### Bug Fixes
+
+* [#11607](https://github.com/netbox-community/netbox/issues/11607) - Fix custom object field assignments made via REST API for for cables
+* [#12252](https://github.com/netbox-community/netbox/issues/12252) - Fix ordering of search results when sorting by object name
+* [#12355](https://github.com/netbox-community/netbox/issues/12355) - Fix escaping of certain characters in URL when rendering custom links
+
+---
+
 ## v3.4.9 (2023-04-26)
 
 ### Enhancements

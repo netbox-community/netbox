@@ -577,6 +577,14 @@ class ObjectChangeView(generic.ObjectView):
 # Image attachments
 #
 
+class ImageAttachmentListView(generic.ObjectListView):
+    queryset = ImageAttachment.objects.all()
+    filterset = filtersets.ImageAttachmentFilterSet
+    filterset_form = forms.ImageAttachmentFilterForm
+    table = tables.ImageAttachmentTable
+    actions = ('export',)
+
+
 @register_model_view(ImageAttachment, 'edit')
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
@@ -617,7 +625,7 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    actions = ('export', 'bulk_edit', 'bulk_delete')
+    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(JournalEntry)
@@ -664,6 +672,11 @@ class JournalEntryBulkDeleteView(generic.BulkDeleteView):
     queryset = JournalEntry.objects.all()
     filterset = filtersets.JournalEntryFilterSet
     table = tables.JournalEntryTable
+
+
+class JournalEntryBulkImportView(generic.BulkImportView):
+    queryset = JournalEntry.objects.all()
+    model_form = forms.JournalEntryImportForm
 
 
 #
@@ -1033,7 +1046,6 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        print(module)
         module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
         script = module.scripts[name]()
         form = script.as_form(initial=normalize_querydict(request.GET))

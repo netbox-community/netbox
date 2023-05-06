@@ -1,6 +1,6 @@
 # HTML sanitizer
 # https://github.com/mozilla/bleach/blob/main/CHANGES
-bleach<6.0
+bleach
 
 # Python client for Amazon AWS API
 # https://github.com/boto/boto3/blob/develop/CHANGELOG.rst
@@ -137,8 +137,7 @@ social-auth-core
 
 # Django app for social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
-# See https://github.com/python-social-auth/social-app-django/issues/429
-social-auth-app-django==5.0.0
+social-auth-app-django
 
 # SVG image rendering (used for rack elevations)
 # hhttps://github.com/mozman/svgwrite/blob/master/NEWS.rst

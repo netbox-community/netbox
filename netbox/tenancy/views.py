@@ -352,6 +352,7 @@ class ContactAssignmentListView(generic.ObjectListView):
     filterset = filtersets.ContactAssignmentFilterSet
     filterset_form = forms.ContactAssignmentFilterForm
     table = tables.ContactAssignmentTable
+    actions = ('export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(ContactAssignment, 'edit')

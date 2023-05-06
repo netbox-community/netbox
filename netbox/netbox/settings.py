@@ -25,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.5-beta2'
+VERSION = '3.5.2-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -67,6 +67,15 @@ ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')
 DATABASE = getattr(configuration, 'DATABASE')
 REDIS = getattr(configuration, 'REDIS')
 SECRET_KEY = getattr(configuration, 'SECRET_KEY')
+
+# Enforce minimum length for SECRET_KEY
+if type(SECRET_KEY) is not str:
+    raise ImproperlyConfigured(f"SECRET_KEY must be a string (found {type(SECRET_KEY).__name__})")
+if len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured(
+        f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
+        f"  python {BASE_DIR}/generate_secret_key.py"
+    )
 
 # Calculate a unique deployment ID from the secret key
 DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
@@ -173,15 +182,16 @@ if RELEASE_CHECK_URL:
 # Database
 #
 
-# Only PostgreSQL is supported
-if METRICS_ENABLED:
-    DATABASE.update({
-        'ENGINE': 'django_prometheus.db.backends.postgresql'
-    })
-else:
-    DATABASE.update({
-        'ENGINE': 'django.db.backends.postgresql'
-    })
+if 'ENGINE' not in DATABASE:
+    # Only PostgreSQL is supported
+    if METRICS_ENABLED:
+        DATABASE.update({
+            'ENGINE': 'django_prometheus.db.backends.postgresql'
+        })
+    else:
+        DATABASE.update({
+            'ENGINE': 'django.db.backends.postgresql'
+        })
 
 DATABASES = {
     'default': DATABASE,
@@ -607,13 +617,15 @@ REST_FRAMEWORK = {
 #
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'NetBox API',
-    'DESCRIPTION': 'API to access NetBox',
+    'TITLE': 'NetBox REST API',
     'LICENSE': {'name': 'Apache v2 License'},
     'VERSION': VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
-    'SERVERS': [{'url': f'/{BASE_PATH}api'}],
+    'SERVERS': [{
+        'url': BASE_PATH,
+        'description': 'NetBox',
+    }],
     'SWAGGER_UI_DIST': 'SIDECAR',
     'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
     'POSTPROCESSING_HOOKS': [],

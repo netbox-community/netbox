@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
+from utilities.forms.widgets import APISelect
 from . import model_forms
 
 __all__ = (
@@ -225,6 +226,18 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
+    device = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        selector=True,
+        widget=APISelect(
+            # TODO: Clean up the application of HTMXSelect attributes
+            attrs={
+                'hx-get': '.',
+                'hx-include': f'#form_fields',
+                'hx-target': f'#form_fields',
+            }
+        )
+    )
     rear_port = forms.MultipleChoiceField(
         choices=[],
         label=_('Rear ports'),
@@ -244,9 +257,10 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        device = Device.objects.get(
-            pk=self.initial.get('device') or self.data.get('device')
-        )
+        if device_id := self.data.get('device') or self.initial.get('device'):
+            device = Device.objects.get(pk=device_id)
+        else:
+            return
 
         # Determine which rear port positions are occupied. These will be excluded from the list of available
         # mappings.

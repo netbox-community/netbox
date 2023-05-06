@@ -187,11 +187,10 @@ class ReportViewSet(ViewSet):
         """
         Compile all reports and their related results (if any). Result data is deferred in the list view.
         """
-        report_content_type = ContentType.objects.get(app_label='extras', model='report')
         results = {
-            r.name: r
-            for r in Job.objects.filter(
-                object_type=report_content_type,
+            job.name: job
+            for job in Job.objects.filter(
+                object_type=ContentType.objects.get(app_label='extras', model='reportmodule'),
                 status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
@@ -202,7 +201,7 @@ class ReportViewSet(ViewSet):
 
         # Attach Job objects to each report (if any)
         for report in report_list:
-            report.result = results.get(report.full_name, None)
+            report.result = results.get(report.name, None)
 
         serializer = serializers.ReportSerializer(report_list, many=True, context={
             'request': request,
@@ -290,12 +289,10 @@ class ScriptViewSet(ViewSet):
         return module, script
 
     def list(self, request):
-
-        script_content_type = ContentType.objects.get(app_label='extras', model='script')
         results = {
-            r.name: r
-            for r in Job.objects.filter(
-                object_type=script_content_type,
+            job.name: job
+            for job in Job.objects.filter(
+                object_type=ContentType.objects.get(app_label='extras', model='scriptmodule'),
                 status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
             ).order_by('name', '-created').distinct('name').defer('data')
         }
@@ -306,7 +303,7 @@ class ScriptViewSet(ViewSet):
 
         # Attach Job objects to each script (if any)
         for script in script_list:
-            script.result = results.get(script.full_name, None)
+            script.result = results.get(script.name, None)
 
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 

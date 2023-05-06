@@ -371,7 +371,7 @@ class SiteView(generic.ObjectView):
             (VLANGroup.objects.restrict(request.user, 'view').filter(
                 scope_type=ContentType.objects.get_for_model(Site),
                 scope_id=instance.pk
-            ), 'site_id'),
+            ), 'site'),
             (VLAN.objects.restrict(request.user, 'view').filter(site=instance), 'site_id'),
             # Circuits
             (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
