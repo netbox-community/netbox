@@ -12,16 +12,18 @@
           <table class="table table-hover attr-table">
             {% for field, value in fields.items %}
               <tr>
-                <td>
-                  {% customfield_value field value %}
-                    {% if field.description %}
+                <th scope="row">{{ field }}
+                  {% if field.description %}
                     <i
                       class="mdi mdi-information text-primary"
                       data-bs-toggle="tooltip"
                       data-bs-placement="right"
                       title="{{ field.description }}"
                     ></i>
-                    {% endif %}
+                  {% endif %}
+                </th>
+                <td>
+                  {% customfield_value field value %}
                 </td>
               </tr>
             {% endfor %}
