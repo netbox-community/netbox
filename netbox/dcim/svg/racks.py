@@ -244,7 +244,7 @@ class RackElevationSVG:
             for segment in array_to_ranges(reservation.units):
                 u_height = 1 if len(segment) == 1 else segment[1] + 1 - segment[0]
                 coords = self._get_device_coords(segment[0], u_height)
-                coords = (coords[0] + self.unit_width + RACK_ELEVATION_BORDER_WIDTH * 2, coords[1])
+                coords = (coords[0] + self.unit_width + RACK_ELEVATION_BORDER_WIDTH - 0.1, coords[1])
                 size = (
                     self.margin_width,
                     u_height * self.unit_height
