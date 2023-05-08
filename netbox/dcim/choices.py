@@ -807,6 +807,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_CFP = '100gbase-x-cfp'
     TYPE_100GE_CFP2 = '100gbase-x-cfp2'
     TYPE_100GE_CFP4 = '100gbase-x-cfp4'
+    TYPE_100GE_CXP = '100gbase-x-cxp'
     TYPE_100GE_CPAK = '100gbase-x-cpak'
     TYPE_100GE_QSFP28 = '100gbase-x-qsfp28'
     TYPE_200GE_CFP2 = '200gbase-x-cfp2'
@@ -952,6 +953,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_CFP2, 'CFP2 (100GE)'),
                 (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
                 (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
+                (TYPE_100GE_CXP, 'CXP (100GE)'),
                 (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
                 (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
