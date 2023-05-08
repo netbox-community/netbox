@@ -313,7 +313,7 @@
                         <tr>
                             <th scope="row">Weight</th>
                             <td>
-                                {% if object.device_type.weight %}
+                                {% if object.total_weight %}
                                     {{ object.total_weight|floatformat }} {{ object.device_type.get_weight_unit_display }}
                                 {% else %}
                                     {{ ''|placeholder }}
