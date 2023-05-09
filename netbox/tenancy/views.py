@@ -31,6 +31,11 @@ class ObjectContactsView(generic.ObjectChildrenView):
             assignment_count=count_related(ContactAssignment, 'contact')
         ).restrict(request.user, 'view').filter(assignments__object_id=parent.pk)
 
+    def get_extra_context(self, request, instance):
+        return {
+            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
+        }
+
 #
 # Tenant groups
 #
