@@ -292,12 +292,10 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('The default platform for devices of this type (optional)')
     )
-
     weight = forms.DecimalField(
         required=False,
-        help_text=_("Device weight"),
+        help_text=_('Device weight'),
     )
-
     weight_unit = CSVChoiceField(
         choices=WeightUnitChoices,
         required=False,
@@ -308,7 +306,7 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'description', 'comments', 'weight', 'weight_unit',
+            'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments',
         ]
 
 
@@ -317,12 +315,10 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
         queryset=Manufacturer.objects.all(),
         to_field_name='name'
     )
-
     weight = forms.DecimalField(
         required=False,
-        help_text=_("Module weight"),
+        help_text=_('Module weight'),
     )
-
     weight_unit = CSVChoiceField(
         choices=WeightUnitChoices,
         required=False,
@@ -331,7 +327,7 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'comments', 'weight', 'weight_unit']
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'weight', 'weight_unit', 'comments']
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
