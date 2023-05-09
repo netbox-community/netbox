@@ -783,6 +783,14 @@ class IPAddress(PrimaryModel):
                 if available_ips:
                     return next(iter(available_ips))
 
+    def get_related_ips(self):
+        """
+        Return all IPAddresses belonging to the same VRF.
+        """
+        return IPAddress.objects.exclude(address=str(self.address)).filter(
+            vrf=self.vrf, address__net_contained_or_equal=str(self.address)
+        )
+
     def clean(self):
         super().clean()
 
