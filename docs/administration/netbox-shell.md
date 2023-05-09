@@ -157,12 +157,6 @@ New objects can be created by instantiating the desired model, defining values f
 >>> myvlan.save()
 ```
 
-Alternatively, the above can be performed as a single operation. (Note, however, that `save()` does _not_ return the new instance for reuse.)
-
-```
->>> VLAN(vid=123, name='MyNewVLAN', site=Site.objects.get(pk=7)).save()
-```
-
 To modify an existing object, we retrieve it, update the desired field(s), and call `save()` again.
 
 ```
