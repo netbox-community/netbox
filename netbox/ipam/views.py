@@ -868,7 +868,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
-    template_name = 'ipam/ipaddress/ipaddresses.html'
+    template_name = 'ipam/ipaddress/ip_addresses.html'
     tab = ViewTab(
         label=_('Related IPs'),
         badge=lambda x: x.get_related_ips().count(),
