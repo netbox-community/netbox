@@ -14,11 +14,11 @@ from . import filtersets, forms, tables
 from .models import *
 
 
-class ChildContactView(generic.ObjectChildrenView):
+class ObjectContactsView(generic.ObjectChildrenView):
     child_model = Contact
     table = tables.ContactTable
     filterset = filtersets.ContactFilterSet
-    template_name = 'tenancy/contact_children.html'
+    template_name = 'tenancy/object_contacts.html'
     tab = ViewTab(
         label=_('Contacts'),
         badge=lambda obj: obj.contacts.count(),
