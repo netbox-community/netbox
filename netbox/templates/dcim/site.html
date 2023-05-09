@@ -152,7 +152,7 @@
         </div>
       {% endif %}
     </div>
-    {% include 'dcim/inc/nonracked_devices.html' %}
+    {% include 'dcim/inc/nonracked_devices.html' with site_id=object.pk %}
     {% plugin_full_width_page object %}
   </div>
 </div>

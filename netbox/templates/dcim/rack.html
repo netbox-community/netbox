@@ -196,7 +196,7 @@
   </div>
   <div class="row">
       <div class="col col-md-12">
-          {% include 'dcim/inc/nonracked_devices.html' %}
+          {% include 'dcim/inc/nonracked_devices.html' with site_id=object.site.pk %}
           {% plugin_full_width_page object %}
       </div>
   </div>

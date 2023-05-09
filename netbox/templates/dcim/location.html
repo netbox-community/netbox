@@ -72,7 +72,7 @@
 </div>
 <div class="row mb-3">
 	<div class="col col-md-12">
-    {% include 'dcim/inc/nonracked_devices.html' %}
+    {% include 'dcim/inc/nonracked_devices.html' with site_id=object.site.pk %}
     <div class="card">
       <h5 class="card-header">Child Locations</h5>
       <div class="card-body htmx-container table-responsive"
