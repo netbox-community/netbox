@@ -184,7 +184,7 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Tenant, 'contacts')
-class TenantContactsView(ChildContactView):
+class TenantContactsView(ObjectContactsView):
     queryset = Tenant.objects.all()
 
 

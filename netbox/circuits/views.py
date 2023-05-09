@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from dcim.views import PathTraceView
 from netbox.views import generic
-from tenancy.views import ChildContactView
+from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.utils import count_related
 from utilities.views import register_model_view
@@ -74,7 +74,7 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Provider, 'contacts')
-class ProviderContactsView(ChildContactView):
+class ProviderContactsView(ObjectContactsView):
     queryset = Provider.objects.all()
 
 
@@ -140,7 +140,7 @@ class ProviderAccountBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(ProviderAccount, 'contacts')
-class ProviderAccountContactsView(ChildContactView):
+class ProviderAccountContactsView(ObjectContactsView):
     queryset = ProviderAccount.objects.all()
 
 
@@ -400,7 +400,7 @@ class CircuitSwapTerminations(generic.ObjectEditView):
 
 
 @register_model_view(Circuit, 'contacts')
-class CircuitContactsView(ChildContactView):
+class CircuitContactsView(ObjectContactsView):
     queryset = Circuit.objects.all()
 
 

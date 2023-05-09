@@ -20,7 +20,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
-from tenancy.views import ChildContactView
+from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
@@ -269,7 +269,7 @@ class RegionBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Region, 'contacts')
-class RegionContactsView(ChildContactView):
+class RegionContactsView(ObjectContactsView):
     queryset = Region.objects.all()
 
 
@@ -349,7 +349,7 @@ class SiteGroupBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(SiteGroup, 'contacts')
-class SiteGroupContactsView(ChildContactView):
+class SiteGroupContactsView(ObjectContactsView):
     queryset = SiteGroup.objects.all()
 
 
@@ -447,7 +447,7 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Site, 'contacts')
-class SiteContactsView(ChildContactView):
+class SiteContactsView(ObjectContactsView):
     queryset = Site.objects.all()
 
 
@@ -540,7 +540,7 @@ class LocationBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Location, 'contacts')
-class LocationContactsView(ChildContactView):
+class LocationContactsView(ObjectContactsView):
     queryset = Location.objects.all()
 
 
@@ -762,7 +762,7 @@ class RackBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Rack, 'contacts')
-class RackContactsView(ChildContactView):
+class RackContactsView(ObjectContactsView):
     queryset = Rack.objects.all()
 
 
@@ -901,7 +901,7 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(Manufacturer, 'contacts')
-class ManufacturerContactsView(ChildContactView):
+class ManufacturerContactsView(ObjectContactsView):
     queryset = Manufacturer.objects.all()
 
 
@@ -2120,7 +2120,7 @@ class DeviceBulkRenameView(generic.BulkRenameView):
 
 
 @register_model_view(Device, 'contacts')
-class DeviceContactsView(ChildContactView):
+class DeviceContactsView(ObjectContactsView):
     queryset = Device.objects.all()
 
 
@@ -3506,7 +3506,7 @@ class PowerPanelBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(PowerPanel, 'contacts')
-class PowerPanelContactsView(ChildContactView):
+class PowerPanelContactsView(ObjectContactsView):
     queryset = PowerPanel.objects.all()
 
 

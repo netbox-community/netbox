@@ -12,7 +12,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
-from tenancy.views import ChildContactView
+from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
@@ -142,7 +142,7 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(ClusterGroup, 'contacts')
-class ClusterGroupContactsView(ChildContactView):
+class ClusterGroupContactsView(ObjectContactsView):
     queryset = ClusterGroup.objects.all()
 
 
@@ -319,7 +319,7 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
 
 
 @register_model_view(Cluster, 'contacts')
-class ClusterContactsView(ChildContactView):
+class ClusterContactsView(ObjectContactsView):
     queryset = Cluster.objects.all()
 
 
@@ -402,7 +402,7 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
 
 
 @register_model_view(VirtualMachine, 'contacts')
-class VirtualMachineContactsView(ChildContactView):
+class VirtualMachineContactsView(ObjectContactsView):
     queryset = VirtualMachine.objects.all()
 
 
