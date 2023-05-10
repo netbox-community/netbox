@@ -200,6 +200,13 @@ PARAMS = (
         field=forms.BooleanField
     ),
     ConfigParam(
+        name='BANNER_MAINTENANCE',
+        label=_('Maintenance banner'),
+        default=None,
+        description=_('Additional content to display when in maintenance mode'),
+        field=forms.CharField,
+    ),
+    ConfigParam(
         name='GRAPHQL_ENABLED',
         label=_('GraphQL enabled'),
         default=True,

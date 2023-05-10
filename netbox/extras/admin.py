@@ -39,7 +39,10 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('DEFAULT_USER_PREFERENCES',),
         }),
         ('Miscellaneous', {
-            'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL'),
+            'fields': (
+                'MAINTENANCE_MODE', 'BANNER_MAINTENANCE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION',
+                'MAPS_URL'
+            ),
         }),
         ('Config Revision', {
             'fields': ('comment',),
