@@ -13,6 +13,10 @@
 * [#12323](https://github.com/netbox-community/netbox/issues/12323) - Add 100GE CXP interface type
 * [#12498](https://github.com/netbox-community/netbox/issues/12498) - Hide map button if `MAPS_URL` is empty
 
+### Bug Fixes
+
+* [#12550](https://github.com/netbox-community/netbox/issues/12550) - Fix rear port selection widget under front port creation form
+
 ---
 
 ## v3.5.1 (2023-05-05)
