@@ -13,6 +13,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='customfield',
             name='name',
-            field=models.CharField(max_length=50, unique=True, validators=[django.core.validators.RegexValidator(flags=re.RegexFlag['IGNORECASE'], message='Only alphanumeric characters and underscores are allowed.', regex='^[a-z0-9_]+$')]),
+            field=models.CharField(
+                max_length=50,
+                unique=True,
+                validators=[
+                    django.core.validators.RegexValidator(
+                        flags=re.RegexFlag['IGNORECASE'],
+                        message='Only alphanumeric characters and underscores are allowed.',
+                        regex='^[a-z0-9_]+$',
+                    ),
+                    django.core.validators.RegexValidator(
+                        flags=re.RegexFlag['IGNORECASE'],
+                        message='No double-underscores are allowed.',
+                        regex='^(?!.*__.*)',
+                    ),
+                ],
+            ),
         ),
     ]
