@@ -1,0 +1,8 @@
+{% extends 'generic/object.html' %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  {% if object.vrf %}
+    <li class="breadcrumb-item"><a href="{% url 'ipam:ipaddress_list' %}?vrf_id={{ object.vrf.pk }}">{{ object.vrf }}</a></li>
+  {% endif %}
+{% endblock %}

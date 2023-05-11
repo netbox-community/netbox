@@ -132,9 +132,16 @@
             </tr>
             {% for field, value in fields.items %}
               <tr>
-                <td>
-                  <span title="{{ field.description|escape }}">{{ field }}</span>
-                </td>
+                <th scope="row">{{ field }}
+                  {% if field.description %}
+                    <i
+                      class="mdi mdi-information text-primary"
+                      data-bs-toggle="tooltip"
+                      data-bs-placement="right"
+                      title="{{ field.description|escape }}"
+                    ></i>
+                 {% endif %}
+                </th>
                 <td>
                   {% customfield_value field value %}
                 </td>
