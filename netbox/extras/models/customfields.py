@@ -81,8 +81,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('Internal field name'),
         validators=(
             RegexValidator(
-                regex=r'^(?!.*__.*)^[a-z0-9_]+$',
-                message="Only alphanumeric characters and underscores (no double-underscores) are allowed.",
+                regex=r'^[a-z0-9_]+$',
+                message="Only alphanumeric characters and underscores are allowed.",
+                flags=re.IGNORECASE
+            ),
+            RegexValidator(
+                regex=r'^(?!.*__.*)',
+                message="No double-underscores are allowed.",
                 flags=re.IGNORECASE
             ),
         )
