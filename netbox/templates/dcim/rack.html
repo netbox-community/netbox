@@ -196,8 +196,25 @@
   </div>
   <div class="row">
       <div class="col col-md-12">
-          {% include 'dcim/inc/nonracked_devices.html' with site_id=object.site.pk %}
-          {% plugin_full_width_page object %}
+        <div class="card">
+            <h5 class="card-header">
+                Non-Racked Devices
+            </h5>
+              <div class="card-body htmx-container table-responsive"
+                hx-get="{% url 'dcim:device_list' %}?rack_id={{ object.pk }}&position=null&parent_bay_id=null"
+                hx-trigger="load"
+              ></div>
+
+            {% if perms.dcim.add_device %}
+                <div class="card-footer text-end noprint">
+                    <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&rack={{ object.pk }}" class="btn btn-primary btn-sm">
+                        <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
+                        Add a Non-Racked Device
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+        {% plugin_full_width_page object %}
       </div>
   </div>
 {% endblock %}

@@ -445,16 +445,8 @@ class LocationView(generic.ObjectView):
             (Device.objects.restrict(request.user, 'view').filter(location__in=locations), 'location_id'),
         )
 
-        nonracked_devices = Device.objects.filter(
-            location=instance,
-            rack__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         return {
             'related_models': related_models,
-            'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
-            'total_nonracked_devices_count': nonracked_devices.count(),
         }
 
 
@@ -636,13 +628,6 @@ class RackView(generic.ObjectView):
             (PowerFeed.objects.restrict(request.user).filter(rack=instance), 'rack_id'),
         )
 
-        # Get 0U devices located within the rack
-        nonracked_devices = Device.objects.filter(
-            rack=instance,
-            position__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
         if instance.location:
@@ -659,7 +644,6 @@ class RackView(generic.ObjectView):
 
         return {
             'related_models': related_models,
-            'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
