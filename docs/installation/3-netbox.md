@@ -100,6 +100,7 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
     ```
     sudo adduser --system --group netbox
     sudo chown --recursive netbox /opt/netbox/netbox/media/
+    sudo chown --recursive netbox /opt/netbox/netbox/reports/
     sudo chown --recursive netbox /opt/netbox/netbox/scripts/
     ```
 
@@ -109,6 +110,7 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
     sudo groupadd --system netbox
     sudo adduser --system -g netbox netbox
     sudo chown --recursive netbox /opt/netbox/netbox/media/
+    sudo chown --recursive netbox /opt/netbox/netbox/reports/
     sudo chown --recursive netbox /opt/netbox/netbox/scripts/
     ```
 
