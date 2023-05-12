@@ -60,6 +60,7 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
     STATUS_DEPRECATED = 'deprecated'
+    STATUS_ABNORMAL = 'abnormal'
     STATUS_DHCP = 'dhcp'
     STATUS_SLAAC = 'slaac'
 
@@ -67,6 +68,7 @@ class IPAddressStatusChoices(ChoiceSet):
         (STATUS_ACTIVE, 'Active', 'blue'),
         (STATUS_RESERVED, 'Reserved', 'cyan'),
         (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_ABNORMAL, 'Abnormal', 'yellow'),
         (STATUS_DHCP, 'DHCP', 'green'),
         (STATUS_SLAAC, 'SLAAC', 'purple'),
     ]
