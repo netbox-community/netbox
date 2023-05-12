@@ -4,6 +4,7 @@ import hmac
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django_rq import get_queue
+from rq import Retry
 
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
@@ -116,5 +117,6 @@ def flush_webhooks(queue):
                 snapshots=data['snapshots'],
                 timestamp=str(timezone.now()),
                 username=data['username'],
-                request_id=data['request_id']
+                request_id=data['request_id'],
+                retry=Retry(max=get_config().RQ_RETRY_MAX, interval=get_config().RQ_RETRY_INTERVAL)
             )

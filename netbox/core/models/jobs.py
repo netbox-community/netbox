@@ -9,6 +9,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
+from rq import Retry
 
 from core.choices import JobStatusChoices
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
@@ -219,5 +220,6 @@ class Job(models.Model):
                 event=event,
                 data=self.data,
                 timestamp=str(timezone.now()),
-                username=self.user.username
+                username=self.user.username,
+                retry=Retry(max=get_config().RQ_RETRY_MAX, interval=get_config().RQ_RETRY_INTERVAL)
             )
