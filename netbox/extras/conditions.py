@@ -69,7 +69,7 @@ class Condition:
             if isinstance(obj, list):
                 return [i.get(key) for i in obj]
 
-            return obj.get(key)
+            return dict.get(obj, key)
 
         try:
             value = functools.reduce(_get, self.attr.split('.'), data)
