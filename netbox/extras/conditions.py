@@ -65,8 +65,14 @@ class Condition:
         """
         Evaluate the provided data to determine whether it matches the condition.
         """
+        def _get(obj, key):
+            if isinstance(obj, list):
+                return [i.get(key) for i in obj]
+
+            return obj.get(key)
+
         try:
-            value = functools.reduce(dict.get, self.attr.split('.'), data)
+            value = functools.reduce(_get, self.attr.split('.'), data)
         except TypeError:
             # Invalid key path
             value = None
