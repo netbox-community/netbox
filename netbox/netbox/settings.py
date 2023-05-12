@@ -482,6 +482,7 @@ AUTH_EXEMPT_PATHS = (
 MAINTENANCE_EXEMPT_PATHS = (
     f'/{BASE_PATH}admin/extras/configrevision/',
     f'/{BASE_PATH}login/',
+    f'/{BASE_PATH}logout/',
 )
 
 SERIALIZATION_MODULES = {
