@@ -878,7 +878,7 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 class VLANGroupListView(generic.ObjectListView):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group'),
-        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+        utilization=F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100
     ).prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
@@ -933,7 +933,7 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 class VLANGroupBulkEditView(generic.BulkEditView):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group'),
-        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+        utilization=F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100
     ).prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
@@ -943,7 +943,7 @@ class VLANGroupBulkEditView(generic.BulkEditView):
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group'),
-        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+        utilization=F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100
     ).prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
