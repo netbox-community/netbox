@@ -75,7 +75,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         null=True,
         help_text=_('The type of NetBox object this field maps to (for object fields)')
     )
-    #            regex=r'^(?!.*__.*)', ^((?!__).)*$
     name = models.CharField(
         max_length=50,
         unique=True,
