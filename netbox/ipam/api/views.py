@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import F
+from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_spectacular.utils import extend_schema
@@ -148,7 +149,7 @@ class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):
 class VLANGroupViewSet(NetBoxModelViewSet):
     queryset = VLANGroup.objects.annotate(
         vlan_count=count_related(VLAN, 'group'),
-        utilization=F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100
+        utilization=Round(F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100, 2)
     ).prefetch_related('tags')
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filtersets.VLANGroupFilterSet
