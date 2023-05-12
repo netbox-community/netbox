@@ -25,7 +25,7 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('ALLOWED_URL_SCHEMES',),
         }),
         ('Banners', {
-            'fields': ('BANNER_LOGIN', 'BANNER_TOP', 'BANNER_BOTTOM'),
+            'fields': ('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM'),
             'classes': ('monospace',),
         }),
         ('Pagination', {

@@ -77,10 +77,10 @@ Blocks:
           </div>
         {% endif %}
 
-        {% if config.MAINTENANCE_MODE %}
+        {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
           <div class="alert alert-warning text-center mx-3" role="alert">
             <h5><i class="mdi mdi-alert"></i> Maintenance Mode</h5>
-            NetBox is currently in maintenance mode. Functionality may be limited.
+            {{ config.BANNER_MAINTENANCE|escape }}
           </div>
         {% endif %}
 

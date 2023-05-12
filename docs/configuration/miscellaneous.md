@@ -29,6 +29,17 @@ This defines custom content to be displayed on the login page above the login fo
 
 ---
 
+## BANNER_MAINTENANCE
+
+!!! tip "Dynamic Configuration Parameter"
+
+!!! note
+    This parameter was added in NetBox v3.5.
+
+This adds a banner to the top of every page when maintenance mode is enabled. HTML is allowed.
+
+---
+
 ## BANNER_TOP
 
 !!! tip "Dynamic Configuration Parameter"
