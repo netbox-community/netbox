@@ -67,7 +67,7 @@ class Condition:
         """
         def _get(obj, key):
             if isinstance(obj, list):
-                return [i.get(key) for i in obj]
+                return [dict.get(i, key) for i in obj]
 
             return dict.get(obj, key)
 
