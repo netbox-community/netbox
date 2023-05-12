@@ -24,8 +24,9 @@ class Migration(migrations.Migration):
                     ),
                     django.core.validators.RegexValidator(
                         flags=re.RegexFlag['IGNORECASE'],
+                        inverse_match=True,
                         message='No double-underscores are allowed.',
-                        regex='^(?!.*__.*)',
+                        regex=r'__',
                     ),
                 ],
             ),

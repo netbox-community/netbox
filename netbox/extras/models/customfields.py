@@ -75,6 +75,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         null=True,
         help_text=_('The type of NetBox object this field maps to (for object fields)')
     )
+    #            regex=r'^(?!.*__.*)', ^((?!__).)*$
     name = models.CharField(
         max_length=50,
         unique=True,
@@ -86,9 +87,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 flags=re.IGNORECASE
             ),
             RegexValidator(
-                regex=r'^(?!.*__.*)',
+                regex=r'__',
                 message="No double-underscores are allowed.",
-                flags=re.IGNORECASE
+                flags=re.IGNORECASE,
+                inverse_match=True
             ),
         )
     )
