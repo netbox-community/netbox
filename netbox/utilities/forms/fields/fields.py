@@ -11,13 +11,11 @@ from utilities.forms import widgets
 from utilities.validators import EnhancedURLValidator
 
 __all__ = (
-    'ChoiceField',
     'ColorField',
     'CommentField',
     'JSONField',
     'LaxURLField',
     'MACAddressField',
-    'MultipleChoiceField',
     'SlugField',
     'TagFilterField',
 )
@@ -128,24 +126,3 @@ class MACAddressField(forms.Field):
             raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
 
         return value
-
-
-#
-# Choice fields
-#
-
-class ChoiceField(forms.ChoiceField):
-    """
-    Previously used to override Django's built-in `ChoiceField` to use NetBox's now-obsolete `StaticSelect` widget.
-    """
-    # TODO: Remove in v3.6
-    pass
-
-
-class MultipleChoiceField(forms.MultipleChoiceField):
-    """
-    Previously used to override Django's built-in `MultipleChoiceField` to use NetBox's now-obsolete
-    `StaticSelectMultiple` widget.
-    """
-    # TODO: Remove in v3.6
-    pass
