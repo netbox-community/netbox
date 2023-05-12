@@ -4,6 +4,7 @@ from django.http import QueryDict
 __all__ = (
     'badge',
     'checkmark',
+    'copy_content',
     'customfield_value',
     'tag',
 )
@@ -74,6 +75,17 @@ def checkmark(value, show_false=True, true='Yes', false='No'):
         'show_false': show_false,
         'true_label': true,
         'false_label': false,
+    }
+
+
+@register.inclusion_tag('builtins/copy_content.html')
+def copy_content(target, prefix=None, color='primary'):
+    """
+    Display a copy button to copy the content of a field.
+    """
+    return {
+        'target': target if prefix is None else prefix + str(target),
+        'color': f'btn-{color}'
     }
 
 

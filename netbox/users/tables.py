@@ -12,9 +12,7 @@ ALLOWED_IPS = """{{ value|join:", " }}"""
 
 COPY_BUTTON = """
 {% if settings.ALLOW_TOKEN_RETRIEVAL %}
-  <a class="btn btn-sm btn-success copy-token" data-clipboard-target="#token_{{ record.pk }}" title="Copy to clipboard">
-    <i class="mdi mdi-content-copy"></i>
-  </a>
+  {% copy_content record.pk prefix="#token_" color="success" %}
 {% endif %}
 """
 

@@ -8,7 +8,7 @@
     <div class="col col-md-12">
       {% if not settings.ALLOW_TOKEN_RETRIEVAL %}
         <div class="alert alert-danger" role="alert">
-          <i class="mdi mdi-alert"></i> Tokens cannot be retrieved at a later time. You must <a href="#" class="copy-token" data-clipboard-target="#token_id" title="Copy to clipboard">copy the token value</a> below and store it securely.
+          <i class="mdi mdi-alert"></i> Tokens cannot be retrieved at a later time. You must <a href="#" class="copy-content" data-clipboard-target="#token_id" title="Copy to clipboard">copy the token value</a> below and store it securely.
         </div>
       {% endif %}
       <div class="card">
@@ -19,9 +19,7 @@
               <th scope="row">Key</th>
               <td>
                 <div class="float-end">
-                  <a class="btn btn-sm btn-success copy-token" data-clipboard-target="#token_id" title="Copy to clipboard">
-                    <i class="mdi mdi-content-copy"></i>
-                  </a>
+                  {% copy_content "#token_id" %}
                 </div>
                 <div id="token_id">{{ key }}</div>
               </td>

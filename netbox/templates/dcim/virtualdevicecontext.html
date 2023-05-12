@@ -31,13 +31,23 @@
           <tr>
             <th scope="row">Primary IPv4</th>
             <td>
-              {{ object.primary_ip4|linkify|placeholder }}
+              {% if object.primary_ip4 %}
+                <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4_{{ object.primary_ip4.pk }}">{{ object.primary_ip4 }}</a>
+                {% copy_content object.primary_ip4.pk prefix="#primary_ip4_" %}
+             {% else %}
+                <span class="text-muted">—</span>
+             {% endif %}
             </td>
           </tr>
           <tr>
             <th scope="row">Primary IPv6</th>
             <td>
-              {{ object.primary_ip6|linkify|placeholder }}
+              {% if object.primary_ip6 %}
+                <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6_{{ object.primary_ip6.pk }}">{{ object.primary_ip6 }}</a>
+                {% copy_content object.primary_ip6.pk prefix="#primary_ip6_" %}
+             {% else %}
+                <span class="text-muted">—</span>
+             {% endif %}
             </td>
           </tr>
           <tr>
