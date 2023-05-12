@@ -4,6 +4,9 @@
 
 ### Enhancements
 
+* [#7671](https://github.com/netbox-community/netbox/issues/7671) - Introduce `REMOTE_AUTH_AUTO_CREATE_GROUPS` config parameter to enable the automatic creation of new groups when remote authentication is in use
+* [#11233](https://github.com/netbox-community/netbox/issues/11233) - Intercept and cleanly report errors upon attempted database writes when maintenance mode is enabled
+* [#11599](https://github.com/netbox-community/netbox/issues/11599) - Move contacts panels to separate tabs under object views
 * [#11670](https://github.com/netbox-community/netbox/issues/11670) - Enable setting device type & module type weight via bulk import
 * [#11900](https://github.com/netbox-community/netbox/issues/11900) - Add an outline to the reservation markers on rack elevations
 * [#12131](https://github.com/netbox-community/netbox/issues/12131) - Show custom field description as an icon tooltip under object views
@@ -12,9 +15,11 @@
 * [#12286](https://github.com/netbox-community/netbox/issues/12286) - Show height and total weight under device view
 * [#12323](https://github.com/netbox-community/netbox/issues/12323) - Add 100GE CXP interface type
 * [#12498](https://github.com/netbox-community/netbox/issues/12498) - Hide map button if `MAPS_URL` is empty
+* [#12554](https://github.com/netbox-community/netbox/issues/12554) - Allow customization or disabling of the maintenance mode banner
 
 ### Bug Fixes
 
+* [#10686](https://github.com/netbox-community/netbox/issues/10686) - Enable specifying termination object by virtual chassis master when importing cables
 * [#12550](https://github.com/netbox-community/netbox/issues/12550) - Fix rear port selection widget under front port creation form
 
 ---
