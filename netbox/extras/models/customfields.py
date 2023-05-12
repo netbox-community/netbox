@@ -85,6 +85,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 message="Only alphanumeric characters and underscores are allowed.",
                 flags=re.IGNORECASE
             ),
+            RegexValidator(
+                regex=r'__',
+                message="Double underscores are not permitted in custom field names.",
+                flags=re.IGNORECASE,
+                inverse_match=True
+            ),
         )
     )
     label = models.CharField(
