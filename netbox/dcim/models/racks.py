@@ -394,7 +394,8 @@ class Rack(PrimaryModel, WeightMixin):
             margin_width=RACK_ELEVATION_DEFAULT_MARGIN_WIDTH,
             include_images=True,
             base_url=None,
-            highlight_params=None
+            highlight_params=None,
+            use_assettag=False
     ):
         """
         Return an SVG of the rack elevation
@@ -419,7 +420,8 @@ class Rack(PrimaryModel, WeightMixin):
             user=user,
             include_images=include_images,
             base_url=base_url,
-            highlight_params=highlight_params
+            highlight_params=highlight_params,
+            use_assettag=use_assettag
         )
 
         return elevation.render(face)

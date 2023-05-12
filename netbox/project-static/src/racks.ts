@@ -16,17 +16,30 @@ function setRackView(
     case 'images-and-labels': {
       showRackElements('image.device-image', elevation);
       showRackElements('text.device-image-label', elevation);
+      showRackElements('text.label', elevation);
+      hideRackElements('text.asset-tag', elevation);
       break;
     }
     case 'images-only': {
       showRackElements('image.device-image', elevation);
       hideRackElements('text.device-image-label', elevation);
+      showRackElements('text.label', elevation);
+      hideRackElements('text.asset-tag', elevation);
       break;
     }
     case 'labels-only': {
       hideRackElements('image.device-image', elevation);
       hideRackElements('text.device-image-label', elevation);
+      showRackElements('text.label', elevation);
+      hideRackElements('text.asset-tag', elevation);
       break;
+    }
+    case 'assettags-only': {
+      hideRackElements('image.device-image', elevation);
+      hideRackElements('text.device-image-label', elevation);
+      hideRackElements('text.label', elevation);
+      showRackElements('text.asset-tag', elevation);
+
     }
   }
 }

@@ -291,6 +291,10 @@ class RackElevationDetailFilterSerializer(serializers.Serializer):
         required=False,
         default=True
     )
+    use_assettag = serializers.BooleanField(
+        required=False,
+        default=False
+    )
 
 
 #

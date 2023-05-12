@@ -23,8 +23,10 @@ __all__ = (
 )
 
 
-def get_device_name(device):
-    if device.virtual_chassis:
+def get_device_name(device, use_assettag):
+    if use_assettag and device.asset_tag:
+        name = device.asset_tag
+    elif device.virtual_chassis:
         name = f'{device.virtual_chassis.name}:{device.vc_position}'
     elif device.name:
         name = device.name
@@ -76,10 +78,11 @@ class RackElevationSVG:
     :param highlight_params: Iterable of two-tuples which identifies attributes of devices to highlight
     """
     def __init__(self, rack, unit_height=None, unit_width=None, legend_width=None, margin_width=None, user=None,
-                 include_images=True, base_url=None, highlight_params=None):
+                 include_images=True, base_url=None, highlight_params=None, use_assettag=False):
         self.rack = rack
         self.include_images = include_images
         self.base_url = base_url.rstrip('/') if base_url is not None else ''
+        self.use_assettag = use_assettag
 
         # Set drawing dimensions
         config = get_config()
@@ -152,7 +155,8 @@ class RackElevationSVG:
         return x, y
 
     def _draw_device(self, device, coords, size, color=None, image=None):
-        name = get_device_name(device)
+        name = get_device_name(device, self.use_assettag)
+        asset_tag = f"[{device.asset_tag}]" if device.asset_tag else name
         description = get_device_description(device)
         text_color = f'#{foreground_color(color)}' if color else '#000000'
         text_coords = (
@@ -174,6 +178,7 @@ class RackElevationSVG:
         else:
             link.add(Rect(coords, size, class_=f'slot blocked{css_extra}'))
         link.add(Text(name, insert=text_coords, fill=text_color, class_=f'label{css_extra}'))
+        link.add(Text(asset_tag, insert=text_coords, fill=text_color, class_=f'hidden asset-tag{css_extra}'),)
 
         # Embed device type image if provided
         if self.include_images and image:
