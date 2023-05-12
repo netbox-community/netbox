@@ -35,6 +35,7 @@ register = template.Library()
 # General
 #
 
+
 @register.filter()
 def linkify(instance, attr=None):
     """
@@ -129,6 +130,7 @@ def tzoffset(value):
 # Content types
 #
 
+
 @register.filter()
 def content_type(model):
     """
@@ -152,22 +154,30 @@ def content_type_id(model):
 # Rendering
 #
 
+
 @register.filter('markdown', is_safe=True)
-def render_markdown(value):
+def render_markdown(value, classes=""):
     """
     Render a string as Markdown. This filter is invoked as "markdown":
+    Args: optional coma separated list of classes to add to the generated div
+    (stripped of leading and trailing whitespace)
 
-        {{ md_source_text|markdown }}
+        {{ md_source_text|markdown:"classa, classb,classc, classd " }}
+
     """
     if not value:
         return ''
+
+    if classes:
+        # Remove any leading or trailing whitespace from each class name
+        classes = ", ".join(map(str.strip, classes.split(',')))
 
     # Render Markdown
     html = markdown(value, extensions=['def_list', 'fenced_code', 'tables', StrikethroughExtension()])
 
     # If the string is not empty wrap it in rendered-markdown to style tables
     if html:
-        html = f'<div class="rendered-markdown">{html}</div>'
+        html = f'<div class="rendered-markdown{" "+classes if classes else ""}">{html}</div>'
 
     schemes = get_config().ALLOWED_URL_SCHEMES
 
