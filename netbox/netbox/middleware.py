@@ -3,19 +3,21 @@ import uuid
 from urllib import parse
 
 from django.conf import settings
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
-from django.db import ProgrammingError
+from django.db import connection, ProgrammingError
+from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
 from extras.context_managers import change_logging
-from netbox.config import clear_config
+from netbox.config import clear_config, get_config
 from netbox.views import handler_500
 from utilities.api import is_api_request, rest_api_server_error
 
 __all__ = (
     'CoreMiddleware',
+    'MaintenanceModeMiddleware',
     'RemoteUserMiddleware',
 )
 
@@ -166,3 +168,43 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
             groups = []
         logger.debug(f"Groups are {groups}")
         return groups
+
+
+class MaintenanceModeMiddleware:
+    """
+    Middleware that checks if the application is in maintenance mode
+    and restricts write-related operations to the database.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if get_config().MAINTENANCE_MODE:
+            self._prevent_db_write_operations()
+
+        return self.get_response(request)
+
+    @staticmethod
+    def _prevent_db_write_operations():
+        """
+        Prevent any write-related database operations.
+        """
+        with connection.cursor() as cursor:
+            cursor.execute(
+                'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;'
+            )
+
+    def process_exception(self, request, exception):
+        """
+        Prevent any write-related database operations if an exception is raised.
+        """
+        if isinstance(exception, InternalError):
+            error_message = 'NetBox is currently operating in maintenance mode and is unable to perform write ' \
+                            'operations. Please try again later.'
+
+            if is_api_request(request):
+                return rest_api_server_error(request, error=error_message)
+
+            messages.error(request, error_message)
+            return HttpResponseRedirect(request.path_info)

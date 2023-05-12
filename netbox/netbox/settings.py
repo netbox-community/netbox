@@ -383,6 +383,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
+    'netbox.middleware.MaintenanceModeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
