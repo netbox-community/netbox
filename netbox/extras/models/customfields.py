@@ -87,7 +87,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             ),
             RegexValidator(
                 regex=r'__',
-                message="No double-underscores are allowed.",
+                message="Double underscores are not permitted in custom field names.",
                 flags=re.IGNORECASE,
                 inverse_match=True
             ),
