@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Prefetch
+from django.db.models import F, Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -877,8 +877,9 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
 
 class VLANGroupListView(generic.ObjectListView):
     queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    )
+        vlan_count=count_related(VLAN, 'group'),
+        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+    ).prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
@@ -886,7 +887,9 @@ class VLANGroupListView(generic.ObjectListView):
 
 @register_model_view(VLANGroup)
 class VLANGroupView(generic.ObjectView):
-    queryset = VLANGroup.objects.all()
+    queryset = VLANGroup.objects.annotate(
+        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+    ).prefetch_related('tags')
 
     def get_extra_context(self, request, instance):
         related_models = (
@@ -929,8 +932,9 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 
 class VLANGroupBulkEditView(generic.BulkEditView):
     queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    )
+        vlan_count=count_related(VLAN, 'group'),
+        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+    ).prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
     form = forms.VLANGroupBulkEditForm
@@ -938,8 +942,9 @@ class VLANGroupBulkEditView(generic.BulkEditView):
 
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    )
+        vlan_count=count_related(VLAN, 'group'),
+        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+    ).prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
 

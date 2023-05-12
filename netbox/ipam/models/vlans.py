@@ -114,15 +114,6 @@ class VLANGroup(OrganizationalModel):
             return available_vids[0]
         return None
 
-    def get_utilization(self):
-        """
-        Return the percentage of utilization for this vlan group.
-        """
-        assigned_vlan = VLAN.objects.filter(group=self.id).count()
-        if assigned_vlan != 0:
-            return round(assigned_vlan / (self.max_vid - self.min_vid + 1) * 100, 2)
-        return 0.0
-
 
 class VLAN(PrimaryModel):
     """

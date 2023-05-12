@@ -43,10 +43,8 @@
             <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
           </tr>
           <tr>
-            <th scope="row">VLANs</th>
-            <td>
-              <a href="{% url 'ipam:vlan_list' %}?group_id={{ object.pk }}">{{ vlans_count }}</a>
-            </td>
+            <th scope="row">Utilization</th>
+            <td>{% utilization_graph object.utilization %}</td>
           </tr>
         </table>
       </div>

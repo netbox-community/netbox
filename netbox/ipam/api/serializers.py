@@ -218,7 +218,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
-    utilization = serializers.CharField(source='get_utilization', read_only=True)
+    utilization = serializers.CharField(read_only=True)
 
     class Meta:
         model = VLANGroup
