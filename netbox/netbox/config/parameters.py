@@ -33,7 +33,11 @@ PARAMS = (
         label=_('Maintenance banner'),
         default='NetBox is currently in maintenance mode. Functionality may be limited.',
         description=_('Additional content to display when in maintenance mode'),
-        field=forms.CharField,
+        field_kwargs={
+            'widget': forms.Textarea(
+                attrs={'class': 'vLargeTextField'}
+            ),
+        },
     ),
     ConfigParam(
         name='BANNER_TOP',
