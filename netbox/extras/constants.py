@@ -22,7 +22,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 2,
+        'height': 5,
         'title': 'Organization',
         'config': {
             'models': [
@@ -35,7 +35,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 3,
+        'height': 8,
         'title': 'IPAM',
         'config': {
             'models': [
@@ -51,7 +51,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.NoteWidget',
         'width': 4,
-        'height': 2,
+        'height': 4,
         'title': 'Welcome!',
         'color': 'green',
         'config': {
@@ -65,7 +65,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 2,
+        'height': 4,
         'title': 'Circuits',
         'config': {
             'models': [
@@ -78,7 +78,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.RSSFeedWidget',
         'width': 4,
-        'height': 4,
+        'height': 8,
         'title': 'NetBox News',
         'config': {
             'feed_url': 'http://netbox.dev/rss/',
@@ -89,7 +89,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 3,
+        'height': 6,
         'title': 'DCIM',
         'config': {
             'models': [
@@ -104,7 +104,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 2,
+        'height': 4,
         'title': 'Virtualization',
         'config': {
             'models': [
@@ -116,7 +116,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectListWidget',
         'width': 12,
-        'height': 5,
+        'height': 10,
         'title': 'Change Log',
         'color': 'blue',
         'config': {

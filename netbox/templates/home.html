@@ -23,8 +23,9 @@
 {% block title %}Home{% endblock %}
 
 {% block content-wrapper %}
+<div class="px-3">
   {# Render the user's customized dashboard #}
-  <div class="grid-stack" id="dashboard">
+  <div class="row grid-stack" id="dashboard">
     {% for widget in dashboard %}
       {% include 'extras/dashboard/widget.html' %}
     {% endfor %}
@@ -59,11 +60,12 @@
           <i class="mdi mdi-content-save-outline"></i> Save Layout
         </button>
         <a href="{% url 'extras:dashboard_reset' %}" class="btn btn-danger btn-sm">
-          <i class="mdi mdi-backspace"></i>  Reset Dashboard
+          <i class="mdi mdi-backspace"></i> Reset Dashboard
         </a>
       </div>
     </div>
   </div>
+</div>
 {% endblock content-wrapper %}
 
 {% block modals %}

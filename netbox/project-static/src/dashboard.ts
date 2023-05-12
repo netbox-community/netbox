@@ -35,7 +35,7 @@ export function initDashboard(): void {
 
   // Initialize the grid
   let grid = GridStack.init({
-    cellHeight: 100,
+    cellHeight: 48,
     disableDrag: true,
     disableResize: true,
     draggable: {

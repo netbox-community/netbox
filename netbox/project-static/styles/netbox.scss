@@ -109,6 +109,20 @@ table td > .progress {
   }
 }
 
+// Remove scrollbars from grid stack cards on Explorer and Firefox
+.grid-stack-item-content > .card-body:not(:has(.htmx-container)) {
+  /* Internet Explorer 10+ */
+  -ms-overflow-style: none;
+  /* Firefox */
+  scrollbar-width: none;
+}
+
+// Remove scrollbars from grid stack cards on Safari and Chrome
+.grid-stack-item-content > .card-body:not(:has(.htmx-container))::-webkit-scrollbar {
+  display: none;
+}
+
+// Cards
 .card > .table.table-flush {
   margin-bottom: 0;
   overflow: hidden;
@@ -662,6 +676,14 @@ span.color-label {
   }
 }
 
+// Override the default GridStack style for the resize handle.
+.ui-resizable-se {
+  bottom: 0 !important;
+  right: 0 !important;
+  background-image: none !important;
+}
+
+// Floating forms
 .form-floating {
   position: relative;
 
@@ -744,7 +766,7 @@ textarea.form-control[name='csv'] {
   font-family: $font-family-monospace;
 }
 
-.card:not(:only-of-type) {
+.card:not(:only-of-type) + div:not(.ui-resizable-handle) {
   margin-bottom: $spacer;
 }
 

@@ -133,7 +133,7 @@ class NoteWidget(DashboardWidget):
         )
 
     def render(self, request):
-        return render_markdown(self.config.get('content'))
+        return render_markdown(self.config.get('content'), "mt-3")
 
 
 @register_widget

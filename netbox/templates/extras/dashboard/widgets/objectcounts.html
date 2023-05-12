@@ -7,13 +7,13 @@
         <a href="{% url model|viewname:"list" %}" class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between align-items-center">
             {{ model|meta:"verbose_name_plural"|bettertitle }}
-            <h6 class="mb-1">{{ count }}</h6>
+            <h5 class="mb-1">{{ count }}</h5>
           </div>
         </a>
       {% else %}
         <div class="list-group-item list-group-item-action d-flex w-100 justify-content-between align-items-center">
           {{ model|meta:"verbose_name_plural"|bettertitle }}
-          <h6 class="mb-1" title="No permission"><i class="mdi mdi-lock-outline"></i></h6>
+          <h5 class="mb-1" title="No permission"><i class="mdi mdi-lock-outline"></i></h5>
         </div>
       {% endif %}
     {% endfor %}
