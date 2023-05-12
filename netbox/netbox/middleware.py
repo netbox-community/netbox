@@ -181,19 +181,23 @@ class MaintenanceModeMiddleware:
 
     def __call__(self, request):
         if get_config().MAINTENANCE_MODE:
-            self._prevent_db_write_operations()
+            self._prevent_db_write_operations(
+                allow_write=request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS)
+            )
 
         return self.get_response(request)
 
     @staticmethod
-    def _prevent_db_write_operations():
+    def _prevent_db_write_operations(allow_write=False):
         """
         Prevent any write-related database operations.
+
+        Args:
+            allow_write (bool): Whether to allow write operations.
         """
         with connection.cursor() as cursor:
-            cursor.execute(
-                'SET SESSION CHARACTERISTICS AS TRANSACTION READ ONLY;'
-            )
+            mode = 'READ WRITE' if allow_write else 'READ ONLY'
+            cursor.execute(f'SET SESSION CHARACTERISTICS AS TRANSACTION {mode};')
 
     def process_exception(self, request, exception):
         """
