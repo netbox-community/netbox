@@ -29,6 +29,13 @@ PARAMS = (
         },
     ),
     ConfigParam(
+        name='BANNER_MAINTENANCE',
+        label=_('Maintenance banner'),
+        default='NetBox is currently in maintenance mode. Functionality may be limited.',
+        description=_('Additional content to display when in maintenance mode'),
+        field=forms.CharField,
+    ),
+    ConfigParam(
         name='BANNER_TOP',
         label=_('Top banner'),
         default='',
@@ -198,13 +205,6 @@ PARAMS = (
         default=False,
         description=_("Enable maintenance mode"),
         field=forms.BooleanField
-    ),
-    ConfigParam(
-        name='BANNER_MAINTENANCE',
-        label=_('Maintenance banner'),
-        default=None,
-        description=_('Additional content to display when in maintenance mode'),
-        field=forms.CharField,
     ),
     ConfigParam(
         name='GRAPHQL_ENABLED',

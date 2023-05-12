@@ -29,6 +29,17 @@ This defines custom content to be displayed on the login page above the login fo
 
 ---
 
+## BANNER_MAINTENANCE
+
+!!! tip "Dynamic Configuration Parameter"
+
+!!! note
+    This parameter was added in NetBox v3.5.
+
+This adds a banner to the top of every page when maintenance mode is enabled. HTML is allowed.
+
+---
+
 ## BANNER_TOP
 
 !!! tip "Dynamic Configuration Parameter"
@@ -120,15 +131,6 @@ The number of days to retain job results (scripts and reports). Set this to `0` 
 Default: False
 
 Setting this to True will display a "maintenance mode" banner at the top of every page. Additionally, NetBox will no longer update a user's "last active" time upon login. This is to allow new logins when the database is in a read-only state. Recording of login times will resume when maintenance mode is disabled.
-
-## BANNER_MAINTENANCE
-
-!!! tip "Dynamic Configuration Parameter"
-
-!!! note
-    This parameter was added in NetBox v3.5.
-
-This adds a banner to the top of every page when maintenance mode is enabled. HTML is allowed.
 
 ---
 

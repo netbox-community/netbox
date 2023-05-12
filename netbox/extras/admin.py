@@ -25,7 +25,7 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('ALLOWED_URL_SCHEMES',),
         }),
         ('Banners', {
-            'fields': ('BANNER_LOGIN', 'BANNER_TOP', 'BANNER_BOTTOM'),
+            'fields': ('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM'),
             'classes': ('monospace',),
         }),
         ('Pagination', {
@@ -39,9 +39,7 @@ class ConfigRevisionAdmin(admin.ModelAdmin):
             'fields': ('DEFAULT_USER_PREFERENCES',),
         }),
         ('Miscellaneous', {
-            'fields': (
-                'MAINTENANCE_MODE', 'BANNER_MAINTENANCE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION',
-                'MAPS_URL'
+            'fields': ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL'
             ),
         }),
         ('Config Revision', {
