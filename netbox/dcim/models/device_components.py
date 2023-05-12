@@ -329,13 +329,13 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         blank=True,
         help_text=_('Physical port type')
     )
-    maximum_draw = models.PositiveSmallIntegerField(
+    maximum_draw = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
         help_text=_("Maximum power draw (watts)")
     )
-    allocated_draw = models.PositiveSmallIntegerField(
+    allocated_draw = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
