@@ -11,7 +11,7 @@ from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
 from extras.context_managers import change_logging
-from netbox.config import clear_config
+from netbox.config import clear_config, get_config
 from netbox.views import handler_500
 from utilities.api import is_api_request, rest_api_server_error
 
@@ -180,7 +180,7 @@ class MaintenanceModeMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if getattr(settings, 'MAINTENANCE_MODE', False):
+        if get_config().MAINTENANCE_MODE:
             self._prevent_db_write_operations()
 
         return self.get_response(request)
