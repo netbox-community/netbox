@@ -20,6 +20,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
@@ -267,6 +268,11 @@ class RegionBulkDeleteView(generic.BulkDeleteView):
     table = tables.RegionTable
 
 
+@register_model_view(Region, 'contacts')
+class RegionContactsView(ObjectContactsView):
+    queryset = Region.objects.all()
+
+
 #
 # Site groups
 #
@@ -340,6 +346,11 @@ class SiteGroupBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.SiteGroupFilterSet
     table = tables.SiteGroupTable
+
+
+@register_model_view(SiteGroup, 'contacts')
+class SiteGroupContactsView(ObjectContactsView):
+    queryset = SiteGroup.objects.all()
 
 
 #
@@ -435,6 +446,11 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
     table = tables.SiteTable
 
 
+@register_model_view(Site, 'contacts')
+class SiteContactsView(ObjectContactsView):
+    queryset = Site.objects.all()
+
+
 #
 # Locations
 #
@@ -521,6 +537,11 @@ class LocationBulkDeleteView(generic.BulkDeleteView):
     ).prefetch_related('site')
     filterset = filtersets.LocationFilterSet
     table = tables.LocationTable
+
+
+@register_model_view(Location, 'contacts')
+class LocationContactsView(ObjectContactsView):
+    queryset = Location.objects.all()
 
 
 #
@@ -740,6 +761,11 @@ class RackBulkDeleteView(generic.BulkDeleteView):
     table = tables.RackTable
 
 
+@register_model_view(Rack, 'contacts')
+class RackContactsView(ObjectContactsView):
+    queryset = Rack.objects.all()
+
+
 #
 # Rack reservations
 #
@@ -872,6 +898,11 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ManufacturerFilterSet
     table = tables.ManufacturerTable
+
+
+@register_model_view(Manufacturer, 'contacts')
+class ManufacturerContactsView(ObjectContactsView):
+    queryset = Manufacturer.objects.all()
 
 
 #
@@ -2086,6 +2117,11 @@ class DeviceBulkRenameView(generic.BulkRenameView):
     queryset = Device.objects.all()
     filterset = filtersets.DeviceFilterSet
     table = tables.DeviceTable
+
+
+@register_model_view(Device, 'contacts')
+class DeviceContactsView(ObjectContactsView):
+    queryset = Device.objects.all()
 
 
 #
@@ -3467,6 +3503,11 @@ class PowerPanelBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.PowerPanelFilterSet
     table = tables.PowerPanelTable
+
+
+@register_model_view(PowerPanel, 'contacts')
+class PowerPanelContactsView(ObjectContactsView):
+    queryset = PowerPanel.objects.all()
 
 
 #

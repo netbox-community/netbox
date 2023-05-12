@@ -1,10 +1,10 @@
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 
 from dcim.views import PathTraceView
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.utils import count_related
 from utilities.views import register_model_view
@@ -73,6 +73,11 @@ class ProviderBulkDeleteView(generic.BulkDeleteView):
     table = tables.ProviderTable
 
 
+@register_model_view(Provider, 'contacts')
+class ProviderContactsView(ObjectContactsView):
+    queryset = Provider.objects.all()
+
+
 #
 # ProviderAccounts
 #
@@ -132,6 +137,11 @@ class ProviderAccountBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ProviderAccountFilterSet
     table = tables.ProviderAccountTable
+
+
+@register_model_view(ProviderAccount, 'contacts')
+class ProviderAccountContactsView(ObjectContactsView):
+    queryset = ProviderAccount.objects.all()
 
 
 #
@@ -387,6 +397,11 @@ class CircuitSwapTerminations(generic.ObjectEditView):
             'button_class': 'primary',
             'return_url': circuit.get_absolute_url(),
         })
+
+
+@register_model_view(Circuit, 'contacts')
+class CircuitContactsView(ObjectContactsView):
+    queryset = Circuit.objects.all()
 
 
 #
