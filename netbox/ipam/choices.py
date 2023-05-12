@@ -22,6 +22,7 @@ class PrefixStatusChoices(ChoiceSet):
     STATUS_CONTAINER = 'container'
     STATUS_ACTIVE = 'active'
     STATUS_RESERVED = 'reserved'
+    STATUS_ABNORMAL = 'abnormal'
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
@@ -29,6 +30,7 @@ class PrefixStatusChoices(ChoiceSet):
         (STATUS_ACTIVE, 'Active', 'blue'),
         (STATUS_RESERVED, 'Reserved', 'cyan'),
         (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_ABNORMAL, 'Abnormal', 'violet'),
     ]
 
 
