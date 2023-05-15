@@ -1227,6 +1227,10 @@ class PortTypeChoices(ChoiceSet):
     TYPE_LSH_PC = 'lsh-pc'
     TYPE_LSH_UPC = 'lsh-upc'
     TYPE_LSH_APC = 'lsh-apc'
+    TYPE_LX5 = 'lx5'
+    TYPE_LX5_PC = 'lx5-pc'
+    TYPE_LX5_UPC = 'lx5-upc'
+    TYPE_LX5_APC = 'lx5-apc'
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
@@ -1273,6 +1277,10 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_LSH_PC, 'LSH/PC'),
                 (TYPE_LSH_UPC, 'LSH/UPC'),
                 (TYPE_LSH_APC, 'LSH/APC'),
+                (TYPE_LX5, 'LX.5'),
+                (TYPE_LX5_PC, 'LX.5/PC'),
+                (TYPE_LX5_UPC, 'LX.5/UPC'),
+                (TYPE_LX5_APC, 'LX.5/APC'),
                 (TYPE_MPO, 'MPO'),
                 (TYPE_MTRJ, 'MTRJ'),
                 (TYPE_SC, 'SC'),
