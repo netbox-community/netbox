@@ -350,7 +350,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.add_error(
                 'primary_for_parent', "Only IP addresses assigned to an interface can be designated as primary IPs."
             )
-        
+
         # Do not allow assigning a network ID or broadcast address to an interface.
         if interface:
             if address := self.cleaned_data.get('address'):
