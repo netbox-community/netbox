@@ -354,14 +354,14 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         # Do not allow assigning a network ID or broadcast address to an interface.
         if interface:
             if address := self.cleaned_data.get('address'):
-                if address.ip == address.network:
+                if address.ip == address.network and address.prefixlen not in (31, 32, 127, 128):
                     self.add_error(
                         'interface',
-                        "This address is a network ID, which may not be assigned to an interface.")
+                        f"{address} is a network ID, which may not be assigned to an interface.")
                 if address.ip == address.broadcast:
                     self.add_error(
                         'interface',
-                        "This is a broadcast address, which may not be assigned to an interface.")
+                        f"{address} is a broadcast address, which may not be assigned to an interface.")
 
     def save(self, *args, **kwargs):
         ipaddress = super().save(*args, **kwargs)
