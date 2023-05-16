@@ -223,6 +223,6 @@ This parameter controls how frequently a failed job is retried, up to the maximu
 !!! note
     This parameter was added in NetBox v3.5.
 
-Default: `0`
+Default: `0` (retries disabled)
 
 The maximum number of times a background task will be retried before being marked as failed.
