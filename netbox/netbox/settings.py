@@ -478,6 +478,11 @@ AUTH_EXEMPT_PATHS = (
     f'/{BASE_PATH}metrics',
 )
 
+# All URLs starting with a string listed here are exempt from maintenance mode enforcement
+MAINTENANCE_EXEMPT_PATHS = (
+    f'/{BASE_PATH}admin/',
+)
+
 SERIALIZATION_MODULES = {
     'json': 'utilities.serializers.json',
 }
