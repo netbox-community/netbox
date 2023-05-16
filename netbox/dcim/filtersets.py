@@ -811,7 +811,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'napalm_driver', 'description']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet, LocalConfigContextFilterSet):

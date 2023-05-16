@@ -360,19 +360,14 @@ class PlatformForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Platform', (
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
-        )),
+        ('Platform', ('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags')),
     )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
         ]
-        widgets = {
-            'napalm_args': forms.Textarea(),
-        }
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):
