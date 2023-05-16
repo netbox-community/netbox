@@ -8,7 +8,7 @@ def populate_device_counts(apps, schema_editor):
     Device = apps.get_model('dcim', 'Device')
 
     for device in Device.objects.all():
-        device._console_port_count = device.console.ports.count()
+        device._console_port_count = device.consoleports.count()
         device._console_server_port_count = device.consoleserverports.count()
         device._interface_count = device.interfaces.count()
         device._front_port_count = device.frontports.count()
