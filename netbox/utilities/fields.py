@@ -143,3 +143,12 @@ class RestrictedGenericForeignKey(GenericForeignKey):
             self.name,
             False,
         )
+
+
+class CounterCacheField(models.BigIntegerField):
+    """
+    Counter field to keep track of related model counts.
+    """
+    def __init__(self, *args, **kwargs):
+        kwargs['default'] = kwargs.get('default', 0)
+        super().__init__(*args, **kwargs)
