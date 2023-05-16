@@ -39,14 +39,14 @@ class Counter(object):
 
         def post_save_receiver_counter(sender, instance, created, **kwargs):
             if created:
-                self.increment(instance, 1)
+                self.adjust_count(instance, 1)
 
         post_save.connect(
             post_save_receiver_counter, sender=self.child_model, weak=False, dispatch_uid=f'{counted_name}_post_save'
         )
 
         def post_delete_receiver_counter(sender, instance, **kwargs):
-            self.increment(instance, -1)
+            self.adjust_count(instance, -1)
 
         post_delete.connect(
             post_delete_receiver_counter,
@@ -63,7 +63,7 @@ class Counter(object):
     def set_counter_field(self, parent_id, value):
         return self.parent_model.objects.filter(pk=parent_id).update(**{self.counter_name: value})
 
-    def increment(self, child, amount):
+    def adjust_count(self, child, amount):
         parent_id = self.parent_id(child)
         return self.set_counter_field(parent_id, F(self.counter_name) + amount)
 
