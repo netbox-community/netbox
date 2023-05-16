@@ -16,7 +16,7 @@ from extras.utils import FeatureQuery
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
-from utilities.rqworker import get_queue_for_model
+from utilities.rqworker import get_queue_for_model, get_rq_retry
 
 __all__ = (
     'Job',
@@ -219,5 +219,6 @@ class Job(models.Model):
                 event=event,
                 data=self.data,
                 timestamp=str(timezone.now()),
-                username=self.user.username
+                username=self.user.username,
+                retry=get_rq_retry()
             )
