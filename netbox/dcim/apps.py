@@ -17,30 +17,18 @@ class DCIMConfig(AppConfig):
         from utilities.counter import connect_counter
 
         # Register denormalized fields
-        denormalized.register(
-            CableTermination,
-            '_device',
-            {
-                '_rack': 'rack',
-                '_location': 'location',
-                '_site': 'site',
-            },
-        )
-        denormalized.register(
-            CableTermination,
-            '_rack',
-            {
-                '_location': 'location',
-                '_site': 'site',
-            },
-        )
-        denormalized.register(
-            CableTermination,
-            '_location',
-            {
-                '_site': 'site',
-            },
-        )
+        denormalized.register(CableTermination, '_device', {
+            '_rack': 'rack',
+            '_location': 'location',
+            '_site': 'site',
+        })
+        denormalized.register(CableTermination, '_rack', {
+            '_location': 'location',
+            '_site': 'site',
+        })
+        denormalized.register(CableTermination, '_location', {
+            '_site': 'site',
+        })
 
         connect_counter('_console_port_count', ConsolePort.device)
         connect_counter('_console_server_port_count', ConsoleServerPort.device)
