@@ -37,8 +37,9 @@ class Counter(object):
         name = f"{self.parent_model._meta.model_name}.{self.child_model._meta.model_name}.{self.foreign_key_field.name}"
         counted_name = f"{name}-{self.counter_name}"
 
-        def post_save_receiver_counter(sender, instance, **kwargs):
-            self.increment(instance, 1)
+        def post_save_receiver_counter(sender, instance, created, **kwargs):
+            if created:
+                self.increment(instance, 1)
 
         post_save.connect(
             post_save_receiver_counter, sender=self.child_model, weak=False, dispatch_uid=f'{counted_name}_post_save'
