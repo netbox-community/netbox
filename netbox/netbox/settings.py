@@ -480,9 +480,7 @@ AUTH_EXEMPT_PATHS = (
 
 # All URLs starting with a string listed here are exempt from maintenance mode enforcement
 MAINTENANCE_EXEMPT_PATHS = (
-    f'/{BASE_PATH}admin/extras/configrevision/',
-    f'/{BASE_PATH}login/',
-    f'/{BASE_PATH}logout/',
+    f'/{BASE_PATH}admin/',
 )
 
 SERIALIZATION_MODULES = {
