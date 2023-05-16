@@ -42,7 +42,7 @@ class Counter(object):
         )
 
         def post_delete_receiver_counter(sender, instance, **kwargs):
-            self.increment(instance, 1)
+            self.increment(instance, -1)
 
         post_delete.connect(
             post_delete_receiver_counter,
