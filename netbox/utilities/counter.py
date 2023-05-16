@@ -7,6 +7,9 @@ counters = {}
 
 
 class Counter(object):
+    """
+    Used with CounterCacheField to add signals to track related model counts.
+    """
     counter_name = None
     foreign_key_field = None
     child_model = None
