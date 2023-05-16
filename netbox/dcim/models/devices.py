@@ -21,7 +21,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
-from utilities.fields import ColorField, NaturalOrderingField
+from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from .device_components import *
 from .mixins import WeightMixin
 
@@ -624,6 +624,16 @@ class Device(PrimaryModel, ConfigContextModel):
         blank=True,
         null=True
     )
+
+    _console_port_count = CounterCacheField()
+    _console_server_port_count = CounterCacheField()
+    _power_port_count = CounterCacheField()
+    _power_outlet_count = CounterCacheField()
+    _interface_count = CounterCacheField()
+    _front_port_count = CounterCacheField()
+    _rear_port_count = CounterCacheField()
+    _device_bay_count = CounterCacheField()
+    _inventory_item_count = CounterCacheField()
 
     # Generic relations
     contacts = GenericRelation(
