@@ -11,7 +11,7 @@ from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
 from netbox.models import NetBoxModel, PrimaryModel
-from utilities.fields import NaturalOrderingField
+from utilities.fields import CounterCacheField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
 from virtualization.choices import *
@@ -119,6 +119,8 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         null=True,
         verbose_name='Disk (GB)'
     )
+
+    _interface_count = CounterCacheField()
 
     # Generic relation
     contacts = GenericRelation(
