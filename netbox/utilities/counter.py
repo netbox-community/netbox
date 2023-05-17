@@ -2,6 +2,7 @@ from django.db.models import F
 from django.db.models.signals import post_delete, post_save, pre_save
 
 from .fields import CounterCacheField
+from .mixins import TrackingModelMixin
 
 counters = {}
 
@@ -21,6 +22,11 @@ class Counter(object):
         self.child_model = self.foreign_key_field.model
         self.parent_model = self.foreign_key_field.related_model
 
+        # add the field to be tracked for changes incase of update
+        field_name = f"{self.foreign_key_field.name}_id"
+        if field_name not in self.child_model.change_tracking_fields:
+            self.child_model.change_tracking_fields.append(field_name)
+
         self.connect()
 
     def validate(self):
@@ -28,6 +34,10 @@ class Counter(object):
         if not isinstance(counter_field, CounterCacheField):
             raise TypeError(
                 f"{self.counter_name} should be a CounterCacheField on {self.parent_model}, but is {type(counter_field)}"
+            )
+        if not isinstance(parent_model, TrackingModelMixin):
+            raise TypeError(
+                f"{self.parent_model} should be derived from TrackingModelMixin"
             )
 
     def connect(self):
@@ -39,14 +49,24 @@ class Counter(object):
 
         def post_save_receiver_counter(sender, instance, created, **kwargs):
             if created:
-                self.adjust_count(instance, 1)
+                self.adjust_count(self.parent_id(instance), 1)
+                return
+
+            # not created so check if field has changed
+            field_name = f"{self.foreign_key_field.name}_id"
+            if field_name in instance.tracker.changed:
+                new_value = getattr(instance, field_name, None)
+                old_value = instance.tracker.changed[field_name]
+                if (new_value is not None) and (new_value != old_value):
+                    self.adjust_count(new_value, 1)
+                    self.adjust_count(old_value, -1)
 
         post_save.connect(
             post_save_receiver_counter, sender=self.child_model, weak=False, dispatch_uid=f'{counted_name}_post_save'
         )
 
         def post_delete_receiver_counter(sender, instance, **kwargs):
-            self.adjust_count(instance, -1)
+            self.adjust_count(self.parent_id(instance), -1)
 
         post_delete.connect(
             post_delete_receiver_counter,
@@ -63,8 +83,7 @@ class Counter(object):
     def set_counter_field(self, parent_id, value):
         return self.parent_model.objects.filter(pk=parent_id).update(**{self.counter_name: value})
 
-    def adjust_count(self, child, amount):
-        parent_id = self.parent_id(child)
+    def adjust_count(self, parent_id, amount):
         return self.set_counter_field(parent_id, F(self.counter_name) + amount)
 
 

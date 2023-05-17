@@ -7,6 +7,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
+from utilities.mixins import TrackingModelMixin
+
 
 __all__ = (
     'ChangeLoggedModel',
@@ -18,6 +20,7 @@ __all__ = (
 
 
 class NetBoxFeatureSet(
+    TrackingModelMixin,
     ChangeLoggingMixin,
     CustomFieldsMixin,
     CustomLinksMixin,
