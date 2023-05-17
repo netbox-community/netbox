@@ -190,7 +190,14 @@ class PrefixImportForm(NetBoxModelImportForm):
             if data.get('vlan_group'):
                 params[f"group__{self.fields['vlan_group'].to_field_name}"] = data.get('vlan_group')
             if params:
-                self.fields['vlan'].queryset = self.fields['vlan'].queryset.filter(**params)
+                queryset = self.fields['vlan'].queryset.filter(**params)
+                if data.get('site'):
+                    p = {
+                        f"site__{self.fields['site'].to_field_name}": None
+                    }
+                    queryset |= self.fields['vlan'].queryset.filter(**p)
+
+                self.fields['vlan'].queryset = queryset
 
 
 class IPRangeImportForm(NetBoxModelImportForm):

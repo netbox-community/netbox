@@ -495,6 +495,65 @@ class PrefixTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         url = reverse('ipam:prefix_ipaddresses', kwargs={'pk': prefix.pk})
         self.assertHttpStatus(self.client.get(url), 200)
 
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_import(self):
+        """
+        Custom import test for YAML-based imports (versus CSV)
+        """
+        IMPORT_DATA = """
+prefix: 10.1.1.0/24
+status: active
+vlan: 101
+site: Site 1
+"""
+        # Note, a site is not tied to the VLAN to verify the fix for #12622
+        VLAN.objects.create(vid=101, name='VLAN101')
+
+        # Add all required permissions to the test user
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('ipam:prefix_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        prefix = Prefix.objects.get(prefix='10.1.1.0/24')
+        self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(prefix.vlan.vid, 101)
+        self.assertEqual(prefix.site.name, "Site 1")
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_prefix_import_with_vlan_group(self):
+        """
+        This test covers a unique import edge case where VLAN group is specified during the import.
+        """
+        IMPORT_DATA = """
+prefix: 10.1.2.0/24
+status: active
+vlan: 102
+site: Site 1
+vlan_group: Group 1
+"""
+        vlan_group = VLANGroup.objects.create(name='Group 1', slug='group-1', scope=Site.objects.get(name="Site 1"))
+        VLAN.objects.create(vid=102, name='VLAN102', group=vlan_group)
+
+        # Add all required permissions to the test user
+        self.add_permissions('ipam.view_prefix', 'ipam.add_prefix')
+
+        form_data = {
+            'data': IMPORT_DATA,
+            'format': 'yaml'
+        }
+        response = self.client.post(reverse('ipam:prefix_import'), data=form_data, follow=True)
+        self.assertHttpStatus(response, 200)
+
+        prefix = Prefix.objects.get(prefix='10.1.2.0/24')
+        self.assertEqual(prefix.status, PrefixStatusChoices.STATUS_ACTIVE)
+        self.assertEqual(prefix.vlan.vid, 102)
+        self.assertEqual(prefix.site.name, "Site 1")
+
 
 class IPRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = IPRange
