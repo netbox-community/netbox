@@ -1,4 +1,5 @@
 from django import forms
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
@@ -213,7 +214,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('VLAN'),
         query_params={
-            'site_id': '$site',
+            'site_id': ['$site', settings.FILTERS_NULL_CHOICE_VALUE],
         }
     )
     role = DynamicModelChoiceField(
