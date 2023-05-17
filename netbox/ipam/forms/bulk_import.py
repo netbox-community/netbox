@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Site
@@ -181,23 +182,31 @@ class PrefixImportForm(NetBoxModelImportForm):
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
 
-        if data:
+        if not data:
+            return
 
-            # Limit VLAN queryset by assigned site and/or group (if specified)
-            params = {}
-            if data.get('site'):
-                params[f"site__{self.fields['site'].to_field_name}"] = data.get('site')
-            if data.get('vlan_group'):
-                params[f"group__{self.fields['vlan_group'].to_field_name}"] = data.get('vlan_group')
-            if params:
-                queryset = self.fields['vlan'].queryset.filter(**params)
-                if data.get('site'):
-                    p = {
-                        f"site__{self.fields['site'].to_field_name}": None
-                    }
-                    queryset |= self.fields['vlan'].queryset.filter(**p)
+        site = data.get('site')
+        vlan_group = data.get('vlan_group')
 
-                self.fields['vlan'].queryset = queryset
+        # Limit VLAN queryset by assigned site and/or group (if specified)
+        query = Q()
+
+        if site:
+            query |= Q(**{
+                f"site__{self.fields['site'].to_field_name}": site
+            })
+            # Don't Forget to include VLANs without a site in the filter
+            query |= Q(**{
+                f"site__{self.fields['site'].to_field_name}__isnull": True
+            })
+
+        if vlan_group:
+            query &= Q(**{
+                f"group__{self.fields['vlan_group'].to_field_name}": vlan_group
+            })
+
+        queryset = self.fields['vlan'].queryset.filter(query)
+        self.fields['vlan'].queryset = queryset
 
 
 class IPRangeImportForm(NetBoxModelImportForm):
