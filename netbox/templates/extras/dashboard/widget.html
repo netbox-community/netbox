@@ -27,7 +27,10 @@
         ><i class="mdi mdi-close text-gray"></i></a>
       </div>
       {% if widget.title %}
-        <h6 class="card-header">{{ widget.title }}</h6>
+      <h6 class="card-header text-center">
+        {% if widget.icon_name %}<i class="mdi mdi-{{ widget.icon_name }}"></i>{% endif %}
+        <span class="ms-1">{{ widget.title }}</span>
+      </h6>
       {% endif %}
     </div>
     <div class="card-body overflow-auto mb-4">

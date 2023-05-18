@@ -24,6 +24,10 @@ class DashboardWidgetForm(BootstrapMixin, forms.Form):
         choices=add_blank_choice(ButtonColorChoices),
         required=False,
     )
+    icon_name = forms.CharField(
+        required=False,
+        help_text=_('Icon name from Material design icons (e.g. "globe")')
+    )
 
 
 class DashboardWidgetAddForm(DashboardWidgetForm):
@@ -37,4 +41,4 @@ class DashboardWidgetAddForm(DashboardWidgetForm):
         ),
         label=_('Widget type')
     )
-    field_order = ('widget_class', 'title', 'color')
+    field_order = ('widget_class', 'title', 'color', 'icon_name')

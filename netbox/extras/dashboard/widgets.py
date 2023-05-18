@@ -80,11 +80,12 @@ class DashboardWidget:
         """
         pass
 
-    def __init__(self, id=None, title=None, color=None, config=None, width=None, height=None, x=None, y=None):
+    def __init__(self, id=None, title=None, color=None, icon_name=None, config=None, width=None, height=None, x=None, y=None):
         self.id = id or str(uuid.uuid4())
         self.config = config or self.default_config
         self.title = title or self.default_title
         self.color = color
+        self.icon_name = icon_name
         if width:
             self.width = width
         if height:
@@ -118,6 +119,7 @@ class DashboardWidget:
         return {
             'title': self.title,
             'color': self.color,
+            'icon_name': self.icon_name,
             'config': self.config,
         }
 
