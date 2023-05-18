@@ -26,7 +26,7 @@ class DashboardWidgetForm(BootstrapMixin, forms.Form):
     )
     icon_name = forms.CharField(
         required=False,
-        help_text=_('Icon name from Material design icons (e.g. "globe")')
+        help_text=_('Icon name from Material design icons (e.g. "earth")')
     )
 
 
