@@ -962,7 +962,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
                 (TYPE_400GE_OSFP, 'OSFP (400GE)'),
                 (TYPE_400GE_CDFP, 'CDFP (400GE)'),
-                (TYPE_400GE_CPF8, 'CPF8 (400GE)'),
+                (TYPE_400GE_CFP8, 'CPF8 (400GE)'),
                 (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
                 (TYPE_800GE_OSFP, 'OSFP (800GE)'),
             )
