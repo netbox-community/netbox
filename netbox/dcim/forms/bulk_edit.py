@@ -1292,8 +1292,9 @@ class InterfaceBulkEditForm(
                         break
 
                 if site is not None:
-                    self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
-                    self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+                    # Query for VLANs assigned to the same site and VLANs with no site assigned (null).
+                    self.fields['untagged_vlan'].widget.add_query_param('site_id', [site.pk, 'null'])
+                    self.fields['tagged_vlans'].widget.add_query_param('site_id', [site.pk, 'null'])
 
             self.fields['parent'].choices = ()
             self.fields['parent'].widget.attrs['disabled'] = True
