@@ -11,6 +11,7 @@ This parameter must specify an iterable of dictionaries, each representing a dis
 * `height`: Default widget height, in rows
 * `title`: Widget title
 * `color`: Color of the widget's title bar, specified by name
+* `icon_name`: Icon name from Material design icons (e.g. "earth")
 * `config`: Dictionary mapping of any widget configuration parameters
 
 A brief example configuration is provided below.
@@ -20,8 +21,9 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 2,
+        'height': 5,
         'title': 'Organization',
+        'icon_name': 'domain',
         'config': {
             'models': [
                 'dcim.site',
@@ -32,13 +34,19 @@ DEFAULT_DASHBOARD = [
     },
     {
         'widget': 'extras.ObjectCountsWidget',
+        'width': 4,
+        'height': 8,
         'title': 'IPAM',
         'color': 'blue',
+        'icon_name': 'counter',
         'config': {
             'models': [
+                'ipam.vrf',
+                'ipam.aggregate',
                 'ipam.prefix',
                 'ipam.iprange',
                 'ipam.ipaddress',
+                'ipam.vlan',
             ]
         }
     },

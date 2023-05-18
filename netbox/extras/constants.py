@@ -24,6 +24,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 5,
         'title': 'Organization',
+        'icon_name': 'domain',
         'config': {
             'models': [
                 'dcim.site',
@@ -37,6 +38,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 8,
         'title': 'IPAM',
+        'icon_name': 'counter',
         'config': {
             'models': [
                 'ipam.vrf',
@@ -67,6 +69,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 4,
         'title': 'Circuits',
+        'icon_name': 'transit-connection-variant',
         'config': {
             'models': [
                 'circuits.provider',
@@ -80,6 +83,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 8,
         'title': 'NetBox News',
+        'icon_name': 'newspaper-variant-outline',
         'config': {
             'feed_url': 'http://netbox.dev/rss/',
             'max_entries': 10,
@@ -91,6 +95,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 6,
         'title': 'DCIM',
+        'icon_name': 'server',
         'config': {
             'models': [
                 'dcim.site',
@@ -106,6 +111,7 @@ DEFAULT_DASHBOARD = [
         'width': 4,
         'height': 4,
         'title': 'Virtualization',
+        'icon_name': 'monitor',
         'config': {
             'models': [
                 'virtualization.cluster',
@@ -118,6 +124,7 @@ DEFAULT_DASHBOARD = [
         'width': 12,
         'height': 10,
         'title': 'Change Log',
+        'icon_name': 'clipboard-clock',
         'color': 'blue',
         'config': {
             'model': 'extras.objectchange',

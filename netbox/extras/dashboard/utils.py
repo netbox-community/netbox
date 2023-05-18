@@ -72,6 +72,7 @@ def get_default_dashboard():
             'class': widget['widget'],
             'title': widget.get('title'),
             'color': widget.get('color'),
+            'icon_name': widget.get('icon_name'),
             'config': widget.get('config', {}),
         }
 
