@@ -15,8 +15,12 @@
 * [#12233](https://github.com/netbox-community/netbox/issues/12233) - Move related IP addresses table to a separate tab
 * [#12286](https://github.com/netbox-community/netbox/issues/12286) - Show height and total weight under device view
 * [#12323](https://github.com/netbox-community/netbox/issues/12323) - Add 100GE CXP interface type
+* [#12327](https://github.com/netbox-community/netbox/issues/12327) - Introduce the ability to automatically retry failed background jobs
 * [#12498](https://github.com/netbox-community/netbox/issues/12498) - Hide map button if `MAPS_URL` is empty
+* [#12548](https://github.com/netbox-community/netbox/issues/12548) - Optimize REST API performance when retrieving interfaces with L2VPN assignments
 * [#12554](https://github.com/netbox-community/netbox/issues/12554) - Allow customization or disabling of the maintenance mode banner
+* [#12605](https://github.com/netbox-community/netbox/issues/12605) - Add LX.5 port types
+* [#12629](https://github.com/netbox-community/netbox/issues/12629) - Add 400GE CDFP and CFP8 interface types
 
 ### Bug Fixes
 
@@ -24,6 +28,7 @@
 * [#12468](https://github.com/netbox-community/netbox/issues/12468) - Custom field names should not permit double underscores
 * [#12550](https://github.com/netbox-community/netbox/issues/12550) - Fix rear port selection widget under front port creation form
 * [#12570](https://github.com/netbox-community/netbox/issues/12570) - Disable ordering of synchronized object tables by the "synced" attribute
+* [#12594](https://github.com/netbox-community/netbox/issues/12594) - Enable selecting config context as object type in object counts dashboard widget
 
 ---
 
