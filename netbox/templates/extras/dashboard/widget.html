@@ -9,7 +9,7 @@
     gs-id="{{ widget.id }}"
 >
   <div class="card grid-stack-item-content">
-    <div class="card-header text-center text-light {% if widget.color %}bg-{{ widget.color }} {% endif %}p-1">
+    <div class="card-header text-center {% if widget.color %}bg-{{ widget.color }} {% endif %}p-1">
       <div class="float-start ps-1 grid-stack-item-button invisible">
         <a href="#"
           hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"

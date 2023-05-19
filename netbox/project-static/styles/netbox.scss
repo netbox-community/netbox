@@ -682,6 +682,20 @@ span.color-label {
   right: 0 !important;
   background-image: none !important;
 }
+// Extend white text background color on GridStack cards with a dark header
+.grid-stack-item-content > .bg-black,
+.bg-gray,
+.bg-green,
+.bg-orange,
+.bg-red,
+.bg-pink,
+.bg-purple,
+.bg-indigo,
+.bg-blue {
+  > h6 {
+    @extend .text-white;
+  }
+}
 
 // Floating forms
 .form-floating {
