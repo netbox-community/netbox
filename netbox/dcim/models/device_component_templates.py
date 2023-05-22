@@ -232,13 +232,13 @@ class PowerPortTemplate(ModularComponentTemplateModel):
         choices=PowerPortTypeChoices,
         blank=True
     )
-    maximum_draw = models.PositiveSmallIntegerField(
+    maximum_draw = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],
         help_text=_("Maximum power draw (watts)")
     )
-    allocated_draw = models.PositiveSmallIntegerField(
+    allocated_draw = models.PositiveIntegerField(
         blank=True,
         null=True,
         validators=[MinValueValidator(1)],

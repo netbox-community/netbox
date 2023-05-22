@@ -73,6 +73,7 @@ class ExportTemplateTable(NetBoxTable):
         linkify=True
     )
     is_synced = columns.BooleanColumn(
+        orderable=False,
         verbose_name='Synced'
     )
 
@@ -218,6 +219,7 @@ class ConfigContextTable(NetBoxTable):
         verbose_name='Active'
     )
     is_synced = columns.BooleanColumn(
+        orderable=False,
         verbose_name='Synced'
     )
 
@@ -242,6 +244,7 @@ class ConfigTemplateTable(NetBoxTable):
         linkify=True
     )
     is_synced = columns.BooleanColumn(
+        orderable=False,
         verbose_name='Synced'
     )
     tags = columns.TagColumn(

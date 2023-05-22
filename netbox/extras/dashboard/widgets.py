@@ -35,7 +35,8 @@ def get_content_type_labels():
     return [
         (content_type_identifier(ct), content_type_name(ct))
         for ct in ContentType.objects.filter(
-            FeatureQuery('export_templates').get_query() | Q(app_label='extras', model='objectchange')
+            FeatureQuery('export_templates').get_query() | Q(app_label='extras', model='objectchange') |
+            Q(app_label='extras', model='configcontext')
         ).order_by('app_label', 'model')
     ]
 

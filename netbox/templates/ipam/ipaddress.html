@@ -3,13 +3,6 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  {% if object.vrf %}
-    <li class="breadcrumb-item"><a href="{% url 'ipam:ipaddress_list' %}?vrf_id={{ object.vrf.pk }}">{{ object.vrf }}</a></li>
-  {% endif %}
-{% endblock %}
-
 {% block content %}
 <div class="row">
 	<div class="col col-md-4">
@@ -116,7 +109,6 @@
     {% if duplicate_ips_table.rows %}
       {% include 'inc/panel_table.html' with table=duplicate_ips_table heading='Duplicate IPs' panel_class='danger' %}
     {% endif %}
-    {% include 'inc/panel_table.html' with table=related_ips_table heading='Related IPs' %}
     <div class="card">
       <h5 class="card-header">Services</h5>
       <div class="card-body htmx-container table-responsive"

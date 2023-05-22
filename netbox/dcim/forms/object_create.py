@@ -242,6 +242,7 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
         choices=[],
         label=_('Rear ports'),
         help_text=_('Select one rear port assignment for each front port being created.'),
+        widget=forms.SelectMultiple(attrs={'size': 6})
     )
 
     # Override fieldsets from FrontPortForm to omit rear_port_position

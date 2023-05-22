@@ -216,6 +216,16 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     config_template = tables.Column(
         linkify=True
     )
+    parent_device = tables.Column(
+        verbose_name='Parent Device',
+        linkify=True,
+        accessor='parent_bay__device'
+    )
+    device_bay_position = tables.Column(
+        verbose_name='Position (Device Bay)',
+        accessor='parent_bay',
+        linkify=True
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:device_list'
@@ -225,9 +235,10 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         model = models.Device
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
-            'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'position', 'face',
-            'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position',
-            'vc_priority', 'description', 'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
+            'device_bay_position', 'position', 'face', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
+            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'contacts',
+            'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',

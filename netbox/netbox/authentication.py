@@ -156,8 +156,11 @@ class RemoteUserBackend(_RemoteUserBackend):
             try:
                 group_list.append(Group.objects.get(name=name))
             except Group.DoesNotExist:
-                logging.error(
-                    f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
+                if settings.REMOTE_AUTH_AUTO_CREATE_GROUPS:
+                    group_list.append(Group.objects.create(name=name))
+                else:
+                    logging.error(
+                        f"Could not assign group {name} to remotely-authenticated user {user}: Group not found")
         if group_list:
             user.groups.set(group_list)
             logger.debug(

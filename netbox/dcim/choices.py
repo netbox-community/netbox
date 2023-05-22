@@ -807,12 +807,16 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_CFP = '100gbase-x-cfp'
     TYPE_100GE_CFP2 = '100gbase-x-cfp2'
     TYPE_100GE_CFP4 = '100gbase-x-cfp4'
+    TYPE_100GE_CXP = '100gbase-x-cxp'
     TYPE_100GE_CPAK = '100gbase-x-cpak'
     TYPE_100GE_QSFP28 = '100gbase-x-qsfp28'
     TYPE_200GE_CFP2 = '200gbase-x-cfp2'
     TYPE_200GE_QSFP56 = '200gbase-x-qsfp56'
+    TYPE_200GE_QSFP_DD = '200gbase-x-qsfpdd'
     TYPE_400GE_QSFP_DD = '400gbase-x-qsfpdd'
     TYPE_400GE_OSFP = '400gbase-x-osfp'
+    TYPE_400GE_CDFP = '400gbase-x-cdfp'
+    TYPE_400GE_CFP8 = '400gbase-x-cfp8'
     TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
     TYPE_800GE_OSFP = '800gbase-x-osfp'
 
@@ -952,11 +956,15 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_CFP2, 'CFP2 (100GE)'),
                 (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
                 (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
+                (TYPE_100GE_CXP, 'CXP (100GE)'),
                 (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
                 (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
+                (TYPE_200GE_QSFP_DD, 'QSFP-DD (200GE)'),
                 (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
                 (TYPE_400GE_OSFP, 'OSFP (400GE)'),
+                (TYPE_400GE_CDFP, 'CDFP (400GE)'),
+                (TYPE_400GE_CFP8, 'CPF8 (400GE)'),
                 (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
                 (TYPE_800GE_OSFP, 'OSFP (800GE)'),
             )
@@ -1221,6 +1229,10 @@ class PortTypeChoices(ChoiceSet):
     TYPE_LSH_PC = 'lsh-pc'
     TYPE_LSH_UPC = 'lsh-upc'
     TYPE_LSH_APC = 'lsh-apc'
+    TYPE_LX5 = 'lx5'
+    TYPE_LX5_PC = 'lx5-pc'
+    TYPE_LX5_UPC = 'lx5-upc'
+    TYPE_LX5_APC = 'lx5-apc'
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
@@ -1267,6 +1279,10 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_LSH_PC, 'LSH/PC'),
                 (TYPE_LSH_UPC, 'LSH/UPC'),
                 (TYPE_LSH_APC, 'LSH/APC'),
+                (TYPE_LX5, 'LX.5'),
+                (TYPE_LX5_PC, 'LX.5/PC'),
+                (TYPE_LX5_UPC, 'LX.5/UPC'),
+                (TYPE_LX5_APC, 'LX.5/APC'),
                 (TYPE_MPO, 'MPO'),
                 (TYPE_MTRJ, 'MTRJ'),
                 (TYPE_SC, 'SC'),
