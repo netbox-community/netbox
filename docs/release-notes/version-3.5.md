@@ -1,10 +1,11 @@
 # NetBox v3.5
 
-## v3.5.2 (FUTURE)
+## v3.5.2 (2023-05-22)
 
 ### Enhancements
 
 * [#7671](https://github.com/netbox-community/netbox/issues/7671) - Introduce `REMOTE_AUTH_AUTO_CREATE_GROUPS` config parameter to enable the automatic creation of new groups when remote authentication is in use
+* [#9068](https://github.com/netbox-community/netbox/issues/9068) - Disallow the assignment of network/broadcast IP addresses to interfaces
 * [#11017](https://github.com/netbox-community/netbox/issues/11017) - Increase the maximum values for allocated and maximum power draws
 * [#11233](https://github.com/netbox-community/netbox/issues/11233) - Intercept and cleanly report errors upon attempted database writes when maintenance mode is enabled
 * [#11599](https://github.com/netbox-community/netbox/issues/11599) - Move contacts panels to separate tabs under object views
@@ -21,10 +22,12 @@
 * [#12554](https://github.com/netbox-community/netbox/issues/12554) - Allow customization or disabling of the maintenance mode banner
 * [#12605](https://github.com/netbox-community/netbox/issues/12605) - Add LX.5 port types
 * [#12629](https://github.com/netbox-community/netbox/issues/12629) - Add 400GE CDFP and CFP8 interface types
+* [#12678](https://github.com/netbox-community/netbox/issues/12678) - Add 200GE QSFP-DD interface type
 
 ### Bug Fixes
 
 * [#10686](https://github.com/netbox-community/netbox/issues/10686) - Enable specifying termination object by virtual chassis master when importing cables
+* [#11619](https://github.com/netbox-community/netbox/issues/11619) - Enable assigning VLANs without a site to interfaces during bulk edit
 * [#12468](https://github.com/netbox-community/netbox/issues/12468) - Custom field names should not permit double underscores
 * [#12550](https://github.com/netbox-community/netbox/issues/12550) - Fix rear port selection widget under front port creation form
 * [#12570](https://github.com/netbox-community/netbox/issues/12570) - Disable ordering of synchronized object tables by the "synced" attribute
