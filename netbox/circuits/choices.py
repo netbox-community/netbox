@@ -70,3 +70,13 @@ class CircuitTerminationPortSpeedChoices(ChoiceSet):
         (1544, 'T1 (1.544 Mbps)'),
         (2048, 'E1 (2.048 Mbps)'),
     ]
+
+
+class CircuitTerminationTypeChoices(ChoiceSet):
+    SITE = 'site'
+    PROVIDER_NETWORK = 'provider_network'
+
+    CHOICES = [
+        (SITE, 'Site'),
+        (PROVIDER_NETWORK, 'Provider Network'),
+    ]

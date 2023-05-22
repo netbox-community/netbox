@@ -1,13 +1,15 @@
+from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices, CircuitTerminationTypeChoices
 from circuits.models import *
 from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.widgets import DatePicker, NumberWithOptions
+from utilities.forms.utils import get_field_value
+from utilities.forms.widgets import DatePicker, HTMXSelect, NumberWithOptions
 
 __all__ = (
     'CircuitForm',
@@ -139,11 +141,21 @@ class CircuitTerminationForm(NetBoxModelForm):
         selector=True
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        termination_type = get_field_value(self, 'termination_type')
+
+        if termination_type != CircuitTerminationTypeChoices.SITE:
+            del self.fields['site']
+        if termination_type != CircuitTerminationTypeChoices.PROVIDER_NETWORK:
+            del self.fields['provider_network']
+
     class Meta:
         model = CircuitTermination
         fields = [
-            'circuit', 'term_side', 'site', 'provider_network', 'mark_connected', 'port_speed', 'upstream_speed',
-            'xconnect_id', 'pp_info', 'description', 'tags',
+            'circuit', 'term_side', 'termination_type', 'site', 'provider_network', 'mark_connected', 'port_speed',
+            'upstream_speed', 'xconnect_id', 'pp_info', 'description', 'tags',
         ]
         widgets = {
             'port_speed': NumberWithOptions(
@@ -152,4 +164,8 @@ class CircuitTerminationForm(NetBoxModelForm):
             'upstream_speed': NumberWithOptions(
                 options=CircuitTerminationPortSpeedChoices
             ),
+            'termination_type': HTMXSelect(),
+        }
+        labels = {
+            'termination_type': 'Termination Type',
         }

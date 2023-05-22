@@ -323,6 +323,7 @@ class CircuitTerminationTestCase(
         cls.form_data = {
             'circuit': circuits[2].pk,
             'term_side': 'A',
+            'termination_type': CircuitTerminationTypeChoices.SITE,
             'site': sites[2].pk,
             'description': 'New description',
         }

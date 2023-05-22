@@ -164,6 +164,11 @@ class CircuitTermination(
         choices=CircuitTerminationSideChoices,
         verbose_name='Termination'
     )
+    termination_type = models.CharField(
+        max_length=50,
+        choices=CircuitTerminationTypeChoices,
+        default=CircuitTerminationTypeChoices.SITE
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,

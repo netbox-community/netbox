@@ -412,7 +412,6 @@ class CircuitContactsView(ObjectContactsView):
 class CircuitTerminationEditView(generic.ObjectEditView):
     queryset = CircuitTermination.objects.all()
     form = forms.CircuitTerminationForm
-    template_name = 'circuits/circuittermination_edit.html'
 
 
 @register_model_view(CircuitTermination, 'delete')
