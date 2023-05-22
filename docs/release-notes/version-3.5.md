@@ -29,6 +29,7 @@
 * [#12550](https://github.com/netbox-community/netbox/issues/12550) - Fix rear port selection widget under front port creation form
 * [#12570](https://github.com/netbox-community/netbox/issues/12570) - Disable ordering of synchronized object tables by the "synced" attribute
 * [#12594](https://github.com/netbox-community/netbox/issues/12594) - Enable selecting config context as object type in object counts dashboard widget
+* [#12642](https://github.com/netbox-community/netbox/issues/12642) - Fix bulk tenant assignment via cluster import form
 
 ---
 
