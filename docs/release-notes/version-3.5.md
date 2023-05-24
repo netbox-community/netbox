@@ -2,6 +2,10 @@
 
 ## v3.5.3 (FUTURE)
 
+### Bug Fixes
+
+* [#12694](https://github.com/netbox-community/netbox/issues/12694) - Strip leading & trailing whitespace from custom link URL & text
+
 ---
 
 ## v3.5.2 (2023-05-22)
