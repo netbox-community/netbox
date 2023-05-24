@@ -105,7 +105,6 @@
 
 ### Bug Fixes
 
-* [#11335](https://github.com/netbox-community/netbox/issues/11335) - Avoid rendering changelog entries referencing models from removed plugins
 * [#11470](https://github.com/netbox-community/netbox/issues/11470) - Avoid raising exception when filtering IPs by an invalid address
 * [#11565](https://github.com/netbox-community/netbox/issues/11565) - Apply custom field defaults to IP address created during FHRP group creation
 * [#11631](https://github.com/netbox-community/netbox/issues/11631) - Fix filtering changelog & journal entries by multiple content type IDs
