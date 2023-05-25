@@ -328,6 +328,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             ):
                 self.initial['primary_for_parent'] = True
 
+        # Disable object assignment fields if the IP address is designated as primary
+        if self.initial.get('primary_for_parent'):
+            self.fields['interface'].disabled = True
+            self.fields['vminterface'].disabled = True
+            self.fields['fhrpgroup'].disabled = True
+
     def clean(self):
         super().clean()
 
@@ -340,7 +346,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 selected_objects[1]: "An IP address can only be assigned to a single object."
             })
         elif selected_objects:
-            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
+            assigned_object = self.cleaned_data[selected_objects[0]]
+            if self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
+                raise ValidationError(
+                    "Cannot reassign IP address while it is designated as the primary IP for the parent object"
+                )
+            self.instance.assigned_object = assigned_object
         else:
             self.instance.assigned_object = None
 
