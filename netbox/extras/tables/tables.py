@@ -22,6 +22,14 @@ __all__ = (
     'WebhookTable',
 )
 
+IMAGEATTACHMENT_IMAGE = '''
+{% if record.image %}
+  <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
+{% else %}
+  &mdash;
+{% endif %}
+'''
+
 
 class CustomFieldTable(NetBoxTable):
     name = tables.Column(
@@ -95,6 +103,9 @@ class ImageAttachmentTable(NetBoxTable):
     content_type = columns.ContentTypeColumn()
     parent = tables.Column(
         linkify=True
+    )
+    image = tables.TemplateColumn(
+        template_code=IMAGEATTACHMENT_IMAGE,
     )
     size = tables.Column(
         orderable=False,
