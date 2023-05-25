@@ -5,7 +5,7 @@
     Images
   </h5>
   <div class="card-body htmx-container table-responsive"
-  hx-get="{% url 'extras:imageattachment_list' %}?content_type_id={{ object|content_type_id }}&object_id={{ object.pk }}"
+  hx-get="{% url 'extras:imageattachment_list' %}?content_type_id={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={{ request.path }}"
   hx-trigger="load"></div>
   {% if perms.extras.add_imageattachment %}
     <div class="card-footer text-end noprint">
