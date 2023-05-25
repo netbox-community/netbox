@@ -177,7 +177,8 @@ class BaseFilterSet(django_filters.FilterSet):
                     # create the new filter with the same type because there is no guarantee the defined type
                     # is the same as the default type for the field
                     resolve_field(field, lookup_expr)  # Will raise FieldLookupError if the lookup is invalid
-                    new_filter = type(existing_filter)(
+                    filter_cls = django_filters.BooleanFilter if lookup_expr == 'empty' else type(existing_filter)
+                    new_filter = filter_cls(
                         field_name=field_name,
                         lookup_expr=lookup_expr,
                         label=existing_filter.label,
