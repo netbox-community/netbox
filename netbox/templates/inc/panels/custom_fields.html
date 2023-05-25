@@ -11,21 +11,25 @@
           {% endif %}
           <table class="table table-hover attr-table">
             {% for field, value in fields.items %}
-              <tr>
-                <th scope="row">{{ field }}
-                  {% if field.description %}
-                    <i
-                      class="mdi mdi-information text-primary"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="right"
-                      title="{{ field.description|escape }}"
-                    ></i>
-                  {% endif %}
-                </th>
-                <td>
-                  {% customfield_value field value %}
-                </td>
-              </tr>
+              {% if field.ui_visibility == 'hidden-ifunset' and not value %}
+                  <!-- Skip hidden fields -->
+              {% else %}
+                <tr>
+                  <th scope="row">{{ field }}
+                    {% if field.description %}
+                      <i
+                        class="mdi mdi-information text-primary"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="right"
+                        title="{{ field.description|escape }}"
+                      ></i>
+                    {% endif %}
+                  </th>
+                  <td>
+                    {% customfield_value field value %}
+                  </td>
+                </tr>
+              {% endif %}
             {% endfor %}
           </table>
         {% endfor %}

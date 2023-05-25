@@ -56,11 +56,13 @@ class CustomFieldVisibilityChoices(ChoiceSet):
     VISIBILITY_READ_WRITE = 'read-write'
     VISIBILITY_READ_ONLY = 'read-only'
     VISIBILITY_HIDDEN = 'hidden'
+    VISIBILITY_HIDDEN_IFUNSET = 'hidden-ifunset'
 
     CHOICES = (
         (VISIBILITY_READ_WRITE, 'Read/Write'),
         (VISIBILITY_READ_ONLY, 'Read-only'),
         (VISIBILITY_HIDDEN, 'Hidden'),
+        (VISIBILITY_HIDDEN_IFUNSET, 'Hidden if unset'),
     )
 
 
