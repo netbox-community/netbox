@@ -64,6 +64,16 @@ class VLANQuerySet(RestrictedQuerySet):
                 scope_type=ContentType.objects.get_by_natural_key('dcim', 'rack'),
                 scope_id=device.rack_id
             )
+        if device.cluster:
+            q |= Q(
+                scope_type=ContentType.objects.get_by_natural_key('virtualization', 'cluster'),
+                scope_id=device.cluster.id
+            )
+            if device.cluster.group:
+                q |= Q(
+                    scope_type=ContentType.objects.get_by_natural_key('virtualization', 'clustergroup'),
+                    scope_id=device.cluster.group.id
+                )
 
         # Return all applicable VLANs
         return self.filter(
