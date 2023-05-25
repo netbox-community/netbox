@@ -28,10 +28,24 @@
     </div>
     <div class="col-7">
       <div class="card">
-        <h5 class="card-header">Context Data</h5>
-        <pre class="card-body">{{ context_data|pprint }}</pre>
+        <div class="accordion" id="renderConfig">
+          <div class="card-body">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="renderConfigHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedRenderConfig" aria-expanded="false" aria-controls="collapsedRenderConfig">
+                  Context Data
+                </button>
+              </h2>
+              <div id="collapsedRenderConfig" class="accordion-collapse collapse" aria-labelledby="renderConfigHeading" data-bs-parent="#renderConfig">
+                <div class="accordion-body">
+                  <pre class="card-body">{{ context_data|pprint }}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
       </div>
     </div>
+  </div>
   </div>
   <div class="row">
     <div class="col">
