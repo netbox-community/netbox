@@ -227,6 +227,8 @@ class CustomFieldsMixin(models.Model):
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
+            if not value and cf.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET:
+                continue
             value = cf.deserialize(value)
             groups[cf.group_name][cf] = value
 
