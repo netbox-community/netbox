@@ -122,14 +122,6 @@ class DashboardWidget:
             'config': self.config,
         }
 
-    def filter_query(self):
-        query_string = ''
-        if filters := self.config.get('filters', None):
-            filter_items = [(k, v) if not isinstance(v, list) else zip([k] * len(v), v) for k, v in filters.items()]
-            query_string = urlencode(filter_items, doseq=True)
-
-        return query_string
-
 
 @register_widget
 class NoteWidget(DashboardWidget):
@@ -189,9 +181,14 @@ class ObjectCountsWidget(DashboardWidget):
             else:
                 counts.append((model, None))
 
+        filter_query_string = ''
+        if filters := self.config.get('filters', None):
+            filter_items = [(k, v) if not isinstance(v, list) else zip([k] * len(v), v) for k, v in filters.items()]
+            filter_query_string = urlencode(filter_items, doseq=True)
+
         return render_to_string(self.template_name, {
             'counts': counts,
-            'filters': self.filter_query(),
+            'filters': filter_query_string,
         })
 
 
