@@ -235,11 +235,8 @@ class ActionsColumn(tables.Column):
 
         model = table.Meta.model
         request = getattr(table, 'context', {}).get('request')
-        query_params = request.GET.copy() if request else {}
-        if return_url := query_params.pop('return_url', None):
-            url_appendix = f'?return_url={quote(return_url[0])}'
-        else:
-            url_appendix = f'?return_url={quote(request.get_full_path())}' if request else ''
+        return_url = request.GET.get('return_url', request.get_full_path())
+        url_appendix = f'?return_url={quote(return_url)}' if return_url else ''
 
         html = ''
 
