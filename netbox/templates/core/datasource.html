@@ -89,11 +89,13 @@
             {% for name, field in object.get_backend.parameters.items %}
               <tr>
                 <th scope="row">{{ field.label }}</th>
-                {% if field.label == "Password" %}
+                {% if field.label == "Password" and object.parameters|get_key:name %}
                   <td>
                     {% if request.user|can_add:object or request.user|can_change:object or request.user|can_delete:object %}
                       <span id="secret" class="font-monospace" data-secret="{{ object.parameters|get_key:name }}">{{ object.parameters|get_key:name|placeholder }}</span>
                       <button type="button" class="btn btn-sm btn-primary toggle-secret float-end" data-bs-toggle="button">Show Secret</button>
+                    {% else %}
+                      <i>Password Hidden</i>
                     {% endif %}
                   </td>
                 {% else %}
