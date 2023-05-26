@@ -1,9 +1,7 @@
-from django.db import transaction
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
@@ -23,6 +21,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
@@ -387,7 +386,12 @@ class PlatformViewSet(NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
+class DeviceViewSet(
+    SequentialBulkCreatesMixin,
+    ConfigContextQuerySetMixin,
+    ConfigTemplateRenderMixin,
+    NetBoxModelViewSet
+):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'config_template', 'tags',
@@ -414,25 +418,6 @@ class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBo
             return serializers.DeviceSerializer
 
         return serializers.DeviceWithConfigContextSerializer
-
-    @transaction.atomic
-    def create(self, request, *args, **kwargs):
-        # do validate / create for each item in serial instead of validating all data at once
-        if is_bulk := isinstance(request.data, list):
-            return_data = []
-        data_list = request.data if is_bulk else [request.data, ]
-
-        for data in data_list:
-            serializer = self.get_serializer(data=data)
-            serializer.is_valid(raise_exception=True)
-            self.perform_create(serializer)
-            headers = self.get_success_headers(serializer.data)
-            if is_bulk:
-                return_data.append(serializer.data)
-            else:
-                return_data = serializer.data
-
-        return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
 
     @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
     def render_config(self, request, pk):
