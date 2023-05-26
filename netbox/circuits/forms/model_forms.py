@@ -169,3 +169,17 @@ class CircuitTerminationForm(NetBoxModelForm):
         labels = {
             'termination_type': 'Termination Type',
         }
+
+    def clean(self):
+        super().clean()
+
+        termination_type = self.cleaned_data.get('termination_type')
+
+        # Clear out the unselected termination type fields to prevent a ValidationError in the model.
+        # Otherwise, users would have to manually clear out the site or provider network field, before
+        # changing the termination type. That behavior may not be obvious or convenient for most users.
+        if termination_type != CircuitTerminationTypeChoices.SITE:
+            self.cleaned_data['site'] = None
+
+        if termination_type != CircuitTerminationTypeChoices.PROVIDER_NETWORK:
+            self.cleaned_data['provider_network'] = None
