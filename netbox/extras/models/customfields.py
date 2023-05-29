@@ -176,13 +176,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         verbose_name='Cloneable',
         help_text=_('Replicate this value when cloning objects')
     )
+    new_window = models.BooleanField(
+        default=False,
+        help_text=_("Force link to open in a new window")
+    )
 
     objects = CustomFieldManager()
 
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
-        'ui_visibility', 'is_cloneable',
+        'ui_visibility', 'is_cloneable', 'new_window',
     )
 
     class Meta:

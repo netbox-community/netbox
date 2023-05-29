@@ -36,7 +36,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         ('Attributes', (
-            'type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility', 'is_cloneable',
+            'type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility', 'is_cloneable', 'new_window',
         )),
     )
     content_type_id = ContentTypeMultipleChoiceField(
@@ -67,6 +67,12 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         label=_('UI visibility')
     )
     is_cloneable = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    new_window = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES

@@ -12,7 +12,11 @@
 {% elif customfield.type == 'datetime' and value %}
   {{ value|annotated_date }}
 {% elif customfield.type == 'url' and value %}
-  <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+  {% if customfield.new_window %}
+    <a href="{{ value }}" target="_blank">{{ value|truncatechars:70 }} <i class="mdi mdi-open-in-new"></i></a>
+  {% else %}
+    <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
+  {% endif %}
 {% elif customfield.type == 'json' and value %}
   <pre>{{ value|json }}</pre>
 {% elif customfield.type == 'multiselect' and value %}
