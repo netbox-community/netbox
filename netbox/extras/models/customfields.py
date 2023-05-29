@@ -162,7 +162,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         base_field=models.CharField(max_length=100),
         blank=True,
         null=True,
-        help_text=_('Comma-separated list of available choices (for selection fields)')
+        help_text=_('Comma-separated list of available choices (for url fields)')
     )
     ui_visibility = models.CharField(
         max_length=50,
@@ -178,7 +178,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     )
     new_window = models.BooleanField(
         default=False,
-        help_text=_("Force link to open in a new window")
+        help_text=_("Force link to open in a new window (for selection fields)")
     )
 
     objects = CustomFieldManager()

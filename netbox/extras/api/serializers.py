@@ -101,7 +101,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
             'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'default',
             'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
-            'last_updated',
+            'last_updated', 'new_window',
         ]
 
     def validate_type(self, value):

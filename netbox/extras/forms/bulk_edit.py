@@ -48,6 +48,10 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
+    new_window = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
 
     nullable_fields = ('group_name', 'description',)
 
