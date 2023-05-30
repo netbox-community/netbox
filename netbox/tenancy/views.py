@@ -29,7 +29,10 @@ class ObjectContactsView(generic.ObjectChildrenView):
     def get_children(self, request, parent):
         return Contact.objects.annotate(
             assignment_count=count_related(ContactAssignment, 'contact')
-        ).restrict(request.user, 'view').filter(assignments__object_id=parent.pk)
+        ).restrict(request.user, 'view').filter(
+            assignments__content_type=ContentType.objects.get_for_model(parent),
+            assignments__object_id=parent.pk
+        )
 
     def get_extra_context(self, request, instance):
         return {

@@ -1,5 +1,6 @@
 import { readableColor } from 'color2k';
 import debounce from 'just-debounce-it';
+import { encode } from 'html-entities';
 import queryString from 'query-string';
 import SlimSelect from 'slim-select';
 import { createToast } from '../../bs';
@@ -446,7 +447,7 @@ export class APISelect {
     // Build SlimSelect options from all already-selected options.
     const preSelectedOptions = preSelected.map(option => ({
       value: option.value,
-      text: option.innerText,
+      text: encode(option.innerText),
       selected: true,
       disabled: false,
     })) as Option[];
@@ -454,7 +455,7 @@ export class APISelect {
     let options = [] as Option[];
 
     for (const result of data.results) {
-      let text = result.display;
+      let text = encode(result.display);
 
       if (typeof result._depth === 'number' && result._depth > 0) {
         // If the object has a `_depth` property, indent its display text.
