@@ -7,6 +7,7 @@
 * [#12470](https://github.com/netbox-community/netbox/issues/12470) - Collapse context data by default when viewing a rendered device configuration
 * [#12562](https://github.com/netbox-community/netbox/issues/12562) - Record client IP address when logging authentication failures
 * [#12597](https://github.com/netbox-community/netbox/issues/12597) - Add an option to hide custom fields only if unset
+* [#12599](https://github.com/netbox-community/netbox/issues/12599) - Apply filter parameters to links in object count dashboard widgets
 
 ### Bug Fixes
 

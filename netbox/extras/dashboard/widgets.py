@@ -174,10 +174,11 @@ class ObjectCountsWidget(DashboardWidget):
                     params.update(filters)
                     filterset = getattr(resolve(url).func.view_class, 'filterset', None)
                     qs = filterset(params, qs).qs
+                    url = f'{url}?{params.urlencode()}'
                 object_count = qs.count
-                counts.append((model, object_count))
+                counts.append((model, object_count, url))
             else:
-                counts.append((model, None))
+                counts.append((model, None, None))
 
         return render_to_string(self.template_name, {
             'counts': counts,
