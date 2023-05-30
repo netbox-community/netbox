@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#11934](https://github.com/netbox-community/netbox/issues/11934) - Prevent reassignment of an IP address designated as primary for its parent object
 * [#12694](https://github.com/netbox-community/netbox/issues/12694) - Strip leading & trailing whitespace from custom link URL & text
 
 ---
