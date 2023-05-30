@@ -2,10 +2,20 @@
 
 ## v3.5.3 (FUTURE)
 
+### Enhancements
+
+* [#12470](https://github.com/netbox-community/netbox/issues/12470) - Collapse context data by default when viewing a rendered device configuration
+* [#12562](https://github.com/netbox-community/netbox/issues/12562) - Record client IP address when logging authentication failures
+* [#12597](https://github.com/netbox-community/netbox/issues/12597) - Add an option to hide custom fields only if unset
+
 ### Bug Fixes
 
+* [#11539](https://github.com/netbox-community/netbox/issues/11539) - Fix exception when applying "empty" filter lookup with invalid value
 * [#11934](https://github.com/netbox-community/netbox/issues/11934) - Prevent reassignment of an IP address designated as primary for its parent object
+* [#12370](https://github.com/netbox-community/netbox/issues/12370) - Fix extraneous contacts listed in object contact assignments view
+* [#12627](https://github.com/netbox-community/netbox/issues/12627) - Restore hover preview for embedded image attachment tables
 * [#12694](https://github.com/netbox-community/netbox/issues/12694) - Strip leading & trailing whitespace from custom link URL & text
+* [#12745](https://github.com/netbox-community/netbox/issues/12745) - Escape display text in API-backed selection widgets
 
 ---
 
