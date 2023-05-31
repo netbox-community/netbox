@@ -19,7 +19,7 @@ drf-spectacular==0.26.2
 drf-spectacular-sidecar==2023.5.1
 dulwich==0.21.5
 feedparser==6.0.10
-graphene-django==3.0.2
+graphene-django==3.0.0
 gunicorn==20.1.0
 Jinja2==3.1.2
 Markdown==3.3.7
