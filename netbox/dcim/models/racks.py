@@ -274,8 +274,8 @@ class Rack(PrimaryModel, WeightMixin):
         Return a list of unit numbers, top to bottom.
         """
         if self.desc_units:
-            return drange(decimal.Decimal(1.0), self.u_height + 1, 0.5)
-        return drange(self.u_height + decimal.Decimal(0.5), 0.5, -0.5)
+            return drange(decimal.Decimal(self.starting_unit), self.u_height + 1, 0.5)
+        return drange(self.u_height + decimal.Decimal(0.5) + self.starting_unit - 1, 0.5 + self.starting_unit - 1, -0.5)
 
     def get_status_color(self):
         return RackStatusChoices.colors.get(self.status)
