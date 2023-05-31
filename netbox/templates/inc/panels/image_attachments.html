@@ -1,12 +1,8 @@
 {% load helpers %}
 
 <div class="card">
-  <h5 class="card-header">
-    Images
-  </h5>
-  <div class="card-body htmx-container table-responsive"
-  hx-get="{% url 'extras:imageattachment_list' %}?content_type_id={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={{ request.path }}"
-  hx-trigger="load"></div>
+  <h5 class="card-header">Images</h5>
+  {% htmx_table 'extras:imageattachment_list' content_type_id=object|content_type_id object_id=object.pk %}
   {% if perms.extras.add_imageattachment %}
     <div class="card-footer text-end noprint">
       <a href="{% url 'extras:imageattachment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}" class="btn btn-primary btn-sm">
