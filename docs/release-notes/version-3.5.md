@@ -17,6 +17,7 @@
 * [#12627](https://github.com/netbox-community/netbox/issues/12627) - Restore hover preview for embedded image attachment tables
 * [#12694](https://github.com/netbox-community/netbox/issues/12694) - Strip leading & trailing whitespace from custom link URL & text
 * [#12715](https://github.com/netbox-community/netbox/issues/12715) - Use contact assignments table to display the contacts assigned to an object
+* [#12702](https://github.com/netbox-community/netbox/issues/12702) - Add SelectMultiple widget to FrontPortTemplateCreateForm to fix multiple selection of rear port positions 
 * [#12742](https://github.com/netbox-community/netbox/issues/12742) - Object counts dashboard widget should support URL-compatible query filters
 * [#12745](https://github.com/netbox-community/netbox/issues/12745) - Escape display text in API-backed selection widgets
 
