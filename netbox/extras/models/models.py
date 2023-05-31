@@ -362,6 +362,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
+    sync_data.alters_data = True
 
     def render(self, queryset):
         """
@@ -625,6 +626,7 @@ class ConfigRevision(models.Model):
         """
         cache.set('config', self.data, None)
         cache.set('config_version', self.pk, None)
+    activate.alters_data = True
 
     @admin.display(boolean=True)
     def is_active(self):

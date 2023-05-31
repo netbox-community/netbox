@@ -71,6 +71,7 @@ class ChangeLoggingMixin(models.Model):
         `_prechange_snapshot` on the instance.
         """
         self._prechange_snapshot = self.serialize_object()
+    snapshot.alters_data = True
 
     def to_objectchange(self, action):
         """
@@ -238,6 +239,7 @@ class CustomFieldsMixin(models.Model):
         """
         for cf in self.custom_fields:
             self.custom_field_data[cf.name] = cf.default
+    populate_custom_field_defaults.alters_data = True
 
     def clean(self):
         super().clean()
@@ -413,6 +415,7 @@ class SyncedDataMixin(models.Model):
             self.data_synced = None
 
         super().clean()
+    clean.alters_data = True
 
     def save(self, *args, **kwargs):
         from core.models import AutoSyncRecord
@@ -460,6 +463,7 @@ class SyncedDataMixin(models.Model):
         self.data_synced = timezone.now()
         if save:
             self.save()
+    sync.alters_data = True
 
     def sync_data(self):
         """
