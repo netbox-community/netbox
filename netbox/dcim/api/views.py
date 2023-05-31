@@ -1,12 +1,12 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.decorators import action
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
-from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.routers import APIRootView
+from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ViewSet
 
 from circuits.models import Circuit
@@ -14,7 +14,6 @@ from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from extras.api.mixins import ConfigContextQuerySetMixin, ConfigTemplateRenderMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
@@ -22,6 +21,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
@@ -386,7 +386,12 @@ class PlatformViewSet(NetBoxModelViewSet):
 # Devices/modules
 #
 
-class DeviceViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
+class DeviceViewSet(
+    SequentialBulkCreatesMixin,
+    ConfigContextQuerySetMixin,
+    ConfigTemplateRenderMixin,
+    NetBoxModelViewSet
+):
     queryset = Device.objects.prefetch_related(
         'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'config_template', 'tags',
