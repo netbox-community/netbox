@@ -25,6 +25,7 @@
 * [#12742](https://github.com/netbox-community/netbox/issues/12742) - Object counts dashboard widget should support URL-compatible query filters
 * [#12762](https://github.com/netbox-community/netbox/issues/12762) - Fix GraphiQL UI by reverting graphene-django to earlier version
 * [#12745](https://github.com/netbox-community/netbox/issues/12745) - Escape display text in API-backed selection widgets
+* [#12779](https://github.com/netbox-community/netbox/issues/12779) - Correct arithmetic for converting inches to meters
 
 ---
 
