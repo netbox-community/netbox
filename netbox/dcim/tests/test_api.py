@@ -1115,7 +1115,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
 
         device_types = (
             DeviceType(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1'),
-            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2'),
+            DeviceType(manufacturer=manufacturer, model='Device Type 2', slug='device-type-2', u_height=2),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -1222,6 +1222,39 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
             'site': device.site.pk,
             'name': device.name,
         }
+
+        self.add_permissions('dcim.add_device')
+        url = reverse('dcim-api:device-list')
+        response = self.client.post(url, data, format='json', **self.header)
+
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_rack_fit(self):
+        """
+        Check that creating multiple devices with overlapping position fails.
+        """
+        device = Device.objects.first()
+        device_type = DeviceType.objects.all()[1]
+        data = [
+            {
+                'device_type': device_type.pk,
+                'device_role': device.device_role.pk,
+                'site': device.site.pk,
+                'name': 'Test Device 7',
+                'rack': device.rack.pk,
+                'face': 'front',
+                'position': 1
+            },
+            {
+                'device_type': device_type.pk,
+                'device_role': device.device_role.pk,
+                'site': device.site.pk,
+                'name': 'Test Device 8',
+                'rack': device.rack.pk,
+                'face': 'front',
+                'position': 2
+            }
+        ]
 
         self.add_permissions('dcim.add_device')
         url = reverse('dcim-api:device-list')

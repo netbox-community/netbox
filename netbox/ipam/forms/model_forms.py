@@ -328,6 +328,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             ):
                 self.initial['primary_for_parent'] = True
 
+        # Disable object assignment fields if the IP address is designated as primary
+        if self.initial.get('primary_for_parent'):
+            self.fields['interface'].disabled = True
+            self.fields['vminterface'].disabled = True
+            self.fields['fhrpgroup'].disabled = True
+
     def clean(self):
         super().clean()
 
@@ -340,7 +346,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 selected_objects[1]: "An IP address can only be assigned to a single object."
             })
         elif selected_objects:
-            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
+            assigned_object = self.cleaned_data[selected_objects[0]]
+            if self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
+                raise ValidationError(
+                    "Cannot reassign IP address while it is designated as the primary IP for the parent object"
+                )
+            self.instance.assigned_object = assigned_object
         else:
             self.instance.assigned_object = None
 
@@ -350,6 +361,18 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.add_error(
                 'primary_for_parent', "Only IP addresses assigned to an interface can be designated as primary IPs."
             )
+
+        # Do not allow assigning a network ID or broadcast address to an interface.
+        if interface and (address := self.cleaned_data.get('address')):
+            if address.ip == address.network:
+                msg = f"{address} is a network ID, which may not be assigned to an interface."
+                if address.version == 4 and address.prefixlen not in (31, 32):
+                    raise ValidationError(msg)
+                if address.version == 6 and address.prefixlen not in (127, 128):
+                    raise ValidationError(msg)
+            if address.ip == address.broadcast:
+                msg = f"{address} is a broadcast address, which may not be assigned to an interface."
+                raise ValidationError(msg)
 
     def save(self, *args, **kwargs):
         ipaddress = super().save(*args, **kwargs)

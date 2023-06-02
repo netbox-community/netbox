@@ -1,10 +1,8 @@
-{% load helpers %}
-
 {% if counts %}
   <div class="list-group list-group-flush">
-    {% for model, count in counts %}
+    {% for model, count, url in counts %}
       {% if count != None %}
-        <a href="{% url model|viewname:"list" %}" class="list-group-item list-group-item-action">
+        <a href="{{ url }}" class="list-group-item list-group-item-action">
           <div class="d-flex w-100 justify-content-between align-items-center">
             {{ model|meta:"verbose_name_plural"|bettertitle }}
             <h6 class="mb-1">{{ count }}</h6>
