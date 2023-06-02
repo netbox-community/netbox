@@ -1,8 +1,11 @@
+import django_tables2 as tables
 from .models import Token
 from netbox.tables import NetBoxTable, columns
+from users.models import NetBoxUser
 
 __all__ = (
     'TokenTable',
+    'UserTable',
 )
 
 
@@ -50,3 +53,17 @@ class TokenTable(NetBoxTable):
         fields = (
             'pk', 'description', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
         )
+
+
+class UserTable(NetBoxTable):
+    username = tables.Column()
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = NetBoxUser
+        fields = (
+            'pk', 'id', 'username', 'email', 'first_name', 'last_name'
+        )
+        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name')

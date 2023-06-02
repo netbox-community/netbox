@@ -344,6 +344,19 @@ OPERATIONS_MENU = Menu(
     ),
 )
 
+ADMIN_MENU = Menu(
+    label=_('Admin'),
+    icon_class='mdi mdi-account-multiple',
+    groups=(
+        MenuGroup(
+            label=_('Users'),
+            items=(
+                get_model_item('users', 'user', _('Users'), actions=['add']),
+            ),
+        ),
+    ),
+)
+
 
 MENUS = [
     ORGANIZATION_MENU,
@@ -358,6 +371,7 @@ MENUS = [
     PROVISIONING_MENU,
     CUSTOMIZATION_MENU,
     OPERATIONS_MENU,
+    ADMIN_MENU,
 ]
 
 #

@@ -2,7 +2,7 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
@@ -19,11 +19,11 @@ from extras.models import ObjectChange
 from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
+from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
-from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
-from .models import Token, UserConfig
-from .tables import TokenTable
+from . import filtersets, forms, tables
+from .models import Token, UserConfig, NetBoxUser
 
 
 #
@@ -69,7 +69,7 @@ class LoginView(View):
         return auth_backends
 
     def get(self, request):
-        form = LoginForm(request)
+        form = forms.LoginForm(request)
 
         if request.user.is_authenticated:
             logger = logging.getLogger('netbox.auth.login')
@@ -82,7 +82,7 @@ class LoginView(View):
 
     def post(self, request):
         logger = logging.getLogger('netbox.auth.login')
-        form = LoginForm(request, data=request.POST)
+        form = forms.LoginForm(request, data=request.POST)
 
         if form.is_valid():
             logger.debug("Login form validation was successful")
@@ -175,7 +175,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
     def get(self, request):
         userconfig = request.user.config
-        form = UserConfigForm(instance=userconfig)
+        form = forms.UserConfigForm(instance=userconfig)
 
         return render(request, self.template_name, {
             'form': form,
@@ -184,7 +184,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
     def post(self, request):
         userconfig = request.user.config
-        form = UserConfigForm(request.POST, instance=userconfig)
+        form = forms.UserConfigForm(request.POST, instance=userconfig)
 
         if form.is_valid():
             form.save()
@@ -207,7 +207,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
             messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
             return redirect('users:profile')
 
-        form = PasswordChangeForm(user=request.user)
+        form = forms.PasswordChangeForm(user=request.user)
 
         return render(request, self.template_name, {
             'form': form,
@@ -215,7 +215,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
-        form = PasswordChangeForm(user=request.user, data=request.POST)
+        form = forms.PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
@@ -237,7 +237,7 @@ class TokenListView(LoginRequiredMixin, View):
     def get(self, request):
 
         tokens = Token.objects.filter(user=request.user)
-        table = TokenTable(tokens)
+        table = tables.TokenTable(tokens)
         table.configure(request)
 
         return render(request, 'users/api_tokens.html', {
@@ -257,7 +257,7 @@ class TokenEditView(LoginRequiredMixin, View):
         else:
             token = Token(user=request.user)
 
-        form = TokenForm(instance=token)
+        form = forms.TokenForm(instance=token)
 
         return render(request, 'generic/object_edit.html', {
             'object': token,
@@ -269,10 +269,10 @@ class TokenEditView(LoginRequiredMixin, View):
 
         if pk:
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-            form = TokenForm(request.POST, instance=token)
+            form = forms.TokenForm(request.POST, instance=token)
         else:
             token = Token(user=request.user)
-            form = TokenForm(request.POST)
+            form = forms.TokenForm(request.POST)
 
         if form.is_valid():
 
@@ -333,3 +333,48 @@ class TokenDeleteView(LoginRequiredMixin, View):
             'form': form,
             'return_url': reverse('users:token_list'),
         })
+
+#
+# Users
+#
+
+
+class NetBoxUserListView(generic.ObjectListView):
+    queryset = NetBoxUser.objects.all()
+    filterset = filtersets.UserFilterSet
+    filterset_form = forms.UserFilterForm
+    table = tables.UserTable
+
+
+@register_model_view(get_user_model())
+class NetBoxUserView(generic.ObjectView):
+    queryset = get_user_model().objects.all()
+
+
+@register_model_view(NetBoxUser, 'edit')
+class NetBoxUserEditView(generic.ObjectEditView):
+    queryset = get_user_model().objects.all()
+    form = forms.UserForm
+
+
+@register_model_view(NetBoxUser, 'delete')
+class NetBoxUserDeleteView(generic.ObjectDeleteView):
+    queryset = get_user_model().objects.all()
+
+
+class NetBoxUserBulkImportView(generic.BulkImportView):
+    queryset = get_user_model().objects.all()
+    model_form = forms.UserImportForm
+
+
+class NetBoxUserBulkEditView(generic.BulkEditView):
+    queryset = get_user_model().objects.all()
+    filterset = filtersets.UserFilterSet
+    table = tables.UserTable
+    form = forms.UserBulkEditForm
+
+
+class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
+    queryset = get_user_model().objects.all()
+    filterset = filtersets.UserFilterSet
+    table = tables.UserTable

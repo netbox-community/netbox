@@ -1,10 +1,12 @@
 import django_filters
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group, User
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from netbox.filtersets import BaseFilterSet
-from users.models import ObjectPermission, Token
+from users.models import ObjectPermission, Token, NetBoxUser
 
 __all__ = (
     'GroupFilterSet',
@@ -47,7 +49,7 @@ class UserFilterSet(BaseFilterSet):
     )
 
     class Meta:
-        model = User
+        model = NetBoxUser
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active']
 
     def search(self, queryset, name, value):
