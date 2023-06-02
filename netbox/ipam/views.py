@@ -1120,7 +1120,6 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
 class VLANEditView(generic.ObjectEditView):
     queryset = VLAN.objects.all()
     form = forms.VLANForm
-    template_name = 'ipam/vlan_edit.html'
 
 
 @register_model_view(VLAN, 'delete')

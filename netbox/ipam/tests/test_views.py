@@ -763,6 +763,7 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
+            'assignment_type': VLANAssignmentTypeChoices.VLAN_GROUP,
             'site': sites[1].pk,
             'group': vlangroups[1].pk,
             'vid': 999,

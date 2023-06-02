@@ -155,6 +155,16 @@ class VLANStatusChoices(ChoiceSet):
     ]
 
 
+class VLANAssignmentTypeChoices(ChoiceSet):
+    VLAN_GROUP = 'vlan_group'
+    SITE = 'site'
+
+    CHOICES = [
+        (VLAN_GROUP, 'VLAN Group'),
+        (SITE, 'Site'),
+    ]
+
+
 #
 # Services
 #

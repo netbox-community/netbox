@@ -124,6 +124,12 @@ class VLAN(PrimaryModel):
     Like Prefixes, each VLAN is assigned an operational status and optionally a user-defined Role. A VLAN can have zero
     or more Prefixes assigned to it.
     """
+    assignment_type = models.CharField(
+        verbose_name='Assignment Type',
+        max_length=50,
+        choices=VLANAssignmentTypeChoices,
+        default=VLANAssignmentTypeChoices.VLAN_GROUP
+    )
     site = models.ForeignKey(
         to='dcim.Site',
         on_delete=models.PROTECT,
@@ -183,7 +189,7 @@ class VLAN(PrimaryModel):
     objects = VLANQuerySet.as_manager()
 
     clone_fields = [
-        'site', 'group', 'tenant', 'status', 'role', 'description',
+        'assignment_type', 'site', 'group', 'tenant', 'status', 'role', 'description',
     ]
 
     class Meta:

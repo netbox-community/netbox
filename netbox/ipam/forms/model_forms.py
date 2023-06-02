@@ -16,7 +16,8 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     SlugField,
 )
-from utilities.forms.widgets import DatePicker
+from utilities.forms.utils import get_field_value
+from utilities.forms.widgets import DatePicker, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
 __all__ = (
@@ -633,12 +634,42 @@ class VLANForm(TenancyForm, NetBoxModelForm):
     )
     comments = CommentField()
 
+    fieldsets = (
+        ('VLAN', ('vid', 'name', 'status', 'role', 'description', 'tags')),
+        ('Tenancy', ('tenant_group', 'tenant')),
+        ('Assignment', ('assignment_type', 'site', 'group')),
+    )
+
     class Meta:
         model = VLAN
         fields = [
-            'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'description', 'comments',
-            'tags',
+            'assignment_type', 'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant',
+            'description', 'comments', 'tags',
         ]
+        widgets = {
+            'assignment_type': HTMXSelect(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        assignment_type = get_field_value(self, 'assignment_type')
+
+        if assignment_type != VLANAssignmentTypeChoices.VLAN_GROUP:
+            del self.fields['group']
+        if assignment_type != VLANAssignmentTypeChoices.SITE:
+            del self.fields['site']
+
+    def clean(self):
+        super().clean()
+
+        assignment_type = self.cleaned_data.get('assignment_type')
+
+        if assignment_type != VLANAssignmentTypeChoices.VLAN_GROUP:
+            self.cleaned_data['group'] = None
+
+        if assignment_type != VLANAssignmentTypeChoices.SITE:
+            self.cleaned_data['site'] = None
 
 
 class ServiceTemplateForm(NetBoxModelForm):

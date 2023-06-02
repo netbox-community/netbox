@@ -129,8 +129,8 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = VLAN
         fields = (
-            'pk', 'id', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'tenant_group', 'status', 'role',
-            'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
+            'pk', 'id', 'vid', 'name', 'assignment_type', 'site', 'group', 'prefixes', 'tenant', 'tenant_group',
+            'status', 'role', 'description', 'comments', 'tags', 'l2vpn', 'created', 'last_updated',
         )
         default_columns = ('pk', 'vid', 'name', 'site', 'group', 'prefixes', 'tenant', 'status', 'role', 'description')
         row_attrs = {
