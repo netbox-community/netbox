@@ -10,8 +10,9 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models import Q
+from django.http import QueryDict
 from django.template.loader import render_to_string
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, resolve, reverse
 from django.utils.translation import gettext as _
 
 from extras.utils import FeatureQuery
@@ -149,7 +150,7 @@ class ObjectCountsWidget(DashboardWidget):
         filters = forms.JSONField(
             required=False,
             label='Object filters',
-            help_text=_("Only objects matching the specified filters will be counted")
+            help_text=_("Filters to apply when counting the number of objects")
         )
 
         def clean_filters(self):
@@ -158,13 +159,6 @@ class ObjectCountsWidget(DashboardWidget):
                     dict(data)
                 except TypeError:
                     raise forms.ValidationError("Invalid format. Object filters must be passed as a dictionary.")
-                for model in get_models_from_content_types(self.cleaned_data.get('models')):
-                    try:
-                        # Validate the filters by creating a QuerySet
-                        model.objects.filter(**data).none()
-                    except Exception:
-                        model_name = model._meta.verbose_name_plural
-                        raise forms.ValidationError(f"Invalid filter specification for {model_name}.")
             return data
 
     def render(self, request):
@@ -172,13 +166,19 @@ class ObjectCountsWidget(DashboardWidget):
         for model in get_models_from_content_types(self.config['models']):
             permission = get_permission_for_model(model, 'view')
             if request.user.has_perm(permission):
+                url = reverse(get_viewname(model, 'list'))
                 qs = model.objects.restrict(request.user, 'view')
+                # Apply any specified filters
                 if filters := self.config.get('filters'):
-                    qs = qs.filter(**filters)
+                    params = QueryDict(mutable=True)
+                    params.update(filters)
+                    filterset = getattr(resolve(url).func.view_class, 'filterset', None)
+                    qs = filterset(params, qs).qs
+                    url = f'{url}?{params.urlencode()}'
                 object_count = qs.count
-                counts.append((model, object_count))
+                counts.append((model, object_count, url))
             else:
-                counts.append((model, None))
+                counts.append((model, None, None))
 
         return render_to_string(self.template_name, {
             'counts': counts,

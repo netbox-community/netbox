@@ -68,11 +68,12 @@ Defines how filters are evaluated against custom field values.
 
 Controls how and whether the custom field is displayed within the NetBox user interface.
 
-| Option     | Description                          |
-|------------|--------------------------------------|
-| Read/write | Display and permit editing (default) |
-| Read-only  | Display field but disallow editing   |
-| Hidden     | Do not display field in the UI       |
+| Option            | Description                                      |
+|-------------------|--------------------------------------------------|
+| Read/write        | Display and permit editing (default)             |
+| Read-only         | Display field but disallow editing               |
+| Hidden            | Do not display field in the UI                   |
+| Hidden (if unset) | Display in the UI only when a value has been set |
 
 ### Default
 

@@ -274,10 +274,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         :param context: The context passed to Jinja2
         """
-        text = render_jinja2(self.link_text, context)
+        text = render_jinja2(self.link_text, context).strip()
         if not text:
             return {}
-        link = render_jinja2(self.link_url, context)
+        link = render_jinja2(self.link_url, context).strip()
         link_target = ' target="_blank"' if self.new_window else ''
 
         # Sanitize link text
