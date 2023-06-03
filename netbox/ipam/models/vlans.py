@@ -230,6 +230,18 @@ class VLAN(PrimaryModel):
                        f"{self.group}"
             })
 
+    def save(self, *args, **kwargs):
+        # Implicitly set the Assignment Type based on the validated assignment of group or site
+        # Do this on the model to reduce redundancy of doing this in both Bulk Edit and Bulk Import
+        if self.group:
+            self.assignment_type = VLANAssignmentTypeChoices.VLAN_GROUP
+
+        # elif to prefer the Assignment Type of VLAN_GROUP if the VLAN Group site scope is also set.
+        elif self.site:
+            self.assignment_type = VLANAssignmentTypeChoices.SITE
+
+        super().save(*args, **kwargs)
+
     def get_status_color(self):
         return VLANStatusChoices.colors.get(self.status)
 
