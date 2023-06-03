@@ -408,6 +408,18 @@ class VLANImportForm(NetBoxModelImportForm):
         model = VLAN
         fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments', 'tags')
 
+    def save(self, *args, **kwargs):
+
+        # Implicitly set the Assignment Type based on the validated assignment of group or site
+        if self.cleaned_data.get('group'):
+            self.instance.assignment_type = VLANAssignmentTypeChoices.VLAN_GROUP
+
+        # elif to prefer the Assignment Type of VLAN_GROUP if the VLAN Group site scope is also set.
+        elif self.cleaned_data.get('site'):
+            self.instance.assignment_type = VLANAssignmentTypeChoices.SITE
+
+        return super().save(*args, **kwargs)
+
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):
     protocol = CSVChoiceField(
