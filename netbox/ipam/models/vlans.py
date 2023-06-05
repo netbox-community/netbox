@@ -128,7 +128,8 @@ class VLAN(PrimaryModel):
         verbose_name='Assignment Type',
         max_length=50,
         choices=VLANAssignmentTypeChoices,
-        default=VLANAssignmentTypeChoices.VLAN_GROUP
+        default=VLANAssignmentTypeChoices.VLAN_GROUP,
+        help_text="Determines whether the form should include a VLAN Group or a Site based on the selected option"
     )
     site = models.ForeignKey(
         to='dcim.Site',
