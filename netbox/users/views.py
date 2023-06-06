@@ -346,9 +346,22 @@ class NetBoxUserListView(generic.ObjectListView):
     table = tables.UserTable
 
 
-@register_model_view(get_user_model())
+@register_model_view(NetBoxUser)
 class NetBoxUserView(generic.ObjectView):
     queryset = get_user_model().objects.all()
+    template_name = 'users/user.html'
+
+    def get_extra_context(self, request, instance):
+        # Compile changelog table
+        changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=request.user).prefetch_related(
+            'changed_object_type'
+        )[:20]
+        changelog_table = ObjectChangeTable(changelog)
+
+        return {
+            'changelog_table': changelog_table,
+            'active_tab': 'user',
+        }
 
 
 @register_model_view(NetBoxUser, 'edit')

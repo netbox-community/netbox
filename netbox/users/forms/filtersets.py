@@ -20,36 +20,27 @@ class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('ASN', ('asn',)),
-        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        ('Name', ('username', 'first_name', 'last_name')),
+        ('Security', ('is_superuser', 'is_staff', 'is_active')),
     )
-    region_id = DynamicModelMultipleChoiceField(
-        queryset=Region.objects.all(),
+    username = forms.CharField(
+        required=False
+    )
+    first_name = forms.CharField(
+        required=False
+    )
+    last_name = forms.CharField(
+        required=False
+    )
+    is_superuser = forms.BooleanField(
         required=False,
-        label=_('Region')
+        label='Is Superuser',
     )
-    site_group_id = DynamicModelMultipleChoiceField(
-        queryset=SiteGroup.objects.all(),
+    is_staff = forms.BooleanField(
         required=False,
-        label=_('Site group')
+        label='Is Staff',
     )
-    site_id = DynamicModelMultipleChoiceField(
-        queryset=Site.objects.all(),
+    is_active = forms.BooleanField(
         required=False,
-        query_params={
-            'region_id': '$region_id',
-            'site_group_id': '$site_group_id',
-        },
-        label=_('Site')
+        label='Is Active',
     )
-    asn = forms.IntegerField(
-        required=False,
-        label=_('ASN (legacy)')
-    )
-    asn_id = DynamicModelMultipleChoiceField(
-        queryset=ASN.objects.all(),
-        required=False,
-        label=_('ASNs')
-    )
-    tag = TagFilterField(model)

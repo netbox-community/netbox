@@ -2,6 +2,7 @@ from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
+from django.contrib.auth.models import Group
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.html import mark_safe
 from django.utils.translation import gettext as _
@@ -10,6 +11,7 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
 from utilities.forms import BootstrapMixin
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DateTimePicker
 from utilities.utils import flatten_dict
 from users.models import *
@@ -141,13 +143,20 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
 
 
 class UserForm(BootstrapMixin, forms.ModelForm):
+    groups = DynamicModelMultipleChoiceField(
+        queryset=Group.objects.all()
+    )
 
     fieldsets = (
-        ('User', ('username', )),
+        ('User', ('username', 'first_name', 'last_name', 'email', )),
+        ('Groups', ('groups', )),
+        ('Status', ('is_active', 'is_staff', 'is_superuser', )),
+        ('Important Dates', ('last_login', 'date_joined', )),
     )
 
     class Meta:
         model = NetBoxUser
         fields = [
-            'username',
+            'username', 'first_name', 'last_name', 'email', 'groups',
+            'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
         ]

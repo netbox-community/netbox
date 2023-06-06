@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django_tables2.utils import A
 from .models import Token
 from netbox.tables import NetBoxTable, columns
 from users.models import NetBoxUser
@@ -56,7 +57,7 @@ class TokenTable(NetBoxTable):
 
 
 class UserTable(NetBoxTable):
-    username = tables.Column()
+    username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -64,6 +65,6 @@ class UserTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = NetBoxUser
         fields = (
-            'pk', 'id', 'username', 'email', 'first_name', 'last_name'
+            'pk', 'id', 'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
         )
-        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name')
+        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_superuser')
