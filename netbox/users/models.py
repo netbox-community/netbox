@@ -20,6 +20,7 @@ from utilities.utils import flatten_dict
 from .constants import *
 
 __all__ = (
+    'NetBoxGroup',
     'NetBoxUser',
     'ObjectPermission',
     'Token',
@@ -56,6 +57,15 @@ class NetBoxUser(User):
     """
     class Meta:
         verbose_name = 'User'
+        proxy = True
+
+
+class NetBoxGroup(Group):
+    """
+    Proxy contrib.auth.models.User for the UI
+    """
+    class Meta:
+        verbose_name = 'Group'
         proxy = True
 
 #

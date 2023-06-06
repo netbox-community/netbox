@@ -23,7 +23,7 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import Token, UserConfig, NetBoxUser
+from .models import Token, UserConfig, NetBoxGroup, NetBoxUser, ObjectPermission
 
 
 #
@@ -348,7 +348,7 @@ class NetBoxUserListView(generic.ObjectListView):
 
 @register_model_view(NetBoxUser)
 class NetBoxUserView(generic.ObjectView):
-    queryset = get_user_model().objects.all()
+    queryset = NetBoxUser.objects.all()
     template_name = 'users/user.html'
 
     def get_extra_context(self, request, instance):
@@ -366,28 +366,120 @@ class NetBoxUserView(generic.ObjectView):
 
 @register_model_view(NetBoxUser, 'edit')
 class NetBoxUserEditView(generic.ObjectEditView):
-    queryset = get_user_model().objects.all()
+    queryset = NetBoxUser.objects.all()
     form = forms.UserForm
 
 
 @register_model_view(NetBoxUser, 'delete')
 class NetBoxUserDeleteView(generic.ObjectDeleteView):
-    queryset = get_user_model().objects.all()
+    queryset = NetBoxUser.objects.all()
 
 
 class NetBoxUserBulkImportView(generic.BulkImportView):
-    queryset = get_user_model().objects.all()
+    queryset = NetBoxUser.objects.all()
     model_form = forms.UserImportForm
 
 
 class NetBoxUserBulkEditView(generic.BulkEditView):
-    queryset = get_user_model().objects.all()
+    queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
 
 
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
-    queryset = get_user_model().objects.all()
+    queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
+
+#
+# Groups
+#
+
+
+class NetBoxGroupListView(generic.ObjectListView):
+    queryset = NetBoxGroup.objects.all()
+    filterset = filtersets.GroupFilterSet
+    filterset_form = forms.GroupFilterForm
+    table = tables.GroupTable
+
+
+@register_model_view(NetBoxGroup)
+class NetBoxGroupView(generic.ObjectView):
+    queryset = NetBoxGroup.objects.all()
+    template_name = 'users/group.html'
+
+
+@register_model_view(NetBoxGroup, 'edit')
+class NetBoxGroupEditView(generic.ObjectEditView):
+    queryset = NetBoxGroup.objects.all()
+    form = forms.GroupForm
+
+
+@register_model_view(NetBoxGroup, 'delete')
+class NetBoxGroupDeleteView(generic.ObjectDeleteView):
+    queryset = NetBoxGroup.objects.all()
+
+
+class NetBoxGroupBulkImportView(generic.BulkImportView):
+    queryset = NetBoxGroup.objects.all()
+    model_form = forms.GroupImportForm
+
+
+class NetBoxGroupBulkEditView(generic.BulkEditView):
+    queryset = NetBoxGroup.objects.all()
+    filterset = filtersets.GroupFilterSet
+    table = tables.GroupTable
+    form = forms.GroupBulkEditForm
+
+
+class NetBoxGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = NetBoxGroup.objects.all()
+    filterset = filtersets.GroupFilterSet
+    table = tables.GroupTable
+
+#
+# ObjectPermissions
+#
+
+
+class ObjectPermissionListView(generic.ObjectListView):
+    queryset = NetBoxGroup.objects.all()
+    filterset = filtersets.ObjectPermissionFilterSet
+    filterset_form = forms.ObjectPermissionFilterForm
+    table = tables.ObjectPermissionTable
+
+
+@register_model_view(ObjectPermission)
+class ObjectPermissionView(generic.ObjectView):
+    queryset = NetBoxGroup.objects.all()
+    template_name = 'users/objectpermission.html'
+
+
+@register_model_view(ObjectPermission, 'edit')
+class ObjectPermissionEditView(generic.ObjectEditView):
+    queryset = ObjectPermission.objects.all()
+    form = forms.ObjectPermissionForm
+
+
+@register_model_view(ObjectPermission, 'delete')
+class ObjectPermissionDeleteView(generic.ObjectDeleteView):
+    queryset = ObjectPermission.objects.all()
+
+
+class ObjectPermissionBulkImportView(generic.BulkImportView):
+    queryset = ObjectPermission.objects.all()
+    model_form = forms.ObjectPermissionImportForm
+
+
+class ObjectPermissionBulkEditView(generic.BulkEditView):
+    queryset = ObjectPermission.objects.all()
+    filterset = filtersets.ObjectPermissionFilterSet
+    table = tables.ObjectPermissionTable
+    form = forms.ObjectPermissionBulkEditForm
+
+
+class ObjectPermissionBulkDeleteView(generic.BulkDeleteView):
+    queryset = ObjectPermission.objects.all()
+    filterset = filtersets.ObjectPermissionFilterSet
+    table = tables.ObjectPermissionTable

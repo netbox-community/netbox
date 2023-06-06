@@ -18,7 +18,9 @@ from users.models import *
 
 
 __all__ = (
+    'GroupForm',
     'LoginForm',
+    'ObjectPermissionForm',
     'PasswordChangeForm',
     'TokenForm',
     'UserConfigForm',
@@ -152,6 +154,34 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         ('Groups', ('groups', )),
         ('Status', ('is_active', 'is_staff', 'is_superuser', )),
         ('Important Dates', ('last_login', 'date_joined', )),
+    )
+
+    class Meta:
+        model = NetBoxUser
+        fields = [
+            'username', 'first_name', 'last_name', 'email', 'groups',
+            'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
+        ]
+
+
+class GroupForm(BootstrapMixin, forms.ModelForm):
+
+    fieldsets = (
+        ('User', ('username', 'first_name', 'last_name', 'email', )),
+    )
+
+    class Meta:
+        model = NetBoxUser
+        fields = [
+            'username', 'first_name', 'last_name', 'email', 'groups',
+            'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
+        ]
+
+
+class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
+
+    fieldsets = (
+        ('User', ('username', 'first_name', 'last_name', 'email', )),
     )
 
     class Meta:

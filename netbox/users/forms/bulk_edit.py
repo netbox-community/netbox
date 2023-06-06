@@ -11,11 +11,59 @@ from utilities.forms.fields import CommentField, DynamicModelChoiceField, Dynami
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
+    'GroupBulkEditForm',
+    'ObjectPermissionBulkEditForm',
     'UserBulkEditForm',
 )
 
 
 class UserBulkEditForm(NetBoxModelBulkEditForm):
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        label=_('Comments')
+    )
+
+    model = Provider
+    fieldsets = (
+        (None, ('asns', 'description')),
+    )
+    nullable_fields = (
+        'asns', 'description', 'comments',
+    )
+
+
+class GroupBulkEditForm(NetBoxModelBulkEditForm):
+    asns = DynamicModelMultipleChoiceField(
+        queryset=ASN.objects.all(),
+        label=_('ASNs'),
+        required=False
+    )
+    description = forms.CharField(
+        max_length=200,
+        required=False
+    )
+    comments = CommentField(
+        label=_('Comments')
+    )
+
+    model = Provider
+    fieldsets = (
+        (None, ('asns', 'description')),
+    )
+    nullable_fields = (
+        'asns', 'description', 'comments',
+    )
+
+
+class ObjectPermissionBulkEditForm(NetBoxModelBulkEditForm):
     asns = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
         label=_('ASNs'),

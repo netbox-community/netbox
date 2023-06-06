@@ -1,15 +1,14 @@
 from django import forms
 
-from circuits.choices import CircuitStatusChoices
-from circuits.models import *
-from dcim.models import Site
+from users.models import *
 from django.utils.translation import gettext as _
 from netbox.forms import NetBoxModelImportForm
-from tenancy.models import Tenant
 from utilities.forms import BootstrapMixin
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
 
 __all__ = (
+    'GroupImportForm',
+    'ObjectPermissionImportForm',
     'UserImportForm',
 )
 
@@ -18,7 +17,27 @@ class UserImportForm(NetBoxModelImportForm):
     slug = SlugField()
 
     class Meta:
-        model = Provider
+        model = NetBoxUser
         fields = (
-            'name', 'slug', 'description', 'comments', 'tags',
+            'email',
+        )
+
+
+class GroupImportForm(NetBoxModelImportForm):
+    slug = SlugField()
+
+    class Meta:
+        model = NetBoxGroup
+        fields = (
+            'name',
+        )
+
+
+class ObjectPermissionImportForm(NetBoxModelImportForm):
+    slug = SlugField()
+
+    class Meta:
+        model = ObjectPermission
+        fields = (
+            'name',
         )

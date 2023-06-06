@@ -351,7 +351,9 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Users'),
             items=(
-                get_model_item('users', 'user', _('Users'), actions=['add']),
+                get_model_item('users', 'netboxuser', _('Users'), actions=['add']),
+                get_model_item('users', 'netboxgroup', _('Groups'), actions=['add']),
+                get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
     ),

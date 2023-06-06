@@ -5,6 +5,8 @@ from netbox.tables import NetBoxTable, columns
 from users.models import NetBoxUser
 
 __all__ = (
+    'GroupTable',
+    'ObjectPermissionTable',
     'TokenTable',
     'UserTable',
 )
@@ -57,6 +59,34 @@ class TokenTable(NetBoxTable):
 
 
 class UserTable(NetBoxTable):
+    username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = NetBoxUser
+        fields = (
+            'pk', 'id', 'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
+        )
+        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_superuser')
+
+
+class GroupTable(NetBoxTable):
+    username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = NetBoxUser
+        fields = (
+            'pk', 'id', 'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
+        )
+        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_superuser')
+
+
+class ObjectPermissionTable(NetBoxTable):
     username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
