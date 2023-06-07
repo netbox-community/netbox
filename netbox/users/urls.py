@@ -20,19 +20,19 @@ urlpatterns = [
     path('users/<int:pk>/', include(get_model_urls('users', 'netboxuser'))),
 
     # Groups
-    path('groups/', views.NetBoxUserListView.as_view(), name='netboxgroup_list'),
-    path('groups/add/', views.NetBoxUserEditView.as_view(), name='netboxgroup_add'),
-    path('groups/import/', views.NetBoxUserBulkImportView.as_view(), name='netboxgroup_import'),
-    path('groups/edit/', views.NetBoxUserBulkEditView.as_view(), name='netboxgroup_bulk_edit'),
-    path('groups/delete/', views.NetBoxUserBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
+    path('groups/', views.NetBoxGroupListView.as_view(), name='netboxgroup_list'),
+    path('groups/add/', views.NetBoxGroupEditView.as_view(), name='netboxgroup_add'),
+    path('groups/import/', views.NetBoxGroupBulkImportView.as_view(), name='netboxgroup_import'),
+    path('groups/edit/', views.NetBoxGroupBulkEditView.as_view(), name='netboxgroup_bulk_edit'),
+    path('groups/delete/', views.NetBoxGroupBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
     path('groups/<int:pk>/', include(get_model_urls('users', 'netboxgroup'))),
 
     # Permissions
-    path('permissions/', views.NetBoxUserListView.as_view(), name='objectpermission_list'),
-    path('permissions/add/', views.NetBoxUserEditView.as_view(), name='objectpermission_add'),
-    path('permissions/import/', views.NetBoxUserBulkImportView.as_view(), name='objectpermission_import'),
-    path('permissions/edit/', views.NetBoxUserBulkEditView.as_view(), name='objectpermission_bulk_edit'),
-    path('permissions/delete/', views.NetBoxUserBulkDeleteView.as_view(), name='objectpermission_bulk_delete'),
+    path('permissions/', views.ObjectPermissionListView.as_view(), name='objectpermission_list'),
+    path('permissions/add/', views.ObjectPermissionEditView.as_view(), name='objectpermission_add'),
+    path('permissions/import/', views.ObjectPermissionBulkImportView.as_view(), name='objectpermission_import'),
+    path('permissions/edit/', views.ObjectPermissionBulkEditView.as_view(), name='objectpermission_bulk_edit'),
+    path('permissions/delete/', views.ObjectPermissionBulkDeleteView.as_view(), name='objectpermission_bulk_delete'),
     path('permissions/<int:pk>/', include(get_model_urls('users', 'objectpermission'))),
 
     # API tokens

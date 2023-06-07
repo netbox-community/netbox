@@ -167,26 +167,25 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 class GroupForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
-        ('User', ('username', 'first_name', 'last_name', 'email', )),
+        ('name', ),
     )
 
     class Meta:
-        model = NetBoxUser
+        model = NetBoxGroup
         fields = [
-            'username', 'first_name', 'last_name', 'email', 'groups',
-            'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
+            'name',
         ]
 
 
 class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
+        ('name', 'description', 'enabled'),
         ('User', ('username', 'first_name', 'last_name', 'email', )),
     )
 
     class Meta:
-        model = NetBoxUser
+        model = ObjectPermission
         fields = [
-            'username', 'first_name', 'last_name', 'email', 'groups',
-            'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
+            'name', 'description', 'enabled',
         ]
