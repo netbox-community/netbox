@@ -16,6 +16,9 @@
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Location
     </a>
   {% endif %}
+  <a href="{% url 'dcim:rack_elevation_list' %}?site={{ object.site.slug }}&location_id={{ object.pk }}" class="btn btn-sm btn-primary" title="View elevations">
+    <i class="mdi mdi-server"></i> Elevation
+  </a>
 {% endblock extra_controls %}
 
 {% block content %}
