@@ -1,0 +1,43 @@
+{% extends 'users/base.html' %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block title %}Permission Detail{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'objectpermission' %} active{% endif %}" href="{% url 'users:objectpermission' pk=object.pk %}">Permission</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">Account Details</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">Assigned Groups</h5>
+        <ul class="list-group list-group-flush">
+          {% for group in request.user.groups.all %}
+            <li class="list-group-item">{{ group }}</li>
+          {% empty %}
+            <li class="list-group-item text-muted">None</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

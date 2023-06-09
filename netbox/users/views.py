@@ -6,6 +6,7 @@ from django.contrib.auth import login as auth_login, logout as auth_logout, upda
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
 from django.urls import reverse
@@ -398,7 +399,7 @@ class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
 
 
 class NetBoxGroupListView(generic.ObjectListView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = NetBoxGroup.objects.all().annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
     filterset_form = forms.GroupFilterForm
     table = tables.GroupTable
@@ -408,6 +409,11 @@ class NetBoxGroupListView(generic.ObjectListView):
 class NetBoxGroupView(generic.ObjectView):
     queryset = NetBoxGroup.objects.all()
     template_name = 'users/group.html'
+
+    def get_extra_context(self, request, instance):
+        return {
+            'active_tab': 'group',
+        }
 
 
 @register_model_view(NetBoxGroup, 'edit')
@@ -454,6 +460,11 @@ class ObjectPermissionListView(generic.ObjectListView):
 class ObjectPermissionView(generic.ObjectView):
     queryset = NetBoxGroup.objects.all()
     template_name = 'users/objectpermission.html'
+
+    def get_extra_context(self, request, instance):
+        return {
+            'active_tab': 'objectpermission',
+        }
 
 
 @register_model_view(ObjectPermission, 'edit')

@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import A
 from .models import Token
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxUser
+from users.models import NetBoxGroup, NetBoxUser
 
 __all__ = (
     'GroupTable',
@@ -73,21 +73,21 @@ class UserTable(NetBoxTable):
 
 
 class GroupTable(NetBoxTable):
-    username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
+    name = tables.LinkColumn('users:netboxgroup', args=[A('pk')])
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
 
     class Meta(NetBoxTable.Meta):
-        model = NetBoxUser
+        model = NetBoxGroup
         fields = (
-            'pk', 'id', 'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
+            'pk', 'id', 'name', 'users_count',
         )
-        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_superuser')
+        default_columns = ('pk', 'name', 'users_count', )
 
 
 class ObjectPermissionTable(NetBoxTable):
-    username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
+    name = tables.LinkColumn('users:objectpermission', args=[A('pk')])
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -95,6 +95,6 @@ class ObjectPermissionTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = NetBoxUser
         fields = (
-            'pk', 'id', 'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
+            'pk', 'id', 'name', 'enabled', 'actions', 'constraints',
         )
-        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_superuser')
+        default_columns = ('pk', 'name', 'enabled', 'actions', 'constraints',)

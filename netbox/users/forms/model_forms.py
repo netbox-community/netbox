@@ -146,7 +146,13 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
 
 class UserForm(BootstrapMixin, forms.ModelForm):
     groups = DynamicModelMultipleChoiceField(
+        required=False,
         queryset=Group.objects.all()
+    )
+    object_permissions = DynamicModelMultipleChoiceField(
+        required=False,
+        label=_('Permissions'),
+        queryset=ObjectPermission.objects.all()
     )
 
     fieldsets = (
@@ -154,26 +160,38 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         ('Groups', ('groups', )),
         ('Status', ('is_active', 'is_staff', 'is_superuser', )),
         ('Important Dates', ('last_login', 'date_joined', )),
+        ('Permissions', ('object_permissions', )),
     )
 
     class Meta:
         model = NetBoxUser
         fields = [
-            'username', 'first_name', 'last_name', 'email', 'groups',
+            'username', 'first_name', 'last_name', 'email', 'groups', 'object_permissions',
             'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
         ]
 
 
 class GroupForm(BootstrapMixin, forms.ModelForm):
+    users = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=get_user_model().objects.all()
+    )
+    object_permissions = DynamicModelMultipleChoiceField(
+        required=False,
+        label=_('Permissions'),
+        queryset=ObjectPermission.objects.all()
+    )
 
     fieldsets = (
-        ('name', ),
+        ('', ('name', )),
+        ('Users', ('users', )),
+        ('Permissions', ('object_permissions', )),
     )
 
     class Meta:
         model = NetBoxGroup
         fields = [
-            'name',
+            'name', 'users', 'object_permissions',
         ]
 
 
