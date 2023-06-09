@@ -432,11 +432,11 @@ class NetBoxGroupBulkImportView(generic.BulkImportView):
     model_form = forms.GroupImportForm
 
 
-class NetBoxGroupBulkEditView(generic.BulkEditView):
-    queryset = NetBoxGroup.objects.all()
-    filterset = filtersets.GroupFilterSet
-    table = tables.GroupTable
-    form = forms.GroupBulkEditForm
+# class NetBoxGroupBulkEditView(generic.BulkEditView):
+#     queryset = NetBoxGroup.objects.all()
+#     filterset = filtersets.GroupFilterSet
+#     table = tables.GroupTable
+#     form = forms.GroupBulkEditForm
 
 
 class NetBoxGroupBulkDeleteView(generic.BulkDeleteView):

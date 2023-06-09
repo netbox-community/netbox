@@ -1,13 +1,11 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
-from circuits.models import *
-from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
-from tenancy.models import Tenant
+from users.models import *
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms import BootstrapMixin
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -17,44 +15,42 @@ __all__ = (
 )
 
 
-class UserBulkEditForm(NetBoxModelBulkEditForm):
-    asns = DynamicModelMultipleChoiceField(
-        queryset=ASN.objects.all(),
-        label=_('ASNs'),
+class UserBulkEditForm(BootstrapMixin, forms.Form):
+    first_name = forms.CharField(
+        max_length=150,
         required=False
     )
-    description = forms.CharField(
-        max_length=200,
+    last_name = forms.CharField(
+        max_length=150,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
+    is_active = forms.BooleanField(
+        required=False,
+        label=_('Active')
+    )
+    is_staff = forms.BooleanField(
+        required=False,
+        label=_('Staff status')
+    )
+    is_superuser = forms.BooleanField(
+        required=False,
+        label=_('Superuser status')
     )
 
-    model = Provider
+    model = NetBoxUser
     fieldsets = (
-        (None, ('asns', 'description')),
+        (None, ('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')),
     )
-    nullable_fields = (
-        'asns', 'description', 'comments',
-    )
+    nullable_fields = ()
 
 
 class GroupBulkEditForm(NetBoxModelBulkEditForm):
-    asns = DynamicModelMultipleChoiceField(
-        queryset=ASN.objects.all(),
-        label=_('ASNs'),
+    first_name = forms.CharField(
+        max_length=150,
         required=False
-    )
-    description = forms.CharField(
-        max_length=200,
-        required=False
-    )
-    comments = CommentField(
-        label=_('Comments')
     )
 
-    model = Provider
+    model = NetBoxGroup
     fieldsets = (
         (None, ('asns', 'description')),
     )
@@ -64,23 +60,10 @@ class GroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class ObjectPermissionBulkEditForm(NetBoxModelBulkEditForm):
-    asns = DynamicModelMultipleChoiceField(
-        queryset=ASN.objects.all(),
-        label=_('ASNs'),
-        required=False
-    )
-    description = forms.CharField(
-        max_length=200,
-        required=False
-    )
-    comments = CommentField(
-        label=_('Comments')
-    )
-
-    model = Provider
+    model = ObjectPermission
     fieldsets = (
-        (None, ('asns', 'description')),
+        (None, ('description')),
     )
     nullable_fields = (
-        'asns', 'description', 'comments',
+        'description',
     )

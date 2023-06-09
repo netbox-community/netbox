@@ -23,7 +23,7 @@ urlpatterns = [
     path('groups/', views.NetBoxGroupListView.as_view(), name='netboxgroup_list'),
     path('groups/add/', views.NetBoxGroupEditView.as_view(), name='netboxgroup_add'),
     path('groups/import/', views.NetBoxGroupBulkImportView.as_view(), name='netboxgroup_import'),
-    path('groups/edit/', views.NetBoxGroupBulkEditView.as_view(), name='netboxgroup_bulk_edit'),
+    # path('groups/edit/', views.NetBoxGroupBulkEditView.as_view(), name='netboxgroup_bulk_edit'),
     path('groups/delete/', views.NetBoxGroupBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
     path('groups/<int:pk>/', include(get_model_urls('users', 'netboxgroup'))),
 

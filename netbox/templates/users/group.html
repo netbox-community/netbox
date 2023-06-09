@@ -29,10 +29,10 @@
     </div>
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">Assigned Groups</h5>
+        <h5 class="card-header">Users</h5>
         <ul class="list-group list-group-flush">
-          {% for group in request.user.groups.all %}
-            <li class="list-group-item">{{ group }}</li>
+          {% for user in object.user_set.all %}
+            <li class="list-group-item">{{ user }}</li>
           {% empty %}
             <li class="list-group-item text-muted">None</li>
           {% endfor %}
