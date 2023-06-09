@@ -450,7 +450,7 @@ class NetBoxGroupBulkDeleteView(generic.BulkDeleteView):
 
 
 class ObjectPermissionListView(generic.ObjectListView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet
     filterset_form = forms.ObjectPermissionFilterForm
     table = tables.ObjectPermissionTable
@@ -458,7 +458,7 @@ class ObjectPermissionListView(generic.ObjectListView):
 
 @register_model_view(ObjectPermission)
 class ObjectPermissionView(generic.ObjectView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = ObjectPermission.objects.all()
     template_name = 'users/objectpermission.html'
 
     def get_extra_context(self, request, instance):

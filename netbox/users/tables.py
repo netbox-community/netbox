@@ -2,7 +2,7 @@ import django_tables2 as tables
 from django_tables2.utils import A
 from .models import Token
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
 
 __all__ = (
     'GroupTable',
@@ -93,7 +93,7 @@ class ObjectPermissionTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = NetBoxUser
+        model = ObjectPermission
         fields = (
             'pk', 'id', 'name', 'enabled', 'actions', 'constraints',
         )

@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.html import mark_safe
 from django.utils.translation import gettext as _
@@ -11,9 +12,10 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
 from utilities.forms import BootstrapMixin
-from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DateTimePicker
 from utilities.utils import flatten_dict
+from users.constants import *
 from users.models import *
 
 
@@ -183,7 +185,7 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('', ('name', )),
+        (None, ('name', )),
         ('Users', ('users', )),
         ('Permissions', ('object_permissions', )),
     )
@@ -196,14 +198,86 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
+    users = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=get_user_model().objects.all()
+    )
+    groups = DynamicModelMultipleChoiceField(
+        required=False,
+        queryset=Group.objects.all()
+    )
+    object_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES
+    )
+
+    can_view = forms.BooleanField(required=False)
+    can_add = forms.BooleanField(required=False)
+    can_change = forms.BooleanField(required=False)
+    can_delete = forms.BooleanField(required=False)
 
     fieldsets = (
-        ('name', 'description', 'enabled'),
-        ('User', ('username', 'first_name', 'last_name', 'email', )),
+        (None, ('name', 'description', 'enabled',)),
+        ('Actions', ('can_view', 'can_add', 'can_change', 'can_delete', 'actions')),
+        ('Objects', ('object_types')),
+        ('Assignment', ('groups', 'users')),
+        ('Constraints', ('constraints',))
     )
 
     class Meta:
         model = ObjectPermission
         fields = [
-            'name', 'description', 'enabled',
+            'name', 'description', 'enabled', 'object_types', 'users', 'groups', 'constraints', 'actions',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Make the actions field optional since the admin form uses it only for non-CRUD actions
+        self.fields['actions'].required = False
+
+        # Order group and user fields
+        self.fields['groups'].queryset = self.fields['groups'].queryset.order_by('name')
+        self.fields['users'].queryset = self.fields['users'].queryset.order_by('username')
+
+        # Check the appropriate checkboxes when editing an existing ObjectPermission
+        if self.instance.pk:
+            for action in ['view', 'add', 'change', 'delete']:
+                if action in self.instance.actions:
+                    self.fields[f'can_{action}'].initial = True
+                    self.instance.actions.remove(action)
+
+    def clean(self):
+        super().clean()
+
+        object_types = self.cleaned_data.get('object_types')
+        constraints = self.cleaned_data.get('constraints')
+
+        # Append any of the selected CRUD checkboxes to the actions list
+        if not self.cleaned_data.get('actions'):
+            self.cleaned_data['actions'] = list()
+        for action in ['view', 'add', 'change', 'delete']:
+            if self.cleaned_data[f'can_{action}'] and action not in self.cleaned_data['actions']:
+                self.cleaned_data['actions'].append(action)
+
+        # At least one action must be specified
+        if not self.cleaned_data['actions']:
+            raise ValidationError("At least one action must be selected.")
+
+        # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
+        # returns anything; we just want to make sure the specified constraints are valid.
+        if object_types and constraints:
+            # Normalize the constraints to a list of dicts
+            if type(constraints) is not list:
+                constraints = [constraints]
+            for ct in object_types:
+                model = ct.model_class()
+                try:
+                    tokens = {
+                        CONSTRAINT_TOKEN_USER: 0,  # Replace token with a null user ID
+                    }
+                    model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
+                except FieldError as e:
+                    raise ValidationError({
+                        'constraints': f'Invalid filter for {model}: {e}'
+                    })
