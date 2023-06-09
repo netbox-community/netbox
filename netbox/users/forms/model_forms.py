@@ -229,11 +229,20 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'description', 'enabled', 'object_types', 'users', 'groups', 'constraints', 'actions',
         ]
+        help_texts = {
+            'actions': _('Actions granted in addition to those listed above'),
+            'constraints': _('JSON expression of a queryset filter that will return only permitted objects. Leave null '
+                             'to match all objects of this type. A list of multiple objects will result in a logical OR '
+                             'operation.')
+        }
+        labels = {
+            'actions': 'Additional actions'
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Make the actions field optional since the admin form uses it only for non-CRUD actions
+        # Make the actions field optional since the form uses it only for non-CRUD actions
         self.fields['actions'].required = False
 
         # Order group and user fields
