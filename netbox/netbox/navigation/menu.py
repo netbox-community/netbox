@@ -344,6 +344,22 @@ OPERATIONS_MENU = Menu(
     ),
 )
 
+ADMIN_MENU = Menu(
+    label=_('Admin'),
+    icon_class='mdi mdi-account-multiple',
+    groups=(
+        MenuGroup(
+            label=_('Configuration'),
+            items=(
+                MenuItem(
+                    link='extras:config_revision',
+                    link_text=_('Config Revision'),
+                    permissions=['extras.config_revision']
+                ),
+            ),
+        ),
+    ),
+)
 
 MENUS = [
     ORGANIZATION_MENU,
@@ -358,6 +374,7 @@ MENUS = [
     PROVISIONING_MENU,
     CUSTOMIZATION_MENU,
     OPERATIONS_MENU,
+    ADMIN_MENU,
 ]
 
 #

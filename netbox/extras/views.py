@@ -1189,3 +1189,20 @@ class RenderMarkdownView(View):
         rendered = render_markdown(form.cleaned_data['text'])
 
         return HttpResponse(rendered)
+
+
+#
+# Config Revision
+#
+
+class ConfigRevisionView(generic.ObjectView):
+    queryset = ConfigRevision.objects.all()
+
+    def get(self, request, **kwargs):
+        instance = ConfigRevision.objects.last()
+
+        return render(request, self.get_template_name(), {
+            'object': instance,
+            'tab': self.tab,
+            **self.get_extra_context(request, instance),
+        })

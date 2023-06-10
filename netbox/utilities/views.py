@@ -5,6 +5,7 @@ from django.urls.exceptions import NoReverseMatch
 
 from netbox.registry import registry
 from .permissions import resolve_permission
+from .querysets import RestrictedQuerySet
 
 __all__ = (
     'ContentTypePermissionRequiredMixin',
@@ -93,7 +94,7 @@ class ObjectPermissionRequiredMixin(AccessMixin):
                 'a base queryset'.format(self.__class__.__name__)
             )
 
-        if not self.has_permission():
+        if isinstance(self.queryset, RestrictedQuerySet) and not self.has_permission():
             return self.handle_no_permission()
 
         return super().dispatch(request, *args, **kwargs)

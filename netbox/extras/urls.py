@@ -114,5 +114,9 @@ urlpatterns = [
     path('scripts/<str:module>/<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
 
     # Markdown
-    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")
+    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
+
+    # Config Revision
+    path('config-revision/', views.ConfigRevisionView.as_view(), name='config_revision'),
+
 ]
