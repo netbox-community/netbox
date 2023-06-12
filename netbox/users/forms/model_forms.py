@@ -232,9 +232,10 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
         required=False,
         queryset=Group.objects.all()
     )
-    object_types = ContentTypeMultipleChoiceField(
+    object_types = forms.ModelMultipleChoiceField(
         queryset=ContentType.objects.all(),
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
+        widget=forms.SelectMultiple(attrs={'size': 6})
     )
 
     can_view = forms.BooleanField(required=False)
