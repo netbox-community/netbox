@@ -23,17 +23,7 @@ class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Name', ('username', 'first_name', 'last_name')),
         ('Security', ('is_superuser', 'is_staff', 'is_active')),
-    )
-    username = forms.CharField(
-        required=False
-    )
-    first_name = forms.CharField(
-        required=False
-    )
-    last_name = forms.CharField(
-        required=False
     )
     is_superuser = forms.NullBooleanField(
         required=False,
@@ -62,10 +52,6 @@ class GroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Name', ('name',)),
-    )
-    name = forms.CharField(
-        required=False
     )
 
 
@@ -73,7 +59,7 @@ class ObjectPermissionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetFor
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Name', ('enabled',)),
+        (None, ('enabled',)),
     )
     enabled = forms.NullBooleanField(
         required=False,
