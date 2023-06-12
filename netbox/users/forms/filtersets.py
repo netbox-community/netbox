@@ -8,6 +8,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from users.models import NetBoxUser
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
@@ -34,16 +35,25 @@ class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     last_name = forms.CharField(
         required=False
     )
-    is_superuser = forms.BooleanField(
+    is_superuser = forms.NullBooleanField(
         required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
         label='Is Superuser',
     )
-    is_staff = forms.BooleanField(
+    is_staff = forms.NullBooleanField(
         required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
         label='Is Staff',
     )
-    is_active = forms.BooleanField(
+    is_active = forms.NullBooleanField(
         required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
         label='Is Active',
     )
 
@@ -52,29 +62,10 @@ class GroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Name', ('username', 'first_name', 'last_name')),
-        ('Security', ('is_superuser', 'is_staff', 'is_active')),
+        ('Name', ('name',)),
     )
-    username = forms.CharField(
+    name = forms.CharField(
         required=False
-    )
-    first_name = forms.CharField(
-        required=False
-    )
-    last_name = forms.CharField(
-        required=False
-    )
-    is_superuser = forms.BooleanField(
-        required=False,
-        label='Is Superuser',
-    )
-    is_staff = forms.BooleanField(
-        required=False,
-        label='Is Staff',
-    )
-    is_active = forms.BooleanField(
-        required=False,
-        label='Is Active',
     )
 
 
@@ -82,27 +73,11 @@ class ObjectPermissionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetFor
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Name', ('username', 'first_name', 'last_name')),
-        ('Security', ('is_superuser', 'is_staff', 'is_active')),
+        ('Name', ('enabled',)),
     )
-    username = forms.CharField(
-        required=False
-    )
-    first_name = forms.CharField(
-        required=False
-    )
-    last_name = forms.CharField(
-        required=False
-    )
-    is_superuser = forms.BooleanField(
+    enabled = forms.NullBooleanField(
         required=False,
-        label='Is Superuser',
-    )
-    is_staff = forms.BooleanField(
-        required=False,
-        label='Is Staff',
-    )
-    is_active = forms.BooleanField(
-        required=False,
-        label='Is Active',
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )

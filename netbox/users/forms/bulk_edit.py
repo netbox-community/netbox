@@ -16,6 +16,10 @@ __all__ = (
 
 
 class UserBulkEditForm(BootstrapMixin, forms.Form):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=None,  # Set from self.model on init
+        widget=forms.MultipleHiddenInput
+    )
     first_name = forms.CharField(
         max_length=150,
         required=False
@@ -43,8 +47,16 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
     )
     nullable_fields = ()
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pk'].queryset = self.model.objects.all()
 
-class GroupBulkEditForm(NetBoxModelBulkEditForm):
+
+class GroupBulkEditForm(BootstrapMixin, forms.Form):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=None,  # Set from self.model on init
+        widget=forms.MultipleHiddenInput
+    )
     first_name = forms.CharField(
         max_length=150,
         required=False
@@ -57,6 +69,10 @@ class GroupBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'asns', 'description', 'comments',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['pk'].queryset = self.model.objects.all()
 
 
 class ObjectPermissionBulkEditForm(NetBoxModelBulkEditForm):
