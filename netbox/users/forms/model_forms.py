@@ -198,6 +198,7 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
 
 
 class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
+    actions = forms.CharField(required=False)
     users = DynamicModelMultipleChoiceField(
         required=False,
         queryset=get_user_model().objects.all()
@@ -219,7 +220,7 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
     fieldsets = (
         (None, ('name', 'description', 'enabled',)),
         ('Actions', ('can_view', 'can_add', 'can_change', 'can_delete', 'actions')),
-        ('Objects', ('object_types')),
+        ('Objects', ('object_types', )),
         ('Assignment', ('groups', 'users')),
         ('Constraints', ('constraints',))
     )
