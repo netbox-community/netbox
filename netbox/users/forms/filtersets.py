@@ -7,7 +7,7 @@ from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from users.models import NetBoxUser
+from users.models import ObjectPermission, NetBoxGroup, NetBoxUser
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import DatePicker, NumberWithOptions
@@ -49,14 +49,14 @@ class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 
 
 class GroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
-    model = NetBoxUser
+    model = NetBoxGroup
     fieldsets = (
         (None, ('q', 'filter_id',)),
     )
 
 
 class ObjectPermissionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
-    model = NetBoxUser
+    model = ObjectPermission
     fieldsets = (
         (None, ('q', 'filter_id',)),
         (None, ('enabled',)),

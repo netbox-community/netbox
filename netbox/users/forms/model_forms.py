@@ -154,7 +154,8 @@ class UserForm(BootstrapMixin, forms.ModelForm):
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
         label=_('Permissions'),
-        queryset=ObjectPermission.objects.all()
+        queryset=ObjectPermission.objects.all(),
+        to_field_name='pk',
     )
 
     fieldsets = (
@@ -172,6 +173,15 @@ class UserForm(BootstrapMixin, forms.ModelForm):
             'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
         ]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.object_permissions.set(self.cleaned_data['object_permissions'])
+        return instance
+
 
 class GroupForm(BootstrapMixin, forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
@@ -181,7 +191,8 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
         label=_('Permissions'),
-        queryset=ObjectPermission.objects.all()
+        queryset=ObjectPermission.objects.all(),
+        to_field_name='pk',
     )
 
     fieldsets = (
@@ -195,6 +206,17 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
         fields = [
             'name', 'users', 'object_permissions',
         ]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['users'].initial = self.instance.user_set.all().values_list('id', flat=True)
+        self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+        instance.user_set.set(self.cleaned_data['users'])
+        instance.object_permissions.set(self.cleaned_data['object_permissions'])
+        return instance
 
 
 class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
@@ -212,7 +234,7 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
     )
     object_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES
+        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
     )
 
     can_view = forms.BooleanField(required=False)
