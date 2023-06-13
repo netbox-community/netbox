@@ -9,6 +9,7 @@ from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from netaddr import IPNetwork
@@ -55,18 +56,29 @@ class NetBoxUser(User):
     """
     Proxy contrib.auth.models.User for the UI
     """
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         verbose_name = 'User'
         proxy = True
+
+    def get_absolute_url(self):
+        return reverse('users:netboxuser', args=[self.pk])
 
 
 class NetBoxGroup(Group):
     """
     Proxy contrib.auth.models.User for the UI
     """
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         verbose_name = 'Group'
         proxy = True
+
+    def get_absolute_url(self):
+        return reverse('users:netboxgroup', args=[self.pk])
+
 
 #
 # User preferences
