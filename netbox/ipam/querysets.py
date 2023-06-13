@@ -1,8 +1,10 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import F, Q
 from django.db.models.expressions import RawSQL
+from django.db.models.functions import Round
 
 from utilities.querysets import RestrictedQuerySet
+from utilities.utils import count_related
 
 
 class PrefixQuerySet(RestrictedQuerySet):
@@ -28,6 +30,17 @@ class PrefixQuerySet(RestrictedQuerySet):
                 ()
             )
         )
+
+
+class VLANGroupQuerySet(RestrictedQuerySet):
+    def get_utilization(self, *args, **kwargs):
+        from .models import VLAN
+
+        return self.annotate(
+            vlan_count=count_related(VLAN, 'group'),
+            utilization=Round(F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100, 2)
+        )
+
 
 
 class VLANQuerySet(RestrictedQuerySet):
