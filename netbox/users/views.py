@@ -22,6 +22,7 @@ from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
+from utilities.querysets import RestrictedQuerySet
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import Token, UserConfig, NetBoxGroup, NetBoxUser, ObjectPermission
@@ -367,29 +368,29 @@ class NetBoxUserView(generic.ObjectView):
 
 @register_model_view(NetBoxUser, 'edit')
 class NetBoxUserEditView(generic.ObjectEditView):
-    queryset = NetBoxUser.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxUser).all()
     form = forms.UserForm
 
 
 @register_model_view(NetBoxUser, 'delete')
 class NetBoxUserDeleteView(generic.ObjectDeleteView):
-    queryset = NetBoxUser.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxUser).all()
 
 
 class NetBoxUserBulkImportView(generic.BulkImportView):
-    queryset = NetBoxUser.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxUser).all()
     model_form = forms.UserImportForm
 
 
 class NetBoxUserBulkEditView(generic.BulkEditView):
-    queryset = NetBoxUser.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxUser).all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
 
 
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxUser.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxUser).all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
 
@@ -399,7 +400,7 @@ class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
 
 
 class NetBoxGroupListView(generic.ObjectListView):
-    queryset = NetBoxGroup.objects.all().annotate(users_count=Count('user'))
+    queryset = RestrictedQuerySet(model=NetBoxGroup).all().annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
     filterset_form = forms.GroupFilterForm
     table = tables.GroupTable
@@ -407,7 +408,7 @@ class NetBoxGroupListView(generic.ObjectListView):
 
 @register_model_view(NetBoxGroup)
 class NetBoxGroupView(generic.ObjectView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxGroup).all()
     template_name = 'users/group.html'
 
     def get_extra_context(self, request, instance):
@@ -418,17 +419,17 @@ class NetBoxGroupView(generic.ObjectView):
 
 @register_model_view(NetBoxGroup, 'edit')
 class NetBoxGroupEditView(generic.ObjectEditView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxGroup).all()
     form = forms.GroupForm
 
 
 @register_model_view(NetBoxGroup, 'delete')
 class NetBoxGroupDeleteView(generic.ObjectDeleteView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxGroup).all()
 
 
 class NetBoxGroupBulkImportView(generic.BulkImportView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxGroup).all()
     model_form = forms.GroupImportForm
 
 
@@ -440,7 +441,7 @@ class NetBoxGroupBulkImportView(generic.BulkImportView):
 
 
 class NetBoxGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = RestrictedQuerySet(model=NetBoxGroup).all()
     filterset = filtersets.GroupFilterSet
     table = tables.GroupTable
 
