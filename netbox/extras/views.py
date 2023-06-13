@@ -1195,6 +1195,7 @@ class RenderMarkdownView(View):
 # Config Revision
 #
 
+@register_model_view(ConfigRevision)
 class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
@@ -1206,3 +1207,9 @@ class ConfigRevisionView(generic.ObjectView):
             'tab': self.tab,
             **self.get_extra_context(request, instance),
         })
+
+
+@register_model_view(ConfigRevision, 'edit')
+class ConfigRevisionEditView(generic.ObjectEditView):
+    queryset = ConfigRevision.objects.all()
+    form = forms.ConfigRevisionForm

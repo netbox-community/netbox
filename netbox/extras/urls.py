@@ -118,5 +118,5 @@ urlpatterns = [
 
     # Config Revision
     path('config-revision/', views.ConfigRevisionView.as_view(), name='config_revision'),
-
+    path('config-revision/add/', views.ConfigRevisionEditView.as_view(), name='config_revision_add'),
 ]
