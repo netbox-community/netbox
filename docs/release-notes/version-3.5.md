@@ -2,6 +2,16 @@
 
 ## v3.5.4 (FUTURE)
 
+### Enhancements
+
+* [#12862](https://github.com/netbox-community/netbox/issues/12862) - Add menu navigation button to add wireless links directly
+
+### Bug Fixes
+
+* [#12687](https://github.com/netbox-community/netbox/issues/12687) - Allow the assignment of all /31 IP addresses to interfaces
+* [#12838](https://github.com/netbox-community/netbox/issues/12838) - Correct rounding of rack power utilization values
+* [#12850](https://github.com/netbox-community/netbox/issues/12850) - Fix table configuration modal for the contact assignments list
+
 ---
 
 ## v3.5.3 (2023-06-02)
