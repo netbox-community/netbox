@@ -889,7 +889,8 @@ class VLANGroupListView(generic.ObjectListView):
 @register_model_view(VLANGroup)
 class VLANGroupView(generic.ObjectView):
     queryset = VLANGroup.objects.annotate(
-        utilization=count_related(VLAN, 'group') / (F('max_vid') - F('min_vid') + 1.0) * 100
+        vlan_count=count_related(VLAN, 'group'),
+        utilization=Round(F('vlan_count') / (F('max_vid') - F('min_vid') + 1.0) * 100, 2)
     ).prefetch_related('tags')
 
     def get_extra_context(self, request, instance):
