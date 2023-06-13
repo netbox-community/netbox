@@ -32,11 +32,11 @@ class BootstrapMixin:
             elif isinstance(field.widget, forms.CheckboxInput):
                 field.widget.attrs['class'] = f'{css} form-check-input'
 
-            elif isinstance(field.widget, forms.SelectMultiple):
-                if 'size' not in field.widget.attrs:
-                    field.widget.attrs['class'] = f'{css} netbox-static-select'
+            elif isinstance(field.widget, forms.SelectMultiple) and 'size' in field.widget.attrs:
+                # Use native Bootstrap class for multi-line <select> widgets
+                field.widget.attrs['class'] = f'{css} form-select form-select-sm'
 
-            elif isinstance(field.widget, forms.Select):
+            elif isinstance(field.widget, (forms.Select, forms.SelectMultiple)):
                 field.widget.attrs['class'] = f'{css} netbox-static-select'
 
             else:

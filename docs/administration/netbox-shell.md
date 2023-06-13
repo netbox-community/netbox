@@ -153,13 +153,8 @@ New objects can be created by instantiating the desired model, defining values f
 ```
 >>> lab1 = Site.objects.get(pk=7)
 >>> myvlan = VLAN(vid=123, name='MyNewVLAN', site=lab1)
+>>> myvlan.full_clean()
 >>> myvlan.save()
-```
-
-Alternatively, the above can be performed as a single operation. (Note, however, that `save()` does _not_ return the new instance for reuse.)
-
-```
->>> VLAN(vid=123, name='MyNewVLAN', site=Site.objects.get(pk=7)).save()
 ```
 
 To modify an existing object, we retrieve it, update the desired field(s), and call `save()` again.
@@ -169,6 +164,7 @@ To modify an existing object, we retrieve it, update the desired field(s), and c
 >>> vlan.name
 'MyNewVLAN'
 >>> vlan.name = 'BetterName'
+>>> vlan.full_clean()
 >>> vlan.save()
 >>> VLAN.objects.get(pk=1280).name
 'BetterName'

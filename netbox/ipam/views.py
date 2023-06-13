@@ -10,11 +10,13 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
 from . import filtersets, forms, tables
+from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
 from .tables.l2vpn import L2VPNTable, L2VPNTerminationTable
@@ -496,7 +498,7 @@ class PrefixView(generic.ObjectView):
 
         # Parent prefixes table
         parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
-            Q(vrf=instance.vrf) | Q(vrf__isnull=True)
+            Q(vrf=instance.vrf) | Q(vrf__isnull=True, status=PrefixStatusChoices.STATUS_CONTAINER)
         ).filter(
             prefix__net_contains=str(instance.prefix)
         ).prefetch_related(
@@ -755,19 +757,9 @@ class IPAddressView(generic.ObjectView):
         # Limit to a maximum of 10 duplicates displayed here
         duplicate_ips_table = tables.IPAddressTable(duplicate_ips[:10], orderable=False)
 
-        # Related IP table
-        related_ips = IPAddress.objects.restrict(request.user, 'view').exclude(
-            address=str(instance.address)
-        ).filter(
-            vrf=instance.vrf, address__net_contained_or_equal=str(instance.address)
-        )
-        related_ips_table = tables.IPAddressTable(related_ips, orderable=False)
-        related_ips_table.configure(request)
-
         return {
             'parent_prefixes_table': parent_prefixes_table,
             'duplicate_ips_table': duplicate_ips_table,
-            'related_ips_table': related_ips_table,
         }
 
 
@@ -870,6 +862,24 @@ class IPAddressBulkDeleteView(generic.BulkDeleteView):
     queryset = IPAddress.objects.prefetch_related('vrf__tenant')
     filterset = filtersets.IPAddressFilterSet
     table = tables.IPAddressTable
+
+
+@register_model_view(IPAddress, 'related_ips', path='related-ip-addresses')
+class IPAddressRelatedIPsView(generic.ObjectChildrenView):
+    queryset = IPAddress.objects.prefetch_related('vrf__tenant', 'tenant')
+    child_model = IPAddress
+    table = tables.IPAddressTable
+    filterset = filtersets.IPAddressFilterSet
+    template_name = 'ipam/ipaddress/ip_addresses.html'
+    tab = ViewTab(
+        label=_('Related IPs'),
+        badge=lambda x: x.get_related_ips().count(),
+        weight=500,
+        hide_if_empty=True,
+    )
+
+    def get_children(self, request, parent):
+        return parent.get_related_ips().restrict(request.user, 'view')
 
 
 #
@@ -1296,6 +1306,11 @@ class L2VPNBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPN.objects.all()
     filterset = filtersets.L2VPNFilterSet
     table = tables.L2VPNTable
+
+
+@register_model_view(L2VPN, 'contacts')
+class L2VPNContactsView(ObjectContactsView):
+    queryset = L2VPN.objects.all()
 
 
 #

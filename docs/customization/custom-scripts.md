@@ -378,6 +378,7 @@ class NewBranchScript(Script):
             slug=slugify(data['site_name']),
             status=SiteStatusChoices.STATUS_PLANNED
         )
+        site.full_clean()
         site.save()
         self.log_success(f"Created new site: {site}")
 
@@ -391,6 +392,7 @@ class NewBranchScript(Script):
                 status=DeviceStatusChoices.STATUS_PLANNED,
                 device_role=switch_role
             )
+            switch.full_clean()
             switch.save()
             self.log_success(f"Created new switch: {switch}")
 

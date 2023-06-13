@@ -102,7 +102,7 @@ CONNECTIONS_MENU = Menu(
             label=_('Connections'),
             items=(
                 get_model_item('dcim', 'cable', _('Cables'), actions=['import']),
-                get_model_item('wireless', 'wirelesslink', _('Wireless Links'), actions=['import']),
+                get_model_item('wireless', 'wirelesslink', _('Wireless Links')),
                 MenuItem(
                     link='dcim:interface_connections_list',
                     link_text=_('Interface Connections'),
@@ -292,6 +292,7 @@ CUSTOMIZATION_MENU = Menu(
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),
                 get_model_item('extras', 'tag', 'Tags'),
+                get_model_item('extras', 'imageattachment', _('Image Attachments'), actions=()),
             ),
         ),
         MenuGroup(
@@ -336,7 +337,7 @@ OPERATIONS_MENU = Menu(
         MenuGroup(
             label=_('Logging'),
             items=(
-                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=[]),
+                get_model_item('extras', 'journalentry', _('Journal Entries'), actions=['import']),
                 get_model_item('extras', 'objectchange', _('Change Log'), actions=[]),
             ),
         ),

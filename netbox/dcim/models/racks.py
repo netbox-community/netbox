@@ -466,7 +466,7 @@ class Rack(PrimaryModel, WeightMixin):
             powerport.get_power_draw()['allocated'] for powerport in powerports
         ])
 
-        return int(allocated_draw / available_power_total * 100)
+        return round(allocated_draw / available_power_total * 100, 1)
 
     @cached_property
     def total_weight(self):

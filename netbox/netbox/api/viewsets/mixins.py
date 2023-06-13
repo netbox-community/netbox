@@ -15,11 +15,12 @@ from utilities.api import get_serializer_for_model
 
 __all__ = (
     'BriefModeMixin',
+    'BulkDestroyModelMixin',
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
     'ExportTemplatesMixin',
-    'BulkDestroyModelMixin',
     'ObjectValidationMixin',
+    'SequentialBulkCreatesMixin',
 )
 
 
@@ -92,6 +93,30 @@ class ExportTemplatesMixin:
             return et.render_to_response(queryset)
 
         return super().list(request, *args, **kwargs)
+
+
+class SequentialBulkCreatesMixin:
+    """
+    Perform bulk creation of new objects sequentially, rather than all at once. This ensures that any validation
+    which depends on the evaluation of existing objects (such as checking for free space within a rack) functions
+    appropriately.
+    """
+    @transaction.atomic
+    def create(self, request, *args, **kwargs):
+        if not isinstance(request.data, list):
+            # Creating a single object
+            return super().create(request, *args, **kwargs)
+
+        return_data = []
+        for data in request.data:
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            return_data.append(serializer.data)
+
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(return_data, status=status.HTTP_201_CREATED, headers=headers)
 
 
 class BulkUpdateModelMixin:

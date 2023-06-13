@@ -298,8 +298,30 @@
                 </div>
               {% endif %}
             </div>
-            {% include 'inc/panels/contacts.html' %}
             {% include 'inc/panels/image_attachments.html' %}
+            <div class="card">
+                <h5 class="card-header">Dimensions</h5>
+                <div class="card-body table-responsive">
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th scope="row">Height</th>
+                            <td>
+                                {{ object.device_type.u_height }}U
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Weight</th>
+                            <td>
+                                {% if object.total_weight %}
+                                    {{ object.total_weight|floatformat }} Kilograms
+                                {% else %}
+                                    {{ ''|placeholder }}
+                                {% endif %}
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
             {% if object.rack and object.position %}
               <div class="row" style="margin-bottom: 20px">
                 <div class="col col-md-6 col-sm-6 col-xs-12 text-center">

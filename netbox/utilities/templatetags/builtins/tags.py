@@ -1,4 +1,5 @@
 from django import template
+from django.http import QueryDict
 
 __all__ = (
     'badge',
@@ -73,4 +74,23 @@ def checkmark(value, show_false=True, true='Yes', false='No'):
         'show_false': show_false,
         'true_label': true,
         'false_label': false,
+    }
+
+
+@register.inclusion_tag('builtins/htmx_table.html', takes_context=True)
+def htmx_table(context, viewname, return_url=None, **kwargs):
+    """
+    Embed an object list table retrieved using HTMX. Any extra keyword arguments are passed as URL query parameters.
+
+    Args:
+        context: The current request context
+        viewname: The name of the view to use for the HTMX request (e.g. `dcim:site_list`)
+        return_url: The URL to pass as the `return_url`. If not provided, the current request's path will be used.
+    """
+    url_params = QueryDict(mutable=True)
+    url_params.update(kwargs)
+    url_params['return_url'] = return_url or context['request'].path
+    return {
+        'viewname': viewname,
+        'url_params': url_params,
     }

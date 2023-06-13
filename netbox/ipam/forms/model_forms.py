@@ -262,38 +262,21 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
 
 class IPAddressForm(TenancyForm, NetBoxModelForm):
-    device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        initial_params={
-            'interfaces': '$interface'
-        }
-    )
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        query_params={
-            'device_id': '$device'
-        }
-    )
-    virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        initial_params={
-            'interfaces': '$vminterface'
-        }
+        selector=True,
     )
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
+        selector=True,
         label=_('Interface'),
-        query_params={
-            'virtual_machine_id': '$virtual_machine'
-        }
     )
     fhrpgroup = DynamicModelChoiceField(
         queryset=FHRPGroup.objects.all(),
         required=False,
+        selector=True,
         label=_('FHRP Group')
     )
     vrf = DynamicModelChoiceField(
@@ -301,33 +284,11 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         required=False,
         label=_('VRF')
     )
-    nat_device = DynamicModelChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        selector=True,
-        label=_('Device')
-    )
-    nat_virtual_machine = DynamicModelChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        selector=True,
-        label=_('Virtual Machine')
-    )
-    nat_vrf = DynamicModelChoiceField(
-        queryset=VRF.objects.all(),
-        required=False,
-        selector=True,
-        label=_('VRF')
-    )
     nat_inside = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
         required=False,
+        selector=True,
         label=_('IP Address'),
-        query_params={
-            'device_id': '$nat_device',
-            'virtual_machine_id': '$nat_virtual_machine',
-            'vrf_id': '$nat_vrf',
-        }
     )
     primary_for_parent = forms.BooleanField(
         required=False,
@@ -338,8 +299,8 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = IPAddress
         fields = [
-            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_device', 'nat_virtual_machine',
-            'nat_vrf', 'nat_inside', 'tenant_group', 'tenant', 'description', 'comments', 'tags',
+            'address', 'vrf', 'status', 'role', 'dns_name', 'primary_for_parent', 'nat_inside', 'tenant_group',
+            'tenant', 'description', 'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -354,17 +315,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 initial['vminterface'] = instance.assigned_object
             elif type(instance.assigned_object) is FHRPGroup:
                 initial['fhrpgroup'] = instance.assigned_object
-            if instance.nat_inside:
-                nat_inside_parent = instance.nat_inside.assigned_object
-                if type(nat_inside_parent) is Interface:
-                    initial['nat_site'] = nat_inside_parent.device.site.pk
-                    if nat_inside_parent.device.rack:
-                        initial['nat_rack'] = nat_inside_parent.device.rack.pk
-                    initial['nat_device'] = nat_inside_parent.device.pk
-                elif type(nat_inside_parent) is VMInterface:
-                    if cluster := nat_inside_parent.virtual_machine.cluster:
-                        initial['nat_cluster'] = cluster.pk
-                    initial['nat_virtual_machine'] = nat_inside_parent.virtual_machine.pk
         kwargs['initial'] = initial
 
         super().__init__(*args, **kwargs)
@@ -378,6 +328,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             ):
                 self.initial['primary_for_parent'] = True
 
+        # Disable object assignment fields if the IP address is designated as primary
+        if self.initial.get('primary_for_parent'):
+            self.fields['interface'].disabled = True
+            self.fields['vminterface'].disabled = True
+            self.fields['fhrpgroup'].disabled = True
+
     def clean(self):
         super().clean()
 
@@ -390,7 +346,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 selected_objects[1]: "An IP address can only be assigned to a single object."
             })
         elif selected_objects:
-            self.instance.assigned_object = self.cleaned_data[selected_objects[0]]
+            assigned_object = self.cleaned_data[selected_objects[0]]
+            if self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
+                raise ValidationError(
+                    "Cannot reassign IP address while it is designated as the primary IP for the parent object"
+                )
+            self.instance.assigned_object = assigned_object
         else:
             self.instance.assigned_object = None
 
@@ -400,6 +361,18 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.add_error(
                 'primary_for_parent', "Only IP addresses assigned to an interface can be designated as primary IPs."
             )
+
+        # Do not allow assigning a network ID or broadcast address to an interface.
+        if interface and (address := self.cleaned_data.get('address')):
+            if address.ip == address.network:
+                msg = f"{address} is a network ID, which may not be assigned to an interface."
+                if address.version == 4 and address.prefixlen not in (31, 32):
+                    raise ValidationError(msg)
+                if address.version == 6 and address.prefixlen not in (127, 128):
+                    raise ValidationError(msg)
+            if address.version == 4 and address.ip == address.broadcast and address.prefixlen not in (31, 32):
+                msg = f"{address} is a broadcast address, which may not be assigned to an interface."
+                raise ValidationError(msg)
 
     def save(self, *args, **kwargs):
         ipaddress = super().save(*args, **kwargs)

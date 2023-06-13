@@ -73,6 +73,7 @@ urlpatterns = [
     path('config-templates/<int:pk>/', include(get_model_urls('extras', 'configtemplate'))),
 
     # Image attachments
+    path('image-attachments/', views.ImageAttachmentListView.as_view(), name='imageattachment_list'),
     path('image-attachments/add/', views.ImageAttachmentEditView.as_view(), name='imageattachment_add'),
     path('image-attachments/<int:pk>/', include(get_model_urls('extras', 'imageattachment'))),
 
@@ -81,6 +82,7 @@ urlpatterns = [
     path('journal-entries/add/', views.JournalEntryEditView.as_view(), name='journalentry_add'),
     path('journal-entries/edit/', views.JournalEntryBulkEditView.as_view(), name='journalentry_bulk_edit'),
     path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
+    path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
 
     # Change logging

@@ -63,7 +63,7 @@ Each attribute of the IP address is expressed as an attribute of the JSON object
 
 ## Interactive Documentation
 
-Comprehensive, interactive documentation of all REST API endpoints is available on a running NetBox instance at `/api/docs/`. This interface provides a convenient sandbox for researching and experimenting with specific endpoints and request types. The API itself can also be explored using a web browser by navigating to its root at `/api/`.
+Comprehensive, interactive documentation of all REST API endpoints is available on a running NetBox instance at `/api/schema/swagger-ui/`. This interface provides a convenient sandbox for researching and experimenting with specific endpoints and request types. The API itself can also be explored using a web browser by navigating to its root at `/api/`.
 
 ## Endpoint Hierarchy
 

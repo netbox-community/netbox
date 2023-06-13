@@ -22,6 +22,11 @@ __all__ = (
     'RackElevationSVG',
 )
 
+GRADIENT_RESERVED = '#b0b0ff'
+GRADIENT_OCCUPIED = '#d7d7d7'
+GRADIENT_BLOCKED = '#ffc0c0'
+STROKE_RESERVED = '#4d4dff'
+
 
 def get_device_name(device):
     if device.virtual_chassis:
@@ -37,15 +42,28 @@ def get_device_name(device):
 
 
 def get_device_description(device):
-    return '{} ({}) — {} {} ({}U) {} {}'.format(
-        device.name,
-        device.device_role,
-        device.device_type.manufacturer.name,
-        device.device_type.model,
-        floatformat(device.device_type.u_height),
-        device.asset_tag or '',
-        device.serial or ''
-    )
+    """
+    Return a description for a device to be rendered in the rack elevation in the following format
+
+    Name: <name>
+    Role: <device_role>
+    Device Type: <manufacturer> <model> (<u_height>)
+    Asset tag: <asset_tag> (if defined)
+    Serial: <serial> (if defined)
+    Description: <description> (if defined)
+    """
+    description = f'Name: {device.name}'
+    description += f'\nRole: {device.device_role}'
+    u_height = f'{floatformat(device.device_type.u_height)}U'
+    description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({u_height})'
+    if device.asset_tag:
+        description += f'\nAsset tag: {device.asset_tag}'
+    if device.serial:
+        description += f'\nSerial: {device.serial}'
+    if device.description:
+        description += f'\nDescription: {device.description}'
+
+    return description
 
 
 class RackElevationSVG:
@@ -119,9 +137,9 @@ class RackElevationSVG:
             drawing.defs.add(drawing.style(css_file.read()))
 
         # Add gradients
-        RackElevationSVG._add_gradient(drawing, 'reserved', '#b0b0ff')
-        RackElevationSVG._add_gradient(drawing, 'occupied', '#d7d7d7')
-        RackElevationSVG._add_gradient(drawing, 'blocked', '#ffc0c0')
+        RackElevationSVG._add_gradient(drawing, 'reserved', GRADIENT_RESERVED)
+        RackElevationSVG._add_gradient(drawing, 'occupied', GRADIENT_OCCUPIED)
+        RackElevationSVG._add_gradient(drawing, 'blocked', GRADIENT_BLOCKED)
 
         return drawing
 
@@ -233,13 +251,13 @@ class RackElevationSVG:
                 coords = self._get_device_coords(segment[0], u_height)
                 coords = (coords[0] + self.unit_width + RACK_ELEVATION_BORDER_WIDTH * 2, coords[1])
                 size = (
-                    self.margin_width,
+                    self.margin_width - 3,
                     u_height * self.unit_height
                 )
                 link = Hyperlink(href=f'{self.base_url}{reservation.get_absolute_url()}', target='_parent')
                 link.set_desc(f'Reservation #{reservation.pk}: {reservation.description}')
                 link.add(
-                    Rect(coords, size, class_='reservation')
+                    Rect(coords, size, class_='reservation', stroke=STROKE_RESERVED, stroke_width=2)
                 )
                 self.drawing.add(link)
 

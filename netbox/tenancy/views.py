@@ -7,16 +7,49 @@ from dcim.models import Cable, Device, Location, Rack, RackReservation, Site, Vi
 from ipam.models import Aggregate, ASN, IPAddress, IPRange, L2VPN, Prefix, VLAN, VRF
 from netbox.views import generic
 from utilities.utils import count_related
-from utilities.views import register_model_view
+from utilities.views import register_model_view, ViewTab
 from virtualization.models import VirtualMachine, Cluster
 from wireless.models import WirelessLAN, WirelessLink
 from . import filtersets, forms, tables
 from .models import *
 
 
+class ObjectContactsView(generic.ObjectChildrenView):
+    child_model = ContactAssignment
+    table = tables.ContactAssignmentTable
+    filterset = filtersets.ContactAssignmentFilterSet
+    template_name = 'tenancy/object_contacts.html'
+    tab = ViewTab(
+        label=_('Contacts'),
+        badge=lambda obj: obj.contacts.count(),
+        permission='tenancy.view_contactassignment',
+        weight=5000
+    )
+
+    def get_children(self, request, parent):
+        return ContactAssignment.objects.restrict(request.user, 'view').filter(
+            content_type=ContentType.objects.get_for_model(parent),
+            object_id=parent.pk
+        )
+
+    def get_table(self, *args, **kwargs):
+        table = super().get_table(*args, **kwargs)
+
+        # Hide object columns
+        table.columns.hide('content_type')
+        table.columns.hide('object')
+
+        return table
+
+    def get_extra_context(self, request, instance):
+        return {
+            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
+        }
+
 #
 # Tenant groups
 #
+
 
 class TenantGroupListView(generic.ObjectListView):
     queryset = TenantGroup.objects.add_related_count(
@@ -163,6 +196,11 @@ class TenantBulkDeleteView(generic.BulkDeleteView):
     queryset = Tenant.objects.all()
     filterset = filtersets.TenantFilterSet
     table = tables.TenantTable
+
+
+@register_model_view(Tenant, 'contacts')
+class TenantContactsView(ObjectContactsView):
+    queryset = Tenant.objects.all()
 
 
 #
@@ -342,10 +380,10 @@ class ContactBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.ContactFilterSet
     table = tables.ContactTable
 
-
 #
 # Contact assignments
 #
+
 
 class ContactAssignmentListView(generic.ObjectListView):
     queryset = ContactAssignment.objects.all()

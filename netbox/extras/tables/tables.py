@@ -13,6 +13,7 @@ __all__ = (
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
+    'ImageAttachmentTable',
     'JournalEntryTable',
     'ObjectChangeTable',
     'SavedFilterTable',
@@ -20,6 +21,14 @@ __all__ = (
     'TagTable',
     'WebhookTable',
 )
+
+IMAGEATTACHMENT_IMAGE = '''
+{% if record.image %}
+  <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
+{% else %}
+  &mdash;
+{% endif %}
+'''
 
 
 class CustomFieldTable(NetBoxTable):
@@ -72,6 +81,7 @@ class ExportTemplateTable(NetBoxTable):
         linkify=True
     )
     is_synced = columns.BooleanColumn(
+        orderable=False,
         verbose_name='Synced'
     )
 
@@ -84,6 +94,31 @@ class ExportTemplateTable(NetBoxTable):
         default_columns = (
             'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
         )
+
+
+class ImageAttachmentTable(NetBoxTable):
+    id = tables.Column(
+        linkify=False
+    )
+    content_type = columns.ContentTypeColumn()
+    parent = tables.Column(
+        linkify=True
+    )
+    image = tables.TemplateColumn(
+        template_code=IMAGEATTACHMENT_IMAGE,
+    )
+    size = tables.Column(
+        orderable=False,
+        verbose_name='Size (bytes)'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ImageAttachment
+        fields = (
+            'pk', 'content_type', 'parent', 'image', 'name', 'image_height', 'image_width', 'size', 'created',
+            'last_updated',
+        )
+        default_columns = ('content_type', 'parent', 'image', 'name', 'size', 'created')
 
 
 class SavedFilterTable(NetBoxTable):
@@ -195,6 +230,7 @@ class ConfigContextTable(NetBoxTable):
         verbose_name='Active'
     )
     is_synced = columns.BooleanColumn(
+        orderable=False,
         verbose_name='Synced'
     )
 
@@ -219,6 +255,7 @@ class ConfigTemplateTable(NetBoxTable):
         linkify=True
     )
     is_synced = columns.BooleanColumn(
+        orderable=False,
         verbose_name='Synced'
     )
     tags = columns.TagColumn(

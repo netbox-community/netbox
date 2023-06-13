@@ -302,7 +302,7 @@ def to_meters(length, unit):
     if unit == CableLengthUnitChoices.UNIT_FOOT:
         return length * Decimal(0.3048)
     if unit == CableLengthUnitChoices.UNIT_INCH:
-        return length * Decimal(0.3048) * 12
+        return length * Decimal(0.0254)
     raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
 
 
