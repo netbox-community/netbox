@@ -175,7 +175,8 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
+        if self.instance.pk:
+            self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
@@ -209,8 +210,9 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['users'].initial = self.instance.user_set.all().values_list('id', flat=True)
-        self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
+        if self.instance.pk:
+            self.fields['users'].initial = self.instance.user_set.all().values_list('id', flat=True)
+            self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
