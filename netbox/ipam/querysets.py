@@ -42,7 +42,6 @@ class VLANGroupQuerySet(RestrictedQuerySet):
         )
 
 
-
 class VLANQuerySet(RestrictedQuerySet):
 
     def get_for_device(self, device):
