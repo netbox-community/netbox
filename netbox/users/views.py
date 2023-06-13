@@ -4,7 +4,7 @@ from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import update_last_login
+from django.contrib.auth.models import Group, User, update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.db.models import Count
 from django.http import HttpResponseRedirect
@@ -22,6 +22,7 @@ from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
+from utilities.permissions import get_permission_for_model
 from utilities.querysets import RestrictedQuerySet
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
@@ -347,11 +348,17 @@ class NetBoxUserListView(generic.ObjectListView):
     filterset_form = forms.UserFilterForm
     table = tables.UserTable
 
+    def get_required_permission(self):
+        return get_permission_for_model(User, 'view')
+
 
 @register_model_view(NetBoxUser)
 class NetBoxUserView(generic.ObjectView):
     queryset = NetBoxUser.objects.all()
     template_name = 'users/user.html'
+
+    def get_required_permission(self):
+        return get_permission_for_model(User, 'view')
 
     def get_extra_context(self, request, instance):
         # Compile changelog table
@@ -371,15 +378,26 @@ class NetBoxUserEditView(generic.ObjectEditView):
     queryset = NetBoxUser.objects.all()
     form = forms.UserForm
 
+    def get_required_permission(self):
+        # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
+        # we are modifying an existing object or creating a new one.
+        return get_permission_for_model(User, self._permission_action)
+
 
 @register_model_view(NetBoxUser, 'delete')
 class NetBoxUserDeleteView(generic.ObjectDeleteView):
     queryset = NetBoxUser.objects.all()
 
+    def get_required_permission(self):
+        return get_permission_for_model(User, 'delete')
+
 
 class NetBoxUserBulkImportView(generic.BulkImportView):
     queryset = NetBoxUser.objects.all()
     model_form = forms.UserImportForm
+
+    def get_required_permission(self):
+        return get_permission_for_model(User, 'add')
 
 
 class NetBoxUserBulkEditView(generic.BulkEditView):
@@ -388,11 +406,18 @@ class NetBoxUserBulkEditView(generic.BulkEditView):
     table = tables.UserTable
     form = forms.UserBulkEditForm
 
+    def get_required_permission(self):
+        return get_permission_for_model(User, 'change')
+
 
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
+
+    def get_required_permission(self):
+        return get_permission_for_model(User, 'delete')
+
 
 #
 # Groups

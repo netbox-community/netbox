@@ -1,3 +1,4 @@
+from django.contrib.contenttypes.models import ContentType
 from django.db.models import Prefetch, QuerySet
 
 from users.constants import CONSTRAINT_TOKEN_USER
@@ -46,8 +47,9 @@ class RestrictedQuerySet(QuerySet):
         :param action: The action which must be permitted (e.g. "view" for "dcim.view_site"); default is 'view'
         """
         # Resolve the full name of the required permission
-        app_label = self.model._meta.app_label
-        model_name = self.model._meta.model_name
+        ct = ContentType.objects.get_for_model(self.model)
+        app_label = ct.app_label
+        model_name = ct.model
         permission_required = f'{app_label}.{action}_{model_name}'
 
         # Bypass restriction for superusers and exempt views

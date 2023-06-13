@@ -2,7 +2,7 @@ import binascii
 import os
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, GroupManager, User, UserManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
@@ -52,11 +52,15 @@ class AdminUser(User):
         proxy = True
 
 
+class NetBoxUserManager(UserManager.from_queryset(RestrictedQuerySet)):
+    pass
+
+
 class NetBoxUser(User):
     """
     Proxy contrib.auth.models.User for the UI
     """
-    objects = RestrictedQuerySet.as_manager()
+    objects = NetBoxUserManager()
 
     class Meta:
         verbose_name = 'User'
