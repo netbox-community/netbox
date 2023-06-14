@@ -213,6 +213,7 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
             type=self.type,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
         return {
@@ -256,6 +257,7 @@ class PowerPortTemplate(ModularComponentTemplateModel):
             allocated_draw=self.allocated_draw,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True
 
     def clean(self):
         super().clean()
@@ -330,6 +332,7 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
             feed_leg=self.feed_leg,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
         return {
@@ -413,6 +416,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             poe_type=self.poe_type,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
         return {
@@ -507,6 +511,7 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             rear_port_position=self.rear_port_position,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
         return {
@@ -550,6 +555,7 @@ class RearPortTemplate(ModularComponentTemplateModel):
             positions=self.positions,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
         return {
@@ -581,6 +587,7 @@ class ModuleBayTemplate(ComponentTemplateModel):
             label=self.label,
             position=self.position
         )
+    instantiate.do_not_call_in_templates = True
 
     def to_yaml(self):
         return {
@@ -603,6 +610,7 @@ class DeviceBayTemplate(ComponentTemplateModel):
             name=self.name,
             label=self.label
         )
+    instantiate.do_not_call_in_templates = True
 
     def clean(self):
         if self.device_type and self.device_type.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT:
@@ -696,3 +704,4 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
             part_id=self.part_id,
             **kwargs
         )
+    instantiate.do_not_call_in_templates = True

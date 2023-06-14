@@ -360,19 +360,14 @@ class PlatformForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Platform', (
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
-        )),
+        ('Platform', ('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags')),
     )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
         ]
-        widgets = {
-            'napalm_args': forms.Textarea(),
-        }
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):
@@ -454,9 +449,9 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
-            'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster', 'tenant_group', 'tenant',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'tags',
-            'local_context_data'
+            'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster',
+            'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
+            'comments', 'tags', 'local_context_data'
         ]
 
     def __init__(self, *args, **kwargs):

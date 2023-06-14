@@ -432,9 +432,8 @@ class DeviceRole(OrganizationalModel):
 
 class Platform(OrganizationalModel):
     """
-    Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos".
-    NetBox uses Platforms to determine how to interact with devices when pulling inventory data or other information by
-    specifying a NAPALM driver.
+    Platform refers to the software or firmware running on a Device. For example, "Cisco IOS-XR" or "Juniper Junos". A
+    Platform may optionally be associated with a particular Manufacturer.
     """
     manufacturer = models.ForeignKey(
         to='dcim.Manufacturer',
@@ -450,18 +449,6 @@ class Platform(OrganizationalModel):
         related_name='platforms',
         blank=True,
         null=True
-    )
-    napalm_driver = models.CharField(
-        max_length=50,
-        blank=True,
-        verbose_name='NAPALM driver',
-        help_text=_('The name of the NAPALM driver to use when interacting with devices')
-    )
-    napalm_args = models.JSONField(
-        blank=True,
-        null=True,
-        verbose_name='NAPALM arguments',
-        help_text=_('Additional arguments to pass when initiating the NAPALM driver (JSON format)')
     )
 
     def get_absolute_url(self):
@@ -636,6 +623,20 @@ class Device(PrimaryModel, ConfigContextModel):
         related_name='devices',
         blank=True,
         null=True
+    )
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
 
     # Generic relations

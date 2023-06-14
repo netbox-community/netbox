@@ -359,6 +359,7 @@ class CableTermination(ChangeLoggedModel):
         # Circuit terminations
         elif getattr(self.termination, 'site', None):
             self._site = self.termination.site
+    cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
@@ -637,6 +638,7 @@ class CablePath(models.Model):
             self.save()
         else:
             self.delete()
+    retrace.alters_data = True
 
     def _get_path(self):
         """

@@ -77,6 +77,23 @@
                             </td>
                         </tr>
                         <tr>
+                          <th scope="row">GPS Coordinates</th>
+                          <td class="position-relative">
+                            {% if object.latitude and object.longitude %}
+                              {% if config.MAPS_URL %}
+                                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
+                                  <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="mdi mdi-map-marker"></i> Map It
+                                  </a>
+                                </div>
+                                {% endif %}
+                              <span>{{ object.latitude }}, {{ object.longitude }}</span>
+                            {% else %}
+                              {{ ''|placeholder }}
+                            {% endif %}
+                          </td>
+                        </tr>
+                        <tr>
                             <th scope="row">Tenant</th>
                             <td>
                                 {% if object.tenant.group %}

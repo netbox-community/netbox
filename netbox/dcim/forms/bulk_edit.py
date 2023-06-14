@@ -472,10 +472,6 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    napalm_driver = forms.CharField(
-        max_length=50,
-        required=False
-    )
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False
@@ -487,9 +483,9 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Platform
     fieldsets = (
-        (None, ('manufacturer', 'config_template', 'napalm_driver', 'description')),
+        (None, ('manufacturer', 'config_template', 'description')),
     )
-    nullable_fields = ('manufacturer', 'config_template', 'napalm_driver', 'description')
+    nullable_fields = ('manufacturer', 'config_template', 'description')
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):

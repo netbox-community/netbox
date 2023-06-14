@@ -61,6 +61,10 @@ If installed in a rack, this field indicates the base rack unit in which the dev
 !!! tip
     Devices with a height of more than one rack unit should be set to the lowest-numbered rack unit that they occupy.
 
+### Latitude & Longitude
+
+GPS coordinates of the device for geolocation.
+
 ### Status
 
 The device's operational status.

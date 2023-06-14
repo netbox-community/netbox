@@ -1609,8 +1609,6 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Platform X',
             'slug': 'platform-x',
             'manufacturer': manufacturer.pk,
-            'napalm_driver': 'junos',
-            'napalm_args': None,
             'description': 'A new platform',
             'tags': [t.pk for t in tags],
         }
@@ -1630,7 +1628,6 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'napalm_driver': 'ios',
             'description': 'New description',
         }
 
@@ -1699,6 +1696,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'position': 1,
             'face': DeviceFaceChoices.FACE_FRONT,
+            'latitude': Decimal('35.780000'),
+            'longitude': Decimal('-78.642000'),
             'status': DeviceStatusChoices.STATUS_PLANNED,
             'primary_ip4': None,
             'primary_ip6': None,
