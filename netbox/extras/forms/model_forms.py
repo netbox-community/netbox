@@ -406,10 +406,28 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=FormMetaclas
     """
     Form for creating a new ConfigRevision.
     """
+    fieldsets = (
+        ('Rack Elevations', ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH')),
+        ('Power', ('POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION')),
+        ('IPAM', ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4')),
+        ('Security', ('ALLOWED_URL_SCHEMES',)),
+        ('Banners', ('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM')),
+        ('Pagination', ('PAGINATE_COUNT', 'MAX_PAGE_SIZE')),
+        ('Validation', ('CUSTOM_VALIDATORS',)),
+        ('User Preferences', ('DEFAULT_USER_PREFERENCES',)),
+        ('Miscellaneous', ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL')),
+        ('Config Revision', ('comment',))
+    )
+
     class Meta:
         model = ConfigRevision
-        fields = ['comment', ]
+        fields = '__all__'
         widgets = {
+            'BANNER_LOGIN': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'BANNER_MAINTENANCE': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'BANNER_TOP': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'BANNER_BOTTOM': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'CUSTOM_VALIDATORS': forms.Textarea(attrs={'class': 'font-monospace'}),
             'comment': forms.Textarea(),
         }
 
