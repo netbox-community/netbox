@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from dcim.choices import *
@@ -593,11 +593,11 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         users = (
-            User(username='User 1'),
-            User(username='User 2'),
-            User(username='User 3'),
+            get_user_model()(username='User 1'),
+            get_user_model()(username='User 2'),
+            get_user_model()(username='User 3'),
         )
-        User.objects.bulk_create(users)
+        get_user_model().objects.bulk_create(users)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -650,7 +650,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
-        users = User.objects.all()[:2]
+        users = get_user_model().objects.all()[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user': [users[0].username, users[1].username]}

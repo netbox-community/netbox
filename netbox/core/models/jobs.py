@@ -1,7 +1,7 @@
 import uuid
 
 import django_rq
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -69,7 +69,7 @@ class Job(models.Model):
         blank=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=get_user_model(),
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,

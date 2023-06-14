@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -256,7 +256,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
         allow_null=True,
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         default=serializers.CurrentUserDefault()
     )

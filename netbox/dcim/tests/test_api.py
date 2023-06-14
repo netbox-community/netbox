@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
@@ -363,7 +363,7 @@ class RackReservationTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        user = User.objects.create(username='user1', is_active=True)
+        user = get_user_model().objects.create(username='user1', is_active=True)
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
 
         racks = (

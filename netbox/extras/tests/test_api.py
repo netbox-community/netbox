@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -396,7 +396,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        user = User.objects.first()
+        user = get_user_model().objects.first()
         site = Site.objects.create(name='Site 1', slug='site-1')
 
         journal_entries = (

@@ -1,7 +1,8 @@
 import datetime
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client
 from django.test.utils import override_settings
@@ -87,7 +88,7 @@ class ExternalAuthenticationTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.user = User.objects.create(username='remoteuser1')
+        cls.user = get_user_model().objects.create(username='remoteuser1')
 
     def setUp(self):
         self.client = Client()
@@ -169,7 +170,7 @@ class ExternalAuthenticationTestCase(TestCase):
         response = self.client.get(reverse('home'), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
 
-        self.user = User.objects.get(username='remoteuser1')
+        self.user = get_user_model().objects.get(username='remoteuser1')
         self.assertEqual(self.user.first_name, "John", msg='User first name was not updated')
         self.assertEqual(self.user.last_name, "Smith", msg='User last name was not updated')
         self.assertEqual(self.user.email, "johnsmith@example.com", msg='User email was not updated')
@@ -195,7 +196,7 @@ class ExternalAuthenticationTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
 
         # Local user should have been automatically created
-        new_user = User.objects.get(username='remoteuser2')
+        new_user = get_user_model().objects.get(username='remoteuser2')
         self.assertEqual(int(self.client.session.get(
             '_auth_user_id')), new_user.pk, msg='Authentication failed')
 
@@ -230,7 +231,7 @@ class ExternalAuthenticationTestCase(TestCase):
         response = self.client.get(reverse('home'), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
 
-        new_user = User.objects.get(username='remoteuser2')
+        new_user = get_user_model().objects.get(username='remoteuser2')
         self.assertEqual(int(self.client.session.get(
             '_auth_user_id')), new_user.pk, msg='Authentication failed')
         self.assertListEqual(
@@ -262,7 +263,7 @@ class ExternalAuthenticationTestCase(TestCase):
         response = self.client.get(reverse('home'), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
 
-        new_user = User.objects.get(username='remoteuser2')
+        new_user = get_user_model().objects.get(username='remoteuser2')
         self.assertEqual(int(self.client.session.get(
             '_auth_user_id')), new_user.pk, msg='Authentication failed')
         self.assertTrue(new_user.has_perms(
@@ -302,7 +303,7 @@ class ExternalAuthenticationTestCase(TestCase):
         response = self.client.get(reverse('home'), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
 
-        new_user = User.objects.get(username='remoteuser2')
+        new_user = get_user_model().objects.get(username='remoteuser2')
         self.assertEqual(int(self.client.session.get(
             '_auth_user_id')), new_user.pk, msg='Authentication failed')
         self.assertListEqual(
@@ -343,7 +344,7 @@ class ExternalAuthenticationTestCase(TestCase):
         response = self.client.get(reverse("home"), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
 
-        new_user = User.objects.get(username="remoteuser2")
+        new_user = get_user_model().objects.get(username="remoteuser2")
         self.assertEqual(
             int(self.client.session.get("_auth_user_id")),
             new_user.pk,
@@ -389,7 +390,7 @@ class ExternalAuthenticationTestCase(TestCase):
         response = self.client.get(reverse('home'), follow=True, **headers)
         self.assertEqual(response.status_code, 200)
 
-        new_user = User.objects.get(username='remoteuser2')
+        new_user = get_user_model().objects.get(username='remoteuser2')
         self.assertEqual(int(self.client.session.get(
             '_auth_user_id')), new_user.pk, msg='Authentication failed')
         self.assertListEqual(
@@ -428,7 +429,7 @@ class ObjectPermissionAPIViewTestCase(TestCase):
         """
         Create a test user and token for API calls.
         """
-        self.user = User.objects.create(username='testuser')
+        self.user = get_user_model().objects.create(username='testuser')
         self.token = Token.objects.create(user=self.user)
         self.header = {'HTTP_AUTHORIZATION': 'Token {}'.format(self.token.key)}
 

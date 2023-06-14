@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
@@ -39,7 +39,7 @@ class UserPreferencesTest(TestCase):
 
     @override_settings(DEFAULT_USER_PREFERENCES=DEFAULT_USER_PREFERENCES)
     def test_default_preferences(self):
-        user = User.objects.create(username='User 1')
+        user = get_user_model().objects.create(username='User 1')
         userconfig = user.config
 
         self.assertEqual(userconfig.data, DEFAULT_USER_PREFERENCES)

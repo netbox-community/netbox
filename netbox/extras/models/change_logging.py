@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
@@ -24,7 +24,7 @@ class ObjectChange(models.Model):
         db_index=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=get_user_model(),
         on_delete=models.SET_NULL,
         related_name='changes',
         blank=True,

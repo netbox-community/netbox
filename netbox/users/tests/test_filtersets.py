@@ -1,6 +1,7 @@
 import datetime
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import make_aware
@@ -11,7 +12,7 @@ from utilities.testing import BaseFilterSetTests
 
 
 class UserTestCase(TestCase, BaseFilterSetTests):
-    queryset = User.objects.all()
+    queryset = get_user_model().objects.all()
     filterset = filtersets.UserFilterSet
 
     @classmethod
@@ -25,39 +26,39 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         Group.objects.bulk_create(groups)
 
         users = (
-            User(
+            get_user_model()(
                 username='User1',
                 first_name='Hank',
                 last_name='Hill',
                 email='hank@stricklandpropane.com',
                 is_staff=True
             ),
-            User(
+            get_user_model()(
                 username='User2',
                 first_name='Dale',
                 last_name='Gribble',
                 email='dale@dalesdeadbug.com'
             ),
-            User(
+            get_user_model()(
                 username='User3',
                 first_name='Bill',
                 last_name='Dauterive',
                 email='bill.dauterive@army.mil'
             ),
-            User(
+            get_user_model()(
                 username='User4',
                 first_name='Jeff',
                 last_name='Boomhauer',
                 email='boomhauer@dangolemail.com'
             ),
-            User(
+            get_user_model()(
                 username='User5',
                 first_name='Debbie',
                 last_name='Grund',
                 is_active=False
             )
         )
-        User.objects.bulk_create(users)
+        get_user_model().objects.bulk_create(users)
 
         users[0].groups.set([groups[0]])
         users[1].groups.set([groups[1]])
@@ -129,11 +130,11 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         Group.objects.bulk_create(groups)
 
         users = (
-            User(username='User1'),
-            User(username='User2'),
-            User(username='User3'),
+            get_user_model()(username='User1'),
+            get_user_model()(username='User2'),
+            get_user_model()(username='User3'),
         )
-        User.objects.bulk_create(users)
+        get_user_model().objects.bulk_create(users)
 
         object_types = (
             ContentType.objects.get(app_label='dcim', model='site'),
@@ -172,7 +173,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
-        users = User.objects.filter(username__in=['User1', 'User2'])
+        users = get_user_model().objects.filter(username__in=['User1', 'User2'])
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user': [users[0].username, users[1].username]}
@@ -196,11 +197,11 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
     def setUpTestData(cls):
 
         users = (
-            User(username='User1'),
-            User(username='User2'),
-            User(username='User3'),
+            get_user_model()(username='User1'),
+            get_user_model()(username='User2'),
+            get_user_model()(username='User3'),
         )
-        User.objects.bulk_create(users)
+        get_user_model().objects.bulk_create(users)
 
         future_date = make_aware(datetime.datetime(3000, 1, 1))
         past_date = make_aware(datetime.datetime(2000, 1, 1))
@@ -212,7 +213,7 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         Token.objects.bulk_create(tokens)
 
     def test_user(self):
-        users = User.objects.order_by('id')[:2]
+        users = get_user_model().objects.order_by('id')[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user': [users[0].username, users[1].username]}

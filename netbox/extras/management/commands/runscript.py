@@ -4,7 +4,7 @@ import sys
 import traceback
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -78,11 +78,11 @@ class Command(BaseCommand):
         # Take user from command line if provided and exists, other
         if options['user']:
             try:
-                user = User.objects.get(username=options['user'])
-            except User.DoesNotExist:
-                user = User.objects.filter(is_superuser=True).order_by('pk')[0]
+                user = get_user_model().objects.get(username=options['user'])
+            except get_user_model().DoesNotExist:
+                user = get_user_model().objects.filter(is_superuser=True).order_by('pk')[0]
         else:
-            user = User.objects.filter(is_superuser=True).order_by('pk')[0]
+            user = get_user_model().objects.filter(is_superuser=True).order_by('pk')[0]
 
         # Setup logging to Stdout
         formatter = logging.Formatter(f'[%(asctime)s][%(levelname)s] - %(message)s')
@@ -113,7 +113,7 @@ class Command(BaseCommand):
         job = Job.objects.create(
             object=module,
             name=script.name,
-            user=User.objects.filter(is_superuser=True).order_by('pk')[0],
+            user=get_user_model().objects.filter(is_superuser=True).order_by('pk')[0],
             job_id=uuid.uuid4()
         )
 

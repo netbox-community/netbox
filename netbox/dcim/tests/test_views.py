@@ -6,7 +6,7 @@ except ImportError:
     from backports.zoneinfo import ZoneInfo
 
 import yaml
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -288,8 +288,8 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        user2 = User.objects.create_user(username='testuser2')
-        user3 = User.objects.create_user(username='testuser3')
+        user2 = get_user_model().objects.create_user(username='testuser2')
+        user3 = get_user_model().objects.create_user(username='testuser3')
 
         site = Site.objects.create(name='Site 1', slug='site-1')
 

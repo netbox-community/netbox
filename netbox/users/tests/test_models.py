@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 
@@ -7,7 +7,7 @@ class UserConfigTest(TestCase):
     @classmethod
     def setUpTestData(cls):
 
-        user = User.objects.create_user(username='testuser')
+        user = get_user_model().objects.create_user(username='testuser')
         user.config.data = {
             'a': True,
             'b': {
@@ -29,7 +29,7 @@ class UserConfigTest(TestCase):
         user.config.save()
 
     def test_get(self):
-        userconfig = User.objects.get(username='testuser').config
+        userconfig = get_user_model().objects.get(username='testuser').config
 
         # Retrieve root and nested values
         self.assertEqual(userconfig.get('a'), True)
@@ -49,7 +49,7 @@ class UserConfigTest(TestCase):
         self.assertEqual(userconfig.get('b.foo.x.invalid', 'DEFAULT'), 'DEFAULT')
 
     def test_all(self):
-        userconfig = User.objects.get(username='testuser').config
+        userconfig = get_user_model().objects.get(username='testuser').config
         flattened_data = {
             'a': True,
             'b.foo': 101,
@@ -63,7 +63,7 @@ class UserConfigTest(TestCase):
         self.assertEqual(userconfig.all(), flattened_data)
 
     def test_set(self):
-        userconfig = User.objects.get(username='testuser').config
+        userconfig = get_user_model().objects.get(username='testuser').config
 
         # Overwrite existing values
         userconfig.set('a', 'abc')
@@ -92,7 +92,7 @@ class UserConfigTest(TestCase):
             userconfig.set('a.x', 1)
 
     def test_clear(self):
-        userconfig = User.objects.get(username='testuser').config
+        userconfig = get_user_model().objects.get(username='testuser').config
 
         # Clear existing values
         userconfig.clear('a')
