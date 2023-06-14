@@ -119,8 +119,6 @@ urlpatterns = [
     # Config Revision
     path('config-revision/', views.ConfigRevisionListView.as_view(), name='configrevision'),
     path('config-revision/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
-    # path('custom-revision/import/', views.ConfigRevisionBulkImportView.as_view(), name='configrevision_import'),
-    # path('config-revision/edit/', views.ConfigRevisionBulkEditView.as_view(), name='configrevision_bulk_edit'),
     path('config-revision/delete/', views.ConfigRevisionBulkDeleteView.as_view(), name='configrevision_bulk_delete'),
     path('config-revision/<int:pk>/', include(get_model_urls('extras', 'configrevision'))),
 ]

@@ -1219,18 +1219,6 @@ class ConfigRevisionDeleteView(generic.ObjectDeleteView):
     queryset = ConfigRevision.objects.all()
 
 
-class ConfigRevisionBulkImportView(generic.BulkImportView):
-    queryset = ConfigRevision.objects.all()
-    model_form = forms.ConfigRevisionImportForm
-
-
-class ConfigRevisionBulkEditView(generic.BulkEditView):
-    queryset = ConfigRevision.objects.all()
-    filterset = filtersets.ConfigRevisionFilterSet
-    table = tables.ConfigRevisionTable
-    form = forms.ConfigRevisionBulkEditForm
-
-
 class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
     queryset = ConfigRevision.objects.all()
     filterset = filtersets.ConfigRevisionFilterSet

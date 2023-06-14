@@ -12,7 +12,6 @@ from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVMultipleContentTypeField, SlugField
 
 __all__ = (
-    'ConfigRevisionImportForm',
     'ConfigTemplateImportForm',
     'CustomFieldImportForm',
     'CustomLinkImportForm',
@@ -22,41 +21,6 @@ __all__ = (
     'TagImportForm',
     'WebhookImportForm',
 )
-
-
-class ConfigRevisionImportForm(CSVModelForm):
-    content_types = CSVMultipleContentTypeField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
-        help_text=_("One or more assigned object types")
-    )
-    type = CSVChoiceField(
-        choices=CustomFieldTypeChoices,
-        help_text=_('Field data type (e.g. text, integer, etc.)')
-    )
-    object_type = CSVContentTypeField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
-        required=False,
-        help_text=_("Object type (for object or multi-object fields)")
-    )
-    choices = SimpleArrayField(
-        base_field=forms.CharField(),
-        required=False,
-        help_text=_('Comma-separated list of field choices')
-    )
-    ui_visibility = CSVChoiceField(
-        choices=CustomFieldVisibilityChoices,
-        help_text=_('How the custom field is displayed in the user interface')
-    )
-
-    class Meta:
-        model = CustomField
-        fields = (
-            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
-            'search_weight', 'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'ui_visibility', 'is_cloneable',
-        )
 
 
 class CustomFieldImportForm(CSVModelForm):
