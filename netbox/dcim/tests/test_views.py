@@ -1696,6 +1696,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'position': 1,
             'face': DeviceFaceChoices.FACE_FRONT,
+            'latitude': Decimal('35.780000'),
+            'longitude': Decimal('-78.642000'),
             'status': DeviceStatusChoices.STATUS_PLANNED,
             'primary_ip4': None,
             'primary_ip6': None,
