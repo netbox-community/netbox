@@ -568,7 +568,7 @@ class Device(PrimaryModel, ConfigContextModel):
         decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1), MaxValueValidator(99.5)],
+        validators=[MinValueValidator(1), MaxValueValidator(100.5)],
         verbose_name='Position (U)',
         help_text=_('The lowest-numbered unit occupied by the device')
     )
