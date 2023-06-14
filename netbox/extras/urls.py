@@ -117,6 +117,7 @@ urlpatterns = [
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
 
     # Config Revision
-    path('config-revision/', views.ConfigRevisionView.as_view(), name='config_revision'),
-    path('config-revision/add/', views.ConfigRevisionEditView.as_view(), name='config_revision_add'),
+    path('config-revision/', views.ConfigRevisionView.as_view(), name='configrevision'),
+    path('config-revision/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
+    path('config-revision/<int:pk>/edit/', views.ConfigRevisionEditView.as_view(), name='configrevision_edit'),
 ]

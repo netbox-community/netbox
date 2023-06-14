@@ -1,9 +1,34 @@
 {% extends 'generic/object.html' %}
+{% load buttons %}
+{% load custom_links %}
 {% load helpers %}
+{% load perms %}
+{% load plugins %}
 {% load static %}
 
-{% block header %}
+{% block breadcrumbs %}
 {% endblock %}
+
+{% block controls %}
+  {# Clone/Edit/Delete Buttons #}
+  <div class="controls">
+    <div class="control-group">
+      {% plugin_buttons object %}
+
+      {# Extra buttons #}
+      {% block extra_controls %}{% endblock %}
+
+      {% if request.user|can_change:object %}
+        {% edit_button object %}
+      {% endif %}
+
+    </div>
+    <div class="control-group">
+      {% custom_links object %}
+    </div>
+  </div>
+{% endblock controls %}
+
 
 {% block tabs %}
 {% endblock %}
