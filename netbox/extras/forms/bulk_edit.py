@@ -9,6 +9,7 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ConfigContextBulkEditForm',
+    'ConfigRevisionBulkEditForm',
     'ConfigTemplateBulkEditForm',
     'CustomFieldBulkEditForm',
     'CustomLinkBulkEditForm',
@@ -18,6 +19,38 @@ __all__ = (
     'TagBulkEditForm',
     'WebhookBulkEditForm',
 )
+
+
+class ConfigRevisionBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CustomField.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    group_name = forms.CharField(
+        required=False
+    )
+    description = forms.CharField(
+        required=False
+    )
+    required = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+    weight = forms.IntegerField(
+        required=False
+    )
+    ui_visibility = forms.ChoiceField(
+        label=_("UI visibility"),
+        choices=add_blank_choice(CustomFieldVisibilityChoices),
+        required=False,
+        initial=''
+    )
+    is_cloneable = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
+
+    nullable_fields = ('group_name', 'description',)
 
 
 class CustomFieldBulkEditForm(BulkEditForm):

@@ -9,6 +9,7 @@ from .template_code import *
 
 __all__ = (
     'ConfigContextTable',
+    'ConfigRevisionTable',
     'ConfigTemplateTable',
     'CustomFieldTable',
     'CustomLinkTable',
@@ -29,6 +30,20 @@ IMAGEATTACHMENT_IMAGE = '''
   &mdash;
 {% endif %}
 '''
+
+
+class ConfigRevisionTable(NetBoxTable):
+    is_active = columns.BooleanColumn()
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigRevision
+        fields = (
+            'pk', 'id', 'is_active', 'created', 'comment',
+        )
+        default_columns = ('pk', 'id', 'is_active', 'created', 'comment')
 
 
 class CustomFieldTable(NetBoxTable):

@@ -1195,21 +1195,43 @@ class RenderMarkdownView(View):
 # Config Revision
 #
 
+
+class ConfigRevisionListView(generic.ObjectListView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    filterset_form = forms.ConfigRevisionFilterForm
+    table = tables.ConfigRevisionTable
+
+
 @register_model_view(ConfigRevision)
 class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
-
-    def get(self, request, **kwargs):
-        instance = ConfigRevision.objects.last()
-
-        return render(request, self.get_template_name(), {
-            'object': instance,
-            'tab': self.tab,
-            **self.get_extra_context(request, instance),
-        })
 
 
 @register_model_view(ConfigRevision, 'edit')
 class ConfigRevisionEditView(generic.ObjectEditView):
     queryset = ConfigRevision.objects.all()
     form = forms.ConfigRevisionForm
+
+
+@register_model_view(ConfigRevision, 'delete')
+class ConfigRevisionDeleteView(generic.ObjectDeleteView):
+    queryset = ConfigRevision.objects.all()
+
+
+class ConfigRevisionBulkImportView(generic.BulkImportView):
+    queryset = ConfigRevision.objects.all()
+    model_form = forms.ConfigRevisionImportForm
+
+
+class ConfigRevisionBulkEditView(generic.BulkEditView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    table = tables.ConfigRevisionTable
+    form = forms.ConfigRevisionBulkEditForm
+
+
+class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    table = tables.ConfigRevisionTable

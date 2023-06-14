@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.conf import settings
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -19,6 +20,7 @@ from utilities.forms.fields import (
     SlugField,
 )
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
 
 __all__ = (
     'ConfigContextForm',
@@ -400,11 +402,13 @@ class FormMetaclass(forms.models.ModelFormMetaclass):
         return super().__new__(mcs, name, bases, attrs)
 
 
-class ConfigRevisionForm(forms.BaseModelForm, metaclass=FormMetaclass):
+class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=FormMetaclass):
     """
     Form for creating a new ConfigRevision.
     """
     class Meta:
+        model = ConfigRevision
+        fields = ['comment', ]
         widgets = {
             'comment': forms.Textarea(),
         }

@@ -619,6 +619,9 @@ class ConfigRevision(models.Model):
             return self.data[item]
         return super().__getattribute__(item)
 
+    def get_absolute_url(self):
+        return reverse('extras:configrevision', args=[self.pk])
+
     def activate(self):
         """
         Cache the configuration data.

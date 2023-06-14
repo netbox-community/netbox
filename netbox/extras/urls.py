@@ -117,7 +117,10 @@ urlpatterns = [
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
 
     # Config Revision
-    path('config-revision/', views.ConfigRevisionView.as_view(), name='configrevision'),
+    path('config-revision/', views.ConfigRevisionListView.as_view(), name='configrevision'),
     path('config-revision/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
-    path('config-revision/<int:pk>/edit/', views.ConfigRevisionEditView.as_view(), name='configrevision_edit'),
+    # path('custom-revision/import/', views.ConfigRevisionBulkImportView.as_view(), name='configrevision_import'),
+    # path('config-revision/edit/', views.ConfigRevisionBulkEditView.as_view(), name='configrevision_bulk_edit'),
+    path('config-revision/delete/', views.ConfigRevisionBulkDeleteView.as_view(), name='configrevision_bulk_delete'),
+    path('config-revision/<int:pk>/', include(get_model_urls('extras', 'configrevision'))),
 ]
