@@ -646,7 +646,10 @@ class ConnectedDeviceViewSet(ViewSet):
     def get_view_name(self):
         return "Connected Device Locator"
 
-    @extend_schema(responses={200: OpenApiTypes.OBJECT})
+    @extend_schema(
+        parameters=[_device_param, _interface_param],
+        responses={200: serializers.DeviceSerializer}
+    )
     def list(self, request):
 
         peer_device_name = request.query_params.get(self._device_param.name)
