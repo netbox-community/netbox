@@ -211,10 +211,8 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
         required=False,
+        selector=True,
         label=_('VLAN'),
-        query_params={
-            'site_id': '$site',
-        }
     )
     role = DynamicModelChoiceField(
         queryset=Role.objects.all(),
@@ -370,7 +368,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                     raise ValidationError(msg)
                 if address.version == 6 and address.prefixlen not in (127, 128):
                     raise ValidationError(msg)
-            if address.ip == address.broadcast:
+            if address.version == 4 and address.ip == address.broadcast and address.prefixlen not in (31, 32):
                 msg = f"{address} is a broadcast address, which may not be assigned to an interface."
                 raise ValidationError(msg)
 
