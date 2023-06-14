@@ -14,7 +14,7 @@ from extras.utils import FeatureQuery
 from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField,
     SlugField,
@@ -406,6 +406,7 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=FormMetaclas
     """
     Form for creating a new ConfigRevision.
     """
+
     fieldsets = (
         ('Rack Elevations', ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH')),
         ('Power', ('POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION')),
@@ -449,6 +450,7 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=FormMetaclas
                 elif value == param.default:
                     help_text += ' (default)'
                 self.fields[param.name].help_text = help_text
+                self.fields[param.name].initial = value
             if is_static:
                 self.fields[param.name].disabled = True
 
