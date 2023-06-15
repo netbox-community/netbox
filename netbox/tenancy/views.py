@@ -15,21 +15,31 @@ from .models import *
 
 
 class ObjectContactsView(generic.ObjectChildrenView):
-    child_model = Contact
-    table = tables.ContactTable
-    filterset = filtersets.ContactFilterSet
+    child_model = ContactAssignment
+    table = tables.ContactAssignmentTable
+    filterset = filtersets.ContactAssignmentFilterSet
     template_name = 'tenancy/object_contacts.html'
     tab = ViewTab(
         label=_('Contacts'),
         badge=lambda obj: obj.contacts.count(),
-        permission='tenancy.view_contact',
+        permission='tenancy.view_contactassignment',
         weight=5000
     )
 
     def get_children(self, request, parent):
-        return Contact.objects.annotate(
-            assignment_count=count_related(ContactAssignment, 'contact')
-        ).restrict(request.user, 'view').filter(assignments__object_id=parent.pk)
+        return ContactAssignment.objects.restrict(request.user, 'view').filter(
+            content_type=ContentType.objects.get_for_model(parent),
+            object_id=parent.pk
+        )
+
+    def get_table(self, *args, **kwargs):
+        table = super().get_table(*args, **kwargs)
+
+        # Hide object columns
+        table.columns.hide('content_type')
+        table.columns.hide('object')
+
+        return table
 
     def get_extra_context(self, request, instance):
         return {

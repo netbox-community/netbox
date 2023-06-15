@@ -274,10 +274,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         :param context: The context passed to Jinja2
         """
-        text = render_jinja2(self.link_text, context)
+        text = render_jinja2(self.link_text, context).strip()
         if not text:
             return {}
-        link = render_jinja2(self.link_url, context)
+        link = render_jinja2(self.link_url, context).strip()
         link_target = ' target="_blank"' if self.new_window else ''
 
         # Sanitize link text
@@ -285,7 +285,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         text = clean_html(text, allowed_schemes)
 
         # Sanitize link
-        link = urllib.parse.quote_plus(link, safe='/:?&=%+[]@#')
+        link = urllib.parse.quote(link, safe='/:?&=%+[]@#')
 
         # Verify link scheme is allowed
         result = urllib.parse.urlparse(link)
@@ -362,6 +362,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
+    sync_data.alters_data = True
 
     def render(self, queryset):
         """
@@ -625,6 +626,7 @@ class ConfigRevision(models.Model):
         """
         cache.set('config', self.data, None)
         cache.set('config_version', self.pk, None)
+    activate.alters_data = True
 
     @admin.display(boolean=True)
     def is_active(self):

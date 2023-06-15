@@ -65,7 +65,7 @@ class ClusterImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Cluster
-        fields = ('name', 'type', 'group', 'status', 'site', 'description', 'comments', 'tags')
+        fields = ('name', 'type', 'group', 'status', 'site', 'tenant', 'description', 'comments', 'tags')
 
 
 class VirtualMachineImportForm(NetBoxModelImportForm):
