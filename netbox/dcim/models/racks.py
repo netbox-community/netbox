@@ -241,10 +241,23 @@ class Rack(PrimaryModel, WeightMixin):
             ).order_by('-position').first()
             if top_device:
                 min_height = top_device.position + top_device.device_type.u_height - 1
-                if self.u_height < min_height:
+                if self.u_height + self.start_unit < min_height:
                     raise ValidationError({
                         'u_height': "Rack must be at least {}U tall to house currently installed devices.".format(
                             min_height
+                        )
+                    })
+            # Validate the Rack starting_unit > position of any installed devices
+            first_device = Device.objects.filter(
+                rack=self
+            ).exclude(
+                position__isnull=True
+            ).order_by('position').first()
+            if first_device:
+                if self.starting_unit > first_device.position:
+                    raise ValidationError({
+                        'starting_unit': "Rack must have a staring unit at most {} to house currently installed devices.".format(
+                            first_device.position
                         )
                     })
             # Validate that Rack was assigned a Location of its same site, if applicable
