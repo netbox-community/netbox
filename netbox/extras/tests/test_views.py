@@ -11,6 +11,9 @@ from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
 
 
+User = get_user_model()
+
+
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CustomField
 
@@ -115,11 +118,11 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         site_ct = ContentType.objects.get_for_model(Site)
 
         users = (
-            get_user_model()(username='User 1'),
-            get_user_model()(username='User 2'),
-            get_user_model()(username='User 3'),
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         saved_filters = (
             SavedFilter(
@@ -412,7 +415,7 @@ class ObjectChangeTestCase(TestCase):
         site.save()
 
         # Create three ObjectChanges
-        user = get_user_model().objects.create_user(username='testuser2')
+        user = User.objects.create_user(username='testuser2')
         for i in range(1, 4):
             oc = site.to_objectchange(action=ObjectChangeActionChoices.ACTION_UPDATE)
             oc.user = user
@@ -423,7 +426,7 @@ class ObjectChangeTestCase(TestCase):
 
         url = reverse('extras:objectchange_list')
         params = {
-            "user": get_user_model().objects.first().pk,
+            "user": User.objects.first().pk,
         }
 
         response = self.client.get('{}?{}'.format(url, urllib.parse.urlencode(params)))
@@ -452,7 +455,7 @@ class JournalEntryTestCase(
         site_ct = ContentType.objects.get_for_model(Site)
 
         site = Site.objects.create(name='Site 1', slug='site-1')
-        user = get_user_model().objects.create(username='User 1')
+        user = User.objects.create(username='User 1')
 
         JournalEntry.objects.bulk_create((
             JournalEntry(assigned_object=site, created_by=user, comments='First entry'),

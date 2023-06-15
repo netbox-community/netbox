@@ -11,8 +11,11 @@ from users.models import ObjectPermission, Token
 from utilities.testing import BaseFilterSetTests
 
 
+User = get_user_model()
+
+
 class UserTestCase(TestCase, BaseFilterSetTests):
-    queryset = get_user_model().objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
 
     @classmethod
@@ -26,39 +29,39 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         Group.objects.bulk_create(groups)
 
         users = (
-            get_user_model()(
+            User(
                 username='User1',
                 first_name='Hank',
                 last_name='Hill',
                 email='hank@stricklandpropane.com',
                 is_staff=True
             ),
-            get_user_model()(
+            User(
                 username='User2',
                 first_name='Dale',
                 last_name='Gribble',
                 email='dale@dalesdeadbug.com'
             ),
-            get_user_model()(
+            User(
                 username='User3',
                 first_name='Bill',
                 last_name='Dauterive',
                 email='bill.dauterive@army.mil'
             ),
-            get_user_model()(
+            User(
                 username='User4',
                 first_name='Jeff',
                 last_name='Boomhauer',
                 email='boomhauer@dangolemail.com'
             ),
-            get_user_model()(
+            User(
                 username='User5',
                 first_name='Debbie',
                 last_name='Grund',
                 is_active=False
             )
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         users[0].groups.set([groups[0]])
         users[1].groups.set([groups[1]])
@@ -130,11 +133,11 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         Group.objects.bulk_create(groups)
 
         users = (
-            get_user_model()(username='User1'),
-            get_user_model()(username='User2'),
-            get_user_model()(username='User3'),
+            User(username='User1'),
+            User(username='User2'),
+            User(username='User3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         object_types = (
             ContentType.objects.get(app_label='dcim', model='site'),
@@ -173,7 +176,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
-        users = get_user_model().objects.filter(username__in=['User1', 'User2'])
+        users = User.objects.filter(username__in=['User1', 'User2'])
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user': [users[0].username, users[1].username]}
@@ -197,11 +200,11 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
     def setUpTestData(cls):
 
         users = (
-            get_user_model()(username='User1'),
-            get_user_model()(username='User2'),
-            get_user_model()(username='User3'),
+            User(username='User1'),
+            User(username='User2'),
+            User(username='User3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         future_date = make_aware(datetime.datetime(3000, 1, 1))
         past_date = make_aware(datetime.datetime(2000, 1, 1))
@@ -213,7 +216,7 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
         Token.objects.bulk_create(tokens)
 
     def test_user(self):
-        users = get_user_model().objects.order_by('id')[:2]
+        users = User.objects.order_by('id')[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user': [users[0].username, users[1].username]}

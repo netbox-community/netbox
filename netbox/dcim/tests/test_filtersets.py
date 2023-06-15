@@ -12,6 +12,9 @@ from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
 
 
+User = get_user_model()
+
+
 class DeviceComponentFilterSetTests:
 
     def test_device_type(self):
@@ -593,11 +596,11 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         users = (
-            get_user_model()(username='User 1'),
-            get_user_model()(username='User 2'),
-            get_user_model()(username='User 3'),
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         tenant_groups = (
             TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
@@ -650,7 +653,7 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_user(self):
-        users = get_user_model().objects.all()[:2]
+        users = User.objects.all()[:2]
         params = {'user_id': [users[0].pk, users[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user': [users[0].username, users[1].username]}

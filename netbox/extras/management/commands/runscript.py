@@ -63,6 +63,8 @@ class Command(BaseCommand):
 
             logger.info(f"Script completed in {job.duration}")
 
+        User = get_user_model()
+
         # Params
         script = options['script']
         loglevel = options['loglevel']
@@ -78,11 +80,11 @@ class Command(BaseCommand):
         # Take user from command line if provided and exists, other
         if options['user']:
             try:
-                user = get_user_model().objects.get(username=options['user'])
-            except get_user_model().DoesNotExist:
-                user = get_user_model().objects.filter(is_superuser=True).order_by('pk')[0]
+                user = User.objects.get(username=options['user'])
+            except User.DoesNotExist:
+                user = User.objects.filter(is_superuser=True).order_by('pk')[0]
         else:
-            user = get_user_model().objects.filter(is_superuser=True).order_by('pk')[0]
+            user = User.objects.filter(is_superuser=True).order_by('pk')[0]
 
         # Setup logging to Stdout
         formatter = logging.Formatter(f'[%(asctime)s][%(levelname)s] - %(message)s')
@@ -113,7 +115,7 @@ class Command(BaseCommand):
         job = Job.objects.create(
             object=module,
             name=script.name,
-            user=get_user_model().objects.filter(is_superuser=True).order_by('pk')[0],
+            user=User.objects.filter(is_superuser=True).order_by('pk')[0],
             job_id=uuid.uuid4()
         )
 

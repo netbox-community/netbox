@@ -22,6 +22,9 @@ from utilities.testing import ViewTestCases, create_tags, create_test_device, po
 from wireless.models import WirelessLAN
 
 
+User = get_user_model()
+
+
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Region
 
@@ -288,8 +291,8 @@ class RackReservationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        user2 = get_user_model().objects.create_user(username='testuser2')
-        user3 = get_user_model().objects.create_user(username='testuser3')
+        user2 = User.objects.create_user(username='testuser2')
+        user3 = User.objects.create_user(username='testuser3')
 
         site = Site.objects.create(name='Site 1', slug='site-1')
 

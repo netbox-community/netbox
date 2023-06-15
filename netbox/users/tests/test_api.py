@@ -8,6 +8,9 @@ from utilities.testing import APIViewTestCases, APITestCase
 from utilities.utils import deepmerge
 
 
+User = get_user_model()
+
+
 class AppTest(APITestCase):
 
     def test_root(self):
@@ -19,7 +22,7 @@ class AppTest(APITestCase):
 
 
 class UserTest(APIViewTestCases.APIViewTestCase):
-    model = get_user_model()
+    model = User
     view_namespace = 'users'
     brief_fields = ['display', 'id', 'url', 'username']
     validation_excluded_fields = ['password']
@@ -45,11 +48,11 @@ class UserTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         users = (
-            get_user_model()(username='User_1', password='password1'),
-            get_user_model()(username='User_2', password='password2'),
-            get_user_model()(username='User_3', password='password3'),
+            User(username='User_1', password='password1'),
+            User(username='User_2', password='password2'),
+            User(username='User_3', password='password3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
 
 class GroupTest(APIViewTestCases.APIViewTestCase):
@@ -131,7 +134,7 @@ class TokenTest(
             'username': 'user1',
             'password': 'abc123',
         }
-        user = get_user_model().objects.create_user(**data)
+        user = User.objects.create_user(**data)
         url = reverse('users-api:token_provision')
 
         response = self.client.post(url, data, format='json', **self.header)
@@ -159,7 +162,7 @@ class TokenTest(
         Test provisioning a Token for a different User with & without the grant_token permission.
         """
         self.add_permissions('users.add_token')
-        user2 = get_user_model().objects.create_user(username='testuser2')
+        user2 = User.objects.create_user(username='testuser2')
         data = {
             'user': user2.id,
         }
@@ -197,11 +200,11 @@ class ObjectPermissionTest(
         Group.objects.bulk_create(groups)
 
         users = (
-            get_user_model()(username='User 1', is_active=True),
-            get_user_model()(username='User 2', is_active=True),
-            get_user_model()(username='User 3', is_active=True),
+            User(username='User 1', is_active=True),
+            User(username='User 2', is_active=True),
+            User(username='User 3', is_active=True),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         object_type = ContentType.objects.get(app_label='dcim', model='device')
 

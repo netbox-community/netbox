@@ -18,6 +18,9 @@ from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, cr
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
+User = get_user_model()
+
+
 class CustomFieldTestCase(TestCase, BaseFilterSetTests):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
@@ -278,11 +281,11 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
 
         users = (
-            get_user_model()(username='User 1'),
-            get_user_model()(username='User 2'),
-            get_user_model()(username='User 3'),
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         saved_filters = (
             SavedFilter(
@@ -332,7 +335,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_user(self):
-        users = get_user_model().objects.filter(username__startswith='User')
+        users = User.objects.filter(username__startswith='User')
         params = {'user': [users[0].username, users[1].username]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'user_id': [users[0].pk, users[1].pk]}
@@ -493,11 +496,11 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         users = (
-            get_user_model()(username='Alice'),
-            get_user_model()(username='Bob'),
-            get_user_model()(username='Charlie'),
+            User(username='Alice'),
+            User(username='Bob'),
+            User(username='Charlie'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         journal_entries = (
             JournalEntry(
@@ -540,7 +543,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
         JournalEntry.objects.bulk_create(journal_entries)
 
     def test_created_by(self):
-        users = get_user_model().objects.filter(username__in=['Alice', 'Bob'])
+        users = User.objects.filter(username__in=['Alice', 'Bob'])
         params = {'created_by': [users[0].username, users[1].username]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'created_by_id': [users[0].pk, users[1].pk]}
@@ -865,11 +868,11 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
     @classmethod
     def setUpTestData(cls):
         users = (
-            get_user_model()(username='user1'),
-            get_user_model()(username='user2'),
-            get_user_model()(username='user3'),
+            User(username='user1'),
+            User(username='user2'),
+            User(username='user3'),
         )
-        get_user_model().objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         site = Site.objects.create(name='Test Site 1', slug='test-site-1')
         ipaddress = IPAddress.objects.create(address='192.0.2.1/24')
@@ -933,7 +936,7 @@ class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
         ObjectChange.objects.bulk_create(object_changes)
 
     def test_user(self):
-        params = {'user_id': get_user_model().objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
+        params = {'user_id': User.objects.filter(username__in=['user1', 'user2']).values_list('pk', flat=True)}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'user': ['user1', 'user2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
