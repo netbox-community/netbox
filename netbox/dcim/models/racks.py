@@ -240,8 +240,8 @@ class Rack(PrimaryModel, WeightMixin):
                 position__isnull=True
             ).order_by('-position').first()
             if top_device:
-                min_height = top_device.position + top_device.device_type.u_height - 1
-                if self.u_height + self.starting_unit - 1 < min_height:
+                min_height = top_device.position + top_device.device_type.u_height - self.starting_unit
+                if self.u_height < min_height:
                     raise ValidationError({
                         'u_height': "Rack must be at least {}U tall to house currently installed devices.".format(
                             min_height
