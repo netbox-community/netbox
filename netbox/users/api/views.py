@@ -3,7 +3,7 @@ from django.contrib.auth.models import Group, User
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema
 from drf_spectacular.types import OpenApiTypes
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import AuthenticationFailed, ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -72,23 +72,32 @@ class TokenProvisionView(APIView):
 
     # @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
     def post(self, request):
-        serializer = serializers.TokenProvisionSerializer(data=request.data)
-        serializer.is_valid()
+        tokenprovision_serializer = serializers.TokenProvisionSerializer(data=request.data)
+        tokenprovision_serializer.is_valid()
 
         # Authenticate the user account based on the provided credentials
-        username = serializer.data.get('username')
-        password = serializer.data.get('password')
+        username = tokenprovision_serializer.data.get('username')
+        password = tokenprovision_serializer.data.get('password')
         if not username or not password:
             raise AuthenticationFailed("Username and password must be provided to provision a token.")
         user = authenticate(request=request, username=username, password=password)
         if user is None:
             raise AuthenticationFailed("Invalid username/password")
 
-        # Create a new Token for the User
-        token = Token(user=user)
+        # Inject the user into the request
+        request.data["user"] = user.id
+        request.user = user
+
+        token_serializer = serializers.TokenSerializer(data=request.data, context={'request': request})
+        if not token_serializer.is_valid():
+            raise ValidationError("Invalid token data provided")
+
+        # Create the new token
+        token = token_serializer.create(validated_data=token_serializer.validated_data)
         token.save()
+
+        # Manually append the token key to the returned data, which is normally write-only
         data = serializers.TokenSerializer(token, context={'request': request}).data
-        # Manually append the token key, which is normally write-only
         data['key'] = token.key
 
         return Response(data, status=HTTP_201_CREATED)
