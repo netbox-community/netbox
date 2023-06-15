@@ -290,8 +290,10 @@ class DataFile(models.Model):
 
     @property
     def data_as_string(self):
+        if not self.data:
+            return None
         try:
-            return self.data.tobytes().decode('utf-8')
+            return bytes(self.data, 'utf-8')
         except UnicodeDecodeError:
             return None
 
