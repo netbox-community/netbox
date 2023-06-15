@@ -16,6 +16,9 @@ DEFAULT_USER_PREFERENCES = {
 }
 
 
+User = get_user_model()
+
+
 class UserPreferencesTest(TestCase):
     user_permissions = ['dcim.view_site']
 
@@ -39,7 +42,7 @@ class UserPreferencesTest(TestCase):
 
     @override_settings(DEFAULT_USER_PREFERENCES=DEFAULT_USER_PREFERENCES)
     def test_default_preferences(self):
-        user = get_user_model().objects.create(username='User 1')
+        user = User.objects.create(username='User 1')
         userconfig = user.config
 
         self.assertEqual(userconfig.data, DEFAULT_USER_PREFERENCES)

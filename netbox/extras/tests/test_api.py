@@ -15,6 +15,9 @@ from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
 
+User = get_user_model()
+
+
 class AppTest(APITestCase):
 
     def test_root(self):
@@ -396,7 +399,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        user = get_user_model().objects.first()
+        user = User.objects.first()
         site = Site.objects.create(name='Site 1', slug='site-1')
 
         journal_entries = (
