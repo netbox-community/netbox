@@ -5,7 +5,7 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0173_remove_napalm_fields'),
+        ('dcim', '0174_device_latitude_device_longitude'),
     ]
 
     operations = [
