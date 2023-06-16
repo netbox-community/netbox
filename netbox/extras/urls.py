@@ -120,5 +120,6 @@ urlpatterns = [
     path('config-revision/', views.ConfigRevisionListView.as_view(), name='configrevision'),
     path('config-revision/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
     path('config-revision/delete/', views.ConfigRevisionBulkDeleteView.as_view(), name='configrevision_bulk_delete'),
+    path('config-revision/<int:pk>/restore', views.ConfigRevisionRestoreView.as_view(), name='configrevision_restore'),
     path('config-revision/<int:pk>/', include(get_model_urls('extras', 'configrevision'))),
 ]

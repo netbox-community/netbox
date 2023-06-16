@@ -31,11 +31,20 @@ IMAGEATTACHMENT_IMAGE = '''
 {% endif %}
 '''
 
+REVISION_BUTTONS = """
+{% if not record.is_active %}
+<a href="{% url 'extras:configrevision_restore' pk=record.pk %}" class="btn btn-sm btn-primary" title="Restore config">
+    <i class="mdi mdi-file-restore"></i>
+</a>
+{% endif %}
+"""
+
 
 class ConfigRevisionTable(NetBoxTable):
     is_active = columns.BooleanColumn()
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
+        extra_buttons=REVISION_BUTTONS
     )
 
     class Meta(NetBoxTable.Meta):
