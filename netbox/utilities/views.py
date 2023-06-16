@@ -179,7 +179,7 @@ def register_model_view(model, name='', path=None, kwargs=None):
     This decorator can be used to "attach" a view to any model in NetBox. This is typically used to inject
     additional tabs within a model's detail view. For example, to add a custom tab to NetBox's dcim.Site model:
 
-        @netbox_model_view(Site, 'myview', path='my-custom-view')
+        @register_model_view(Site, 'myview', path='my-custom-view')
         class MyView(ObjectView):
             ...
 

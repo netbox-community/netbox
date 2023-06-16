@@ -624,6 +624,20 @@ class Device(PrimaryModel, ConfigContextModel):
         blank=True,
         null=True
     )
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
 
     # Generic relations
     contacts = GenericRelation(

@@ -999,7 +999,7 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
 
     class Meta:
         model = Device
-        fields = ['id', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
+        fields = ['id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():

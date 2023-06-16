@@ -2,6 +2,21 @@
 
 ## v3.5.4 (FUTURE)
 
+### Enhancements
+
+* [#12847](https://github.com/netbox-community/netbox/issues/12847) - Include "add" button on all device & virtual machine component list views
+* [#12862](https://github.com/netbox-community/netbox/issues/12862) - Add menu navigation button to add wireless links directly
+
+### Bug Fixes
+
+* [#12622](https://github.com/netbox-community/netbox/issues/12622) - Permit the assignment of non-site VLANs to prefixes assigned to a site
+* [#12682](https://github.com/netbox-community/netbox/issues/12682) - Correct OpenAPI schema for connected device API endpoint
+* [#12687](https://github.com/netbox-community/netbox/issues/12687) - Allow the assignment of all /31 IP addresses to interfaces
+* [#12818](https://github.com/netbox-community/netbox/issues/12818) - Fix permissions evaluation when queuing a data sync job
+* [#12822](https://github.com/netbox-community/netbox/issues/12822) - Fix encoding of whitespace in custom link URLs
+* [#12838](https://github.com/netbox-community/netbox/issues/12838) - Correct rounding of rack power utilization values
+* [#12850](https://github.com/netbox-community/netbox/issues/12850) - Fix table configuration modal for the contact assignments list
+
 ---
 
 ## v3.5.3 (2023-06-02)
