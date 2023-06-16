@@ -358,6 +358,9 @@ class NetBoxUserView(generic.ObjectView):
     template_name = 'users/user.html'
 
     def get_required_permission(self):
+        # Need to override as ObjectView will query for NetBoxUser as the model
+        # but the model we need to check perms for is User
+        breakpoint()
         return get_permission_for_model(User, 'view')
 
     def get_extra_context(self, request, instance):
@@ -379,8 +382,8 @@ class NetBoxUserEditView(generic.ObjectEditView):
     form = forms.UserForm
 
     def get_required_permission(self):
-        # self._permission_action is set by dispatch() to either "add" or "change" depending on whether
-        # we are modifying an existing object or creating a new one.
+        # Need to override as ObjectView will query for NetBoxUser as the model
+        # but the model we need to check perms for is User
         return get_permission_for_model(User, self._permission_action)
 
 
