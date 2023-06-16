@@ -1257,6 +1257,6 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 
         candidate_config = get_object_or_404(ConfigRevision, pk=pk)
         candidate_config.activate()
-        self.message_user(request, f"Restored configuration revision #{pk}")
+        messages.success(request, f"Restored configuration revision #{pk}")
 
-        return redirect(reverse('admin:extras_configrevision_changelist'))
+        return redirect(reverse('extras:configrevision'))
