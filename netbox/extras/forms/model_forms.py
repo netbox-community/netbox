@@ -383,7 +383,7 @@ class JournalEntryForm(NetBoxModelForm):
 EMPTY_VALUES = ('', None, [], ())
 
 
-class FormMetaclass(forms.models.ModelFormMetaclass):
+class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
 
     def __new__(mcs, name, bases, attrs):
 
@@ -402,7 +402,7 @@ class FormMetaclass(forms.models.ModelFormMetaclass):
         return super().__new__(mcs, name, bases, attrs)
 
 
-class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=FormMetaclass):
+class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMetaclass):
     """
     Form for creating a new ConfigRevision.
     """

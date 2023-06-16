@@ -353,7 +353,7 @@ ADMIN_MENU = Menu(
             items=(
                 MenuItem(
                     link='extras:configrevision',
-                    link_text=_('Config Revision'),
+                    link_text=_('Config Revisions'),
                     permissions=['extras.config_revision']
                 ),
             ),
