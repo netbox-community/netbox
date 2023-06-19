@@ -365,12 +365,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             prefix_str = f"{self.instance.address.network}/{self.instance.address.prefixlen}"
             allow_assignment_error = True
             if self.instance.vrf is None:
-                prefix_obj =  Prefix.objects.get(prefix=prefix_str)
+                prefix_obj = Prefix.objects.get(prefix=prefix_str)
             else:
-                prefix_obj =  Prefix.objects.get(prefix=prefix_str, vrf=self.vrf)
+                prefix_obj = Prefix.objects.get(prefix=prefix_str, vrf=self.vrf)
             if prefix_obj and prefix_obj.is_pool:
                 allow_assignment_error = False
-            
+
             if allow_assignment_error:
                 if address.ip == address.network:
                     msg = f"{address} is a network ID, which may not be assigned to an interface unless the prefix is a pool."
