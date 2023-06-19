@@ -14,6 +14,7 @@ from circuits.models import Provider
 from dcim.models import Site
 from ipam import filtersets
 from ipam.models import *
+from ipam.utils import get_next_available_prefix
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
 from netbox.config import get_config
@@ -349,16 +350,6 @@ class AvailableASNsView(AvailableObjectsView):
         return requested_objects
 
 
-# TODO: Move me
-def get_next_available(ipset, prefix_size):
-    for available_prefix in ipset.iter_cidrs():
-        if prefix_size >= available_prefix.prefixlen:
-            allocated_prefix = f"{available_prefix.network}/{prefix_size}"
-            ipset.remove(allocated_prefix)
-            return allocated_prefix
-    return None
-
-
 class AvailablePrefixesView(AvailableObjectsView):
     queryset = Prefix.objects.all()
     read_serializer_class = serializers.AvailablePrefixSerializer
@@ -374,7 +365,7 @@ class AvailablePrefixesView(AvailableObjectsView):
     def check_sufficient_available(self, requested_objects, available_objects):
         available_prefixes = IPSet(available_objects)
         for requested_object in requested_objects:
-            if not get_next_available(available_prefixes, requested_object['prefix_length']):
+            if not get_next_available_prefix(available_prefixes, requested_object['prefix_length']):
                 return False
         return True
 
@@ -389,7 +380,7 @@ class AvailablePrefixesView(AvailableObjectsView):
         for i, request_data in enumerate(requested_objects):
 
             # Find the first available prefix equal to or larger than the requested size
-            if allocated_prefix := get_next_available(available_prefixes, request_data['prefix_length']):
+            if allocated_prefix := get_next_available_prefix(available_prefixes, request_data['prefix_length']):
                 request_data.update({
                     'prefix': allocated_prefix,
                     'vrf': parent.vrf.pk if parent.vrf else None,
