@@ -15,6 +15,12 @@ CABLE_LENGTH = """
 {% if record.length %}{{ record.length|floatformat:"-2" }} {{ record.length_unit }}{% endif %}
 """
 
+CABLE_BUTTONS = """
+{% if record.get_trace_url %}<a href="{{ record.get_trace_url }}" class="btn btn-sm btn-primary" title="Trace">
+    <i class="mdi mdi-transit-connection-variant"></i>
+</a>{% endif %}
+"""
+
 WEIGHT = """
 {% load helpers %}
 {% if value %}{{ value|floatformat:"-2" }} {{ record.weight_unit }}{% endif %}

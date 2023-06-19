@@ -18,16 +18,11 @@
             </tr>
             <tr>
               <th scope="row">{% trans "Status" %}</th>
-              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-            </tr>
-            {% if object.get_trace_url %}
-            <tr>
-              <th scope="row">Trace</th>
               <td>
-              <a href="{{ object.get_trace_url }}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>
+                {% badge object.get_status_display bg_color=object.get_status_color %}
+                {% if object.get_trace_url %} <a href="{{ object.get_trace_url }}" class="btn btn-primary btn-sm" title="Trace"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>{% endif %}
               </td>
             </tr>
-            {% endif %}
             <tr>
               <th scope="row">{% trans "Tenant" %}</th>
               <td>

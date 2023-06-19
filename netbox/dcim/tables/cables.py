@@ -6,7 +6,7 @@ from django.utils.safestring import mark_safe
 from dcim.models import Cable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin
-from .template_code import CABLE_LENGTH
+from .template_code import CABLE_LENGTH, CABLE_BUTTONS
 
 __all__ = (
     'CableTable',
@@ -117,7 +117,7 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
         url_name='dcim:cable_list'
     )
     actions = columns.ActionsColumn(
-        extra_buttons='{% if record.get_trace_url %}<a href="{{ record.get_trace_url }}" class="btn btn-sm btn-primary" title="Trace"><i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i></a>{% endif %}'
+        extra_buttons=CABLE_BUTTONS
     )
 
     class Meta(NetBoxTable.Meta):
