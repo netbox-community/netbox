@@ -360,7 +360,6 @@ class NetBoxUserView(generic.ObjectView):
     def get_required_permission(self):
         # Need to override as ObjectView will query for NetBoxUser as the model
         # but the model we need to check perms for is User
-        breakpoint()
         return get_permission_for_model(User, 'view')
 
     def get_extra_context(self, request, instance):

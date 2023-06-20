@@ -18,10 +18,12 @@ def get_permission_for_model(model, action):
     :param model: A model or instance
     :param action: View, add, change, or delete (string)
     """
+    # breakpoint()
+    ct = ContentType.objects.get_for_model(model)
     return '{}.{}_{}'.format(
-        model._meta.app_label,
+        ct.app_label,
         action,
-        model._meta.model_name
+        ct.model
     )
 
 
