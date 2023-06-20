@@ -250,8 +250,6 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
         """
         return requested_objects
 
-    # TODO: Fix OpenAPI schema
-    # @extend_schema(methods=["get"], responses={200: serializer(many=True)})
     def get(self, request, pk):
         parent = self.get_parent(request, pk)
         limit = get_results_limit(request)
@@ -264,8 +262,6 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    # TODO: Fix OpenAPI schema
-    # @extend_schema(methods=["post"], responses={201: serializer(many=True)})
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
         parent = self.get_parent(request, pk)
@@ -289,11 +285,8 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
             # Determine if the requested number of objects is available
             if not self.check_sufficient_available(serializer.validated_data, available_objects):
-                # TODO: Raise exception instead?
                 return Response(
-                    {
-                        "detail": f"Insufficient resources are available to satisfy the request"
-                    },
+                    {"detail": f"Insufficient resources are available to satisfy the request"},
                     status=status.HTTP_409_CONFLICT
                 )
 
@@ -349,6 +342,14 @@ class AvailableASNsView(AvailableObjectsView):
 
         return requested_objects
 
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableASNSerializer(many=True)})
+    def get(self, request, pk):
+        return super().get(request, pk)
+
+    @extend_schema(methods=["post"], responses={201: serializers.AvailableASNSerializer(many=True)})
+    def post(self, request, pk):
+        return super().post(request, pk)
+
 
 class AvailablePrefixesView(AvailableObjectsView):
     queryset = Prefix.objects.all()
@@ -386,10 +387,17 @@ class AvailablePrefixesView(AvailableObjectsView):
                     'vrf': parent.vrf.pk if parent.vrf else None,
                 })
             else:
-                # TODO: Handle this
                 raise ValidationError("Insufficient space is available to accommodate the requested prefix size(s)")
 
         return requested_objects
+
+    @extend_schema(methods=["get"], responses={200: serializers.AvailablePrefixSerializer(many=True)})
+    def get(self, request, pk):
+        return super().get(request, pk)
+
+    @extend_schema(methods=["post"], responses={201: serializers.PrefixSerializer(many=True)})
+    def post(self, request, pk):
+        return super().post(request, pk)
 
 
 class AvailableIPAddressesView(AvailableObjectsView):
@@ -422,6 +430,14 @@ class AvailableIPAddressesView(AvailableObjectsView):
             })
 
         return requested_objects
+
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableIPSerializer(many=True)})
+    def get(self, request, pk):
+        return super().get(request, pk)
+
+    @extend_schema(methods=["post"], responses={201: serializers.IPAddressSerializer(many=True)})
+    def post(self, request, pk):
+        return super().post(request, pk)
 
 
 class PrefixAvailableIPAddressesView(AvailableIPAddressesView):
@@ -461,3 +477,11 @@ class AvailableVLANsView(AvailableObjectsView):
             })
 
         return requested_objects
+
+    @extend_schema(methods=["get"], responses={200: serializers.AvailableVLANSerializer(many=True)})
+    def get(self, request, pk):
+        return super().get(request, pk)
+
+    @extend_schema(methods=["post"], responses={201: serializers.VLANSerializer(many=True)})
+    def post(self, request, pk):
+        return super().post(request, pk)
