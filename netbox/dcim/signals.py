@@ -27,6 +27,7 @@ def handle_location_site_change(instance, created, **kwargs):
         Rack.objects.filter(location__in=locations).update(site=instance.site)
         Device.objects.filter(location__in=locations).update(site=instance.site)
         PowerPanel.objects.filter(location__in=locations).update(site=instance.site)
+        CableTermination.objects.filter(_location__in=locations).update(_site=instance.site)
 
 
 @receiver(post_save, sender=Rack)
