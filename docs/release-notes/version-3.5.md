@@ -1,5 +1,30 @@
 # NetBox v3.5
 
+## v3.5.4 (2023-06-20)
+
+### Enhancements
+
+* [#12828](https://github.com/netbox-community/netbox/issues/12828) - Define colors for staged change action choices
+* [#12847](https://github.com/netbox-community/netbox/issues/12847) - Include "add" button on all device & virtual machine component list views
+* [#12862](https://github.com/netbox-community/netbox/issues/12862) - Add menu navigation button to add wireless links directly
+* [#12865](https://github.com/netbox-community/netbox/issues/12865) - Add "add" buttons for reports & scripts to navigation menu
+
+### Bug Fixes
+
+* [#12474](https://github.com/netbox-community/netbox/issues/12474) - Update cable terminations when assigning a location to a new site
+* [#12622](https://github.com/netbox-community/netbox/issues/12622) - Permit the assignment of non-site VLANs to prefixes assigned to a site
+* [#12682](https://github.com/netbox-community/netbox/issues/12682) - Correct OpenAPI schema for connected device API endpoint
+* [#12687](https://github.com/netbox-community/netbox/issues/12687) - Allow the assignment of all /31 IP addresses to interfaces
+* [#12818](https://github.com/netbox-community/netbox/issues/12818) - Fix permissions evaluation when queuing a data sync job
+* [#12822](https://github.com/netbox-community/netbox/issues/12822) - Fix encoding of whitespace in custom link URLs
+* [#12838](https://github.com/netbox-community/netbox/issues/12838) - Correct rounding of rack power utilization values
+* [#12845](https://github.com/netbox-community/netbox/issues/12845) - Fix pagination of objects for related IP addresses table
+* [#12850](https://github.com/netbox-community/netbox/issues/12850) - Fix table configuration modal for the contact assignments list
+* [#12885](https://github.com/netbox-community/netbox/issues/12885) - Permit mounting of devices in rack unit 100
+* [#12914](https://github.com/netbox-community/netbox/issues/12914) - Clear stored ordering from user config when cleared by request
+
+---
+
 ## v3.5.3 (2023-06-02)
 
 ### Enhancements

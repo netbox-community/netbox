@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-    {% include 'inc/table_controls_htmx.html' with table_modal="ContactTable_config" %}
+    {% include 'inc/table_controls_htmx.html' with table_modal="ContactAssignmentTable_config" %}
     <form method="post">
         {% csrf_token %}
         <div class="card">
