@@ -147,6 +147,15 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
 
 
 class UserForm(BootstrapMixin, forms.ModelForm):
+    password = forms.CharField(
+        widget=forms.PasswordInput(),
+        required=True,
+    )
+    confirm_password = forms.CharField(
+        widget=forms.PasswordInput(),
+        required=True,
+        help_text=_("Enter the same password as before, for verification."),
+    )
     groups = DynamicModelMultipleChoiceField(
         required=False,
         queryset=Group.objects.all()
@@ -159,7 +168,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('User', ('username', 'first_name', 'last_name', 'email', )),
+        ('User', ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', )),
         ('Groups', ('groups', )),
         ('Status', ('is_active', 'is_staff', 'is_superuser', )),
         ('Important Dates', ('last_login', 'date_joined', )),
@@ -175,13 +184,39 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Adjust form fields depending if Add or Edit
         if self.instance.pk:
             self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
+            self.fields['password'].disabled = True
+            self.fields['password'].required = False
+            self.fields['password'].help_text = _(
+                "Raw passwords are not stored, so there is no way to see this "
+                "user’s password, but you can change the password using "
+                '<a href="xxx">this form</a>.'
+            )
+
+            del self.fields['confirm_password']
+        else:
+            del self.fields['date_joined']
+            del self.fields['last_login']
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
         instance.object_permissions.set(self.cleaned_data['object_permissions'])
         return instance
+
+    def clean(self):
+        cleaned_data = super().clean()
+        instance = getattr(self, 'instance', None)
+        if not instance:
+            password = cleaned_data.get("password")
+            confirm_password = cleaned_data.get("confirm_password")
+
+            if password != confirm_password:
+                raise forms.ValidationError(
+                    "password and confirm_password does not match"
+                )
 
 
 class GroupForm(BootstrapMixin, forms.ModelForm):

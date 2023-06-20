@@ -348,19 +348,11 @@ class NetBoxUserListView(generic.ObjectListView):
     filterset_form = forms.UserFilterForm
     table = tables.UserTable
 
-    def get_required_permission(self):
-        return get_permission_for_model(User, 'view')
-
 
 @register_model_view(NetBoxUser)
 class NetBoxUserView(generic.ObjectView):
     queryset = NetBoxUser.objects.all()
     template_name = 'users/user.html'
-
-    def get_required_permission(self):
-        # Need to override as ObjectView will query for NetBoxUser as the model
-        # but the model we need to check perms for is User
-        return get_permission_for_model(User, 'view')
 
     def get_extra_context(self, request, instance):
         # Compile changelog table
@@ -380,10 +372,11 @@ class NetBoxUserEditView(generic.ObjectEditView):
     queryset = NetBoxUser.objects.all()
     form = forms.UserForm
 
-    def get_required_permission(self):
-        # Need to override as ObjectView will query for NetBoxUser as the model
-        # but the model we need to check perms for is User
-        return get_permission_for_model(User, self._permission_action)
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 @register_model_view(NetBoxUser, 'delete')
@@ -407,9 +400,6 @@ class NetBoxUserBulkEditView(generic.BulkEditView):
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
-
-    def get_required_permission(self):
-        return get_permission_for_model(User, 'change')
 
 
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
