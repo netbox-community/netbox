@@ -365,10 +365,10 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             prefix_str = f"{self.instance.address.network}/{self.instance.address.prefixlen}"
             allow_assignment_error = True
             if self.instance.vrf is None:
-                prefix_obj = Prefix.objects.get(prefix=prefix_str)
+                prefix_obj = Prefix.objects.filter(prefix=prefix_str)
             else:
-                prefix_obj = Prefix.objects.get(prefix=prefix_str, vrf=self.vrf)
-            if prefix_obj and prefix_obj.is_pool:
+                prefix_obj = Prefix.objects.filter(prefix=prefix_str, vrf=self.vrf)
+            if prefix_obj.exists() and prefix_obj[0].is_pool:
                 allow_assignment_error = False
 
             if allow_assignment_error:
