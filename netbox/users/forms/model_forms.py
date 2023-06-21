@@ -201,6 +201,11 @@ class UserForm(BootstrapMixin, forms.ModelForm):
             del self.fields['date_joined']
             del self.fields['last_login']
 
+    # def is_valid(self):
+    #     ret = super().is_valid()
+    #     breakpoint()
+    #     return ret
+
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
         instance.object_permissions.set(self.cleaned_data['object_permissions'])
@@ -215,8 +220,26 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
             if password != confirm_password:
                 raise forms.ValidationError(
-                    "password and confirm_password does not match"
+                    _("password and confirm_password does not match")
                 )
+
+    def clean_username(self):
+        """Reject usernames that differ only in case."""
+        instance = getattr(self, 'instance', None)
+        if instance:
+            qs = self._meta.model.objects.exclude(pk=instance.pk)
+        else:
+            qs = self._meta.model.objects.all()
+
+        username = self.cleaned_data.get("username")
+        if (
+            username and qs.filter(username__iexact=username).exists()
+        ):
+            raise forms.ValidationError(
+                _("user with this username already exists")
+            )
+
+        return username
 
 
 class GroupForm(BootstrapMixin, forms.ModelForm):

@@ -170,13 +170,14 @@ class ViewTestCases:
             instance = self._get_queryset().order_by('pk').last()
             self.assertInstanceEqual(instance, self.form_data)
 
-            # Verify ObjectChange creation
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_CREATE)
+            if hasattr(self.model, "to_objectchange"):
+                # Verify ObjectChange creation
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_CREATE)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_create_object_with_constrained_permission(self):
@@ -263,13 +264,14 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(**request), 302)
             self.assertInstanceEqual(self._get_queryset().get(pk=instance.pk), self.form_data)
 
-            # Verify ObjectChange creation
-            objectchanges = ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk
-            )
-            self.assertEqual(len(objectchanges), 1)
-            self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_UPDATE)
+            if hasattr(self.model, "to_objectchange"):
+                # Verify ObjectChange creation
+                objectchanges = ObjectChange.objects.filter(
+                    changed_object_type=ContentType.objects.get_for_model(instance),
+                    changed_object_id=instance.pk
+                )
+                self.assertEqual(len(objectchanges), 1)
+                self.assertEqual(objectchanges[0].action, ObjectChangeActionChoices.ACTION_UPDATE)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_edit_object_with_constrained_permission(self):
