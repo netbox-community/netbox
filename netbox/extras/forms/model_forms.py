@@ -204,15 +204,20 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
+    object_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('tags'),
+        required=False
+    )
 
     fieldsets = (
-        ('Tag', ('name', 'slug', 'color', 'description')),
+        ('Tag', ('name', 'slug', 'color', 'description', 'object_types')),
     )
 
     class Meta:
         model = Tag
         fields = [
-            'name', 'slug', 'color', 'description'
+            'name', 'slug', 'color', 'description', 'object_types',
         ]
 
 

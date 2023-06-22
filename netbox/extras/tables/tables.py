@@ -210,10 +210,14 @@ class TagTable(NetBoxTable):
         linkify=True
     )
     color = columns.ColorColumn()
+    object_types = columns.ContentTypesColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Tag
-        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'created', 'last_updated', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
+            'actions',
+        )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 

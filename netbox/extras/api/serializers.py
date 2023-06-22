@@ -196,12 +196,18 @@ class SavedFilterSerializer(ValidatedModelSerializer):
 
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
+    object_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
+        many=True,
+        required=False
+    )
     tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'object_types', 'tagged_items', 'created',
+            'last_updated',
         ]
 
 

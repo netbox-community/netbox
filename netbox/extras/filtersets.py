@@ -258,10 +258,14 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     content_type_id = MultiValueNumberFilter(
         method='_content_type_id'
     )
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
+    )
+    object_types = ContentTypeFilter()
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'color', 'description']
+        fields = ['id', 'name', 'slug', 'color', 'description', 'object_types']
 
     def search(self, queryset, name, value):
         if not value.strip():
