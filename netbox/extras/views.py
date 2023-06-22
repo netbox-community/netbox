@@ -1178,24 +1178,8 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
 
 
 #
-# Markdown
+# Config Revisions
 #
-
-class RenderMarkdownView(View):
-
-    def post(self, request):
-        form = forms.RenderMarkdownForm(request.POST)
-        if not form.is_valid():
-            HttpResponseBadRequest()
-        rendered = render_markdown(form.cleaned_data['text'])
-
-        return HttpResponse(rendered)
-
-
-#
-# Config Revision
-#
-
 
 class ConfigRevisionListView(generic.ObjectListView):
     queryset = ConfigRevision.objects.all()
@@ -1209,7 +1193,6 @@ class ConfigRevisionView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
 
-@register_model_view(ConfigRevision, 'edit')
 class ConfigRevisionEditView(generic.ObjectEditView):
     queryset = ConfigRevision.objects.all()
     form = forms.ConfigRevisionForm
@@ -1260,3 +1243,18 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
         messages.success(request, f"Restored configuration revision #{pk}")
 
         return redirect(reverse('extras:configrevision'))
+
+
+#
+# Markdown
+#
+
+class RenderMarkdownView(View):
+
+    def post(self, request):
+        form = forms.RenderMarkdownForm(request.POST)
+        if not form.is_valid():
+            HttpResponseBadRequest()
+        rendered = render_markdown(form.cleaned_data['text'])
+
+        return HttpResponse(rendered)
