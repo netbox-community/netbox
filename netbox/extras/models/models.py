@@ -612,6 +612,9 @@ class ConfigRevision(models.Model):
         verbose_name='Configuration data'
     )
 
+    class Meta:
+        ordering = ['-created']
+
     def __str__(self):
         return f'Config revision #{self.pk} ({self.created})'
 
