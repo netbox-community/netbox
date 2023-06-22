@@ -1,7 +1,7 @@
 import decimal
 from functools import cached_property
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -126,7 +126,7 @@ class Rack(PrimaryModel, WeightMixin):
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
-        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
         help_text=_('Height in rack units')
     )
     desc_units = models.BooleanField(
@@ -505,7 +505,7 @@ class RackReservation(PrimaryModel):
         null=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT
     )
     description = models.CharField(

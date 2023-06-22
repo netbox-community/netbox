@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from dcim.choices import *
@@ -10,6 +10,9 @@ from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
+
+
+User = get_user_model()
 
 
 class DeviceComponentFilterSetTests:

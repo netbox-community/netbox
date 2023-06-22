@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
@@ -385,7 +385,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         widget=DateTimePicker()
     )
     created_by_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(
@@ -429,7 +429,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(

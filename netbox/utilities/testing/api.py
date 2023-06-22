@@ -2,7 +2,7 @@ import inspect
 import json
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
@@ -24,6 +24,9 @@ __all__ = (
     'APITestCase',
     'APIViewTestCases',
 )
+
+
+User = get_user_model()
 
 
 #

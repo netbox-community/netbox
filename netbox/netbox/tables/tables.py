@@ -140,10 +140,14 @@ class BaseTable(tables.Table):
         if request.user.is_authenticated:
             table_name = self.__class__.__name__
             if self.prefixed_order_by_field in request.GET:
-                # If an ordering has been specified as a query parameter, save it as the
-                # user's preferred ordering for this table.
-                ordering = request.GET.getlist(self.prefixed_order_by_field)
-                request.user.config.set(f'tables.{table_name}.ordering', ordering, commit=True)
+                if request.GET[self.prefixed_order_by_field]:
+                    # If an ordering has been specified as a query parameter, save it as the
+                    # user's preferred ordering for this table.
+                    ordering = request.GET.getlist(self.prefixed_order_by_field)
+                    request.user.config.set(f'tables.{table_name}.ordering', ordering, commit=True)
+                else:
+                    # If the ordering has been set to none (empty), clear any existing preference.
+                    request.user.config.clear(f'tables.{table_name}.ordering', commit=True)
             elif ordering := request.user.config.get(f'tables.{table_name}.ordering'):
                 # If no ordering has been specified, set the preferred ordering (if any).
                 self.order_by = ordering
