@@ -612,6 +612,8 @@ class ConfigRevision(models.Model):
         verbose_name='Configuration data'
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ['-created']
 
