@@ -362,13 +362,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
 
         # Do not allow assigning a network ID or broadcast address to an interface.
         if interface and (address := self.cleaned_data.get('address')):
-            prefix_str = f"{address.network}/{address.prefixlen}"
             allow_assignment_error = True
             if self.instance.vrf is None:
-                prefix_obj = Prefix.objects.filter(prefix=prefix_str)
+                prefix_obj = Prefix.objects.filter(prefix=address.cidr)
             else:
-                prefix_obj = Prefix.objects.filter(prefix=prefix_str, vrf=self.vrf)
-            if prefix_obj.exists() and prefix_obj[0].is_pool:
+                prefix_obj = Prefix.objects.filter(prefix=address.cidr, vrf=self.vrf)
+            if prefix_obj.exists() and prefix_obj.first().is_pool:
                 allow_assignment_error = False
 
             if allow_assignment_error:
