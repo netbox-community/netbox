@@ -1242,7 +1242,7 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
         candidate_config.activate()
         messages.success(request, f"Restored configuration revision #{pk}")
 
-        return redirect(reverse('extras:configrevision'))
+        return redirect(candidate_config.get_absolute_url())
 
 
 #
