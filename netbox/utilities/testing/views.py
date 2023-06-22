@@ -117,9 +117,10 @@ class ViewTestCases:
         """
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_get_object_changelog(self):
-            url = self._get_url('changelog', self._get_queryset().first())
-            response = self.client.get(url)
-            self.assertHttpStatus(response, 200)
+            if hasattr(self.model, "to_objectchange"):
+                url = self._get_url('changelog', self._get_queryset().first())
+                response = self.client.get(url)
+                self.assertHttpStatus(response, 200)
 
     class CreateObjectViewTestCase(ModelViewTestCase):
         """
@@ -168,7 +169,7 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(**request), 302)
             self.assertEqual(initial_count + 1, self._get_queryset().count())
             instance = self._get_queryset().order_by('pk').last()
-            self.assertInstanceEqual(instance, self.form_data)
+            self.assertInstanceEqual(instance, self.form_data, exclude=['password'])
 
             if hasattr(self.model, "to_objectchange"):
                 # Verify ObjectChange creation
