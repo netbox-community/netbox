@@ -27,9 +27,7 @@ mkdocs-material==9.1.16
 mkdocstrings[python-legacy]==0.22.0
 netaddr==0.8.0
 Pillow==9.5.0
-psycopg==3.1.9
-psycopg-binary==3.1.9
-psycopg-pool==3.1.7
+psycopg[binary,pool]==3.1.9
 PyYAML==6.0
 sentry-sdk==1.25.1
 social-auth-app-django==5.2.0
