@@ -38,7 +38,7 @@ Context:
     </div>
   </div>
   {{ block.super }}
-{% endblock %}
+{% endblock header %}
 
 {% block title %}{{ object }}{% endblock %}
 
@@ -48,7 +48,7 @@ Context:
     <span class="separator">&middot;</span>
     <span>Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago</span>
   </div>
-{% endblock %}
+{% endblock subtitle %}
 
 {% block controls %}
   {# Clone/Edit/Delete Buttons #}

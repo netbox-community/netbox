@@ -16,6 +16,7 @@ from .models import *
 
 __all__ = (
     'ConfigContextFilterSet',
+    'ConfigRevisionFilterSet',
     'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldFilterSet',
@@ -556,4 +557,28 @@ class ContentTypeFilterSet(django_filters.FilterSet):
         return queryset.filter(
             Q(app_label__icontains=value) |
             Q(model__icontains=value)
+        )
+
+
+#
+# ConfigRevisions
+#
+
+class ConfigRevisionFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = ConfigRevision
+        fields = [
+            'id',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(comment__icontains=value)
         )
