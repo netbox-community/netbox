@@ -392,6 +392,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_width': 500,
             'outer_depth': 500,
             'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'starting_unit': 1,
             'weight': 100,
             'max_weight': 2000,
             'weight_unit': WeightUnitChoices.UNIT_POUND,

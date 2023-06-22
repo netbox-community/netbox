@@ -612,6 +612,11 @@ class ConfigRevision(models.Model):
         verbose_name='Configuration data'
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-created']
+
     def __str__(self):
         return f'Config revision #{self.pk} ({self.created})'
 
@@ -619,6 +624,9 @@ class ConfigRevision(models.Model):
         if item in self.data:
             return self.data[item]
         return super().__getattribute__(item)
+
+    def get_absolute_url(self):
+        return reverse('extras:configrevision', args=[self.pk])
 
     def activate(self):
         """
