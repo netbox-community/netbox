@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 from timezone_field import TimeZoneFormField
 
@@ -322,7 +322,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.order_by(
+        queryset=get_user_model().objects.order_by(
             'username'
         ),
         required=False

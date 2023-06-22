@@ -1,7 +1,7 @@
 import decimal
 from functools import cached_property
 
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericRelation
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -505,7 +505,7 @@ class RackReservation(PrimaryModel):
         null=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT
     )
     description = models.CharField(

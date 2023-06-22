@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.test.client import RequestFactory
 from django.urls import reverse
@@ -14,6 +14,9 @@ DEFAULT_USER_PREFERENCES = {
         'per_page': 250,
     }
 }
+
+
+User = get_user_model()
 
 
 class UserPreferencesTest(TestCase):

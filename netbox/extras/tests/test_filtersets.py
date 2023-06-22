@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
@@ -16,6 +16,9 @@ from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
+
+User = get_user_model()
 
 
 class CustomFieldTestCase(TestCase, BaseFilterSetTests):

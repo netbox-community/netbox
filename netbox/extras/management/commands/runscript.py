@@ -4,7 +4,7 @@ import sys
 import traceback
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 
@@ -62,6 +62,8 @@ class Command(BaseCommand):
                 job.terminate(status=JobStatusChoices.STATUS_ERRORED)
 
             logger.info(f"Script completed in {job.duration}")
+
+        User = get_user_model()
 
         # Params
         script = options['script']

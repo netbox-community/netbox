@@ -6,7 +6,7 @@ except ImportError:
     from backports.zoneinfo import ZoneInfo
 
 import yaml
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -20,6 +20,9 @@ from tenancy.models import Tenant
 from utilities.choices import ImportFormatChoices
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
+
+
+User = get_user_model()
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
