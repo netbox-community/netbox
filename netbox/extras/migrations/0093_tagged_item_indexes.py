@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('extras', '0092_delete_jobresult'),
+        ('extras', '0093_configrevision_ordering'),
     ]
 
     operations = [
