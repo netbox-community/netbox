@@ -233,33 +233,24 @@ class Rack(PrimaryModel, WeightMixin):
             raise ValidationError("Must specify a unit when setting a maximum weight")
 
         if self.pk:
-            # Validate that Rack is tall enough to house the installed Devices
-            top_device = Device.objects.filter(
-                rack=self
-            ).exclude(
-                position__isnull=True
-            ).order_by('-position').first()
-            if top_device:
+            mounted_devices = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('position')
+
+            # Validate that Rack is tall enough to house the highest mounted Device
+            if top_device := mounted_devices.last():
                 min_height = top_device.position + top_device.device_type.u_height - self.starting_unit
                 if self.u_height < min_height:
                     raise ValidationError({
-                        'u_height': "Rack must be at least {}U tall to house currently installed devices.".format(
-                            min_height
-                        )
+                        'u_height': f"Rack must be at least {min_height}U tall to house currently installed devices."
                     })
-            # Validate the Rack starting_unit > position of any installed devices
-            first_device = Device.objects.filter(
-                rack=self
-            ).exclude(
-                position__isnull=True
-            ).order_by('position').first()
-            if first_device:
-                if self.starting_unit > first_device.position:
+
+            # Validate that the Rack's starting unit is less than or equal to the position of the lowest mounted Device
+            if last_device := mounted_devices.first():
+                if self.starting_unit > last_device.position:
                     raise ValidationError({
-                        'starting_unit': "Rack must have a staring unit at most {} to house currently installed devices.".format(
-                            first_device.position
-                        )
+                        'starting_unit': f"Rack unit numbering must begin at {last_device.position} or less to house "
+                                         f"currently installed devices."
                     })
+
             # Validate that Rack was assigned a Location of its same site, if applicable
             if self.location:
                 if self.location.site != self.site:
@@ -287,7 +278,7 @@ class Rack(PrimaryModel, WeightMixin):
         Return a list of unit numbers, top to bottom.
         """
         if self.desc_units:
-            return drange(decimal.Decimal(self.starting_unit), self.u_height + 1, 0.5)
+            return drange(decimal.Decimal(self.starting_unit), self.u_height + self.starting_unit, 0.5)
         return drange(self.u_height + decimal.Decimal(0.5) + self.starting_unit - 1, 0.5 + self.starting_unit - 1, -0.5)
 
     def get_status_color(self):
