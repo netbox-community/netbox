@@ -348,6 +348,15 @@ class NetBoxUserListView(generic.ObjectListView):
     filterset_form = forms.UserFilterForm
     table = tables.UserTable
 
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 @register_model_view(NetBoxUser)
 class NetBoxUserView(generic.ObjectView):
@@ -372,12 +381,6 @@ class NetBoxUserEditView(generic.ObjectEditView):
     queryset = NetBoxUser.objects.all()
     form = forms.UserForm
 
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
-
 
 @register_model_view(NetBoxUser, 'delete')
 class NetBoxUserDeleteView(generic.ObjectDeleteView):
@@ -400,6 +403,18 @@ class NetBoxUserBulkEditView(generic.BulkEditView):
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
+
+    def dispatch(self, request, *args, **kwargs):
+        # breakpoint()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        # breakpoint()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # breakpoint()
+        return super().post(request, *args, **kwargs)
 
 
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):

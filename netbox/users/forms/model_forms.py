@@ -171,7 +171,6 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         ('User', ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', )),
         ('Groups', ('groups', )),
         ('Status', ('is_active', 'is_staff', 'is_superuser', )),
-        ('Important Dates', ('last_login', 'date_joined', )),
         ('Permissions', ('object_permissions', )),
     )
 
@@ -179,7 +178,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         model = NetBoxUser
         fields = [
             'username', 'first_name', 'last_name', 'email', 'groups', 'object_permissions',
-            'is_active', 'is_staff', 'is_superuser', 'last_login', 'date_joined',
+            'is_active', 'is_staff', 'is_superuser',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -197,9 +196,6 @@ class UserForm(BootstrapMixin, forms.ModelForm):
             )
 
             del self.fields['confirm_password']
-        else:
-            del self.fields['date_joined']
-            del self.fields['last_login']
 
     # def is_valid(self):
     #     ret = super().is_valid()

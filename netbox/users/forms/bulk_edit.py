@@ -50,6 +50,9 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['pk'].queryset = self.model.objects.all()
+        qs = self.fields['pk'].queryset
+        for i in qs:
+            print(f"pk: {i.pk}")
 
 
 class GroupBulkEditForm(BootstrapMixin, forms.Form):
