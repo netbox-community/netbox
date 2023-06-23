@@ -35,7 +35,7 @@ class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
         super().__init__(*args, **kwargs)
 
         # Limit tags to those applicable to the object type
-        if ct := self._get_content_type():
+        if (ct := self._get_content_type()) and hasattr(self.fields['tags'].widget, 'add_query_param'):
             self.fields['tags'].widget.add_query_param('for_object_type_id', ct.pk)
 
     def _get_content_type(self):
