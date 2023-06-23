@@ -4,6 +4,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.utils.translation import gettext as _
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from netaddr.core import AddrFormatError
 
 from dcim.models import Device, Interface, Region, Site, SiteGroup
@@ -414,6 +416,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         except (AddrFormatError, ValueError):
             return queryset.none()
 
+    @extend_schema_field(OpenApiTypes.STR)
     def filter_present_in_vrf(self, queryset, name, vrf):
         if vrf is None:
             return queryset.none
@@ -659,6 +662,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             return queryset
         return queryset.filter(address__net_mask_length=value)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def filter_present_in_vrf(self, queryset, name, vrf):
         if vrf is None:
             return queryset.none
@@ -727,6 +731,7 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
             Q(name__icontains=value)
         )
 
+    @extend_schema_field(OpenApiTypes.STR)
     def filter_related_ip(self, queryset, name, value):
         """
         Filter by VRF & prefix of assigned IP addresses.
@@ -941,9 +946,11 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             pass
         return queryset.filter(qs_filter)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_for_device(self, queryset, name, value):
         return queryset.get_for_device(value)
 
+    @extend_schema_field(OpenApiTypes.STR)
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
 
