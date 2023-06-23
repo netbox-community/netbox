@@ -379,6 +379,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         interface = self.instance.assigned_object
         if type(interface) in (Interface, VMInterface):
             parent = interface.parent_object
+            parent.snapshot()
             if self.cleaned_data['primary_for_parent']:
                 if ipaddress.address.version == 4:
                     parent.primary_ip4 = ipaddress
