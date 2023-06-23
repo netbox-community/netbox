@@ -9,6 +9,7 @@ from .template_code import *
 
 __all__ = (
     'ConfigContextTable',
+    'ConfigRevisionTable',
     'ConfigTemplateTable',
     'CustomFieldTable',
     'CustomLinkTable',
@@ -21,6 +22,37 @@ __all__ = (
     'TagTable',
     'WebhookTable',
 )
+
+IMAGEATTACHMENT_IMAGE = '''
+{% if record.image %}
+  <a class="image-preview" href="{{ record.image.url }}" target="_blank">{{ record }}</a>
+{% else %}
+  &mdash;
+{% endif %}
+'''
+
+REVISION_BUTTONS = """
+{% if not record.is_active %}
+<a href="{% url 'extras:configrevision_restore' pk=record.pk %}" class="btn btn-sm btn-primary" title="Restore config">
+    <i class="mdi mdi-file-restore"></i>
+</a>
+{% endif %}
+"""
+
+
+class ConfigRevisionTable(NetBoxTable):
+    is_active = columns.BooleanColumn()
+    actions = columns.ActionsColumn(
+        actions=('delete',),
+        extra_buttons=REVISION_BUTTONS
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigRevision
+        fields = (
+            'pk', 'id', 'is_active', 'created', 'comment',
+        )
+        default_columns = ('pk', 'id', 'is_active', 'created', 'comment')
 
 
 class CustomFieldTable(NetBoxTable):
@@ -95,6 +127,9 @@ class ImageAttachmentTable(NetBoxTable):
     content_type = columns.ContentTypeColumn()
     parent = tables.Column(
         linkify=True
+    )
+    image = tables.TemplateColumn(
+        template_code=IMAGEATTACHMENT_IMAGE,
     )
     size = tables.Column(
         orderable=False,
@@ -175,10 +210,14 @@ class TagTable(NetBoxTable):
         linkify=True
     )
     color = columns.ColorColumn()
+    object_types = columns.ContentTypesColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Tag
-        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'created', 'last_updated', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
+            'actions',
+        )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 

@@ -9,6 +9,7 @@ from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
+from utilities.rqworker import get_rq_retry
 from utilities.utils import serialize_object
 from .choices import *
 from .models import Webhook
@@ -116,5 +117,6 @@ def flush_webhooks(queue):
                 snapshots=data['snapshots'],
                 timestamp=str(timezone.now()),
                 username=data['username'],
-                request_id=data['request_id']
+                request_id=data['request_id'],
+                retry=get_rq_retry()
             )

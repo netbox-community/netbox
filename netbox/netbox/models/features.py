@@ -71,6 +71,7 @@ class ChangeLoggingMixin(models.Model):
         `_prechange_snapshot` on the instance.
         """
         self._prechange_snapshot = self.serialize_object()
+    snapshot.alters_data = True
 
     def to_objectchange(self, action):
         """
@@ -197,11 +198,15 @@ class CustomFieldsMixin(models.Model):
         data = {}
 
         for field in CustomField.objects.get_for_model(self):
-            # Skip fields that are hidden if 'omit_hidden' is set
-            if omit_hidden and field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN:
-                continue
-
             value = self.custom_field_data.get(field.name)
+
+            # Skip fields that are hidden if 'omit_hidden' is set
+            if omit_hidden:
+                if field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN:
+                    continue
+                if field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET and not value:
+                    continue
+
             data[field] = field.deserialize(value)
 
         return data
@@ -227,6 +232,8 @@ class CustomFieldsMixin(models.Model):
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
+            if value in (None, []) and cf.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET:
+                continue
             value = cf.deserialize(value)
             groups[cf.group_name][cf] = value
 
@@ -238,6 +245,7 @@ class CustomFieldsMixin(models.Model):
         """
         for cf in self.custom_fields:
             self.custom_field_data[cf.name] = cf.default
+    populate_custom_field_defaults.alters_data = True
 
     def clean(self):
         super().clean()
@@ -413,6 +421,7 @@ class SyncedDataMixin(models.Model):
             self.data_synced = None
 
         super().clean()
+    clean.alters_data = True
 
     def save(self, *args, **kwargs):
         from core.models import AutoSyncRecord
@@ -460,6 +469,7 @@ class SyncedDataMixin(models.Model):
         self.data_synced = timezone.now()
         if save:
             self.save()
+    sync.alters_data = True
 
     def sync_data(self):
         """

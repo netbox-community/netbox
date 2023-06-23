@@ -112,3 +112,7 @@ class StagedChange(ChangeLoggedModel):
             instance = self.model.objects.get(pk=self.object_id)
             logger.info(f'Deleting {self.model._meta.verbose_name} {instance}')
             instance.delete()
+    apply.alters_data = True
+
+    def get_action_color(self):
+        return ChangeActionChoices.colors.get(self.action)

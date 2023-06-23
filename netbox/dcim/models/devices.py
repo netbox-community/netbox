@@ -555,7 +555,7 @@ class Device(PrimaryModel, ConfigContextModel):
         decimal_places=1,
         blank=True,
         null=True,
-        validators=[MinValueValidator(1), MaxValueValidator(99.5)],
+        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX + 0.5)],
         verbose_name='Position (U)',
         help_text=_('The lowest-numbered unit occupied by the device')
     )
@@ -623,6 +623,20 @@ class Device(PrimaryModel, ConfigContextModel):
         related_name='devices',
         blank=True,
         null=True
+    )
+    latitude = models.DecimalField(
+        max_digits=8,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        blank=True,
+        null=True,
+        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
 
     _console_port_count = CounterCacheField()

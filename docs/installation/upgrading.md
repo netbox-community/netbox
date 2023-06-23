@@ -15,12 +15,12 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 ## 2. Update Dependencies to Required Versions
 
-NetBox v3.0 and later require the following:
+NetBox requires the following dependencies:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
 | Python     | 3.8             |
-| PostgreSQL | 11              |
+| PostgreSQL | 12              |
 | Redis      | 4.0             |
 
 ## 3. Install the Latest Release

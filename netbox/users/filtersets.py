@@ -1,5 +1,6 @@
 import django_filters
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
@@ -47,7 +48,7 @@ class UserFilterSet(BaseFilterSet):
     )
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active']
 
     def search(self, queryset, name, value):
@@ -68,12 +69,12 @@ class TokenFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -116,12 +117,12 @@ class ObjectPermissionFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='users__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )

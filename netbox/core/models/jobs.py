@@ -1,7 +1,7 @@
 import uuid
 
 import django_rq
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -16,7 +16,7 @@ from extras.utils import FeatureQuery
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
-from utilities.rqworker import get_queue_for_model
+from utilities.rqworker import get_queue_for_model, get_rq_retry
 
 __all__ = (
     'Job',
@@ -69,7 +69,7 @@ class Job(models.Model):
         blank=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
@@ -219,5 +219,6 @@ class Job(models.Model):
                 event=event,
                 data=self.data,
                 timestamp=str(timezone.now()),
-                username=self.user.username
+                username=self.user.username,
+                retry=get_rq_retry()
             )

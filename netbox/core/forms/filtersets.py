@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
@@ -105,7 +105,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         widget=DateTimePicker()
     )
     user = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(

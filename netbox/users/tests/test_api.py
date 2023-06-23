@@ -1,10 +1,14 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from users.models import ObjectPermission, Token
 from utilities.testing import APIViewTestCases, APITestCase
 from utilities.utils import deepmerge
+
+
+User = get_user_model()
 
 
 class AppTest(APITestCase):

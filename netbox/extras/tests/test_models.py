@@ -1,8 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, Tag
 from tenancy.models import Tenant, TenantGroup
+from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -13,6 +15,22 @@ class TagTest(TestCase):
         tag.save()
 
         self.assertEqual(tag.slug, 'testing-unicode-台灣')
+
+    def test_object_type_validation(self):
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+
+        # Create a Tag that can only be applied to Regions
+        tag = Tag.objects.create(name='Tag 1', slug='tag-1')
+        tag.object_types.add(ContentType.objects.get_by_natural_key('dcim', 'region'))
+
+        # Apply the Tag to a Region
+        region.tags.add(tag)
+        self.assertIn(tag, region.tags.all())
+
+        # Apply the Tag to a SiteGroup
+        with self.assertRaises(AbortRequest):
+            sitegroup.tags.add(tag)
 
 
 class ConfigContextTest(TestCase):
