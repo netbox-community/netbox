@@ -2,6 +2,15 @@
 
 ## v3.5.5 (FUTURE)
 
+### Bug Fixes
+
+* [#12533](https://github.com/netbox-community/netbox/issues/12533) - Fix REST API validation of null values for several interface attributes
+* [#12960](https://github.com/netbox-community/netbox/issues/12960) - Fix OpenAPI schema for various choice fields
+* [#12963](https://github.com/netbox-community/netbox/issues/12963) - Fix designation of primary IP addresses during interface assignment
+* [#12966](https://github.com/netbox-community/netbox/issues/12966) - Avoid catching database exceptions when maintenance mode is disabled
+* [#12975](https://github.com/netbox-community/netbox/issues/12975) - Correct URL for VirtualDeviceContext API serializer
+* [#12989](https://github.com/netbox-community/netbox/issues/12989) - Fix bulk import of tags for devie & module types
+
 ---
 
 ## v3.5.4 (2023-06-20)
