@@ -31,6 +31,13 @@ class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
         required=False
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit tags to those applicable to the object type
+        if ct := self._get_content_type():
+            self.fields['tags'].widget.add_query_param('for_object_type_id', ct.pk)
+
     def _get_content_type(self):
         return ContentType.objects.get_for_model(self._meta.model)
 

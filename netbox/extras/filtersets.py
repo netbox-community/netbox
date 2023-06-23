@@ -258,10 +258,9 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     content_type_id = MultiValueNumberFilter(
         method='_content_type_id'
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    for_object_type_id = MultiValueNumberFilter(
+        method='_for_object_type'
     )
-    object_types = ContentTypeFilter()
 
     class Meta:
         model = Tag
@@ -301,6 +300,11 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
         content_types = ContentType.objects.filter(pk__in=values)
 
         return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
+
+    def _for_object_type(self, queryset, name, values):
+        return queryset.filter(
+            Q(object_types__id__in=values) | Q(object_types__isnull=True)
+        )
 
 
 class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
