@@ -707,7 +707,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 
 class VirtualDeviceContextSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualdevicecontext-detail')
     device = NestedDeviceSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
     primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
