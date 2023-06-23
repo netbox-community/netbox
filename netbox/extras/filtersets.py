@@ -258,10 +258,13 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     content_type_id = MultiValueNumberFilter(
         method='_content_type_id'
     )
+    for_object_type_id = MultiValueNumberFilter(
+        method='_for_object_type'
+    )
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'color', 'description']
+        fields = ['id', 'name', 'slug', 'color', 'description', 'object_types']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -297,6 +300,11 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
         content_types = ContentType.objects.filter(pk__in=values)
 
         return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
+
+    def _for_object_type(self, queryset, name, values):
+        return queryset.filter(
+            Q(object_types__id__in=values) | Q(object_types__isnull=True)
+        )
 
 
 class ConfigContextFilterSet(ChangeLoggedModelFilterSet):

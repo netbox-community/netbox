@@ -43,9 +43,23 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">
-          Tagged Item Types
-        </h5>
+        <h5 class="card-header">Allowed Object Types</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            {% for ct in object.object_types.all %}
+              <tr>
+                <td>{{ ct }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td class="text-muted">Any</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">Tagged Item Types</h5>
         <div class="card-body">
           <table class="table table-hover panel-body attr-table">
             {% for object_type in object_types %}

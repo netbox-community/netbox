@@ -245,6 +245,11 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Tagged object type')
     )
+    for_object_type_id = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
+        required=False,
+        label=_('Allowed object type')
+    )
 
 
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
