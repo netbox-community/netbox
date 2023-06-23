@@ -345,7 +345,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             })
         elif selected_objects:
             assigned_object = self.cleaned_data[selected_objects[0]]
-            if self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
+            if self.instance.pk and self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
                 raise ValidationError(
                     "Cannot reassign IP address while it is designated as the primary IP for the parent object"
                 )
