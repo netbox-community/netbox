@@ -9,6 +9,7 @@ from .validators import ColorValidator
 
 __all__ = (
     'ColorField',
+    'CounterCacheField',
     'NaturalOrderingField',
     'NullableCharField',
     'RestrictedGenericForeignKey',

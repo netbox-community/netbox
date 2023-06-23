@@ -35,7 +35,7 @@ class Counter(object):
             raise TypeError(
                 f"{self.counter_name} should be a CounterCacheField on {self.parent_model}, but is {type(counter_field)}"
             )
-        if not isinstance(parent_model, TrackingModelMixin):
+        if not isinstance(self.parent_model, TrackingModelMixin):
             raise TypeError(
                 f"{self.parent_model} should be derived from TrackingModelMixin"
             )
