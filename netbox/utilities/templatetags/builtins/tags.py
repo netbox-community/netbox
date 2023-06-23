@@ -1,6 +1,8 @@
 from django import template
 from django.http import QueryDict
 
+from utilities.utils import dict_to_querydict
+
 __all__ = (
     'badge',
     'checkmark',
@@ -87,8 +89,7 @@ def htmx_table(context, viewname, return_url=None, **kwargs):
         viewname: The name of the view to use for the HTMX request (e.g. `dcim:site_list`)
         return_url: The URL to pass as the `return_url`. If not provided, the current request's path will be used.
     """
-    url_params = QueryDict(mutable=True)
-    url_params.update(kwargs)
+    url_params = dict_to_querydict(kwargs)
     url_params['return_url'] = return_url or context['request'].path
     return {
         'viewname': viewname,

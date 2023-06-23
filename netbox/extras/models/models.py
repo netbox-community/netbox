@@ -26,7 +26,7 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import clean_html, render_jinja2
+from utilities.utils import clean_html, dict_to_querydict, render_jinja2
 
 __all__ = (
     'ConfigRevision',
@@ -462,8 +462,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     @property
     def url_params(self):
-        qd = QueryDict(mutable=True)
-        qd.update(self.parameters)
+        qd = dict_to_querydict(self.parameters)
         return qd.urlencode()
 
 

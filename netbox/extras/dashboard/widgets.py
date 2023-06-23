@@ -10,7 +10,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.db.models import Q
-from django.http import QueryDict
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, resolve, reverse
 from django.utils.translation import gettext as _
@@ -19,7 +18,7 @@ from extras.utils import FeatureQuery
 from utilities.forms import BootstrapMixin
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import content_type_identifier, content_type_name, get_viewname
+from utilities.utils import content_type_identifier, content_type_name, dict_to_querydict, get_viewname
 from .utils import register_widget
 
 __all__ = (
@@ -170,8 +169,7 @@ class ObjectCountsWidget(DashboardWidget):
                 qs = model.objects.restrict(request.user, 'view')
                 # Apply any specified filters
                 if filters := self.config.get('filters'):
-                    params = QueryDict(mutable=True)
-                    params.update(filters)
+                    params = dict_to_querydict(filters)
                     filterset = getattr(resolve(url).func.view_class, 'filterset', None)
                     qs = filterset(params, qs).qs
                     url = f'{url}?{params.urlencode()}'
