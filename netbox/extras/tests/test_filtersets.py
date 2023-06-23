@@ -821,6 +821,10 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
+        content_types = {
+            'site': ContentType.objects.get_by_natural_key('dcim', 'site'),
+            'provider': ContentType.objects.get_by_natural_key('circuits', 'provider'),
+        }
 
         tags = (
             Tag(name='Tag 1', slug='tag-1', color='ff0000', description='foobar1'),
@@ -828,6 +832,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
             Tag(name='Tag 3', slug='tag-3', color='0000ff'),
         )
         Tag.objects.bulk_create(tags)
+        tags[0].object_types.add(content_types['site'])
+        tags[1].object_types.add(content_types['provider'])
 
         # Apply some tags so we can filter by content type
         site = Site.objects.create(name='Site 1', slug='site-1')
@@ -859,6 +865,18 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         provider_ct = ContentType.objects.get_for_model(Provider).pk
         params = {'content_type_id': [site_ct, provider_ct]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_object_types(self):
+        params = {'for_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
+            ['Tag 1', 'Tag 3']
+        )
+        params = {'for_object_type_id': [ContentType.objects.get_by_natural_key('circuits', 'provider').pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
+            ['Tag 2', 'Tag 3']
+        )
 
 
 class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
