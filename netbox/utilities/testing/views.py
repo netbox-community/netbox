@@ -1,5 +1,6 @@
 import csv
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ForeignKey
@@ -64,8 +65,15 @@ class ViewTestCases:
         def test_get_object_anonymous(self):
             # Make the request as an unauthenticated user
             self.client.logout()
-            response = self.client.get(self._get_queryset().first().get_absolute_url())
-            self.assertHttpStatus(response, 200)
+            ct = ContentType.objects.get_for_model(self.model)
+            if (ct.app_label, ct.model) in settings.EXEMPT_EXCLUDE_MODELS:
+                # Models listed in EXEMPT_EXCLUDE_MODELS should not be accessible to anonymous users
+                with disable_warnings('django.request'):
+                    response = self.client.get(self._get_queryset().first().get_absolute_url())
+                    self.assertHttpStatus(response, 302)
+            else:
+                response = self.client.get(self._get_queryset().first().get_absolute_url())
+                self.assertHttpStatus(response, 200)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_without_permission(self):
@@ -407,8 +415,15 @@ class ViewTestCases:
         def test_list_objects_anonymous(self):
             # Make the request as an unauthenticated user
             self.client.logout()
-            response = self.client.get(self._get_url('list'))
-            self.assertHttpStatus(response, 200)
+            ct = ContentType.objects.get_for_model(self.model)
+            if (ct.app_label, ct.model) in settings.EXEMPT_EXCLUDE_MODELS:
+                # Models listed in EXEMPT_EXCLUDE_MODELS should not be accessible to anonymous users
+                with disable_warnings('django.request'):
+                    response = self.client.get(self._get_url('list'))
+                    self.assertHttpStatus(response, 302)
+            else:
+                response = self.client.get(self._get_url('list'))
+                self.assertHttpStatus(response, 200)
 
         @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_without_permission(self):

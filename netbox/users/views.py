@@ -375,6 +375,15 @@ class NetBoxUserView(generic.ObjectView):
             'active_tab': 'user',
         }
 
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
+
 
 @register_model_view(NetBoxUser, 'edit')
 class NetBoxUserEditView(generic.ObjectEditView):
