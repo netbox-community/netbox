@@ -203,7 +203,7 @@ class MaintenanceModeMiddleware:
         """
         Prevent any write-related database operations if an exception is raised.
         """
-        if isinstance(exception, InternalError):
+        if get_config().MAINTENANCE_MODE and isinstance(exception, InternalError):
             error_message = 'NetBox is currently operating in maintenance mode and is unable to perform write ' \
                             'operations. Please try again later.'
 
