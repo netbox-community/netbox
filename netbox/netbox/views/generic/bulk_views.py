@@ -626,7 +626,6 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     clear_webhooks.send(sender=self)
 
             else:
-                print(f"form errors: {form.errors}")
                 logger.debug("Form validation failed")
 
         else:

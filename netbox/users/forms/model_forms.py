@@ -197,11 +197,6 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
             del self.fields['confirm_password']
 
-    # def is_valid(self):
-    #     ret = super().is_valid()
-    #     breakpoint()
-    #     return ret
-
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
         instance.object_permissions.set(self.cleaned_data['object_permissions'])

@@ -406,24 +406,24 @@ class NetBoxUserBulkImportView(generic.BulkImportView):
     def get_required_permission(self):
         return get_permission_for_model(User, 'add')
 
+    def dispatch(self, request, *args, **kwargs):
+        breakpoint()
+        return super().dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        breakpoint()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        breakpoint()
+        return super().post(request, *args, **kwargs)
+
 
 class NetBoxUserBulkEditView(generic.BulkEditView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
-
-    def dispatch(self, request, *args, **kwargs):
-        # breakpoint()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        # breakpoint()
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        # breakpoint()
-        return super().post(request, *args, **kwargs)
 
 
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):

@@ -94,7 +94,6 @@ class ObjectPermissionMixin:
 
     def has_perm(self, user_obj, perm, obj=None):
         app_label, action, model_name = resolve_permission(perm)
-        # breakpoint()
 
         # Superusers implicitly have all permissions
         if user_obj.is_active and user_obj.is_superuser:

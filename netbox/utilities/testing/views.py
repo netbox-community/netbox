@@ -650,7 +650,7 @@ class ViewTestCases:
                         if value is not None and not isinstance(field, ForeignKey):
                             self.assertEqual(value, value)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*',])
         def test_bulk_import_objects_with_constrained_permission(self):
             initial_count = self._get_queryset().count()
             data = {
@@ -704,7 +704,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_edit'), data), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group'])
         def test_bulk_edit_objects_with_permission(self):
             pk_list = list(self._get_queryset().values_list('pk', flat=True)[:3])
             data = {
@@ -729,7 +729,7 @@ class ViewTestCases:
             for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
                 self.assertInstanceEqual(instance, self.bulk_edit_data)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group'])
         def test_bulk_edit_objects_with_constrained_permission(self):
             pk_list = list(self._get_queryset().values_list('pk', flat=True)[:3])
             data = {
