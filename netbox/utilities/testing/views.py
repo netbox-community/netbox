@@ -468,7 +468,7 @@ class ViewTestCases:
             self.assertIn(instance1.get_absolute_url(), content)
             self.assertNotIn(instance2.get_absolute_url(), content)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group'])
         def test_export_objects(self):
             url = self._get_url('list')
 
