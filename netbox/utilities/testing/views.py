@@ -987,3 +987,33 @@ class ViewTestCases:
         TestCase suitable for testing device component models (ConsolePorts, Interfaces, etc.)
         """
         maxDiff = None
+
+    class UserViewTestCase(
+        GetObjectViewTestCase,
+        GetObjectChangelogViewTestCase,
+        CreateObjectViewTestCase,
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        ListObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing all standard View functions for auth.user objects
+        """
+        maxDiff = None
+
+    class GroupViewTestCase(
+        GetObjectViewTestCase,
+        GetObjectChangelogViewTestCase,
+        CreateObjectViewTestCase,
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        ListObjectsViewTestCase,
+        BulkImportObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing all standard View functions for auth.group objects
+        """
+        maxDiff = None

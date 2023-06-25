@@ -14,7 +14,6 @@ urlpatterns = [
     # Users
     path('users/', views.NetBoxUserListView.as_view(), name='netboxuser_list'),
     path('users/add/', views.NetBoxUserEditView.as_view(), name='netboxuser_add'),
-    path('users/import/', views.NetBoxUserBulkImportView.as_view(), name='netboxuser_import'),
     path('users/edit/', views.NetBoxUserBulkEditView.as_view(), name='netboxuser_bulk_edit'),
     path('users/delete/', views.NetBoxUserBulkDeleteView.as_view(), name='netboxuser_bulk_delete'),
     path('users/<int:pk>/', include(get_model_urls('users', 'netboxuser'))),
@@ -23,7 +22,6 @@ urlpatterns = [
     path('groups/', views.NetBoxGroupListView.as_view(), name='netboxgroup_list'),
     path('groups/add/', views.NetBoxGroupEditView.as_view(), name='netboxgroup_add'),
     path('groups/import/', views.NetBoxGroupBulkImportView.as_view(), name='netboxgroup_import'),
-    # path('groups/edit/', views.NetBoxGroupBulkEditView.as_view(), name='netboxgroup_bulk_edit'),
     path('groups/delete/', views.NetBoxGroupBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
     path('groups/<int:pk>/', include(get_model_urls('users', 'netboxgroup'))),
 

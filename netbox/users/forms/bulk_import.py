@@ -9,22 +9,10 @@ from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugFiel
 __all__ = (
     'GroupImportForm',
     'ObjectPermissionImportForm',
-    'UserImportForm',
 )
 
 
-class UserImportForm(NetBoxModelImportForm):
-    slug = SlugField()
-
-    class Meta:
-        model = NetBoxUser
-        fields = (
-            'email',
-        )
-
-
 class GroupImportForm(NetBoxModelImportForm):
-    slug = SlugField()
 
     class Meta:
         model = NetBoxGroup
