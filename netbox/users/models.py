@@ -369,3 +369,6 @@ class ObjectPermission(models.Model):
         if type(self.constraints) is not list:
             return [self.constraints]
         return self.constraints
+
+    def get_absolute_url(self):
+        return reverse('users:objectpermission', args=[self.pk])
