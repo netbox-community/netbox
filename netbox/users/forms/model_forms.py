@@ -349,7 +349,7 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
 
         # At least one action must be specified
         if not self.cleaned_data['actions']:
-            raise ValidationError("At least one action must be selected.")
+            raise forms.ValidationError("At least one action must be selected.")
 
         # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified constraints are valid.
