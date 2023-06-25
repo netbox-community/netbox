@@ -348,15 +348,6 @@ class NetBoxUserListView(generic.ObjectListView):
     filterset_form = forms.UserFilterForm
     table = tables.UserTable
 
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
-
 
 @register_model_view(NetBoxUser)
 class NetBoxUserView(generic.ObjectView):
@@ -374,15 +365,6 @@ class NetBoxUserView(generic.ObjectView):
             'changelog_table': changelog_table,
             'active_tab': 'user',
         }
-
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
 
 
 @register_model_view(NetBoxUser, 'edit')
@@ -452,13 +434,6 @@ class NetBoxGroupDeleteView(generic.ObjectDeleteView):
 class NetBoxGroupBulkImportView(generic.BulkImportView):
     queryset = NetBoxGroup.objects.all()
     model_form = forms.GroupImportForm
-
-
-# class NetBoxGroupBulkEditView(generic.BulkEditView):
-#     queryset = NetBoxGroup.objects.all()
-#     filterset = filtersets.GroupFilterSet
-#     table = tables.GroupTable
-#     form = forms.GroupBulkEditForm
 
 
 class NetBoxGroupBulkDeleteView(generic.BulkDeleteView):
