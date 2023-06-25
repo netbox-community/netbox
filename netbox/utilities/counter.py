@@ -24,7 +24,7 @@ class Counter(object):
 
         # add the field to be tracked for changes incase of update
         field_name = f"{self.foreign_key_field.name}_id"
-        if field_name not in self.child_model.change_tracking_fields:
+        if hasattr(self.child_model, 'change_tracking_fields') and field_name not in self.child_model.change_tracking_fields:
             self.child_model.change_tracking_fields.append(field_name)
 
         self.connect()
