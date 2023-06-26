@@ -3,7 +3,7 @@ import urllib.parse
 
 from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -274,10 +274,10 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         :param context: The context passed to Jinja2
         """
-        text = render_jinja2(self.link_text, context)
+        text = render_jinja2(self.link_text, context).strip()
         if not text:
             return {}
-        link = render_jinja2(self.link_url, context)
+        link = render_jinja2(self.link_url, context).strip()
         link_target = ' target="_blank"' if self.new_window else ''
 
         # Sanitize link text
@@ -285,7 +285,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         text = clean_html(text, allowed_schemes)
 
         # Sanitize link
-        link = urllib.parse.quote_plus(link, safe='/:?&=%+[]@#')
+        link = urllib.parse.quote(link, safe='/:?&=%+[]@#')
 
         # Verify link scheme is allowed
         result = urllib.parse.urlparse(link)
@@ -362,6 +362,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
+    sync_data.alters_data = True
 
     def render(self, queryset):
         """
@@ -418,7 +419,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         blank=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -559,7 +560,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         fk_field='assigned_object_id'
     )
     created_by = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -611,6 +612,11 @@ class ConfigRevision(models.Model):
         verbose_name='Configuration data'
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-created']
+
     def __str__(self):
         return f'Config revision #{self.pk} ({self.created})'
 
@@ -619,12 +625,16 @@ class ConfigRevision(models.Model):
             return self.data[item]
         return super().__getattribute__(item)
 
+    def get_absolute_url(self):
+        return reverse('extras:configrevision', args=[self.pk])
+
     def activate(self):
         """
         Cache the configuration data.
         """
         cache.set('config', self.data, None)
         cache.set('config_version', self.pk, None)
+    activate.alters_data = True
 
     @admin.display(boolean=True)
     def is_active(self):

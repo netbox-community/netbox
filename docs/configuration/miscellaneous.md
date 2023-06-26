@@ -204,3 +204,25 @@ This parameter defines the URL of the repository that will be checked for new Ne
 Default: `300`
 
 The maximum execution time of a background task (such as running a custom script), in seconds.
+
+---
+
+## RQ_RETRY_INTERVAL
+
+!!! note
+    This parameter was added in NetBox v3.5.
+
+Default: `60`
+
+This parameter controls how frequently a failed job is retried, up to the maximum number of times specified by `RQ_RETRY_MAX`. This must be either an integer specifying the number of seconds to wait between successive attempts, or a list of such values. For example, `[60, 300, 3600]` will retry the task after 1 minute, 5 minutes, and 1 hour.
+
+---
+
+## RQ_RETRY_MAX
+
+!!! note
+    This parameter was added in NetBox v3.5.
+
+Default: `0` (retries disabled)
+
+The maximum number of times a background task will be retried before being marked as failed.

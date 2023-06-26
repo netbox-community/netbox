@@ -673,9 +673,10 @@ class DeviceSerializer(NetBoxModelSerializer):
         model = Device
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)

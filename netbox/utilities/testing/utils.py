@@ -2,7 +2,8 @@ import logging
 import re
 from contextlib import contextmanager
 
-from django.contrib.auth.models import Permission, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission
 from django.utils.text import slugify
 
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
@@ -63,7 +64,7 @@ def create_test_user(username='testuser', permissions=None):
     """
     Create a User with the given permissions.
     """
-    user = User.objects.create_user(username=username)
+    user = get_user_model().objects.create_user(username=username)
     if permissions is None:
         permissions = ()
     for perm_name in permissions:

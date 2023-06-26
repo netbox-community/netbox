@@ -1,0 +1,200 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+{% load static %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% plugin_buttons object %}
+    </div>
+    <div class="control-group">
+      {% custom_links object %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Rack Elevation</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Rack elevation default unit height:</th>
+              <td>{{ object.data.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Rack elevation default unit width:</th>
+              <td>{{ object.data.RACK_ELEVATION_DEFAULT_UNIT_WIDTH }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">Power</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Powerfeed default voltage:</th>
+              <td>{{ object.data.POWERFEED_DEFAULT_VOLTAGE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Powerfeed default amperage:</th>
+              <td>{{ object.data.POWERFEED_DEFAULT_AMPERAGE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Powerfeed default max utilization:</th>
+              <td>{{ object.data.POWERFEED_DEFAULT_MAX_UTILIZATION }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">IPAM</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">IPAM enforce global unique:</th>
+              <td>{{ object.data.ENFORCE_GLOBAL_UNIQUE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">IPAM prefer IPV4:</th>
+              <td>{{ object.data.PREFER_IPV4 }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">Security</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Allowed URL schemes:</th>
+              <td>{{ object.data.ALLOWED_URL_SCHEMES }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">Banners</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Login banner:</th>
+              <td>{{ object.data.BANNER_LOGIN }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Maintenance banner:</th>
+              <td>{{ object.data.BANNER_MAINTENANCE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Top banner:</th>
+              <td>{{ object.data.BANNER_TOP }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Bottom banner:</th>
+              <td>{{ object.data.BANNER_BOTTOM }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="col col-md-6">
+
+      <div class="card">
+        <h5 class="card-header">Pagination</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Paginate count:</th>
+              <td>{{ object.data.PAGINATE_COUNT }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Max page size:</th>
+              <td>{{ object.data.MAX_PAGE_SIZE }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">Validation</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Custom validators:</th>
+              <td>{{ object.data.CUSTOM_VALIDATORS }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">User Preferences</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Default user preferences:</th>
+              <td>{{ object.data.DEFAULT_USER_PREFERENCES }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">Miscellaneous</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Maintenance mode:</th>
+              <td>{{ object.data.MAINTENANCE_MODE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">GraphQL enabled:</th>
+              <td>{{ object.data.GRAPHQL_ENABLED }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Changelog retention:</th>
+              <td>{{ object.data.CHANGELOG_RETENTION }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Job retention:</th>
+              <td>{{ object.data.JOB_RETENTION }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Maps URL:</th>
+              <td>{{ object.data.MAPS_URL }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">Config Revision</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Comment:</th>
+              <td>{{ object.comment }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

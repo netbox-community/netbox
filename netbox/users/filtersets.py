@@ -70,12 +70,12 @@ class TokenFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='user',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -118,12 +118,12 @@ class ObjectPermissionFilterSet(BaseFilterSet):
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='users__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )

@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 from timezone_field import TimeZoneFormField
 
@@ -321,7 +322,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.order_by(
+        queryset=get_user_model().objects.order_by(
             'username'
         ),
         required=False
@@ -1288,8 +1289,13 @@ class InterfaceBulkEditForm(
                         break
 
                 if site is not None:
-                    self.fields['untagged_vlan'].widget.add_query_param('site_id', site.pk)
-                    self.fields['tagged_vlans'].widget.add_query_param('site_id', site.pk)
+                    # Query for VLANs assigned to the same site and VLANs with no site assigned (null).
+                    self.fields['untagged_vlan'].widget.add_query_param(
+                        'site_id', [site.pk, settings.FILTERS_NULL_CHOICE_VALUE]
+                    )
+                    self.fields['tagged_vlans'].widget.add_query_param(
+                        'site_id', [site.pk, settings.FILTERS_NULL_CHOICE_VALUE]
+                    )
 
             self.fields['parent'].choices = ()
             self.fields['parent'].widget.attrs['disabled'] = True

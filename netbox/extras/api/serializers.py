@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -196,12 +196,18 @@ class SavedFilterSerializer(ValidatedModelSerializer):
 
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
+    object_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
+        many=True,
+        required=False
+    )
     tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'object_types', 'tagged_items', 'created',
+            'last_updated',
         ]
 
 
@@ -256,7 +262,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
         allow_null=True,
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         default=serializers.CurrentUserDefault()
     )

@@ -1,5 +1,5 @@
 import django_filters
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
@@ -395,12 +395,12 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         label=_('Location (slug)'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -999,7 +999,7 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
 
     class Meta:
         model = Device
-        fields = ['id', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
+        fields = ['id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1218,6 +1218,28 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         queryset=Device.objects.all(),
         to_field_name='name',
         label=_('Device (name)'),
+    )
+    device_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_type',
+        queryset=DeviceType.objects.all(),
+        label=_('Device type (ID)'),
+    )
+    device_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_type__model',
+        queryset=DeviceType.objects.all(),
+        to_field_name='model',
+        label=_('Device type (model)'),
+    )
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_role',
+        queryset=DeviceRole.objects.all(),
+        label=_('Device role (ID)'),
+    )
+    device_role = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_role__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label=_('Device role (slug)'),
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__virtual_chassis',

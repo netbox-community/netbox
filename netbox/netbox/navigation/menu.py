@@ -102,7 +102,7 @@ CONNECTIONS_MENU = Menu(
             label=_('Connections'),
             items=(
                 get_model_item('dcim', 'cable', _('Cables'), actions=['import']),
-                get_model_item('wireless', 'wirelesslink', _('Wireless Links'), actions=['import']),
+                get_model_item('wireless', 'wirelesslink', _('Wireless Links')),
                 MenuItem(
                     link='dcim:interface_connections_list',
                     link_text=_('Interface Connections'),
@@ -301,12 +301,14 @@ CUSTOMIZATION_MENU = Menu(
                 MenuItem(
                     link='extras:report_list',
                     link_text=_('Reports'),
-                    permissions=['extras.view_report']
+                    permissions=['extras.view_report'],
+                    buttons=get_model_buttons('extras', "reportmodule", actions=['add'])
                 ),
                 MenuItem(
                     link='extras:script_list',
                     link_text=_('Scripts'),
-                    permissions=['extras.view_script']
+                    permissions=['extras.view_script'],
+                    buttons=get_model_buttons('extras', "scriptmodule", actions=['add'])
                 ),
             ),
         ),
@@ -356,9 +358,18 @@ ADMIN_MENU = Menu(
                 get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
+        MenuGroup(
+            label=_('Configuration'),
+            items=(
+                MenuItem(
+                    link='extras:configrevision_list',
+                    link_text=_('Config Revisions'),
+                    permissions=['extras.view_configrevision']
+                ),
+            ),
+        ),
     ),
 )
-
 
 MENUS = [
     ORGANIZATION_MENU,

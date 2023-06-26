@@ -1,7 +1,7 @@
 import urllib.parse
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
@@ -9,6 +9,9 @@ from dcim.models import Site
 from extras.choices import *
 from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
+
+
+User = get_user_model()
 
 
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):

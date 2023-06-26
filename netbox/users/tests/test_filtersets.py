@@ -1,6 +1,7 @@
 import datetime
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import make_aware
@@ -8,6 +9,9 @@ from django.utils.timezone import make_aware
 from users import filtersets
 from users.models import ObjectPermission, Token
 from utilities.testing import BaseFilterSetTests
+
+
+User = get_user_model()
 
 
 class UserTestCase(TestCase, BaseFilterSetTests):

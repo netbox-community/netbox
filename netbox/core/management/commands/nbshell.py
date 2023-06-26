@@ -5,7 +5,7 @@ import sys
 from django import get_version
 from django.apps import apps
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand
 
@@ -60,7 +60,7 @@ class Command(BaseCommand):
 
         # Additional objects to include
         namespace['ContentType'] = ContentType
-        namespace['User'] = User
+        namespace['User'] = get_user_model()
 
         # Load convenience commands
         namespace.update({

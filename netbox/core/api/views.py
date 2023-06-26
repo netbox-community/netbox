@@ -33,7 +33,7 @@ class DataSourceViewSet(NetBoxModelViewSet):
         """
         Enqueue a job to synchronize the DataSource.
         """
-        if not request.user.has_perm('extras.sync_datasource'):
+        if not request.user.has_perm('core.sync_datasource'):
             raise PermissionDenied("Syncing data sources requires the core.sync_datasource permission.")
 
         datasource = get_object_or_404(DataSource, pk=pk)

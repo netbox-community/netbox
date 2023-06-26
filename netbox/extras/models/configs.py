@@ -146,6 +146,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
         Synchronize context data from the designated DataFile (if any).
         """
         self.data = self.data_file.get_data()
+    sync_data.alters_data = True
 
 
 class ConfigContextModel(models.Model):
@@ -236,6 +237,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
+    sync_data.alters_data = True
 
     def render(self, context=None):
         """
