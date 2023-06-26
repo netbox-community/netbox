@@ -606,8 +606,11 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
+        # Check for presence of a q string, an ordering string, or user preferences ordering and the ordering string
+        # is blank
         if not request.GET.get('q') and not request.GET.get('sort') and not (
-                request.user.is_authenticated and request.user.config.get(f'tables.IPAddressTable.ordering')
+                request.user.is_authenticated and request.user.config.get(f'tables.IPAddressTable.ordering') and
+                not request.GET.get('sort') == ''
         ):
             return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
         return queryset
