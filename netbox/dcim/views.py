@@ -8,7 +8,7 @@ from django.db.models import Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse
+from django.urls import reverse, resolve
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -3130,6 +3130,13 @@ class CableEditView(generic.ObjectEditView):
             self.form = forms.get_cable_form(a_type, b_type)
 
         return obj
+
+    def get_extra_addanother_params(self, request):
+        return {
+            'termination_a_device': resolve(request.GET.get('return_url')).kwargs.get('pk'),
+            'a_terminations_type': request.GET.get('a_terminations_type'),
+            'b_terminations_type': request.GET.get('b_terminations_type')
+        }
 
 
 @register_model_view(Cable, 'delete')
