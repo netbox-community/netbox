@@ -22,10 +22,9 @@ class GroupImportForm(NetBoxModelImportForm):
 
 
 class ObjectPermissionImportForm(NetBoxModelImportForm):
-    slug = SlugField()
 
     class Meta:
         model = ObjectPermission
         fields = (
-            'name',
+            'name', 'enabled',
         )

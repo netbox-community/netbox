@@ -468,7 +468,7 @@ class ViewTestCases:
             self.assertIn(instance1.get_absolute_url(), content)
             self.assertNotIn(instance2.get_absolute_url(), content)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group', 'users.objectpermission'])
         def test_export_objects(self):
             url = self._get_url('list')
 
@@ -704,7 +704,7 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_edit'), data), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group', 'users.objectpermission'])
         def test_bulk_edit_objects_with_permission(self):
             pk_list = list(self._get_queryset().values_list('pk', flat=True)[:3])
             data = {
@@ -729,7 +729,7 @@ class ViewTestCases:
             for i, instance in enumerate(self._get_queryset().filter(pk__in=pk_list)):
                 self.assertInstanceEqual(instance, self.bulk_edit_data)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user', 'auth.group', 'users.objectpermission'])
         def test_bulk_edit_objects_with_constrained_permission(self):
             pk_list = list(self._get_queryset().values_list('pk', flat=True)[:3])
             data = {
