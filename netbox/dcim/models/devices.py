@@ -604,6 +604,22 @@ class Device(PrimaryModel, ConfigContextModel):
         null=True,
         verbose_name='Primary IPv6'
     )
+    oob_ip4 = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='OOB IPv4'
+    )
+    oob_ip6 = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='OOB IPv6'
+    )
     cluster = models.ForeignKey(
         to='virtualization.Cluster',
         on_delete=models.SET_NULL,
@@ -802,6 +818,33 @@ class Device(PrimaryModel, ConfigContextModel):
                     'primary_ip6': f"The specified IP address ({self.primary_ip6}) is not assigned to this device."
                 })
 
+        # OOB ip validation
+        if self.oob_ip4:
+            if self.oob_ip4.family != 4:
+                raise ValidationError({
+                    'oob_ip4': f"{self.oob_ip4} is not an IPv4 address."
+                })
+            if self.oob_ip4.assigned_object in vc_interfaces:
+                pass
+            elif self.oob_ip4.nat_inside is not None and self.oob_ip4.nat_inside.assigned_object in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'oob_ip4': f"The specified IP address ({self.oob_ip4}) is not assigned to this device."
+                })
+        if self.oob_ip6:
+            if self.oob_ip6.family != 6:
+                raise ValidationError({
+                    'oob_ip6': f"{self.oob_ip6} is not an IPv6 address."
+                })
+            if self.oob_ip6.assigned_object in vc_interfaces:
+                pass
+            elif self.oob_ip6.nat_inside is not None and self.oob_ip6.nat_inside.assigned_object in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'oob_ip6': f"The specified IP address ({self.oob_ip6}) is not assigned to this device."
+                })
         # Validate manufacturer/platform
         if hasattr(self, 'device_type') and self.platform:
             if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
@@ -909,6 +952,17 @@ class Device(PrimaryModel, ConfigContextModel):
             return self.primary_ip6
         elif self.primary_ip4:
             return self.primary_ip4
+        else:
+            return None
+
+    @property
+    def oob_ip(self):
+        if ConfigItem('PREFER_IPV4')() and self.oob_ip4:
+            return self.oob_ip4
+        elif self.oob_ip6:
+            return self.oob_ip6
+        elif self.oob_ip4:
+            return self.oob_ip4
         else:
             return None
 

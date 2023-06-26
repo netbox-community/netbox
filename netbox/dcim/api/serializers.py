@@ -663,6 +663,9 @@ class DeviceSerializer(NetBoxModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    oob_ip = NestedIPAddressSerializer(read_only=True)
+    oob_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
+    oob_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True, default=None)
@@ -676,6 +679,7 @@ class DeviceSerializer(NetBoxModelSerializer):
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'oob_ip', 'oob_ip4', 'oob_ip6',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)
@@ -699,6 +703,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'oob_ip', 'oob_ip4', 'oob_ip6'
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

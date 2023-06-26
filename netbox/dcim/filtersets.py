@@ -941,6 +941,10 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         method='_has_primary_ip',
         label=_('Has a primary IP'),
     )
+    has_oob_ip = django_filters.BooleanFilter(
+        method='_has_oob_ip',
+        label=_('Has a OOB IP'),
+    )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_chassis',
         queryset=VirtualChassis.objects.all(),
@@ -996,6 +1000,16 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         queryset=IPAddress.objects.all(),
         label=_('Primary IPv6 (ID)'),
     )
+    oob_ip4_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='oob_ip4',
+        queryset=IPAddress.objects.all(),
+        label=_('OOB IPv4 (ID)'),
+    )
+    oob_ip6_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='oob_ip6',
+        queryset=IPAddress.objects.all(),
+        label=_('OOB IPv6 (ID)'),
+    )
 
     class Meta:
         model = Device
@@ -1016,6 +1030,12 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
+        if value:
+            return queryset.filter(params)
+        return queryset.exclude(params)
+
+    def _has_oob_ip(self, queryset, name, value):
+        params = Q(oob_ip4__isnull=False) | Q(oob_ip6__isnull=False)
         if value:
             return queryset.filter(params)
         return queryset.exclude(params)

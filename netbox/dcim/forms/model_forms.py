@@ -456,7 +456,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
             'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster', 'tenant_group', 'tenant',
             'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'tags',
-            'local_context_data'
+            'local_context_data', 'oob_ip4', 'oob_ip6'
         ]
 
     def __init__(self, *args, **kwargs):
@@ -490,6 +490,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
                     ip_list = [(ip.id, f'{ip.address} (NAT)') for ip in nat_ips]
                     ip_choices.append(('NAT IPs', ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
+                self.fields['oob_ip{}'.format(family)].choices = ip_choices
 
             # If editing an existing device, exclude it from the list of occupied rack units. This ensures that a device
             # can be flipped from one face to another.
@@ -509,6 +510,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
             self.fields['primary_ip4'].widget.attrs['readonly'] = True
             self.fields['primary_ip6'].choices = []
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
+            self.fields['oob_ip4'].choices = []
+            self.fields['oob_ip4'].widget.attrs['readonly'] = True
+            self.fields['oob_ip6'].choices = []
+            self.fields['oob_ip6'].widget.attrs['readonly'] = True
 
         # Rack position
         position = self.data.get('position') or self.initial.get('position')

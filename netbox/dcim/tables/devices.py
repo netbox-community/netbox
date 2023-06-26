@@ -201,6 +201,19 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         linkify=True,
         verbose_name='IPv6 Address'
     )
+    oob_ip = tables.Column(
+        linkify=True,
+        order_by=('oob_ip4', 'oob_ip6'),
+        verbose_name='OOB IP Address'
+    )
+    oob_ip4 = tables.Column(
+        linkify=True,
+        verbose_name='OOB IPv4 Address'
+    )
+    oob_ip6 = tables.Column(
+        linkify=True,
+        verbose_name='OOB IPv6 Address'
+    )
     cluster = tables.Column(
         linkify=True
     )
@@ -238,7 +251,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
             'device_bay_position', 'position', 'face', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
             'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'contacts',
-            'tags', 'created', 'last_updated',
+            'tags', 'created', 'last_updated', 'oob_ip', 'oob_ip4', 'oob_ip6',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
