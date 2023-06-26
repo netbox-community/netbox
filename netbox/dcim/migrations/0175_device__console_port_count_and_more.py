@@ -4,6 +4,21 @@ from django.db import migrations
 import utilities.fields
 
 
+def recalculate_device_counts(apps, schema_editor):
+    Device = apps.get_model("dcim", "Device")
+    for device in Device.objects.all():
+        device._console_port_count = device.consoleports.count()
+        device._console_server_port_count = device.consoleserverports.count()
+        device._interface_count = device.interfaces.count()
+        device._front_port_count = device.frontports.count()
+        device._rear_port_count = device.rearports.count()
+        device._device_bay_count = device.devicebays.count()
+        device._inventory_item_count = device.inventoryitems.count()
+        device._power_port_count = device.powerports.count()
+        device._power_outlet_count = device.poweroutlets.count()
+        device.save()
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ('dcim', '0174_rack_starting_unit'),
@@ -54,5 +69,9 @@ class Migration(migrations.Migration):
             model_name='device',
             name='_rear_port_count',
             field=utilities.fields.CounterCacheField(default=0),
+        ),
+        migrations.RunPython(
+            recalculate_device_counts,
+            reverse_code=migrations.RunPython.noop
         ),
     ]
