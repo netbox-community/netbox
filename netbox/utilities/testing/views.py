@@ -175,6 +175,10 @@ class ViewTestCases:
                 'data': post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
+
+            if self.model == ObjectPermission:
+                # if this test is for ObjectPermission we just created another one
+                initial_count += 1
             self.assertEqual(initial_count + 1, self._get_queryset().count())
             instance = self._get_queryset().order_by('pk').last()
             self.assertInstanceEqual(instance, self.form_data, exclude=['password'])
@@ -211,6 +215,9 @@ class ViewTestCases:
                 'data': post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 200)
+            if self.model == ObjectPermission:
+                # if this test is for ObjectPermission we just created another one
+                initial_count += 1
             self.assertEqual(initial_count, self._get_queryset().count())  # Check that no object was created
 
             # Update the ObjectPermission to allow creation
