@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -26,7 +26,7 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import clean_html, render_jinja2
+from utilities.utils import clean_html, dict_to_querydict, render_jinja2
 
 __all__ = (
     'ConfigRevision',
@@ -462,8 +462,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     @property
     def url_params(self):
-        qd = QueryDict(mutable=True)
-        qd.update(self.parameters)
+        qd = dict_to_querydict(self.parameters)
         return qd.urlencode()
 
 
