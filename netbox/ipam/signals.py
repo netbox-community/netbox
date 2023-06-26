@@ -63,6 +63,7 @@ def clear_primary_ip(instance, **kwargs):
     if virtualmachine:
         virtualmachine.save()
 
+
 @receiver(pre_delete, sender=IPAddress)
 def clear_oob_ip(instance, **kwargs):
     """

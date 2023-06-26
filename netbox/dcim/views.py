@@ -2456,7 +2456,7 @@ class InterfaceView(generic.ObjectView):
         vdc_table = tables.VirtualDeviceContextTable(
             data=instance.vdcs.restrict(request.user, 'view').prefetch_related('device'),
             exclude=('tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags',
-                     'created', 'last_updated', 'actions', 'oob_ip', 'oob_ip4', 'oob_ip6' ),
+                     'created', 'last_updated', 'actions', 'oob_ip', 'oob_ip4', 'oob_ip6'),
             orderable=False
         )
 
