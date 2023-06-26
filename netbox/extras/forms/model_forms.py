@@ -14,7 +14,7 @@ from extras.utils import FeatureQuery
 from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, BootstrapMixin, add_blank_choice
+from utilities.forms import BootstrapMixin, add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField,
     SlugField,
@@ -23,6 +23,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
 __all__ = (
+    'BookmarkForm',
     'ConfigContextForm',
     'ConfigRevisionForm',
     'ConfigTemplateForm',
@@ -167,6 +168,17 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
                 initial['parameters'] = json.loads(initial['parameters'])
 
         super().__init__(*args, initial=initial, **kwargs)
+
+
+class BookmarkForm(BootstrapMixin, forms.ModelForm):
+    object_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        # limit_choices_to=FeatureQuery('bookmarks').get_query()
+    )
+
+    class Meta:
+        model = Bookmark
+        fields = ('object_type', 'object_id')
 
 
 class WebhookForm(BootstrapMixin, forms.ModelForm):

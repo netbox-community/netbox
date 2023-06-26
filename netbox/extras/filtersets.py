@@ -15,6 +15,7 @@ from .filters import TagFilter
 from .models import *
 
 __all__ = (
+    'BookmarkFilterSet',
     'ConfigContextFilterSet',
     'ConfigRevisionFilterSet',
     'ConfigTemplateFilterSet',
@@ -197,6 +198,34 @@ class SavedFilterFilterSet(BaseFilterSet):
         if value:
             return queryset.filter(enabled=True).filter(Q(shared=True) | Q(user=user))
         return queryset.filter(Q(enabled=False) | Q(Q(shared=False) & ~Q(user=user)))
+
+
+class BookmarkFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    created = django_filters.DateTimeFilter()
+    object_type = ContentTypeFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=get_user_model().objects.all(),
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=get_user_model().objects.all(),
+        to_field_name='username',
+        label=_('User (name)'),
+    )
+
+    class Meta:
+        model = Bookmark
+        fields = ['id', 'object_type_id', 'object_id']
+
+    # def search(self, queryset, name, value):
+    #     if not value.strip():
+    #         return queryset
+    #     return queryset.filter(name__icontains=value)
 
 
 class ImageAttachmentFilterSet(BaseFilterSet):

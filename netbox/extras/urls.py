@@ -40,6 +40,11 @@ urlpatterns = [
     path('saved-filters/delete/', views.SavedFilterBulkDeleteView.as_view(), name='savedfilter_bulk_delete'),
     path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
 
+    # Bookmarks
+    path('bookmarks/add/', views.BookmarkEditView.as_view(), name='bookmark_add'),
+    path('bookmarks/delete/', views.BookmarkBulkDeleteView.as_view(), name='bookmark_bulk_delete'),
+    path('bookmarks/<int:pk>/', include(get_model_urls('extras', 'bookmark'))),
+
     # Webhooks
     path('webhooks/', views.WebhookListView.as_view(), name='webhook_list'),
     path('webhooks/add/', views.WebhookEditView.as_view(), name='webhook_add'),

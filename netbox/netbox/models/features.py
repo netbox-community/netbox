@@ -22,6 +22,7 @@ from utilities.utils import serialize_object
 from utilities.views import register_model_view
 
 __all__ = (
+    'BookmarksMixin',
     'ChangeLoggingMixin',
     'CloningMixin',
     'CustomFieldsMixin',
@@ -300,6 +301,18 @@ class ExportTemplatesMixin(models.Model):
     """
     Enables support for export templates.
     """
+    class Meta:
+        abstract = True
+
+
+class BookmarksMixin(models.Model):
+    """
+    Enables support for user bookmarks.
+    """
+    images = GenericRelation(
+        to='extras.Bookmark'
+    )
+
     class Meta:
         abstract = True
 

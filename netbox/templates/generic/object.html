@@ -59,6 +59,9 @@ Context:
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
+      {% if request.user.is_authenticated %}
+        {% bookmark_button object %}
+      {% endif %}
       {% if request.user|can_add:object %}
         {% clone_button object %}
       {% endif %}

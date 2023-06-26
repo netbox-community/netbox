@@ -15,10 +15,11 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
-from extras.models import ObjectChange
-from extras.tables import ObjectChangeTable
+from extras.models import Bookmark, ObjectChange
+from extras.tables import BookmarkTable, ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
+from netbox.views.generic import ObjectListView
 from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
 from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
@@ -226,6 +227,23 @@ class ChangePasswordView(LoginRequiredMixin, View):
             'form': form,
             'active_tab': 'change_password',
         })
+
+
+#
+# Bookmarks
+#
+
+class BookmarkListView(LoginRequiredMixin, ObjectListView):
+    table = BookmarkTable
+    template_name = 'users/bookmarks.html'
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+    def get_extra_context(self, request):
+        return {
+            'active_tab': 'bookmarks',
+        }
 
 
 #
