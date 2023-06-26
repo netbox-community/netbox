@@ -840,6 +840,9 @@ class ViewTestCases:
 
             # Attempt to bulk delete non-permitted objects
             self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 302)
+            if self.model == ObjectPermission:
+                # if this test is for ObjectPermission we just created another one
+                initial_count += 1
             self.assertEqual(self._get_queryset().count(), initial_count)
 
             # Update permission constraints
