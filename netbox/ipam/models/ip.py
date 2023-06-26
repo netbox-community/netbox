@@ -852,26 +852,28 @@ class IPAddress(PrimaryModel):
     @property
     def is_oob_ip(self):
         if self.assigned_object:
+            parent = getattr(self.assigned_object, 'parent_object', None)
             if self.family == 4:
-                if self.assigned_object.device.oob_ip4:
-                    if self.assigned_object.device.oob_ip4.pk == self.pk:
+                if parent.oob_ip4:
+                    if parent.oob_ip4.pk == self.pk:
                         return True
             if self.family == 6:
-                if self.assigned_object.device.oob_ip6:
-                    if self.assigned_object.device.oob_ip6.pk == self.pk:
+                if parent.oob_ip6:
+                    if parent.oob_ip6.pk == self.pk:
                         return True
         return False
 
     @property
     def is_primary_ip(self):
         if self.assigned_object:
+            parent = getattr(self.assigned_object, 'parent_object', None)
             if self.family == 4:
-                if self.assigned_object.device.primary_ip4:
-                    if self.assigned_object.device.primary_ip4.pk == self.pk:
+                if parent.primary_ip4:
+                    if parent.primary_ip4.pk == self.pk:
                         return True
             if self.family == 6:
-                if self.assigned_object.device.primary_ip6:
-                    if self.assigned_object.device.primary_ip6.pk == self.pk:
+                if parent.primary_ip6:
+                    if parent.primary_ip6.pk == self.pk:
                         return True
         return False
 
