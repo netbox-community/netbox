@@ -728,8 +728,8 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_MULTISTANDARD, 'ITA Multistandard'),
         )),
         ('NBR 14136', (
-            (TYPE_NBR_14136_10A, '2P+T 10A'),
-            (TYPE_NBR_14136_20A, '2P+T 20A'),
+            (TYPE_NBR_14136_10A, 'NBR 2P+T 10A'),
+            (TYPE_NBR_14136_20A, 'NBR 2P+T 20A'),
         )),
         ('USB', (
             (TYPE_USB_A, 'USB Type A'),
