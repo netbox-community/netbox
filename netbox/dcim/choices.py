@@ -616,6 +616,9 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_ITA_N = 'ita-n'
     TYPE_ITA_O = 'ita-o'
     TYPE_ITA_MULTISTANDARD = 'ita-multistandard'
+    # NBR 14136
+    TYPE_NBR_14136_10A = 'nbr-14136-10a'
+    TYPE_NBR_14136_20A = 'nbr-14136-20a'
     # USB
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
@@ -723,6 +726,10 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_ITA_N, 'ITA Type N'),
             (TYPE_ITA_O, 'ITA Type O'),
             (TYPE_ITA_MULTISTANDARD, 'ITA Multistandard'),
+        )),
+        ('NBR 14136', (
+            (TYPE_NBR_14136_10A, '2P+T 10A'),
+            (TYPE_NBR_14136_20A, '2P+T 20A'),
         )),
         ('USB', (
             (TYPE_USB_A, 'USB Type A'),
