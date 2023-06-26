@@ -1,10 +1,11 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm, SetPasswordForm as DjangoPasswordSetForm
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
+from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext as _
 
@@ -24,6 +25,7 @@ __all__ = (
     'LoginForm',
     'ObjectPermissionForm',
     'PasswordChangeForm',
+    'PasswordSetForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
@@ -35,6 +37,10 @@ class LoginForm(BootstrapMixin, AuthenticationForm):
 
 
 class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
+    pass
+
+
+class PasswordSetForm(BootstrapMixin, DjangoPasswordSetForm):
     pass
 
 
@@ -192,9 +198,9 @@ class UserForm(BootstrapMixin, forms.ModelForm):
             self.fields['password'].help_text = _(
                 "Raw passwords are not stored, so there is no way to see this "
                 "user’s password, but you can change the password using "
-                '<a href="xxx">this form</a>.'
-            )
-
+                '<a href="{url}">this form</a>.'
+            ).format(url=reverse('users:change_user_password', args=[self.instance.pk]))
+            print(self.fields['password'].help_text)
             del self.fields['confirm_password']
 
     def save(self, *args, **kwargs):

@@ -6,6 +6,7 @@ from django.contrib.auth import login as auth_login, logout as auth_logout, upda
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import Group, User, update_last_login
 from django.contrib.auth.signals import user_logged_in
+from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
@@ -395,6 +396,52 @@ class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
 
     def get_required_permission(self):
         return get_permission_for_model(User, 'delete')
+
+
+class NetBoxUserChangePasswordView(LoginRequiredMixin, View):
+    template_name = 'users/passworduser.html'
+    queryset = User.objects.all()
+
+    def get_object(self, **kwargs):
+        """
+        Return an object for editing. If no keyword arguments have been specified, this will be a new instance.
+        """
+        if not kwargs:
+            # We're creating a new object
+            return self.queryset.model()
+        return get_object_or_404(self.queryset, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        obj = self.get_object(**kwargs)
+
+        # LDAP users cannot change their password here
+        if getattr(obj, 'ldap_username', None):
+            messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
+            return redirect('users:netboxuser_list')
+
+        form = forms.PasswordSetForm(user=obj)
+
+        return render(request, self.template_name, {
+            'form': form,
+            'active_tab': 'password',
+            'object': obj,
+        })
+
+    def post(self, request, *args, **kwargs):
+        obj = self.get_object(**kwargs)
+
+        form = forms.PasswordSetForm(user=obj, data=request.POST)
+        if form.is_valid():
+            form.save()
+            update_session_auth_hash(request, form.user)
+            messages.success(request, "The password has been changed successfully.")
+            return redirect('users:netboxuser_list')
+
+        return render(request, self.template_name, {
+            'form': form,
+            'active_tab': 'password',
+            'object': obj,
+        })
 
 
 #
