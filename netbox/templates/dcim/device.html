@@ -220,6 +220,36 @@
                               {% endif %}
                             </td>
                         </tr>
+                        <tr>
+                            <th scope="row">OOB IPv4</th>
+                            <td>
+                              {% if object.oob_ip4 %}
+                                <a href="{{ object.oob_ip4.get_absolute_url }}">{{ object.oob_ip4.address.ip }}</a>
+                                {% if object.oob_ip4.nat_inside %}
+                                  (NAT for <a href="{{ object.oob_ip4.nat_inside.get_absolute_url }}">{{ object.oob_ip4.nat_inside.address.ip }}</a>)
+                                {% elif object.oob_ip4.nat_outside.exists %}
+                                  (NAT: {% for nat in object.oob_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                                {% endif %}
+                              {% else %}
+                                {{ ''|placeholder }}
+                              {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">OOB IPv6</th>
+                            <td>
+                              {% if object.oob_ip6 %}
+                                <a href="{{ object.oob_ip6.get_absolute_url }}">{{ object.oob_ip6.address.ip }}</a>
+                                {% if object.oob_ip6.nat_inside %}
+                                  (NAT for <a href="{{ object.oob_ip6.nat_inside.get_absolute_url }}">{{ object.oob_ip6.nat_inside.address.ip }}</a>)
+                                {% elif object.oob_ip6.nat_outside.exists %}
+                                  (NAT: {% for nat in object.oob_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                                {% endif %}
+                              {% else %}
+                                {{ ''|placeholder }}
+                              {% endif %}
+                            </td>
+                        </tr>
                         {% if object.cluster %}
                             <tr>
                                 <th>Cluster</th>
