@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
