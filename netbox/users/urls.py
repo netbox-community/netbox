@@ -28,7 +28,6 @@ urlpatterns = [
     # Permissions
     path('permissions/', views.ObjectPermissionListView.as_view(), name='objectpermission_list'),
     path('permissions/add/', views.ObjectPermissionEditView.as_view(), name='objectpermission_add'),
-    path('permissions/import/', views.ObjectPermissionBulkImportView.as_view(), name='objectpermission_import'),
     path('permissions/edit/', views.ObjectPermissionBulkEditView.as_view(), name='objectpermission_bulk_edit'),
     path('permissions/delete/', views.ObjectPermissionBulkDeleteView.as_view(), name='objectpermission_bulk_delete'),
     path('permissions/<int:pk>/', include(get_model_urls('users', 'objectpermission'))),

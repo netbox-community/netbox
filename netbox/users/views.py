@@ -475,11 +475,6 @@ class ObjectPermissionDeleteView(generic.ObjectDeleteView):
     queryset = ObjectPermission.objects.all()
 
 
-class ObjectPermissionBulkImportView(generic.BulkImportView):
-    queryset = ObjectPermission.objects.all()
-    model_form = forms.ObjectPermissionImportForm
-
-
 class ObjectPermissionBulkEditView(generic.BulkEditView):
     queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet

@@ -1027,3 +1027,18 @@ class ViewTestCases:
         TestCase suitable for testing all standard View functions for auth.group objects
         """
         maxDiff = None
+
+    class ObjectPermissionViewTestCase(
+        GetObjectViewTestCase,
+        GetObjectChangelogViewTestCase,
+        CreateObjectViewTestCase,
+        EditObjectViewTestCase,
+        DeleteObjectViewTestCase,
+        ListObjectsViewTestCase,
+        BulkEditObjectsViewTestCase,
+        BulkDeleteObjectsViewTestCase,
+    ):
+        """
+        TestCase suitable for testing all standard View functions for auth.group objects
+        """
+        maxDiff = None

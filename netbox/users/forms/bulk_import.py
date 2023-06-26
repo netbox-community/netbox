@@ -8,7 +8,6 @@ from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugFiel
 
 __all__ = (
     'GroupImportForm',
-    'ObjectPermissionImportForm',
 )
 
 
@@ -18,13 +17,4 @@ class GroupImportForm(NetBoxModelImportForm):
         model = NetBoxGroup
         fields = (
             'name',
-        )
-
-
-class ObjectPermissionImportForm(NetBoxModelImportForm):
-
-    class Meta:
-        model = ObjectPermission
-        fields = (
-            'name', 'enabled',
         )
