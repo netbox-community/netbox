@@ -9,7 +9,6 @@ from utilities.forms import BootstrapMixin
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
-    'GroupBulkEditForm',
     'ObjectPermissionBulkEditForm',
     'UserBulkEditForm',
 )
@@ -52,34 +51,25 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
         self.fields['pk'].queryset = self.model.objects.all()
 
 
-class GroupBulkEditForm(BootstrapMixin, forms.Form):
+class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
         queryset=None,  # Set from self.model on init
         widget=forms.MultipleHiddenInput
     )
-    first_name = forms.CharField(
-        max_length=150,
+    description = forms.CharField(
+        max_length=200,
         required=False
     )
+    enabled = forms.BooleanField(
+        required=False,
+    )
 
-    model = NetBoxGroup
+    model = ObjectPermission
     fieldsets = (
-        (None, ('asns', 'description')),
+        (None, ('description', 'enabled')),
     )
-    nullable_fields = (
-        'asns', 'description', 'comments',
-    )
+    nullable_fields = ()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['pk'].queryset = self.model.objects.all()
-
-
-class ObjectPermissionBulkEditForm(NetBoxModelBulkEditForm):
-    model = ObjectPermission
-    fieldsets = (
-        (None, ('description')),
-    )
-    nullable_fields = (
-        'description',
-    )
