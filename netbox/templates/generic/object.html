@@ -59,7 +59,7 @@ Context:
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
-      {% if request.user.is_authenticated %}
+      {% if perms.extras.add_bookmark %}
         {% bookmark_button object %}
       {% endif %}
       {% if request.user|can_add:object %}

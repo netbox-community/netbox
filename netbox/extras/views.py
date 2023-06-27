@@ -241,8 +241,7 @@ class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
 # Bookmarks
 #
 
-# @register_model_view(Bookmark, 'edit')
-class BookmarkEditView(generic.ObjectEditView):
+class BookmarkCreateView(generic.ObjectEditView):
     form = forms.BookmarkForm
 
     def get_queryset(self, request):

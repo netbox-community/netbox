@@ -1,4 +1,4 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 
 from extras import views
 from utilities.urls import get_model_urls
@@ -41,7 +41,7 @@ urlpatterns = [
     path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
 
     # Bookmarks
-    path('bookmarks/add/', views.BookmarkEditView.as_view(), name='bookmark_add'),
+    path('bookmarks/add/', views.BookmarkCreateView.as_view(), name='bookmark_add'),
     path('bookmarks/delete/', views.BookmarkBulkDeleteView.as_view(), name='bookmark_bulk_delete'),
     path('bookmarks/<int:pk>/', include(get_model_urls('extras', 'bookmark'))),
 

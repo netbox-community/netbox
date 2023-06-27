@@ -206,6 +206,7 @@ class BookmarkFilterSet(BaseFilterSet):
         label=_('Search'),
     )
     created = django_filters.DateTimeFilter()
+    object_type_id = MultiValueNumberFilter()
     object_type = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=get_user_model().objects.all(),
@@ -220,7 +221,7 @@ class BookmarkFilterSet(BaseFilterSet):
 
     class Meta:
         model = Bookmark
-        fields = ['id', 'object_type_id', 'object_id']
+        fields = ['id', 'object_id']
 
     # def search(self, queryset, name, value):
     #     if not value.strip():
