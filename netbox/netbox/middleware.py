@@ -49,6 +49,9 @@ class CoreMiddleware:
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id
 
+        # Enable the Vary header to help with caching of HTMX responses
+        response['Vary'] = 'HX-Request'
+
         # If this is an API request, attach an HTTP header annotating the API version (e.g. '3.5').
         if is_api_request(request):
             response['API-Version'] = settings.REST_FRAMEWORK_VERSION
