@@ -2,14 +2,23 @@
 
 ## v3.5.5 (FUTURE)
 
+### Enhancements
+
+* [#12945](https://github.com/netbox-community/netbox/issues/12945) - Add 100GE QSFP-DD interface type
+
 ### Bug Fixes
 
 * [#12533](https://github.com/netbox-community/netbox/issues/12533) - Fix REST API validation of null values for several interface attributes
+* [#12849](https://github.com/netbox-community/netbox/issues/12849) - Fix LDAP group permissions assignment for API clients
 * [#12953](https://github.com/netbox-community/netbox/issues/12953) - Fix designation of primary IP addresses during interface assignment
 * [#12960](https://github.com/netbox-community/netbox/issues/12960) - Fix OpenAPI schema for various choice fields
+* [#12961](https://github.com/netbox-community/netbox/issues/12961) - Set correct return URL for object contacts tabs
 * [#12966](https://github.com/netbox-community/netbox/issues/12966) - Avoid catching database exceptions when maintenance mode is disabled
 * [#12975](https://github.com/netbox-community/netbox/issues/12975) - Correct URL for VirtualDeviceContext API serializer
+* [#12977](https://github.com/netbox-community/netbox/issues/12977) - Fix URL parameters for object count dashboard widgets
+* [#12983](https://github.com/netbox-community/netbox/issues/12983) - Avoid erroneously clearing many-to-many assignments during bulk edit
 * [#12989](https://github.com/netbox-community/netbox/issues/12989) - Fix bulk import of tags for device & module types
+* [#13011](https://github.com/netbox-community/netbox/issues/13011) - Do not escape commas when rendering custom links
 
 ---
 
