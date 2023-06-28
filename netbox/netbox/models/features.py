@@ -495,6 +495,7 @@ class SyncedDataMixin(models.Model):
 
 
 FEATURES_MAP = {
+    'bookmarks': BookmarksMixin,
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
     'export_templates': ExportTemplatesMixin,

@@ -173,7 +173,7 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
 class BookmarkForm(BootstrapMixin, forms.ModelForm):
     object_type = ContentTypeChoiceField(
         queryset=ContentType.objects.all(),
-        # limit_choices_to=FeatureQuery('bookmarks').get_query()
+        limit_choices_to=FeatureQuery('bookmarks').get_query()
     )
 
     class Meta:

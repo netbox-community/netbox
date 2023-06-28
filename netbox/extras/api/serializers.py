@@ -198,7 +198,7 @@ class SavedFilterSerializer(ValidatedModelSerializer):
 class BookmarkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
     object_type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        queryset=ContentType.objects.filter(FeatureQuery('bookmarks').get_query()),
     )
     object = serializers.SerializerMethodField(read_only=True)
     user = NestedUserSerializer()
