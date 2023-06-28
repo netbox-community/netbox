@@ -201,10 +201,6 @@ class SavedFilterFilterSet(BaseFilterSet):
 
 
 class BookmarkFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label=_('Search'),
-    )
     created = django_filters.DateTimeFilter()
     object_type_id = MultiValueNumberFilter()
     object_type = ContentTypeFilter()
@@ -222,11 +218,6 @@ class BookmarkFilterSet(BaseFilterSet):
     class Meta:
         model = Bookmark
         fields = ['id', 'object_id']
-
-    # def search(self, queryset, name, value):
-    #     if not value.strip():
-    #         return queryset
-    #     return queryset.filter(name__icontains=value)
 
 
 class ImageAttachmentFilterSet(BaseFilterSet):
