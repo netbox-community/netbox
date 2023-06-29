@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
@@ -24,7 +25,7 @@ class ASNRangeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asnrange-detail')
     rir = NestedRIRSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    asn_count = serializers.IntegerField(read_only=True)
+    asn_count = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ASNRange
@@ -32,6 +33,10 @@ class ASNRangeSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'tags',
             'custom_fields', 'created', 'last_updated', 'asn_count',
         ]
+
+    @extend_schema_field(OpenApiTypes.INT)
+    def get_asn_count(self, obj):
+        return obj.get_child_asns().count()
 
 
 #

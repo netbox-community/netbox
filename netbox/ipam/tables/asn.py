@@ -21,10 +21,10 @@ class ASNRangeTable(TenancyColumnsMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='ipam:asnrange_list'
     )
-    asn_count = columns.LinkedCountColumn(
-        viewname='ipam:asn_list',
-        url_params={'asn_id': 'pk'},
-        verbose_name=_('ASN Count')
+    asn_count = columns.TemplateColumn(
+        orderable=False,
+        verbose_name=_('ASN Count'),
+        template_code='''{{ record.get_child_asns.count }}'''
     )
 
     class Meta(NetBoxTable.Meta):
