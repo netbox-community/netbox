@@ -66,10 +66,12 @@ as the cornerstone for network automation in thousands of organizations.
   [![NetBox Labs](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/netbox_labs.png)](https://netboxlabs.com)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   [![DigitalOcean](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/digitalocean.png)](https://try.digitalocean.com/developer-cloud)
-  <br />
-  [![Sentry](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/sentry.png)](https://sentry.io)
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  [![Sentry](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/sentry.png)](https://sentry.io)
+  <br />
   [![Equinix Metal](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/equinix.png)](https://metal.equinix.com)
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  [![OneMind Services](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/sponsors/onemind_services.png)](https://onemindservices.com)
 
 </div>
 
