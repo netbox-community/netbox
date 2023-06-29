@@ -198,7 +198,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ASNRangeListView(generic.ObjectListView):
-    queryset = ASNRange.objects.all()
+    queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
     filterset_form = forms.ASNRangeFilterForm
     table = tables.ASNRangeTable
@@ -247,18 +247,14 @@ class ASNRangeBulkImportView(generic.BulkImportView):
 
 
 class ASNRangeBulkEditView(generic.BulkEditView):
-    queryset = ASNRange.objects.annotate(
-        site_count=count_related(Site, 'asns')
-    )
+    queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
     table = tables.ASNRangeTable
     form = forms.ASNRangeBulkEditForm
 
 
 class ASNRangeBulkDeleteView(generic.BulkDeleteView):
-    queryset = ASNRange.objects.annotate(
-        site_count=count_related(Site, 'asns')
-    )
+    queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
     table = tables.ASNRangeTable
 
