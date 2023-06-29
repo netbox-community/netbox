@@ -8,6 +8,7 @@ from netbox.tables import NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
+    'BookmarkTable',
     'ConfigContextTable',
     'ConfigRevisionTable',
     'ConfigTemplateTable',
@@ -165,6 +166,21 @@ class SavedFilterTable(NetBoxTable):
         default_columns = (
             'pk', 'name', 'content_types', 'user', 'description', 'enabled', 'shared',
         )
+
+
+class BookmarkTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn()
+    object = tables.Column(
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Bookmark
+        fields = ('pk', 'object', 'object_type', 'created')
+        default_columns = ('object', 'object_type', 'created')
 
 
 class WebhookTable(NetBoxTable):

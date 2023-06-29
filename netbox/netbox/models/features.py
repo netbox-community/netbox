@@ -22,6 +22,7 @@ from utilities.utils import serialize_object
 from utilities.views import register_model_view
 
 __all__ = (
+    'BookmarksMixin',
     'ChangeLoggingMixin',
     'CloningMixin',
     'CustomFieldsMixin',
@@ -304,6 +305,20 @@ class ExportTemplatesMixin(models.Model):
         abstract = True
 
 
+class BookmarksMixin(models.Model):
+    """
+    Enables support for user bookmarks.
+    """
+    bookmarks = GenericRelation(
+        to='extras.Bookmark',
+        content_type_field='object_type',
+        object_id_field='object_id'
+    )
+
+    class Meta:
+        abstract = True
+
+
 class JobsMixin(models.Model):
     """
     Enables support for job results.
@@ -480,6 +495,7 @@ class SyncedDataMixin(models.Model):
 
 
 FEATURES_MAP = {
+    'bookmarks': BookmarksMixin,
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
     'export_templates': ExportTemplatesMixin,

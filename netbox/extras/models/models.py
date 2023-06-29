@@ -1,7 +1,6 @@
 import json
 import urllib.parse
 
-from django.conf import settings
 from django.contrib import admin
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -29,6 +28,7 @@ from utilities.querysets import RestrictedQuerySet
 from utilities.utils import clean_html, render_jinja2
 
 __all__ = (
+    'Bookmark',
     'ConfigRevision',
     'CustomLink',
     'ExportTemplate',
@@ -593,6 +593,44 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
+
+
+class Bookmark(models.Model):
+    """
+    An object bookmarked by a User.
+    """
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT
+    )
+    object_id = models.PositiveBigIntegerField()
+    object = GenericForeignKey(
+        ct_field='object_type',
+        fk_field='object_id'
+    )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('created', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('object_type', 'object_id', 'user'),
+                name='%(app_label)s_%(class)s_unique_per_object_and_user'
+            ),
+        )
+
+    def __str__(self):
+        if self.object:
+            return str(self.object)
+        return super().__str__()
 
 
 class ConfigRevision(models.Model):

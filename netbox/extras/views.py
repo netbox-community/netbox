@@ -238,6 +238,35 @@ class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
 
 
 #
+# Bookmarks
+#
+
+class BookmarkCreateView(generic.ObjectEditView):
+    form = forms.BookmarkForm
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        obj.user = request.user
+        return obj
+
+
+@register_model_view(Bookmark, 'delete')
+class BookmarkDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+
+class BookmarkBulkDeleteView(generic.BulkDeleteView):
+    table = tables.BookmarkTable
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+
+#
 # Webhooks
 #
 

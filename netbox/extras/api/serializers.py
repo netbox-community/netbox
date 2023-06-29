@@ -31,6 +31,7 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .nested_serializers import *
 
 __all__ = (
+    'BookmarkSerializer',
     'ConfigContextSerializer',
     'ConfigTemplateSerializer',
     'ContentTypeSerializer',
@@ -188,6 +189,30 @@ class SavedFilterSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_types', 'name', 'slug', 'description', 'user', 'weight', 'enabled',
             'shared', 'parameters', 'created', 'last_updated',
         ]
+
+
+#
+# Bookmarks
+#
+
+class BookmarkSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
+    object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('bookmarks').get_query()),
+    )
+    object = serializers.SerializerMethodField(read_only=True)
+    user = NestedUserSerializer()
+
+    class Meta:
+        model = Bookmark
+        fields = [
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
+        ]
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_object(self, instance):
+        serializer = get_serializer_for_model(instance.object, prefix=NESTED_SERIALIZER_PREFIX)
+        return serializer(instance.object, context={'request': self.context['request']}).data
 
 
 #
