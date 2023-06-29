@@ -309,7 +309,7 @@ class BookmarksMixin(models.Model):
     """
     Enables support for user bookmarks.
     """
-    images = GenericRelation(
+    bookmarks = GenericRelation(
         to='extras.Bookmark',
         content_type_field='object_type',
         object_id_field='object_id'
