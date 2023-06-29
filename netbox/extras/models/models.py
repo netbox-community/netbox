@@ -1,7 +1,6 @@
 import json
 import urllib.parse
 
-from django.conf import settings
 from django.contrib import admin
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -596,10 +595,13 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         return JournalEntryKindChoices.colors.get(self.kind)
 
 
-class Bookmark(ChangeLoggedModel):
+class Bookmark(models.Model):
     """
     An object bookmarked by a User.
     """
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
     object_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.PROTECT
@@ -613,6 +615,8 @@ class Bookmark(ChangeLoggedModel):
         to=settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT
     )
+
+    objects = RestrictedQuerySet.as_manager()
 
     class Meta:
         ordering = ('created', 'pk')

@@ -206,7 +206,7 @@ class BookmarkSerializer(ValidatedModelSerializer):
     class Meta:
         model = Bookmark
         fields = [
-            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created', 'last_updated',
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
