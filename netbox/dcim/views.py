@@ -3132,11 +3132,23 @@ class CableEditView(generic.ObjectEditView):
         return obj
 
     def get_extra_addanother_params(self, request):
-        return {
-            'termination_a_device': resolve(request.GET.get('return_url')).kwargs.get('pk'),
+
+        params = {
             'a_terminations_type': request.GET.get('a_terminations_type'),
             'b_terminations_type': request.GET.get('b_terminations_type')
         }
+
+        pk = resolve(request.GET.get('return_url')).kwargs.get('pk')
+        a_type = CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type'))
+
+        if hasattr(a_type, 'device'):
+            params.update({'termination_a_device': pk})
+        elif hasattr(a_type, 'power_panel'):
+            params.update({'termination_a_powerpanel': pk})
+        elif hasattr(a_type, 'circuit'):
+            params.update({'termination_a_circuit': pk})
+
+        return params
 
 
 @register_model_view(Cable, 'delete')
