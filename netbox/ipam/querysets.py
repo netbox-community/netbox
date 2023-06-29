@@ -1,8 +1,32 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Q
+from django.db.models import Count, OuterRef, Q, Subquery, Value
 from django.db.models.expressions import RawSQL
 
 from utilities.querysets import RestrictedQuerySet
+
+__all__ = (
+    'ASNRangeQuerySet',
+    'PrefixQuerySet',
+    'VLANQuerySet',
+)
+
+
+class ASNRangeQuerySet(RestrictedQuerySet):
+
+    def annotate_asn_counts(self):
+        """
+        Annotate the number of ASNs which appear within each range.
+        """
+        from .models import ASN
+
+        # Because ASN does not have a foreign key to ASNRange, we create a fake column "_" with a consistent value
+        # that we can use to count ASNs and return a single value per ASNRange.
+        asns = ASN.objects.filter(
+            asn__gte=OuterRef('start'),
+            asn__lte=OuterRef('end')
+        ).order_by().annotate(_=Value(1)).values('_').annotate(c=Count('*')).values('c')
+
+        return self.annotate(asn_count=Subquery(asns))
 
 
 class PrefixQuerySet(RestrictedQuerySet):
