@@ -8,7 +8,7 @@ from django.db.models import Prefetch
 from django.forms import ModelMultipleChoiceField, MultipleHiddenInput, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.urls import reverse, resolve
+from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -3138,15 +3138,9 @@ class CableEditView(generic.ObjectEditView):
             'b_terminations_type': request.GET.get('b_terminations_type')
         }
 
-        pk = resolve(request.GET.get('return_url')).kwargs.get('pk')
-        a_type = CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type'))
-
-        if hasattr(a_type, 'device'):
-            params.update({'termination_a_device': pk})
-        elif hasattr(a_type, 'power_panel'):
-            params.update({'termination_a_powerpanel': pk})
-        elif hasattr(a_type, 'circuit'):
-            params.update({'termination_a_circuit': pk})
+        for key in request.POST:
+            if 'device' in key or 'power_panel' in key or 'circuit' in key:
+                params.update({key: request.POST.get(key)})
 
         return params
 
