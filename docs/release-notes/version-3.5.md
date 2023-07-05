@@ -5,11 +5,16 @@
 ### Enhancements
 
 * [#12945](https://github.com/netbox-community/netbox/issues/12945) - Add 100GE QSFP-DD interface type
+* [#12955](https://github.com/netbox-community/netbox/issues/12955) - Include additional contact details on contact assignments table
 
 ### Bug Fixes
 
+* [#11335](https://github.com/netbox-community/netbox/issues/11335) - Exclude stale content types when retrieving changelog records
 * [#12533](https://github.com/netbox-community/netbox/issues/12533) - Fix REST API validation of null values for several interface attributes
+* [#12760](https://github.com/netbox-community/netbox/issues/12760) - Avoid rendering partial HTMX responses when restoring browser tabs
+* [#12842](https://github.com/netbox-community/netbox/issues/12842) - Improve handling of exceptions when loading reports
 * [#12849](https://github.com/netbox-community/netbox/issues/12849) - Fix LDAP group permissions assignment for API clients
+* [#12951](https://github.com/netbox-community/netbox/issues/12951) - Display consistent parent information for each termination under cable view
 * [#12953](https://github.com/netbox-community/netbox/issues/12953) - Fix designation of primary IP addresses during interface assignment
 * [#12960](https://github.com/netbox-community/netbox/issues/12960) - Fix OpenAPI schema for various choice fields
 * [#12961](https://github.com/netbox-community/netbox/issues/12961) - Set correct return URL for object contacts tabs
