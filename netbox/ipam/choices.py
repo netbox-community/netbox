@@ -94,6 +94,18 @@ class IPAddressRoleChoices(ChoiceSet):
         (ROLE_CARP, 'CARP', 'green'),
     )
 
+class IPAddressFunctionChoices(ChoiceSet):
+
+    FUNC_OOB = 'Out Of Band'
+    # Future planning, depreciate primary_ip
+    # FUNC_PRIMARY_IP = 'Primary IP' 
+
+    CHOICES = (
+        (FUNC_OOB, 'Out Of Band', 'gray'),
+        # Future planning, depreciate primary_ip
+        # (FUNC_PRIMARY_IP, 'Primary IP', 'blue'), 
+    )
+
 
 #
 # FHRP

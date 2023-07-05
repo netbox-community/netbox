@@ -48,6 +48,12 @@ IPADDRESS_ROLES_NONUNIQUE = (
 )
 
 
+IPADDRESS_FUNCTION_ASSIGNMENT_MODELS = Q(
+    Q(app_label='dcim', model='device') |
+    Q(app_label='dcim', model='virtualdevicecontext') |
+    Q(app_label='virtualization', model='VirtualMachine')
+)
+
 #
 # FHRP groups
 #

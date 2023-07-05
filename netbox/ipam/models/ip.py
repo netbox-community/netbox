@@ -15,7 +15,7 @@ from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
-from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
 
 __all__ = (
     'Aggregate',
@@ -665,6 +665,53 @@ class IPRange(PrimaryModel):
         ]).size
 
         return int(float(child_count) / self.size * 100)
+
+
+class IPAddressFunction(NetBoxModel):
+    assigned_object_type = models.ForeignKey(
+        to=ContentType,
+        limit_choices_to=IPADDRESS_FUNCTION_ASSIGNMENT_MODELS,
+        on_delete=models.CASCADE,
+        related_name='+'
+    )
+    assigned_object_id = models.PositiveBigIntegerField()
+    assigned_object = GenericForeignKey(
+        ct_field='assigned_object_type',
+        fk_field='assigned_object_id'
+    )
+    assigned_ip = models.ForeignKey(
+        to='ipam.IPAddress',
+        on_delete=models.CASCADE,
+        related_name='+',
+        verbose_name='Assigned IP'
+    )
+    function = models.CharField(
+        max_length=50,
+        choices=IPAddressFunctionChoices,
+        help_text=_('Function to assign to ip')
+    )
+
+    class Meta:
+        ordering = ('function',)
+        verbose_name = 'IP Address Function'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('assigned_object_type', 'assigned_object_id', 'function'),
+                name='ipam_ipfunction_assigned_object'
+            ),
+            models.UniqueConstraint(
+                fields=('assigned_ip'),
+                name='ipam_ipfunction_ip_single_use'
+            ),
+        )
+
+    def __str__(self):
+        if self.pk is not None:
+            return f'{self.assigned_object_type} - {self.function} - {self.assigned_ip}'
+        return super().__str__()
+
+    def get_absolute_url(self):
+        return reverse('ipam:ipaddressfunction', args=[self.pk])
 
 
 class IPAddress(PrimaryModel):
