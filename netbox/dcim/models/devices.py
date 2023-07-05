@@ -645,6 +645,9 @@ class Device(PrimaryModel, ConfigContextModel):
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
+    ipaddressfunctions = GenericRelation(
+        to='ipam.IPAddressFunction'
+    )
 
     objects = ConfigContextModelQuerySet.as_manager()
 
@@ -1229,6 +1232,11 @@ class VirtualDeviceContext(PrimaryModel):
     )
     comments = models.TextField(
         blank=True
+    )
+
+    # Generic relation
+    ipaddressfunctions = GenericRelation(
+        to='ipam.IPAddressFunction'
     )
 
     class Meta:

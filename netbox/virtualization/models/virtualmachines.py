@@ -124,6 +124,9 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
+    ipaddressfunctions = GenericRelation(
+        to='ipam.IPAddressFunction'
+    )
 
     objects = ConfigContextModelQuerySet.as_manager()
 
