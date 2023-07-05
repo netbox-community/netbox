@@ -1,3 +1,5 @@
+from django.apps import apps
+from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.aggregates import JSONBAgg
 from django.db.models import OuterRef, Subquery, Q
 
@@ -151,3 +153,14 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         )
 
         return base_query
+
+
+class ObjectChangeQuerySet(RestrictedQuerySet):
+
+    def valid_models(self):
+        # Exclude any change records which refer to an instance of a model that's no longer installed. This
+        # can happen when a plugin is removed but its data remains in the database, for example.
+        content_type_ids = set(
+            ct.pk for ct in ContentType.objects.get_for_models(*apps.get_models()).values()
+        )
+        return self.filter(changed_object_type_id__in=content_type_ids)
