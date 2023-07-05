@@ -20,6 +20,7 @@ from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
 __all__ = (
     'Aggregate',
     'IPAddress',
+    'IPAddressFunction'
     'IPRange',
     'Prefix',
     'RIR',
