@@ -1,6 +1,6 @@
 # NetBox v3.5
 
-## v3.5.5 (FUTURE)
+## v3.5.5 (2023-07-06)
 
 ### Enhancements
 
@@ -30,6 +30,7 @@
 * [#12989](https://github.com/netbox-community/netbox/issues/12989) - Fix bulk import of tags for device & module types
 * [#13011](https://github.com/netbox-community/netbox/issues/13011) - Do not escape commas when rendering custom links
 * [#13047](https://github.com/netbox-community/netbox/issues/13047) - Correct ASN count under ASN ranges list
+* [#13056](https://github.com/netbox-community/netbox/issues/13056) - Add `config_template` field to device API serializer
 * [#13092](https://github.com/netbox-community/netbox/issues/13092) - Allow nullifying power port max & allocated draw values during bulk edit
 * [#13100](https://github.com/netbox-community/netbox/issues/13100) - Fix ValueError exception when searching for virtual device context for non-numeric values
 
