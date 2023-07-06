@@ -12,6 +12,7 @@ __all__ = (
     'ASNRange',
     'Aggregate',
     'IPAddress',
+    'IPAddressFunctionAssignments',
     'IPRange',
     'FHRPGroup',
     'FHRPGroupAssignment',

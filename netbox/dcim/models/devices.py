@@ -646,7 +646,7 @@ class Device(PrimaryModel, ConfigContextModel):
         to='extras.ImageAttachment'
     )
     ipaddressfunctions = GenericRelation(
-        to='ipam.IPAddressFunction'
+        to='ipam.IPAddressFunctionAssignments'
     )
 
     objects = ConfigContextModelQuerySet.as_manager()
@@ -1236,7 +1236,7 @@ class VirtualDeviceContext(PrimaryModel):
 
     # Generic relation
     ipaddressfunctions = GenericRelation(
-        to='ipam.IPAddressFunction'
+        to='ipam.IPAddressFunctionAssignments'
     )
 
     class Meta:

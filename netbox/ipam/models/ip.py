@@ -20,7 +20,7 @@ from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
 __all__ = (
     'Aggregate',
     'IPAddress',
-    'IPAddressFunction',
+    'IPAddressFunctionAssignments',
     'IPRange',
     'Prefix',
     'RIR',
@@ -668,7 +668,7 @@ class IPRange(PrimaryModel):
         return int(float(child_count) / self.size * 100)
 
 
-class IPAddressFunction(NetBoxModel):
+class IPAddressFunctionAssignments(NetBoxModel):
     assigned_object_type = models.ForeignKey(
         to=ContentType,
         limit_choices_to=IPADDRESS_FUNCTION_ASSIGNMENT_MODELS,
@@ -694,7 +694,7 @@ class IPAddressFunction(NetBoxModel):
 
     class Meta:
         ordering = ('function',)
-        verbose_name = 'IP Address Function'
+        verbose_name = 'IP Address Function Assignments'
         constraints = (
             models.UniqueConstraint(
                 fields=('assigned_object_type', 'assigned_object_id', 'function'),
