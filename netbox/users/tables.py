@@ -12,7 +12,7 @@ ALLOWED_IPS = """{{ value|join:", " }}"""
 
 COPY_BUTTON = """
 {% if settings.ALLOW_TOKEN_RETRIEVAL %}
-  {% copy_content record.pk prefix="#token_" color="success" %}
+  {% copy_content record.pk prefix="token_" color="success" %}
 {% endif %}
 """
 

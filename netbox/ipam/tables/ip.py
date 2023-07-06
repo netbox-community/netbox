@@ -20,7 +20,7 @@ __all__ = (
 AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 AGGREGATE_COPY_BUTTON = """
-{% copy_content record.pk prefix="#aggregate_" %}
+{% copy_content record.pk prefix="aggregate_" %}
 """
 
 PREFIX_LINK = """
@@ -32,7 +32,7 @@ PREFIX_LINK = """
 """
 
 PREFIX_COPY_BUTTON = """
-{% copy_content record.pk prefix="#prefix_" %}
+{% copy_content record.pk prefix="prefix_" %}
 """
 
 PREFIX_LINK_WITH_DEPTH = """
@@ -57,7 +57,7 @@ IPADDRESS_LINK = """
 """
 
 IPADDRESS_COPY_BUTTON = """
-{% copy_content record.pk prefix="#ipaddress_" %}
+{% copy_content record.pk prefix="ipaddress_" %}
 """
 
 IPADDRESS_ASSIGN_LINK = """

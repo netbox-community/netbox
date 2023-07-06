@@ -200,7 +200,7 @@
                                 {% elif object.primary_ip4.nat_outside.exists %}
                                   (NAT: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
-                                {% copy_content record.pk prefix="#primary_ip4_" %}
+                                {% copy_content record.pk prefix="primary_ip4_" %}
                               {% else %}
                                 {{ ''|placeholder }}
                               {% endif %}
@@ -216,7 +216,7 @@
                                 {% elif object.primary_ip6.nat_outside.exists %}
                                   (NAT: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
-                                {% copy_content record.pk prefix="#primary_ip6_" %}
+                                {% copy_content record.pk prefix="primary_ip6_" %}
                               {% else %}
                                 {{ ''|placeholder }}
                               {% endif %}

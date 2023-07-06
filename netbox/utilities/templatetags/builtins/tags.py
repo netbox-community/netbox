@@ -84,7 +84,7 @@ def copy_content(target, prefix=None, color='primary'):
     Display a copy button to copy the content of a field.
     """
     return {
-        'target': target if prefix is None else prefix + str(target),
+        'target': f'#{prefix or ""}{target}',
         'color': f'btn-{color}'
     }
 
