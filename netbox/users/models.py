@@ -272,6 +272,18 @@ class Token(models.Model):
         return False
 
 
+class UserToken(Token):
+    """
+    Proxy Token for NetBox admin UI
+    """
+    class Meta:
+        verbose_name = 'Token'
+        proxy = True
+
+    def get_absolute_url(self):
+        return reverse('users:usertoken', args=[self.pk])
+
+
 #
 # Permissions
 #

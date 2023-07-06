@@ -360,6 +360,16 @@ ADMIN_MENU = Menu(
                 ),
             ),
         ),
+        MenuGroup(
+            label=_('Users'),
+            items=(
+                MenuItem(
+                    link='users:user_token_list',
+                    link_text=_('Tokens'),
+                    permissions=['users.view_token']
+                ),
+            ),
+        ),
     ),
 )
 

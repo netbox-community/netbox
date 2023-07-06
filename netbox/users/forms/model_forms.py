@@ -11,7 +11,7 @@ from netbox.preferences import PREFERENCES
 from utilities.forms import BootstrapMixin
 from utilities.forms.widgets import DateTimePicker
 from utilities.utils import flatten_dict
-from .models import Token, UserConfig
+from users.models import Token, UserConfig
 
 
 class LoginForm(BootstrapMixin, AuthenticationForm):

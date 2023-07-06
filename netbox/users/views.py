@@ -19,11 +19,12 @@ from extras.models import Bookmark, ObjectChange
 from extras.tables import BookmarkTable, ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
-from netbox.views.generic import ObjectListView
+from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
-from .forms import LoginForm, PasswordChangeForm, TokenForm, UserConfigForm
-from .models import Token, UserConfig
+from .filtersets import TokenFilterSet
+from . import forms
+from .models import Token, UserConfig, UserToken
 from .tables import TokenTable
 
 
@@ -70,7 +71,7 @@ class LoginView(View):
         return auth_backends
 
     def get(self, request):
-        form = LoginForm(request)
+        form = forms.LoginForm(request)
 
         if request.user.is_authenticated:
             logger = logging.getLogger('netbox.auth.login')
@@ -83,7 +84,7 @@ class LoginView(View):
 
     def post(self, request):
         logger = logging.getLogger('netbox.auth.login')
-        form = LoginForm(request, data=request.POST)
+        form = forms.LoginForm(request, data=request.POST)
 
         if form.is_valid():
             logger.debug("Login form validation was successful")
@@ -208,7 +209,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
             messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
             return redirect('users:profile')
 
-        form = PasswordChangeForm(user=request.user)
+        form = forms.PasswordChangeForm(user=request.user)
 
         return render(request, self.template_name, {
             'form': form,
@@ -216,7 +217,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
-        form = PasswordChangeForm(user=request.user, data=request.POST)
+        form = forms.PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
@@ -233,7 +234,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
 # Bookmarks
 #
 
-class BookmarkListView(LoginRequiredMixin, ObjectListView):
+class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
     table = BookmarkTable
     template_name = 'users/bookmarks.html'
 
@@ -275,7 +276,7 @@ class TokenEditView(LoginRequiredMixin, View):
         else:
             token = Token(user=request.user)
 
-        form = TokenForm(instance=token)
+        form = forms.TokenForm(instance=token)
 
         return render(request, 'generic/object_edit.html', {
             'object': token,
@@ -287,10 +288,10 @@ class TokenEditView(LoginRequiredMixin, View):
 
         if pk:
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-            form = TokenForm(request.POST, instance=token)
+            form = forms.TokenForm(request.POST, instance=token)
         else:
             token = Token(user=request.user)
-            form = TokenForm(request.POST)
+            form = forms.TokenForm(request.POST)
 
         if form.is_valid():
 
@@ -351,3 +352,50 @@ class TokenDeleteView(LoginRequiredMixin, View):
             'form': form,
             'return_url': reverse('users:token_list'),
         })
+
+#
+# User Token
+#
+
+
+class UserTokenListView(generic.ObjectListView):
+    queryset = UserToken.objects.all()
+    filterset = TokenFilterSet
+    filterset_form = forms.TokenFilterForm
+    table = TokenTable
+
+
+@register_model_view(UserToken)
+class UserTokenView(generic.ObjectView):
+    queryset = UserToken.objects.all()
+
+    def get_extra_context(self, request, instance):
+
+        return {}
+
+
+@register_model_view(UserToken, 'edit')
+class UserTokenEditView(generic.ObjectEditView):
+    queryset = UserToken.objects.all()
+    form = forms.TokenForm
+
+
+@register_model_view(UserToken, 'delete')
+class UserTokenDeleteView(generic.ObjectDeleteView):
+    queryset = UserToken.objects.all()
+
+
+class UserTokenBulkImportView(generic.BulkImportView):
+    queryset = UserToken.objects.all()
+    model_form = forms.TokenImportForm
+
+
+class UserTokenBulkEditView(generic.BulkEditView):
+    queryset = UserToken.objects.all()
+    table = TokenTable
+    form = forms.TokenBulkEditForm
+
+
+class UserTokenBulkDeleteView(generic.BulkDeleteView):
+    queryset = UserToken.objects.all()
+    table = TokenTable
