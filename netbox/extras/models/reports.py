@@ -1,7 +1,7 @@
 import inspect
+import logging
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 
@@ -11,6 +11,8 @@ from extras.utils import is_report
 from netbox.models.features import JobsMixin, WebhooksMixin
 from utilities.querysets import RestrictedQuerySet
 from .mixins import PythonModuleMixin
+
+logger = logging.getLogger('netbox.reports')
 
 __all__ = (
     'Report',
@@ -56,7 +58,8 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
         try:
             module = self.get_module()
-        except ImportError:
+        except (ImportError, SyntaxError) as e:
+            logger.error(f"Unable to load report module {self.name}, exception: {e}")
             return {}
         reports = {}
         ordered = getattr(module, 'report_order', [])

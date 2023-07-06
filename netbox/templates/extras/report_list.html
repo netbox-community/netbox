@@ -38,71 +38,77 @@
         </h5>
         <div class="card-body">
           {% include 'inc/sync_warning.html' with object=module %}
-          <table class="table table-hover table-headings reports">
-            <thead>
-              <tr>
-                <th width="250">Name</th>
-                <th>Description</th>
-                <th>Last Run</th>
-                <th>Status</th>
-                <th width="120"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% with jobs=module.get_latest_jobs %}
-                {% for report_name, report in module.reports.items %}
-                  {% with last_job=jobs|get_key:report.name %}
-                    <tr>
-                      <td>
-                        <a href="{% url 'extras:report' module=module.python_name name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
-                      </td>
-                      <td>{{ report.description|markdown|placeholder }}</td>
-                      {% if last_job %}
-                        <td>
-                          <a href="{% url 'extras:report_result' job_pk=last_job.pk %}">{{ last_job.created|annotated_date }}</a>
-                        </td>
-                        <td>
-                          {% badge last_job.get_status_display last_job.get_status_color %}
-                        </td>
-                      {% else %}
-                        <td class="text-muted">Never</td>
-                        <td>{{ ''|placeholder }}</td>
-                      {% endif %}
-                      <td>
-                        {% if perms.extras.run_report %}
-                          <div class="float-end noprint">
-                            <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
-                              {% csrf_token %}
-                              <button type="submit" name="_run" class="btn btn-primary btn-sm" style="width: 110px">
-                                {% if last_job %}
-                                  <i class="mdi mdi-replay"></i> Run Again
-                                {% else %}
-                                  <i class="mdi mdi-play"></i> Run Report
-                                {% endif %}
-                              </button>
-                            </form>
-                          </div>
-                        {% endif %}
-                      </td>
-                    </tr>
-                    {% for method, stats in last_job.data.items %}
+          {% if module.reports %}
+            <table class="table table-hover table-headings reports">
+              <thead>
+                <tr>
+                  <th width="250">Name</th>
+                  <th>Description</th>
+                  <th>Last Run</th>
+                  <th>Status</th>
+                  <th width="120"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% with jobs=module.get_latest_jobs %}
+                  {% for report_name, report in module.reports.items %}
+                    {% with last_job=jobs|get_key:report.name %}
                       <tr>
-                        <td colspan="4" class="method">
-                          <span class="ps-3">{{ method }}</span>
+                        <td>
+                          <a href="{% url 'extras:report' module=module.python_name name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
                         </td>
-                        <td class="text-end text-nowrap report-stats">
-                          <span class="badge bg-success">{{ stats.success }}</span>
-                          <span class="badge bg-info">{{ stats.info }}</span>
-                          <span class="badge bg-warning">{{ stats.warning }}</span>
-                          <span class="badge bg-danger">{{ stats.failure }}</span>
+                        <td>{{ report.description|markdown|placeholder }}</td>
+                        {% if last_job %}
+                          <td>
+                            <a href="{% url 'extras:report_result' job_pk=last_job.pk %}">{{ last_job.created|annotated_date }}</a>
+                          </td>
+                          <td>
+                            {% badge last_job.get_status_display last_job.get_status_color %}
+                          </td>
+                        {% else %}
+                          <td class="text-muted">Never</td>
+                          <td>{{ ''|placeholder }}</td>
+                        {% endif %}
+                        <td>
+                          {% if perms.extras.run_report %}
+                            <div class="float-end noprint">
+                              <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" name="_run" class="btn btn-primary btn-sm" style="width: 110px">
+                                  {% if last_job %}
+                                    <i class="mdi mdi-replay"></i> Run Again
+                                  {% else %}
+                                    <i class="mdi mdi-play"></i> Run Report
+                                  {% endif %}
+                                </button>
+                              </form>
+                            </div>
+                          {% endif %}
                         </td>
                       </tr>
-                    {% endfor %}
-                  {% endwith %}
-                {% endfor %}
-              {% endwith %}
-            </tbody>
-          </table>
+                      {% for method, stats in last_job.data.items %}
+                        <tr>
+                          <td colspan="4" class="method">
+                            <span class="ps-3">{{ method }}</span>
+                          </td>
+                          <td class="text-end text-nowrap report-stats">
+                            <span class="badge bg-success">{{ stats.success }}</span>
+                            <span class="badge bg-info">{{ stats.info }}</span>
+                            <span class="badge bg-warning">{{ stats.warning }}</span>
+                            <span class="badge bg-danger">{{ stats.failure }}</span>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    {% endwith %}
+                  {% endfor %}
+                {% endwith %}
+              </tbody>
+            </table>
+          {% else %}
+            <div class="alert alert-warning" role="alert">
+              <i class="mdi mdi-alert"></i> Could not load reports from {{ module.name }}
+            </div>
+          {% endif %}
         </div>
       </div>
     {% empty %}

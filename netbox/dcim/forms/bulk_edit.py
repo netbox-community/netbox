@@ -1106,7 +1106,7 @@ class PowerPortBulkEditForm(
         (None, ('module', 'type', 'label', 'description', 'mark_connected')),
         ('Power', ('maximum_draw', 'allocated_draw')),
     )
-    nullable_fields = ('module', 'label', 'description')
+    nullable_fields = ('module', 'label', 'description', 'maximum_draw', 'allocated_draw')
 
 
 class PowerOutletBulkEditForm(

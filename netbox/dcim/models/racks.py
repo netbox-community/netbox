@@ -126,7 +126,7 @@ class Rack(PrimaryModel, WeightMixin):
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
         verbose_name='Height (U)',
-        validators=[MinValueValidator(1), MaxValueValidator(100)],
+        validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
         help_text=_('Height in rack units')
     )
     desc_units = models.BooleanField(
