@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerializer
 from ipam.choices import *
-from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
+from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES, IPADDRESS_FUNCTION_ASSIGNMENT_MODELS
 from ipam.models import *
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -443,6 +443,29 @@ class AvailableIPSerializer(serializers.Serializer):
             'address': f"{instance}/{self.context['parent'].mask_length}",
             'vrf': vrf,
         }
+
+
+class IPAddressFunctionAssignmentsSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddressfunctionassignments-detail')
+    assigned_object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(IPADDRESS_FUNCTION_ASSIGNMENT_MODELS),
+    )
+    assigned_object = serializers.SerializerMethodField(read_only=True)
+    assigned_ip = NestedIPAddressSerializer()
+
+    class Meta:
+        model = IPAddressFunctionAssignments
+        fields = [
+            'id', 'url', 'display', 'assigned_ip', 'function',
+            'assigned_object_type', 'assigned_object_id', 'assigned_object',
+            'tags', 'custom_fields', 'created', 'last_updated',
+        ]
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_assigned_object(self, instance):
+        serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
+        context = {'request': self.context['request']}
+        return serializer(instance.assigned_object, context=context).data
 
 
 #

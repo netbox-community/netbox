@@ -131,6 +131,12 @@ class IPAddressViewSet(NetBoxModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
 
+class IPAddressFunctionAssignmentsViewSet(NetBoxModelViewSet):
+    queryset = IPAddressFunctionAssignments.objects.prefetch_related('assigned_ip', 'assigned_object', 'tags')
+    serializer_class = serializers.IPAddressFunctionAssignmentsSerializer
+    # filterset_class = filtersets. # TODO add filterset
+
+
 class FHRPGroupViewSet(NetBoxModelViewSet):
     queryset = FHRPGroup.objects.prefetch_related('ip_addresses', 'tags')
     serializer_class = serializers.FHRPGroupSerializer
