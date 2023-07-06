@@ -420,6 +420,11 @@ class ContactAssignmentBulkEditView(generic.BulkEditView):
     form = forms.ContactAssignmentBulkEditForm
 
 
+class ContactAssignmentBulkImportView(generic.BulkImportView):
+    queryset = ContactAssignment.objects.all()
+    model_form = forms.ContactAssignmentImportForm
+
+
 class ContactAssignmentBulkDeleteView(generic.BulkDeleteView):
     queryset = ContactAssignment.objects.all()
     filterset = filtersets.ContactAssignmentFilterSet
