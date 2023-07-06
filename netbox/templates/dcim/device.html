@@ -194,12 +194,13 @@
                             <th scope="row">Primary IPv4</th>
                             <td>
                               {% if object.primary_ip4 %}
-                                <a href="{{ object.primary_ip4.get_absolute_url }}">{{ object.primary_ip4.address.ip }}</a>
+                                <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4.address.ip }}</a>
                                 {% if object.primary_ip4.nat_inside %}
                                   (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
                                 {% elif object.primary_ip4.nat_outside.exists %}
                                   (NAT: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
+                                {% copy_content "primary_ip4" %}
                               {% else %}
                                 {{ ''|placeholder }}
                               {% endif %}
@@ -209,12 +210,13 @@
                             <th scope="row">Primary IPv6</th>
                             <td>
                               {% if object.primary_ip6 %}
-                                <a href="{{ object.primary_ip6.get_absolute_url }}">{{ object.primary_ip6.address.ip }}</a>
+                                <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6.address.ip }}</a>
                                 {% if object.primary_ip6.nat_inside %}
                                   (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
                                 {% elif object.primary_ip6.nat_outside.exists %}
                                   (NAT: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                                 {% endif %}
+                                {% copy_content "primary_ip6" %}
                               {% else %}
                                 {{ ''|placeholder }}
                               {% endif %}
