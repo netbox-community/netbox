@@ -147,7 +147,7 @@ class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):
 
 
 class VLANGroupViewSet(NetBoxModelViewSet):
-    queryset = VLANGroup.objects.get_utilization().prefetch_related('tags')
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filtersets.VLANGroupFilterSet
 

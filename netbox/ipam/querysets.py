@@ -57,7 +57,8 @@ class PrefixQuerySet(RestrictedQuerySet):
 
 
 class VLANGroupQuerySet(RestrictedQuerySet):
-    def get_utilization(self, *args, **kwargs):
+
+    def annotate_utilization(self):
         from .models import VLAN
 
         return self.annotate(
