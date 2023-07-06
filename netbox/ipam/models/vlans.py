@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from dcim.models import Interface
 from ipam.choices import *
 from ipam.constants import *
-from ipam.querysets import VLANQuerySet
+from ipam.querysets import VLANQuerySet, VLANGroupQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
 from virtualization.models import VMInterface
 
@@ -62,6 +62,8 @@ class VLANGroup(OrganizationalModel):
         ),
         help_text=_('Highest permissible ID of a child VLAN')
     )
+
+    objects = VLANGroupQuerySet.as_manager()
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique

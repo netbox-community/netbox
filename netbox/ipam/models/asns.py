@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from ipam.fields import ASNField
+from ipam.querysets import ASNRangeQuerySet
 from netbox.models import OrganizationalModel, PrimaryModel
 
 __all__ = (
@@ -36,6 +37,8 @@ class ASNRange(OrganizationalModel):
         blank=True,
         null=True
     )
+
+    objects = ASNRangeQuerySet.as_manager()
 
     class Meta:
         ordering = ('name',)

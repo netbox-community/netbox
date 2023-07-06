@@ -698,7 +698,8 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'config_template',
+            'created', 'last_updated',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -707,7 +708,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
 
 class VirtualDeviceContextSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
+    url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualdevicecontext-detail')
     device = NestedDeviceSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
     primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
@@ -880,12 +881,12 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     parent = NestedInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedInterfaceSerializer(required=False, allow_null=True)
     lag = NestedInterfaceSerializer(required=False, allow_null=True)
-    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_blank=True, allow_null=True)
+    mode = ChoiceField(choices=InterfaceModeChoices, required=False, allow_blank=True)
     duplex = ChoiceField(choices=InterfaceDuplexChoices, required=False, allow_blank=True, allow_null=True)
-    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_blank=True, allow_null=True)
-    rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True, allow_null=True)
-    poe_mode = ChoiceField(choices=InterfacePoEModeChoices, required=False, allow_blank=True, allow_null=True)
-    poe_type = ChoiceField(choices=InterfacePoETypeChoices, required=False, allow_blank=True, allow_null=True)
+    rf_role = ChoiceField(choices=WirelessRoleChoices, required=False, allow_blank=True)
+    rf_channel = ChoiceField(choices=WirelessChannelChoices, required=False, allow_blank=True)
+    poe_mode = ChoiceField(choices=InterfacePoEModeChoices, required=False, allow_blank=True)
+    poe_type = ChoiceField(choices=InterfacePoETypeChoices, required=False, allow_blank=True)
     untagged_vlan = NestedVLANSerializer(required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
@@ -907,9 +908,10 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     mac_address = serializers.CharField(
         required=False,
         default=None,
+        allow_blank=True,
         allow_null=True
     )
-    wwn = serializers.CharField(required=False, default=None)
+    wwn = serializers.CharField(required=False, default=None, allow_blank=True, allow_null=True)
 
     class Meta:
         model = Interface

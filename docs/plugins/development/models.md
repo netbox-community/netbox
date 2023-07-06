@@ -19,6 +19,9 @@ class MyModel(models.Model):
 
 Every model includes by default a numeric primary key. This value is generated automatically by the database, and can be referenced as `pk` or `id`.
 
+!!! note
+    Model names should adhere to [PEP8](https://www.python.org/dev/peps/pep-0008/#class-names) standards and be CapWords (no underscores).  Using underscores in model names will result in problems with permissions.
+
 ## Enabling NetBox Features
 
 Plugin models can leverage certain NetBox features by inheriting from NetBox's `NetBoxModel` class. This class extends the plugin model to enable features unique to NetBox, including:

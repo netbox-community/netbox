@@ -39,9 +39,7 @@
               <th scope="row">Path</th>
               <td>
                 <span class="font-monospace" id="datafile_path">{{ object.path }}</span>
-                <a class="btn btn-sm btn-primary copy-token" data-clipboard-target="#datafile_path" title="Copy to clipboard">
-                  <i class="mdi mdi-content-copy"></i>
-                </a>
+                {% copy_content "datafile_path" %}
               </td>
             </tr>
             <tr>
@@ -56,9 +54,7 @@
               <th scope="row">SHA256 Hash</th>
               <td>
               <span class="font-monospace" id="datafile_hash">{{ object.hash }}</span>
-                <a class="btn btn-sm btn-primary copy-token" data-clipboard-target="#datafile_hash" title="Copy to clipboard">
-                  <i class="mdi mdi-content-copy"></i>
-                </a>
+                {% copy_content "datafile_hash" %}
               </td>
             </tr>
           </table>
