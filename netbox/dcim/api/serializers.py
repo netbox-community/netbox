@@ -698,7 +698,8 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'config_template',
+            'created', 'last_updated',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
