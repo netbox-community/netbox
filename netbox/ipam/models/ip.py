@@ -20,7 +20,7 @@ from netbox.models import OrganizationalModel, PrimaryModel, NetBoxModel
 __all__ = (
     'Aggregate',
     'IPAddress',
-    'IPAddressFunction'
+    'IPAddressFunction',
     'IPRange',
     'Prefix',
     'RIR',
@@ -701,7 +701,7 @@ class IPAddressFunction(NetBoxModel):
                 name='ipam_ipfunction_assigned_object'
             ),
             models.UniqueConstraint(
-                fields=('assigned_ip'),
+                fields=('assigned_ip',),
                 name='ipam_ipfunction_ip_single_use'
             ),
         )
