@@ -4,13 +4,18 @@
 
 ### Enhancements
 
+* [#11738](https://github.com/netbox-community/netbox/issues/11738) - Annotate VLAN group utilization
+* [#12499](https://github.com/netbox-community/netbox/issues/12499) - Add "copy to clipboard" buttons in UI for IP addresses
 * [#12945](https://github.com/netbox-community/netbox/issues/12945) - Add 100GE QSFP-DD interface type
 * [#12955](https://github.com/netbox-community/netbox/issues/12955) - Include additional contact details on contact assignments table
+* [#13065](https://github.com/netbox-community/netbox/issues/13065) - Associate contact assignments with their objects in the change log
 
 ### Bug Fixes
 
 * [#11335](https://github.com/netbox-community/netbox/issues/11335) - Exclude stale content types when retrieving changelog records
 * [#12533](https://github.com/netbox-community/netbox/issues/12533) - Fix REST API validation of null values for several interface attributes
+* [#12579](https://github.com/netbox-community/netbox/issues/12579) - Fix exception when clicking "create and add another" to add a cable
+* [#12617](https://github.com/netbox-community/netbox/issues/12617) - Populate prechange snapshot on parent object when assigning/removing primary IP address
 * [#12760](https://github.com/netbox-community/netbox/issues/12760) - Avoid rendering partial HTMX responses when restoring browser tabs
 * [#12842](https://github.com/netbox-community/netbox/issues/12842) - Improve handling of exceptions when loading reports
 * [#12849](https://github.com/netbox-community/netbox/issues/12849) - Fix LDAP group permissions assignment for API clients
@@ -24,6 +29,9 @@
 * [#12983](https://github.com/netbox-community/netbox/issues/12983) - Avoid erroneously clearing many-to-many assignments during bulk edit
 * [#12989](https://github.com/netbox-community/netbox/issues/12989) - Fix bulk import of tags for device & module types
 * [#13011](https://github.com/netbox-community/netbox/issues/13011) - Do not escape commas when rendering custom links
+* [#13047](https://github.com/netbox-community/netbox/issues/13047) - Correct ASN count under ASN ranges list
+* [#13092](https://github.com/netbox-community/netbox/issues/13092) - Allow nullifying power port max & allocated draw values during bulk edit
+* [#13100](https://github.com/netbox-community/netbox/issues/13100) - Fix ValueError exception when searching for virtual device context for non-numeric values
 
 ---
 
