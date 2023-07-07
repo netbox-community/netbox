@@ -390,6 +390,10 @@ class BaseScript:
         # Set initial "commit" checkbox state based on the script's Meta parameter
         form.fields['_commit'].initial = self.commit_default
 
+        if not self.scheduling_enabled:
+            form.fields['_schedule_at'].widget = forms.HiddenInput()
+            form.fields['_interval'].widget = forms.HiddenInput()
+
         return form
 
     # Logging
