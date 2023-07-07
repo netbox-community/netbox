@@ -2,11 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% if perms.virtualization.add_cluster %}
     <a href="{% url 'virtualization:cluster_add' %}?type={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Cluster
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Cluster" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -16,20 +17,20 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Cluster Type
+        {% trans "Cluster Type" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover card-body attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Clusters</th>
+            <th scope="row">{% trans "Clusters" %}</th>
             <td>
               <a href="{% url 'virtualization:cluster_list' %}?type_id={{ object.pk }}">{{ object.clusters.count }}</a>
             </td>

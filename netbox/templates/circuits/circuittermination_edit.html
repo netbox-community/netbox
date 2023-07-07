@@ -1,11 +1,12 @@
 {% extends 'generic/object_edit.html' %}
 {% load static %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block form %}
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Circuit Termination</h5>
+      <h5 class="offset-sm-3">{% trans "Circuit Termination" %}</h5>
     </div>
     {% render_field form.circuit %}
     {% render_field form.term_side %}
@@ -16,10 +17,10 @@
         <div class="offset-sm-3">
           <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
-              <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">Site</button>
+              <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">{% trans "Site" %}</button>
             </li>
             <li class="nav-item" role="presentation">
-              <button class="nav-link{% if providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-toggle="tab" data-bs-target="#providernetwork">Provider Network</button>
+              <button class="nav-link{% if providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-toggle="tab" data-bs-target="#providernetwork">{% trans "Provider Network" %}</button>
             </li>
           </ul>
         </div>
@@ -37,7 +38,7 @@
 
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Termination Details</h5>
+      <h5 class="offset-sm-3">{% trans "Termination Details" %}</h5>
     </div>
     {% render_field form.port_speed %}
     {% render_field form.upstream_speed %}
@@ -49,7 +50,7 @@
   {% if form.custom_fields %}
     <div class="field-group mb-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Custom Fields</h5>
+        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -13,7 +14,7 @@
 {% block extra_controls %}
   {% if perms.dcim.add_location %}
     <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Location
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Child Location" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -23,32 +24,32 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Location
+        {% trans "Location" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Site</th>
+            <th scope="row">{% trans "Site" %}</th>
             <td>{{ object.site|linkify }}</td>
           </tr>
           <tr>
-            <th scope="row">Parent</th>
+            <th scope="row">{% trans "Parent" %}</th>
             <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Status</th>
+            <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
-            <th scope="row">Tenant</th>
+            <th scope="row">{% trans "Tenant" %}</th>
             <td>
               {% if object.tenant.group %}
                 {{ object.tenant.group|linkify }} /
@@ -73,7 +74,7 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Child Locations</h5>
+      <h5 class="card-header">{% trans "Child Locations" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'dcim:location_list' %}?parent_id={{ object.pk }}"
         hx-trigger="load"

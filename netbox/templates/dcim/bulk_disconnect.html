@@ -1,10 +1,11 @@
 {% extends 'generic/confirmation_form.html' %}
 {% load helpers %}
+{% load i18n %}
 
-{% block title %}Disconnect {{ obj_type_plural|bettertitle }}{% endblock %}
+{% block title %}{% blocktranslate %}Disconnect" {{ obj_type_plural|bettertitle }}{% endblocktranslate %}{% endblock %}
 
 {% block message %}
-    <p>Are you sure you want to disconnect these {{ selected_objects|length }} {{ obj_type_plural }}?</p>
+    <p>{% blocktranslate %}Are you sure you want to disconnect these {{ selected_objects|length }} {{ obj_type_plural }}?{% endblocktranslate %}</p>
     <ul>
         {% for obj in selected_objects %}
             <li>{{ obj }}</li>

@@ -1,29 +1,30 @@
 {% load humanize %}
 {% load helpers %}
 {% load log_levels %}
+{% load i18n %}
 
 <p>
   {% if job.started %}
-    Started: <strong>{{ job.started|annotated_date }}</strong>
+    {% trans "Started" %}: <strong>{{ job.started|annotated_date }}</strong>
   {% elif job.scheduled %}
-    Scheduled for: <strong>{{ job.scheduled|annotated_date }}</strong> ({{ job.scheduled|naturaltime }})
+    {% trans "Scheduled for" %}: <strong>{{ job.scheduled|annotated_date }}</strong> ({{ job.scheduled|naturaltime }})
   {% else %}
-    Created: <strong>{{ job.created|annotated_date }}</strong>
+    {% trans "Created" %}: <strong>{{ job.created|annotated_date }}</strong>
   {% endif %}
   {% if job.completed %}
-    Duration: <strong>{{ job.duration }}</strong>
+    {% trans "Duration" %}: <strong>{{ job.duration }}</strong>
   {% endif %}
   <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
 </p>
 {% if job.completed %}
   <div class="card mb-3">
-    <h5 class="card-header">Script Log</h5>
+    <h5 class="card-header">{% trans "Script Log" %}</h5>
     <div class="card-body">
       <table class="table table-hover panel-body">
         <tr>
-          <th>Line</th>
-          <th>Level</th>
-          <th>Message</th>
+          <th>{% trans "Line" %}</th>
+          <th>{% trans "Level" %}</th>
+          <th>{% trans "Message" %}</th>
         </tr>
         {% for log in job.data.log %}
           <tr>
@@ -34,7 +35,7 @@
         {% empty %}
           <tr>
             <td colspan="3" class="text-center text-muted">
-              No log output
+              {% trans "No log output" %}
             </td>
           </tr>
         {% endfor %}
@@ -42,15 +43,15 @@
     </div>
     {% if execution_time %}
       <div class="card-footer text-end text-muted">
-        <small>Exec Time: {{ execution_time|floatformat:3 }}s</small>
+        <small>{% trans "Exec Time" %}: {{ execution_time|floatformat:3 }}{% trans "s" %}</small>
       </div>
     {% endif %}
   </div>
-  <h4>Output</h4>
+  <h4>{% trans "Output" %}</h4>
   {% if job.data.output %}
     <pre class="block">{{ job.data.output }}</pre>
   {% else %}
-    <p class="text-muted">None</p>
+    <p class="text-muted">{% trans "None" %}</p>
   {% endif %}
 {% elif job.started %}
   {% include 'extras/inc/result_pending.html' %}

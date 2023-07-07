@@ -1,4 +1,5 @@
 {% load form_helpers %}
+{% load i18n %}
 
 {% if form.fieldsets %}
 
@@ -28,7 +29,7 @@
   {% if form.custom_fields %}
     <div class="field-group mb-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Custom Fields</h5>
+        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

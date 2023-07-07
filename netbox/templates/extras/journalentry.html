@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load static %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -12,24 +13,24 @@
         <div class="col col-md-5">
             <div class="card">
                 <h5 class="card-header">
-                    Journal Entry
+                    {% trans "Journal Entry" %}
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">Object</th>
+                            <th scope="row">{% trans "Object" %}</th>
                             <td>{{ object.assigned_object|linkify }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Created</th>
+                            <th scope="row">{% trans "Created" %}</th>
                             <td>{{ object.created|annotated_date }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Created By</th>
+                            <th scope="row">{% trans "Created By" %}</th>
                             <td>{{ object.created_by }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Kind</th>
+                            <th scope="row">{% trans "Kind" %}</th>
                             <td>{% badge object.get_kind_display bg_color=object.get_kind_color %}</td>
                         </tr>
                     </table>

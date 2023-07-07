@@ -1,5 +1,6 @@
 {% extends 'base/layout.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block content %}
   <div class="row mt-5">
@@ -12,11 +13,11 @@
         <div class="card border-danger">
           <h5 class="card-header">{% block confirmation_title %}{% endblock %}</h5>
           <div class="card-body">
-            {% block message %}<p>Are you sure?</p>{% endblock %}
+            {% block message %}<p>{% trans "Are you sure" %}?</p>{% endblock %}
           </div>
           <div class="card-footer text-end">
-            <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"danger" }}">Confirm</button>
-            <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
+            <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"{% trans "danger" %}" }}">{% trans "Confirm" %}</button>
+            <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
           </div>
         </div>
       </form>

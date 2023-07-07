@@ -4,6 +4,7 @@
 {% load plugins %}
 {% load render_table from django_tables2 %}
 {% load static %}
+{% load i18n %}
 
 {% comment %}
 Blocks:
@@ -44,13 +45,13 @@ Context:
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        Results {% badge table.page.paginator.count %}
+        {% trans "Results" %} {% badge table.page.paginator.count %}
       </button>
     </li>
     {% if filter_form %}
       <li class="nav-item" role="presentation">
         <button class="nav-link" id="filters-form-tab" data-bs-toggle="tab" data-bs-target="#filters-form" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-          Filters
+          {% trans "Filters" %}
           {% if filter_form %}{% badge filter_form.changed_data|length bg_color="primary" %}{% endif %}
         </button>
       </li>
@@ -90,7 +91,7 @@ Context:
                 <div class="form-check">
                   <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
                   <label for="select-all" class="form-check-label">
-                    Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query
+                    {% trans "Select" %} <strong>{% trans "all" %} {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> {% trans "matching query" %}
                   </label>
                 </div>
               </div>

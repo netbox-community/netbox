@@ -5,6 +5,7 @@
 {% load perms %}
 {% load plugins %}
 {% load static %}
+{% load i18n %}
 
 {% block breadcrumbs %}
 {% endblock %}
@@ -24,15 +25,15 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Rack Elevation</h5>
+        <h5 class="card-header">{% trans "Rack Elevation" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Rack elevation default unit height:</th>
+              <th scope="row">{% trans "Rack elevation default unit height" %}:</th>
               <td>{{ object.data.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT }}</td>
             </tr>
             <tr>
-              <th scope="row">Rack elevation default unit width:</th>
+              <th scope="row">{% trans "Rack elevation default unit width" %}:</th>
               <td>{{ object.data.RACK_ELEVATION_DEFAULT_UNIT_WIDTH }}</td>
             </tr>
           </table>
@@ -40,19 +41,19 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">Power</h5>
+        <h5 class="card-header">{% trans "Power" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Powerfeed default voltage:</th>
+              <th scope="row">{% trans "Powerfeed default voltage" %}:</th>
               <td>{{ object.data.POWERFEED_DEFAULT_VOLTAGE }}</td>
             </tr>
             <tr>
-              <th scope="row">Powerfeed default amperage:</th>
+              <th scope="row">{% trans "Powerfeed default amperage" %}:</th>
               <td>{{ object.data.POWERFEED_DEFAULT_AMPERAGE }}</td>
             </tr>
             <tr>
-              <th scope="row">Powerfeed default max utilization:</th>
+              <th scope="row">{% trans "Powerfeed default max utilization" %}:</th>
               <td>{{ object.data.POWERFEED_DEFAULT_MAX_UTILIZATION }}</td>
             </tr>
           </table>
@@ -60,15 +61,15 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">IPAM</h5>
+        <h5 class="card-header">{% trans "IPAM" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">IPAM enforce global unique:</th>
+              <th scope="row">{% trans "IPAM enforce global unique" %}:</th>
               <td>{{ object.data.ENFORCE_GLOBAL_UNIQUE }}</td>
             </tr>
             <tr>
-              <th scope="row">IPAM prefer IPV4:</th>
+              <th scope="row">{% trans "IPAM prefer IPV4" %}:</th>
               <td>{{ object.data.PREFER_IPV4 }}</td>
             </tr>
           </table>
@@ -76,11 +77,11 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">Security</h5>
+        <h5 class="card-header">{% trans "Security" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Allowed URL schemes:</th>
+              <th scope="row">{% trans "Allowed URL schemes" %}:</th>
               <td>{{ object.data.ALLOWED_URL_SCHEMES }}</td>
             </tr>
           </table>
@@ -88,23 +89,23 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">Banners</h5>
+        <h5 class="card-header">{% trans "Banners" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Login banner:</th>
+              <th scope="row">{% trans "Login banner" %}:</th>
               <td>{{ object.data.BANNER_LOGIN }}</td>
             </tr>
             <tr>
-              <th scope="row">Maintenance banner:</th>
+              <th scope="row">{% trans "Maintenance banner" %}:</th>
               <td>{{ object.data.BANNER_MAINTENANCE }}</td>
             </tr>
             <tr>
-              <th scope="row">Top banner:</th>
+              <th scope="row">{% trans "Top banner" %}:</th>
               <td>{{ object.data.BANNER_TOP }}</td>
             </tr>
             <tr>
-              <th scope="row">Bottom banner:</th>
+              <th scope="row">{% trans "Bottom banner" %}:</th>
               <td>{{ object.data.BANNER_BOTTOM }}</td>
             </tr>
           </table>
@@ -116,15 +117,15 @@
     <div class="col col-md-6">
 
       <div class="card">
-        <h5 class="card-header">Pagination</h5>
+        <h5 class="card-header">{% trans "Pagination" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Paginate count:</th>
+              <th scope="row">{% trans "Paginate count" %}:</th>
               <td>{{ object.data.PAGINATE_COUNT }}</td>
             </tr>
             <tr>
-              <th scope="row">Max page size:</th>
+              <th scope="row">{% trans "Max page size" %}:</th>
               <td>{{ object.data.MAX_PAGE_SIZE }}</td>
             </tr>
           </table>
@@ -132,11 +133,11 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">Validation</h5>
+        <h5 class="card-header">{% trans "Validation" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Custom validators:</th>
+              <th scope="row">{% trans "Custom validators" %}:</th>
               <td>{{ object.data.CUSTOM_VALIDATORS }}</td>
             </tr>
           </table>
@@ -144,11 +145,11 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">User Preferences</h5>
+        <h5 class="card-header">{% trans "User Preferences" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Default user preferences:</th>
+              <th scope="row">{% trans "Default user preferences" %}:</th>
               <td>{{ object.data.DEFAULT_USER_PREFERENCES }}</td>
             </tr>
           </table>
@@ -156,27 +157,27 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">Miscellaneous</h5>
+        <h5 class="card-header">{% trans "Miscellaneous" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Maintenance mode:</th>
+              <th scope="row">{% trans "Maintenance mode" %}:</th>
               <td>{{ object.data.MAINTENANCE_MODE }}</td>
             </tr>
             <tr>
-              <th scope="row">GraphQL enabled:</th>
+              <th scope="row">{% trans "GraphQL enabled" %}:</th>
               <td>{{ object.data.GRAPHQL_ENABLED }}</td>
             </tr>
             <tr>
-              <th scope="row">Changelog retention:</th>
+              <th scope="row">{% trans "Changelog retention" %}:</th>
               <td>{{ object.data.CHANGELOG_RETENTION }}</td>
             </tr>
             <tr>
-              <th scope="row">Job retention:</th>
+              <th scope="row">{% trans "Job retention" %}:</th>
               <td>{{ object.data.JOB_RETENTION }}</td>
             </tr>
             <tr>
-              <th scope="row">Maps URL:</th>
+              <th scope="row">{% trans "Maps URL" %}:</th>
               <td>{{ object.data.MAPS_URL }}</td>
             </tr>
           </table>
@@ -184,11 +185,11 @@
       </div>
 
       <div class="card">
-        <h5 class="card-header">Config Revision</h5>
+        <h5 class="card-header">{% trans "Config Revision" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Comment:</th>
+              <th scope="row">{% trans "Comment" %}:</th>
               <td>{{ object.comment }}</td>
             </tr>
           </table>

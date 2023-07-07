@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -13,51 +14,51 @@
     <div class="row mb-3">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">Inventory Item</h5>
+                <h5 class="card-header">{% trans "Inventory Item" %}</h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">Device</th>
+                            <th scope="row">{% trans "Device" %}</th>
                             <td>{{ object.device|linkify }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Parent Item</th>
+                            <th scope="row">{% trans "Parent Item" %}</th>
                             <td>{{ object.parent|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Name</th>
+                            <th scope="row">{% trans "Name" %}</th>
                             <td>{{ object.name }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Label</th>
+                            <th scope="row">{% trans "Label" %}</th>
                             <td>{{ object.label|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Role</th>
+                            <th scope="row">{% trans "Role" %}</th>
                             <td>{{ object.role|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Component</th>
+                            <th scope="row">{% trans "Component" %}</th>
                             <td>{{ object.component|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Manufacturer</th>
+                            <th scope="row">{% trans "Manufacturer" %}</th>
                             <td>{{ object.manufacturer|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Part ID</th>
+                            <th scope="row">{% trans "Part ID" %}</th>
                             <td>{{ object.part_id|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Serial</th>
+                            <th scope="row">{% trans "Serial" %}</th>
                             <td>{{ object.serial|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Asset Tag</th>
+                            <th scope="row">{% trans "Asset Tag" %}</th>
                             <td>{{ object.asset_tag|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Description</th>
+                            <th scope="row">{% trans "Description" %}</th>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
                     </table>

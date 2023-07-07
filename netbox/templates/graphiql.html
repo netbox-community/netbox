@@ -1,3 +1,4 @@
+{% load i18n %}
 {% comment %}
   This template derives from the graphene-django project:
   https://github.com/graphql-python/graphene-django/blob/main/graphene_django/templates/graphene/graphiql.html
@@ -23,7 +24,7 @@ add "&raw" to the end of the URL within a browser.
     </style>
     <link href="{% static 'graphiql.css'%}" rel="stylesheet" />
     <link rel="icon" type="image/png" href="{% static 'graphql.ico' %}" />
-    <title>GraphiQL | NetBox</title>
+    <title>{% trans "GraphiQL | NetBox" %}</title>
   </head>
   <body>
     <div id="editor"></div>

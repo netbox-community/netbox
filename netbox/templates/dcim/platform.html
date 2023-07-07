@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -13,7 +14,7 @@
 {% block extra_controls %}
   {% if perms.dcim.add_device %}
     <a href="{% url 'dcim:device_add' %}?device_role={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Device
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Device" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -23,34 +24,34 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Platform
+        {% trans "Platform" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Manufacturer</th>
+            <th scope="row">{% trans "Manufacturer" %}</th>
             <td>{{ object.manufacturer|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Config Template</th>
+            <th scope="row">{% trans "Config Template" %}</th>
             <td>{{ object.config_template|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">
-              NAPALM Driver
+              {% trans "NAPALM Driver" %}
               <i
                 class="mdi mdi-alert-box text-warning"
                 data-bs-toggle="tooltip"
                 data-bs-placement="right"
-                title="This field has been deprecated, and will be removed in NetBox v3.6."
+                title="{% trans "This field has been deprecated, and will be removed in NetBox v3.6" %}."
               ></i>
             </th>
           </tr>

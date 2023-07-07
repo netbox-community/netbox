@@ -1,20 +1,21 @@
 {% load form_helpers %}
+{% load i18n %}
 
 <form action="{{ form_url }}" method="post">
   {% csrf_token %}
   <div class="modal-header">
-    <h5 class="modal-title">Confirm Deletion</h5>
+    <h5 class="modal-title">{% trans "Confirm Deletion" %}</h5>
   </div>
   <div class="modal-body">
-    <p>Are you sure you want to <strong class="text-danger">delete</strong> {{ object_type }} <strong>{{ object }}</strong>?</p>
+    <p>{% trans "Are you sure you want to" %} <strong class="text-danger">{% trans "delete" %}</strong> {{ object_type }} <strong>{{ object }}</strong>?</p>
     {% render_form form %}
   </div>
   <div class="modal-footer">
     {% if return_url %}
-      <a href="{{ return_url }}" class="btn btn-outline-secondary">Cancel</a>
+      <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
     {% else %}
-      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{% trans "Cancel" %}</button>
     {% endif %}
-    <button type="submit" class="btn btn-danger">Delete</button>
+    <button type="submit" class="btn btn-danger">{% trans "Delete" %}</button>
   </div>
 </form>

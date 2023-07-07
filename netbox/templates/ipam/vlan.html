@@ -2,18 +2,19 @@
 {% load helpers %}
 {% load render_table from django_tables2 %}
 {% load plugins %}
+{% load i18n %}
 
 {% block content %}
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    VLAN
+                    {% trans "VLAN" %}
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">Site</th>
+                            <th scope="row">{% trans "Site" %}</th>
                             <td>
                                 {% if object.site %}
                                     {% if object.site.region %}
@@ -26,19 +27,19 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Group</th>
+                            <th scope="row">{% trans "Group" %}</th>
                             <td>{{ object.group|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">VLAN ID</th>
+                            <th scope="row">{% trans "VLAN ID" %}</th>
                             <td>{{ object.vid }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Name</th>
+                            <th scope="row">{% trans "Name" %}</th>
                             <td>{{ object.name }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Tenant</th>
+                            <th scope="row">{% trans "Tenant" %}</th>
                             <td>
                                 {% if object.tenant.group %}
                                     {{ object.tenant.group|linkify }} /
@@ -47,11 +48,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Status</th>
+                            <th scope="row">{% trans "Status" %}</th>
                             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Role</th>
+                            <th scope="row">{% trans "Role" %}</th>
                             <td>
                                 {% if object.role %}
                                     <a href="{% url 'ipam:vlan_list' %}?role={{ object.role.slug }}">{{ object.role }}</a>
@@ -61,11 +62,11 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Description</th>
+                            <th scope="row">{% trans "Description" %}</th>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
                         <tr>
-                          <th scope="row">L2VPN</th>
+                          <th scope="row">{% trans "L2VPN" %}</th>
                           <td>{{ object.l2vpn_termination.l2vpn|linkify|placeholder }}</td>
                         </tr>
                     </table>
@@ -83,7 +84,7 @@
     <div class="row">
       <div class="col col-md-12">
         <div class="card">
-          <h5 class="card-header">Prefixes</h5>
+          <h5 class="card-header">{% trans "Prefixes" %}</h5>
           <div class="card-body htmx-container table-responsive"
             hx-get="{% url 'ipam:prefix_list' %}?vlan_id={{ object.pk }}"
             hx-trigger="load"
@@ -91,7 +92,7 @@
           {% if perms.ipam.add_prefix %}
             <div class="card-footer text-end noprint">
               <a href="{% url 'ipam:prefix_add' %}?{% if object.tenant %}tenant={{ object.tenant.pk }}&{% endif %}site={{ object.site.pk }}&vlan={{ object.pk }}" class="btn btn-primary btn-sm">
-                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add a Prefix
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Prefix" %}
               </a>
             </div>
           {% endif %}

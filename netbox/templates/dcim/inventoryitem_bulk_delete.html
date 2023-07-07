@@ -1,5 +1,6 @@
 {% extends 'generic/bulk_delete.html' %}
+{% load i18n %}
 
 {% block message_extra %}
-    <p class="text-center text-danger"><i class="mdi mdi-alert"></i> This will also delete all child inventory items of those listed.</p>
+    <p class="text-center text-danger"><i class="mdi mdi-alert"></i> {% trans "This will also delete all child inventory items of those listed" %}.</p>
 {% endblock %}

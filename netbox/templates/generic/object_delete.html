@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% comment %}
 Context:
@@ -10,7 +11,7 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}Delete {{ object|meta:"verbose_name" }}?{% endblock %}
+{% block title %}{% trans "Delete" %} {{ object|meta:"verbose_name" }}?{% endblock %}
 
 {% block header %}{% endblock %}
 

@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block header %}
   {% if new_release %}
@@ -8,19 +9,19 @@
     <div class="header-alert-container">
       <div class="alert alert-info text-center mw-md-50" role="alert">
         <h6 class="alert-heading">
-          <i class="mdi mdi-information-outline"></i><br/>New Release Available
+          <i class="mdi mdi-information-outline"></i><br/>{% trans "New Release Available" %}
         </h6>
-        <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> is available.</small>
+        <small><a href="{{ new_release.url }}">{% trans "NetBox v" %}{{ new_release.version }}</a> {% trans "is available" %}.</small>
         <hr class="my-2" />
         <small class="mb-0">
-          <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">Upgrade Instructions</a>
+          <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">{% trans "Upgrade Instructions" %}</a>
         </small>
       </div>
     </div>
   {% endif %}
 {% endblock %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{% trans "Home" %}{% endblock %}
 
 {% block content-wrapper %}
   {# Render the user's customized dashboard #}
@@ -33,7 +34,7 @@
     <div class="d-flex px-3">
       <div class="flex-grow-1">
         <button type="button" id="unlock_dashboard" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
-          <i class="mdi mdi-lock-open-outline"></i> Unlock Dashboard
+          <i class="mdi mdi-lock-open-outline"></i> {% trans "Unlock Dashboard" %}
         </button>
       </div>
     </div>
@@ -42,7 +43,7 @@
     <div class="d-flex px-3">
       <div class="flex-grow-1">
         <button type="button" id="lock_dashboard" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
-          <i class="mdi mdi-lock-outline"></i> Lock Dashboard
+          <i class="mdi mdi-lock-outline"></i> {% trans "Lock Dashboard" %}
         </button>
       </div>
       <div>
@@ -53,13 +54,13 @@
           data-bs-target="#htmx-modal"
           class="btn btn-success btn-sm"
         >
-          <i class="mdi mdi-plus"></i> Add Widget
+          <i class="mdi mdi-plus"></i> {% trans "Add Widget" %}
         </a>
         <button id="save_dashboard" class="btn btn-primary btn-sm" data-url="{% url 'extras-api:dashboard' %}">
-          <i class="mdi mdi-content-save-outline"></i> Save Layout
+          <i class="mdi mdi-content-save-outline"></i> {% trans "Save Layout" %}
         </button>
         <a href="{% url 'extras:dashboard_reset' %}" class="btn btn-danger btn-sm">
-          <i class="mdi mdi-backspace"></i>  Reset Dashboard
+          <i class="mdi mdi-backspace"></i>  {% trans "Reset Dashboard" %}
         </a>
       </div>
     </div>

@@ -1,8 +1,9 @@
 {% extends 'generic/confirmation_form.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
-{% block title %}Remove {{ device_bay.installed_device }} from {{ device_bay }}?{% endblock %}
+{% block title %}{% trans "Remove" %} {{ device_bay.installed_device }} {% trans "from" %} {{ device_bay }}?{% endblock %}
 
 {% block message %}
-    <p>Are you sure you want to remove <strong>{{ device_bay.installed_device }}</strong> from <strong>{{ device_bay }}</strong>?</p>
+    <p>{% trans "Are you sure you want to remove" %} <strong>{{ device_bay.installed_device }}</strong> {% trans "from" %} <strong>{{ device_bay }}</strong>?</p>
 {% endblock %}

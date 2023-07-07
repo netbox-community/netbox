@@ -2,6 +2,7 @@
 {% extends 'base/base.html' %}
 {% load form_helpers %}
 {% load static %}
+{% load i18n %}
 
 {% block layout %}
   <main class="login-container text-center">
@@ -16,7 +17,7 @@
     {# Login form errors #}
     {% if form.non_field_errors %}
       <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">Errors</h4>
+        <h4 class="alert-heading">{% trans "Errors" %}</h4>
         <p>
           {{ form.non_field_errors }}
         </p>
@@ -30,7 +31,7 @@
 
         {# Logo #}
         <div class="mb-4">
-          <img src="{% static 'netbox_logo.svg' %}" height="80" alt="NetBox logo" />
+          <img src="{% static 'netbox_logo.svg' %}" height="80" alt="{% trans "NetBox logo" %}" />
         </div>
 
         {# Set post-login URL #}
@@ -44,13 +45,13 @@
         {{ form.password }}
 
         <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
-          Sign In
+          {% trans "Sign In" %}
         </button>
       </form>
     </div>
 
     {% if auth_backends %}
-      <h6 class="mt-4 mb-3">Or use a single sign-on (SSO) provider:</h6>
+      <h6 class="mt-4 mb-3">{% trans "Or use a single sign-on (SSO) provider" %}:</h6>
       {% for backend in auth_backends %}
         <h5>
           {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
@@ -64,14 +65,14 @@
   <footer class="footer container-fluid login-footer p-3">
     <div class="row align-items-center w-100">
       <div class="col-2 col-md-1 mb-0">
-        <button type="button" class="btn btn-sm color-mode-toggle" title="Toggle Color Mode">
+        <button type="button" class="btn btn-sm color-mode-toggle" title="{% trans "Toggle Color Mode" %}">
           <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
         </button>
       </div>
       <div class="col-1 col-md-auto mb-0"></div>
       <div class="col text-end mb-0">
         <small class="text-muted">
-          {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+          {{ settings.HOSTNAME }} ({% trans "v" %}{{ settings.VERSION }})
         </small>
       </div>
     </div>

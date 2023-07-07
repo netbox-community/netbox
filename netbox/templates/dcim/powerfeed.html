@@ -3,6 +3,7 @@
 {% load static %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -18,32 +19,32 @@
 	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
-                Power Feed
+                {% trans "Power Feed" %}
             </h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">Power Panel</th>
+                        <th scope="row">{% trans "Power Panel" %}</th>
                         <td>{{ object.power_panel|linkify }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Rack</th>
+                        <th scope="row">{% trans "Rack" %}</th>
                         <td>{{ object.rack|linkify|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Type</th>
+                        <th scope="row">{% trans "Type" %}</th>
                         <td>{% badge object.get_type_display bg_color=object.get_type_color %}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Status</th>
+                        <th scope="row">{% trans "Status" %}</th>
                         <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Description</th>
+                        <th scope="row">{% trans "Description" %}</th>
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Connected Device</th>
+                        <th scope="row">{% trans "Connected Device" %}</th>
                         <td>
                             {% if object.connected_endpoints %}
                                 {{ object.connected_endpoints.0.device|linkify }} ({{ object.connected_endpoints.0|linkify:"name" }})
@@ -53,17 +54,17 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Utilization (Allocated)</th>
+                        <th scope="row">{% trans "Utilization (Allocated" %})</th>
                         {% with utilization=object.connected_endpoints.0.get_power_draw %}
                             {% if utilization %}
                                 <td>
-                                    {{ utilization.allocated }}VA / {{ object.available_power }}VA
+                                    {{ utilization.allocated }}{% trans "VA" %} / {{ object.available_power }}{% trans "VA" %}
                                     {% if object.available_power > 0 %}
                                         {% utilization_graph utilization.allocated|percentage:object.available_power %}
                                     {% endif %}
                                 </td>
                             {% else %}
-                                <td class="text-muted">N/A</td>
+                                <td class="text-muted">{% trans "N/A" %}</td>
                             {% endif %}
                         {% endwith %}
                     </tr>
@@ -72,28 +73,28 @@
         </div>
         <div class="card">
             <h5 class="card-header">
-                Electrical Characteristics
+                {% trans "Electrical Characteristics" %}
             </h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">Supply</th>
+                        <th scope="row">{% trans "Supply" %}</th>
                         <td>{{ object.get_supply_display }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Voltage</th>
-                        <td>{{ object.voltage }}V</td>
+                        <th scope="row">{% trans "Voltage" %}</th>
+                        <td>{{ object.voltage }}{% trans "V" %}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Amperage</th>
-                        <td>{{ object.amperage }}A</td>
+                        <th scope="row">{% trans "Amperage" %}</th>
+                        <td>{{ object.amperage }}{% trans "A" %}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Phase</th>
+                        <th scope="row">{% trans "Phase" %}</th>
                         <td>{{ object.get_phase_display }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Max Utilization</th>
+                        <th scope="row">{% trans "Max Utilization" %}</th>
                         <td>{{ object.max_utilization }}%</td>
                     </tr>
                 </table>
@@ -105,17 +106,17 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Connection</h5>
+        <h5 class="card-header">{% trans "Connection" %}</h5>
         <div class="card-body">
           {% if object.mark_connected %}
             <div class="text-muted">
-              <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as connected
+              <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as connected" %}
             </div>
           {% elif object.cable %}
             {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:powerfeed_trace' %}
           {% else %}
             <div class="text-muted">
-              Not connected
+              {% trans "Not connected" %}
             </div>
           {% endif %}
         </div>
@@ -123,7 +124,7 @@
         <div class="card-footer">
           {% if perms.dcim.add_cable %}
             <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm float-end">
-              <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
+              <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
             </a>
           {% endif %}
         </div>

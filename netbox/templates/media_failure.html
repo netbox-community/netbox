@@ -1,8 +1,9 @@
 {% load static %}
+{% load i18n %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Static Media Failure - NetBox</title>
+    <title>{% trans "Static Media Failure - NetBox" %}</title>
     <meta charset="UTF-8">
     <style type="text/css">
         body {
@@ -16,33 +17,33 @@
 </head>
 <body>
     <div style="margin: auto; width: 800px">
-        <h1>Static Media Failure</h1>
+        <h1>{% trans "Static Media Failure" %}</h1>
         <h3>
-            The following static media file failed to load:
+            {% trans "The following static media file failed to load" %}:
             <a href="{% static filename %}"><code style="color: red">{{ filename }}</code></a>
         </h3>
-        <p>Check the following:</p>
+        <p>{% trans "Check the following" %}:</p>
         <ul>
             <li class="tip">
-                <code><strong>manage.py collectstatic</strong></code> was run during the most recent upgrade. This installs the most recent
-                iteration of each static file into the static root path.
+                <code><strong>{% trans "manage.py collectstatic" %}</strong></code> {% trans "was run during the most recent upgrade. This installs the most recent
+                iteration of each static file into the static root path" %}.
             </li>
             <li class="tip">
-                The HTTP service (e.g. nginx or Apache) is configured to serve files from the <code>STATIC_ROOT</code> path.
-                Refer to <a href="https://docs.netbox.dev/en/stable/installation/">the installation
-                documentation</a> for further guidance.
+                {% trans "The HTTP service (e.g. nginx or Apache) is configured to serve files from the" %} <code>{% trans "STATIC_ROOT" %}</code> {% trans "path.
+                Refer to" %} <a href="https://docs.netbox.dev/en/stable/installation/">{% trans "the installation
+                documentation" %}</a> {% trans "for further guidance" %}.
                     <ul>
                         {% if request.user.is_staff or request.user.is_superuser %}
-                            <li><code>STATIC_ROOT: <strong>{{ settings.STATIC_ROOT }}</strong></code></li>
+                            <li><code>{% trans "STATIC_ROOT" %}: <strong>{{ settings.STATIC_ROOT }}</strong></code></li>
                         {% endif %}
-                        <li><code>STATIC_URL: <strong>{{ settings.STATIC_URL }}</strong></code></li>
+                        <li><code>{% trans "STATIC_URL" %}: <strong>{{ settings.STATIC_URL }}</strong></code></li>
                     </ul>
             </li>
             <li class="tip">
-                The file <code>{{ filename }}</code> exists in the static root directory and is readable by the HTTP process.
+                {% trans "The file" %} <code>{{ filename }}</code> {% trans "exists in the static root directory and is readable by the HTTP process" %}.
             </li>
         </ul>
-        <p>Click <a href="{% url 'home' %}">here</a> to attempt loading NetBox again.</p>
+        <p>{% trans "Click" %} <a href="{% url 'home' %}">{% trans "here" %}</a> {% trans "to attempt loading NetBox again" %}.</p>
     </div>
 </body>
 </html>

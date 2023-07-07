@@ -1,8 +1,9 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
-{% block title %}Editing Virtual Chassis {{ vc_form.instance }}{% endblock %}
+{% block title %}{% trans "Editing Virtual Chassis" %} {{ vc_form.instance }}{% endblock %}
 
 {% block content-wrapper %}
   <div class="tab-content">
@@ -17,7 +18,7 @@
         {{ formset.management_form }}
         <div class="field-group my-5">
           <div class="row mb-2">
-            <h5 class="offset-sm-3">Virtual Chassis</h5>
+            <h5 class="offset-sm-3">{% trans "Virtual Chassis" %}</h5>
           </div>
           {% render_field vc_form.name %}
           {% render_field vc_form.domain %}
@@ -33,23 +34,23 @@
         {% if vc_form.custom_fields %}
           <div class="field-group mb-5">
             <div class="row mb-2">
-              <h5 class="offset-sm-3">Custom Fields</h5>
+              <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
             </div>
             {% render_custom_fields vc_form %}
           </div>
         {% endif %}
 
         <div class="field-group mb-5">
-          <h5 class="text-center">Members</h5>
+          <h5 class="text-center">{% trans "Members" %}</h5>
           <table class="table">
               <thead>
                   <tr>
-                      <th>Device</th>
-                      <th>ID</th>
-                      <th>Rack/Unit</th>
-                      <th>Serial</th>
-                      <th>Position</th>
-                      <th>Priority</th>
+                      <th>{% trans "Device" %}</th>
+                      <th>{% trans "ID" %}</th>
+                      <th>{% trans "Rack/Unit" %}</th>
+                      <th>{% trans "Serial" %}</th>
+                      <th>{% trans "Position" %}</th>
+                      <th>{% trans "Priority" %}</th>
                       <th></th>
                   </tr>
               </thead>
@@ -96,11 +97,11 @@
           </table>
         </div>
         <div class="text-end">
-            <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+            <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
             {% if vc_form.instance.pk %}
-                <button type="submit" name="_update" class="btn btn-primary">Save</button>
+                <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
             {% else %}
-                <button type="submit" name="_create" class="btn btn-primary">Create</button>
+                <button type="submit" name="_create" class="btn btn-primary">{% trans "Create" %}</button>
             {% endif %}
         </div>
       </form>

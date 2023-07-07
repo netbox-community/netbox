@@ -1,19 +1,20 @@
 {% extends '500.html' %}
+{% load i18n %}
 
 {% block message %}
   <p>
-    A module import error occurred during this request. Common causes include the following:
+    {% trans "A module import error occurred during this request. Common causes include the following" %}:
   </p>
   <p>
-    <i class="mdi mdi-alert"></i> <strong>Missing required packages</strong> - This installation of NetBox might be
-    missing one or more required Python packages. These packages are listed in <code>requirements.txt</code> and
-    <code>local_requirements.txt</code>, and are normally installed as part of the installation or upgrade process. To
-    verify installed packages, run <code>pip freeze</code> from the console and compare the output to the list of
-    required packages.
+    <i class="mdi mdi-alert"></i> <strong>{% trans "Missing required packages" %}</strong> - {% trans "This installation of NetBox might be
+    missing one or more required Python packages. These packages are listed in" %} <code>{% trans "requirements.txt" %}</code> {% trans "and" %}
+    <code>{% trans "local_requirements.txt" %}</code>, {% trans "and are normally installed as part of the installation or upgrade process. To
+    verify installed packages, run" %} <code>{% trans "pip freeze" %}</code> {% trans "from the console and compare the output to the list of
+    required packages" %}.
   </p>
   <p>
-    <i class="mdi mdi-alert"></i> <strong>WSGI service not restarted after upgrade</strong> - If this installation has
+    <i class="mdi mdi-alert"></i> <strong>{% trans "WSGI service not restarted after upgrade" %}</strong> - {% trans "If this installation has
     recently been upgraded, check that the WSGI service (e.g. gunicorn or uWSGI) has been restarted. This ensures that
-    the new code is running.
+    the new code is running" %}.
   </p>
 {% endblock message %}
