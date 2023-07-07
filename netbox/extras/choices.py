@@ -79,6 +79,21 @@ class CustomLinkButtonClassChoices(ButtonColorChoices):
         (LINK, 'Link'),
     )
 
+
+#
+# Bookmarks
+#
+
+class BookmarkOrderingChoices(ChoiceSet):
+
+    ORDERING_NEWEST = '-created'
+    ORDERING_OLDEST = 'created'
+
+    CHOICES = (
+        (ORDERING_NEWEST, 'Newest'),
+        (ORDERING_OLDEST, 'Oldest'),
+    )
+
 #
 # ObjectChanges
 #
@@ -98,7 +113,7 @@ class ObjectChangeActionChoices(ChoiceSet):
 
 
 #
-# Jounral entries
+# Journal entries
 #
 
 class JournalEntryKindChoices(ChoiceSet):

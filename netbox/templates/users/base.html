@@ -6,6 +6,9 @@
       <a class="nav-link{% if active_tab == 'profile' %} active{% endif %}" href="{% url 'users:profile' %}">Profile</a>
     </li>
     <li role="presentation" class="nav-item">
+      <a class="nav-link{% if active_tab == 'bookmarks' %} active{% endif %}" href="{% url 'users:bookmarks' %}">Bookmarks</a>
+    </li>
+    <li role="presentation" class="nav-item">
       <a class="nav-link{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'users:preferences' %}">Preferences</a>
     </li>
     {% if not request.user.ldap_username %}

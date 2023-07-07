@@ -20,7 +20,7 @@ __all__ = (
 
 
 class NetBoxFeatureSet(
-    TrackingModelMixin,
+    BookmarksMixin,
     ChangeLoggingMixin,
     CustomFieldsMixin,
     CustomLinksMixin,
@@ -28,6 +28,7 @@ class NetBoxFeatureSet(
     ExportTemplatesMixin,
     JournalingMixin,
     TagsMixin,
+    TrackingModelMixin,
     WebhooksMixin
 ):
     class Meta:
