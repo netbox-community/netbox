@@ -56,29 +56,32 @@ sudo ln -sfn /opt/netbox-X.Y.Z/ /opt/netbox
 Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if present) from the current installation to the new version:
 
 ```no-highlight
-sudo cp /opt/netbox-X.Y.Z/local_requirements.txt /opt/netbox/
-sudo cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
-sudo cp /opt/netbox-X.Y.Z/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
+sudo cp /opt/netbox-A.B.C/local_requirements.txt /opt/netbox/
+sudo cp /opt/netbox-A.B.C/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
+sudo cp /opt/netbox-A.B.C/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
 ```
 
 Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
 
 ```no-highlight
-sudo cp -pr /opt/netbox-X.Y.Z/netbox/media/ /opt/netbox/netbox/
+sudo cp -pr /opt/netbox-A.B.C/netbox/media/ /opt/netbox/netbox/
 ```
 
 Also make sure to copy or link any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
 
 ```no-highlight
-sudo cp -r /opt/netbox-X.Y.Z/netbox/scripts /opt/netbox/netbox/
-sudo cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/
+sudo cp -r /opt/netbox-A.B.C/netbox/scripts /opt/netbox/netbox/
+sudo cp -r /opt/netbox-A.B.C/netbox/reports /opt/netbox/netbox/
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
 ```no-highlight
-sudo cp /opt/netbox-X.Y.Z/gunicorn.py /opt/netbox/
+sudo cp /opt/netbox-A.B.C/gunicorn.py /opt/netbox/
 ```
+
+!!! note
+    In this documentation, X.Y.Z represents the version of the new release being installed, while A.B.C represents the version of the current installation from which files are being copied. Make sure to replace X.Y.Z and A.B.C with the appropriate version numbers based on the release you are installing and the current version you have.
 
 ### Option B: Clone the Git Repository
 
