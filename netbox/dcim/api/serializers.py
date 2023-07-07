@@ -13,9 +13,9 @@ from dcim.models import *
 from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import (
     NestedASNSerializer, NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer,
-    NestedVRFSerializer,
+    NestedVRFSerializer, NestedIPAddressFunctionAssignmentsSerializer
 )
-from ipam.models import ASN, VLAN
+from ipam.models import ASN, VLAN, IPAddressFunctionAssignments
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import (
     GenericObjectSerializer, NestedGroupModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer,
@@ -668,6 +668,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True, default=None)
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
     config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
+    ipaddressfunctions = serializers.SerializerMethodField()
 
     class Meta:
         model = Device
@@ -676,6 +677,7 @@ class DeviceSerializer(NetBoxModelSerializer):
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'ipaddressfunctions',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)
@@ -689,6 +691,14 @@ class DeviceSerializer(NetBoxModelSerializer):
         data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
         return data
 
+    @extend_schema_field(NestedDeviceSerializer)
+    def get_ipaddressfunctions(self, obj):
+        ct = ContentType.objects.get_for_model(obj)
+        ipaddrfuncs = IPAddressFunctionAssignments.objects.filter(assigned_object_type=ct, assigned_object_id=obj.id)
+        serializer = NestedIPAddressFunctionAssignmentsSerializer
+        context = {'request': self.context['request']}
+        return serializer(ipaddrfuncs, context=context, many=True).data
+
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
     config_context = serializers.SerializerMethodField(read_only=True)
@@ -699,6 +709,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'ipaddressfunctions',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

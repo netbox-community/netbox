@@ -13,6 +13,7 @@ __all__ = [
     'NestedFHRPGroupSerializer',
     'NestedFHRPGroupAssignmentSerializer',
     'NestedIPAddressSerializer',
+    'NestedIPAddressFunctionAssignmentsSerializer',
     'NestedIPRangeSerializer',
     'NestedL2VPNSerializer',
     'NestedL2VPNTerminationSerializer',
@@ -203,6 +204,18 @@ class NestedIPAddressSerializer(WritableNestedSerializer):
     class Meta:
         model = models.IPAddress
         fields = ['id', 'url', 'display', 'family', 'address']
+
+
+class NestedIPAddressFunctionAssignmentsSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:ipaddressfunctionassignments-detail')
+    # assigned_object = serializers.SerializerMethodField(read_only=True)
+    assigned_ip = NestedIPAddressSerializer()
+
+    class Meta:
+        model = models.IPAddressFunctionAssignments
+        fields = [
+            'id', 'url', 'display', 'assigned_ip', 'function'
+        ]
 
 
 #
