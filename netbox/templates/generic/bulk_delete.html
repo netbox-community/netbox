@@ -14,7 +14,7 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?{% endblock %}
+{% block title %}{% blocktranslate %}Delete {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?{% endblocktranslate %}{% endblock %}
 
 {% block content %}
   <div class="container-md px-0">
@@ -37,7 +37,7 @@ Context:
           {{ field }}
         {% endfor %}
         <div class="text-end">
-          <button type="submit" name="_confirm" class="btn btn-danger">{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
+          <button type="submit" name="_confirm" class="btn btn-danger">{% blocktranslate %}Delete {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}{% endblocktranslate %}</button>
           <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
         </div>
       </form>

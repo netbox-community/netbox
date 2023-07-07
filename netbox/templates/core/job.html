@@ -54,7 +54,7 @@
             </tr>
             <tr>
               <th scope="row">{% trans "Scheduled" %}</th>
-              <td>{{ object.scheduled|annotated_date|placeholder }}{% if object.interval %} ({% trans "every" %} {{ object.interval }} {% trans "seconds" %}){% endif %}</td>
+              <td>{{ object.scheduled|annotated_date|placeholder }}{% if object.interval %} ({% blocktranslate %}every {{ object.interval }} seconds{% endblocktranslate %}){% endif %}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Started" %}</th>

@@ -2,7 +2,7 @@
 {% load i18n %}
 
 <div class="modal-header">
-  <h5 class="modal-title">{% trans "Select" %} {{ model|meta:"verbose_name"|bettertitle }}</h5>
+  <h5 class="modal-title">{% blocktranslate %}Select {{ model|meta:"verbose_name"|bettertitle }}{% endblocktranslate %}</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body row">
@@ -17,7 +17,7 @@
     </div>
   </div>
   <div class="col-9">
-    <form hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"{% trans "label_lower" %}" }}" hx-target="#selector_results" hx-trigger="load, submit, keyup from:#id_q delay:500ms">
+    <form hx-get="{% url 'htmx_object_selector' %}?_model={{ model|meta:"label_lower" }}" hx-target="#selector_results" hx-trigger="load, submit, keyup from:#id_q delay:500ms">
       <input type="hidden" name="_search" value="true" />
       <div class="tab-content p-1">
         {% for field in form.visible_fields %}

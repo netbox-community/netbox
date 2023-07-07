@@ -91,7 +91,7 @@ Context:
                 <div class="form-check">
                   <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
                   <label for="select-all" class="form-check-label">
-                    {% trans "Select" %} <strong>{% trans "all" %} {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> {% trans "matching query" %}
+                    {% blocktranslate %}Select <strong>all {{ table.rows|length }} {{ table.data.verbose_name_plural }}</strong> matching query{% endblocktranslate %}
                   </label>
                 </div>
               </div>

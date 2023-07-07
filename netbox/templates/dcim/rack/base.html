@@ -1,7 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Rack" %} {{ object }}{% endblock %}
+{% block title %}{% blocktranslate %}Rack {{ object }}{% endblocktranslate %}{% endblock %}
 
 {% block breadcrumbs %}
   {{ block.super }}

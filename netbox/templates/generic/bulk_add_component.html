@@ -4,7 +4,7 @@
 {% load render_table from django_tables2 %}
 {% load i18n %}
 
-{% block title %}{% trans "Add" %} {{ model_name|title }}{% endblock %}
+{% block title %}{% blocktranslate %}Add {{ model_name|title }}{% endblocktranslate %}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">

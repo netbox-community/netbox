@@ -2,8 +2,8 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{% trans "Delete power outlet" %} {{ poweroutlet }}?{% endblock %}
+{% block title %}{% blocktranslate %}Delete power outlet {{ poweroutlet }}?{% endblocktranslate %}{% endblock %}
 
 {% block message %}
-    <p>{% trans "Are you sure you want to delete this power outlet from" %} <strong>{{ poweroutlet.device }}</strong>?</p>
+    <p>{% blocktranslate %}Are you sure you want to delete this power outlet from <strong>{{ poweroutlet.device }}</strong>?{% endblocktranslate %}</p>
 {% endblock %}

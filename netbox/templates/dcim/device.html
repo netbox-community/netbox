@@ -295,7 +295,7 @@
                                     </tr>
                                     {% for leg in utilization.legs %}
                                         <tr>
-                                            <td style="padding-left: 20px">{% trans "Leg" %} {{ leg.name }}</td>
+                                            <td style="padding-left: 20px">{% blocktranslate %}Leg {{ leg.name }}{% endblocktranslate %}</td>
                                             <td>{{ leg.outlet_count }}</td>
                                             <td>{{ leg.allocated }}</td>
                                             {% if powerfeed.available_power %}

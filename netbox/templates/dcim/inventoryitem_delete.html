@@ -2,8 +2,8 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{% trans "Delete inventory item" %} {{ inventoryitem }}?{% endblock %}
+{% block title %}{% blocktranslate %}Delete inventory item {{ inventoryitem }}?{% endblocktranslate %}{% endblock %}
 
 {% block message %}
-    <p>{% trans "Are you sure you want to delete this inventory item from" %} <strong>{{ inventoryitem.device }}</strong>?</p>
+    <p>{% blocktranslate %}Are you sure you want to delete this inventory item from <strong>{{ inventoryitem.device }}</strong>?{% endblocktranslate %}</p>
 {% endblock %}

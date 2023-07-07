@@ -5,7 +5,7 @@
 
 {% render_errors form %}
 
-{% block title %}{% trans "Add Device to Cluster" %} {{ cluster }}{% endblock %}
+{% block title %}{% blocktranslate %}Add Device to Cluster {{ cluster }}{% endblocktranslate %}{% endblock %}
 
 {% block content %}
     <form action="." method="post">

@@ -2,7 +2,7 @@
 {% load helpers %}
 {% load i18n %}
 
-{% block title %}{% trans "Cable Trace for" %} {{ object|meta:"verbose_name"|bettertitle }} {{ object }}{% endblock %}
+{% block title %}{% blocktranslate %}Cable Trace for {{ object|meta:"verbose_name"|bettertitle }} {{ object }}{% endblocktranslate %}{% endblock %}
 
 {% block content %}
     <div class="row">
@@ -28,7 +28,7 @@
                           {% with viewname=next_node|viewname:"trace" %}
                             <li>
                               <a href="{% url viewname pk=next_node.pk %}">{{ next_node|meta:"verbose_name"|bettertitle }} {{ next_node }}</a>
-                              ({% trans "Cable" %} {{ next_node.cable|linkify }})
+                              ({% blocktranslate %}Cable {{ next_node.cable|linkify }}{% endblocktranslate %})
                             </li>
                           {% endwith %}
                         {% else %}

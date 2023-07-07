@@ -46,7 +46,7 @@
         </ul>
       </div>
       <small class="text-end text-muted">
-        {% trans "Showing" %} {{ page.start_index }}-{{ page.end_index }} {% trans "of" %} {{ page.paginator.count }}
+        {% blocktranslate %}Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}{% endblocktranslate %}
       </small>
     {% endif %}
   </div>

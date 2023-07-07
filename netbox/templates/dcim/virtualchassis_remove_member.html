@@ -5,5 +5,5 @@
 {% block title %}{% trans "Remove Virtual Chassis Member" %}?{% endblock %}
 
 {% block message %}
-    <p>{% trans "Are you sure you want to remove" %} <strong>{{ device }}</strong> {% trans "from virtual chassis" %} {{ device.virtual_chassis }}?</p>
+    <p>{% blocktranslate %}Are you sure you want to remove <strong>{{ device }}</strong> from virtual chassis {{ device.virtual_chassis }}?{% endblocktranslate %}</p>
 {% endblock %}
