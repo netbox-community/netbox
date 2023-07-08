@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
@@ -18,6 +18,7 @@ from .mixins import SavedFiltersMixin
 
 __all__ = (
     'ConfigContextFilterForm',
+    'ConfigRevisionFilterForm',
     'ConfigTemplateFilterForm',
     'CustomFieldFilterForm',
     'CustomLinkFilterForm',
@@ -244,6 +245,11 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Tagged object type')
     )
+    for_object_type_id = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
+        required=False,
+        label=_('Allowed object type')
+    )
 
 
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
@@ -385,7 +391,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         widget=DateTimePicker()
     )
     created_by_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(
@@ -429,7 +435,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(
@@ -443,4 +449,10 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
         )
+    )
+
+
+class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id')),
     )

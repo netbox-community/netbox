@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
@@ -16,6 +16,9 @@ from ipam.models import IPAddress
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import BaseFilterSetTests, ChangeLoggedFilterSetTests, create_tags
 from virtualization.models import Cluster, ClusterGroup, ClusterType
+
+
+User = get_user_model()
 
 
 class CustomFieldTestCase(TestCase, BaseFilterSetTests):
@@ -360,6 +363,77 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'usable': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+
+class BookmarkTestCase(TestCase, BaseFilterSetTests):
+    queryset = Bookmark.objects.all()
+    filterset = BookmarkFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        bookmarks = (
+            Bookmark(
+                object=sites[0],
+                user=users[0],
+            ),
+            Bookmark(
+                object=sites[1],
+                user=users[1],
+            ),
+            Bookmark(
+                object=sites[2],
+                user=users[2],
+            ),
+            Bookmark(
+                object=tenants[0],
+                user=users[0],
+            ),
+            Bookmark(
+                object=tenants[1],
+                user=users[1],
+            ),
+            Bookmark(
+                object=tenants[2],
+                user=users[2],
+            ),
+        )
+        Bookmark.objects.bulk_create(bookmarks)
+
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'object_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_user(self):
+        users = User.objects.filter(username__startswith='User')
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
@@ -818,6 +892,10 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
+        content_types = {
+            'site': ContentType.objects.get_by_natural_key('dcim', 'site'),
+            'provider': ContentType.objects.get_by_natural_key('circuits', 'provider'),
+        }
 
         tags = (
             Tag(name='Tag 1', slug='tag-1', color='ff0000', description='foobar1'),
@@ -825,6 +903,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
             Tag(name='Tag 3', slug='tag-3', color='0000ff'),
         )
         Tag.objects.bulk_create(tags)
+        tags[0].object_types.add(content_types['site'])
+        tags[1].object_types.add(content_types['provider'])
 
         # Apply some tags so we can filter by content type
         site = Site.objects.create(name='Site 1', slug='site-1')
@@ -856,6 +936,18 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         provider_ct = ContentType.objects.get_for_model(Provider).pk
         params = {'content_type_id': [site_ct, provider_ct]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_object_types(self):
+        params = {'for_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
+            ['Tag 1', 'Tag 3']
+        )
+        params = {'for_object_type_id': [ContentType.objects.get_by_natural_key('circuits', 'provider').pk]}
+        self.assertEqual(
+            list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
+            ['Tag 2', 'Tag 3']
+        )
 
 
 class ObjectChangeTestCase(TestCase, BaseFilterSetTests):

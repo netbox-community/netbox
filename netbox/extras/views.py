@@ -14,6 +14,7 @@ from core.models import Job
 from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
+from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
@@ -234,6 +235,35 @@ class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
+
+
+#
+# Bookmarks
+#
+
+class BookmarkCreateView(generic.ObjectEditView):
+    form = forms.BookmarkForm
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        obj.user = request.user
+        return obj
+
+
+@register_model_view(Bookmark, 'delete')
+class BookmarkDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+
+class BookmarkBulkDeleteView(generic.BulkDeleteView):
+    table = tables.BookmarkTable
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
 
 
 #
@@ -1174,6 +1204,74 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
             'script': script,
             'job': job,
         })
+
+
+#
+# Config Revisions
+#
+
+class ConfigRevisionListView(generic.ObjectListView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    filterset_form = forms.ConfigRevisionFilterForm
+    table = tables.ConfigRevisionTable
+
+
+@register_model_view(ConfigRevision)
+class ConfigRevisionView(generic.ObjectView):
+    queryset = ConfigRevision.objects.all()
+
+
+class ConfigRevisionEditView(generic.ObjectEditView):
+    queryset = ConfigRevision.objects.all()
+    form = forms.ConfigRevisionForm
+
+
+@register_model_view(ConfigRevision, 'delete')
+class ConfigRevisionDeleteView(generic.ObjectDeleteView):
+    queryset = ConfigRevision.objects.all()
+
+
+class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    table = tables.ConfigRevisionTable
+
+
+class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.configrevision_edit'
+
+    def get(self, request, pk):
+        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
+
+        # Get the current ConfigRevision
+        config_version = get_config().version
+        current_config = ConfigRevision.objects.filter(pk=config_version).first()
+
+        params = []
+        for param in PARAMS:
+            params.append((
+                param.name,
+                current_config.data.get(param.name, None),
+                candidate_config.data.get(param.name, None)
+            ))
+
+        return render(request, 'extras/configrevision_restore.html', {
+            'object': candidate_config,
+            'params': params,
+        })
+
+    def post(self, request, pk):
+        if not request.user.has_perm('extras.configrevision_edit'):
+            return HttpResponseForbidden()
+
+        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
+        candidate_config.activate()
+        messages.success(request, f"Restored configuration revision #{pk}")
+
+        return redirect(candidate_config.get_absolute_url())
 
 
 #

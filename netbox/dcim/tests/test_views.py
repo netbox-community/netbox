@@ -6,7 +6,7 @@ except ImportError:
     from backports.zoneinfo import ZoneInfo
 
 import yaml
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
@@ -20,6 +20,9 @@ from tenancy.models import Tenant
 from utilities.choices import ImportFormatChoices
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
+
+
+User = get_user_model()
 
 
 class RegionTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
@@ -389,6 +392,7 @@ class RackTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'outer_width': 500,
             'outer_depth': 500,
             'outer_unit': RackDimensionUnitChoices.UNIT_MILLIMETER,
+            'starting_unit': 1,
             'weight': 100,
             'max_weight': 2000,
             'weight_unit': WeightUnitChoices.UNIT_POUND,
@@ -1609,8 +1613,6 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'name': 'Platform X',
             'slug': 'platform-x',
             'manufacturer': manufacturer.pk,
-            'napalm_driver': 'junos',
-            'napalm_args': None,
             'description': 'A new platform',
             'tags': [t.pk for t in tags],
         }
@@ -1630,7 +1632,6 @@ class PlatformTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'napalm_driver': 'ios',
             'description': 'New description',
         }
 
@@ -1699,6 +1700,8 @@ class DeviceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'rack': racks[1].pk,
             'position': 1,
             'face': DeviceFaceChoices.FACE_FRONT,
+            'latitude': Decimal('35.780000'),
+            'longitude': Decimal('-78.642000'),
             'status': DeviceStatusChoices.STATUS_PLANNED,
             'primary_ip4': None,
             'primary_ip6': None,

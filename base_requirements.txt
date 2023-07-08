@@ -8,7 +8,7 @@ boto3
 
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django<4.2
+Django<5.0
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -121,8 +121,8 @@ netaddr
 Pillow
 
 # PostgreSQL database adapter for Python
-# https://www.psycopg.org/docs/news.html
-psycopg2-binary
+# https://github.com/psycopg/psycopg/blob/master/docs/news.rst
+psycopg[binary,pool]
 
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES

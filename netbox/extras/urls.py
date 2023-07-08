@@ -1,4 +1,4 @@
-from django.urls import include, path, re_path
+from django.urls import include, path
 
 from extras import views
 from utilities.urls import get_model_urls
@@ -39,6 +39,11 @@ urlpatterns = [
     path('saved-filters/edit/', views.SavedFilterBulkEditView.as_view(), name='savedfilter_bulk_edit'),
     path('saved-filters/delete/', views.SavedFilterBulkDeleteView.as_view(), name='savedfilter_bulk_delete'),
     path('saved-filters/<int:pk>/', include(get_model_urls('extras', 'savedfilter'))),
+
+    # Bookmarks
+    path('bookmarks/add/', views.BookmarkCreateView.as_view(), name='bookmark_add'),
+    path('bookmarks/delete/', views.BookmarkBulkDeleteView.as_view(), name='bookmark_bulk_delete'),
+    path('bookmarks/<int:pk>/', include(get_model_urls('extras', 'bookmark'))),
 
     # Webhooks
     path('webhooks/', views.WebhookListView.as_view(), name='webhook_list'),
@@ -85,6 +90,13 @@ urlpatterns = [
     path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
 
+    # Config revisions
+    path('config-revisions/', views.ConfigRevisionListView.as_view(), name='configrevision_list'),
+    path('config-revisions/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
+    path('config-revisions/delete/', views.ConfigRevisionBulkDeleteView.as_view(), name='configrevision_bulk_delete'),
+    path('config-revisions/<int:pk>/restore/', views.ConfigRevisionRestoreView.as_view(), name='configrevision_restore'),
+    path('config-revisions/<int:pk>/', include(get_model_urls('extras', 'configrevision'))),
+
     # Change logging
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),
     path('changelog/<int:pk>/', include(get_model_urls('extras', 'objectchange'))),
@@ -114,5 +126,5 @@ urlpatterns = [
     path('scripts/<str:module>/<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
 
     # Markdown
-    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown")
+    path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
 ]

@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from timezone_field import TimeZoneFormField
@@ -221,8 +221,8 @@ class RackForm(TenancyForm, NetBoxModelForm):
         model = Rack
         fields = [
             'site', 'location', 'name', 'facility_id', 'tenant_group', 'tenant', 'status', 'role', 'serial',
-            'asset_tag', 'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit',
-            'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
+            'asset_tag', 'type', 'width', 'u_height', 'starting_unit', 'desc_units', 'outer_width', 'outer_depth',
+            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description', 'comments', 'tags',
         ]
 
 
@@ -236,7 +236,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
         help_text=_("Comma-separated list of numeric unit IDs. A range may be specified using a hyphen.")
     )
     user = forms.ModelChoiceField(
-        queryset=User.objects.order_by(
+        queryset=get_user_model().objects.order_by(
             'username'
         )
     )
@@ -360,19 +360,14 @@ class PlatformForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Platform', (
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
-        )),
+        ('Platform', ('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags')),
     )
 
     class Meta:
         model = Platform
         fields = [
-            'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args', 'description', 'tags',
+            'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
         ]
-        widgets = {
-            'napalm_args': forms.Textarea(),
-        }
 
 
 class DeviceForm(TenancyForm, NetBoxModelForm):
@@ -454,9 +449,9 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
-            'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster', 'tenant_group', 'tenant',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'tags',
-            'local_context_data'
+            'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster',
+            'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
+            'comments', 'tags', 'local_context_data'
         ]
 
     def __init__(self, *args, **kwargs):

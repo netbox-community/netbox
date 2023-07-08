@@ -8,7 +8,9 @@ from netbox.tables import NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
+    'BookmarkTable',
     'ConfigContextTable',
+    'ConfigRevisionTable',
     'ConfigTemplateTable',
     'CustomFieldTable',
     'CustomLinkTable',
@@ -29,6 +31,29 @@ IMAGEATTACHMENT_IMAGE = '''
   &mdash;
 {% endif %}
 '''
+
+REVISION_BUTTONS = """
+{% if not record.is_active %}
+<a href="{% url 'extras:configrevision_restore' pk=record.pk %}" class="btn btn-sm btn-primary" title="Restore config">
+    <i class="mdi mdi-file-restore"></i>
+</a>
+{% endif %}
+"""
+
+
+class ConfigRevisionTable(NetBoxTable):
+    is_active = columns.BooleanColumn()
+    actions = columns.ActionsColumn(
+        actions=('delete',),
+        extra_buttons=REVISION_BUTTONS
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigRevision
+        fields = (
+            'pk', 'id', 'is_active', 'created', 'comment',
+        )
+        default_columns = ('pk', 'id', 'is_active', 'created', 'comment')
 
 
 class CustomFieldTable(NetBoxTable):
@@ -143,6 +168,21 @@ class SavedFilterTable(NetBoxTable):
         )
 
 
+class BookmarkTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn()
+    object = tables.Column(
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Bookmark
+        fields = ('pk', 'object', 'object_type', 'created')
+        default_columns = ('object', 'object_type', 'created')
+
+
 class WebhookTable(NetBoxTable):
     name = tables.Column(
         linkify=True
@@ -186,10 +226,14 @@ class TagTable(NetBoxTable):
         linkify=True
     )
     color = columns.ColorColumn()
+    object_types = columns.ContentTypesColumn()
 
     class Meta(NetBoxTable.Meta):
         model = Tag
-        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'created', 'last_updated', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
+            'actions',
+        )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 

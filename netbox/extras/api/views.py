@@ -94,6 +94,17 @@ class SavedFilterViewSet(NetBoxModelViewSet):
 
 
 #
+# Bookmarks
+#
+
+class BookmarkViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Bookmark.objects.all()
+    serializer_class = serializers.BookmarkSerializer
+    filterset_class = filtersets.BookmarkFilterSet
+
+
+#
 # Tags
 #
 

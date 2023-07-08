@@ -1,7 +1,7 @@
 import urllib.parse
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
@@ -9,6 +9,9 @@ from dcim.models import Site
 from extras.choices import *
 from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
+
+
+User = get_user_model()
 
 
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -176,6 +179,54 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'weight': 999,
         }
+
+
+class BookmarkTestCase(
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = Bookmark
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
+        )
+        Site.objects.bulk_create(sites)
+
+        cls.form_data = {
+            'object_type': site_ct.pk,
+            'object_id': sites[3].pk,
+        }
+
+    def setUp(self):
+        super().setUp()
+
+        sites = Site.objects.all()
+        user = self.user
+
+        bookmarks = (
+            Bookmark(object=sites[0], user=user),
+            Bookmark(object=sites[1], user=user),
+            Bookmark(object=sites[2], user=user),
+        )
+        Bookmark.objects.bulk_create(bookmarks)
+
+    def _get_url(self, action, instance=None):
+        if action == 'list':
+            return reverse('users:bookmarks')
+        return super()._get_url(action, instance)
+
+    def test_list_objects_anonymous(self):
+        return
+
+    def test_list_objects_with_constrained_permission(self):
+        return
 
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):

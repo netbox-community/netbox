@@ -1,9 +1,8 @@
 import json
 import urllib.parse
 
-from django.conf import settings
 from django.contrib import admin
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
@@ -29,6 +28,7 @@ from utilities.querysets import RestrictedQuerySet
 from utilities.utils import clean_html, dict_to_querydict, render_jinja2
 
 __all__ = (
+    'Bookmark',
     'ConfigRevision',
     'CustomLink',
     'ExportTemplate',
@@ -362,6 +362,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
+    sync_data.alters_data = True
 
     def render(self, queryset):
         """
@@ -418,7 +419,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         blank=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -558,7 +559,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         fk_field='assigned_object_id'
     )
     created_by = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         blank=True,
         null=True
@@ -593,6 +594,44 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         return JournalEntryKindChoices.colors.get(self.kind)
 
 
+class Bookmark(models.Model):
+    """
+    An object bookmarked by a User.
+    """
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT
+    )
+    object_id = models.PositiveBigIntegerField()
+    object = GenericForeignKey(
+        ct_field='object_type',
+        fk_field='object_id'
+    )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('created', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('object_type', 'object_id', 'user'),
+                name='%(app_label)s_%(class)s_unique_per_object_and_user'
+            ),
+        )
+
+    def __str__(self):
+        if self.object:
+            return str(self.object)
+        return super().__str__()
+
+
 class ConfigRevision(models.Model):
     """
     An atomic revision of NetBox's configuration.
@@ -610,6 +649,11 @@ class ConfigRevision(models.Model):
         verbose_name='Configuration data'
     )
 
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ['-created']
+
     def __str__(self):
         return f'Config revision #{self.pk} ({self.created})'
 
@@ -618,12 +662,16 @@ class ConfigRevision(models.Model):
             return self.data[item]
         return super().__getattribute__(item)
 
+    def get_absolute_url(self):
+        return reverse('extras:configrevision', args=[self.pk])
+
     def activate(self):
         """
         Cache the configuration data.
         """
         cache.set('config', self.data, None)
         cache.set('config_version', self.pk, None)
+    activate.alters_data = True
 
     @admin.display(boolean=True)
     def is_active(self):

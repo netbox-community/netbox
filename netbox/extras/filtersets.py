@@ -1,5 +1,5 @@
 import django_filters
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
@@ -15,7 +15,9 @@ from .filters import TagFilter
 from .models import *
 
 __all__ = (
+    'BookmarkFilterSet',
     'ConfigContextFilterSet',
+    'ConfigRevisionFilterSet',
     'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldFilterSet',
@@ -159,12 +161,12 @@ class SavedFilterFilterSet(BaseFilterSet):
     )
     content_types = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -198,6 +200,26 @@ class SavedFilterFilterSet(BaseFilterSet):
         return queryset.filter(Q(enabled=False) | Q(Q(shared=False) & ~Q(user=user)))
 
 
+class BookmarkFilterSet(BaseFilterSet):
+    created = django_filters.DateTimeFilter()
+    object_type_id = MultiValueNumberFilter()
+    object_type = ContentTypeFilter()
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=get_user_model().objects.all(),
+        label=_('User (ID)'),
+    )
+    user = django_filters.ModelMultipleChoiceFilter(
+        field_name='user__username',
+        queryset=get_user_model().objects.all(),
+        to_field_name='username',
+        label=_('User (name)'),
+    )
+
+    class Meta:
+        model = Bookmark
+        fields = ['id', 'object_id']
+
+
 class ImageAttachmentFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
@@ -223,12 +245,12 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
         queryset=ContentType.objects.all()
     )
     created_by_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
     )
     created_by = django_filters.ModelMultipleChoiceFilter(
         field_name='created_by__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -257,10 +279,13 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
     content_type_id = MultiValueNumberFilter(
         method='_content_type_id'
     )
+    for_object_type_id = MultiValueNumberFilter(
+        method='_for_object_type'
+    )
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'color', 'description']
+        fields = ['id', 'name', 'slug', 'color', 'description', 'object_types']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -296,6 +321,11 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
         content_types = ContentType.objects.filter(pk__in=values)
 
         return queryset.filter(extras_taggeditem_items__content_type__in=content_types).distinct()
+
+    def _for_object_type(self, queryset, name, values):
+        return queryset.filter(
+            Q(object_types__id__in=values) | Q(object_types__isnull=True)
+        )
 
 
 class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
@@ -510,12 +540,12 @@ class ObjectChangeFilterSet(BaseFilterSet):
         queryset=ContentType.objects.all()
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User name'),
     )
@@ -556,4 +586,28 @@ class ContentTypeFilterSet(django_filters.FilterSet):
         return queryset.filter(
             Q(app_label__icontains=value) |
             Q(model__icontains=value)
+        )
+
+
+#
+# ConfigRevisions
+#
+
+class ConfigRevisionFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = ConfigRevision
+        fields = [
+            'id',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(comment__icontains=value)
         )
