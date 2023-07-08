@@ -1,9 +1,10 @@
 from django import forms
 
+from extras.models import Tag
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
 from utilities.forms import BootstrapMixin
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
 
 __all__ = (
     'ContactAssignmentForm',
@@ -132,11 +133,15 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     role = DynamicModelChoiceField(
         queryset=ContactRole.objects.all()
     )
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False
+    )
 
     class Meta:
         model = ContactAssignment
         fields = (
-            'content_type', 'object_id', 'group', 'contact', 'role', 'priority',
+            'content_type', 'object_id', 'group', 'contact', 'role', 'priority', 'tags'
         )
         widgets = {
             'content_type': forms.HiddenInput(),

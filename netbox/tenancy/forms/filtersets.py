@@ -111,3 +111,4 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
         choices=ContactPriorityChoices,
         required=False
     )
+    tag = TagFilterField(model)

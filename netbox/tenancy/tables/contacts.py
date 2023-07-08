@@ -115,6 +115,9 @@ class ContactAssignmentTable(NetBoxTable):
         accessor=Accessor('contact__description'),
         verbose_name='Contact Description'
     )
+    tags = columns.TagColumn(
+        url_name='tenancy:contactassignment_list'
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete')
     )
@@ -123,7 +126,7 @@ class ContactAssignmentTable(NetBoxTable):
         model = ContactAssignment
         fields = (
             'pk', 'content_type', 'object', 'contact', 'role', 'priority', 'contact_title', 'contact_phone',
-            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'actions'
+            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'tags', 'actions'
         )
         default_columns = (
             'pk', 'content_type', 'object', 'contact', 'role', 'priority', 'contact_email', 'contact_phone'

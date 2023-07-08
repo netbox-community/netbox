@@ -2,6 +2,7 @@ import django_filters
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from extras.filters import TagFilter
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
@@ -100,10 +101,11 @@ class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
         to_field_name='slug',
         label=_('Contact role (slug)'),
     )
+    tag = TagFilter()
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'content_type_id', 'object_id', 'priority']
+        fields = ['id', 'content_type_id', 'object_id', 'priority', 'tag']
 
     def search(self, queryset, name, value):
         if not value.strip():
