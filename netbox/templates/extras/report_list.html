@@ -52,7 +52,7 @@
               <tbody>
                 {% with jobs=module.get_latest_jobs %}
                   {% for report_name, report in module.reports.items %}
-                    {% with last_job=jobs|get_key:report.name %}
+                    {% with last_job=jobs|get_key:report.class_name %}
                       <tr>
                         <td>
                           <a href="{% url 'extras:report' module=module.python_name name=report.class_name %}" id="{{ report.module }}.{{ report.class_name }}">{{ report.name }}</a>
