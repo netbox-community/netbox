@@ -61,7 +61,7 @@
                       <td>
                         {{ script_class.Meta.description|markdown|placeholder }}
                       </td>
-                      {% with last_result=jobs|get_key:script_class.name %}
+                      {% with last_result=jobs|get_key:script_class.class_name %}
                         {% if last_result %}
                           <td>
                             <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
