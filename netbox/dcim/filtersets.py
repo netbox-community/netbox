@@ -1077,10 +1077,13 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(identifier=value.strip())
-        ).distinct()
+
+        qs_filter = Q(name__icontains=value)
+        try:
+            qs_filter |= Q(identifier=int(value))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter).distinct()
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)

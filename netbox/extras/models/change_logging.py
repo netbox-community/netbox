@@ -5,7 +5,7 @@ from django.db import models
 from django.urls import reverse
 
 from extras.choices import *
-from utilities.querysets import RestrictedQuerySet
+from ..querysets import ObjectChangeQuerySet
 
 __all__ = (
     'ObjectChange',
@@ -82,7 +82,7 @@ class ObjectChange(models.Model):
         null=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = ObjectChangeQuerySet.as_manager()
 
     class Meta:
         ordering = ['-time']

@@ -21,10 +21,8 @@ class ASNRangeTable(TenancyColumnsMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='ipam:asnrange_list'
     )
-    asn_count = columns.LinkedCountColumn(
-        viewname='ipam:asn_list',
-        url_params={'asn_id': 'pk'},
-        verbose_name=_('ASN Count')
+    asn_count = tables.Column(
+        verbose_name=_('ASNs')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -59,7 +57,8 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Provider Count')
     )
     sites = columns.ManyToManyColumn(
-        linkify_item=True
+        linkify_item=True,
+        verbose_name=_('Sites')
     )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
