@@ -2,6 +2,13 @@
 
 ## v3.5.6 (FUTURE)
 
+### Bug Fixes
+
+* [#13061](https://github.com/netbox-community/netbox/issues/13061) - Fix display of last result for scripts & reports with a custom name defined
+* [#13096](https://github.com/netbox-community/netbox/issues/13096) - Hide scheduling fields for all scripts with scheduling disabled
+* [#13105](https://github.com/netbox-community/netbox/issues/13105) - Fix exception when attempting to allocate next available IP address from prefix marked as utilized
+* [#13116](https://github.com/netbox-community/netbox/issues/13116) - Catch ProgrammingError exception when starting NetBox without pre-populated content types
+
 ---
 
 ## v3.5.5 (2023-07-06)
