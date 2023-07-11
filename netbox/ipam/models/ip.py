@@ -309,8 +309,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
                 duplicate_prefixes = self.get_duplicates()
                 if duplicate_prefixes:
                     raise ValidationError({
-                        'prefix': _("Duplicate prefix found in {}: {}".format(
-                            "VRF {}").format(self.vrf) if self.vrf else _("global table"),
+                        'prefix': _("Duplicate prefix found in {}: {}").format(
+                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
                             duplicate_prefixes.first(),
                         )
                     })
