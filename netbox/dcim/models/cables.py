@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import Sum
 from django.dispatch import Signal
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -40,11 +41,13 @@ class Cable(PrimaryModel):
     A physical connection between two endpoints.
     """
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CableTypeChoices,
         blank=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
@@ -57,19 +60,23 @@ class Cable(PrimaryModel):
         null=True
     )
     label = models.CharField(
+        verbose_name=_('label'),
         max_length=100,
         blank=True
     )
     color = ColorField(
+        verbose_name=_('color'),
         blank=True
     )
     length = models.DecimalField(
+        verbose_name=_('length'),
         max_digits=8,
         decimal_places=2,
         blank=True,
         null=True
     )
     length_unit = models.CharField(
+        verbose_name=_('length unit'),
         max_length=50,
         choices=CableLengthUnitChoices,
         blank=True,
@@ -235,7 +242,7 @@ class CableTermination(ChangeLoggedModel):
     cable_end = models.CharField(
         max_length=1,
         choices=CableEndChoices,
-        verbose_name='End'
+        verbose_name=_('End')
     )
     termination_type = models.ForeignKey(
         to=ContentType,
@@ -403,15 +410,19 @@ class CablePath(models.Model):
     `_nodes` retains a flattened list of all nodes within the path to enable simple filtering.
     """
     path = models.JSONField(
+        verbose_name=_('path'),
         default=list
     )
     is_active = models.BooleanField(
+        verbose_name=_('is active'),
         default=False
     )
     is_complete = models.BooleanField(
+        verbose_name=_('is complete'),
         default=False
     )
     is_split = models.BooleanField(
+        verbose_name=_('is split'),
         default=False
     )
     _nodes = PathField()

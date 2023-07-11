@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.models import PrimaryModel
 
@@ -19,11 +19,13 @@ class Provider(PrimaryModel):
     stores information pertinent to the user's relationship with the Provider.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True,
-        help_text=_("Full name of the provider")
+        help_text=_('Full name of the provider')
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100,
         unique=True
     )
@@ -61,9 +63,10 @@ class ProviderAccount(PrimaryModel):
     )
     account = models.CharField(
         max_length=100,
-        verbose_name='Account ID'
+        verbose_name=_('Account ID')
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         blank=True
     )
@@ -104,6 +107,7 @@ class ProviderNetwork(PrimaryModel):
     unimportant to the user.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     provider = models.ForeignKey(
@@ -114,7 +118,7 @@ class ProviderNetwork(PrimaryModel):
     service_id = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Service ID'
+        verbose_name=_('Service ID')
     )
 
     class Meta:
