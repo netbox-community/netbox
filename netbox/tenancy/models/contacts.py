@@ -136,3 +136,8 @@ class ContactAssignment(ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('tenancy:contact', args=[self.contact.pk])
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.object
+        return objectchange

@@ -3131,6 +3131,19 @@ class CableEditView(generic.ObjectEditView):
 
         return obj
 
+    def get_extra_addanother_params(self, request):
+
+        params = {
+            'a_terminations_type': request.GET.get('a_terminations_type'),
+            'b_terminations_type': request.GET.get('b_terminations_type')
+        }
+
+        for key in request.POST:
+            if 'device' in key or 'power_panel' in key or 'circuit' in key:
+                params.update({key: request.POST.get(key)})
+
+        return params
+
 
 @register_model_view(Cable, 'delete')
 class CableDeleteView(generic.ObjectDeleteView):
