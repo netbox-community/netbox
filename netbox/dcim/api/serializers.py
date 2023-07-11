@@ -925,6 +925,9 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
 
+    def get_display(self, obj):
+        return f"{obj.name} ({obj.device})"
+
     def validate(self, data):
 
         # Validate many-to-many VLAN assignments

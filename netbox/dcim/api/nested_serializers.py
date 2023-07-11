@@ -391,6 +391,9 @@ class NestedInterfaceSerializer(WritableNestedSerializer):
         model = models.Interface
         fields = ['id', 'url', 'display', 'device', 'name', 'cable', '_occupied']
 
+    def get_display(self, obj):
+        return f"{obj.name} ({obj.device})"
+
 
 class NestedRearPortSerializer(WritableNestedSerializer):
     device = NestedDeviceSerializer(read_only=True)
