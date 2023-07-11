@@ -1,6 +1,6 @@
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from ipam.constants import *
 from netbox.models import PrimaryModel
@@ -19,6 +19,7 @@ class VRF(PrimaryModel):
     are said to exist in the "global" table.)
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     rd = models.CharField(
@@ -26,7 +27,7 @@ class VRF(PrimaryModel):
         unique=True,
         blank=True,
         null=True,
-        verbose_name='Route distinguisher',
+        verbose_name=_('Route distinguisher'),
         help_text=_('Unique route distinguisher (as defined in RFC 4364)')
     )
     tenant = models.ForeignKey(
@@ -38,7 +39,7 @@ class VRF(PrimaryModel):
     )
     enforce_unique = models.BooleanField(
         default=True,
-        verbose_name='Enforce unique space',
+        verbose_name=_('Enforce unique space'),
         help_text=_('Prevent duplicate prefixes/IP addresses within this VRF')
     )
     import_targets = models.ManyToManyField(
@@ -75,6 +76,7 @@ class RouteTarget(PrimaryModel):
     A BGP extended community used to control the redistribution of routes among VRFs, as defined in RFC 4364.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=VRF_RD_MAX_LENGTH,  # Same format options as VRF RD (RFC 4360 section 4)
         unique=True,
         help_text=_('Route target value (formatted in accordance with RFC 4360)')
