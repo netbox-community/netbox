@@ -12,7 +12,7 @@ from django.db.models.functions import Lower
 from django.db.models.signals import post_save
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -78,9 +78,11 @@ class DeviceType(PrimaryModel, WeightMixin):
         related_name='device_types'
     )
     model = models.CharField(
+        verbose_name=_('model'),
         max_length=100
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100
     )
     default_platform = models.ForeignKey(
@@ -89,9 +91,10 @@ class DeviceType(PrimaryModel, WeightMixin):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Default platform'
+        verbose_name=_('Default platform')
     )
     part_number = models.CharField(
+        verbose_name=_('part number'),
         max_length=50,
         blank=True,
         help_text=_('Discrete part number (optional)')
@@ -100,22 +103,23 @@ class DeviceType(PrimaryModel, WeightMixin):
         max_digits=4,
         decimal_places=1,
         default=1.0,
-        verbose_name='Height (U)'
+        verbose_name=_('Height (U)')
     )
     is_full_depth = models.BooleanField(
         default=True,
-        verbose_name='Is full depth',
+        verbose_name=_('Is full depth'),
         help_text=_('Device consumes both front and rear rack faces')
     )
     subdevice_role = models.CharField(
         max_length=50,
         choices=SubdeviceRoleChoices,
         blank=True,
-        verbose_name='Parent/child status',
+        verbose_name=_('Parent/child status'),
         help_text=_('Parent devices house child devices in device bays. Leave blank '
                     'if this device type is neither a parent nor a child.')
     )
     airflow = models.CharField(
+        verbose_name=_('airflow'),
         max_length=50,
         choices=DeviceAirflowChoices,
         blank=True
@@ -277,7 +281,7 @@ class DeviceType(PrimaryModel, WeightMixin):
         # U height must be divisible by 0.5
         if self.u_height % decimal.Decimal(0.5):
             raise ValidationError({
-                'u_height': "U height must be in increments of 0.5 rack units."
+                'u_height': _("U height must be in increments of 0.5 rack units.")
             })
 
         # If editing an existing DeviceType to have a larger u_height, first validate that *all* instances of it have
@@ -293,8 +297,8 @@ class DeviceType(PrimaryModel, WeightMixin):
                 )
                 if d.position not in u_available:
                     raise ValidationError({
-                        'u_height': "Device {} in rack {} does not have sufficient space to accommodate a height of "
-                                    "{}U".format(d, d.rack, self.u_height)
+                        'u_height': _("Device {} in rack {} does not have sufficient space to accommodate a height of "
+                                      "{}U").format(d, d.rack, self.u_height)
                     })
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
@@ -307,8 +311,8 @@ class DeviceType(PrimaryModel, WeightMixin):
                 url = f"{reverse('dcim:device_list')}?manufactuer_id={self.manufacturer_id}&device_type_id={self.pk}"
                 raise ValidationError({
                     'u_height': mark_safe(
-                        f'Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
-                        f'mounted within racks.'
+                        _('Unable to set 0U height: Found <a href="{url}">{racked_instance_count} instances</a> already '
+                          'mounted within racks.').format(url=url, racked_instance_count=racked_instance_count)
                     )
                 })
 
@@ -316,13 +320,13 @@ class DeviceType(PrimaryModel, WeightMixin):
                 self.subdevice_role != SubdeviceRoleChoices.ROLE_PARENT
         ) and self.pk and self.devicebaytemplates.count():
             raise ValidationError({
-                'subdevice_role': "Must delete all device bay templates associated with this device before "
-                                  "declassifying it as a parent device."
+                'subdevice_role': _("Must delete all device bay templates associated with this device before "
+                                  "declassifying it as a parent device.")
             })
 
         if self.u_height and self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD:
             raise ValidationError({
-                'u_height': "Child device types must be 0U."
+                'u_height': _("Child device types must be 0U.")
             })
 
     def save(self, *args, **kwargs):
@@ -367,9 +371,11 @@ class ModuleType(PrimaryModel, WeightMixin):
         related_name='module_types'
     )
     model = models.CharField(
+        verbose_name=_('model'),
         max_length=100
     )
     part_number = models.CharField(
+        verbose_name=_('part number'),
         max_length=50,
         blank=True,
         help_text=_('Discrete part number (optional)')
@@ -454,11 +460,12 @@ class DeviceRole(OrganizationalModel):
     virtual machines as well.
     """
     color = ColorField(
+        verbose_name=_('color'),
         default=ColorChoices.COLOR_GREY
     )
     vm_role = models.BooleanField(
         default=True,
-        verbose_name='VM Role',
+        verbose_name=_('VM Role'),
         help_text=_('Virtual machines may be assigned to this role')
     )
     config_template = models.ForeignKey(
@@ -550,6 +557,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         null=True
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=64,
         blank=True,
         null=True
@@ -563,7 +571,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number',
+        verbose_name=_('Serial number'),
         help_text=_("Chassis serial number, assigned by the manufacturer")
     )
     asset_tag = models.CharField(
@@ -571,7 +579,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         blank=True,
         null=True,
         unique=True,
-        verbose_name='Asset tag',
+        verbose_name=_('Asset tag'),
         help_text=_('A unique tag used to identify this device')
     )
     site = models.ForeignKey(
@@ -599,21 +607,23 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         blank=True,
         null=True,
         validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX + 0.5)],
-        verbose_name='Position (U)',
+        verbose_name=_('Position (U)'),
         help_text=_('The lowest-numbered unit occupied by the device')
     )
     face = models.CharField(
         max_length=50,
         blank=True,
         choices=DeviceFaceChoices,
-        verbose_name='Rack face'
+        verbose_name=_('Rack face')
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=DeviceStatusChoices,
         default=DeviceStatusChoices.STATUS_ACTIVE
     )
     airflow = models.CharField(
+        verbose_name=_('airflow'),
         max_length=50,
         choices=DeviceAirflowChoices,
         blank=True
@@ -624,7 +634,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv4'
+        verbose_name=_('Primary IPv4')
     )
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -632,7 +642,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv6'
+        verbose_name=_('Primary IPv6')
     )
     oob_ip = models.OneToOneField(
         to='ipam.IPAddress',
@@ -657,12 +667,14 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         null=True
     )
     vc_position = models.PositiveSmallIntegerField(
+        verbose_name=_('vc position'),
         blank=True,
         null=True,
         validators=[MaxValueValidator(255)],
         help_text=_('Virtual chassis position')
     )
     vc_priority = models.PositiveSmallIntegerField(
+        verbose_name=_('vc priority'),
         blank=True,
         null=True,
         validators=[MaxValueValidator(255)],
@@ -676,6 +688,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         null=True
     )
     latitude = models.DecimalField(
+        verbose_name=_('latitude'),
         max_digits=8,
         decimal_places=6,
         blank=True,
@@ -683,6 +696,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
     longitude = models.DecimalField(
+        verbose_name=_('longitude'),
         max_digits=9,
         decimal_places=6,
         blank=True,
@@ -763,7 +777,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
                 Lower('name'), 'site',
                 name='%(app_label)s_%(class)s_unique_name_site',
                 condition=Q(tenant__isnull=True),
-                violation_error_message="Device name must be unique per site."
+                violation_error_message=_("Device name must be unique per site.")
             ),
             models.UniqueConstraint(
                 fields=('rack', 'position', 'face'),
@@ -799,42 +813,42 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         # Validate site/location/rack combination
         if self.rack and self.site != self.rack.site:
             raise ValidationError({
-                'rack': f"Rack {self.rack} does not belong to site {self.site}.",
+                'rack': _("Rack {rack} does not belong to site {site}.").format(rack=self.rack, site=self.site),
             })
         if self.location and self.site != self.location.site:
             raise ValidationError({
-                'location': f"Location {self.location} does not belong to site {self.site}.",
+                'location': _("Location {location} does not belong to site {site}.").format(location=self.location, site=self.site),
             })
         if self.rack and self.location and self.rack.location != self.location:
             raise ValidationError({
-                'rack': f"Rack {self.rack} does not belong to location {self.location}.",
+                'rack': _("Rack {rack} does not belong to location {location}.").format(rack=self.rack, location=self.location),
             })
 
         if self.rack is None:
             if self.face:
                 raise ValidationError({
-                    'face': "Cannot select a rack face without assigning a rack.",
+                    'face': _("Cannot select a rack face without assigning a rack."),
                 })
             if self.position:
                 raise ValidationError({
-                    'position': "Cannot select a rack position without assigning a rack.",
+                    'position': _("Cannot select a rack position without assigning a rack."),
                 })
 
         # Validate rack position and face
         if self.position and self.position % decimal.Decimal(0.5):
             raise ValidationError({
-                'position': "Position must be in increments of 0.5 rack units."
+                'position': _("Position must be in increments of 0.5 rack units.")
             })
         if self.position and not self.face:
             raise ValidationError({
-                'face': "Must specify rack face when defining rack position.",
+                'face': _("Must specify rack face when defining rack position."),
             })
 
         # Prevent 0U devices from being assigned to a specific position
         if hasattr(self, 'device_type'):
             if self.position and self.device_type.u_height == 0:
                 raise ValidationError({
-                    'position': f"A U0 device type ({self.device_type}) cannot be assigned to a rack position."
+                    'position': _("A U0 device type ({device_type}) cannot be assigned to a rack position.").format(device_type=self.device_type)
                 })
 
         if self.rack:
@@ -843,13 +857,13 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
                 # Child devices cannot be assigned to a rack face/unit
                 if self.device_type.is_child_device and self.face:
                     raise ValidationError({
-                        'face': "Child device types cannot be assigned to a rack face. This is an attribute of the "
-                                "parent device."
+                        'face': _("Child device types cannot be assigned to a rack face. This is an attribute of the "
+                                  "parent device.")
                     })
                 if self.device_type.is_child_device and self.position:
                     raise ValidationError({
-                        'position': "Child device types cannot be assigned to a rack position. This is an attribute of "
-                                    "the parent device."
+                        'position': _("Child device types cannot be assigned to a rack position. This is an attribute of "
+                                      "the parent device.")
                     })
 
                 # Validate rack space
@@ -860,8 +874,9 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
                 )
                 if self.position and self.position not in available_units:
                     raise ValidationError({
-                        'position': f"U{self.position} is already occupied or does not have sufficient space to "
-                                    f"accommodate this device type: {self.device_type} ({self.device_type.u_height}U)"
+                        'position': _("U{position} is already occupied or does not have sufficient space to "
+                                      "accommodate this device type: {device_type} ({u_height}U)").format(
+                            position=self.position, device_type=self.device_type, u_height=self.device_type.u_height)
                     })
 
             except DeviceType.DoesNotExist:
@@ -872,7 +887,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
                 raise ValidationError({
-                    'primary_ip4': f"{self.primary_ip4} is not an IPv4 address."
+                    'primary_ip4': _("{primary_ip4} is not an IPv4 address.").format(primary_ip4=self.primary_ip4)
                 })
             if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
@@ -880,12 +895,12 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
                 pass
             else:
                 raise ValidationError({
-                    'primary_ip4': f"The specified IP address ({self.primary_ip4}) is not assigned to this device."
+                    'primary_ip4': _("The specified IP address ({primary_ip4}) is not assigned to this device.").format(primary_ip4=self.primary_ip4)
                 })
         if self.primary_ip6:
             if self.primary_ip6.family != 6:
                 raise ValidationError({
-                    'primary_ip6': f"{self.primary_ip6} is not an IPv6 address."
+                    'primary_ip6': _("{primary_ip6} is not an IPv6 address.").format(primary_ip6=self.primary_ip6m)
                 })
             if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
@@ -893,7 +908,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
                 pass
             else:
                 raise ValidationError({
-                    'primary_ip6': f"The specified IP address ({self.primary_ip6}) is not assigned to this device."
+                    'primary_ip6': _("The specified IP address ({primary_ip6}) is not assigned to this device.").format(primary_ip6=self.primary_ip6)
                 })
         if self.oob_ip:
             if self.oob_ip.assigned_object in vc_interfaces:
@@ -909,20 +924,21 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         if hasattr(self, 'device_type') and self.platform:
             if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:
                 raise ValidationError({
-                    'platform': f"The assigned platform is limited to {self.platform.manufacturer} device types, but "
-                                f"this device's type belongs to {self.device_type.manufacturer}."
+                    'platform': _("The assigned platform is limited to {platform_manufacturer} device types, but "
+                                  "this device's type belongs to {device_type_manufacturer}.").format(
+                        platform_manufacturer=self.platform.manufacturer, device_type_manufacturer=self.device_type.manufacturer)
                 })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
-                'cluster': "The assigned cluster belongs to a different site ({})".format(self.cluster.site)
+                'cluster': _("The assigned cluster belongs to a different site ({})").format(self.cluster.site)
             })
 
         # Validate virtual chassis assignment
         if self.virtual_chassis and self.vc_position is None:
             raise ValidationError({
-                'vc_position': "A device assigned to a virtual chassis must have its position defined."
+                'vc_position': _("A device assigned to a virtual chassis must have its position defined.")
             })
 
     def _instantiate_components(self, queryset, bulk_create=True):
@@ -1107,6 +1123,7 @@ class Module(PrimaryModel, ConfigContextModel):
         related_name='instances'
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=ModuleStatusChoices,
         default=ModuleStatusChoices.STATUS_ACTIVE
@@ -1114,14 +1131,14 @@ class Module(PrimaryModel, ConfigContextModel):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number'
+        verbose_name=_('Serial number')
     )
     asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
         unique=True,
-        verbose_name='Asset tag',
+        verbose_name=_('Asset tag'),
         help_text=_('A unique tag used to identify this device')
     )
 
@@ -1144,7 +1161,7 @@ class Module(PrimaryModel, ConfigContextModel):
 
         if hasattr(self, "module_bay") and (self.module_bay.device != self.device):
             raise ValidationError(
-                f"Module must be installed within a module bay belonging to the assigned device ({self.device})."
+                _("Module must be installed within a module bay belonging to the assigned device ({device}).").format(device=self.device)
             )
 
     def save(self, *args, **kwargs):
@@ -1242,9 +1259,11 @@ class VirtualChassis(PrimaryModel):
         null=True
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=64
     )
     domain = models.CharField(
+        verbose_name=_('domain'),
         max_length=30,
         blank=True
     )
@@ -1272,7 +1291,7 @@ class VirtualChassis(PrimaryModel):
         # VirtualChassis.)
         if self.pk and self.master and self.master not in self.members.all():
             raise ValidationError({
-                'master': f"The selected master ({self.master}) is not assigned to this virtual chassis."
+                'master': _("The selected master ({master}) is not assigned to this virtual chassis.").format(master=self.master)
             })
 
     def delete(self, *args, **kwargs):
@@ -1286,8 +1305,8 @@ class VirtualChassis(PrimaryModel):
         )
         if interfaces:
             raise ProtectedError(
-                f"Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG",
-                interfaces
+                _("Unable to delete virtual chassis {self}. There are member interfaces which form a cross-chassis LAG interfaces").format(
+                    self=self, interfaces=InterfaceSpeedChoices),
             )
 
         return super().delete(*args, **kwargs)
@@ -1302,14 +1321,17 @@ class VirtualDeviceContext(PrimaryModel):
         null=True
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=64
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=VirtualDeviceContextStatusChoices,
     )
     identifier = models.PositiveSmallIntegerField(
-        help_text='Numeric identifier unique to the parent device',
+        verbose_name=_('identifier'),
+        help_text=_('Numeric identifier unique to the parent device'),
         blank=True,
         null=True,
     )
@@ -1319,7 +1341,7 @@ class VirtualDeviceContext(PrimaryModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv4'
+        verbose_name=_('Primary IPv4')
     )
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -1327,7 +1349,7 @@ class VirtualDeviceContext(PrimaryModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv6'
+        verbose_name=_('Primary IPv6')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -1337,6 +1359,7 @@ class VirtualDeviceContext(PrimaryModel):
         null=True
     )
     comments = models.TextField(
+        verbose_name=_('comment'),
         blank=True
     )
 
@@ -1382,7 +1405,7 @@ class VirtualDeviceContext(PrimaryModel):
                 continue
             if primary_ip.family != family:
                 raise ValidationError({
-                    f'primary_ip{family}': f"{primary_ip} is not an IPv{family} address."
+                    f'primary_ip{family}': _("{primary_ip} is not an IPv{family} address.").format(family=family, primary_ip=primary_ip)
                 })
             device_interfaces = self.device.vc_interfaces(if_master=False)
             if primary_ip.assigned_object not in device_interfaces:
