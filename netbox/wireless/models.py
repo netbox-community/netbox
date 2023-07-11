@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel
 
 from dcim.choices import LinkStatusChoices
@@ -24,9 +25,10 @@ class WirelessAuthenticationBase(models.Model):
         max_length=50,
         choices=WirelessAuthTypeChoices,
         blank=True,
-        verbose_name="Auth Type",
+        verbose_name=_("Auth Type"),
     )
     auth_cipher = models.CharField(
+        verbose_name=_('auth cipher'),
         max_length=50,
         choices=WirelessAuthCipherChoices,
         blank=True
@@ -34,7 +36,7 @@ class WirelessAuthenticationBase(models.Model):
     auth_psk = models.CharField(
         max_length=PSK_MAX_LENGTH,
         blank=True,
-        verbose_name='Pre-shared key'
+        verbose_name=_('Pre-shared key')
     )
 
     class Meta:
@@ -46,10 +48,12 @@ class WirelessLANGroup(NestedGroupModel):
     A nested grouping of WirelessLANs
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100,
         unique=True
     )
@@ -74,7 +78,7 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     """
     ssid = models.CharField(
         max_length=SSID_MAX_LENGTH,
-        verbose_name='SSID'
+        verbose_name=_('SSID')
     )
     group = models.ForeignKey(
         to='wireless.WirelessLANGroup',
@@ -93,7 +97,7 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
         on_delete=models.PROTECT,
         blank=True,
         null=True,
-        verbose_name='VLAN'
+        verbose_name=_('VLAN')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -134,21 +138,22 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
         related_name='+',
-        verbose_name="Interface A",
+        verbose_name=_('Interface A'),
     )
     interface_b = models.ForeignKey(
         to='dcim.Interface',
         limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
         related_name='+',
-        verbose_name="Interface B",
+        verbose_name=_('Interface B'),
     )
     ssid = models.CharField(
         max_length=SSID_MAX_LENGTH,
         blank=True,
-        verbose_name='SSID'
+        verbose_name=_('SSID')
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
@@ -203,11 +208,11 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         # Validate interface types
         if self.interface_a.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
-                'interface_a': f"{self.interface_a.get_type_display()} is not a wireless interface."
+                'interface_a': _("{type_display} is not a wireless interface.").format(type_display=self.interface_a.get_type_display())
             })
         if self.interface_b.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
-                'interface_a': f"{self.interface_b.get_type_display()} is not a wireless interface."
+                'interface_a': _("{type_display} is not a wireless interface.").format(type_display=self.interface_b.get_type_display())
             })
 
     def save(self, *args, **kwargs):
