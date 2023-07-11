@@ -825,8 +825,8 @@ class IPAddress(PrimaryModel):
                         any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
                 ):
                     raise ValidationError({
-                        'address': _("Duplicate IP address found in {}: {}".format(
-                            "VRF {}").format(self.vrf) if self.vrf else _("global table"),
+                        'address': _("Duplicate IP address found in {}: {}").format(
+                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
                             duplicate_ips.first(),
                         )
                     })
