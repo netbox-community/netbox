@@ -31,7 +31,7 @@ class ProviderForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Provider', ('name', 'slug', 'asns', 'description', 'tags')),
+        (_('Provider'), ('name', 'slug', 'asns', 'description', 'tags')),
     )
 
     class Meta:
@@ -67,7 +67,7 @@ class ProviderNetworkForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
+        (_('Provider Network'), ('provider', 'name', 'service_id', 'description', 'tags')),
     )
 
     class Meta:
@@ -83,7 +83,7 @@ class CircuitTypeForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        ('Circuit Type', (
+        (_('Circuit Type'), (
             'name', 'slug', 'description', 'tags',
         )),
     )
@@ -115,9 +115,9 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Circuit', ('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags')),
-        ('Service Parameters', ('install_date', 'termination_date', 'commit_rate')),
-        ('Tenancy', ('tenant_group', 'tenant')),
+        (_('Circuit'), ('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags')),
+        (_('Service Parameters'), ('install_date', 'termination_date', 'commit_rate')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
     )
 
     class Meta:

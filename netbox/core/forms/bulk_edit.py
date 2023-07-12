@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from core.choices import DataSourceTypeChoices
 from core.models import *
@@ -15,6 +15,7 @@ __all__ = (
 
 class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
     type = forms.ChoiceField(
+        label=_('Type'),
         choices=add_blank_choice(DataSourceTypeChoices),
         required=False,
         initial=''
@@ -25,6 +26,7 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Enforce unique space')
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -32,9 +34,11 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Comments')
     )
     parameters = forms.JSONField(
+        label=_('Parameters'),
         required=False
     )
     ignore_rules = forms.CharField(
+        label=_('Ignore rules'),
         required=False,
         widget=forms.Textarea()
     )

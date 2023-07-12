@@ -23,9 +23,9 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('ASN', ('asn',)),
-        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
+        (_('ASN'), ('asn',)),
+        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -62,7 +62,7 @@ class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Attributes', ('provider_id', 'account')),
+        (_('Attributes'), ('provider_id', 'account')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -80,7 +80,7 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Attributes', ('provider_id', 'service_id')),
+        (_('Attributes'), ('provider_id', 'service_id')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -104,11 +104,11 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     model = Circuit
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Provider', ('provider_id', 'provider_account_id', 'provider_network_id')),
-        ('Attributes', ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
-        ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        (_('Provider'), ('provider_id', 'provider_account_id', 'provider_network_id')),
+        (_('Attributes'), ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
+        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
+        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),

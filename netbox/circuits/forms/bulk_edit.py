@@ -168,9 +168,9 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Circuit
     fieldsets = (
-        ('Circuit', ('provider', 'type', 'status', 'description')),
-        ('Service Parameters', ('provider_account', 'install_date', 'termination_date', 'commit_rate')),
-        ('Tenancy', ('tenant',)),
+        (_('Circuit'), ('provider', 'type', 'status', 'description')),
+        (_('Service Parameters'), ('provider_account', 'install_date', 'termination_date', 'commit_rate')),
+        (_('Tenancy'), ('tenant',)),
     )
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
 from core.models import *
@@ -23,17 +23,20 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
     model = DataSource
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Data Source', ('type', 'status')),
+        (_('Data Source'), ('type', 'status')),
     )
     type = forms.MultipleChoiceField(
+        label=_('Type'),
         choices=DataSourceTypeChoices,
         required=False
     )
     status = forms.MultipleChoiceField(
+        label=_('Status'),
         choices=DataSourceStatusChoices,
         required=False
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -45,7 +48,7 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('File', ('source_id',)),
+        (_('File'), ('source_id',)),
     )
     source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -57,8 +60,8 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
 class JobFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('object_type', 'status')),
-        ('Creation', (
+        (_('Attributes'), ('object_type', 'status')),
+        (_('Creation'), (
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
             'started__after', 'completed__before', 'completed__after', 'user',
         )),
@@ -69,38 +72,47 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
     )
     status = forms.MultipleChoiceField(
+        label=_('Status'),
         choices=JobStatusChoices,
         required=False
     )
     created__after = forms.DateTimeField(
+        label=_('Created after'),
         required=False,
         widget=DateTimePicker()
     )
     created__before = forms.DateTimeField(
+        label=_('Created before'),
         required=False,
         widget=DateTimePicker()
     )
     scheduled__after = forms.DateTimeField(
+        label=_('Scheduled after'),
         required=False,
         widget=DateTimePicker()
     )
     scheduled__before = forms.DateTimeField(
+        label=_('Scheduled before'),
         required=False,
         widget=DateTimePicker()
     )
     started__after = forms.DateTimeField(
+        label=_('Started after'),
         required=False,
         widget=DateTimePicker()
     )
     started__before = forms.DateTimeField(
+        label=_('Started before'),
         required=False,
         widget=DateTimePicker()
     )
     completed__after = forms.DateTimeField(
+        label=_('Completed after'),
         required=False,
         widget=DateTimePicker()
     )
     completed__before = forms.DateTimeField(
+        label=_('Completed before'),
         required=False,
         widget=DateTimePicker()
     )
