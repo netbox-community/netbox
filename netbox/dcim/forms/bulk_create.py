@@ -1,7 +1,7 @@
 from django import forms
 
 from dcim.models import *
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
 from utilities.forms import BootstrapMixin, form_from_model
@@ -28,14 +28,17 @@ __all__ = (
 
 class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentCreateForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=100,
         required=False
     )
     tags = DynamicModelMultipleChoiceField(
+        label=_('Tags'),
         queryset=Tag.objects.all(),
         required=False
     )
