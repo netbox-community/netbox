@@ -4,7 +4,7 @@ from django import forms
 from django.db.models import Count
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.templatetags.static import static
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, EUI
 
 from utilities.forms import widgets
@@ -26,11 +26,11 @@ class CommentField(forms.CharField):
     A textarea with support for Markdown rendering. Exists mostly just to add a standard `help_text`.
     """
     widget = widgets.MarkdownWidget
-    help_text = f"""
+    help_text = _("""
         <i class="mdi mdi-information-outline"></i>
-        <a href="{static('docs/reference/markdown/')}" target="_blank" tabindex="-1">
+        <a href="{url}" target="_blank" tabindex="-1">
         Markdown</a> syntax is supported
-    """
+    """).format(url=static('docs/reference/markdown/'))
 
     def __init__(self, *, help_text=help_text, required=False, **kwargs):
         super().__init__(help_text=help_text, required=required, **kwargs)
@@ -77,7 +77,7 @@ class TagFilterField(forms.MultipleChoiceField):
             ]
 
         # Choices are fetched each time the form is initialized
-        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
+        super().__init__(label=_('Tags'), choices=get_choices, required=False, *args, **kwargs)
 
 
 class LaxURLField(forms.URLField):
@@ -113,7 +113,7 @@ class MACAddressField(forms.Field):
     """
     widget = forms.CharField
     default_error_messages = {
-        'invalid': 'MAC address must be in EUI-48 format',
+        'invalid': _('MAC address must be in EUI-48 format'),
     }
 
     def to_python(self, value):

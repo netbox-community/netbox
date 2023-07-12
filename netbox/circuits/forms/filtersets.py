@@ -70,6 +70,7 @@ class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
         label=_('Provider')
     )
     account = forms.CharField(
+        label=_('Account'),
         required=False
     )
     tag = TagFilterField(model)
@@ -87,6 +88,7 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
         label=_('Provider')
     )
     service_id = forms.CharField(
+        label=_('Service id'),
         max_length=100,
         required=False
     )
@@ -135,6 +137,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         label=_('Provider network')
     )
     status = forms.MultipleChoiceField(
+        label=_('Status'),
         choices=CircuitStatusChoices,
         required=False
     )
@@ -158,10 +161,12 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         label=_('Site')
     )
     install_date = forms.DateField(
+        label=_('Install date'),
         required=False,
         widget=DatePicker
     )
     termination_date = forms.DateField(
+        label=_('Termination date'),
         required=False,
         widget=DatePicker
     )
