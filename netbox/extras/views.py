@@ -238,6 +238,35 @@ class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
 
 
 #
+# Bookmarks
+#
+
+class BookmarkCreateView(generic.ObjectEditView):
+    form = forms.BookmarkForm
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        obj.user = request.user
+        return obj
+
+
+@register_model_view(Bookmark, 'delete')
+class BookmarkDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+
+class BookmarkBulkDeleteView(generic.BulkDeleteView):
+    table = tables.BookmarkTable
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+
+#
 # Webhooks
 #
 
@@ -512,7 +541,7 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
 #
 
 class ObjectChangeListView(generic.ObjectListView):
-    queryset = ObjectChange.objects.all()
+    queryset = ObjectChange.objects.valid_models()
     filterset = filtersets.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
@@ -522,10 +551,10 @@ class ObjectChangeListView(generic.ObjectListView):
 
 @register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
-    queryset = ObjectChange.objects.all()
+    queryset = ObjectChange.objects.valid_models()
 
     def get_extra_context(self, request, instance):
-        related_changes = ObjectChange.objects.restrict(request.user, 'view').filter(
+        related_changes = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
             request_id=instance.request_id
         ).exclude(
             pk=instance.pk
@@ -535,7 +564,7 @@ class ObjectChangeView(generic.ObjectView):
             orderable=False
         )
 
-        objectchanges = ObjectChange.objects.restrict(request.user, 'view').filter(
+        objectchanges = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
             changed_object_type=instance.changed_object_type,
             changed_object_id=instance.changed_object_id,
         )

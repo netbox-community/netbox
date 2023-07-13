@@ -1,7 +1,6 @@
 import json
 import urllib.parse
 
-from django.conf import settings
 from django.contrib import admin
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -9,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
-from django.http import HttpResponse, QueryDict
+from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -26,9 +25,10 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import clean_html, render_jinja2
+from utilities.utils import clean_html, dict_to_querydict, render_jinja2
 
 __all__ = (
+    'Bookmark',
     'ConfigRevision',
     'CustomLink',
     'ExportTemplate',
@@ -285,7 +285,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         text = clean_html(text, allowed_schemes)
 
         # Sanitize link
-        link = urllib.parse.quote(link, safe='/:?&=%+[]@#')
+        link = urllib.parse.quote(link, safe='/:?&=%+[]@#,')
 
         # Verify link scheme is allowed
         result = urllib.parse.urlparse(link)
@@ -463,8 +463,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     @property
     def url_params(self):
-        qd = QueryDict(mutable=True)
-        qd.update(self.parameters)
+        qd = dict_to_querydict(self.parameters)
         return qd.urlencode()
 
 
@@ -593,6 +592,44 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
+
+
+class Bookmark(models.Model):
+    """
+    An object bookmarked by a User.
+    """
+    created = models.DateTimeField(
+        auto_now_add=True
+    )
+    object_type = models.ForeignKey(
+        to=ContentType,
+        on_delete=models.PROTECT
+    )
+    object_id = models.PositiveBigIntegerField()
+    object = GenericForeignKey(
+        ct_field='object_type',
+        fk_field='object_id'
+    )
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT
+    )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        ordering = ('created', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('object_type', 'object_id', 'user'),
+                name='%(app_label)s_%(class)s_unique_per_object_and_user'
+            ),
+        )
+
+    def __str__(self):
+        if self.object:
+            return str(self.object)
+        return super().__str__()
 
 
 class ConfigRevision(models.Model):

@@ -18,6 +18,7 @@ __all__ = (
 
 
 class NetBoxFeatureSet(
+    BookmarksMixin,
     ChangeLoggingMixin,
     CustomFieldsMixin,
     CustomLinksMixin,

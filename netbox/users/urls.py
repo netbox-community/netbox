@@ -8,6 +8,7 @@ urlpatterns = [
 
     # User
     path('profile/', views.ProfileView.as_view(), name='profile'),
+    path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),
     path('preferences/', views.UserConfigView.as_view(), name='preferences'),
     path('password/', views.ChangePasswordView.as_view(), name='change_password'),
 

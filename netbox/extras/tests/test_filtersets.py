@@ -365,6 +365,77 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class BookmarkTestCase(TestCase, BaseFilterSetTests):
+    queryset = Bookmark.objects.all()
+    filterset = BookmarkFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+        )
+        Site.objects.bulk_create(sites)
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1'),
+            Tenant(name='Tenant 2', slug='tenant-2'),
+            Tenant(name='Tenant 3', slug='tenant-3'),
+        )
+        Tenant.objects.bulk_create(tenants)
+
+        bookmarks = (
+            Bookmark(
+                object=sites[0],
+                user=users[0],
+            ),
+            Bookmark(
+                object=sites[1],
+                user=users[1],
+            ),
+            Bookmark(
+                object=sites[2],
+                user=users[2],
+            ),
+            Bookmark(
+                object=tenants[0],
+                user=users[0],
+            ),
+            Bookmark(
+                object=tenants[1],
+                user=users[1],
+            ),
+            Bookmark(
+                object=tenants[2],
+                user=users[2],
+            ),
+        )
+        Bookmark.objects.bulk_create(bookmarks)
+
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'object_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_user(self):
+        users = User.objects.filter(username__startswith='User')
+        params = {'user': [users[0].username, users[1].username]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+
 class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet

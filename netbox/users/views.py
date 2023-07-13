@@ -17,8 +17,8 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
-from extras.models import ObjectChange
-from extras.tables import ObjectChangeTable
+from extras.models import Bookmark, ObjectChange
+from extras.tables import BookmarkTable, ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
@@ -163,7 +163,9 @@ class ProfileView(LoginRequiredMixin, View):
     def get(self, request):
 
         # Compile changelog table
-        changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=request.user).prefetch_related(
+        changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
+            user=request.user
+        ).prefetch_related(
             'changed_object_type'
         )[:20]
         changelog_table = ObjectChangeTable(changelog)
@@ -230,6 +232,23 @@ class ChangePasswordView(LoginRequiredMixin, View):
             'form': form,
             'active_tab': 'change_password',
         })
+
+
+#
+# Bookmarks
+#
+
+class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
+    table = BookmarkTable
+    template_name = 'users/bookmarks.html'
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+    def get_extra_context(self, request):
+        return {
+            'active_tab': 'bookmarks',
+        }
 
 
 #

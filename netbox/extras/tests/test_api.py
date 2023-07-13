@@ -8,7 +8,6 @@ from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
-from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
@@ -266,6 +265,58 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
             savedfilter.content_types.set([site_ct])
+
+
+class BookmarkTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+    APIViewTestCases.CreateObjectViewTestCase,
+    APIViewTestCases.DeleteObjectViewTestCase
+):
+    model = Bookmark
+    brief_fields = ['display', 'id', 'object_id', 'object_type', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
+            Site(name='Site 5', slug='site-5'),
+            Site(name='Site 6', slug='site-6'),
+        )
+        Site.objects.bulk_create(sites)
+
+    def setUp(self):
+        super().setUp()
+
+        sites = Site.objects.all()
+
+        bookmarks = (
+            Bookmark(object=sites[0], user=self.user),
+            Bookmark(object=sites[1], user=self.user),
+            Bookmark(object=sites[2], user=self.user),
+        )
+        Bookmark.objects.bulk_create(bookmarks)
+
+        self.create_data = [
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[3].pk,
+                'user': self.user.pk,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[4].pk,
+                'user': self.user.pk,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[5].pk,
+                'user': self.user.pk,
+            },
+        ]
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -582,6 +633,7 @@ class ReportTest(APITestCase):
         super().setUp()
 
         # Monkey-patch the API viewset's _get_report() method to return our test Report above
+        from extras.api.views import ReportViewSet
         ReportViewSet._get_report = self.get_test_report
 
     def test_get_report(self):
@@ -624,6 +676,7 @@ class ScriptTest(APITestCase):
         super().setUp()
 
         # Monkey-patch the API viewset's _get_script() method to return our test Script above
+        from extras.api.views import ScriptViewSet
         ScriptViewSet._get_script = self.get_test_script
 
     def test_get_script(self):

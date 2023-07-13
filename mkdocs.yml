@@ -206,6 +206,7 @@ nav:
             - VirtualChassis: 'models/dcim/virtualchassis.md'
             - VirtualDeviceContext: 'models/dcim/virtualdevicecontext.md'
         - Extras:
+            - Bookmark: 'models/extras/bookmark.md'
             - Branch: 'models/extras/branch.md'
             - ConfigContext: 'models/extras/configcontext.md'
             - ConfigTemplate: 'models/extras/configtemplate.md'
