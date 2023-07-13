@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from utilities.forms import BootstrapMixin, form_from_model
 from utilities.forms.fields import ExpandableNameField
@@ -12,6 +12,7 @@ __all__ = (
 
 class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
     )

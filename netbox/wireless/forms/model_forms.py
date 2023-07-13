@@ -1,5 +1,5 @@
 from django.forms import PasswordInput
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Location, Site
 from ipam.models import VLAN
@@ -17,13 +17,16 @@ __all__ = (
 
 class WirelessLANGroupForm(NetBoxModelForm):
     parent = DynamicModelChoiceField(
+        label=_('Parent'),
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     fieldsets = (
-        ('Wireless LAN Group', (
+        (_('Wireless LAN Group'), (
             'parent', 'name', 'slug', 'description', 'tags',
         )),
     )
@@ -37,6 +40,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
 
 class WirelessLANForm(TenancyForm, NetBoxModelForm):
     group = DynamicModelChoiceField(
+        label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
@@ -46,12 +50,14 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         selector=True,
         label=_('VLAN')
     )
-    comments = CommentField()
+    comments = CommentField(
+        label=_('Comments'),
+    )
 
     fieldsets = (
-        ('Wireless LAN', ('ssid', 'group', 'vlan', 'status', 'description', 'tags')),
-        ('Tenancy', ('tenant_group', 'tenant')),
-        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+        (_('Wireless LAN'), ('ssid', 'group', 'vlan', 'status', 'description', 'tags')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
+        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
     class Meta:
@@ -152,11 +158,11 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Side A', ('site_a', 'location_a', 'device_a', 'interface_a')),
-        ('Side B', ('site_b', 'location_b', 'device_b', 'interface_b')),
-        ('Link', ('status', 'ssid', 'description', 'tags')),
-        ('Tenancy', ('tenant_group', 'tenant')),
-        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+        (_('Side A'), ('site_a', 'location_a', 'device_a', 'interface_a')),
+        (_('Side B'), ('site_b', 'location_b', 'device_b', 'interface_b')),
+        (_('Link'), ('status', 'ssid', 'description', 'tags')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
+        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
     )
 
     class Meta:

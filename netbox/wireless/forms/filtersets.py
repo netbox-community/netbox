@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from netbox.forms import NetBoxModelFilterSetForm
@@ -30,9 +30,9 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Attributes', ('ssid', 'group_id', 'status')),
-        ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+        (_('Attributes'), ('ssid', 'group_id', 'status')),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
+        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
     )
     ssid = forms.CharField(
         required=False,
@@ -45,18 +45,22 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Group')
     )
     status = forms.ChoiceField(
+        label=_('Status'),
         required=False,
         choices=add_blank_choice(WirelessLANStatusChoices)
     )
     auth_type = forms.ChoiceField(
+        label=_('Auth type'),
         required=False,
         choices=add_blank_choice(WirelessAuthTypeChoices)
     )
     auth_cipher = forms.ChoiceField(
+        label=_('Auth cipher'),
         required=False,
         choices=add_blank_choice(WirelessAuthCipherChoices)
     )
     auth_psk = forms.CharField(
+        label=_('Auth psk'),
         required=False
     )
     tag = TagFilterField(model)
@@ -66,27 +70,31 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Attributes', ('ssid', 'status',)),
-        ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Authentication', ('auth_type', 'auth_cipher', 'auth_psk')),
+        (_('Attributes'), ('ssid', 'status',)),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
+        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
     )
     ssid = forms.CharField(
         required=False,
         label=_('SSID')
     )
     status = forms.ChoiceField(
+        label=_('Status'),
         required=False,
         choices=add_blank_choice(LinkStatusChoices)
     )
     auth_type = forms.ChoiceField(
+        label=_('Auth type'),
         required=False,
         choices=add_blank_choice(WirelessAuthTypeChoices)
     )
     auth_cipher = forms.ChoiceField(
+        label=_('Auth cipher'),
         required=False,
         choices=add_blank_choice(WirelessAuthCipherChoices)
     )
     auth_psk = forms.CharField(
+        label=_('Auth psk'),
         required=False
     )
     tag = TagFilterField(model)

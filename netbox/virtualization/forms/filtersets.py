@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
@@ -30,7 +30,7 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
 
 
@@ -38,10 +38,10 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     model = Cluster
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Attributes', ('group_id', 'type_id', 'status')),
-        ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        (_('Attributes'), ('group_id', 'type_id', 'status')),
+        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
+        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
@@ -54,6 +54,7 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         label=_('Region')
     )
     status = forms.MultipleChoiceField(
+        label=_('Status'),
         choices=ClusterStatusChoices,
         required=False
     )
@@ -90,11 +91,11 @@ class VirtualMachineFilterForm(
     model = VirtualMachine
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Cluster', ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
-        ('Location', ('region_id', 'site_group_id', 'site_id')),
-        ('Attributes', ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
-        ('Tenant', ('tenant_group_id', 'tenant_id')),
-        ('Contacts', ('contact', 'contact_role', 'contact_group')),
+        (_('Cluster'), ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
+        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
+        (_('Attributes'), ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'local_context_data')),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
+        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -148,6 +149,7 @@ class VirtualMachineFilterForm(
         label=_('Role')
     )
     status = forms.MultipleChoiceField(
+        label=_('Status'),
         choices=VirtualMachineStatusChoices,
         required=False
     )
@@ -175,8 +177,8 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Virtual Machine', ('cluster_id', 'virtual_machine_id')),
-        ('Attributes', ('enabled', 'mac_address', 'vrf_id', 'l2vpn_id')),
+        (_('Virtual Machine'), ('cluster_id', 'virtual_machine_id')),
+        (_('Attributes'), ('enabled', 'mac_address', 'vrf_id', 'l2vpn_id')),
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -192,6 +194,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         label=_('Virtual machine')
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -199,12 +202,12 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     )
     mac_address = forms.CharField(
         required=False,
-        label='MAC address'
+        label=_('MAC address')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
         required=False,
-        label='VRF'
+        label=_('VRF')
     )
     l2vpn_id = DynamicModelMultipleChoiceField(
         queryset=L2VPN.objects.all(),

@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import LinkStatusChoices
 from dcim.models import Interface
@@ -18,12 +18,15 @@ __all__ = (
 
 class WirelessLANGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
+        label=_('Parent'),
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent group')
     )
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     class Meta:
         model = WirelessLANGroup
@@ -32,33 +35,39 @@ class WirelessLANGroupImportForm(NetBoxModelImportForm):
 
 class WirelessLANImportForm(NetBoxModelImportForm):
     group = CSVModelChoiceField(
+        label=_('Group'),
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned group')
     )
     status = CSVChoiceField(
+        label=_('Status'),
         choices=WirelessLANStatusChoices,
         help_text='Operational status'
     )
     vlan = CSVModelChoiceField(
+        label=_('VLAN'),
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Bridged VLAN')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
+        label=_('Auth type'),
         choices=WirelessAuthTypeChoices,
         required=False,
         help_text=_('Authentication type')
     )
     auth_cipher = CSVChoiceField(
+        label=_('Auth cipher'),
         choices=WirelessAuthCipherChoices,
         required=False,
         help_text=_('Authentication cipher')
@@ -74,27 +83,33 @@ class WirelessLANImportForm(NetBoxModelImportForm):
 
 class WirelessLinkImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
+        label=_('Status'),
         choices=LinkStatusChoices,
         help_text=_('Connection status')
     )
     interface_a = CSVModelChoiceField(
+        label=_('Interface a'),
         queryset=Interface.objects.all()
     )
     interface_b = CSVModelChoiceField(
+        label=_('Interface b'),
         queryset=Interface.objects.all()
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
+        label=_('Auth type'),
         choices=WirelessAuthTypeChoices,
         required=False,
         help_text=_('Authentication type')
     )
     auth_cipher = CSVChoiceField(
+        label=_('Auth cipher'),
         choices=WirelessAuthCipherChoices,
         required=False,
         help_text=_('Authentication cipher')
