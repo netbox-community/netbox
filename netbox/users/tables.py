@@ -57,7 +57,7 @@ class TokenTable(NetBoxTable):
 
 
 class UserTable(NetBoxTable):
-    username = tables.LinkColumn('users:netboxuser', args=[A('pk')])
+    username = tables.Column(linkify=True)
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -71,7 +71,7 @@ class UserTable(NetBoxTable):
 
 
 class GroupTable(NetBoxTable):
-    name = tables.LinkColumn('users:netboxgroup', args=[A('pk')])
+    name = tables.Column(linkify=True)
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -85,7 +85,7 @@ class GroupTable(NetBoxTable):
 
 
 class ObjectPermissionTable(NetBoxTable):
-    name = tables.LinkColumn('users:objectpermission', args=[A('pk')])
+    name = tables.Column(linkify=True)
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
