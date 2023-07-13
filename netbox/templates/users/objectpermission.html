@@ -31,6 +31,17 @@
           {% endfor %}
         </ul>
       </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
+        <ul class="list-group list-group-flush">
+          {% for group in object.groups.all %}
+            <li class="list-group-item">{{ group }}</li>
+          {% empty %}
+            <li class="list-group-item text-muted">{% trans "None" %}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
   </div>
 {% endblock %}

@@ -1,16 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
-
-from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
-from circuits.models import *
-from dcim.models import Region, Site, SiteGroup
-from ipam.models import ASN
-from netbox.forms import NetBoxModelFilterSetForm
-from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from users.models import ObjectPermission, NetBoxGroup, NetBoxUser
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
-from utilities.forms.widgets import DatePicker, NumberWithOptions
+
+from netbox.forms import NetBoxModelFilterSetForm
 
 __all__ = (
     'GroupFilterForm',
@@ -19,7 +12,7 @@ __all__ = (
 )
 
 
-class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class UserFilterForm(NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
@@ -48,14 +41,14 @@ class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     )
 
 
-class GroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class GroupFilterForm(NetBoxModelFilterSetForm):
     model = NetBoxGroup
     fieldsets = (
         (None, ('q', 'filter_id',)),
     )
 
 
-class ObjectPermissionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
+class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
     model = ObjectPermission
     fieldsets = (
         (None, ('q', 'filter_id',)),
