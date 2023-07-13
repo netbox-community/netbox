@@ -226,7 +226,7 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
 
         if 'module' in self.fields:
             self.fields['name'].help_text += _(' The string <code>{module}</code> will be replaced with the position '
-                                               'of the assigned module, if any').format(module=module)
+                                               'of the assigned module, if any')
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
