@@ -1,30 +1,23 @@
 {% extends 'users/base.html' %}
+{% load i18n %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
-{% block title %}User Detail{% endblock %}
-
-{% block tabs %}
-  <ul class="nav nav-tabs px-3">
-    <li role="presentation" class="nav-item">
-      <a class="nav-link{% if active_tab == 'user' %} active{% endif %}" href="{% url 'users:netboxuser' pk=object.pk %}">User</a>
-    </li>
-  </ul>
-{% endblock tabs %}
+{% block title %}{% trans "User" %} {{ object.username }}{% endblock %}
 
 {% block content %}
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">Account Details</h5>
+        <h5 class="card-header">{% trans "Account Details" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Username</th>
+              <th scope="row">{% trans "Username" %}</th>
               <td>{{ object.username }}</td>
             </tr>
             <tr>
-              <th scope="row">Full Name</th>
+              <th scope="row">{% trans "Full Name" %}</th>
               <td>
                 {% if object.first_name or object.last_name %}
                   {{ object.first_name }} {{ object.last_name }}
@@ -34,19 +27,19 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Email</th>
+              <th scope="row">{% trans "Email" %}</th>
               <td>{{ object.email|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Account Created</th>
+              <th scope="row">{% trans "Account Created" %}</th>
               <td>{{ object.date_joined|annotated_date }}</td>
             </tr>
             <tr>
-              <th scope="row">Superuser</th>
+              <th scope="row">{% trans "Superuser" %}</th>
               <td>{% checkmark object.is_superuser %}</td>
             </tr>
             <tr>
-              <th scope="row">Admin Access</th>
+              <th scope="row">{% trans "Admin Access" %}</th>
               <td>{% checkmark object.is_staff %}</td>
             </tr>
           </table>
@@ -55,12 +48,12 @@
     </div>
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">Assigned Groups</h5>
+        <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
         <ul class="list-group list-group-flush">
           {% for group in object.groups.all %}
             <li class="list-group-item">{{ group }}</li>
           {% empty %}
-            <li class="list-group-item text-muted">None</li>
+            <li class="list-group-item text-muted">{% trans "None" %}</li>
           {% endfor %}
         </ul>
       </div>
@@ -70,7 +63,7 @@
     <div class="row">
       <div class="col-md-12">
         <div class="card">
-          <h5 class="card-header text-center">Recent Activity</h5>
+          <h5 class="card-header text-center">{% trans "Recent Activity" %}</h5>
           <div class="card-body table-responsive">
             {% render_table changelog_table 'inc/table.html' %}
           </div>
