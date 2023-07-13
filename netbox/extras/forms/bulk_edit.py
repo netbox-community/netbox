@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.models import *
@@ -23,20 +23,25 @@ __all__ = (
 
 class CustomFieldBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=CustomField.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     group_name = forms.CharField(
+        label=_('Group name'),
         required=False
     )
     description = forms.CharField(
+        label=_('Description'),
         required=False
     )
     required = forms.NullBooleanField(
+        label=_('Required'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False
     )
     choice_set = DynamicModelChoiceField(
@@ -50,6 +55,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         initial=''
     )
     is_cloneable = forms.NullBooleanField(
+        label=_('Is cloneable'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -75,21 +81,26 @@ class CustomFieldChoiceSetBulkEditForm(BulkEditForm):
 
 class CustomLinkBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=CustomLink.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     new_window = forms.NullBooleanField(
+        label=_('New window'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False
     )
     button_class = forms.ChoiceField(
+        label=_('Button class'),
         choices=add_blank_choice(CustomLinkButtonClassChoices),
         required=False
     )
@@ -97,22 +108,27 @@ class CustomLinkBulkEditForm(BulkEditForm):
 
 class ExportTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=ExportTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
     mime_type = forms.CharField(
+        label=_('Mime type'),
         max_length=50,
         required=False
     )
     file_extension = forms.CharField(
+        label=_('File extension'),
         max_length=15,
         required=False
     )
     as_attachment = forms.NullBooleanField(
+        label=_('As attachment'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -122,21 +138,26 @@ class ExportTemplateBulkEditForm(BulkEditForm):
 
 class SavedFilterBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=SavedFilter.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     shared = forms.NullBooleanField(
+        label=_('Shared'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -146,30 +167,37 @@ class SavedFilterBulkEditForm(BulkEditForm):
 
 class WebhookBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_create = forms.NullBooleanField(
+        label=_('Type create'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_update = forms.NullBooleanField(
+        label=_('Type update'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_delete = forms.NullBooleanField(
+        label=_('Type delete'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_job_start = forms.NullBooleanField(
+        label=_('Type job start'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_job_end = forms.NullBooleanField(
+        label=_('Type job end'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -188,6 +216,7 @@ class WebhookBulkEditForm(BulkEditForm):
         label=_('SSL verification')
     )
     secret = forms.CharField(
+        label=_('Secret'),
         required=False
     )
     ca_file_path = forms.CharField(
@@ -200,13 +229,16 @@ class WebhookBulkEditForm(BulkEditForm):
 
 class TagBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=Tag.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     color = ColorField(
+        label=_('Color'),
         required=False
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -216,18 +248,22 @@ class TagBulkEditForm(BulkEditForm):
 
 class ConfigContextBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=ConfigContext.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False,
         min_value=0
     )
     is_active = forms.NullBooleanField(
+        label=_('Is active'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     description = forms.CharField(
+        label=_('Description'),
         required=False,
         max_length=100
     )
@@ -237,10 +273,12 @@ class ConfigContextBulkEditForm(BulkEditForm):
 
 class ConfigTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=ConfigTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -250,14 +288,17 @@ class ConfigTemplateBulkEditForm(BulkEditForm):
 
 class JournalEntryBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=JournalEntry.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     kind = forms.ChoiceField(
+        label=_('Kind'),
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False
     )
     comments = forms.CharField(
+        label=_('Comments'),
         required=False,
         widget=forms.Textarea()
     )
