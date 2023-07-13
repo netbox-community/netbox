@@ -5,9 +5,10 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as 
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
+from django.core.exceptions import FieldError
 from django.urls import reverse
 from django.utils.html import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
@@ -18,7 +19,7 @@ from utilities.forms.widgets import DateTimePicker
 from utilities.utils import flatten_dict
 from users.constants import *
 from users.models import *
-
+from utilities.permissions import qs_filter_from_constraints
 
 __all__ = (
     'GroupForm',
@@ -69,17 +70,18 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 
 class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
-        ('User Interface', (
+        (_('User Interface'), (
             'pagination.per_page',
             'pagination.placement',
             'ui.colormode',
         )),
-        ('Miscellaneous', (
+        (_('Miscellaneous'), (
             'data_format',
         )),
     )
     # List of clearable preferences
     pk = forms.MultipleChoiceField(
+        label=_('Pk'),
         choices=[],
         required=False
     )
@@ -124,6 +126,7 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
 
 class TokenForm(BootstrapMixin, forms.ModelForm):
     key = forms.CharField(
+        label=_('Key'),
         required=False,
         help_text=_("If no key is provided, one will be generated automatically.")
     )
@@ -154,15 +157,18 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
 
 class UserForm(BootstrapMixin, forms.ModelForm):
     password = forms.CharField(
+        label=_('Password'),
         widget=forms.PasswordInput(),
         required=True,
     )
     confirm_password = forms.CharField(
+        label=_('Confirm password'),
         widget=forms.PasswordInput(),
         required=True,
         help_text=_("Enter the same password as before, for verification."),
     )
     groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
         required=False,
         queryset=Group.objects.all()
     )
@@ -174,10 +180,10 @@ class UserForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        ('User', ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', )),
-        ('Groups', ('groups', )),
-        ('Status', ('is_active', 'is_staff', 'is_superuser', )),
-        ('Permissions', ('object_permissions', )),
+        (_('User'), ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', )),
+        (_('Groups'), ('groups', )),
+        (_('Status'), ('is_active', 'is_staff', 'is_superuser', )),
+        (_('Permissions'), ('object_permissions', )),
     )
 
     class Meta:
@@ -241,6 +247,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
 class GroupForm(BootstrapMixin, forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
         required=False,
         queryset=get_user_model().objects.all()
     )
@@ -253,8 +260,8 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         (None, ('name', )),
-        ('Users', ('users', )),
-        ('Permissions', ('object_permissions', )),
+        (_('Users'), ('users', )),
+        (_('Permissions'), ('object_permissions', )),
     )
 
     class Meta:
@@ -278,18 +285,22 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
 
 class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
     actions = SimpleArrayField(
+        label=_('Actions'),
         base_field=forms.CharField(),
         required=False,
     )
     users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
         required=False,
         queryset=get_user_model().objects.all()
     )
     groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
         required=False,
         queryset=Group.objects.all()
     )
-    object_types = forms.ModelMultipleChoiceField(
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         widget=forms.SelectMultiple(attrs={'size': 6})
@@ -302,10 +313,10 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         (None, ('name', 'description', 'enabled',)),
-        ('Actions', ('can_view', 'can_add', 'can_change', 'can_delete', 'actions')),
-        ('Objects', ('object_types', )),
-        ('Assignment', ('groups', 'users')),
-        ('Constraints', ('constraints',))
+        (_('Actions'), ('can_view', 'can_add', 'can_change', 'can_delete', 'actions')),
+        (_('Objects'), ('object_types', )),
+        (_('Assignment'), ('groups', 'users')),
+        (_('Constraints'), ('constraints',))
     )
 
     class Meta:
@@ -355,7 +366,7 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
 
         # At least one action must be specified
         if not self.cleaned_data['actions']:
-            raise forms.ValidationError("At least one action must be selected.")
+            raise forms.ValidationError(_("At least one action must be selected."))
 
         # Validate the specified model constraints by attempting to execute a query. We don't care whether the query
         # returns anything; we just want to make sure the specified constraints are valid.
@@ -372,5 +383,5 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
                     model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
                 except FieldError as e:
                     raise forms.ValidationError({
-                        'constraints': f'Invalid filter for {model}: {e}'
+                        'constraints': _('Invalid filter for {model}: {e}').format(model=model, e=e)
                     })

@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelBulkEditForm
 from users.models import *
@@ -16,14 +16,17 @@ __all__ = (
 
 class UserBulkEditForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=None,  # Set from self.model on init
         widget=forms.MultipleHiddenInput
     )
     first_name = forms.CharField(
+        label=_('First name'),
         max_length=150,
         required=False
     )
     last_name = forms.CharField(
+        label=_('Last name'),
         max_length=150,
         required=False
     )
@@ -53,14 +56,17 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
 
 class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
+        label=_('Pk'),
         queryset=None,  # Set from self.model on init
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
     enabled = forms.BooleanField(
+        label=_('Enabled'),
         required=False,
     )
 

@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
 from circuits.models import *
@@ -23,28 +23,28 @@ class UserFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        ('Security', ('is_superuser', 'is_staff', 'is_active')),
+        (_('Security'), ('is_superuser', 'is_staff', 'is_active')),
     )
     is_superuser = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label='Is Superuser',
+        label=_('Is Superuser'),
     )
     is_staff = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label='Is Staff',
+        label=_('Is Staff'),
     )
     is_active = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label='Is Active',
+        label=_('Is Active'),
     )
 
 
@@ -62,6 +62,7 @@ class ObjectPermissionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetFor
         (None, ('enabled',)),
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
