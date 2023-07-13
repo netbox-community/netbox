@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.choices import ContactPriorityChoices
@@ -22,10 +23,12 @@ __all__ = (
 
 class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
     parent = DynamicModelChoiceField(
+        label=_('Parent'),
         queryset=TenantGroup.objects.all(),
         required=False
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -36,6 +39,7 @@ class TenantGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 class TenantBulkEditForm(NetBoxModelBulkEditForm):
     group = DynamicModelChoiceField(
+        label=_('Group'),
         queryset=TenantGroup.objects.all(),
         required=False
     )
@@ -53,10 +57,12 @@ class TenantBulkEditForm(NetBoxModelBulkEditForm):
 
 class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
     parent = DynamicModelChoiceField(
+        label=_('Parent'),
         queryset=ContactGroup.objects.all(),
         required=False
     )
     description = forms.CharField(
+        label=_('Desciption'),
         max_length=200,
         required=False
     )
@@ -70,6 +76,7 @@ class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -83,33 +90,40 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
 
 class ContactBulkEditForm(NetBoxModelBulkEditForm):
     group = DynamicModelChoiceField(
+        label=_('Group'),
         queryset=ContactGroup.objects.all(),
         required=False
     )
     title = forms.CharField(
+        label=_('Title'),
         max_length=100,
         required=False
     )
     phone = forms.CharField(
+        label=_('Phone'),
         max_length=50,
         required=False
     )
     email = forms.EmailField(
+        label=_('Email'),
         required=False
     )
     address = forms.CharField(
+        label=_('Address'),
         max_length=200,
         required=False
     )
     link = forms.URLField(
+        label=_('Link'),
         required=False
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
     comments = CommentField(
-        label='Comments'
+        label=_('Comments')
     )
 
     model = Contact
@@ -121,14 +135,17 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
 
 class ContactAssignmentBulkEditForm(NetBoxModelBulkEditForm):
     contact = DynamicModelChoiceField(
+        label=_('Contact'),
         queryset=Contact.objects.all(),
         required=False
     )
     role = DynamicModelChoiceField(
+        label=_('Role'),
         queryset=ContactRole.objects.all(),
         required=False
     )
     priority = forms.ChoiceField(
+        label=_('Priority'),
         choices=add_blank_choice(ContactPriorityChoices),
         required=False
     )

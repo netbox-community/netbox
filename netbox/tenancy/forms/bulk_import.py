@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import *
 from utilities.forms.fields import CSVModelChoiceField, SlugField
@@ -18,12 +18,15 @@ __all__ = (
 
 class TenantGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
+        label=_('Parent'),
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent group')
     )
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     class Meta:
         model = TenantGroup
@@ -31,8 +34,11 @@ class TenantGroupImportForm(NetBoxModelImportForm):
 
 
 class TenantImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
     group = CSVModelChoiceField(
+        label=_('Group'),
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -50,12 +56,15 @@ class TenantImportForm(NetBoxModelImportForm):
 
 class ContactGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
+        label=_('Parent'),
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent group')
     )
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     class Meta:
         model = ContactGroup
@@ -63,7 +72,9 @@ class ContactGroupImportForm(NetBoxModelImportForm):
 
 
 class ContactRoleImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     class Meta:
         model = ContactRole
@@ -72,6 +83,7 @@ class ContactRoleImportForm(NetBoxModelImportForm):
 
 class ContactImportForm(NetBoxModelImportForm):
     group = CSVModelChoiceField(
+        label=_('Group'),
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
