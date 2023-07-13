@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface, Site
 from ipam.choices import *
@@ -36,6 +36,7 @@ __all__ = (
 
 class VRFImportForm(NetBoxModelImportForm):
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -49,6 +50,7 @@ class VRFImportForm(NetBoxModelImportForm):
 
 class RouteTargetImportForm(NetBoxModelImportForm):
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -61,7 +63,9 @@ class RouteTargetImportForm(NetBoxModelImportForm):
 
 
 class RIRImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     class Meta:
         model = RIR
@@ -70,11 +74,13 @@ class RIRImportForm(NetBoxModelImportForm):
 
 class AggregateImportForm(NetBoxModelImportForm):
     rir = CSVModelChoiceField(
+        label=_('RIR'),
         queryset=RIR.objects.all(),
         to_field_name='name',
         help_text=_('Assigned RIR')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -88,11 +94,13 @@ class AggregateImportForm(NetBoxModelImportForm):
 
 class ASNRangeImportForm(NetBoxModelImportForm):
     rir = CSVModelChoiceField(
+        label=_('RIR'),
         queryset=RIR.objects.all(),
         to_field_name='name',
         help_text=_('Assigned RIR')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -106,11 +114,13 @@ class ASNRangeImportForm(NetBoxModelImportForm):
 
 class ASNImportForm(NetBoxModelImportForm):
     rir = CSVModelChoiceField(
+        label=_('RIR'),
         queryset=RIR.objects.all(),
         to_field_name='name',
         help_text=_('Assigned RIR')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
@@ -123,7 +133,9 @@ class ASNImportForm(NetBoxModelImportForm):
 
 
 class RoleImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
 
     class Meta:
         model = Role
@@ -132,40 +144,47 @@ class RoleImportForm(NetBoxModelImportForm):
 
 class PrefixImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
+        label=_('Vrf'),
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
         help_text=_('Assigned VRF')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
     site = CSVModelChoiceField(
+        label=_('Site'),
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned site')
     )
     vlan_group = CSVModelChoiceField(
+        label=_('VLAN group'),
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_("VLAN's group (if any)")
     )
     vlan = CSVModelChoiceField(
+        label=_('VLAN'),
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='vid',
         help_text=_("Assigned VLAN")
     )
     status = CSVChoiceField(
+        label=_('Status'),
         choices=PrefixStatusChoices,
         help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
+        label=_('Role'),
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
@@ -211,22 +230,26 @@ class PrefixImportForm(NetBoxModelImportForm):
 
 class IPRangeImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
+        label=_('Vrf'),
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
         help_text=_('Assigned VRF')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
+        label=_('Status'),
         choices=IPRangeStatusChoices,
         help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
+        label=_('Role'),
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
@@ -243,45 +266,53 @@ class IPRangeImportForm(NetBoxModelImportForm):
 
 class IPAddressImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
+        label=_('Vrf'),
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
         help_text=_('Assigned VRF')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
         help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
+        label=_('Status'),
         choices=IPAddressStatusChoices,
         help_text=_('Operational status')
     )
     role = CSVChoiceField(
+        label=_('Role'),
         choices=IPAddressRoleChoices,
         required=False,
         help_text=_('Functional role')
     )
     device = CSVModelChoiceField(
+        label=_('Device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent device of assigned interface (if any)')
     )
     virtual_machine = CSVModelChoiceField(
+        label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent VM of assigned interface (if any)')
     )
     interface = CSVModelChoiceField(
+        label=_('Interface'),
         queryset=Interface.objects.none(),  # Can also refer to VMInterface
         required=False,
         to_field_name='name',
         help_text=_('Assigned interface')
     )
     is_primary = forms.BooleanField(
+        label=_('Is primary'),
         help_text=_('Make this the primary IP for the assigned device'),
         required=False
     )
@@ -321,11 +352,11 @@ class IPAddressImportForm(NetBoxModelImportForm):
         # Validate is_primary
         if is_primary and not device and not virtual_machine:
             raise forms.ValidationError({
-                "is_primary": "No device or virtual machine specified; cannot set as primary IP"
+                "is_primary": _("No device or virtual machine specified; cannot set as primary IP")
             })
         if is_primary and not interface:
             raise forms.ValidationError({
-                "is_primary": "No interface specified; cannot set as primary IP"
+                "is_primary": _("No interface specified; cannot set as primary IP")
             })
 
     def save(self, *args, **kwargs):
@@ -350,9 +381,11 @@ class IPAddressImportForm(NetBoxModelImportForm):
 
 class FHRPGroupImportForm(NetBoxModelImportForm):
     protocol = CSVChoiceField(
+        label=_('Protocol'),
         choices=FHRPGroupProtocolChoices
     )
     auth_type = CSVChoiceField(
+        label=_('Auth type'),
         choices=FHRPGroupAuthTypeChoices,
         required=False
     )
@@ -363,7 +396,9 @@ class FHRPGroupImportForm(NetBoxModelImportForm):
 
 
 class VLANGroupImportForm(NetBoxModelImportForm):
-    slug = SlugField()
+    slug = SlugField(
+        label=_('Slug'),
+    )
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,
@@ -373,13 +408,13 @@ class VLANGroupImportForm(NetBoxModelImportForm):
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
         required=False,
-        label=f'Minimum child VLAN VID (default: {VLAN_VID_MIN})'
+        label=_('Minimum child VLAN VID (default: {vlan_min})').format(vlan_min=VLAN_VID_MIN)
     )
     max_vid = forms.IntegerField(
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
         required=False,
-        label=f'Maximum child VLAN VID (default: {VLAN_VID_MIN})'
+        label=_('Maximum child VLAN VID (default: {vlan_min})').format(vlan_min=VLAN_VID_MIN)
     )
 
     class Meta:
@@ -392,28 +427,33 @@ class VLANGroupImportForm(NetBoxModelImportForm):
 
 class VLANImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
+        label=_('Site'),
         queryset=Site.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned site')
     )
     group = CSVModelChoiceField(
+        label=_('Group'),
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Assigned VLAN group')
     )
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         to_field_name='name',
         required=False,
         help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
+        label=_('Status'),
         choices=VLANStatusChoices,
         help_text=_('Operational status')
     )
     role = CSVModelChoiceField(
+        label=_('Role'),
         queryset=Role.objects.all(),
         required=False,
         to_field_name='name',
@@ -427,6 +467,7 @@ class VLANImportForm(NetBoxModelImportForm):
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):
     protocol = CSVChoiceField(
+        label=_('Protocol'),
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
     )
@@ -438,18 +479,21 @@ class ServiceTemplateImportForm(NetBoxModelImportForm):
 
 class ServiceImportForm(NetBoxModelImportForm):
     device = CSVModelChoiceField(
+        label=_('Device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Required if not assigned to a VM')
     )
     virtual_machine = CSVModelChoiceField(
+        label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Required if not assigned to a device')
     )
     protocol = CSVChoiceField(
+        label=_('Protocol'),
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
     )
@@ -461,11 +505,13 @@ class ServiceImportForm(NetBoxModelImportForm):
 
 class L2VPNImportForm(NetBoxModelImportForm):
     tenant = CSVModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
     )
     type = CSVChoiceField(
+        label=_('Type'),
         choices=L2VPNTypeChoices,
         help_text=_('L2VPN type')
     )
@@ -484,24 +530,28 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         label=_('L2VPN'),
     )
     device = CSVModelChoiceField(
+        label=_('Device'),
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent device (for interface)')
     )
     virtual_machine = CSVModelChoiceField(
+        label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
         help_text=_('Parent virtual machine (for interface)')
     )
     interface = CSVModelChoiceField(
+        label=_('Interface'),
         queryset=Interface.objects.none(),  # Can also refer to VMInterface
         required=False,
         to_field_name='name',
         help_text=_('Assigned interface (device or VM)')
     )
     vlan = CSVModelChoiceField(
+        label=_('VLAN'),
         queryset=VLAN.objects.all(),
         required=False,
         to_field_name='name',
@@ -531,10 +581,10 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         super().clean()
 
         if self.cleaned_data.get('device') and self.cleaned_data.get('virtual_machine'):
-            raise ValidationError('Cannot import device and VM interface terminations simultaneously.')
+            raise ValidationError(_('Cannot import device and VM interface terminations simultaneously.'))
         if not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
-            raise ValidationError('Each termination must specify either an interface or a VLAN.')
+            raise ValidationError(_('Each termination must specify either an interface or a VLAN.'))
         if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
-            raise ValidationError('Cannot assign both an interface and a VLAN.')
+            raise ValidationError(_('Cannot assign both an interface and a VLAN.'))
 
         self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')
