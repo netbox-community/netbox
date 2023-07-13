@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from core.models import DataFile, DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
@@ -37,7 +37,7 @@ __all__ = (
 class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', (
+        (_('Attributes'), (
             'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visibility',
             'is_cloneable',
         )),
@@ -53,12 +53,15 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         label=_('Field type')
     )
     group_name = forms.CharField(
+        label=_('Group name'),
         required=False
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False
     )
     required = forms.NullBooleanField(
+        label=_('Required'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -75,6 +78,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         label=_('UI visibility')
     )
     is_cloneable = forms.NullBooleanField(
+        label=_('Is cloneable'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -97,22 +101,26 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
         (_('Attributes'), ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
+        label=_('Content types'),
         queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
         required=False
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     new_window = forms.NullBooleanField(
+        label=_('New window'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False
     )
 
@@ -120,8 +128,8 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Data', ('data_source_id', 'data_file_id')),
-        ('Attributes', ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
+        (_('Data'), ('data_source_id', 'data_file_id')),
+        (_('Attributes'), ('content_types', 'mime_type', 'file_extension', 'as_attachment')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -137,6 +145,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
         }
     )
     content_types = ContentTypeMultipleChoiceField(
+        label=_('Content types'),
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
         required=False
     )
@@ -145,9 +154,11 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
         label=_('MIME type')
     )
     file_extension = forms.CharField(
+        label=_('File extension'),
         required=False
     )
     as_attachment = forms.NullBooleanField(
+        label=_('As attachment'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -158,13 +169,15 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
 class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('content_type_id', 'name',)),
+        (_('Attributes'), ('content_type_id', 'name',)),
     )
     content_type_id = ContentTypeChoiceField(
+        label=_('Content type id'),
         queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
         required=False
     )
     name = forms.CharField(
+        label=_('Name'),
         required=False
     )
 
@@ -172,25 +185,29 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('content_types', 'enabled', 'shared', 'weight')),
+        (_('Attributes'), ('content_types', 'enabled', 'shared', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
+        label=_('Content types'),
         queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
         required=False
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     shared = forms.NullBooleanField(
+        label=_('Shared'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     weight = forms.IntegerField(
+        label=_('Weight'),
         required=False
     )
 
@@ -198,8 +215,8 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 class WebhookFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('content_type_id', 'http_method', 'enabled')),
-        ('Events', ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        (_('Attributes'), ('content_type_id', 'http_method', 'enabled')),
+        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('webhooks').get_query()),
@@ -212,6 +229,7 @@ class WebhookFilterForm(SavedFiltersMixin, FilterForm):
         label=_('HTTP method')
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -271,11 +289,11 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag_id')),
-        ('Data', ('data_source_id', 'data_file_id')),
-        ('Location', ('region_id', 'site_group_id', 'site_id', 'location_id')),
-        ('Device', ('device_type_id', 'platform_id', 'role_id')),
-        ('Cluster', ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
-        ('Tenant', ('tenant_group_id', 'tenant_id'))
+        (_('Data'), ('data_source_id', 'data_file_id')),
+        (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id')),
+        (_('Device'), ('device_type_id', 'platform_id', 'role_id')),
+        (_('Cluster'), ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -361,7 +379,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Data', ('data_source_id', 'data_file_id')),
+        (_('Data'), ('data_source_id', 'data_file_id')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -393,8 +411,8 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Creation', ('created_before', 'created_after', 'created_by_id')),
-        ('Attributes', ('assigned_object_type_id', 'kind'))
+        (_('Creation'), ('created_before', 'created_after', 'created_by_id')),
+        (_('Attributes'), ('assigned_object_type_id', 'kind'))
     )
     created_after = forms.DateTimeField(
         required=False,
@@ -423,6 +441,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         )
     )
     kind = forms.ChoiceField(
+        label=_('Kind'),
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False
     )
@@ -433,8 +452,8 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Time', ('time_before', 'time_after')),
-        ('Attributes', ('action', 'user_id', 'changed_object_type_id')),
+        (_('Time'), ('time_before', 'time_after')),
+        (_('Attributes'), ('action', 'user_id', 'changed_object_type_id')),
     )
     time_after = forms.DateTimeField(
         required=False,
@@ -447,6 +466,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         widget=DateTimePicker()
     )
     action = forms.ChoiceField(
+        label=_('Action'),
         choices=add_blank_choice(ObjectChangeActionChoices),
         required=False
     )
