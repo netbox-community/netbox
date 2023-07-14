@@ -18,7 +18,6 @@ urlpatterns = [
     path('users/edit/', views.NetBoxUserBulkEditView.as_view(), name='netboxuser_bulk_edit'),
     path('users/delete/', views.NetBoxUserBulkDeleteView.as_view(), name='netboxuser_bulk_delete'),
     path('users/<int:pk>/', include(get_model_urls('users', 'netboxuser'))),
-    path('users/password/<int:pk>/', views.NetBoxUserChangePasswordView.as_view(), name='change_user_password'),
 
     # Groups
     path('groups/', views.NetBoxGroupListView.as_view(), name='netboxgroup_list'),

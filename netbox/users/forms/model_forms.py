@@ -199,25 +199,30 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         # Adjust form fields depending if Add or Edit
         if self.instance.pk:
             self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
-            self.fields['password'].disabled = True
-            self.fields['password'].required = False
-            self.fields['password'].help_text = _(
-                "Raw passwords are not stored, so there is no way to see this "
-                "user’s password, but you can change the password using "
-                '<a href="{url}">this form</a>.'
-            ).format(url=reverse('users:change_user_password', args=[self.instance.pk]))
-            print(self.fields['password'].help_text)
-            del self.fields['confirm_password']
+            pw_field = self.fields['password']
+            pwc_field = self.fields['confirm_password']
+            pw_field.required = False
+            pw_field.widget.attrs.pop('required')
+            pw_field.help_text = _("Leave empty to keep the old password.")
+            pwc_field.required = False
+            pwc_field.widget.attrs.pop('required')
 
     def save(self, *args, **kwargs):
+        edited = getattr(self, 'instance', None)
         instance = super().save(*args, **kwargs)
         instance.object_permissions.set(self.cleaned_data['object_permissions'])
+
+        # On edit, check if we have to save the password
+        if edited and self.cleaned_data.get("password"):
+            instance.set_password(self.cleaned_data.get("password"))
+            instance.save()
+
         return instance
 
     def clean(self):
         cleaned_data = super().clean()
         instance = getattr(self, 'instance', None)
-        if not instance:
+        if not instance or cleaned_data.get("password"):
             password = cleaned_data.get("password")
             confirm_password = cleaned_data.get("confirm_password")
 
