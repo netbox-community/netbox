@@ -79,9 +79,8 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         if user.has_perms((permission_required, *self.additional_permissions)):
 
             # Update the view's QuerySet to filter only the permitted objects
-            if isinstance(self.queryset, RestrictedQuerySet):
-                action = resolve_permission(permission_required)[1]
-                self.queryset = self.queryset.restrict(user, action)
+            action = resolve_permission(permission_required)[1]
+            self.queryset = self.queryset.restrict(user, action)
 
             return True
 

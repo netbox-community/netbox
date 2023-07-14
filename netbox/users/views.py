@@ -397,9 +397,6 @@ class NetBoxUserEditView(generic.ObjectEditView):
 class NetBoxUserDeleteView(generic.ObjectDeleteView):
     queryset = NetBoxUser.objects.all()
 
-    def get_required_permission(self):
-        return get_permission_for_model(User, 'delete')
-
 
 class NetBoxUserBulkEditView(generic.BulkEditView):
     queryset = NetBoxUser.objects.all()
