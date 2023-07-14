@@ -18,11 +18,16 @@ def get_permission_for_model(model, action):
     :param model: A model or instance
     :param action: View, add, change, or delete (string)
     """
-    ct = ContentType.objects.get_for_model(model)
+
+    # Get non proxied model
+    concrete_model = model
+    while concrete_model._meta.proxy_for_model:
+        concrete_model = concrete_model._meta.proxy_for_model
+
     return '{}.{}_{}'.format(
-        ct.app_label,
+        concrete_model._meta.app_label,
         action,
-        ct.model
+        concrete_model._meta.model_name
     )
 
 
