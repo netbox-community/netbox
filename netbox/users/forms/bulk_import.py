@@ -1,10 +1,7 @@
 from django import forms
 
-from users.models import *
-from django.utils.translation import gettext_lazy as _
+from users.models import NetBoxGroup
 from netbox.forms import NetBoxModelImportForm
-from utilities.forms import BootstrapMixin
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
 
 __all__ = (
     'GroupImportForm',

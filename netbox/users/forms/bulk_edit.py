@@ -1,12 +1,8 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from netbox.forms import NetBoxModelBulkEditForm
 from users.models import *
-from utilities.forms import add_blank_choice
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms import BootstrapMixin
-from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'ObjectPermissionBulkEditForm',

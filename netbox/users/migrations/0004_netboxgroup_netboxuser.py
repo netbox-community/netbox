@@ -39,4 +39,12 @@ class Migration(migrations.Migration):
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
         ),
+        migrations.AlterModelOptions(
+            name='netboxgroup',
+            options={'ordering': ['name'], 'verbose_name': 'Group'},
+        ),
+        migrations.AlterModelOptions(
+            name='netboxuser',
+            options={'ordering': ['username'], 'verbose_name': 'User'},
+        ),
     ]

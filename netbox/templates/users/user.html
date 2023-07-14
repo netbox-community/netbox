@@ -57,7 +57,19 @@
           {% endfor %}
         </ul>
       </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Permissions" %}</h5>
+        <ul class="list-group list-group-flush">
+          {% for perm in object.object_permissions.all %}
+            <li class="list-group-item">{{ perm }}</li>
+          {% empty %}
+            <li class="list-group-item text-muted">{% trans "None" %}</li>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
+
   </div>
   {% if perms.extras.view_objectchange %}
     <div class="row">

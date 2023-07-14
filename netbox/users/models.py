@@ -56,6 +56,10 @@ class NetBoxUserManager(UserManager.from_queryset(RestrictedQuerySet)):
     pass
 
 
+class NetBoxGroupManager(GroupManager.from_queryset(RestrictedQuerySet)):
+    pass
+
+
 class NetBoxUser(User):
     """
     Proxy contrib.auth.models.User for the UI
@@ -65,6 +69,7 @@ class NetBoxUser(User):
     class Meta:
         verbose_name = 'User'
         proxy = True
+        ordering = ['username',]
 
     def get_absolute_url(self):
         return reverse('users:netboxuser', args=[self.pk])
@@ -74,11 +79,12 @@ class NetBoxGroup(Group):
     """
     Proxy contrib.auth.models.User for the UI
     """
-    objects = RestrictedQuerySet.as_manager()
+    objects = NetBoxGroupManager()
 
     class Meta:
         verbose_name = 'Group'
         proxy = True
+        ordering = ['name',]
 
     def get_absolute_url(self):
         return reverse('users:netboxgroup', args=[self.pk])
