@@ -75,11 +75,14 @@ def permission_is_exempt(name):
 
     if action == 'view':
         if (
-            # All models (excluding those in EXEMPT_EXCLUDE_MODELS) are exempt from view permission enforcement
-            '*' in settings.EXEMPT_VIEW_PERMISSIONS and (f'{app_label}.{model_name}' in settings.EXEMPT_VIEW_PERMISSIONS or (app_label, model_name) not in settings.EXEMPT_EXCLUDE_MODELS)
-        ) or (
             # This specific model is exempt from view permission enforcement
             f'{app_label}.{model_name}' in settings.EXEMPT_VIEW_PERMISSIONS
+        ):
+            return True
+
+        if (
+            # All models (excluding those in EXEMPT_EXCLUDE_MODELS) are exempt from view permission enforcement
+            '*' in settings.EXEMPT_VIEW_PERMISSIONS and ((app_label, model_name) not in settings.EXEMPT_EXCLUDE_MODELS)
         ):
             return True
 
