@@ -47,7 +47,7 @@ class RestrictedQuerySet(QuerySet):
         :param action: The action which must be permitted (e.g. "view" for "dcim.view_site"); default is 'view'
         """
         # Resolve the full name of the required permission
-        permission_required = get_permission_for_model(model, action)
+        permission_required = get_permission_for_model(self.model, action)
 
         # Bypass restriction for superusers and exempt views
         if user.is_superuser or permission_is_exempt(permission_required):
