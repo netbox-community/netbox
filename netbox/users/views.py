@@ -405,6 +405,11 @@ class NetBoxUserBulkEditView(generic.BulkEditView):
     form = forms.UserBulkEditForm
 
 
+class NetBoxUserBulkImportView(generic.BulkImportView):
+    queryset = NetBoxUser.objects.all()
+    model_form = forms.UserImportForm
+
+
 class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet

@@ -16,6 +16,7 @@ urlpatterns = [
     path('users/', views.NetBoxUserListView.as_view(), name='netboxuser_list'),
     path('users/add/', views.NetBoxUserEditView.as_view(), name='netboxuser_add'),
     path('users/edit/', views.NetBoxUserBulkEditView.as_view(), name='netboxuser_bulk_edit'),
+    path('users/import/', views.NetBoxUserBulkImportView.as_view(), name='netboxuser_import'),
     path('users/delete/', views.NetBoxUserBulkDeleteView.as_view(), name='netboxuser_bulk_delete'),
     path('users/<int:pk>/', include(get_model_urls('users', 'netboxuser'))),
 
