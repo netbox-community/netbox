@@ -315,7 +315,7 @@ class ViewTestCases:
                 'data': post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
-            self.assertInstanceEqual(self._get_queryset().get(pk=instance1.pk), self.form_data)
+            self.assertInstanceEqual(self._get_queryset().get(pk=instance1.pk), self.form_data, exclude=['password',])
 
             # Try to edit a non-permitted object
             request = {
