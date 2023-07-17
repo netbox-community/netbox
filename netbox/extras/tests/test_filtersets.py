@@ -87,6 +87,28 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
+class CustomFieldChoiceSetTestCase(TestCase, BaseFilterSetTests):
+    queryset = CustomFieldChoiceSet.objects.all()
+    filterset = CustomFieldChoiceSetFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        choice_sets = (
+            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['A', 'B', 'C']),
+            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['D', 'E', 'F']),
+            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['G', 'H', 'I']),
+        )
+        CustomFieldChoiceSet.objects.bulk_create(choice_sets)
+
+    def test_name(self):
+        params = {'name': ['Choice Set 1', 'Choice Set 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_choice(self):
+        params = {'choice': ['A', 'D']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class WebhookTestCase(TestCase, BaseFilterSetTests):
     queryset = Webhook.objects.all()
     filterset = WebhookFilterSet

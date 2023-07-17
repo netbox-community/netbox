@@ -290,10 +290,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if self.type in (
                 CustomFieldTypeChoices.TYPE_SELECT,
                 CustomFieldTypeChoices.TYPE_MULTISELECT
-        ) and not self.choice_set:
-            raise ValidationError({
-                'choice_set': "Selection fields must define a set of choices."
-            })
+        ):
+            if not self.choice_set:
+                raise ValidationError({
+                    'choice_set': "Selection fields must define a set of choices."
+                })
         elif self.choice_set:
             raise ValidationError({
                 'choice_set': "Choices may be set only for selection fields."

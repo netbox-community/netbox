@@ -45,12 +45,8 @@ class CustomFieldImportForm(CSVModelForm):
     choice_set = CSVModelChoiceField(
         queryset=CustomFieldChoiceSet.objects.all(),
         to_field_name='name',
-        help_text=_('Choice set (for selection fields)')
-    )
-    choices = SimpleArrayField(
-        base_field=forms.CharField(),
         required=False,
-        help_text=_('Comma-separated list of field choices')
+        help_text=_('Choice set (for selection fields)')
     )
     ui_visibility = CSVChoiceField(
         choices=CustomFieldVisibilityChoices,
@@ -61,8 +57,8 @@ class CustomFieldImportForm(CSVModelForm):
         model = CustomField
         fields = (
             'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
-            'search_weight', 'filter_logic', 'default', 'choices', 'weight', 'validation_minimum', 'validation_maximum',
-            'validation_regex', 'ui_visibility', 'is_cloneable',
+            'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
+            'validation_maximum', 'validation_regex', 'ui_visibility', 'is_cloneable',
         )
 
 

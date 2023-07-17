@@ -52,7 +52,8 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
     choice_set = DynamicModelChoiceField(
-        queryset=CustomFieldChoiceSet.objects.all()
+        queryset=CustomFieldChoiceSet.objects.all(),
+        required=False
     )
 
     fieldsets = (

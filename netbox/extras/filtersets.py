@@ -118,11 +118,11 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(name__icontains=value) |
             Q(description__icontains=value) |
-            Q(choices__icontains=value)
+            Q(extra_choices__contains=value)
         )
 
     def filter_by_choice(self, queryset, name, value):
-        return queryset.filter(choices__icontains=value.strip())
+        return queryset.filter(extra_choices__overlap=value)
 
 
 class CustomLinkFilterSet(BaseFilterSet):
