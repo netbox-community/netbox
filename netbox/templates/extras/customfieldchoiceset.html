@@ -18,12 +18,22 @@
               <td>{{ object.description|markdown|placeholder }}</td>
             </tr>
             <tr>
+              <th scope="row">Choices</th>
+              <td>{{ object.choices|length }}</td>
+            </tr>
+            <tr>
               <th scope="row">Order Alphabetically</th>
             <td>{% checkmark object.order_alphabetically %}</td>
             </tr>
             <tr>
               <th scope="row">Used by</th>
-              <td>{# TODO #}</td>
+              <td>
+                <ul class="list-unstyled mb-0">
+                  {% for cf in object.custom_fields.all %}
+                    <li>{{ cf|linkify }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
             </tr>
           </table>
         </div>
