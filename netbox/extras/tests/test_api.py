@@ -8,7 +8,6 @@ from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
-from extras.api.views import ReportViewSet, ScriptViewSet
 from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
@@ -634,6 +633,7 @@ class ReportTest(APITestCase):
         super().setUp()
 
         # Monkey-patch the API viewset's _get_report() method to return our test Report above
+        from extras.api.views import ReportViewSet
         ReportViewSet._get_report = self.get_test_report
 
     def test_get_report(self):
@@ -676,6 +676,7 @@ class ScriptTest(APITestCase):
         super().setUp()
 
         # Monkey-patch the API viewset's _get_script() method to return our test Script above
+        from extras.api.views import ScriptViewSet
         ScriptViewSet._get_script = self.get_test_script
 
     def test_get_script(self):

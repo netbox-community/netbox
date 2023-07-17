@@ -42,6 +42,10 @@
             <th scope="row">Permitted VIDs</th>
             <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
           </tr>
+          <tr>
+            <th scope="row">Utilization</th>
+            <td>{% utilization_graph object.utilization %}</td>
+          </tr>
         </table>
       </div>
     </div>

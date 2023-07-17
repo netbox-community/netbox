@@ -160,7 +160,9 @@ class ProfileView(LoginRequiredMixin, View):
     def get(self, request):
 
         # Compile changelog table
-        changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=request.user).prefetch_related(
+        changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
+            user=request.user
+        ).prefetch_related(
             'changed_object_type'
         )[:20]
         changelog_table = ObjectChangeTable(changelog)

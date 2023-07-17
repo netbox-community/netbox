@@ -379,7 +379,7 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     Retrieve a list of recent changes.
     """
     metadata_class = ContentTypeMetadata
-    queryset = ObjectChange.objects.prefetch_related('user')
+    queryset = ObjectChange.objects.valid_models().prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
 

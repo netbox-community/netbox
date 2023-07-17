@@ -70,6 +70,10 @@ class VLANGroupTable(NetBoxTable):
         url_params={'group_id': 'pk'},
         verbose_name='VLANs'
     )
+    utilization = columns.UtilizationColumn(
+        orderable=False,
+        verbose_name='Utilization'
+    )
     tags = columns.TagColumn(
         url_name='ipam:vlangroup_list'
     )
@@ -81,9 +85,9 @@ class VLANGroupTable(NetBoxTable):
         model = VLANGroup
         fields = (
             'pk', 'id', 'name', 'scope_type', 'scope', 'min_vid', 'max_vid', 'vlan_count', 'slug', 'description',
-            'tags', 'created', 'last_updated', 'actions',
+            'tags', 'created', 'last_updated', 'actions', 'utilization',
         )
-        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'description')
+        default_columns = ('pk', 'name', 'scope_type', 'scope', 'vlan_count', 'utilization', 'description')
 
 
 #
