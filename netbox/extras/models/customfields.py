@@ -653,7 +653,7 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
         max_length=200,
         blank=True
     )
-    choices = ArrayField(
+    extra_choices = ArrayField(
         base_field=models.CharField(max_length=100),
         help_text=_('Comma-separated list of available choices (for selection fields)')
     )
@@ -666,3 +666,7 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
 
     def get_absolute_url(self):
         return reverse('extras:customfieldchoiceset', args=[self.pk])
+
+    @property
+    def choices(self):
+        return self.extra_choices

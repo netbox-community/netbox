@@ -85,9 +85,9 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
         fields = (
-            'pk', 'id', 'name', 'description', 'choices', 'created', 'last_updated',
+            'pk', 'id', 'name', 'description', 'extra_choices', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'description', 'choices')
+        default_columns = ('pk', 'name', 'description', 'extra_choices')
 
 
 class CustomLinkTable(NetBoxTable):

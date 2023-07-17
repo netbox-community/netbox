@@ -86,7 +86,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
 
     class Meta:
         model = CustomFieldChoiceSet
-        fields = ('name', 'description', 'choices')
+        fields = ('name', 'description', 'extra_choices')
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):

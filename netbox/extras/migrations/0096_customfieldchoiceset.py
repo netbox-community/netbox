@@ -19,7 +19,7 @@ def create_choice_sets(apps, schema_editor):
     for cf in choice_fields:
         choiceset = CustomFieldChoiceSet.objects.create(
             name=f'{cf.name} Choices',
-            choices=cf.choices
+            extra_choices=cf.choices
         )
         cf.choice_set = choiceset
 
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('choices', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), size=None)),
+                ('extra_choices', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), size=None)),
             ],
             options={
                 'ordering': ('name',),
