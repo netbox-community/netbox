@@ -288,6 +288,7 @@ CUSTOMIZATION_MENU = Menu(
             label=_('Customization'),
             items=(
                 get_model_item('extras', 'customfield', _('Custom Fields')),
+                get_model_item('extras', 'customfieldchoiceset', _('Custom Field Choices')),
                 get_model_item('extras', 'customlink', _('Custom Links')),
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),

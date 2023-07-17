@@ -12,6 +12,7 @@ __all__ = (
     'ConfigContextTable',
     'ConfigRevisionTable',
     'ConfigTemplateTable',
+    'CustomFieldChoiceSetTable',
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
@@ -74,6 +75,19 @@ class CustomFieldTable(NetBoxTable):
             'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
+
+
+class CustomFieldChoiceSetTable(NetBoxTable):
+    name = tables.Column(
+        linkify=True
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = CustomFieldChoiceSet
+        fields = (
+            'pk', 'id', 'name', 'description', 'choices', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'name', 'description', 'choices')
 
 
 class CustomLinkTable(NetBoxTable):

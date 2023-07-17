@@ -25,6 +25,12 @@ class ExtrasQuery(graphene.ObjectType):
     def resolve_custom_field_list(root, info, **kwargs):
         return gql_query_optimizer(models.CustomField.objects.all(), info)
 
+    custom_field_choices = ObjectField(CustomFieldChoiceSetType)
+    custom_field_choices_list = ObjectListField(CustomFieldChoiceSetType)
+
+    def resolve_custom_field_choices_list(root, info, **kwargs):
+        return gql_query_optimizer(models.CustomFieldChoiceSet.objects.all(), info)
+
     custom_link = ObjectField(CustomLinkType)
     custom_link_list = ObjectListField(CustomLinkType)
 

@@ -35,6 +35,7 @@ __all__ = (
     'ConfigContextSerializer',
     'ConfigTemplateSerializer',
     'ContentTypeSerializer',
+    'CustomFieldChoiceSetSerializer',
     'CustomFieldSerializer',
     'CustomLinkSerializer',
     'DashboardSerializer',
@@ -94,6 +95,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
+    choice_set = NestedCustomFieldChoiceSetSerializer(required=False)
     ui_visibility = ChoiceField(choices=CustomFieldVisibilityChoices, required=False)
 
     class Meta:
@@ -101,8 +103,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
             'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'default',
-            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
-            'last_updated',
+            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set', 'choices',
+            'created', 'last_updated',
         ]
 
     def validate_type(self, value):
@@ -125,6 +127,16 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         if obj.type in (types.TYPE_MULTISELECT, types.TYPE_MULTIOBJECT):
             return 'array'
         return 'string'
+
+
+class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = [
+            'id', 'url', 'display', 'name', 'description', 'choices', 'created', 'last_updated',
+        ]
 
 
 #

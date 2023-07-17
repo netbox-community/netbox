@@ -7,6 +7,7 @@ __all__ = [
     'NestedBookmarkSerializer',
     'NestedConfigContextSerializer',
     'NestedConfigTemplateSerializer',
+    'NestedCustomFieldChoiceSetSerializer',
     'NestedCustomFieldSerializer',
     'NestedCustomLinkSerializer',
     'NestedExportTemplateSerializer',
@@ -31,6 +32,14 @@ class NestedCustomFieldSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.CustomField
+        fields = ['id', 'url', 'display', 'name']
+
+
+class NestedCustomFieldChoiceSetSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+
+    class Meta:
+        model = models.CustomFieldChoiceSet
         fields = ['id', 'url', 'display', 'name']
 
 

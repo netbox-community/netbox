@@ -20,6 +20,7 @@ __all__ = (
     'ConfigRevisionFilterSet',
     'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
+    'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
     'ExportTemplateFilterSet',
@@ -74,6 +75,9 @@ class CustomFieldFilterSet(BaseFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    choice_set_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CustomFieldChoiceSet.objects.all()
+    )
 
     class Meta:
         model = CustomField
@@ -91,6 +95,34 @@ class CustomFieldFilterSet(BaseFilterSet):
             Q(group_name__icontains=value) |
             Q(description__icontains=value)
         )
+
+
+class CustomFieldChoiceSetFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    choice = MultiValueCharFilter(
+        method='filter_by_choice'
+    )
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = [
+            'id', 'name', 'description',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(choices__icontains=value)
+        )
+
+    def filter_by_choice(self, queryset, name, value):
+        return queryset.filter(choices__icontains=value.strip())
 
 
 class CustomLinkFilterSet(BaseFilterSet):

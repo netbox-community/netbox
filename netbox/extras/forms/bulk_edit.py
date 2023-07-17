@@ -4,13 +4,14 @@ from django.utils.translation import gettext as _
 from extras.choices import *
 from extras.models import *
 from utilities.forms import BulkEditForm, add_blank_choice
-from utilities.forms.fields import ColorField
+from utilities.forms.fields import ColorField, DynamicModelChoiceField
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ConfigContextBulkEditForm',
     'ConfigTemplateBulkEditForm',
     'CustomFieldBulkEditForm',
+    'CustomFieldChoiceSetBulkEditForm',
     'CustomLinkBulkEditForm',
     'ExportTemplateBulkEditForm',
     'JournalEntryBulkEditForm',
@@ -38,6 +39,10 @@ class CustomFieldBulkEditForm(BulkEditForm):
     weight = forms.IntegerField(
         required=False
     )
+    choice_set = DynamicModelChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all(),
+        required=False
+    )
     ui_visibility = forms.ChoiceField(
         label=_("UI visibility"),
         choices=add_blank_choice(CustomFieldVisibilityChoices),
@@ -49,7 +54,19 @@ class CustomFieldBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    nullable_fields = ('group_name', 'description',)
+    nullable_fields = ('group_name', 'description', 'choice_set')
+
+
+class CustomFieldChoiceSetBulkEditForm(BulkEditForm):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        required=False
+    )
+
+    nullable_fields = ('description',)
 
 
 class CustomLinkBulkEditForm(BulkEditForm):

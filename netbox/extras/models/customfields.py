@@ -31,6 +31,7 @@ from utilities.validators import validate_regex
 
 __all__ = (
     'CustomField',
+    'CustomFieldChoiceSet',
     'CustomFieldManager',
 )
 
@@ -158,6 +159,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
+    choice_set = models.ForeignKey(
+        to='CustomFieldChoiceSet',
+        on_delete=models.PROTECT,
+        related_name='custom_fields',
+        blank=True,
+        null=True
+    )
     choices = ArrayField(
         base_field=models.CharField(max_length=100),
         blank=True,
@@ -278,13 +286,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
             })
 
-        # Choices can be set only on selection fields
-        if self.choices and self.type not in (
+        # Choice set must be set on selection fields
+        if self.type in (
                 CustomFieldTypeChoices.TYPE_SELECT,
                 CustomFieldTypeChoices.TYPE_MULTISELECT
-        ):
+        ) and not self.choice_set:
             raise ValidationError({
-                'choices': "Choices may be set only for custom selection fields."
+                'choice_set': "Selection fields must define a set of choices."
+            })
+        elif self.choice_set:
+            raise ValidationError({
+                'choice_set': "Choices may be set only for selection fields."
             })
 
         # Selection fields must have at least one choice defined
@@ -627,3 +639,30 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         elif self.required:
             raise ValidationError("Required field cannot be empty.")
+
+
+class CustomFieldChoiceSet(ChangeLoggedModel):
+    """
+    Represents a set of choices available for choice and multi-choice custom fields.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    choices = ArrayField(
+        base_field=models.CharField(max_length=100),
+        help_text=_('Comma-separated list of available choices (for selection fields)')
+    )
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:customfieldchoiceset', args=[self.pk])
