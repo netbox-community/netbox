@@ -2,6 +2,7 @@ import json
 
 import django_tables2 as tables
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
@@ -81,13 +82,25 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    choices = tables.TemplateColumn(
+        accessor=tables.A('extra_choices'),
+        template_code='{{ value|join:", " }}',
+        orderable=False,
+        verbose_name=_('Choices')
+    )
+    choice_count = tables.TemplateColumn(
+        accessor=tables.A('extra_choices'),
+        template_code='{{ value|length }}',
+        orderable=False,
+        verbose_name=_('Count')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
         fields = (
-            'pk', 'id', 'name', 'description', 'extra_choices', 'created', 'last_updated',
+            'pk', 'id', 'name', 'description', 'choice_count', 'choices', 'extra_choices', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'description', 'extra_choices')
+        default_columns = ('pk', 'name', 'choice_count', 'description')
 
 
 class CustomLinkTable(NetBoxTable):
