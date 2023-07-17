@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from extras.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import ArrayColumn, NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
@@ -66,6 +66,10 @@ class CustomFieldTable(NetBoxTable):
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
     description = columns.MarkdownColumn()
+    choices = ArrayColumn(
+        orderable=False,
+        verbose_name=_('Choices')
+    )
     is_cloneable = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
@@ -82,9 +86,8 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    choices = tables.TemplateColumn(
+    choices = ArrayColumn(
         accessor=tables.A('extra_choices'),
-        template_code='{{ value|join:", " }}',
         orderable=False,
         verbose_name=_('Choices')
     )
@@ -94,12 +97,13 @@ class CustomFieldChoiceSetTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Count')
     )
+    order_alphabetically = columns.BooleanColumn()
 
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
         fields = (
-            'pk', 'id', 'name', 'description', 'choice_count', 'choices', 'extra_choices', 'order_alphabetically',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'description', 'choice_count', 'choices', 'order_alphabetically', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'choice_count', 'description')
 

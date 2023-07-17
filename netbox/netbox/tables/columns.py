@@ -21,6 +21,7 @@ from utilities.utils import content_type_identifier, content_type_name, get_view
 
 __all__ = (
     'ActionsColumn',
+    'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
     'ColorColumn',
@@ -591,3 +592,11 @@ class MarkdownColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
+
+
+class ArrayColumn(tables.Column):
+    """
+    List array items as a comma-separated list.
+    """
+    def render(self, value):
+        return ', '.join(value)
