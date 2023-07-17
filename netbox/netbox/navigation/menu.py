@@ -353,8 +353,8 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Users'),
             items=(
-                get_model_item('users', 'netboxuser', _('Users'), actions=['add']),
-                get_model_item('users', 'netboxgroup', _('Groups'), actions=['add']),
+                get_model_item('users', 'netboxuser', _('Users'), actions=['add'], permission_app_label='auth', permission_model_name='users'),
+                get_model_item('users', 'netboxgroup', _('Groups'), actions=['add'], permission_app_label='auth', permission_model_name='groups'),
                 get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
