@@ -166,12 +166,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         blank=True,
         null=True
     )
-    choices = ArrayField(
-        base_field=models.CharField(max_length=100),
-        blank=True,
-        null=True,
-        help_text=_('Comma-separated list of available choices (for selection fields)')
-    )
     ui_visibility = models.CharField(
         max_length=50,
         choices=CustomFieldVisibilityChoices,
@@ -189,8 +183,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
-        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
-        'ui_visibility', 'is_cloneable',
+        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+        'choice_set', 'ui_visibility', 'is_cloneable',
     )
 
     class Meta:
@@ -215,6 +209,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     @property
     def search_type(self):
         return SEARCH_TYPES.get(self.type)
+
+    @property
+    def choices(self):
+        if self.choice_set:
+            return self.choice_set.choices
+        return []
 
     def populate_initial_data(self, content_types):
         """
@@ -297,15 +297,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         elif self.choice_set:
             raise ValidationError({
                 'choice_set': "Choices may be set only for selection fields."
-            })
-
-        # Selection fields must have at least one choice defined
-        if self.type in (
-                CustomFieldTypeChoices.TYPE_SELECT,
-                CustomFieldTypeChoices.TYPE_MULTISELECT
-        ) and not self.choices:
-            raise ValidationError({
-                'choices': "Selection fields must specify at least one choice."
             })
 
         # A selection field's default (if any) must be present in its available choices
