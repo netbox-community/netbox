@@ -415,9 +415,6 @@ class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
 
-    def get_required_permission(self):
-        return get_permission_for_model(User, 'delete')
-
 
 #
 # Groups
