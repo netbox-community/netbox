@@ -649,6 +649,10 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
         base_field=models.CharField(max_length=100),
         help_text=_('Comma-separated list of available choices (for selection fields)')
     )
+    order_alphabetically = models.BooleanField(
+        default=False,
+        help_text=_('Choices are automatically ordered alphabetically on save')
+    )
 
     class Meta:
         ordering = ('name',)
@@ -662,3 +666,11 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
     @property
     def choices(self):
         return self.extra_choices
+
+    def save(self, *args, **kwargs):
+
+        # Sort choices if alphabetical ordering is enforced
+        if self.order_alphabetically:
+            self.extra_choices = sorted(self.choices)
+
+        return super().save(*args, **kwargs)

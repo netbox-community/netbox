@@ -135,7 +135,8 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomFieldChoiceSet
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'extra_choices', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'extra_choices', 'order_alphabetically', 'created',
+            'last_updated',
         ]
 
 

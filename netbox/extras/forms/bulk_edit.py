@@ -65,6 +65,10 @@ class CustomFieldChoiceSetBulkEditForm(BulkEditForm):
     description = forms.CharField(
         required=False
     )
+    order_alphabetically = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect()
+    )
 
     nullable_fields = ('description',)
 

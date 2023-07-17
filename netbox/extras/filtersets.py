@@ -109,7 +109,7 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
     class Meta:
         model = CustomFieldChoiceSet
         fields = [
-            'id', 'name', 'description',
+            'id', 'name', 'description', 'order_alphabetically',
         ]
 
     def search(self, queryset, name, value):

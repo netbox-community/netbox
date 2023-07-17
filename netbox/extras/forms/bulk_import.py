@@ -72,7 +72,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
     class Meta:
         model = CustomFieldChoiceSet
         fields = (
-            'name', 'description', 'extra_choices',
+            'name', 'description', 'extra_choices', 'order_alphabetically',
         )
 
 
