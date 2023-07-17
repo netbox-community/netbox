@@ -278,7 +278,7 @@ class ViewTestCases:
                 'data': post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
-            self.assertInstanceEqual(self._get_queryset().get(pk=instance.pk), self.form_data)
+            self.assertInstanceEqual(self._get_queryset().get(pk=instance.pk), self.form_data, exclude=['password',])
 
             if hasattr(self.model, "to_objectchange"):
                 # Verify ObjectChange creation
