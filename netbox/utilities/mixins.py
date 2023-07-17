@@ -1,15 +1,13 @@
 from django.db.models.query_utils import DeferredAttribute
 
 
-class Tracker(object):
+class Tracker:
     def __init__(self, instance):
         self.instance = instance
-        self.newly_created = False
         self.changed = {}
-        self.tracked_fields = self.instance.change_tracking_fields
 
 
-class TrackingModelMixin(object):
+class TrackingModelMixin:
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -18,17 +16,14 @@ class TrackingModelMixin(object):
 
     @property
     def tracker(self):
-        if hasattr(self._state, "_tracker"):
-            tracker = self._state._tracker
-        else:
-            tracker = self._state._tracker = Tracker(self)
-        return tracker
+        if not hasattr(self._state, "_tracker"):
+            self._state._tracker = Tracker(self)
+        return self._state._tracker
 
     def save(self, *args, **kwargs):
         if not self.change_tracking_fields:
             return super().save(*args, **kwargs)
 
-        self.tracker.newly_created = self._state.adding
         super().save(*args, **kwargs)
         if self.tracker.changed:
             if update_fields := kwargs.get('update_fields', None):
@@ -39,7 +34,7 @@ class TrackingModelMixin(object):
 
     def __setattr__(self, name, value):
         if hasattr(self, "_initialized") and self.change_tracking_fields:
-            if name in self.tracker.tracked_fields:
+            if name in self.tracker.instance.change_tracking_fields:
                 if name not in self.tracker.changed:
                     if name in self.__dict__:
                         old_value = getattr(self, name)

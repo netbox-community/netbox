@@ -7,7 +7,7 @@ from .mixins import TrackingModelMixin
 counters = {}
 
 
-class Counter(object):
+class Counter:
     """
     Used with CounterCacheField to add signals to track related model counts.
     """
