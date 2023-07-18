@@ -88,7 +88,11 @@
             {% for name, field in object.get_backend.parameters.items %}
               <tr>
                 <th scope="row">{{ field.label }}</th>
-                <td>{{ object.parameters|get_key:name|placeholder }}</td>
+                {% if name in object.get_backend.sensitive_parameters and not perms.core.change_datasource %}
+                  <td>********</td>
+                {% else %}
+                  <td>{{ object.parameters|get_key:name|placeholder }}</td>
+                {% endif %}
               </tr>
             {% empty %}
               <tr>

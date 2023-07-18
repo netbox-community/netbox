@@ -41,6 +41,7 @@ def register_backend(name):
 
 class DataBackend:
     parameters = {}
+    sensitive_parameters = []
 
     def __init__(self, url, **kwargs):
         self.url = url
@@ -86,6 +87,7 @@ class GitBackend(DataBackend):
             widget=forms.TextInput(attrs={'class': 'form-control'})
         )
     }
+    sensitive_parameters = ['password']
 
     @contextmanager
     def fetch(self):
@@ -135,6 +137,7 @@ class S3Backend(DataBackend):
             widget=forms.TextInput(attrs={'class': 'form-control'})
         ),
     }
+    sensitive_parameters = ['aws_secret_access_key']
 
     REGION_REGEX = r's3\.([a-z0-9-]+)\.amazonaws\.com'
 
