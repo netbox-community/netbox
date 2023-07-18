@@ -87,11 +87,12 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
+    base_choices = columns.ChoiceFieldColumn()
     choices = columns.ArrayColumn(
         max_items=10,
         accessor=tables.A('extra_choices'),
         orderable=False,
-        verbose_name=_('Choices')
+        verbose_name=_('Count')
     )
     choice_count = tables.TemplateColumn(
         accessor=tables.A('extra_choices'),
@@ -104,10 +105,10 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
         fields = (
-            'pk', 'id', 'name', 'description', 'choice_count', 'choices', 'order_alphabetically', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'description', 'base_choices', 'choice_count', 'choices', 'order_alphabetically',
+            'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'choice_count', 'description')
+        default_columns = ('pk', 'name', 'base_choices', 'choice_count', 'description')
 
 
 class CustomLinkTable(NetBoxTable):

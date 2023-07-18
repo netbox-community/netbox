@@ -8,9 +8,16 @@ Single- and multi-selection [custom fields documentation](../../customization/cu
 
 The human-friendly name of the choice set.
 
+### Base Choices
+
+The set of pre-defined choices to include. Available sets are listed below. This is an optional setting.
+
+* ISO 3166 - Two-letter country codes
+* UN/LOCODE - Five-character location identifiers
+
 ### Extra Choices
 
-The list of valid choices, entered as a comma-separated list.
+A list of additional choices, one per line.
 
 ### Order Alphabetically
 

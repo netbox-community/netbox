@@ -18,6 +18,10 @@
               <td>{{ object.description|markdown|placeholder }}</td>
             </tr>
             <tr>
+              <th scope="row">Base Choices</th>
+              <td>{{ object.get_base_choices_display }}</td>
+            </tr>
+            <tr>
               <th scope="row">Choices</th>
               <td>{{ object.choices|length }}</td>
             </tr>

@@ -15,17 +15,18 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 from extras.choices import *
+from extras.data import CHOICE_SETS
 from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
 from utilities import filters
 from utilities.forms.fields import (
-    CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicModelChoiceField,
-    DynamicModelMultipleChoiceField, JSONField, LaxURLField,
+    CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, CSVMultipleChoiceField, DynamicChoiceField,
+    DynamicModelChoiceField, DynamicModelMultipleChoiceField, DynamicMultipleChoiceField, JSONField, LaxURLField,
 )
 from utilities.forms.utils import add_blank_choice
-from utilities.forms.widgets import DatePicker, DateTimePicker
+from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
 from utilities.querysets import RestrictedQuerySet
 from utilities.validators import validate_regex
 
@@ -410,7 +411,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Select
         elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
-            choices = [(c, c) for c in self.choices]
+            choices = self.choices
             default_choice = self.default if self.default in self.choices else None
 
             if not required or default_choice is None:
@@ -421,11 +422,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 initial = default_choice
 
             if self.type == CustomFieldTypeChoices.TYPE_SELECT:
-                field_class = CSVChoiceField if for_csv_import else forms.ChoiceField
-                field = field_class(choices=choices, required=required, initial=initial)
+                field_class = CSVChoiceField if for_csv_import else DynamicChoiceField
+                widget_class = APISelect
             else:
-                field_class = CSVMultipleChoiceField if for_csv_import else forms.MultipleChoiceField
-                field = field_class(choices=choices, required=required, initial=initial)
+                field_class = CSVMultipleChoiceField if for_csv_import else DynamicMultipleChoiceField
+                widget_class = APISelectMultiple
+            field = field_class(
+                choices=self.choice_set.choices,
+                required=required,
+                initial=initial,
+                widget=widget_class(api_url=f'/api/extras/custom-field-choices/{self.choice_set.pk}/choices/')
+            )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
@@ -604,14 +611,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
             # Validate selected choice
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
-                if value not in self.choices:
+                if value not in [c[0] for c in self.choices]:
                     raise ValidationError(
                         f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
                     )
 
             # Validate all selected choices
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-                if not set(value).issubset(self.choices):
+                if not set(value).issubset([c[0] for c in self.choices]):
                     raise ValidationError(
                         f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"
                     )
@@ -645,9 +652,17 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         max_length=200,
         blank=True
     )
+    base_choices = models.CharField(
+        max_length=50,
+        choices=CustomFieldChoiceSetBaseChoices,
+        blank=True,
+        help_text=_('Base set of predefined choices (optional)')
+    )
     extra_choices = ArrayField(
         base_field=models.CharField(max_length=100),
-        help_text=_('List of field choices')
+        help_text=_('List of field choices'),
+        blank=True,
+        null=True
     )
     order_alphabetically = models.BooleanField(
         default=False,
@@ -667,7 +682,20 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
 
     @property
     def choices(self):
-        return self.extra_choices
+        """
+        Returns a concatenation of the base and extra choices.
+        """
+        if not hasattr(self, '_choices'):
+            self._choices = []
+            if self.base_choices:
+                self._choices.extend(CHOICE_SETS.get(self.base_choices))
+            if self.extra_choices:
+                self._choices.extend([(k, k) for k in self.extra_choices])
+        return self._choices
+
+    def clean(self):
+        if not self.base_choices and not self.extra_choices:
+            raise ValidationError(_("Must define base or extra choices."))
 
     @property
     def choices_count(self):

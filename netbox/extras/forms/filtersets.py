@@ -84,7 +84,12 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
 
 class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id', 'choice')),
+        (None, ('q', 'filter_id')),
+        ('Choices', ('base_choices', 'choice')),
+    )
+    base_choices = forms.MultipleChoiceField(
+        choices=CustomFieldChoiceSetBaseChoices,
+        required=False
     )
     choice = forms.CharField(
         required=False

@@ -66,6 +66,17 @@ class CustomFieldVisibilityChoices(ChoiceSet):
     )
 
 
+class CustomFieldChoiceSetBaseChoices(ChoiceSet):
+
+    ISO_3166 = 'ISO_3166'
+    UN_LOCODE = 'UN_LOCODE'
+
+    CHOICES = (
+        (ISO_3166, 'ISO 3166'),
+        (UN_LOCODE, 'UN/LOCODE'),
+    )
+
+
 #
 # CustomLinks
 #
