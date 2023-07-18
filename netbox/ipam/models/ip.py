@@ -708,11 +708,11 @@ class IPAddressFunctionAssignments(NetBoxModel):
 
     def __str__(self):
         if self.pk is not None:
-            return f'{self.assigned_object_type} - {self.function} - {self.assigned_ip}'
+            return f'{self.assigned_object} - {self.function} - {self.assigned_ip}'
         return super().__str__()
 
     def get_absolute_url(self):
-        return reverse('ipam:ipaddressfunction', args=[self.pk])
+        return reverse('ipam:ipaddressfunctionassignments', args=[self.pk])
 
 
 class IPAddress(PrimaryModel):

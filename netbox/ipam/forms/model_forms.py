@@ -29,6 +29,7 @@ __all__ = (
     'IPAddressBulkAddForm',
     'IPAddressForm',
     'IPRangeForm',
+    'IPAddressFunctionAssignmentsForm',
     'L2VPNForm',
     'L2VPNTerminationForm',
     'PrefixForm',
@@ -420,6 +421,51 @@ class IPAddressAssignForm(BootstrapMixin, forms.Form):
         required=False,
         label=_('Search'),
     )
+
+
+class IPAddressFunctionAssignmentsForm(NetBoxModelForm):
+    device_object = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        selector=True
+    )
+    vm_object = DynamicModelChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        selector=True
+    )
+
+    class Meta:
+        model = IPAddressFunctionAssignments
+        fields = [
+            'assigned_ip', 'function', 'tags',
+        ]
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+
+        if instance:
+            if type(instance.assigned_object) is Device:
+                initial['device_object'] = instance.assigned_object
+            elif type(instance.assigned_object) is VirtualMachine:
+                initial['vm_object'] = instance.assigned_object
+            kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        device_object = self.cleaned_data.get('device_object')
+        vm_object = self.cleaned_data.get('vm_object')
+
+        if not (device_object or vm_object):
+            raise ValidationError('An ip address function assignment must specify an device or virtualmachine.')
+        if len([x for x in (device_object, vm_object) if x]) > 1:
+            raise ValidationError('An ip address function assignment can only have one terminating object (a device or virtualmachine).')
+
+        self.instance.assigned_object = device_object or vm_object
 
 
 class FHRPGroupForm(NetBoxModelForm):

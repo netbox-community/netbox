@@ -11,6 +11,7 @@ __all__ = (
     'AssignedIPAddressesTable',
     'IPAddressAssignTable',
     'IPAddressTable',
+    'IPAddressFunctionAssignmentsTable',
     'IPRangeTable',
     'PrefixTable',
     'RIRTable',
@@ -424,3 +425,22 @@ class AssignedIPAddressesTable(NetBoxTable):
         model = IPAddress
         fields = ('address', 'vrf', 'status', 'role', 'tenant', 'description')
         exclude = ('id', )
+
+
+#
+# IPAddresses
+#
+
+class IPAddressFunctionAssignmentsTable(TenancyColumnsMixin, NetBoxTable):
+
+    assigned_object = tables.Column(linkify=True)
+    assigned_ip = tables.Column(linkify=True)
+
+    class Meta(NetBoxTable.Meta):
+        model = IPAddressFunctionAssignments
+        fields = (
+            'pk', 'id', 'function', 'assigned_ip', 'assigned_object', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'assigned_object', 'function', 'assigned_ip',
+        )

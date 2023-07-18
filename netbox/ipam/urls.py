@@ -88,6 +88,13 @@ urlpatterns = [
     path('ip-addresses/assign/', views.IPAddressAssignView.as_view(), name='ipaddress_assign'),
     path('ip-addresses/<int:pk>/', include(get_model_urls('ipam', 'ipaddress'))),
 
+    # IP address Function Assignments
+    path('ip-addresses-function-assignments/', views.IPAddressFunctionAssignmentsListView.as_view(), name='ipaddressfunctionassignments_list'),
+    path('ip-addresses-function-assignments/add/', views.IPAddressFunctionAssignmentsEditView.as_view(), name='ipaddressfunctionassignments_add'),
+    path('ip-addresses-function-assignments/edit/', views.IPAddressFunctionAssignmentsEditView.as_view(), name='IPAddressFunctionAssignments_edit'),
+    path('ip-addresses-function-assignments/delete/', views.IPAddressFunctionAssignmentsDeleteView.as_view(), name='IPAddressFunctionAssignments_delete'),
+    path('ip-addresses-function-assignments/<int:pk>/', include(get_model_urls('ipam', 'ipaddressfunctionassignments'))),
+
     # FHRP groups
     path('fhrp-groups/', views.FHRPGroupListView.as_view(), name='fhrpgroup_list'),
     path('fhrp-groups/add/', views.FHRPGroupEditView.as_view(), name='fhrpgroup_add'),

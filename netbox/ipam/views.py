@@ -879,8 +879,59 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
 
 
 #
+# IP addresses
+#
+
+
+class IPAddressFunctionAssignmentsListView(generic.ObjectListView):
+    queryset = IPAddressFunctionAssignments.objects.all()
+    # filterset = filtersets.IPAddressFunctionAssignmentsFilterSet
+    # filterset_form = forms.IPAddressFunctionAssignmentsFilterForm
+    table = tables.IPAddressFunctionAssignmentsTable
+
+
+@register_model_view(IPAddressFunctionAssignments)
+class IPAddressFunctionAssignmentsView(generic.ObjectView):
+    queryset = IPAddressFunctionAssignments.objects.all()
+
+
+@register_model_view(IPAddressFunctionAssignments, 'edit')
+class IPAddressFunctionAssignmentsEditView(generic.ObjectEditView):
+    queryset = IPAddressFunctionAssignments.objects.all()
+    form = forms.IPAddressFunctionAssignmentsForm
+    # template_name = 'ipam/ipaddress_edit.html'
+
+    # def alter_object(self, obj, request, url_args, url_kwargs):
+
+    #     if 'interface' in request.GET:
+    #         try:
+    #             obj.assigned_object = Interface.objects.get(pk=request.GET['interface'])
+    #         except (ValueError, Interface.DoesNotExist):
+    #             pass
+
+    #     elif 'vminterface' in request.GET:
+    #         try:
+    #             obj.assigned_object = VMInterface.objects.get(pk=request.GET['vminterface'])
+    #         except (ValueError, VMInterface.DoesNotExist):
+    #             pass
+
+    #     elif 'fhrpgroup' in request.GET:
+    #         try:
+    #             obj.assigned_object = FHRPGroup.objects.get(pk=request.GET['fhrpgroup'])
+    #         except (ValueError, FHRPGroup.DoesNotExist):
+    #             pass
+
+    #     return obj
+
+
+@register_model_view(IPAddressFunctionAssignments, 'delete')
+class IPAddressFunctionAssignmentsDeleteView(generic.ObjectDeleteView):
+    queryset = IPAddressFunctionAssignments.objects.all()
+
+#
 # VLAN groups
 #
+
 
 class VLANGroupListView(generic.ObjectListView):
     queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
