@@ -696,6 +696,9 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
     poe_type = django_filters.MultipleChoiceFilter(
         choices=InterfacePoETypeChoices
     )
+    rf_role = django_filters.MultipleChoiceFilter(
+        choices=WirelessRoleChoices
+    )
 
     class Meta:
         model = InterfaceTemplate
