@@ -5,8 +5,6 @@ from functools import partial
 from .fields import CounterCacheField
 from .mixins import TrackingModelMixin
 
-counters = {}
-
 
 def post_save_receiver_counter(counter_instance, sender, instance, created, **kwargs):
     if created:
@@ -68,8 +66,6 @@ class Counter:
             weak=False,
             dispatch_uid=f'{counted_name}_post_delete',
         )
-
-        counters[counted_name] = self
 
     def parent_id(self, child):
         return getattr(child, self.foreign_key_field.attname)
