@@ -6,8 +6,6 @@ class VirtualizationConfig(AppConfig):
 
     def ready(self):
         from . import search
-        from .models import VMInterface
+        from utilities.counter import connect_counters
 
-        from utilities.counter import connect_counter
-
-        connect_counter('_interface_count', VMInterface.virtual_machine)
+        connect_counters(self)

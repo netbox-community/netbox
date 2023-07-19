@@ -121,7 +121,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         verbose_name='Disk (GB)'
     )
 
-    _interface_count = CounterCacheField()
+    _interface_count = CounterCacheField(to_model='virtualization.VMInterface', to_field='virtual_machine')
 
     # Generic relation
     contacts = GenericRelation(

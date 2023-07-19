@@ -1,4 +1,4 @@
-from django.apps import AppConfig
+from django.apps import AppConfig, apps
 
 from netbox import denormalized
 
@@ -14,7 +14,7 @@ class DCIMConfig(AppConfig):
             Interface, InventoryItem, PowerOutlet, PowerPort, RearPort,
         )
 
-        from utilities.counter import connect_counter
+        from utilities.counter import connect_counters
 
         # Register denormalized fields
         denormalized.register(CableTermination, '_device', {
@@ -30,12 +30,4 @@ class DCIMConfig(AppConfig):
             '_site': 'site',
         })
 
-        connect_counter('_console_port_count', ConsolePort.device)
-        connect_counter('_console_server_port_count', ConsoleServerPort.device)
-        connect_counter('_interface_count', Interface.device)
-        connect_counter('_front_port_count', FrontPort.device)
-        connect_counter('_rear_port_count', RearPort.device)
-        connect_counter('_device_bay_count', DeviceBay.device)
-        connect_counter('_inventory_item_count', InventoryItem.device)
-        connect_counter('_power_port_count', PowerPort.device)
-        connect_counter('_power_outlet_count', PowerOutlet.device)
+        connect_counters(self)

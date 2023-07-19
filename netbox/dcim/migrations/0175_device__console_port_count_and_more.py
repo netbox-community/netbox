@@ -53,47 +53,47 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='device',
             name='_console_port_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.ConsolePort'),
         ),
         migrations.AddField(
             model_name='device',
             name='_console_server_port_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.ConsoleServerPort'),
         ),
         migrations.AddField(
             model_name='device',
             name='_device_bay_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.DeviceBay'),
         ),
         migrations.AddField(
             model_name='device',
             name='_front_port_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.FrontPort'),
         ),
         migrations.AddField(
             model_name='device',
             name='_interface_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.Interface'),
         ),
         migrations.AddField(
             model_name='device',
             name='_inventory_item_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.InventoryItem'),
         ),
         migrations.AddField(
             model_name='device',
             name='_power_outlet_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.PowerOutlet'),
         ),
         migrations.AddField(
             model_name='device',
             name='_power_port_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.PowerPort'),
         ),
         migrations.AddField(
             model_name='device',
             name='_rear_port_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(default=0, to_field='device', to_model='dcim.RearPort'),
         ),
         migrations.RunPython(
             recalculate_device_counts,

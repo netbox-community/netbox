@@ -640,15 +640,15 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
     )
 
-    _console_port_count = CounterCacheField()
-    _console_server_port_count = CounterCacheField()
-    _power_port_count = CounterCacheField()
-    _power_outlet_count = CounterCacheField()
-    _interface_count = CounterCacheField()
-    _front_port_count = CounterCacheField()
-    _rear_port_count = CounterCacheField()
-    _device_bay_count = CounterCacheField()
-    _inventory_item_count = CounterCacheField()
+    _console_port_count = CounterCacheField(to_model='dcim.ConsolePort', to_field='device')
+    _console_server_port_count = CounterCacheField(to_model='dcim.ConsoleServerPort', to_field='device')
+    _power_port_count = CounterCacheField(to_model='dcim.PowerPort', to_field='device')
+    _power_outlet_count = CounterCacheField(to_model='dcim.PowerOutlet', to_field='device')
+    _interface_count = CounterCacheField(to_model='dcim.Interface', to_field='device')
+    _front_port_count = CounterCacheField(to_model='dcim.FrontPort', to_field='device')
+    _rear_port_count = CounterCacheField(to_model='dcim.RearPort', to_field='device')
+    _device_bay_count = CounterCacheField(to_model='dcim.DeviceBay', to_field='device')
+    _inventory_item_count = CounterCacheField(to_model='dcim.InventoryItem', to_field='device')
 
     # Generic relations
     contacts = GenericRelation(

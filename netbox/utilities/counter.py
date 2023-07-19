@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.db.models import F
 from django.db.models.signals import post_delete, post_save, pre_save
 from functools import partial
@@ -77,5 +78,13 @@ class Counter:
         return self.set_counter_field(parent_id, F(self.counter_name) + amount)
 
 
-def connect_counter(counter_name, foreign_key_field):
-    return Counter(counter_name, foreign_key_field)
+def connect_counters(app_config):
+    models = app_config.get_models()
+    for model in models:
+        if issubclass(model, TrackingModelMixin):
+            fields = model._meta.get_fields()
+            for field in fields:
+                if type(field) is CounterCacheField:
+                    to_model = apps.get_model(field.to_model_name)
+                    to_field = getattr(to_model, field.to_field_name)
+                    Counter(field.name, to_field)

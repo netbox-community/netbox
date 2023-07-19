@@ -25,7 +25,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='virtualmachine',
             name='_interface_count',
-            field=utilities.fields.CounterCacheField(default=0),
+            field=utilities.fields.CounterCacheField(
+                default=0, to_field='virtual_machine', to_model='virtualization.VMInterface'
+            ),
         ),
         migrations.RunPython(
             code=populate_virtualmachine_counts,
