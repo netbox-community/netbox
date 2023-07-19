@@ -2,21 +2,46 @@
 
 from django.db import migrations
 import utilities.fields
+from django.db.models import Count
 
 
 def recalculate_device_counts(apps, schema_editor):
     Device = apps.get_model("dcim", "Device")
-    for device in Device.objects.all():
-        device._console_port_count = device.consoleports.count()
-        device._console_server_port_count = device.consoleserverports.count()
-        device._interface_count = device.interfaces.count()
-        device._front_port_count = device.frontports.count()
-        device._rear_port_count = device.rearports.count()
-        device._device_bay_count = device.devicebays.count()
-        device._inventory_item_count = device.inventoryitems.count()
-        device._power_port_count = device.powerports.count()
-        device._power_outlet_count = device.poweroutlets.count()
-        device.save()
+    devices = list(Device.objects.all().annotate(
+        console_port_count=Count('consoleports'),
+        console_server_port_count=Count('consoleserverports'),
+        interface_count=Count('interfaces'),
+        front_port_count=Count('frontports'),
+        rear_port_count=Count('rearports'),
+        device_bay_count=Count('devicebays'),
+        inventory_item_count=Count('inventoryitems'),
+        power_port_count=Count('powerports'),
+        power_outlet_count=Count('poweroutlets'),
+    ))
+
+    for device in devices:
+        device._console_port_count = console_port_count
+        device._console_server_port_count = console_server_port_count
+        device._interface_count = interface_count
+        device._front_port_count = front_port_count
+        device._rear_port_count = rear_port_count
+        device._device_bay_count = device_bay_count
+        device._inventory_item_count = inventory_item_count
+        device._power_port_count = power_port_count
+        device._power_outlet_count = power_outlet_count
+
+    Device.objects.bulk_update(
+        devices,
+        ['_console_port_count',
+         '_console_server_port_count',
+         '_interface_count',
+         '_front_port_count',
+         '_rear_port_count',
+         '_device_bay_count',
+         '_inventory_item_count',
+         '_power_port_count',
+         '_power_outlet_count'],
+    )
 
 
 class Migration(migrations.Migration):

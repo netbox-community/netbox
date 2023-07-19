@@ -2,14 +2,18 @@
 
 from django.db import migrations
 import utilities.fields
+from django.db.models import Count
 
 
 def populate_virtualmachine_counts(apps, schema_editor):
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
 
-    for vm in VirtualMachine.objects.all():
-        vm._interface_count = vm.interfaces.count()
-        vm.save()
+    vms = list(VirtualMachine.objects.annotate(interface_count=Count('interfaces')))
+
+    for vm in vms:
+        vm._interface_count = vm.interface_count
+
+    VirtualMachine.objects.bulk_update(vms, ['_interface_count'])
 
 
 class Migration(migrations.Migration):
