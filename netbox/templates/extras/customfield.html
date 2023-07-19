@@ -16,19 +16,19 @@
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Label</th>
-            <td>{{ object.label|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Group Name</th>
-            <td>{{ object.group_name|placeholder }}</td>
-          </tr>
-          <tr>
             <th scope="row">Type</th>
             <td>
               {{ object.get_type_display }}
               {% if object.object_type %}({{ object.object_type.model|bettertitle }}){% endif %}
             </td>
+          </tr>
+          <tr>
+            <th scope="row">Label</th>
+            <td>{{ object.label|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Group</th>
+            <td>{{ object.group_name|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">Description</th>
@@ -38,6 +38,27 @@
             <th scope="row">Required</th>
             <td>{% checkmark object.required %}</td>
           </tr>
+          <tr>
+            <th scope="row">Cloneable</th>
+            <td>{% checkmark object.is_cloneable %}</td>
+          </tr>
+          {% if object.choice_set %}
+            <tr>
+              <th scope="row">Choice Set</th>
+              <td>{{ object.choice_set|linkify }} ({{ object.choice_set.choices|length }} choices)</td>
+            </tr>
+          {% endif %}
+          <tr>
+            <th scope="row">Default Value</th>
+            <td>{{ object.default }}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div class="card">
+      <h5 class="card-header">Behavior</h5>
+      <div class="card-body">
+        <table class="table table-hover attr-table">
           <tr>
             <th scope="row">Search Weight</th>
             <td>
@@ -60,33 +81,6 @@
             <th scope="row">UI Visibility</th>
             <td>{{ object.get_ui_visibility_display }}</td>
           </tr>
-          <tr>
-            <th scope="row">Cloneable</th>
-            <td>{% checkmark object.is_cloneable %}</td>
-          </tr>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <h5 class="card-header">
-        Values
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">Default Value</th>
-            <td>{{ object.default }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Choices</th>
-            <td>
-              {% if object.choices %}
-                {{ object.choices|join:", " }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
-          </tr>
         </table>
       </div>
     </div>
@@ -94,9 +88,7 @@
 	</div>
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        Assigned Models
-      </h5>
+      <h5 class="card-header">Object Types</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           {% for ct in object.content_types.all %}
@@ -108,9 +100,7 @@
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">
-        Validation Rules
-      </h5>
+      <h5 class="card-header">Validation Rules</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
@@ -138,8 +128,8 @@
   </div>
 </div>
 <div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
-    </div>
+  <div class="col col-md-12">
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

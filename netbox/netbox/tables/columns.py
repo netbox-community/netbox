@@ -21,6 +21,7 @@ from utilities.utils import content_type_identifier, content_type_name, get_view
 
 __all__ = (
     'ActionsColumn',
+    'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
     'ColorColumn',
@@ -591,3 +592,22 @@ class MarkdownColumn(tables.TemplateColumn):
 
     def value(self, value):
         return value
+
+
+class ArrayColumn(tables.Column):
+    """
+    List array items as a comma-separated list.
+    """
+    def __init__(self, *args, max_items=None, **kwargs):
+        self.max_items = max_items
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        if self.max_items:
+            # Limit the returned items to the specified maximum number
+            omitted = len(value) - self.max_items
+            value = value[:self.max_items - 1]
+            if omitted > 0:
+                value.append(f'({omitted} more)')
+
+        return ', '.join(value)

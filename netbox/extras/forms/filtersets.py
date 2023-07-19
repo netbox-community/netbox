@@ -20,6 +20,7 @@ __all__ = (
     'ConfigContextFilterForm',
     'ConfigRevisionFilterForm',
     'ConfigTemplateFilterForm',
+    'CustomFieldChoiceSetFilterForm',
     'CustomFieldFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
@@ -37,7 +38,8 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         ('Attributes', (
-            'type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility', 'is_cloneable',
+            'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visibility',
+            'is_cloneable',
         )),
     )
     content_type_id = ContentTypeMultipleChoiceField(
@@ -62,6 +64,11 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    choice_set_id = DynamicModelMultipleChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all(),
+        required=False,
+        label=_('Choice set')
+    )
     ui_visibility = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
@@ -75,10 +82,19 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
+class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id', 'choice')),
+    )
+    choice = forms.CharField(
+        required=False
+    )
+
+
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
+        (_('Attributes'), ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
