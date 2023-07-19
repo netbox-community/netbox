@@ -28,5 +28,4 @@ registry = Registry({
     'search': dict(),
     'views': collections.defaultdict(dict),
     'widgets': dict(),
-    'cached_counter_fields': dict(),
 })
