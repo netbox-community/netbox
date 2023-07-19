@@ -8,10 +8,10 @@ class Tracker:
 
 
 class TrackingModelMixin:
+    change_tracking_fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.change_tracking_fields = []
         self._initialized = True
 
     @property
