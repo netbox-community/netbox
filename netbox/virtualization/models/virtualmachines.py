@@ -23,7 +23,7 @@ __all__ = (
 )
 
 
-class VirtualMachine(PrimaryModel, ConfigContextModel, TrackingModelMixin):
+class VirtualMachine(PrimaryModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -225,7 +225,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel, TrackingModelMixin):
             return None
 
 
-class VMInterface(NetBoxModel, BaseInterface):
+class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,

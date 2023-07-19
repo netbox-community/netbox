@@ -22,7 +22,6 @@ from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
-from utilities.mixins import TrackingModelMixin
 from .device_components import *
 from .mixins import WeightMixin
 
@@ -470,7 +469,7 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
+class Device(PrimaryModel, ConfigContextModel):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.

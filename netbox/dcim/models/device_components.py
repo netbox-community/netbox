@@ -16,6 +16,7 @@ from dcim.fields import MACAddressField, WWNField
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
+from utilities.mixins import TrackingModelMixin
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -269,7 +270,7 @@ class PathEndpoint(models.Model):
 # Console components
 #
 
-class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
+class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A physical console port within a Device. ConsolePorts connect to ConsoleServerPorts.
     """
@@ -292,7 +293,7 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
 
-class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
+class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A physical port within a Device (typically a designated console server) which provides access to ConsolePorts.
     """
@@ -319,7 +320,7 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
 # Power components
 #
 
-class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
+class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A physical power supply (intake) port within a Device. PowerPorts connect to PowerOutlets.
     """
@@ -428,7 +429,7 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint):
         }
 
 
-class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
+class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A physical power outlet (output) within a Device which provides power to a PowerPort.
     """
@@ -469,7 +470,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint):
 # Interfaces
 #
 
-class BaseInterface(models.Model):
+class BaseInterface(models.Model, TrackingModelMixin):
     """
     Abstract base class for fields shared by dcim.Interface and virtualization.VMInterface.
     """
@@ -888,7 +889,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
 # Pass-through ports
 #
 
-class FrontPort(ModularComponentModel, CabledObjectModel):
+class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
     A pass-through port on the front of a Device.
     """
@@ -949,7 +950,7 @@ class FrontPort(ModularComponentModel, CabledObjectModel):
                 })
 
 
-class RearPort(ModularComponentModel, CabledObjectModel):
+class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     """
     A pass-through port on the rear of a Device.
     """
@@ -1006,7 +1007,7 @@ class ModuleBay(ComponentModel):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
 
-class DeviceBay(ComponentModel):
+class DeviceBay(ComponentModel, TrackingModelMixin):
     """
     An empty space within a Device which can house a child device
     """
@@ -1064,7 +1065,7 @@ class InventoryItemRole(OrganizationalModel):
         return reverse('dcim:inventoryitemrole', args=[self.pk])
 
 
-class InventoryItem(MPTTModel, ComponentModel):
+class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
     """
     An InventoryItem represents a serialized piece of hardware within a Device, such as a line card or power supply.
     InventoryItems are used only for inventory purposes.
