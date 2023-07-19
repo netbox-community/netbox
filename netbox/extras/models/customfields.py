@@ -705,6 +705,6 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
 
         # Sort choices if alphabetical ordering is enforced
         if self.order_alphabetically:
-            self.extra_choices = sorted(self.choices)
+            self.extra_choices = sorted(self.extra_choices)
 
         return super().save(*args, **kwargs)

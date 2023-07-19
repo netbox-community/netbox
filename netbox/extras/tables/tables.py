@@ -64,10 +64,13 @@ class CustomFieldTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
-    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
+    ui_visibility = columns.ChoiceFieldColumn(
+        verbose_name="UI visibility"
+    )
     description = columns.MarkdownColumn()
     choices = columns.ArrayColumn(
         max_items=10,
+        func=lambda x: x[1],
         orderable=False,
         verbose_name=_('Choices')
     )
@@ -88,11 +91,15 @@ class CustomFieldChoiceSetTable(NetBoxTable):
         linkify=True
     )
     base_choices = columns.ChoiceFieldColumn()
+    extra_choices = columns.ArrayColumn(
+        max_items=10,
+        orderable=False
+    )
     choices = columns.ArrayColumn(
         max_items=10,
-        accessor=tables.A('extra_choices'),
+        func=lambda x: x[1],
         orderable=False,
-        verbose_name=_('Count')
+        verbose_name=_('Choices')
     )
     choice_count = tables.TemplateColumn(
         accessor=tables.A('extra_choices'),
@@ -105,8 +112,8 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
         fields = (
-            'pk', 'id', 'name', 'description', 'base_choices', 'choice_count', 'choices', 'order_alphabetically',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'description', 'base_choices', 'extra_choices', 'choice_count', 'choices',
+            'order_alphabetically', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'base_choices', 'choice_count', 'description')
 

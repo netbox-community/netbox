@@ -598,16 +598,25 @@ class ArrayColumn(tables.Column):
     """
     List array items as a comma-separated list.
     """
-    def __init__(self, *args, max_items=None, **kwargs):
+    def __init__(self, *args, max_items=None, func=str, **kwargs):
         self.max_items = max_items
+        self.func = func
         super().__init__(*args, **kwargs)
 
     def render(self, value):
+        omitted_count = 0
+
+        # Limit the returned items to the specified maximum number (if any)
         if self.max_items:
-            # Limit the returned items to the specified maximum number
-            omitted = len(value) - self.max_items
+            omitted_count = len(value) - self.max_items
             value = value[:self.max_items - 1]
-            if omitted > 0:
-                value.append(f'({omitted} more)')
+
+        # Apply custom processing function (if any) per item
+        if self.func:
+            value = [self.func(v) for v in value]
+
+        # Annotate omitted items (if applicable)
+        if omitted_count > 0:
+            value.append(f'({omitted_count} more)')
 
         return ', '.join(value)

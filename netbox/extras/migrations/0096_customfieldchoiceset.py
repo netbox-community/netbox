@@ -42,7 +42,8 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
-                ('extra_choices', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), size=None)),
+                ('base_choices', models.CharField(blank=True, max_length=50)),
+                ('extra_choices', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, null=True, size=None)),
                 ('order_alphabetically', models.BooleanField(default=False)),
             ],
             options={
