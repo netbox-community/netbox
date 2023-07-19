@@ -52,7 +52,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='customfield',
             name='choice_set',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='custom_fields', to='extras.customfieldchoiceset'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='choices_for', to='extras.customfieldchoiceset'),
         ),
         migrations.RunPython(
             code=create_choice_sets,

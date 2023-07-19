@@ -29,7 +29,7 @@
               <th scope="row">Used by</th>
               <td>
                 <ul class="list-unstyled mb-0">
-                  {% for cf in object.custom_fields.all %}
+                  {% for cf in object.choices_for.all %}
                     <li>{{ cf|linkify }}</li>
                   {% endfor %}
                 </ul>

@@ -78,6 +78,11 @@ class CustomFieldFilterSet(BaseFilterSet):
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CustomFieldChoiceSet.objects.all()
     )
+    choice_set = django_filters.ModelMultipleChoiceFilter(
+        field_name='choice_set__name',
+        queryset=CustomFieldChoiceSet.objects.all(),
+        to_field_name='name'
+    )
 
     class Meta:
         model = CustomField
@@ -122,6 +127,7 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
         )
 
     def filter_by_choice(self, queryset, name, value):
+        # TODO: Support case-insensitive matching
         return queryset.filter(extra_choices__overlap=value)
 
 

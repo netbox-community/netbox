@@ -135,7 +135,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     model = CustomFieldChoiceSet
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['choices_count', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Choice Set 4',

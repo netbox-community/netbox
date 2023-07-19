@@ -103,8 +103,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
             'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'default',
-            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set', 'choices',
-            'created', 'last_updated',
+            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set', 'created',
+            'last_updated',
         ]
 
     def validate_type(self, value):
@@ -135,8 +135,8 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomFieldChoiceSet
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'extra_choices', 'order_alphabetically', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'extra_choices', 'order_alphabetically', 'choices_count',
+            'created', 'last_updated',
         ]
 
 

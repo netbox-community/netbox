@@ -162,7 +162,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     choice_set = models.ForeignKey(
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
-        related_name='custom_fields',
+        related_name='choices_for',
         blank=True,
         null=True
     )
@@ -286,18 +286,18 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
             })
 
-        # Choice set must be set on selection fields
+        # Choice set must be set on selection fields, and *only* on selection fields
         if self.type in (
                 CustomFieldTypeChoices.TYPE_SELECT,
                 CustomFieldTypeChoices.TYPE_MULTISELECT
         ):
             if not self.choice_set:
                 raise ValidationError({
-                    'choice_set': "Selection fields must define a set of choices."
+                    'choice_set': "Selection fields must specify a set of choices."
                 })
         elif self.choice_set:
             raise ValidationError({
-                'choice_set': "Choices may be set only for selection fields."
+                'choice_set': "Choices may be set only on selection fields."
             })
 
         # A selection field's default (if any) must be present in its available choices
@@ -633,7 +633,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             raise ValidationError("Required field cannot be empty.")
 
 
-class CustomFieldChoiceSet(ChangeLoggedModel):
+class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     Represents a set of choices available for choice and multi-choice custom fields.
     """
@@ -654,6 +654,8 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
         help_text=_('Choices are automatically ordered alphabetically on save')
     )
 
+    clone_fields = ('extra_choices', 'order_alphabetically')
+
     class Meta:
         ordering = ('name',)
 
@@ -666,6 +668,10 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
     @property
     def choices(self):
         return self.extra_choices
+
+    @property
+    def choices_count(self):
+        return len(self.choices)
 
     def save(self, *args, **kwargs):
 

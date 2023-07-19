@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.translation import gettext as _
 
 from extras.models import *
-from netbox.tables import ArrayColumn, NetBoxTable, columns
+from netbox.tables import NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
@@ -66,7 +66,8 @@ class CustomFieldTable(NetBoxTable):
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
     description = columns.MarkdownColumn()
-    choices = ArrayColumn(
+    choices = columns.ArrayColumn(
+        max_items=10,
         orderable=False,
         verbose_name=_('Choices')
     )
@@ -86,7 +87,8 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    choices = ArrayColumn(
+    choices = columns.ArrayColumn(
+        max_items=10,
         accessor=tables.A('extra_choices'),
         orderable=False,
         verbose_name=_('Choices')

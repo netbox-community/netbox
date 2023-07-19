@@ -40,7 +40,7 @@ class NestedCustomFieldChoiceSetSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.CustomFieldChoiceSet
-        fields = ['id', 'url', 'display', 'name']
+        fields = ['id', 'url', 'display', 'name', 'choices_count']
 
 
 class NestedCustomLinkSerializer(WritableNestedSerializer):

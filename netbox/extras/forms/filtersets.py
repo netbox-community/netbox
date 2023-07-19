@@ -94,7 +94,7 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
+        (_('Attributes'), ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
