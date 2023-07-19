@@ -49,17 +49,6 @@ class Counter:
 
         self.connect()
 
-    def validate(self):
-        counter_field, _, _, _ = self.parent_model._meta.get_field_by_name(self.counter_name)
-        if not isinstance(counter_field, CounterCacheField):
-            raise TypeError(
-                f"{self.counter_name} should be a CounterCacheField on {self.parent_model}, but is {type(counter_field)}"
-            )
-        if not isinstance(self.parent_model, TrackingModelMixin):
-            raise TypeError(
-                f"{self.parent_model} should be derived from TrackingModelMixin"
-            )
-
     def connect(self):
         """
         Hook up post_save, post_delete signal handlers to the fk field to change the count
