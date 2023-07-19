@@ -647,7 +647,7 @@ class CustomFieldChoiceSet(ChangeLoggedModel):
     )
     extra_choices = ArrayField(
         base_field=models.CharField(max_length=100),
-        help_text=_('Comma-separated list of available choices (for selection fields)')
+        help_text=_('List of field choices')
     )
     order_alphabetically = models.BooleanField(
         default=False,

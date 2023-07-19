@@ -95,7 +95,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
         fields = ('name', 'description', 'extra_choices', 'order_alphabetically')
 
     def clean_extra_choices(self):
-        return self.cleaned_data['extra_choices'].split('\n')
+        return self.cleaned_data['extra_choices'].splitlines()
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
