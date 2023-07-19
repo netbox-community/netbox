@@ -8,27 +8,27 @@ from django.db.models import Count
 def recalculate_device_counts(apps, schema_editor):
     Device = apps.get_model("dcim", "Device")
     devices = list(Device.objects.all().annotate(
-        console_port_count=Count('consoleports'),
-        console_server_port_count=Count('consoleserverports'),
-        interface_count=Count('interfaces'),
-        front_port_count=Count('frontports'),
-        rear_port_count=Count('rearports'),
-        device_bay_count=Count('devicebays'),
-        inventory_item_count=Count('inventoryitems'),
-        power_port_count=Count('powerports'),
-        power_outlet_count=Count('poweroutlets'),
+        console_port_count=Count('consoleports', distinct=True),
+        console_server_port_count=Count('consoleserverports', distinct=True),
+        interface_count=Count('interfaces', distinct=True),
+        front_port_count=Count('frontports', distinct=True),
+        rear_port_count=Count('rearports', distinct=True),
+        device_bay_count=Count('devicebays', distinct=True),
+        inventory_item_count=Count('inventoryitems', distinct=True),
+        power_port_count=Count('powerports', distinct=True),
+        power_outlet_count=Count('poweroutlets', distinct=True),
     ))
 
     for device in devices:
-        device._console_port_count = console_port_count
-        device._console_server_port_count = console_server_port_count
-        device._interface_count = interface_count
-        device._front_port_count = front_port_count
-        device._rear_port_count = rear_port_count
-        device._device_bay_count = device_bay_count
-        device._inventory_item_count = inventory_item_count
-        device._power_port_count = power_port_count
-        device._power_outlet_count = power_outlet_count
+        device._console_port_count = device.console_port_count
+        device._console_server_port_count = device.console_server_port_count
+        device._interface_count = device.interface_count
+        device._front_port_count = device.front_port_count
+        device._rear_port_count = device.rear_port_count
+        device._device_bay_count = device.device_bay_count
+        device._inventory_item_count = device.inventory_item_count
+        device._power_port_count = device.power_port_count
+        device._power_outlet_count = device.dpower_outlet_count
 
     Device.objects.bulk_update(
         devices,

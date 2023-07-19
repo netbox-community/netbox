@@ -8,7 +8,7 @@ from django.db.models import Count
 def populate_virtualmachine_counts(apps, schema_editor):
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
 
-    vms = list(VirtualMachine.objects.annotate(interface_count=Count('interfaces')))
+    vms = list(VirtualMachine.objects.annotate(interface_count=Count('interfaces', distinct=True)))
 
     for vm in vms:
         vm._interface_count = vm.interface_count
