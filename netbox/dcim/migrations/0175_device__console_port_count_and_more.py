@@ -28,7 +28,7 @@ def recalculate_device_counts(apps, schema_editor):
         device._device_bay_count = device.device_bay_count
         device._inventory_item_count = device.inventory_item_count
         device._power_port_count = device.power_port_count
-        device._power_outlet_count = device.dpower_outlet_count
+        device._power_outlet_count = device.power_outlet_count
 
     Device.objects.bulk_update(
         devices,
