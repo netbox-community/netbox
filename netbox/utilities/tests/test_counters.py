@@ -26,7 +26,7 @@ class CountersTest(TestCase):
 
     def test_interface_count_addition(self):
         """
-        When a new Cable is created, it must be cached on either termination point.
+        When a tracked object (Interface) is added the tracking counter should be updated.
         """
         device1 = Device.objects.get(name='TestDevice1')
         device2 = Device.objects.get(name='TestDevice2')
@@ -43,8 +43,7 @@ class CountersTest(TestCase):
 
     def test_interface_count_deletion(self):
         """
-        When a Cable is deleted, the `cable` field on its termination points must be nullified. The str() method
-        should still return the PK of the string even after being nullified.
+        When a tracked object (Interface) is deleted the tracking counter should be updated.
         """
         device1 = Device.objects.get(name='TestDevice1')
         device2 = Device.objects.get(name='TestDevice2')

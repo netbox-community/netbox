@@ -9,10 +9,7 @@ class DCIMConfig(AppConfig):
 
     def ready(self):
         from . import signals, search
-        from .models import (
-            CableTermination, ConsolePort, ConsoleServerPort, DeviceBay, FrontPort,
-            Interface, InventoryItem, PowerOutlet, PowerPort, RearPort,
-        )
+        from .models import CableTermination, Device
 
         from utilities.counter import connect_counters
 
@@ -30,4 +27,4 @@ class DCIMConfig(AppConfig):
             '_site': 'site',
         })
 
-        connect_counters(self)
+        connect_counters([Device,])

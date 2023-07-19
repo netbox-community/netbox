@@ -470,7 +470,7 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 # Interfaces
 #
 
-class BaseInterface(models.Model, TrackingModelMixin):
+class BaseInterface(models.Model):
     """
     Abstract base class for fields shared by dcim.Interface and virtualization.VMInterface.
     """
@@ -538,7 +538,7 @@ class BaseInterface(models.Model, TrackingModelMixin):
         return self.fhrp_group_assignments.count()
 
 
-class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint):
+class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEndpoint, TrackingModelMixin):
     """
     A network interface within a Device. A physical Interface can connect to exactly one other Interface.
     """
