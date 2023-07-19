@@ -7,7 +7,6 @@ from mptt.models import MPTTModel, TreeForeignKey
 from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
-from utilities.mixins import TrackingModelMixin
 
 
 __all__ = (
@@ -28,7 +27,6 @@ class NetBoxFeatureSet(
     ExportTemplatesMixin,
     JournalingMixin,
     TagsMixin,
-    TrackingModelMixin,
     WebhooksMixin
 ):
     class Meta:
