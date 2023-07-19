@@ -68,10 +68,12 @@ class CustomFieldVisibilityChoices(ChoiceSet):
 
 class CustomFieldChoiceSetBaseChoices(ChoiceSet):
 
+    IATA = 'IATA'
     ISO_3166 = 'ISO_3166'
     UN_LOCODE = 'UN_LOCODE'
 
     CHOICES = (
+        (IATA, 'IATA'),
         (ISO_3166, 'ISO 3166'),
         (UN_LOCODE, 'UN/LOCODE'),
     )
