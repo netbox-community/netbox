@@ -12,6 +12,7 @@ from django.utils.dateparse import parse_date
 from django.utils.html import escape
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
@@ -168,7 +169,7 @@ class ToggleColumn(tables.CheckBoxColumn):
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox" class="toggle form-check-input" title="Toggle All" />')
+        return mark_safe('<input type="checkbox" class="toggle form-check-input" title=_("Toggle All") />')
 
 
 class BooleanColumn(tables.Column):
@@ -269,12 +270,13 @@ class ActionsColumn(tables.Column):
                     )
 
         # Create the actions dropdown menu
+        toggle_text = _('Toggle Dropdown')
         if button and dropdown_links:
             html += (
                 f'<span class="btn-group dropdown">'
                 f'  {button}'
                 f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
-                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <span class="visually-hidden">{toggle_text}</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f'</span>'
             )
@@ -284,7 +286,7 @@ class ActionsColumn(tables.Column):
             html += (
                 f'<span class="btn-group dropdown">'
                 f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
-                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <span class="visually-hidden">{toggle_text}</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f'</span>'
             )
@@ -438,7 +440,8 @@ class TagColumn(tables.TemplateColumn):
         super().__init__(
             orderable=False,
             template_code=self.template_code,
-            extra_context={'url_name': url_name}
+            extra_context={'url_name': url_name},
+            verbose_name=_('Tags'),
         )
 
     def value(self, value):
@@ -520,7 +523,8 @@ class CustomLinkColumn(tables.Column):
             if rendered:
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
-            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> Error</span>')
+            error_text = _('Error')
+            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> {error_text}</span>')
         return ''
 
     def value(self, record):
@@ -585,9 +589,10 @@ class MarkdownColumn(tables.TemplateColumn):
     {% endif %}
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(
-            template_code=self.template_code
+            template_code=self.template_code,
+            **kwargs,
         )
 
     def value(self, value):
