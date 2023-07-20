@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from users.models import *
 from utilities.forms import BootstrapMixin
+from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
     'ObjectPermissionBulkEditForm',
@@ -13,7 +14,7 @@ __all__ = (
 class UserBulkEditForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
         label=_('Pk'),
-        queryset=None,  # Set from self.model on init
+        queryset=NetBoxUser.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     first_name = forms.CharField(
@@ -26,16 +27,19 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
         max_length=150,
         required=False
     )
-    is_active = forms.BooleanField(
+    is_active = forms.NullBooleanField(
         required=False,
+        widget=BulkEditNullBooleanSelect,
         label=_('Active')
     )
-    is_staff = forms.BooleanField(
+    is_staff = forms.NullBooleanField(
         required=False,
+        widget=BulkEditNullBooleanSelect,
         label=_('Staff status')
     )
-    is_superuser = forms.BooleanField(
+    is_superuser = forms.NullBooleanField(
         required=False,
+        widget=BulkEditNullBooleanSelect,
         label=_('Superuser status')
     )
 
@@ -43,11 +47,7 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
     fieldsets = (
         (None, ('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')),
     )
-    nullable_fields = ()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['pk'].queryset = self.model.objects.all()
+    nullable_fields = ('first_name', 'last_name')
 
 
 class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):

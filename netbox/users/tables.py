@@ -58,6 +58,9 @@ class TokenTable(NetBoxTable):
 
 class UserTable(NetBoxTable):
     username = tables.Column(linkify=True)
+    is_active = columns.BooleanColumn()
+    is_staff = columns.BooleanColumn()
+    is_superuser = columns.BooleanColumn()
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -65,9 +68,9 @@ class UserTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = NetBoxUser
         fields = (
-            'pk', 'id', 'username', 'email', 'first_name', 'last_name', 'is_superuser', 'is_staff', 'is_active'
+            'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'is_active', 'is_staff', 'is_superuser',
         )
-        default_columns = ('pk', 'username', 'email', 'first_name', 'last_name', 'is_superuser')
+        default_columns = ('pk', 'username', 'first_name', 'last_name', 'email', 'is_active')
 
 
 class GroupTable(NetBoxTable):
