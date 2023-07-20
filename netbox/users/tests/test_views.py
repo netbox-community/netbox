@@ -17,6 +17,11 @@ from utilities.testing import ViewTestCases, TestCase
 class UserTestCase(ViewTestCases.UserViewTestCase):
     model = NetBoxUser
 
+    def setUp(self):
+        get_user_model().objects.create_user(username='dummyuser1')
+        get_user_model().objects.create_user(username='dummyuser2')
+        super().setUp()
+
     @classmethod
     def setUpTestData(cls):
 
