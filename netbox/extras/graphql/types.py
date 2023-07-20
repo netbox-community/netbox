@@ -5,6 +5,7 @@ from netbox.graphql.types import BaseObjectType, ObjectType
 __all__ = (
     'ConfigContextType',
     'ConfigTemplateType',
+    'CustomFieldChoiceSetType',
     'CustomFieldType',
     'CustomLinkType',
     'ExportTemplateType',
@@ -39,6 +40,14 @@ class CustomFieldType(ObjectType):
         model = models.CustomField
         exclude = ('content_types', )
         filterset_class = filtersets.CustomFieldFilterSet
+
+
+class CustomFieldChoiceSetType(ObjectType):
+
+    class Meta:
+        model = models.CustomFieldChoiceSet
+        fields = '__all__'
+        filterset_class = filtersets.CustomFieldChoiceSetFilterSet
 
 
 class CustomLinkType(ObjectType):
