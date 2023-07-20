@@ -5,11 +5,13 @@
 
 {% block title %}{% trans "User" %} {{ object.username }}{% endblock %}
 
+{% block subtitle %}{% endblock %}
+
 {% block content %}
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Account Details" %}</h5>
+        <h5 class="card-header">{% trans "User" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
@@ -18,13 +20,7 @@
             </tr>
             <tr>
               <th scope="row">{% trans "Full Name" %}</th>
-              <td>
-                {% if object.first_name or object.last_name %}
-                  {{ object.first_name }} {{ object.last_name }}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
+              <td>{{ object.get_full_name|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Email" %}</th>
@@ -35,12 +31,16 @@
               <td>{{ object.date_joined|annotated_date }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Superuser" %}</th>
-              <td>{% checkmark object.is_superuser %}</td>
+              <th scope="row">{% trans "Active" %}</th>
+              <td>{% checkmark object.active %}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Admin Access" %}</th>
+              <th scope="row">{% trans "Staff" %}</th>
               <td>{% checkmark object.is_staff %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Superuser" %}</th>
+              <td>{% checkmark object.is_superuser %}</td>
             </tr>
           </table>
         </div>
@@ -49,27 +49,25 @@
     <div class="col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
-        <ul class="list-group list-group-flush">
+        <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
-            <li class="list-group-item">{{ group }}</li>
+            <a href="{% url 'users:netboxgroup' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
           {% empty %}
-            <li class="list-group-item text-muted">{% trans "None" %}</li>
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}
-        </ul>
+        </div>
       </div>
-
       <div class="card">
         <h5 class="card-header">{% trans "Assigned Permissions" %}</h5>
-        <ul class="list-group list-group-flush">
+        <div class="list-group list-group-flush">
           {% for perm in object.object_permissions.all %}
-            <li class="list-group-item">{{ perm }}</li>
+            <a href="{% url 'users:objectpermission' pk=perm.pk %}" class="list-group-item list-group-item-action">{{ perm }}</a>
           {% empty %}
-            <li class="list-group-item text-muted">{% trans "None" %}</li>
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}
-        </ul>
+        </div>
       </div>
     </div>
-
   </div>
   {% if perms.extras.view_objectchange %}
     <div class="row">

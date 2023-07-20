@@ -5,42 +5,92 @@
 
 {% block title %}{% trans "Permission" %} {{ object.name }}{% endblock %}
 
+{% block subtitle %}{% endblock %}
+
 {% block content %}
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Account Details" %}</h5>
+        <h5 class="card-header">{% trans "Permission" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
               <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Enabled" %}</th>
+              <td>{% checkmark object.enabled %}</td>
+            </tr>
           </table>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "Actions" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "View" %}</th>
+              <td>{% checkmark object.can_view %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Add" %}</th>
+              <td>{% checkmark object.can_add %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Change" %}</th>
+              <td>{% checkmark object.can_change %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Delete" %}</th>
+              <td>{% checkmark object.can_delete %}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "Constraints" %}</h5>
+        <div class="card-body">
+          {% if object.constraints %}
+            <pre>{{ object.constraints|json }}</pre>
+          {% else %}
+            <span class="text-muted">None</span>
+          {% endif %}
         </div>
       </div>
     </div>
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Assigned Users" %}</h5>
+        <h5 class="card-header">{% trans "Object Types" %}</h5>
         <ul class="list-group list-group-flush">
-          {% for user in object.users.all %}
+          {% for user in object.object_types.all %}
             <li class="list-group-item">{{ user }}</li>
-          {% empty %}
-            <li class="list-group-item text-muted">{% trans "None" %}</li>
           {% endfor %}
         </ul>
       </div>
-
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Users" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for user in object.users.all %}
+            <a href="{% url 'users:netboxuser' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
       <div class="card">
         <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
-        <ul class="list-group list-group-flush">
+        <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
-            <li class="list-group-item">{{ group }}</li>
+            <a href="{% url 'users:netboxgroup' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
           {% empty %}
-            <li class="list-group-item text-muted">{% trans "None" %}</li>
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}
-        </ul>
+        </div>
       </div>
     </div>
   </div>

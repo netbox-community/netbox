@@ -5,11 +5,13 @@
 
 {% block title %}{% trans "Group" %} {{ object.name }}{% endblock %}
 
+{% block subtitle %}{% endblock %}
+
 {% block content %}
   <div class="row mb-3">
     <div class="col-md-6">
       <div class="card">
-        <h5 class="card-header">{% trans "Account Details" %}</h5>
+        <h5 class="card-header">{% trans "Group" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
@@ -23,13 +25,23 @@
     <div class="col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Users" %}</h5>
-        <ul class="list-group list-group-flush">
+        <div class="list-group list-group-flush">
           {% for user in object.user_set.all %}
-            <li class="list-group-item">{{ user }}</li>
+            <a href="{% url 'users:netboxuser' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
           {% empty %}
-            <li class="list-group-item text-muted">{% trans "None" %}</li>
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}
-        </ul>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Permissions" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for perm in object.object_permissions.all %}
+            <a href="{% url 'users:objectpermission' pk=perm.pk %}" class="list-group-item list-group-item-action">{{ perm }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
