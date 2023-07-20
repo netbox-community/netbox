@@ -60,25 +60,17 @@ class Menu:
 # Utility functions
 #
 
-def get_model_item(app_label, model_name, label, actions=('add', 'import'), permission_app_label=None, permission_model_name=None):
-    if not permission_app_label:
-        permission_app_label = app_label
-    if not permission_model_name:
-        permission_model_name = model_name
+def get_model_item(app_label, model_name, label, actions=('add', 'import')):
     return MenuItem(
         link=f'{app_label}:{model_name}_list',
         link_text=label,
-        permissions=[f'{permission_app_label}.view_{permission_model_name}'],
-        buttons=get_model_buttons(app_label, model_name, actions, permission_app_label, permission_model_name)
+        permissions=[f'{app_label}.view_{model_name}'],
+        buttons=get_model_buttons(app_label, model_name, actions)
     )
 
 
-def get_model_buttons(app_label, model_name, actions=('add', 'import'), permission_app_label=None, permission_model_name=None):
+def get_model_buttons(app_label, model_name, actions=('add', 'import')):
     buttons = []
-    if not permission_app_label:
-        permission_app_label = app_label
-    if not permission_model_name:
-        permission_model_name = model_name
 
     if 'add' in actions:
         buttons.append(
@@ -86,7 +78,7 @@ def get_model_buttons(app_label, model_name, actions=('add', 'import'), permissi
                 link=f'{app_label}:{model_name}_add',
                 title='Add',
                 icon_class='mdi mdi-plus-thick',
-                permissions=[f'{permission_app_label}.add_{permission_model_name}'],
+                permissions=[f'{app_label}.add_{model_name}'],
                 color=ButtonColorChoices.GREEN
             )
         )
@@ -96,7 +88,7 @@ def get_model_buttons(app_label, model_name, actions=('add', 'import'), permissi
                 link=f'{app_label}:{model_name}_import',
                 title='Import',
                 icon_class='mdi mdi-upload',
-                permissions=[f'{permission_app_label}.add_{permission_model_name}'],
+                permissions=[f'{app_label}.add_{model_name}'],
                 color=ButtonColorChoices.CYAN
             )
         )

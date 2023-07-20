@@ -1,6 +1,7 @@
 from django.utils.translation import gettext as _
 
 from netbox.registry import registry
+from utilities.choices import ButtonColorChoices
 from . import *
 
 #
@@ -354,8 +355,36 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Users'),
             items=(
-                get_model_item('users', 'netboxuser', _('Users'), actions=['add'], permission_app_label='auth', permission_model_name='users'),
-                get_model_item('users', 'netboxgroup', _('Groups'), actions=['add'], permission_app_label='auth', permission_model_name='groups'),
+                # Proxy model for auth.User
+                MenuItem(
+                    link=f'users:netboxuser_list',
+                    link_text=_('Users'),
+                    permissions=[f'auth.view_user'],
+                    buttons=(
+                        MenuItemButton(
+                            link=f'users:netboxuser_add',
+                            title='Add',
+                            icon_class='mdi mdi-plus-thick',
+                            permissions=[f'auth.add_user'],
+                            color=ButtonColorChoices.GREEN
+                        ),
+                    )
+                ),
+                # Proxy model for auth.Group
+                MenuItem(
+                    link=f'users:netboxgroup_list',
+                    link_text=_('Groups'),
+                    permissions=[f'auth.view_group'],
+                    buttons=(
+                        MenuItemButton(
+                            link=f'users:netboxgroup_add',
+                            title='Add',
+                            icon_class='mdi mdi-plus-thick',
+                            permissions=[f'auth.add_group'],
+                            color=ButtonColorChoices.GREEN
+                        ),
+                    )
+                ),
                 get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
