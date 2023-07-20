@@ -1,26 +1,27 @@
-from decimal import Decimal
-
-import yaml
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
-from django.urls import reverse
-from django.utils import timezone
 
-from dcim.choices import *
-from dcim.constants import *
 from users.models import *
-from utilities.testing import ViewTestCases, TestCase
+from utilities.testing import ViewTestCases
 
 
-class UserTestCase(ViewTestCases.UserViewTestCase):
+class UserTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
     model = NetBoxUser
+    maxDiff = None
+    validation_excluded_fields = ['password']
 
-    def setUp(self):
-        get_user_model().objects.create_user(username='dummyuser1')
-        get_user_model().objects.create_user(username='dummyuser2')
-        super().setUp()
+    def _get_queryset(self):
+        # Omit the user attached to the test client
+        return self.model.objects.exclude(username='testuser')
 
     @classmethod
     def setUpTestData(cls):
@@ -60,16 +61,25 @@ class UserTestCase(ViewTestCases.UserViewTestCase):
         }
 
 
-class GroupTestCase(ViewTestCases.GroupViewTestCase):
+class GroupTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
     model = NetBoxGroup
+    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
 
         groups = (
-            Group(name='group1', ),
-            Group(name='group2', ),
-            Group(name='group3', ),
+            Group(name='group1'),
+            Group(name='group2'),
+            Group(name='group3'),
         )
         Group.objects.bulk_create(groups)
 
@@ -92,16 +102,22 @@ class GroupTestCase(ViewTestCases.GroupViewTestCase):
         )
 
 
-class ObjectPermissionTestCase(ViewTestCases.ObjectPermissionViewTestCase):
+class ObjectPermissionTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
     model = ObjectPermission
+    maxDiff = None
 
     @classmethod
     def setUpTestData(cls):
+        ct = ContentType.objects.get_by_natural_key('dcim', 'site')
 
-        from dcim.models import Site
-        ct = ContentType.objects.get_for_model(Site)
-
-        # Create three Regions
         permissions = (
             ObjectPermission(name='Permission 1', actions=['view', 'add', 'delete']),
             ObjectPermission(name='Permission 2', actions=['view', 'add', 'delete']),
@@ -112,7 +128,7 @@ class ObjectPermissionTestCase(ViewTestCases.ObjectPermissionViewTestCase):
         cls.form_data = {
             'name': 'Permission X',
             'description': 'A new permission',
-            'object_types': [ct.pk,],
+            'object_types': [ct.pk],
             'actions': 'view,edit,delete',
         }
 
