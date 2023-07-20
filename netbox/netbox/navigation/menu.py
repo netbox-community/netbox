@@ -368,6 +368,13 @@ ADMIN_MENU = Menu(
                             permissions=[f'auth.add_user'],
                             color=ButtonColorChoices.GREEN
                         ),
+                        MenuItemButton(
+                            link=f'users:netboxuser_import',
+                            title='Import',
+                            icon_class='mdi mdi-upload',
+                            permissions=[f'auth.add_user'],
+                            color=ButtonColorChoices.CYAN
+                        )
                     )
                 ),
                 # Proxy model for auth.Group
@@ -383,6 +390,13 @@ ADMIN_MENU = Menu(
                             permissions=[f'auth.add_group'],
                             color=ButtonColorChoices.GREEN
                         ),
+                        MenuItemButton(
+                            link=f'users:netboxgroup_import',
+                            title='Import',
+                            icon_class='mdi mdi-upload',
+                            permissions=[f'auth.add_group'],
+                            color=ButtonColorChoices.CYAN
+                        )
                     )
                 ),
                 get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),

@@ -1,5 +1,3 @@
-from django import forms
-
 from users.models import NetBoxGroup, NetBoxUser
 from utilities.forms import CSVModelForm
 
@@ -28,12 +26,7 @@ class UserImportForm(CSVModelForm):
         )
 
     def save(self, *args, **kwargs):
-        edited = getattr(self, 'instance', None)
-        instance = super().save(*args, **kwargs)
+        # Set the hashed password
+        self.instance.set_password(self.cleaned_data.get('password'))
 
-        # On edit, check if we have to save the password
-        if edited and self.cleaned_data.get("password"):
-            instance.set_password(self.cleaned_data.get("password"))
-            instance.save()
-
-        return instance
+        return super().save(*args, **kwargs)
