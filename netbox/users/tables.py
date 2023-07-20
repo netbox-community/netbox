@@ -1,8 +1,8 @@
 import django_tables2 as tables
-from django_tables2.utils import A
-from .models import Token
+
 from netbox.tables import NetBoxTable, columns
 from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
+from .models import Token
 
 __all__ = (
     'GroupTable',
@@ -89,6 +89,17 @@ class GroupTable(NetBoxTable):
 
 class ObjectPermissionTable(NetBoxTable):
     name = tables.Column(linkify=True)
+    object_types = columns.ContentTypesColumn()
+    enabled = columns.BooleanColumn()
+    can_view = columns.BooleanColumn()
+    can_add = columns.BooleanColumn()
+    can_change = columns.BooleanColumn()
+    can_delete = columns.BooleanColumn()
+    custom_actions = columns.ArrayColumn(
+        accessor=tables.A('actions')
+    )
+    users = tables.ManyToManyColumn()
+    groups = tables.ManyToManyColumn()
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )
@@ -96,6 +107,9 @@ class ObjectPermissionTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ObjectPermission
         fields = (
-            'pk', 'id', 'name', 'enabled', 'actions', 'constraints',
+            'pk', 'id', 'name', 'enabled', 'object_types', 'can_view', 'can_add', 'can_change', 'can_delete',
+            'custom_actions', 'users', 'groups', 'constraints', 'description',
         )
-        default_columns = ('pk', 'name', 'enabled', 'actions', 'constraints',)
+        default_columns = (
+            'pk', 'name', 'enabled', 'object_types', 'can_view', 'can_add', 'can_change', 'can_delete', 'description',
+        )

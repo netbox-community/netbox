@@ -13,7 +13,6 @@ __all__ = (
 
 class UserBulkEditForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=NetBoxUser.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -52,8 +51,7 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
 
 class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
-        queryset=None,  # Set from self.model on init
+        queryset=ObjectPermission.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     description = forms.CharField(
@@ -61,17 +59,14 @@ class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
         max_length=200,
         required=False
     )
-    enabled = forms.BooleanField(
-        label=_('Enabled'),
+    enabled = forms.NullBooleanField(
         required=False,
+        widget=BulkEditNullBooleanSelect,
+        label=_('Enabled')
     )
 
     model = ObjectPermission
     fieldsets = (
-        (None, ('description', 'enabled')),
+        (None, ('enabled', 'description')),
     )
-    nullable_fields = ()
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['pk'].queryset = self.model.objects.all()
+    nullable_fields = ('description',)

@@ -368,6 +368,22 @@ class ObjectPermission(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def can_view(self):
+        return 'view' in self.actions
+
+    @property
+    def can_add(self):
+        return 'add' in self.actions
+
+    @property
+    def can_change(self):
+        return 'change' in self.actions
+
+    @property
+    def can_delete(self):
+        return 'delete' in self.actions
+
     def list_constraints(self):
         """
         Return all constraint sets as a list (even if only a single set is defined).
