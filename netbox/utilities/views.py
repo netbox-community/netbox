@@ -5,7 +5,6 @@ from django.urls.exceptions import NoReverseMatch
 
 from netbox.registry import registry
 from .permissions import resolve_permission
-from .querysets import RestrictedQuerySet
 
 __all__ = (
     'ContentTypePermissionRequiredMixin',

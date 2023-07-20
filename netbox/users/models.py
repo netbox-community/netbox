@@ -69,7 +69,7 @@ class NetBoxUser(User):
     class Meta:
         verbose_name = 'User'
         proxy = True
-        ordering = ['username',]
+        ordering = ('username',)
 
     def get_absolute_url(self):
         return reverse('users:netboxuser', args=[self.pk])
@@ -84,7 +84,7 @@ class NetBoxGroup(Group):
     class Meta:
         verbose_name = 'Group'
         proxy = True
-        ordering = ['name',]
+        ordering = ('name',)
 
     def get_absolute_url(self):
         return reverse('users:netboxgroup', args=[self.pk])
@@ -93,7 +93,6 @@ class NetBoxGroup(Group):
 #
 # User preferences
 #
-
 
 class UserConfig(models.Model):
     """

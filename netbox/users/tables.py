@@ -57,8 +57,12 @@ class TokenTable(NetBoxTable):
 
 
 class UserTable(NetBoxTable):
-    username = tables.Column(linkify=True)
-    groups = tables.ManyToManyColumn()
+    username = tables.Column(
+        linkify=True
+    )
+    groups = columns.ManyToManyColumn(
+        linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
+    )
     is_active = columns.BooleanColumn()
     is_staff = columns.BooleanColumn()
     is_superuser = columns.BooleanColumn()
@@ -100,8 +104,12 @@ class ObjectPermissionTable(NetBoxTable):
     custom_actions = columns.ArrayColumn(
         accessor=tables.A('actions')
     )
-    users = tables.ManyToManyColumn()
-    groups = tables.ManyToManyColumn()
+    users = columns.ManyToManyColumn(
+        linkify_item=('users:netboxuser', {'pk': tables.A('pk')})
+    )
+    groups = columns.ManyToManyColumn(
+        linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
     )

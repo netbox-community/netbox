@@ -2,11 +2,10 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash, get_user_model
+from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.models import Group, User, update_last_login
+from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
-from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render, resolve_url
@@ -23,8 +22,6 @@ from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
 from utilities.forms import ConfirmationForm
-from utilities.permissions import get_permission_for_model
-from utilities.querysets import RestrictedQuerySet
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import Token, UserConfig, NetBoxGroup, NetBoxUser, ObjectPermission
@@ -362,7 +359,7 @@ class TokenDeleteView(LoginRequiredMixin, View):
 #
 
 
-class NetBoxUserListView(generic.ObjectListView):
+class UserListView(generic.ObjectListView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     filterset_form = forms.UserFilterForm
@@ -370,47 +367,43 @@ class NetBoxUserListView(generic.ObjectListView):
 
 
 @register_model_view(NetBoxUser)
-class NetBoxUserView(generic.ObjectView):
+class UserView(generic.ObjectView):
     queryset = NetBoxUser.objects.all()
     template_name = 'users/user.html'
 
     def get_extra_context(self, request, instance):
-        # Compile changelog table
-        changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=request.user).prefetch_related(
-            'changed_object_type'
-        )[:20]
+        changelog = ObjectChange.objects.restrict(request.user, 'view').filter(user=request.user)[:20]
         changelog_table = ObjectChangeTable(changelog)
 
         return {
             'changelog_table': changelog_table,
-            'active_tab': 'user',
         }
 
 
 @register_model_view(NetBoxUser, 'edit')
-class NetBoxUserEditView(generic.ObjectEditView):
+class UserEditView(generic.ObjectEditView):
     queryset = NetBoxUser.objects.all()
     form = forms.UserForm
 
 
 @register_model_view(NetBoxUser, 'delete')
-class NetBoxUserDeleteView(generic.ObjectDeleteView):
+class UserDeleteView(generic.ObjectDeleteView):
     queryset = NetBoxUser.objects.all()
 
 
-class NetBoxUserBulkEditView(generic.BulkEditView):
+class UserBulkEditView(generic.BulkEditView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
 
 
-class NetBoxUserBulkImportView(generic.BulkImportView):
+class UserBulkImportView(generic.BulkImportView):
     queryset = NetBoxUser.objects.all()
     model_form = forms.UserImportForm
 
 
-class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
+class UserBulkDeleteView(generic.BulkDeleteView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
@@ -421,42 +414,37 @@ class NetBoxUserBulkDeleteView(generic.BulkDeleteView):
 #
 
 
-class NetBoxGroupListView(generic.ObjectListView):
-    queryset = NetBoxGroup.objects.all().annotate(users_count=Count('user'))
+class GroupListView(generic.ObjectListView):
+    queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
     filterset_form = forms.GroupFilterForm
     table = tables.GroupTable
 
 
 @register_model_view(NetBoxGroup)
-class NetBoxGroupView(generic.ObjectView):
+class GroupView(generic.ObjectView):
     queryset = NetBoxGroup.objects.all()
     template_name = 'users/group.html'
 
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'group',
-        }
-
 
 @register_model_view(NetBoxGroup, 'edit')
-class NetBoxGroupEditView(generic.ObjectEditView):
+class GroupEditView(generic.ObjectEditView):
     queryset = NetBoxGroup.objects.all()
     form = forms.GroupForm
 
 
 @register_model_view(NetBoxGroup, 'delete')
-class NetBoxGroupDeleteView(generic.ObjectDeleteView):
+class GroupDeleteView(generic.ObjectDeleteView):
     queryset = NetBoxGroup.objects.all()
 
 
-class NetBoxGroupBulkImportView(generic.BulkImportView):
+class GroupBulkImportView(generic.BulkImportView):
     queryset = NetBoxGroup.objects.all()
     model_form = forms.GroupImportForm
 
 
-class NetBoxGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxGroup.objects.all()
+class GroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
     table = tables.GroupTable
 
@@ -476,11 +464,6 @@ class ObjectPermissionListView(generic.ObjectListView):
 class ObjectPermissionView(generic.ObjectView):
     queryset = ObjectPermission.objects.all()
     template_name = 'users/objectpermission.html'
-
-    def get_extra_context(self, request, instance):
-        return {
-            'active_tab': 'objectpermission',
-        }
 
 
 @register_model_view(ObjectPermission, 'edit')

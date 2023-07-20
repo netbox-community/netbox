@@ -18,17 +18,10 @@ def get_permission_for_model(model, action):
     :param model: A model or instance
     :param action: View, add, change, or delete (string)
     """
+    # Resolve to the "concrete" model (for proxy models)
+    model = model._meta.concrete_model
 
-    # Get non proxied model
-    concrete_model = model
-    while concrete_model._meta.proxy_for_model:
-        concrete_model = concrete_model._meta.proxy_for_model
-
-    return '{}.{}_{}'.format(
-        concrete_model._meta.app_label,
-        action,
-        concrete_model._meta.model_name
-    )
+    return f'{model._meta.app_label}.{action}_{model._meta.model_name}'
 
 
 def resolve_permission(name):
@@ -75,14 +68,11 @@ def permission_is_exempt(name):
 
     if action == 'view':
         if (
+            # All models (excluding those in EXEMPT_EXCLUDE_MODELS) are exempt from view permission enforcement
+            '*' in settings.EXEMPT_VIEW_PERMISSIONS and (app_label, model_name) not in settings.EXEMPT_EXCLUDE_MODELS
+        ) or (
             # This specific model is exempt from view permission enforcement
             f'{app_label}.{model_name}' in settings.EXEMPT_VIEW_PERMISSIONS
-        ):
-            return True
-
-        if (
-            # All models (excluding those in EXEMPT_EXCLUDE_MODELS) are exempt from view permission enforcement
-            '*' in settings.EXEMPT_VIEW_PERMISSIONS and ((app_label, model_name) not in settings.EXEMPT_EXCLUDE_MODELS)
         ):
             return True
 

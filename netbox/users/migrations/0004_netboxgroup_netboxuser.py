@@ -41,10 +41,10 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterModelOptions(
             name='netboxgroup',
-            options={'ordering': ['name'], 'verbose_name': 'Group'},
+            options={'ordering': ('name',), 'verbose_name': 'Group'},
         ),
         migrations.AlterModelOptions(
             name='netboxuser',
-            options={'ordering': ['username'], 'verbose_name': 'User'},
+            options={'ordering': ('username',), 'verbose_name': 'User'},
         ),
     ]

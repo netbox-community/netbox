@@ -16,18 +16,18 @@ urlpatterns = [
     path('api-tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
 
     # Users
-    path('users/', views.NetBoxUserListView.as_view(), name='netboxuser_list'),
-    path('users/add/', views.NetBoxUserEditView.as_view(), name='netboxuser_add'),
-    path('users/edit/', views.NetBoxUserBulkEditView.as_view(), name='netboxuser_bulk_edit'),
-    path('users/import/', views.NetBoxUserBulkImportView.as_view(), name='netboxuser_import'),
-    path('users/delete/', views.NetBoxUserBulkDeleteView.as_view(), name='netboxuser_bulk_delete'),
+    path('users/', views.UserListView.as_view(), name='netboxuser_list'),
+    path('users/add/', views.UserEditView.as_view(), name='netboxuser_add'),
+    path('users/edit/', views.UserBulkEditView.as_view(), name='netboxuser_bulk_edit'),
+    path('users/import/', views.UserBulkImportView.as_view(), name='netboxuser_import'),
+    path('users/delete/', views.UserBulkDeleteView.as_view(), name='netboxuser_bulk_delete'),
     path('users/<int:pk>/', include(get_model_urls('users', 'netboxuser'))),
 
     # Groups
-    path('groups/', views.NetBoxGroupListView.as_view(), name='netboxgroup_list'),
-    path('groups/add/', views.NetBoxGroupEditView.as_view(), name='netboxgroup_add'),
-    path('groups/import/', views.NetBoxGroupBulkImportView.as_view(), name='netboxgroup_import'),
-    path('groups/delete/', views.NetBoxGroupBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
+    path('groups/', views.GroupListView.as_view(), name='netboxgroup_list'),
+    path('groups/add/', views.GroupEditView.as_view(), name='netboxgroup_add'),
+    path('groups/import/', views.GroupBulkImportView.as_view(), name='netboxgroup_import'),
+    path('groups/delete/', views.GroupBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
     path('groups/<int:pk>/', include(get_model_urls('users', 'netboxgroup'))),
 
     # Permissions
