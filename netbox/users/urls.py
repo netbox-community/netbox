@@ -6,11 +6,14 @@ from . import views
 app_name = 'users'
 urlpatterns = [
 
-    # User
+    # Account views
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),
     path('preferences/', views.UserConfigView.as_view(), name='preferences'),
     path('password/', views.ChangePasswordView.as_view(), name='change_password'),
+    path('api-tokens/', views.TokenListView.as_view(), name='token_list'),
+    path('api-tokens/add/', views.TokenEditView.as_view(), name='token_add'),
+    path('api-tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
 
     # Users
     path('users/', views.NetBoxUserListView.as_view(), name='netboxuser_list'),
@@ -33,10 +36,5 @@ urlpatterns = [
     path('permissions/edit/', views.ObjectPermissionBulkEditView.as_view(), name='objectpermission_bulk_edit'),
     path('permissions/delete/', views.ObjectPermissionBulkDeleteView.as_view(), name='objectpermission_bulk_delete'),
     path('permissions/<int:pk>/', include(get_model_urls('users', 'objectpermission'))),
-
-    # API tokens
-    path('api-tokens/', views.TokenListView.as_view(), name='token_list'),
-    path('api-tokens/add/', views.TokenEditView.as_view(), name='token_add'),
-    path('api-tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
 
 ]

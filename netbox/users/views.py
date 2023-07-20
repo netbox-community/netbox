@@ -158,7 +158,7 @@ class LogoutView(View):
 #
 
 class ProfileView(LoginRequiredMixin, View):
-    template_name = 'users/profile.html'
+    template_name = 'users/account/profile.html'
 
     def get(self, request):
 
@@ -177,7 +177,7 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 class UserConfigView(LoginRequiredMixin, View):
-    template_name = 'users/preferences.html'
+    template_name = 'users/account/preferences.html'
 
     def get(self, request):
         userconfig = request.user.config
@@ -205,7 +205,7 @@ class UserConfigView(LoginRequiredMixin, View):
 
 
 class ChangePasswordView(LoginRequiredMixin, View):
-    template_name = 'users/password.html'
+    template_name = 'users/account/password.html'
 
     def get(self, request):
         # LDAP users cannot change their password here
@@ -240,7 +240,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
 
 class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
     table = BookmarkTable
-    template_name = 'users/bookmarks.html'
+    template_name = 'users/account/bookmarks.html'
 
     def get_queryset(self, request):
         return Bookmark.objects.filter(user=request.user)
@@ -263,7 +263,7 @@ class TokenListView(LoginRequiredMixin, View):
         table = tables.TokenTable(tokens)
         table.configure(request)
 
-        return render(request, 'users/api_tokens.html', {
+        return render(request, 'users/account/api_tokens.html', {
             'tokens': tokens,
             'active_tab': 'api-tokens',
             'table': table,
@@ -307,7 +307,7 @@ class TokenEditView(LoginRequiredMixin, View):
             messages.success(request, msg)
 
             if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-                return render(request, 'users/api_token.html', {
+                return render(request, 'users/account/api_token.html', {
                     'object': token,
                     'key': token.key,
                     'return_url': reverse('users:token_list'),
