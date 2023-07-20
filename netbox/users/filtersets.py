@@ -1,12 +1,11 @@
 import django_filters
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from netbox.filtersets import BaseFilterSet
-from users.models import ObjectPermission, Token, NetBoxUser
+from users.models import ObjectPermission, Token
 
 __all__ = (
     'GroupFilterSet',
@@ -116,6 +115,18 @@ class ObjectPermissionFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    can_view = django_filters.BooleanFilter(
+        method='_check_action'
+    )
+    can_add = django_filters.BooleanFilter(
+        method='_check_action'
+    )
+    can_change = django_filters.BooleanFilter(
+        method='_check_action'
+    )
+    can_delete = django_filters.BooleanFilter(
+        method='_check_action'
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
         queryset=get_user_model().objects.all(),
@@ -150,3 +161,10 @@ class ObjectPermissionFilterSet(BaseFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value)
         )
+
+    def _check_action(self, queryset, name, value):
+        action = name.split('_')[1]
+        if value:
+            return queryset.filter(actions__contains=[action])
+        else:
+            return queryset.exclude(actions__contains=[action])
