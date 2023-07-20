@@ -1,48 +1,31 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm as DjangoPasswordChangeForm, SetPasswordForm as DjangoPasswordSetForm
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
-from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
-from utilities.forms import BootstrapMixin
-from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.widgets import DateTimePicker
-from utilities.utils import flatten_dict
 from users.constants import *
 from users.models import *
+from utilities.forms import BootstrapMixin
+from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import DateTimePicker
 from utilities.permissions import qs_filter_from_constraints
+from utilities.utils import flatten_dict
 
 __all__ = (
     'GroupForm',
-    'LoginForm',
     'ObjectPermissionForm',
-    'PasswordChangeForm',
-    'PasswordSetForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
 )
-
-
-class LoginForm(BootstrapMixin, AuthenticationForm):
-    pass
-
-
-class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
-    pass
-
-
-class PasswordSetForm(BootstrapMixin, DjangoPasswordSetForm):
-    pass
 
 
 class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
@@ -180,10 +163,10 @@ class UserForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (_('User'), ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', )),
+        (_('User'), ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email')),
         (_('Groups'), ('groups', )),
-        (_('Status'), ('is_active', 'is_staff', 'is_superuser', )),
-        (_('Permissions'), ('object_permissions', )),
+        (_('Status'), ('is_active', 'is_staff', 'is_superuser')),
+        (_('Permissions'), ('object_permissions',)),
     )
 
     class Meta:
@@ -196,41 +179,36 @@ class UserForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Adjust form fields depending if Add or Edit
         if self.instance.pk:
-            self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
-            pw_field = self.fields['password']
-            pwc_field = self.fields['confirm_password']
-            pw_field.required = False
-            pw_field.widget.attrs.pop('required')
-            pw_field.help_text = _("Leave empty to keep the old password.")
-            pwc_field.required = False
-            pwc_field.widget.attrs.pop('required')
+            # Populate assigned permissions
+            self.fields['object_permissions'].initial = self.instance.object_permissions.values_list('id', flat=True)
+
+            # Password fields are optional for existing Users
+            self.fields['password'].required = False
+            self.fields['password'].widget.attrs.pop('required')
+            self.fields['confirm_password'].required = False
+            self.fields['confirm_password'].widget.attrs.pop('required')
 
     def save(self, *args, **kwargs):
-        edited = getattr(self, 'instance', None)
         instance = super().save(*args, **kwargs)
+
+        # Update assigned permissions
         instance.object_permissions.set(self.cleaned_data['object_permissions'])
 
         # On edit, check if we have to save the password
-        if edited and self.cleaned_data.get("password"):
-            instance.set_password(self.cleaned_data.get("password"))
+        if self.cleaned_data.get('password'):
+            instance.set_password(self.cleaned_data.get('password'))
             instance.save()
 
         return instance
 
     def clean(self):
-        cleaned_data = super().clean()
-        instance = getattr(self, 'instance', None)
-        if not instance or cleaned_data.get("password"):
-            password = cleaned_data.get("password")
-            confirm_password = cleaned_data.get("confirm_password")
 
-            if password != confirm_password:
-                raise forms.ValidationError(
-                    _("password and confirm_password does not match")
-                )
+        # Check that password confirmation matches if password is set
+        if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
+            raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
 
+    # TODO: Move this logic to the NetBoxUser class
     def clean_username(self):
         """Reject usernames that differ only in case."""
         instance = getattr(self, 'instance', None)
@@ -277,22 +255,46 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Populate assigned users and permissions
         if self.instance.pk:
-            self.fields['users'].initial = self.instance.user_set.all().values_list('id', flat=True)
-            self.fields['object_permissions'].initial = self.instance.object_permissions.all().values_list('id', flat=True)
+            self.fields['users'].initial = self.instance.user_set.values_list('id', flat=True)
+            self.fields['object_permissions'].initial = self.instance.object_permissions.values_list('id', flat=True)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
+
+        # Update assigned users and permissions
         instance.user_set.set(self.cleaned_data['users'])
         instance.object_permissions.set(self.cleaned_data['object_permissions'])
+
         return instance
 
 
 class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
+        queryset=ContentType.objects.all(),
+        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
+        widget=forms.SelectMultiple(attrs={'size': 6})
+    )
+    can_view = forms.BooleanField(
+        required=False
+    )
+    can_add = forms.BooleanField(
+        required=False
+    )
+    can_change = forms.BooleanField(
+        required=False
+    )
+    can_delete = forms.BooleanField(
+        required=False
+    )
     actions = SimpleArrayField(
-        label=_('Actions'),
+        label=_('Additional actions'),
         base_field=forms.CharField(),
         required=False,
+        help_text=_('Actions granted in addition to those listed above')
     )
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
@@ -304,17 +306,6 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
         required=False,
         queryset=Group.objects.all()
     )
-    object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
-        widget=forms.SelectMultiple(attrs={'size': 6})
-    )
-
-    can_view = forms.BooleanField(required=False)
-    can_add = forms.BooleanField(required=False)
-    can_change = forms.BooleanField(required=False)
-    can_delete = forms.BooleanField(required=False)
 
     fieldsets = (
         (None, ('name', 'description', 'enabled',)),
@@ -330,13 +321,11 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
             'name', 'description', 'enabled', 'object_types', 'users', 'groups', 'constraints', 'actions',
         ]
         help_texts = {
-            'actions': _('Actions granted in addition to those listed above'),
-            'constraints': _('JSON expression of a queryset filter that will return only permitted objects. Leave null '
-                             'to match all objects of this type. A list of multiple objects will result in a logical OR '
-                             'operation.')
-        }
-        labels = {
-            'actions': 'Additional actions'
+            'constraints': _(
+                'JSON expression of a queryset filter that will return only permitted objects. Leave null '
+                'to match all objects of this type. A list of multiple objects will result in a logical OR '
+                'operation.'
+            )
         }
 
     def __init__(self, *args, **kwargs):
