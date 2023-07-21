@@ -16,14 +16,13 @@
         <td>{{ terminations.0.device.rack|linkify|placeholder }}</td>
       </tr>
       <tr>
-        <td>Device</td>
-        <td>{{ terminations.0.device|linkify }}</td>
-      </tr>
-      <tr>
         <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
         <td>
           {% for term in terminations %}
-            {{ term|linkify }}{% if not forloop.last %},{% endif %}
+	    {{term.device|linkify}}
+	    <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+	    {{ term|linkify }}
+	    {% if not forloop.last %}<br/>{% endif %}
           {% endfor %}
         </td>
       </tr>

@@ -49,6 +49,9 @@ class CoreMiddleware:
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id
 
+        # Enable the Vary header to help with caching of HTMX responses
+        response['Vary'] = 'HX-Request'
+
         # If this is an API request, attach an HTTP header annotating the API version (e.g. '3.5').
         if is_api_request(request):
             response['API-Version'] = settings.REST_FRAMEWORK_VERSION
@@ -203,7 +206,7 @@ class MaintenanceModeMiddleware:
         """
         Prevent any write-related database operations if an exception is raised.
         """
-        if isinstance(exception, InternalError):
+        if get_config().MAINTENANCE_MODE and isinstance(exception, InternalError):
             error_message = 'NetBox is currently operating in maintenance mode and is unable to perform write ' \
                             'operations. Please try again later.'
 

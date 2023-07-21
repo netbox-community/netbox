@@ -306,7 +306,7 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments',
+            'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments', 'tags',
         ]
 
 
@@ -327,7 +327,7 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'weight', 'weight_unit', 'comments']
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'weight', 'weight_unit', 'comments', 'tags']
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):

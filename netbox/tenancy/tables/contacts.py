@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django_tables2.utils import Accessor
 
 from netbox.tables import NetBoxTable, columns
 from tenancy.models import *
@@ -90,11 +91,40 @@ class ContactAssignmentTable(NetBoxTable):
     role = tables.Column(
         linkify=True
     )
+    contact_title = tables.Column(
+        accessor=Accessor('contact__title'),
+        verbose_name='Contact Title'
+    )
+    contact_phone = tables.Column(
+        accessor=Accessor('contact__phone'),
+        verbose_name='Contact Phone'
+    )
+    contact_email = tables.Column(
+        accessor=Accessor('contact__email'),
+        verbose_name='Contact Email'
+    )
+    contact_address = tables.Column(
+        accessor=Accessor('contact__address'),
+        verbose_name='Contact Address'
+    )
+    contact_link = tables.Column(
+        accessor=Accessor('contact__link'),
+        verbose_name='Contact Link'
+    )
+    contact_description = tables.Column(
+        accessor=Accessor('contact__description'),
+        verbose_name='Contact Description'
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete')
     )
 
     class Meta(NetBoxTable.Meta):
         model = ContactAssignment
-        fields = ('pk', 'content_type', 'object', 'contact', 'role', 'priority', 'actions')
-        default_columns = ('pk', 'content_type', 'object', 'contact', 'role', 'priority')
+        fields = (
+            'pk', 'content_type', 'object', 'contact', 'role', 'priority', 'contact_title', 'contact_phone',
+            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'actions'
+        )
+        default_columns = (
+            'pk', 'content_type', 'object', 'contact', 'role', 'priority', 'contact_email', 'contact_phone'
+        )

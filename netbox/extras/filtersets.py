@@ -20,6 +20,7 @@ __all__ = (
     'ConfigRevisionFilterSet',
     'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
+    'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
     'ExportTemplateFilterSet',
@@ -74,6 +75,14 @@ class CustomFieldFilterSet(BaseFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    choice_set_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CustomFieldChoiceSet.objects.all()
+    )
+    choice_set = django_filters.ModelMultipleChoiceFilter(
+        field_name='choice_set__name',
+        queryset=CustomFieldChoiceSet.objects.all(),
+        to_field_name='name'
+    )
 
     class Meta:
         model = CustomField
@@ -91,6 +100,35 @@ class CustomFieldFilterSet(BaseFilterSet):
             Q(group_name__icontains=value) |
             Q(description__icontains=value)
         )
+
+
+class CustomFieldChoiceSetFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    choice = MultiValueCharFilter(
+        method='filter_by_choice'
+    )
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = [
+            'id', 'name', 'description', 'order_alphabetically',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(extra_choices__contains=value)
+        )
+
+    def filter_by_choice(self, queryset, name, value):
+        # TODO: Support case-insensitive matching
+        return queryset.filter(extra_choices__overlap=value)
 
 
 class CustomLinkFilterSet(BaseFilterSet):

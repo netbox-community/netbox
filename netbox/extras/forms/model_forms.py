@@ -16,9 +16,10 @@ from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import BootstrapMixin, add_blank_choice
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField,
-    SlugField,
+    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms.widgets import ArrayWidget
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -27,6 +28,7 @@ __all__ = (
     'ConfigContextForm',
     'ConfigRevisionForm',
     'ConfigTemplateForm',
+    'CustomFieldChoiceSetForm',
     'CustomFieldForm',
     'CustomLinkForm',
     'ExportTemplateForm',
@@ -50,13 +52,17 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
+    choice_set = DynamicModelChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all(),
+        required=False
+    )
 
     fieldsets = (
         ('Custom Field', (
             'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
         )),
         ('Behavior', ('search_weight', 'filter_logic', 'ui_visibility', 'weight', 'is_cloneable')),
-        ('Values', ('default', 'choices')),
+        ('Values', ('default', 'choice_set')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
     )
 
@@ -76,6 +82,20 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         # Disable changing the type of a CustomField as it almost universally causes errors if custom field data is already present.
         if self.instance.pk:
             self.fields['type'].disabled = True
+
+
+class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
+    extra_choices = forms.CharField(
+        widget=ArrayWidget(),
+        help_text=_('Enter one choice per line.')
+    )
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = ('name', 'description', 'extra_choices', 'order_alphabetically')
+
+    def clean_extra_choices(self):
+        return self.cleaned_data['extra_choices'].splitlines()
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):

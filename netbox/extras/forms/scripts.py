@@ -56,10 +56,3 @@ class ScriptForm(BootstrapMixin, forms.Form):
             self.cleaned_data['_schedule_at'] = local_now()
 
         return self.cleaned_data
-
-    @property
-    def requires_input(self):
-        """
-        A boolean indicating whether the form requires user input (ignore the built-in fields).
-        """
-        return bool(len(self.fields) > 3)

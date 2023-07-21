@@ -5,7 +5,7 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('users', '0003_token_allowed_ips_last_used'),
+        ('users', '0004_netboxgroup_netboxuser'),
     ]
 
     operations = [
