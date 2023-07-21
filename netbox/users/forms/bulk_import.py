@@ -4,16 +4,9 @@ from utilities.forms import CSVModelForm
 
 __all__ = (
     'GroupImportForm',
-    'TokenImportForm',
     'UserImportForm',
+    'UserTokenImportForm',
 )
-
-
-class TokenImportForm(CSVModelForm):
-
-    class Meta:
-        model = Token
-        fields = ('description', )
 
 
 class GroupImportForm(CSVModelForm):
@@ -39,3 +32,10 @@ class UserImportForm(CSVModelForm):
         self.instance.set_password(self.cleaned_data.get('password'))
 
         return super().save(*args, **kwargs)
+
+
+class UserTokenImportForm(CSVModelForm):
+
+    class Meta:
+        model = Token
+        fields = ('description', )

@@ -27,7 +27,7 @@ from netbox.config import get_config
 from netbox.views import generic
 
 from . import filtersets, forms, tables
-from .filtersets import TokenFilterSet
+from .filtersets import TokenFilterSet, UserTokenFilterSet
 from .models import (
     NetBoxGroup,
     NetBoxUser,
@@ -36,7 +36,7 @@ from .models import (
     UserConfig,
     UserToken,
 )
-from .tables import TokenTable
+from .tables import TokenTable, UserTokenTable
 
 #
 # Login/logout
@@ -421,9 +421,9 @@ class TokenDeleteView(LoginRequiredMixin, View):
 
 class UserTokenListView(generic.ObjectListView):
     queryset = UserToken.objects.all()
-    filterset = TokenFilterSet
-    filterset_form = forms.TokenFilterForm
-    table = TokenTable
+    filterset = UserTokenFilterSet
+    filterset_form = forms.UserTokenFilterForm
+    table = UserTokenTable
 
 
 @register_model_view(UserToken)
@@ -437,7 +437,7 @@ class UserTokenView(generic.ObjectView):
 @register_model_view(UserToken, 'edit')
 class UserTokenEditView(generic.ObjectEditView):
     queryset = UserToken.objects.all()
-    form = forms.TokenForm
+    form = forms.UserTokenForm
 
 
 @register_model_view(UserToken, 'delete')
@@ -447,18 +447,18 @@ class UserTokenDeleteView(generic.ObjectDeleteView):
 
 class UserTokenBulkImportView(generic.BulkImportView):
     queryset = UserToken.objects.all()
-    model_form = forms.TokenImportForm
+    model_form = forms.UserTokenImportForm
 
 
 class UserTokenBulkEditView(generic.BulkEditView):
     queryset = UserToken.objects.all()
     table = TokenTable
-    form = forms.TokenBulkEditForm
+    form = forms.UserTokenBulkEditForm
 
 
 class UserTokenBulkDeleteView(generic.BulkDeleteView):
     queryset = UserToken.objects.all()
-    table = TokenTable
+    table = UserTokenTable
 
 
 #

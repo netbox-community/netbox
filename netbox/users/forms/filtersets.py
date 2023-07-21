@@ -14,13 +14,9 @@ from utilities.forms.fields import DynamicModelMultipleChoiceField
 __all__ = (
     'GroupFilterForm',
     'ObjectPermissionFilterForm',
-    'TokenFilterForm',
     'UserFilterForm',
+    'UserTokenFilterForm',
 )
-
-
-class TokenFilterForm(SavedFiltersMixin, FilterForm):
-    model = Token
 
 
 class GroupFilterForm(NetBoxModelFilterSetForm):
@@ -117,3 +113,7 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
         ),
         label=_('Can Delete'),
     )
+
+
+class UserTokenFilterForm(SavedFiltersMixin, FilterForm):
+    model = Token
