@@ -413,7 +413,7 @@ ADMIN_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Users'),
+            label=_('Tokens'),
             items=(
                 MenuItem(
                     link='users:usertoken_list',
