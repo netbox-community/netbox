@@ -416,7 +416,7 @@ ADMIN_MENU = Menu(
             label=_('Users'),
             items=(
                 MenuItem(
-                    link='users:user_token_list',
+                    link='users:usertoken_list',
                     link_text=_('Tokens'),
                     permissions=['users.view_token']
                 ),

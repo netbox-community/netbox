@@ -325,10 +325,12 @@ class UserToken(Token):
     def get_absolute_url(self):
         return reverse('users:usertoken', args=[self.pk])
 
+    objects = RestrictedQuerySet.as_manager()
 
 #
 # Permissions
 #
+
 
 class ObjectPermission(models.Model):
     """
