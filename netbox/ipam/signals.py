@@ -70,7 +70,7 @@ def clear_oob_ip(instance, **kwargs):
     When an IPAddress is deleted, trigger save() on any Devices/VirtualMachines for which it
     was a OOB IP.
     """
-    field_name = f'oob_ip{instance.family}'
+    field_name = f'oob_ip'
     device = Device.objects.filter(**{field_name: instance}).first()
     if device:
         device.save()
