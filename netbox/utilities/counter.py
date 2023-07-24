@@ -14,9 +14,9 @@ def post_save_receiver_counter(counter_instance, sender, instance, created, **kw
 
     # not created so check if field has changed
     field_name = f"{counter_instance.foreign_key_field.name}_id"
-    if field_name in instance.tracker.changed:
+    if field_name in instance.tracker:
         new_value = getattr(instance, field_name, None)
-        old_value = instance.tracker.changed[field_name]
+        old_value = instance.tracker.get(field_name)
         if (new_value is not None) and (new_value != old_value):
             counter_instance.adjust_count(new_value, 1)
             counter_instance.adjust_count(old_value, -1)
