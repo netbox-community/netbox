@@ -43,7 +43,7 @@ class Counter:
 
         # add the field to be tracked for changes in case of update
         change_tracking_fields = registry['counter_fields'][self.child_model]
-        change_tracking_fields.add(f"{self.foreign_key_field.name}_id")
+        change_tracking_fields[f"{self.foreign_key_field.name}_id"] = counter_name
 
         self.connect()
 
