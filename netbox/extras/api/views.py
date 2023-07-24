@@ -303,7 +303,7 @@ class ScriptViewSet(ViewSet):
 
         # Attach Job objects to each script (if any)
         for script in script_list:
-            script.result = results.get(script.name, None)
+            script.result = results.get(script.class_name, None)
 
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
@@ -314,7 +314,7 @@ class ScriptViewSet(ViewSet):
         object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
         script.result = Job.objects.filter(
             object_type=object_type,
-            name=script.name,
+            name=script.class_name,
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
