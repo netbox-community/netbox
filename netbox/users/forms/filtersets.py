@@ -10,6 +10,7 @@ from netbox.forms import NetBoxModelFilterSetForm
 from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.widgets import DateTimePicker
 
 __all__ = (
     'GroupFilterForm',
@@ -117,3 +118,22 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
 
 class UserTokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
+    fieldsets = (
+        (None, ('q', 'filter_id',)),
+        (_('Data'), ('user_id', 'expires', 'last_used')),
+    )
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=get_user_model().objects.all(),
+        required=False,
+        label=_('User')
+    )
+    expires = forms.DateTimeField(
+        required=False,
+        label=_('Expires'),
+        widget=DateTimePicker()
+    )
+    last_used = forms.DateTimeField(
+        required=False,
+        label=_('Last Used'),
+        widget=DateTimePicker()
+    )
