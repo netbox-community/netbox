@@ -853,14 +853,9 @@ class IPAddress(PrimaryModel):
     def is_oob_ip(self):
         if self.assigned_object:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            if self.family == 4:
-                if parent.oob_ip4:
-                    if parent.oob_ip4.pk == self.pk:
-                        return True
-            if self.family == 6:
-                if parent.oob_ip6:
-                    if parent.oob_ip6.pk == self.pk:
-                        return True
+            if parent.oob_ip:
+                if parent.oob_ip.pk == self.pk:
+                    return True
         return False
 
     @property

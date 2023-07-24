@@ -203,16 +203,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     oob_ip = tables.Column(
         linkify=True,
-        order_by=('oob_ip4', 'oob_ip6'),
-        verbose_name='OOB IP Address'
-    )
-    oob_ip4 = tables.Column(
-        linkify=True,
-        verbose_name='OOB IPv4 Address'
-    )
-    oob_ip6 = tables.Column(
-        linkify=True,
-        verbose_name='OOB IPv6 Address'
+        verbose_name='OOB IP'
     )
     cluster = tables.Column(
         linkify=True

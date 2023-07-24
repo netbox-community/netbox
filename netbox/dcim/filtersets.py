@@ -1000,15 +1000,10 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         queryset=IPAddress.objects.all(),
         label=_('Primary IPv6 (ID)'),
     )
-    oob_ip4_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='oob_ip4',
+    oob_ip_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='oob_ip',
         queryset=IPAddress.objects.all(),
-        label=_('OOB IPv4 (ID)'),
-    )
-    oob_ip6_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='oob_ip6',
-        queryset=IPAddress.objects.all(),
-        label=_('OOB IPv6 (ID)'),
+        label=_('OOB IP (ID)'),
     )
 
     class Meta:
@@ -1035,7 +1030,7 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         return queryset.exclude(params)
 
     def _has_oob_ip(self, queryset, name, value):
-        params = Q(oob_ip4__isnull=False) | Q(oob_ip6__isnull=False)
+        params = Q(oob_ip__isnull=False)
         if value:
             return queryset.filter(params)
         return queryset.exclude(params)
