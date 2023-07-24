@@ -1,5 +1,7 @@
 from django.db.models.query_utils import DeferredAttribute
 
+from netbox.registry import registry
+
 
 class Tracker:
     def __init__(self, instance):
@@ -8,7 +10,6 @@ class Tracker:
 
 
 class TrackingModelMixin:
-    change_tracking_fields = []
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -21,10 +22,8 @@ class TrackingModelMixin:
         return self._state._tracker
 
     def save(self, *args, **kwargs):
-        if not self.change_tracking_fields:
-            return super().save(*args, **kwargs)
-
         super().save(*args, **kwargs)
+
         if self.tracker.changed:
             if update_fields := kwargs.get('update_fields', None):
                 for field in update_fields:
@@ -33,8 +32,9 @@ class TrackingModelMixin:
                 self.tracker.changed = {}
 
     def __setattr__(self, name, value):
-        if hasattr(self, "_initialized") and self.change_tracking_fields:
-            if name in self.tracker.instance.change_tracking_fields:
+        if hasattr(self, "_initialized"):
+            change_tracking_fields = registry['counter_fields'][self.__class__]
+            if name in change_tracking_fields:
                 if name not in self.tracker.changed:
                     if name in self.__dict__:
                         old_value = getattr(self, name)

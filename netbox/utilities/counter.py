@@ -1,10 +1,10 @@
 from django.apps import apps
 from django.db.models import F
-from django.db.models.signals import post_delete, post_save, pre_save
+from django.db.models.signals import post_delete, post_save
 from functools import partial
 
+from netbox.registry import registry
 from .fields import CounterCacheField
-from .mixins import TrackingModelMixin
 
 
 def post_save_receiver_counter(counter_instance, sender, instance, created, **kwargs):
@@ -41,10 +41,9 @@ class Counter:
         self.child_model = self.foreign_key_field.model
         self.parent_model = self.foreign_key_field.related_model
 
-        # add the field to be tracked for changes incase of update
-        field_name = f"{self.foreign_key_field.name}_id"
-        if hasattr(self.child_model, 'change_tracking_fields') and field_name not in self.child_model.change_tracking_fields:
-            self.child_model.change_tracking_fields.append(field_name)
+        # add the field to be tracked for changes in case of update
+        change_tracking_fields = registry['counter_fields'][self.child_model]
+        change_tracking_fields.add(f"{self.foreign_key_field.name}_id")
 
         self.connect()
 
