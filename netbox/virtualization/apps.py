@@ -7,6 +7,7 @@ class VirtualizationConfig(AppConfig):
     def ready(self):
         from . import search
         from .models import VirtualMachine
-        from utilities.counter import connect_counters
+        from utilities.counters import connect_counters
 
-        connect_counters([VirtualMachine,])
+        # Register counters
+        connect_counters(VirtualMachine)

@@ -1,4 +1,4 @@
-from django.apps import AppConfig, apps
+from django.apps import AppConfig
 
 from netbox import denormalized
 
@@ -10,8 +10,7 @@ class DCIMConfig(AppConfig):
     def ready(self):
         from . import signals, search
         from .models import CableTermination, Device
-
-        from utilities.counter import connect_counters
+        from utilities.counters import connect_counters
 
         # Register denormalized fields
         denormalized.register(CableTermination, '_device', {
@@ -27,4 +26,5 @@ class DCIMConfig(AppConfig):
             '_site': 'site',
         })
 
-        connect_counters([Device,])
+        # Register counters
+        connect_counters(Device)
