@@ -486,7 +486,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
                 if nat_ips:
                     ip_list = [(ip.id, f'{ip.address} (NAT)') for ip in nat_ips]
                     ip_choices.append(('NAT IPs', ip_list))
-                    oob_ip_choices.append(('Nat IPv{}s'.format(family), ip_list))
+                    oob_ip_choices.append(('NAT IPv{}s'.format(family), ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
             self.fields['oob_ip'].choices = oob_ip_choices
 
