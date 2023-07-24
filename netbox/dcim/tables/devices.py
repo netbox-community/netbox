@@ -137,11 +137,11 @@ class PlatformTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Platform
         fields = (
-            'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template', 'napalm_driver',
-            'napalm_args', 'description', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'manufacturer', 'device_count', 'vm_count', 'slug', 'config_template', 'description',
+            'tags', 'actions', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'napalm_driver', 'description',
+            'pk', 'name', 'manufacturer', 'device_count', 'vm_count', 'description',
         )
 
 
@@ -249,9 +249,9 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
             'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
-            'device_bay_position', 'position', 'face', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster',
-            'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template', 'comments', 'contacts',
-            'tags', 'created', 'last_updated', 'oob_ip', 'oob_ip4', 'oob_ip6',
+            'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'primary_ip', 'primary_ip4',
+            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
+            'comments', 'contacts', 'oob_ip', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',

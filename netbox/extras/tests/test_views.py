@@ -1,7 +1,7 @@
 import urllib.parse
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
@@ -11,6 +11,9 @@ from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
 
 
+User = get_user_model()
+
+
 class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CustomField
 
@@ -18,6 +21,11 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         site_ct = ContentType.objects.get_for_model(Site)
+        CustomFieldChoiceSet.objects.create(
+            name='Choice Set 1',
+            extra_choices=('A', 'B', 'C')
+        )
+
         custom_fields = (
             CustomField(name='field1', label='Field 1', type=CustomFieldTypeChoices.TYPE_TEXT),
             CustomField(name='field2', label='Field 2', type=CustomFieldTypeChoices.TYPE_TEXT),
@@ -41,10 +49,10 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,label,type,content_types,object_type,weight,search_weight,filter_logic,choices,validation_minimum,validation_maximum,validation_regex,ui_visibility',
+            'name,label,type,content_types,object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visibility',
             'field4,Field 4,text,dcim.site,,100,1000,exact,,,,[a-z]{3},read-write',
             'field5,Field 5,integer,dcim.site,,100,2000,exact,,1,100,,read-write',
-            'field6,Field 6,select,dcim.site,,100,3000,exact,"A,B,C",,,,read-write',
+            'field6,Field 6,select,dcim.site,,100,3000,exact,Choice Set 1,,,,read-write',
             'field7,Field 7,object,dcim.site,dcim.region,100,4000,exact,,,,,read-write',
         )
 
@@ -58,6 +66,43 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'required': True,
             'weight': 200,
+        }
+
+
+class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = CustomFieldChoiceSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        choice_sets = (
+            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['1A', '1B', '1C', '1D', '1E']),
+            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['2A', '2B', '2C', '2D', '2E']),
+            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
+        )
+        CustomFieldChoiceSet.objects.bulk_create(choice_sets)
+
+        cls.form_data = {
+            'name': 'Choice Set X',
+            'extra_choices': 'X1,X2,X3,X4,X5',
+        }
+
+        cls.csv_data = (
+            'name,extra_choices',
+            'Choice Set 4,"4A,4B,4C,4D,4E"',
+            'Choice Set 5,"5A,5B,5C,5D,5E"',
+            'Choice Set 6,"6A,6B,6C,6D,6E"',
+        )
+
+        cls.csv_update_data = (
+            'id,extra_choices',
+            f'{choice_sets[0].pk},"1X,1Y,1Z"',
+            f'{choice_sets[1].pk},"2X,2Y,2Z"',
+            f'{choice_sets[2].pk},"3X,3Y,3Z"',
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
         }
 
 
@@ -176,6 +221,54 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'weight': 999,
         }
+
+
+class BookmarkTestCase(
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = Bookmark
+
+    @classmethod
+    def setUpTestData(cls):
+        site_ct = ContentType.objects.get_for_model(Site)
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
+        )
+        Site.objects.bulk_create(sites)
+
+        cls.form_data = {
+            'object_type': site_ct.pk,
+            'object_id': sites[3].pk,
+        }
+
+    def setUp(self):
+        super().setUp()
+
+        sites = Site.objects.all()
+        user = self.user
+
+        bookmarks = (
+            Bookmark(object=sites[0], user=user),
+            Bookmark(object=sites[1], user=user),
+            Bookmark(object=sites[2], user=user),
+        )
+        Bookmark.objects.bulk_create(bookmarks)
+
+    def _get_url(self, action, instance=None):
+        if action == 'list':
+            return reverse('users:bookmarks')
+        return super()._get_url(action, instance)
+
+    def test_list_objects_anonymous(self):
+        return
+
+    def test_list_objects_with_constrained_permission(self):
+        return
 
 
 class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):

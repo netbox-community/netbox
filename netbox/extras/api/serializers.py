@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
@@ -31,9 +31,11 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .nested_serializers import *
 
 __all__ = (
+    'BookmarkSerializer',
     'ConfigContextSerializer',
     'ConfigTemplateSerializer',
     'ContentTypeSerializer',
+    'CustomFieldChoiceSetSerializer',
     'CustomFieldSerializer',
     'CustomLinkSerializer',
     'DashboardSerializer',
@@ -93,6 +95,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
+    choice_set = NestedCustomFieldChoiceSetSerializer(required=False)
     ui_visibility = ChoiceField(choices=CustomFieldVisibilityChoices, required=False)
 
     class Meta:
@@ -100,7 +103,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
             'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'default',
-            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices', 'created',
+            'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set', 'created',
             'last_updated',
         ]
 
@@ -124,6 +127,17 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         if obj.type in (types.TYPE_MULTISELECT, types.TYPE_MULTIOBJECT):
             return 'array'
         return 'string'
+
+
+class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = [
+            'id', 'url', 'display', 'name', 'description', 'extra_choices', 'order_alphabetically', 'choices_count',
+            'created', 'last_updated',
+        ]
 
 
 #
@@ -191,17 +205,47 @@ class SavedFilterSerializer(ValidatedModelSerializer):
 
 
 #
+# Bookmarks
+#
+
+class BookmarkSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
+    object_type = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('bookmarks').get_query()),
+    )
+    object = serializers.SerializerMethodField(read_only=True)
+    user = NestedUserSerializer()
+
+    class Meta:
+        model = Bookmark
+        fields = [
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
+        ]
+
+    @extend_schema_field(serializers.JSONField(allow_null=True))
+    def get_object(self, instance):
+        serializer = get_serializer_for_model(instance.object, prefix=NESTED_SERIALIZER_PREFIX)
+        return serializer(instance.object, context={'request': self.context['request']}).data
+
+
+#
 # Tags
 #
 
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
+    object_types = ContentTypeField(
+        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
+        many=True,
+        required=False
+    )
     tagged_items = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Tag
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tagged_items', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'object_types', 'tagged_items', 'created',
+            'last_updated',
         ]
 
 
@@ -256,7 +300,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
         allow_null=True,
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         default=serializers.CurrentUserDefault()
     )

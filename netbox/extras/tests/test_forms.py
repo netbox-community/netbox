@@ -5,7 +5,7 @@ from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.forms import SavedFilterForm
-from extras.models import CustomField
+from extras.models import CustomField, CustomFieldChoiceSet
 
 
 class CustomFieldModelFormTest(TestCase):
@@ -13,7 +13,10 @@ class CustomFieldModelFormTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         obj_type = ContentType.objects.get_for_model(Site)
-        CHOICES = ('A', 'B', 'C')
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=('A', 'B', 'C')
+        )
 
         cf_text = CustomField.objects.create(name='text', type=CustomFieldTypeChoices.TYPE_TEXT)
         cf_text.content_types.set([obj_type])
@@ -42,13 +45,17 @@ class CustomFieldModelFormTest(TestCase):
         cf_json = CustomField.objects.create(name='json', type=CustomFieldTypeChoices.TYPE_JSON)
         cf_json.content_types.set([obj_type])
 
-        cf_select = CustomField.objects.create(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=CHOICES)
+        cf_select = CustomField.objects.create(
+            name='select',
+            type=CustomFieldTypeChoices.TYPE_SELECT,
+            choice_set=choice_set
+        )
         cf_select.content_types.set([obj_type])
 
         cf_multiselect = CustomField.objects.create(
             name='multiselect',
             type=CustomFieldTypeChoices.TYPE_MULTISELECT,
-            choices=CHOICES
+            choice_set=choice_set
         )
         cf_multiselect.content_types.set([obj_type])
 

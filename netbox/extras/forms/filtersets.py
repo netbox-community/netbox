@@ -1,5 +1,5 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
@@ -18,7 +18,9 @@ from .mixins import SavedFiltersMixin
 
 __all__ = (
     'ConfigContextFilterForm',
+    'ConfigRevisionFilterForm',
     'ConfigTemplateFilterForm',
+    'CustomFieldChoiceSetFilterForm',
     'CustomFieldFilterForm',
     'CustomLinkFilterForm',
     'ExportTemplateFilterForm',
@@ -36,7 +38,8 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         ('Attributes', (
-            'type', 'content_type_id', 'group_name', 'weight', 'required', 'ui_visibility', 'is_cloneable',
+            'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visibility',
+            'is_cloneable',
         )),
     )
     content_type_id = ContentTypeMultipleChoiceField(
@@ -61,6 +64,11 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    choice_set_id = DynamicModelMultipleChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all(),
+        required=False,
+        label=_('Choice set')
+    )
     ui_visibility = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldVisibilityChoices),
         required=False,
@@ -74,10 +82,19 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
+class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id', 'choice')),
+    )
+    choice = forms.CharField(
+        required=False
+    )
+
+
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Attributes', ('content_types', 'enabled', 'new_window', 'weight')),
+        (_('Attributes'), ('content_types', 'enabled', 'new_window', 'weight')),
     )
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
@@ -244,6 +261,11 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Tagged object type')
     )
+    for_object_type_id = ContentTypeChoiceField(
+        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
+        required=False,
+        label=_('Allowed object type')
+    )
 
 
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
@@ -385,7 +407,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         widget=DateTimePicker()
     )
     created_by_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(
@@ -429,7 +451,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False
     )
     user_id = DynamicModelMultipleChoiceField(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         required=False,
         label=_('User'),
         widget=APISelectMultiple(
@@ -443,4 +465,10 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
         )
+    )
+
+
+class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id')),
     )

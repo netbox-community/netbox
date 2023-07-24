@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.conf import settings
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -10,18 +11,24 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
+from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import BootstrapMixin, add_blank_choice
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, JSONField,
-    SlugField,
+    CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
+    DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms.widgets import ArrayWidget
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
+
 __all__ = (
+    'BookmarkForm',
     'ConfigContextForm',
+    'ConfigRevisionForm',
     'ConfigTemplateForm',
+    'CustomFieldChoiceSetForm',
     'CustomFieldForm',
     'CustomLinkForm',
     'ExportTemplateForm',
@@ -45,13 +52,17 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
+    choice_set = DynamicModelChoiceField(
+        queryset=CustomFieldChoiceSet.objects.all(),
+        required=False
+    )
 
     fieldsets = (
         ('Custom Field', (
             'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
         )),
         ('Behavior', ('search_weight', 'filter_logic', 'ui_visibility', 'weight', 'is_cloneable')),
-        ('Values', ('default', 'choices')),
+        ('Values', ('default', 'choice_set')),
         ('Validation', ('validation_minimum', 'validation_maximum', 'validation_regex')),
     )
 
@@ -71,6 +82,20 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         # Disable changing the type of a CustomField as it almost universally causes errors if custom field data is already present.
         if self.instance.pk:
             self.fields['type'].disabled = True
+
+
+class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
+    extra_choices = forms.CharField(
+        widget=ArrayWidget(),
+        help_text=_('Enter one choice per line.')
+    )
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = ('name', 'description', 'extra_choices', 'order_alphabetically')
+
+    def clean_extra_choices(self):
+        return self.cleaned_data['extra_choices'].splitlines()
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
@@ -165,6 +190,17 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, initial=initial, **kwargs)
 
 
+class BookmarkForm(BootstrapMixin, forms.ModelForm):
+    object_type = ContentTypeChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('bookmarks').get_query()
+    )
+
+    class Meta:
+        model = Bookmark
+        fields = ('object_type', 'object_id')
+
+
 class WebhookForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -200,15 +236,20 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
+    object_types = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.all(),
+        limit_choices_to=FeatureQuery('tags'),
+        required=False
+    )
 
     fieldsets = (
-        ('Tag', ('name', 'slug', 'color', 'description')),
+        ('Tag', ('name', 'slug', 'color', 'description', 'object_types')),
     )
 
     class Meta:
         model = Tag
         fields = [
-            'name', 'slug', 'color', 'description'
+            'name', 'slug', 'color', 'description', 'object_types',
         ]
 
 
@@ -374,3 +415,99 @@ class JournalEntryForm(NetBoxModelForm):
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,
         }
+
+
+EMPTY_VALUES = ('', None, [], ())
+
+
+class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
+
+    def __new__(mcs, name, bases, attrs):
+
+        # Emulate a declared field for each supported configuration parameter
+        param_fields = {}
+        for param in PARAMS:
+            field_kwargs = {
+                'required': False,
+                'label': param.label,
+                'help_text': param.description,
+            }
+            field_kwargs.update(**param.field_kwargs)
+            param_fields[param.name] = param.field(**field_kwargs)
+        attrs.update(param_fields)
+
+        return super().__new__(mcs, name, bases, attrs)
+
+
+class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMetaclass):
+    """
+    Form for creating a new ConfigRevision.
+    """
+
+    fieldsets = (
+        ('Rack Elevations', ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH')),
+        ('Power', ('POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION')),
+        ('IPAM', ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4')),
+        ('Security', ('ALLOWED_URL_SCHEMES',)),
+        ('Banners', ('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM')),
+        ('Pagination', ('PAGINATE_COUNT', 'MAX_PAGE_SIZE')),
+        ('Validation', ('CUSTOM_VALIDATORS',)),
+        ('User Preferences', ('DEFAULT_USER_PREFERENCES',)),
+        ('Miscellaneous', ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL')),
+        ('Config Revision', ('comment',))
+    )
+
+    class Meta:
+        model = ConfigRevision
+        fields = '__all__'
+        widgets = {
+            'BANNER_LOGIN': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'BANNER_MAINTENANCE': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'BANNER_TOP': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'BANNER_BOTTOM': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'CUSTOM_VALIDATORS': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'comment': forms.Textarea(),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Append current parameter values to form field help texts and check for static configurations
+        config = get_config()
+        for param in PARAMS:
+            value = getattr(config, param.name)
+            is_static = hasattr(settings, param.name)
+            if value:
+                help_text = self.fields[param.name].help_text
+                if help_text:
+                    help_text += '<br />'  # Line break
+                help_text += f'Current value: <strong>{value}</strong>'
+                if is_static:
+                    help_text += ' (defined statically)'
+                elif value == param.default:
+                    help_text += ' (default)'
+                self.fields[param.name].help_text = help_text
+                self.fields[param.name].initial = value
+            if is_static:
+                self.fields[param.name].disabled = True
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+
+        # Populate JSON data on the instance
+        instance.data = self.render_json()
+
+        if commit:
+            instance.save()
+
+        return instance
+
+    def render_json(self):
+        json = {}
+
+        # Iterate through each field and populate non-empty values
+        for field_name in self.declared_fields:
+            if field_name in self.cleaned_data and self.cleaned_data[field_name] not in EMPTY_VALUES:
+                json[field_name] = self.cleaned_data[field_name]
+
+        return json

@@ -14,6 +14,7 @@ from core.models import Job
 from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
+from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
@@ -33,7 +34,7 @@ from .scripts import run_script
 #
 
 class CustomFieldListView(generic.ObjectListView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     filterset = filtersets.CustomFieldFilterSet
     filterset_form = forms.CustomFieldFilterForm
     table = tables.CustomFieldTable
@@ -41,36 +42,81 @@ class CustomFieldListView(generic.ObjectListView):
 
 @register_model_view(CustomField)
 class CustomFieldView(generic.ObjectView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
 
 
 @register_model_view(CustomField, 'edit')
 class CustomFieldEditView(generic.ObjectEditView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     form = forms.CustomFieldForm
 
 
 @register_model_view(CustomField, 'delete')
 class CustomFieldDeleteView(generic.ObjectDeleteView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
 
 
 class CustomFieldBulkImportView(generic.BulkImportView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     model_form = forms.CustomFieldImportForm
 
 
 class CustomFieldBulkEditView(generic.BulkEditView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     filterset = filtersets.CustomFieldFilterSet
     table = tables.CustomFieldTable
     form = forms.CustomFieldBulkEditForm
 
 
 class CustomFieldBulkDeleteView(generic.BulkDeleteView):
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     filterset = filtersets.CustomFieldFilterSet
     table = tables.CustomFieldTable
+
+
+#
+# Custom field choices
+#
+
+class CustomFieldChoiceSetListView(generic.ObjectListView):
+    queryset = CustomFieldChoiceSet.objects.all()
+    filterset = filtersets.CustomFieldChoiceSetFilterSet
+    filterset_form = forms.CustomFieldChoiceSetFilterForm
+    table = tables.CustomFieldChoiceSetTable
+
+
+@register_model_view(CustomFieldChoiceSet)
+class CustomFieldChoiceSetView(generic.ObjectView):
+    queryset = CustomFieldChoiceSet.objects.all()
+
+
+@register_model_view(CustomFieldChoiceSet, 'edit')
+class CustomFieldChoiceSetEditView(generic.ObjectEditView):
+    queryset = CustomFieldChoiceSet.objects.all()
+    form = forms.CustomFieldChoiceSetForm
+
+
+@register_model_view(CustomFieldChoiceSet, 'delete')
+class CustomFieldChoiceSetDeleteView(generic.ObjectDeleteView):
+    queryset = CustomFieldChoiceSet.objects.all()
+
+
+class CustomFieldChoiceSetBulkImportView(generic.BulkImportView):
+    queryset = CustomFieldChoiceSet.objects.all()
+    model_form = forms.CustomFieldChoiceSetImportForm
+
+
+class CustomFieldChoiceSetBulkEditView(generic.BulkEditView):
+    queryset = CustomFieldChoiceSet.objects.all()
+    filterset = filtersets.CustomFieldChoiceSetFilterSet
+    table = tables.CustomFieldChoiceSetTable
+    form = forms.CustomFieldChoiceSetBulkEditForm
+
+
+class CustomFieldChoiceSetBulkDeleteView(generic.BulkDeleteView):
+    queryset = CustomFieldChoiceSet.objects.all()
+    filterset = filtersets.CustomFieldChoiceSetFilterSet
+    table = tables.CustomFieldChoiceSetTable
 
 
 #
@@ -234,6 +280,35 @@ class SavedFilterBulkDeleteView(SavedFilterMixin, generic.BulkDeleteView):
     queryset = SavedFilter.objects.all()
     filterset = filtersets.SavedFilterFilterSet
     table = tables.SavedFilterTable
+
+
+#
+# Bookmarks
+#
+
+class BookmarkCreateView(generic.ObjectEditView):
+    form = forms.BookmarkForm
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+    def alter_object(self, obj, request, url_args, url_kwargs):
+        obj.user = request.user
+        return obj
+
+
+@register_model_view(Bookmark, 'delete')
+class BookmarkDeleteView(generic.ObjectDeleteView):
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
+
+
+class BookmarkBulkDeleteView(generic.BulkDeleteView):
+    table = tables.BookmarkTable
+
+    def get_queryset(self, request):
+        return Bookmark.objects.filter(user=request.user)
 
 
 #
@@ -511,7 +586,7 @@ class ConfigTemplateBulkSyncDataView(generic.BulkSyncDataView):
 #
 
 class ObjectChangeListView(generic.ObjectListView):
-    queryset = ObjectChange.objects.all()
+    queryset = ObjectChange.objects.valid_models()
     filterset = filtersets.ObjectChangeFilterSet
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
@@ -521,10 +596,10 @@ class ObjectChangeListView(generic.ObjectListView):
 
 @register_model_view(ObjectChange)
 class ObjectChangeView(generic.ObjectView):
-    queryset = ObjectChange.objects.all()
+    queryset = ObjectChange.objects.valid_models()
 
     def get_extra_context(self, request, instance):
-        related_changes = ObjectChange.objects.restrict(request.user, 'view').filter(
+        related_changes = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
             request_id=instance.request_id
         ).exclude(
             pk=instance.pk
@@ -534,7 +609,7 @@ class ObjectChangeView(generic.ObjectView):
             orderable=False
         )
 
-        objectchanges = ObjectChange.objects.restrict(request.user, 'view').filter(
+        objectchanges = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
             changed_object_type=instance.changed_object_type,
             changed_object_id=instance.changed_object_id,
         )
@@ -1174,6 +1249,74 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
             'script': script,
             'job': job,
         })
+
+
+#
+# Config Revisions
+#
+
+class ConfigRevisionListView(generic.ObjectListView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    filterset_form = forms.ConfigRevisionFilterForm
+    table = tables.ConfigRevisionTable
+
+
+@register_model_view(ConfigRevision)
+class ConfigRevisionView(generic.ObjectView):
+    queryset = ConfigRevision.objects.all()
+
+
+class ConfigRevisionEditView(generic.ObjectEditView):
+    queryset = ConfigRevision.objects.all()
+    form = forms.ConfigRevisionForm
+
+
+@register_model_view(ConfigRevision, 'delete')
+class ConfigRevisionDeleteView(generic.ObjectDeleteView):
+    queryset = ConfigRevision.objects.all()
+
+
+class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
+    queryset = ConfigRevision.objects.all()
+    filterset = filtersets.ConfigRevisionFilterSet
+    table = tables.ConfigRevisionTable
+
+
+class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
+
+    def get_required_permission(self):
+        return 'extras.configrevision_edit'
+
+    def get(self, request, pk):
+        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
+
+        # Get the current ConfigRevision
+        config_version = get_config().version
+        current_config = ConfigRevision.objects.filter(pk=config_version).first()
+
+        params = []
+        for param in PARAMS:
+            params.append((
+                param.name,
+                current_config.data.get(param.name, None),
+                candidate_config.data.get(param.name, None)
+            ))
+
+        return render(request, 'extras/configrevision_restore.html', {
+            'object': candidate_config,
+            'params': params,
+        })
+
+    def post(self, request, pk):
+        if not request.user.has_perm('extras.configrevision_edit'):
+            return HttpResponseForbidden()
+
+        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
+        candidate_config.activate()
+        messages.success(request, f"Restored configuration revision #{pk}")
+
+        return redirect(candidate_config.get_absolute_url())
 
 
 #

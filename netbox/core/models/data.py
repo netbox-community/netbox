@@ -200,6 +200,7 @@ class DataSource(JobsMixin, PrimaryModel):
 
         # Emit the post_sync signal
         post_sync.send(sender=self.__class__, instance=self)
+    sync.alters_data = True
 
     def _walk(self, root):
         """
@@ -289,8 +290,10 @@ class DataFile(models.Model):
 
     @property
     def data_as_string(self):
+        if not self.data:
+            return None
         try:
-            return self.data.tobytes().decode('utf-8')
+            return bytes(self.data, 'utf-8')
         except UnicodeDecodeError:
             return None
 

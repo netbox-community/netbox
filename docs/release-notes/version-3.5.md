@@ -1,15 +1,53 @@
 # NetBox v3.5
 
-## v3.5.5 (FUTURE)
+## v3.5.7 (FUTURE)
+
+---
+
+## v3.5.6 (2023-07-10)
 
 ### Bug Fixes
 
+* [#13061](https://github.com/netbox-community/netbox/issues/13061) - Fix display of last result for scripts & reports with a custom name defined
+* [#13096](https://github.com/netbox-community/netbox/issues/13096) - Hide scheduling fields for all scripts with scheduling disabled
+* [#13105](https://github.com/netbox-community/netbox/issues/13105) - Fix exception when attempting to allocate next available IP address from prefix marked as utilized
+* [#13116](https://github.com/netbox-community/netbox/issues/13116) - Catch ProgrammingError exception when starting NetBox without pre-populated content types
+
+---
+
+## v3.5.5 (2023-07-06)
+
+### Enhancements
+
+* [#11738](https://github.com/netbox-community/netbox/issues/11738) - Annotate VLAN group utilization
+* [#12499](https://github.com/netbox-community/netbox/issues/12499) - Add "copy to clipboard" buttons in UI for IP addresses
+* [#12945](https://github.com/netbox-community/netbox/issues/12945) - Add 100GE QSFP-DD interface type
+* [#12955](https://github.com/netbox-community/netbox/issues/12955) - Include additional contact details on contact assignments table
+* [#13065](https://github.com/netbox-community/netbox/issues/13065) - Associate contact assignments with their objects in the change log
+
+### Bug Fixes
+
+* [#11335](https://github.com/netbox-community/netbox/issues/11335) - Exclude stale content types when retrieving changelog records
 * [#12533](https://github.com/netbox-community/netbox/issues/12533) - Fix REST API validation of null values for several interface attributes
+* [#12579](https://github.com/netbox-community/netbox/issues/12579) - Fix exception when clicking "create and add another" to add a cable
+* [#12617](https://github.com/netbox-community/netbox/issues/12617) - Populate prechange snapshot on parent object when assigning/removing primary IP address
+* [#12760](https://github.com/netbox-community/netbox/issues/12760) - Avoid rendering partial HTMX responses when restoring browser tabs
+* [#12842](https://github.com/netbox-community/netbox/issues/12842) - Improve handling of exceptions when loading reports
+* [#12849](https://github.com/netbox-community/netbox/issues/12849) - Fix LDAP group permissions assignment for API clients
+* [#12951](https://github.com/netbox-community/netbox/issues/12951) - Display consistent parent information for each termination under cable view
 * [#12953](https://github.com/netbox-community/netbox/issues/12953) - Fix designation of primary IP addresses during interface assignment
 * [#12960](https://github.com/netbox-community/netbox/issues/12960) - Fix OpenAPI schema for various choice fields
+* [#12961](https://github.com/netbox-community/netbox/issues/12961) - Set correct return URL for object contacts tabs
 * [#12966](https://github.com/netbox-community/netbox/issues/12966) - Avoid catching database exceptions when maintenance mode is disabled
 * [#12975](https://github.com/netbox-community/netbox/issues/12975) - Correct URL for VirtualDeviceContext API serializer
+* [#12977](https://github.com/netbox-community/netbox/issues/12977) - Fix URL parameters for object count dashboard widgets
+* [#12983](https://github.com/netbox-community/netbox/issues/12983) - Avoid erroneously clearing many-to-many assignments during bulk edit
 * [#12989](https://github.com/netbox-community/netbox/issues/12989) - Fix bulk import of tags for device & module types
+* [#13011](https://github.com/netbox-community/netbox/issues/13011) - Do not escape commas when rendering custom links
+* [#13047](https://github.com/netbox-community/netbox/issues/13047) - Correct ASN count under ASN ranges list
+* [#13056](https://github.com/netbox-community/netbox/issues/13056) - Add `config_template` field to device API serializer
+* [#13092](https://github.com/netbox-community/netbox/issues/13092) - Allow nullifying power port max & allocated draw values during bulk edit
+* [#13100](https://github.com/netbox-community/netbox/issues/13100) - Fix ValueError exception when searching for virtual device context for non-numeric values
 
 ---
 

@@ -635,8 +635,8 @@ class PlatformSerializer(NetBoxModelSerializer):
     class Meta:
         model = Platform
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'config_template', 'napalm_driver', 'napalm_args',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
+            'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
+            'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
 
 
@@ -676,10 +676,10 @@ class DeviceSerializer(NetBoxModelSerializer):
         model = Device
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
-            'oob_ip', 'oob_ip4', 'oob_ip6',
+            'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created',
+            'oob_ip', 'last_updated',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)
@@ -702,8 +702,8 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
             'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
-            'oob_ip', 'oob_ip4', 'oob_ip6'
+            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'config_template', 'oob_ip',
+            'created', 'last_updated',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

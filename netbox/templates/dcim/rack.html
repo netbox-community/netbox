@@ -102,6 +102,12 @@
                         <td>{{ object.u_height }}U ({% if object.desc_units %}descending{% else %}ascending{% endif %})</td>
                     </tr>
                     <tr>
+                        <th scope="row">Starting Unit</th>
+                        <td>
+                          {{ object.starting_unit }}
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">Outer Width</th>
                         <td>
                             {% if object.outer_width %}

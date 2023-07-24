@@ -58,6 +58,7 @@ class AvailableASNSerializer(serializers.Serializer):
     Representation of an ASN which does not exist in the database.
     """
     asn = serializers.IntegerField(read_only=True)
+    description = serializers.CharField(required=False)
 
     def to_representation(self, asn):
         rir = NestedRIRSerializer(self.context['range'].rir, context={
@@ -218,12 +219,13 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
     vlan_count = serializers.IntegerField(read_only=True)
+    utilization = serializers.CharField(read_only=True)
 
     class Meta:
         model = VLANGroup
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid', 'max_vid',
-            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count',
+            'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
         validators = []
 
@@ -432,6 +434,7 @@ class AvailableIPSerializer(serializers.Serializer):
     family = serializers.IntegerField(read_only=True)
     address = serializers.CharField(read_only=True)
     vrf = NestedVRFSerializer(read_only=True)
+    description = serializers.CharField(required=False)
 
     def to_representation(self, instance):
         if self.context.get('vrf'):

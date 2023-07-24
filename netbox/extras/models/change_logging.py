@@ -1,11 +1,11 @@
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 
 from extras.choices import *
-from utilities.querysets import RestrictedQuerySet
+from ..querysets import ObjectChangeQuerySet
 
 __all__ = (
     'ObjectChange',
@@ -24,7 +24,7 @@ class ObjectChange(models.Model):
         db_index=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name='changes',
         blank=True,
@@ -82,7 +82,7 @@ class ObjectChange(models.Model):
         null=True
     )
 
-    objects = RestrictedQuerySet.as_manager()
+    objects = ObjectChangeQuerySet.as_manager()
 
     class Meta:
         ordering = ['-time']

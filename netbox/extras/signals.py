@@ -10,8 +10,9 @@ from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, webhooks_queue
 from netbox.signals import post_clean
+from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
-from .models import ConfigRevision, CustomField, ObjectChange
+from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
 from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 #
@@ -207,3 +208,21 @@ def update_config(sender, instance, **kwargs):
     Update the cached NetBox configuration when a new ConfigRevision is created.
     """
     instance.activate()
+
+
+#
+# Tags
+#
+
+@receiver(m2m_changed, sender=TaggedItem)
+def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
+    """
+    Validate that any Tags being assigned to the instance are not restricted to non-applicable object types.
+    """
+    if action != 'pre_add':
+        return
+    ct = ContentType.objects.get_for_model(instance)
+    # Retrieve any applied Tags that are restricted to certain object_types
+    for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
+        if ct not in tag.object_types.all():
+            raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")

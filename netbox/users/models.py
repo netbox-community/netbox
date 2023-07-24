@@ -2,13 +2,14 @@ import binascii
 import os
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, GroupManager, User, UserManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from netaddr import IPNetwork
@@ -20,6 +21,8 @@ from utilities.utils import flatten_dict
 from .constants import *
 
 __all__ = (
+    'NetBoxGroup',
+    'NetBoxUser',
     'ObjectPermission',
     'Token',
     'UserConfig',
@@ -29,6 +32,7 @@ __all__ = (
 #
 # Proxy models for admin
 #
+
 
 class AdminGroup(Group):
     """
@@ -46,6 +50,44 @@ class AdminUser(User):
     class Meta:
         verbose_name = 'User'
         proxy = True
+
+
+class NetBoxUserManager(UserManager.from_queryset(RestrictedQuerySet)):
+    pass
+
+
+class NetBoxGroupManager(GroupManager.from_queryset(RestrictedQuerySet)):
+    pass
+
+
+class NetBoxUser(User):
+    """
+    Proxy contrib.auth.models.User for the UI
+    """
+    objects = NetBoxUserManager()
+
+    class Meta:
+        verbose_name = 'User'
+        proxy = True
+        ordering = ('username',)
+
+    def get_absolute_url(self):
+        return reverse('users:netboxuser', args=[self.pk])
+
+
+class NetBoxGroup(Group):
+    """
+    Proxy contrib.auth.models.User for the UI
+    """
+    objects = NetBoxGroupManager()
+
+    class Meta:
+        verbose_name = 'Group'
+        proxy = True
+        ordering = ('name',)
+
+    def get_absolute_url(self):
+        return reverse('users:netboxgroup', args=[self.pk])
 
 
 #
@@ -325,6 +367,22 @@ class ObjectPermission(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def can_view(self):
+        return 'view' in self.actions
+
+    @property
+    def can_add(self):
+        return 'add' in self.actions
+
+    @property
+    def can_change(self):
+        return 'change' in self.actions
+
+    @property
+    def can_delete(self):
+        return 'delete' in self.actions
+
     def list_constraints(self):
         """
         Return all constraint sets as a list (even if only a single set is defined).
@@ -332,3 +390,6 @@ class ObjectPermission(models.Model):
         if type(self.constraints) is not list:
             return [self.constraints]
         return self.constraints
+
+    def get_absolute_url(self):
+        return reverse('users:objectpermission', args=[self.pk])

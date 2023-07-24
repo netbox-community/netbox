@@ -1,6 +1,6 @@
 from .change_logging import *
 from .configs import *
-from .customfields import CustomField
+from .customfields import *
 from .dashboard import *
 from .models import *
 from .reports import *

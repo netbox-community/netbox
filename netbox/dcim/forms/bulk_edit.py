@@ -1,6 +1,6 @@
 from django import forms
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 from timezone_field import TimeZoneFormField
 
@@ -322,7 +322,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
 
 class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
     user = forms.ModelChoiceField(
-        queryset=User.objects.order_by(
+        queryset=get_user_model().objects.order_by(
             'username'
         ),
         required=False
@@ -472,10 +472,6 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    napalm_driver = forms.CharField(
-        max_length=50,
-        required=False
-    )
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False
@@ -487,9 +483,9 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Platform
     fieldsets = (
-        (None, ('manufacturer', 'config_template', 'napalm_driver', 'description')),
+        (None, ('manufacturer', 'config_template', 'description')),
     )
-    nullable_fields = ('manufacturer', 'config_template', 'napalm_driver', 'description')
+    nullable_fields = ('manufacturer', 'config_template', 'description')
 
 
 class DeviceBulkEditForm(NetBoxModelBulkEditForm):
@@ -1106,7 +1102,7 @@ class PowerPortBulkEditForm(
         (None, ('module', 'type', 'label', 'description', 'mark_connected')),
         ('Power', ('maximum_draw', 'allocated_draw')),
     )
-    nullable_fields = ('module', 'label', 'description')
+    nullable_fields = ('module', 'label', 'description', 'maximum_draw', 'allocated_draw')
 
 
 class PowerOutletBulkEditForm(

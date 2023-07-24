@@ -53,26 +53,11 @@
                 title="This field has been deprecated, and will be removed in NetBox v3.6."
               ></i>
             </th>
-            <td>{{ object.napalm_driver|placeholder }}</td>
           </tr>
         </table>
       </div>
     </div>
     {% include 'inc/panels/tags.html' %}
-    <div class="card">
-      <h5 class="card-header">
-        NAPALM Arguments
-        <i
-          class="mdi mdi-alert-box text-warning"
-          data-bs-toggle="tooltip"
-          data-bs-placement="right"
-          title="This field has been deprecated, and will be removed in NetBox v3.6."
-        ></i>
-      </h5>
-      <div class="card-body">
-        <pre>{{ object.napalm_args|json }}</pre>
-      </div>
-    </div>
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">

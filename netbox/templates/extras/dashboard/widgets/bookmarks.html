@@ -1,0 +1,9 @@
+{% if bookmarks %}
+  <div class="list-group list-group-flush">
+    {% for bookmark in bookmarks %}
+      <a href="{{ bookmark.object.get_absolute_url }}" class="list-group-item list-group-item-action">
+        {{ bookmark.object }}
+      </a>
+    {% endfor %}
+  </div>
+{% endif %}
