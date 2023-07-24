@@ -151,6 +151,12 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
     key = forms.CharField(
         label=_('Key'), required=False, help_text=_("If no key is provided, one will be generated automatically.")
     )
+    user = forms.ModelChoiceField(
+        queryset=get_user_model().objects.order_by(
+            'username'
+        ),
+        required=False
+    )
     allowed_ips = SimpleArrayField(
         base_field=IPNetworkFormField(validators=[prefix_validator]),
         required=False,
@@ -165,6 +171,7 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
         model = Token
         fields = [
             'key',
+            'user',
             'write_enabled',
             'expires',
             'description',

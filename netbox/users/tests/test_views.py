@@ -149,3 +149,55 @@ class ObjectPermissionTestCase(
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+
+class TokenTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    model = UserToken
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            NetBoxUser(username='username1', first_name='first1', last_name='last1', email='user1@foo.com', password='pass1xxx'),
+            NetBoxUser(username='username2', first_name='first2', last_name='last2', email='user2@foo.com', password='pass2xxx'),
+        )
+        NetBoxUser.objects.bulk_create(users)
+
+        tokens = (
+            UserToken(key='12345679012345678901234567890123456789A', user=users[0]),
+            UserToken(key='12345679012345678901234567890123456789B', user=users[0]),
+            UserToken(key='12345679012345678901234567890123456789C', user=users[1]),
+        )
+        UserToken.objects.bulk_create(tokens)
+
+        cls.form_data = {
+            'user': users[0].pk,
+            'description': 'testdescription',
+        }
+
+        cls.csv_data = (
+            "key,user,description",
+            f"12345679012345678901234567890123456789D,{users[0]},testdescriptionD",
+            f"12345679012345678901234567890123456789D,{users[1]},testdescriptionE",
+            f"12345679012345678901234567890123456789D,{users[1]},testdescriptionF",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{tokens[0].pk},testdescriptionH",
+            f"{tokens[1].pk},testdescriptionI",
+            f"{tokens[2].pk},testdescriptionJ",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'newdescription',
+        }
