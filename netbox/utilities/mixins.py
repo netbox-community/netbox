@@ -11,10 +11,6 @@ class Tracker:
 
 class TrackingModelMixin:
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._initialized = True
-
     @property
     def tracker(self):
         if not hasattr(self._state, "_tracker"):
@@ -32,18 +28,17 @@ class TrackingModelMixin:
                 self.tracker.changed = {}
 
     def __setattr__(self, name, value):
-        if hasattr(self, "_initialized"):
-            change_tracking_fields = registry['counter_fields'][self.__class__]
-            if name in change_tracking_fields:
-                if name not in self.tracker.changed:
-                    if name in self.__dict__:
-                        old_value = getattr(self, name)
-                        if value != old_value:
-                            self.tracker.changed[name] = old_value
-                    else:
-                        self.tracker.changed[name] = DeferredAttribute
+        change_tracking_fields = registry['counter_fields'][self.__class__]
+        if name in change_tracking_fields:
+            if name not in self.tracker.changed:
+                if name in self.__dict__:
+                    old_value = getattr(self, name)
+                    if value != old_value:
+                        self.tracker.changed[name] = old_value
                 else:
-                    if value == self.tracker.changed[name]:
-                        self.tracker.changed.pop(name)
+                    self.tracker.changed[name] = DeferredAttribute
+            else:
+                if value == self.tracker.changed[name]:
+                    self.tracker.changed.pop(name)
 
         super().__setattr__(name, value)
