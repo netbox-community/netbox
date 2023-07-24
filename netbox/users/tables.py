@@ -1,3 +1,4 @@
+from django.conf import settings
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
@@ -59,7 +60,6 @@ class TokenTable(NetBoxTable):
 class UserTokenTable(NetBoxTable):
     key = columns.TemplateColumn(
         template_code=TOKEN,
-        linkify=True,
     )
     write_enabled = columns.BooleanColumn(
         verbose_name='Write'
@@ -77,9 +77,9 @@ class UserTokenTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = UserToken
-        fields = (
-            'pk', 'key', 'user', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
-        )
+        fields = [
+            'pk', 'id', 'key', 'user', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+        ]
 
 
 class UserTable(NetBoxTable):
