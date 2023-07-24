@@ -21,7 +21,7 @@ class CountersTest(TestCase):
         Interface.objects.create(device=device2, name='Interface 3')
         Interface.objects.create(device=device2, name='Interface 4')
 
-    def test_interface_count_addition(self):
+    def test_interface_count_creation(self):
         """
         When a tracked object (Interface) is added the tracking counter should be updated.
         """
@@ -50,3 +50,20 @@ class CountersTest(TestCase):
         device2.refresh_from_db()
         self.assertEqual(device1._interface_count, 1)
         self.assertEqual(device2._interface_count, 1)
+
+    def test_interface_count_move(self):
+        """
+        When a tracked object (Interface) is moved the tracking counter should be updated.
+        """
+        device1, device2 = Device.objects.all()
+        self.assertEqual(device1._interface_count, 2)
+        self.assertEqual(device2._interface_count, 2)
+
+        interface1 = Interface.objects.get(name='Interface 1')
+        interface1.device = device2
+        interface1.save()
+
+        device1.refresh_from_db()
+        device2.refresh_from_db()
+        self.assertEqual(device1._interface_count, 1)
+        self.assertEqual(device2._interface_count, 3)
