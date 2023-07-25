@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from dcim.models import Location, Region, Site, SiteGroup
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
@@ -20,12 +21,13 @@ __all__ = (
 
 class RegionTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
+        verbose_name=_('Name'),
         linkify=True
     )
     site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'region_id': 'pk'},
-        verbose_name='Sites'
+        verbose_name=_('Sites')
     )
     tags = columns.TagColumn(
         url_name='dcim:region_list'
@@ -46,12 +48,13 @@ class RegionTable(ContactsColumnMixin, NetBoxTable):
 
 class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
+        verbose_name=_('Name'),
         linkify=True
     )
     site_count = columns.LinkedCountColumn(
         viewname='dcim:site_list',
         url_params={'group_id': 'pk'},
-        verbose_name='Sites'
+        verbose_name=_('Sites')
     )
     tags = columns.TagColumn(
         url_name='dcim:sitegroup_list'
@@ -72,26 +75,33 @@ class SiteGroupTable(ContactsColumnMixin, NetBoxTable):
 
 class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     region = tables.Column(
+        verbose_name=_('Region'),
         linkify=True
     )
     group = tables.Column(
+        verbose_name=_('Group'),
         linkify=True
     )
     asns = columns.ManyToManyColumn(
         linkify_item=True,
-        verbose_name='ASNs'
+        verbose_name=_('ASNs')
     )
     asn_count = columns.LinkedCountColumn(
         accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'site_id': 'pk'},
-        verbose_name='ASN Count'
+        verbose_name=_('ASN Count')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:site_list'
     )
@@ -112,26 +122,31 @@ class SiteTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
 
 class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = columns.MPTTColumn(
+        verbose_name=_('Name'),
         linkify=True
     )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     rack_count = columns.LinkedCountColumn(
         viewname='dcim:rack_list',
         url_params={'location_id': 'pk'},
-        verbose_name='Racks'
+        verbose_name=_('Racks')
     )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'location_id': 'pk'},
-        verbose_name='Devices'
+        verbose_name=_('Devices')
     )
     tags = columns.TagColumn(
         url_name='dcim:location_list'
     )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         extra_buttons=LOCATION_BUTTONS
     )
 

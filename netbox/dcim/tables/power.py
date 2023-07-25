@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from dcim.models import PowerFeed, PowerPanel
 from tenancy.tables import ContactsColumnMixin
@@ -18,20 +19,25 @@ __all__ = (
 
 class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
     location = tables.Column(
+        verbose_name=_('Location'),
         linkify=True
     )
     powerfeed_count = columns.LinkedCountColumn(
         viewname='dcim:powerfeed_list',
         url_params={'power_panel_id': 'pk'},
-        verbose_name='Feeds'
+        verbose_name=_('Feeds')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:powerpanel_list'
     )
@@ -53,23 +59,33 @@ class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
 # cannot traverse pass-through ports.
 class PowerFeedTable(CableTerminationTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     power_panel = tables.Column(
+        verbose_name=_('Power panel'),
         linkify=True
     )
     rack = tables.Column(
+        verbose_name=_('Rack'),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
-    type = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
+    type = columns.ChoiceFieldColumn(
+        verbose_name=_('Type'),
+    )
     max_utilization = tables.TemplateColumn(
+        verbose_name=_('Max utilization'),
         template_code="{{ value }}%"
     )
     available_power = tables.Column(
-        verbose_name='Available power (VA)'
+        verbose_name=_('Available power (VA)')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:powerfeed_list'
     )
