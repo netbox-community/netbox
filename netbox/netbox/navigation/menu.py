@@ -353,7 +353,7 @@ ADMIN_MENU = Menu(
     icon_class='mdi mdi-account-multiple',
     groups=(
         MenuGroup(
-            label=_('Users'),
+            label=_('Authentication'),
             items=(
                 # Proxy model for auth.User
                 MenuItem(
@@ -399,6 +399,7 @@ ADMIN_MENU = Menu(
                         )
                     )
                 ),
+                get_model_item('users', 'token', _('API Tokens')),
                 get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
             ),
         ),
@@ -409,16 +410,6 @@ ADMIN_MENU = Menu(
                     link='extras:configrevision_list',
                     link_text=_('Config Revisions'),
                     permissions=['extras.view_configrevision']
-                ),
-            ),
-        ),
-        MenuGroup(
-            label=_('Tokens'),
-            items=(
-                MenuItem(
-                    link='users:token_list',
-                    link_text=_('Tokens'),
-                    permissions=['users.view_token']
                 ),
             ),
         ),
