@@ -597,7 +597,7 @@ class Device(PrimaryModel, ConfigContextModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='OOB IP'
+        verbose_name='Out-of-band IP'
     )
     cluster = models.ForeignKey(
         to='virtualization.Cluster',
@@ -824,7 +824,7 @@ class Device(PrimaryModel, ConfigContextModel):
             except DeviceType.DoesNotExist:
                 pass
 
-        # Validate primary IP addresses
+        # Validate primary & OOB IP addresses
         vc_interfaces = self.vc_interfaces(if_master=False)
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
@@ -852,8 +852,6 @@ class Device(PrimaryModel, ConfigContextModel):
                 raise ValidationError({
                     'primary_ip6': f"The specified IP address ({self.primary_ip6}) is not assigned to this device."
                 })
-
-        # OOB ip validation
         if self.oob_ip:
             if self.oob_ip.assigned_object in vc_interfaces:
                 pass
@@ -863,6 +861,7 @@ class Device(PrimaryModel, ConfigContextModel):
                 raise ValidationError({
                     'oob_ip': f"The specified IP address ({self.oob_ip}) is not assigned to this device."
                 })
+
         # Validate manufacturer/platform
         if hasattr(self, 'device_type') and self.platform:
             if self.platform.manufacturer and self.platform.manufacturer != self.device_type.manufacturer:

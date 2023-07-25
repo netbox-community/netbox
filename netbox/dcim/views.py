@@ -2452,11 +2452,13 @@ class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Get assigned VDC's
+        # Get assigned VDCs
         vdc_table = tables.VirtualDeviceContextTable(
             data=instance.vdcs.restrict(request.user, 'view').prefetch_related('device'),
-            exclude=('tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags',
-                     'created', 'last_updated', 'actions', 'oob_ip'),
+            exclude=(
+                'tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'comments', 'tags',
+                'created', 'last_updated', 'actions',
+            ),
             orderable=False
         )
 

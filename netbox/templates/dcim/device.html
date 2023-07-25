@@ -240,15 +240,10 @@
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">OOB IP</th>
+                            <th scope="row">Out-of-band IP</th>
                             <td>
                               {% if object.oob_ip %}
                                 <a href="{{ object.oob_ip.get_absolute_url }}" id="oob_ip">{{ object.oob_ip.address.ip }}</a>
-                                {% if object.oob_ip.nat_inside %}
-                                  (NAT for <a href="{{ object.oob_ip.nat_inside.get_absolute_url }}">{{ object.oob_ip.nat_inside.address.ip }}</a>)
-                                {% elif object.oob_ip.nat_outside.exists %}
-                                  (NAT: {% for nat in object.oob_ip.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
-                                {% endif %}
                                 {% copy_content "oob_ip" %}
                               {% else %}
                                 {{ ''|placeholder }}

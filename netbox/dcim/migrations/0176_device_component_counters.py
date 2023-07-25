@@ -39,7 +39,7 @@ def recalculate_device_counts(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0174_rack_starting_unit'),
+        ('dcim', '0175_device_oob_ip'),
     ]
 
     operations = [

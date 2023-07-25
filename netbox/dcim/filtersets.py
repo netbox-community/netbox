@@ -943,7 +943,7 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
     )
     has_oob_ip = django_filters.BooleanFilter(
         method='_has_oob_ip',
-        label=_('Has a OOB IP'),
+        label=_('Has an out-of-band IP'),
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_chassis',

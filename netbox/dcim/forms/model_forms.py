@@ -449,9 +449,9 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         model = Device
         fields = [
             'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
-            'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'cluster',
+            'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
-            'comments', 'tags', 'local_context_data', 'oob_ip',
+            'comments', 'tags', 'local_context_data',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -476,7 +476,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
                 if interface_ips:
                     ip_list = [(ip.id, f'{ip.address} ({ip.assigned_object})') for ip in interface_ips]
                     ip_choices.append(('Interface IPs', ip_list))
-                    oob_ip_choices.append(('Interface IPv{}s'.format(family), ip_list))
+                    oob_ip_choices.extend(ip_list)
                 # Collect NAT IPs
                 nat_ips = IPAddress.objects.prefetch_related('nat_inside').filter(
                     address__family=family,
@@ -486,7 +486,6 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
                 if nat_ips:
                     ip_list = [(ip.id, f'{ip.address} (NAT)') for ip in nat_ips]
                     ip_choices.append(('NAT IPs', ip_list))
-                    oob_ip_choices.append(('NAT IPv{}s'.format(family), ip_list))
                 self.fields['primary_ip{}'.format(family)].choices = ip_choices
             self.fields['oob_ip'].choices = oob_ip_choices
 
