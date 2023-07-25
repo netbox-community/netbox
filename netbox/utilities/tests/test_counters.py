@@ -26,38 +26,38 @@ class CountersTest(TestCase):
         When a tracked object (Interface) is added the tracking counter should be updated.
         """
         device1, device2 = Device.objects.all()
-        self.assertEqual(device1._interface_count, 2)
-        self.assertEqual(device2._interface_count, 2)
+        self.assertEqual(device1.interface_count, 2)
+        self.assertEqual(device2.interface_count, 2)
 
         Interface.objects.create(device=device1, name='Interface 5')
         Interface.objects.create(device=device2, name='Interface 6')
         device1.refresh_from_db()
         device2.refresh_from_db()
-        self.assertEqual(device1._interface_count, 3)
-        self.assertEqual(device2._interface_count, 3)
+        self.assertEqual(device1.interface_count, 3)
+        self.assertEqual(device2.interface_count, 3)
 
     def test_interface_count_deletion(self):
         """
         When a tracked object (Interface) is deleted the tracking counter should be updated.
         """
         device1, device2 = Device.objects.all()
-        self.assertEqual(device1._interface_count, 2)
-        self.assertEqual(device2._interface_count, 2)
+        self.assertEqual(device1.interface_count, 2)
+        self.assertEqual(device2.interface_count, 2)
 
         Interface.objects.get(name='Interface 1').delete()
         Interface.objects.get(name='Interface 3').delete()
         device1.refresh_from_db()
         device2.refresh_from_db()
-        self.assertEqual(device1._interface_count, 1)
-        self.assertEqual(device2._interface_count, 1)
+        self.assertEqual(device1.interface_count, 1)
+        self.assertEqual(device2.interface_count, 1)
 
     def test_interface_count_move(self):
         """
         When a tracked object (Interface) is moved the tracking counter should be updated.
         """
         device1, device2 = Device.objects.all()
-        self.assertEqual(device1._interface_count, 2)
-        self.assertEqual(device2._interface_count, 2)
+        self.assertEqual(device1.interface_count, 2)
+        self.assertEqual(device2.interface_count, 2)
 
         interface1 = Interface.objects.get(name='Interface 1')
         interface1.device = device2
@@ -65,5 +65,5 @@ class CountersTest(TestCase):
 
         device1.refresh_from_db()
         device2.refresh_from_db()
-        self.assertEqual(device1._interface_count, 1)
-        self.assertEqual(device2._interface_count, 3)
+        self.assertEqual(device1.interface_count, 1)
+        self.assertEqual(device2.interface_count, 3)

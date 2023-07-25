@@ -991,7 +991,7 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
 # Bays
 #
 
-class ModuleBay(ComponentModel):
+class ModuleBay(ComponentModel, TrackingModelMixin):
     """
     An empty space within a Device which can house a child device
     """
