@@ -173,9 +173,9 @@ class TokenTestCase(
         NetBoxUser.objects.bulk_create(users)
 
         tokens = (
-            UserToken(key='12345679012345678901234567890123456789A', user=users[0]),
-            UserToken(key='12345679012345678901234567890123456789B', user=users[0]),
-            UserToken(key='12345679012345678901234567890123456789C', user=users[1]),
+            UserToken(key='123456790123456789012345678901234567890A', user=users[0]),
+            UserToken(key='123456790123456789012345678901234567890B', user=users[0]),
+            UserToken(key='123456790123456789012345678901234567890C', user=users[1]),
         )
         UserToken.objects.bulk_create(tokens)
 
@@ -186,9 +186,9 @@ class TokenTestCase(
 
         cls.csv_data = (
             "key,user,description",
-            f"12345679012345678901234567890123456789D,{users[0]},testdescriptionD",
-            f"12345679012345678901234567890123456789D,{users[1]},testdescriptionE",
-            f"12345679012345678901234567890123456789D,{users[1]},testdescriptionF",
+            f"123456790123456789012345678901234567890D,{users[0].pk},testdescriptionD",
+            f"123456790123456789012345678901234567890E,{users[1].pk},testdescriptionE",
+            f"123456790123456789012345678901234567890F,{users[1].pk},testdescriptionF",
         )
 
         cls.csv_update_data = (
