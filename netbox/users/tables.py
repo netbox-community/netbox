@@ -8,7 +8,6 @@ __all__ = (
     'ObjectPermissionTable',
     'TokenTable',
     'UserTable',
-    'UserTokenTable',
 )
 
 
@@ -32,31 +31,6 @@ class TokenActionsColumn(columns.ActionsColumn):
 
 
 class TokenTable(NetBoxTable):
-    key = columns.TemplateColumn(
-        template_code=TOKEN
-    )
-    write_enabled = columns.BooleanColumn(
-        verbose_name='Write'
-    )
-    created = columns.DateColumn()
-    expired = columns.DateColumn()
-    last_used = columns.DateTimeColumn()
-    allowed_ips = columns.TemplateColumn(
-        template_code=ALLOWED_IPS
-    )
-    actions = TokenActionsColumn(
-        actions=('edit', 'delete'),
-        extra_buttons=COPY_BUTTON
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = Token
-        fields = (
-            'pk', 'description', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
-        )
-
-
-class UserTokenTable(NetBoxTable):
     key = columns.TemplateColumn(
         verbose_name='Key',
         template_code=TOKEN,

@@ -16,7 +16,7 @@ __all__ = (
     'GroupFilterForm',
     'ObjectPermissionFilterForm',
     'UserFilterForm',
-    'UserTokenFilterForm',
+    'TokenFilterForm',
 )
 
 
@@ -116,7 +116,7 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
     )
 
 
-class UserTokenFilterForm(SavedFiltersMixin, FilterForm):
+class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
         (None, ('q', 'filter_id',)),

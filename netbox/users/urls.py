@@ -11,16 +11,17 @@ urlpatterns = [
     path('bookmarks/', views.BookmarkListView.as_view(), name='bookmarks'),
     path('preferences/', views.UserConfigView.as_view(), name='preferences'),
     path('password/', views.ChangePasswordView.as_view(), name='change_password'),
-    path('api-tokens/', views.TokenListView.as_view(), name='token_list'),
-    path('api-tokens/add/', views.TokenEditView.as_view(), name='token_add'),
-    path('api-tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
+    path('api-tokens/', views.UserTokenListView.as_view(), name='usertoken_list'),
+    path('api-tokens/add/', views.UserTokenEditView.as_view(), name='usertoken_add'),
+    path('api-tokens/<int:pk>/edit/', views.UserTokenEditView.as_view(), name='usertoken_edit'),
+    path('api-tokens/<int:pk>/delete/', views.UserTokenDeleteView.as_view(), name='usertoken_delete'),
 
     # Tokens
-    path('tokens/', views.UserTokenListView.as_view(), name='token_list'),
-    path('tokens/add/', views.UserTokenEditView.as_view(), name='token_add'),
-    path('tokens/import/', views.UserTokenBulkImportView.as_view(), name='token_import'),
-    path('tokens/edit/', views.UserTokenBulkEditView.as_view(), name='token_bulk_edit'),
-    path('tokens/delete/', views.UserTokenBulkDeleteView.as_view(), name='token_bulk_delete'),
+    path('tokens/', views.TokenListView.as_view(), name='token_list'),
+    path('tokens/add/', views.TokenEditView.as_view(), name='token_add'),
+    path('tokens/import/', views.TokenBulkImportView.as_view(), name='token_import'),
+    path('tokens/edit/', views.TokenBulkEditView.as_view(), name='token_bulk_edit'),
+    path('tokens/delete/', views.TokenBulkDeleteView.as_view(), name='token_bulk_delete'),
     path('tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
 
     # Users

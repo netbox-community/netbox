@@ -8,7 +8,7 @@ from utilities.forms.widgets import BulkEditNullBooleanSelect
 __all__ = (
     'ObjectPermissionBulkEditForm',
     'UserBulkEditForm',
-    'UserTokenBulkEditForm',
+    'TokenBulkEditForm',
 )
 
 
@@ -73,7 +73,7 @@ class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
     nullable_fields = ('description',)
 
 
-class UserTokenBulkEditForm(BulkEditForm):
+class TokenBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Token.objects.all(),
         widget=forms.MultipleHiddenInput

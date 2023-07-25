@@ -3,6 +3,10 @@
 {% load helpers %}
 {% load plugins %}
 
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'users:usertoken_list' %}">Tokens</a></li>
+{% endblock breadcrumbs %}
+
 {% block content %}
   <div class="row">
     <div class="col col-md-12">
@@ -50,7 +54,7 @@
         </div>
       </div>
       <div class="col col-md-12 text-center">
-        <a href="{% url 'users:token_add' %}" class="btn btn-outline-primary">Add Another</a>
+        <a href="{% url 'users:usertoken_add' %}" class="btn btn-outline-primary">Add Another</a>
         <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
       </div>
     </div>

@@ -7,7 +7,7 @@ from utilities.forms import CSVModelForm
 __all__ = (
     'GroupImportForm',
     'UserImportForm',
-    'UserTokenImportForm',
+    'TokenImportForm',
 )
 
 
@@ -36,7 +36,7 @@ class UserImportForm(CSVModelForm):
         return super().save(*args, **kwargs)
 
 
-class UserTokenImportForm(CSVModelForm):
+class TokenImportForm(CSVModelForm):
     key = forms.CharField(
         label=_('Key'), required=False, help_text=_("If no key is provided, one will be generated automatically.")
     )

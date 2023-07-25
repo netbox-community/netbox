@@ -12,7 +12,6 @@ __all__ = (
     'ObjectPermissionFilterSet',
     'TokenFilterSet',
     'UserFilterSet',
-    'UserTokenFilterSet',
 )
 
 
@@ -65,54 +64,6 @@ class UserFilterSet(BaseFilterSet):
 
 
 class TokenFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label=_('Search'),
-    )
-    user_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='user',
-        queryset=get_user_model().objects.all(),
-        label=_('User'),
-    )
-    user = django_filters.ModelMultipleChoiceFilter(
-        field_name='user__username',
-        queryset=get_user_model().objects.all(),
-        to_field_name='username',
-        label=_('User (name)'),
-    )
-    created = django_filters.DateTimeFilter()
-    created__gte = django_filters.DateTimeFilter(
-        field_name='created',
-        lookup_expr='gte'
-    )
-    created__lte = django_filters.DateTimeFilter(
-        field_name='created',
-        lookup_expr='lte'
-    )
-    expires = django_filters.DateTimeFilter()
-    expires__gte = django_filters.DateTimeFilter(
-        field_name='expires',
-        lookup_expr='gte'
-    )
-    expires__lte = django_filters.DateTimeFilter(
-        field_name='expires',
-        lookup_expr='lte'
-    )
-
-    class Meta:
-        model = Token
-        fields = ['id', 'key', 'write_enabled', 'description']
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(user__username__icontains=value) |
-            Q(description__icontains=value)
-        )
-
-
-class UserTokenFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),

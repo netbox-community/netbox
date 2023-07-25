@@ -252,7 +252,7 @@ class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
 # API tokens
 #
 
-class TokenListView(LoginRequiredMixin, View):
+class UserTokenListView(LoginRequiredMixin, View):
 
     def get(self, request):
 
@@ -267,8 +267,7 @@ class TokenListView(LoginRequiredMixin, View):
         })
 
 
-@register_model_view(Token, 'edit')
-class TokenEditView(LoginRequiredMixin, View):
+class UserTokenEditView(LoginRequiredMixin, View):
 
     def get(self, request, pk=None):
 
@@ -277,7 +276,7 @@ class TokenEditView(LoginRequiredMixin, View):
         else:
             token = Token(user=request.user)
 
-        form = forms.TokenForm(instance=token)
+        form = forms.UserTokenForm(instance=token)
 
         return render(request, 'generic/object_edit.html', {
             'object': token,
@@ -289,10 +288,10 @@ class TokenEditView(LoginRequiredMixin, View):
 
         if pk:
             token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-            form = forms.TokenForm(request.POST, instance=token)
+            form = forms.UserTokenForm(request.POST, instance=token)
         else:
             token = Token(user=request.user)
-            form = forms.TokenForm(request.POST)
+            form = forms.UserTokenForm(request.POST)
 
         if form.is_valid():
 
@@ -322,8 +321,7 @@ class TokenEditView(LoginRequiredMixin, View):
         })
 
 
-@register_model_view(Token, 'delete')
-class TokenDeleteView(LoginRequiredMixin, View):
+class UserTokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
 
@@ -356,18 +354,18 @@ class TokenDeleteView(LoginRequiredMixin, View):
 
 
 #
-# User Token
+# Tokens
 #
 
-class UserTokenListView(generic.ObjectListView):
+class TokenListView(generic.ObjectListView):
     queryset = Token.objects.all()
-    filterset = filtersets.UserTokenFilterSet
-    filterset_form = forms.UserTokenFilterForm
-    table = tables.UserTokenTable
+    filterset = filtersets.TokenFilterSet
+    filterset_form = forms.TokenFilterForm
+    table = tables.TokenTable
 
 
 @register_model_view(Token)
-class UserTokenView(generic.ObjectView):
+class TokenView(generic.ObjectView):
     queryset = Token.objects.all()
 
     def get_extra_context(self, request, instance):
@@ -375,30 +373,30 @@ class UserTokenView(generic.ObjectView):
 
 
 @register_model_view(Token, 'edit')
-class UserTokenEditView(generic.ObjectEditView):
+class TokenEditView(generic.ObjectEditView):
     queryset = Token.objects.all()
-    form = forms.UserTokenForm
+    form = forms.TokenForm
 
 
 @register_model_view(Token, 'delete')
-class UserTokenDeleteView(generic.ObjectDeleteView):
+class TokenDeleteView(generic.ObjectDeleteView):
     queryset = Token.objects.all()
 
 
-class UserTokenBulkImportView(generic.BulkImportView):
+class TokenBulkImportView(generic.BulkImportView):
     queryset = Token.objects.all()
-    model_form = forms.UserTokenImportForm
+    model_form = forms.TokenImportForm
 
 
-class UserTokenBulkEditView(generic.BulkEditView):
+class TokenBulkEditView(generic.BulkEditView):
     queryset = Token.objects.all()
     table = tables.TokenTable
-    form = forms.UserTokenBulkEditForm
+    form = forms.TokenBulkEditForm
 
 
-class UserTokenBulkDeleteView(generic.BulkDeleteView):
+class TokenBulkDeleteView(generic.BulkDeleteView):
     queryset = Token.objects.all()
-    table = tables.UserTokenTable
+    table = tables.TokenTable
 
 
 #

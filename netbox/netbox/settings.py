@@ -469,6 +469,7 @@ EXEMPT_EXCLUDE_MODELS = (
     ('auth', 'group'),
     ('auth', 'user'),
     ('users', 'objectpermission'),
+    ('users', 'token'),
 )
 
 # All URLs starting with a string listed here are exempt from login enforcement
