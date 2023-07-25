@@ -120,12 +120,19 @@ class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
         (None, ('q', 'filter_id',)),
-        (_('Data'), ('user_id', 'expires', 'last_used')),
+        (_('Token'), ('user_id', 'write_enabled', 'expires', 'last_used')),
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=get_user_model().objects.all(),
         required=False,
         label=_('User')
+    )
+    write_enabled = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+        label=_('Write Enabled'),
     )
     expires = forms.DateTimeField(
         required=False,
