@@ -42,5 +42,5 @@ class UserTokenImportForm(CSVModelForm):
     )
 
     class Meta:
-        model = UserToken
+        model = Token
         fields = ('key', 'user', 'expires', 'description',)

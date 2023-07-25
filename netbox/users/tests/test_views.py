@@ -161,7 +161,7 @@ class TokenTestCase(
     ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
-    model = UserToken
+    model = Token
     maxDiff = None
 
     @classmethod
@@ -173,11 +173,11 @@ class TokenTestCase(
         NetBoxUser.objects.bulk_create(users)
 
         tokens = (
-            UserToken(key='123456790123456789012345678901234567890A', user=users[0]),
-            UserToken(key='123456790123456789012345678901234567890B', user=users[0]),
-            UserToken(key='123456790123456789012345678901234567890C', user=users[1]),
+            Token(key='123456790123456789012345678901234567890A', user=users[0]),
+            Token(key='123456790123456789012345678901234567890B', user=users[0]),
+            Token(key='123456790123456789012345678901234567890C', user=users[1]),
         )
-        UserToken.objects.bulk_create(tokens)
+        Token.objects.bulk_create(tokens)
 
         cls.form_data = {
             'user': users[0].pk,

@@ -16,12 +16,12 @@ urlpatterns = [
     path('api-tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
 
     # Tokens
-    path('user-tokens/', views.UserTokenListView.as_view(), name='usertoken_list'),
-    path('user-tokens/add/', views.UserTokenEditView.as_view(), name='usertoken_add'),
-    path('user-tokens/import/', views.UserTokenBulkImportView.as_view(), name='usertoken_import'),
-    path('user-tokens/edit/', views.UserTokenBulkEditView.as_view(), name='usertoken_bulk_edit'),
-    path('user-tokens/delete/', views.UserTokenBulkDeleteView.as_view(), name='usertoken_bulk_delete'),
-    path('user-tokens/<int:pk>/', include(get_model_urls('users', 'usertoken'))),
+    path('tokens/', views.UserTokenListView.as_view(), name='token_list'),
+    path('tokens/add/', views.UserTokenEditView.as_view(), name='token_add'),
+    path('tokens/import/', views.UserTokenBulkImportView.as_view(), name='token_import'),
+    path('tokens/edit/', views.UserTokenBulkEditView.as_view(), name='token_bulk_edit'),
+    path('tokens/delete/', views.UserTokenBulkDeleteView.as_view(), name='token_bulk_delete'),
+    path('tokens/<int:pk>/', include(get_model_urls('users', 'token'))),
 
     # Users
     path('users/', views.UserListView.as_view(), name='netboxuser_list'),

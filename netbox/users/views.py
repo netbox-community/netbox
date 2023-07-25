@@ -24,7 +24,7 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import Token, UserConfig, NetBoxGroup, NetBoxUser, ObjectPermission, UserToken
+from .models import Token, UserConfig, NetBoxGroup, NetBoxUser, ObjectPermission
 
 
 #
@@ -360,44 +360,44 @@ class TokenDeleteView(LoginRequiredMixin, View):
 #
 
 class UserTokenListView(generic.ObjectListView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
     filterset = filtersets.UserTokenFilterSet
     filterset_form = forms.UserTokenFilterForm
     table = tables.UserTokenTable
 
 
-@register_model_view(UserToken)
+@register_model_view(Token)
 class UserTokenView(generic.ObjectView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
 
     def get_extra_context(self, request, instance):
         return {}
 
 
-@register_model_view(UserToken, 'edit')
+@register_model_view(Token, 'edit')
 class UserTokenEditView(generic.ObjectEditView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
     form = forms.UserTokenForm
 
 
-@register_model_view(UserToken, 'delete')
+@register_model_view(Token, 'delete')
 class UserTokenDeleteView(generic.ObjectDeleteView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
 
 
 class UserTokenBulkImportView(generic.BulkImportView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
     model_form = forms.UserTokenImportForm
 
 
 class UserTokenBulkEditView(generic.BulkEditView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
     table = tables.TokenTable
     form = forms.UserTokenBulkEditForm
 
 
 class UserTokenBulkDeleteView(generic.BulkDeleteView):
-    queryset = UserToken.objects.all()
+    queryset = Token.objects.all()
     table = tables.UserTokenTable
 
 
@@ -459,7 +459,6 @@ class UserBulkDeleteView(generic.BulkDeleteView):
 # Groups
 #
 
-
 class GroupListView(generic.ObjectListView):
     queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
@@ -494,10 +493,10 @@ class GroupBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.GroupFilterSet
     table = tables.GroupTable
 
+
 #
 # ObjectPermissions
 #
-
 
 class ObjectPermissionListView(generic.ObjectListView):
     queryset = ObjectPermission.objects.all()

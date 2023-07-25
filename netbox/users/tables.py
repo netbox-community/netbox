@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserToken
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
 
 __all__ = (
     'GroupTable',
@@ -84,7 +84,7 @@ class UserTokenTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = UserToken
+        model = Token
         fields = [
             'pk', 'id', 'key', 'user', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
         ]
