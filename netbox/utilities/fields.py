@@ -174,7 +174,9 @@ class CounterCacheField(models.BigIntegerField):
 
         self.to_model_name = to_model
         self.to_field_name = to_field
+
         kwargs['default'] = kwargs.get('default', 0)
+        kwargs['editable'] = False
 
         super().__init__(*args, **kwargs)
 
