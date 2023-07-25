@@ -579,9 +579,7 @@ class CableTerminationViewSet(NetBoxModelViewSet):
 #
 
 class VirtualChassisViewSet(NetBoxModelViewSet):
-    queryset = VirtualChassis.objects.prefetch_related('tags').annotate(
-        member_count=count_related(Device, 'virtual_chassis')
-    )
+    queryset = VirtualChassis.objects.prefetch_related('tags')
     serializer_class = serializers.VirtualChassisSerializer
     filterset_class = filtersets.VirtualChassisFilterSet
     brief_prefetch_fields = ['master']
