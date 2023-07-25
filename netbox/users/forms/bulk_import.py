@@ -38,9 +38,11 @@ class UserImportForm(CSVModelForm):
 
 class TokenImportForm(CSVModelForm):
     key = forms.CharField(
-        label=_('Key'), required=False, help_text=_("If no key is provided, one will be generated automatically.")
+        label=_('Key'),
+        required=False,
+        help_text=_("If no key is provided, one will be generated automatically.")
     )
 
     class Meta:
         model = Token
-        fields = ('key', 'user', 'expires', 'description',)
+        fields = ('user', 'key', 'write_enabled', 'expires', 'description',)
