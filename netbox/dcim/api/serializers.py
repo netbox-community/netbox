@@ -1156,13 +1156,15 @@ class CablePathSerializer(serializers.ModelSerializer):
 class VirtualChassisSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer(required=False, allow_null=True, default=None)
+
+    # Counter fields
     member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
         fields = [
             'id', 'url', 'display', 'name', 'domain', 'master', 'description', 'comments', 'tags', 'custom_fields',
-            'member_count', 'created', 'last_updated',
+            'created', 'last_updated', 'member_count',
         ]
 
 

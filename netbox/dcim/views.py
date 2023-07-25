@@ -3227,9 +3227,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
 #
 
 class VirtualChassisListView(generic.ObjectListView):
-    queryset = VirtualChassis.objects.annotate(
-        member_count=count_related(Device, 'virtual_chassis')
-    )
+    queryset = VirtualChassis.objects.all()
     table = tables.VirtualChassisTable
     filterset = filtersets.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm
