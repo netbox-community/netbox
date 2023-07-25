@@ -8,6 +8,7 @@ from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
 
+
 __all__ = (
     'ChangeLoggedModel',
     'NestedGroupModel',

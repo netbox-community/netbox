@@ -1876,7 +1876,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     template_name = 'dcim/device/consoleports.html',
     tab = ViewTab(
         label=_('Console Ports'),
-        badge=lambda obj: obj.consoleports.count(),
+        badge=lambda obj: obj.console_port_count,
         permission='dcim.view_consoleport',
         weight=550,
         hide_if_empty=True
@@ -1891,7 +1891,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     template_name = 'dcim/device/consoleserverports.html'
     tab = ViewTab(
         label=_('Console Server Ports'),
-        badge=lambda obj: obj.consoleserverports.count(),
+        badge=lambda obj: obj.console_server_port_count,
         permission='dcim.view_consoleserverport',
         weight=560,
         hide_if_empty=True
@@ -1906,7 +1906,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     template_name = 'dcim/device/powerports.html'
     tab = ViewTab(
         label=_('Power Ports'),
-        badge=lambda obj: obj.powerports.count(),
+        badge=lambda obj: obj.power_port_count,
         permission='dcim.view_powerport',
         weight=570,
         hide_if_empty=True
@@ -1921,7 +1921,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     template_name = 'dcim/device/poweroutlets.html'
     tab = ViewTab(
         label=_('Power Outlets'),
-        badge=lambda obj: obj.poweroutlets.count(),
+        badge=lambda obj: obj.power_outlet_count,
         permission='dcim.view_poweroutlet',
         weight=580,
         hide_if_empty=True
@@ -1957,7 +1957,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     template_name = 'dcim/device/frontports.html'
     tab = ViewTab(
         label=_('Front Ports'),
-        badge=lambda obj: obj.frontports.count(),
+        badge=lambda obj: obj.front_port_count,
         permission='dcim.view_frontport',
         weight=530,
         hide_if_empty=True
@@ -1972,7 +1972,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     template_name = 'dcim/device/rearports.html'
     tab = ViewTab(
         label=_('Rear Ports'),
-        badge=lambda obj: obj.rearports.count(),
+        badge=lambda obj: obj.rear_port_count,
         permission='dcim.view_rearport',
         weight=540,
         hide_if_empty=True
@@ -1987,7 +1987,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     template_name = 'dcim/device/modulebays.html'
     tab = ViewTab(
         label=_('Module Bays'),
-        badge=lambda obj: obj.modulebays.count(),
+        badge=lambda obj: obj.module_bay_count,
         permission='dcim.view_modulebay',
         weight=510,
         hide_if_empty=True
@@ -2002,7 +2002,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     template_name = 'dcim/device/devicebays.html'
     tab = ViewTab(
         label=_('Device Bays'),
-        badge=lambda obj: obj.devicebays.count(),
+        badge=lambda obj: obj.device_bay_count,
         permission='dcim.view_devicebay',
         weight=500,
         hide_if_empty=True
@@ -2017,7 +2017,7 @@ class DeviceInventoryView(DeviceComponentsView):
     template_name = 'dcim/device/inventory.html'
     tab = ViewTab(
         label=_('Inventory Items'),
-        badge=lambda obj: obj.inventoryitems.count(),
+        badge=lambda obj: obj.inventory_item_count,
         permission='dcim.view_inventoryitem',
         weight=590,
         hide_if_empty=True
