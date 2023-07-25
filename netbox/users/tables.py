@@ -1,4 +1,3 @@
-from django.conf import settings
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
@@ -34,27 +33,18 @@ class TokenActionsColumn(columns.ActionsColumn):
 
 class TokenTable(NetBoxTable):
     key = columns.TemplateColumn(
-        verbose_name='Key',
         template_code=TOKEN
     )
     write_enabled = columns.BooleanColumn(
         verbose_name='Write'
     )
-    created = columns.DateColumn(
-        verbose_name='Created',
-    )
-    expired = columns.DateColumn(
-        verbose_name='Expired',
-    )
-    last_used = columns.DateTimeColumn(
-        verbose_name='Last used',
-    )
+    created = columns.DateColumn()
+    expired = columns.DateColumn()
+    last_used = columns.DateTimeColumn()
     allowed_ips = columns.TemplateColumn(
-        verbose_name='Allowed IPs',
         template_code=ALLOWED_IPS
     )
     actions = TokenActionsColumn(
-        verbose_name='Actions',
         actions=('edit', 'delete'),
         extra_buttons=COPY_BUTTON
     )
@@ -102,24 +92,15 @@ class UserTokenTable(NetBoxTable):
 
 class UserTable(NetBoxTable):
     username = tables.Column(
-        verbose_name='Username',
         linkify=True
     )
     groups = columns.ManyToManyColumn(
-        verbose_name='Groups',
         linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
     )
-    is_active = columns.BooleanColumn(
-        verbose_name='Is active',
-    )
-    is_staff = columns.BooleanColumn(
-        verbose_name='Is staff',
-    )
-    is_superuser = columns.BooleanColumn(
-        verbose_name='Is superuser',
-    )
+    is_active = columns.BooleanColumn()
+    is_staff = columns.BooleanColumn()
+    is_superuser = columns.BooleanColumn()
     actions = columns.ActionsColumn(
-        verbose_name='Actions',
         actions=('edit', 'delete'),
     )
 
@@ -133,12 +114,8 @@ class UserTable(NetBoxTable):
 
 
 class GroupTable(NetBoxTable):
-    name = tables.Column(
-        verbose_name='Name',
-        linkify=True
-    )
+    name = tables.Column(linkify=True)
     actions = columns.ActionsColumn(
-        verbose_name='Actions',
         actions=('edit', 'delete'),
     )
 
@@ -151,42 +128,23 @@ class GroupTable(NetBoxTable):
 
 
 class ObjectPermissionTable(NetBoxTable):
-    name = tables.Column(
-        verbose_name='Name',
-        linkify=True
-    )
-    object_types = columns.ContentTypesColumn(
-        verbose_name='Object types',
-    )
-    enabled = columns.BooleanColumn(
-        verbose_name='Enabled',
-    )
-    can_view = columns.BooleanColumn(
-        verbose_name='Can view',
-    )
-    can_add = columns.BooleanColumn(
-        verbose_name='Can add',
-    )
-    can_change = columns.BooleanColumn(
-        verbose_name='Can change',
-    )
-    can_delete = columns.BooleanColumn(
-        verbose_name='Can delete',
-    )
+    name = tables.Column(linkify=True)
+    object_types = columns.ContentTypesColumn()
+    enabled = columns.BooleanColumn()
+    can_view = columns.BooleanColumn()
+    can_add = columns.BooleanColumn()
+    can_change = columns.BooleanColumn()
+    can_delete = columns.BooleanColumn()
     custom_actions = columns.ArrayColumn(
-        verbose_name='Custom actions',
         accessor=tables.A('actions')
     )
     users = columns.ManyToManyColumn(
-        verbose_name='Users',
         linkify_item=('users:netboxuser', {'pk': tables.A('pk')})
     )
     groups = columns.ManyToManyColumn(
-        verbose_name='Groups',
         linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
     )
     actions = columns.ActionsColumn(
-        verbose_name='Actions',
         actions=('edit', 'delete'),
     )
 

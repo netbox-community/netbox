@@ -328,10 +328,10 @@ class UserToken(Token):
 
     objects = RestrictedQuerySet.as_manager()
 
+
 #
 # Permissions
 #
-
 
 class ObjectPermission(models.Model):
     """

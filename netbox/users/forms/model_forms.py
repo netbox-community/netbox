@@ -1,30 +1,23 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth.forms import PasswordChangeForm as DjangoPasswordChangeForm
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
 from django.utils.html import mark_safe
-from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy as _
+
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
+from netbox.preferences import PREFERENCES
 from users.constants import *
 from users.models import *
-from users.models import Token, UserConfig
 from utilities.forms import BootstrapMixin
-from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField,
-    DynamicModelMultipleChoiceField,
-)
+from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DateTimePicker
 from utilities.permissions import qs_filter_from_constraints
 from utilities.utils import flatten_dict
-
-from netbox.preferences import PREFERENCES
 
 __all__ = (
     'GroupForm',
@@ -36,16 +29,10 @@ __all__ = (
 )
 
 
-class LoginForm(BootstrapMixin, AuthenticationForm):
-    pass
-
-
-class PasswordChangeForm(BootstrapMixin, DjangoPasswordChangeForm):
-    pass
-
-
 class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
+
     def __new__(mcs, name, bases, attrs):
+
         # Emulate a declared field for each supported user preference
         preference_fields = {}
         for field_name, preference in PREFERENCES.items():
@@ -67,24 +54,28 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 
 class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
-        (
-            _('User Interface'),
-            (
-                'pagination.per_page',
-                'pagination.placement',
-                'ui.colormode',
-            ),
-        ),
-        (_('Miscellaneous'), ('data_format',)),
+        (_('User Interface'), (
+            'pagination.per_page',
+            'pagination.placement',
+            'ui.colormode',
+        )),
+        (_('Miscellaneous'), (
+            'data_format',
+        )),
     )
     # List of clearable preferences
-    pk = forms.MultipleChoiceField(label=_('Pk'), choices=[], required=False)
+    pk = forms.MultipleChoiceField(
+        label=_('Pk'),
+        choices=[],
+        required=False
+    )
 
     class Meta:
         model = UserConfig
         fields = ()
 
     def __init__(self, *args, instance=None, **kwargs):
+
         # Get initial data from UserConfig instance
         initial_data = flatten_dict(instance.data)
         kwargs['initial'] = initial_data
@@ -92,9 +83,12 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
         super().__init__(*args, instance=instance, **kwargs)
 
         # Compile clearable preference choices
-        self.fields['pk'].choices = ((f'tables.{table_name}', '') for table_name in instance.data.get('tables', []))
+        self.fields['pk'].choices = (
+            (f'tables.{table_name}', '') for table_name in instance.data.get('tables', [])
+        )
 
     def save(self, *args, **kwargs):
+
         # Set UserConfig data
         for pref_name, value in self.cleaned_data.items():
             if pref_name == 'pk':
@@ -109,7 +103,9 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
 
     @property
     def plugin_fields(self):
-        return [name for name in self.fields.keys() if name.startswith('plugins.')]
+        return [
+            name for name in self.fields.keys() if name.startswith('plugins.')
+        ]
 
 
 class TokenForm(BootstrapMixin, forms.ModelForm):
@@ -129,11 +125,7 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'key',
-            'write_enabled',
-            'expires',
-            'description',
-            'allowed_ips',
+            'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -170,12 +162,7 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = Token
         fields = [
-            'key',
-            'user',
-            'write_enabled',
-            'expires',
-            'description',
-            'allowed_ips',
+            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
         ]
         widgets = {
             'expires': DateTimePicker(),
@@ -201,7 +188,11 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         required=True,
         help_text=_("Enter the same password as before, for verification."),
     )
-    groups = DynamicModelMultipleChoiceField(label=_('Groups'), required=False, queryset=Group.objects.all())
+    groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
+        required=False,
+        queryset=Group.objects.all()
+    )
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
         label=_('Permissions'),
@@ -211,7 +202,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
     fieldsets = (
         (_('User'), ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email')),
-        (_('Groups'), ('groups',)),
+        (_('Groups'), ('groups', )),
         (_('Status'), ('is_active', 'is_staff', 'is_superuser')),
         (_('Permissions'), ('object_permissions',)),
     )
@@ -219,15 +210,8 @@ class UserForm(BootstrapMixin, forms.ModelForm):
     class Meta:
         model = NetBoxUser
         fields = [
-            'username',
-            'first_name',
-            'last_name',
-            'email',
-            'groups',
-            'object_permissions',
-            'is_active',
-            'is_staff',
-            'is_superuser',
+            'username', 'first_name', 'last_name', 'email', 'groups', 'object_permissions',
+            'is_active', 'is_staff', 'is_superuser',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -257,6 +241,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         return instance
 
     def clean(self):
+
         # Check that password confirmation matches if password is set
         if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
             raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
@@ -271,14 +256,22 @@ class UserForm(BootstrapMixin, forms.ModelForm):
             qs = self._meta.model.objects.all()
 
         username = self.cleaned_data.get("username")
-        if username and qs.filter(username__iexact=username).exists():
-            raise forms.ValidationError(_("user with this username already exists"))
+        if (
+            username and qs.filter(username__iexact=username).exists()
+        ):
+            raise forms.ValidationError(
+                _("user with this username already exists")
+            )
 
         return username
 
 
 class GroupForm(BootstrapMixin, forms.ModelForm):
-    users = DynamicModelMultipleChoiceField(label=_('Users'), required=False, queryset=get_user_model().objects.all())
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        required=False,
+        queryset=get_user_model().objects.all()
+    )
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
         label=_('Permissions'),
@@ -287,17 +280,15 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (None, ('name',)),
-        (_('Users'), ('users',)),
-        (_('Permissions'), ('object_permissions',)),
+        (None, ('name', )),
+        (_('Users'), ('users', )),
+        (_('Permissions'), ('object_permissions', )),
     )
 
     class Meta:
         model = NetBoxGroup
         fields = [
-            'name',
-            'users',
-            'object_permissions',
+            'name', 'users', 'object_permissions',
         ]
 
     def __init__(self, *args, **kwargs):
@@ -323,47 +314,49 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
         label=_('Object types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
-        widget=forms.SelectMultiple(attrs={'size': 6}),
+        widget=forms.SelectMultiple(attrs={'size': 6})
     )
-    can_view = forms.BooleanField(required=False)
-    can_add = forms.BooleanField(required=False)
-    can_change = forms.BooleanField(required=False)
-    can_delete = forms.BooleanField(required=False)
+    can_view = forms.BooleanField(
+        required=False
+    )
+    can_add = forms.BooleanField(
+        required=False
+    )
+    can_change = forms.BooleanField(
+        required=False
+    )
+    can_delete = forms.BooleanField(
+        required=False
+    )
     actions = SimpleArrayField(
         label=_('Additional actions'),
         base_field=forms.CharField(),
         required=False,
-        help_text=_('Actions granted in addition to those listed above'),
+        help_text=_('Actions granted in addition to those listed above')
     )
-    users = DynamicModelMultipleChoiceField(label=_('Users'), required=False, queryset=get_user_model().objects.all())
-    groups = DynamicModelMultipleChoiceField(label=_('Groups'), required=False, queryset=Group.objects.all())
+    users = DynamicModelMultipleChoiceField(
+        label=_('Users'),
+        required=False,
+        queryset=get_user_model().objects.all()
+    )
+    groups = DynamicModelMultipleChoiceField(
+        label=_('Groups'),
+        required=False,
+        queryset=Group.objects.all()
+    )
 
     fieldsets = (
-        (
-            None,
-            (
-                'name',
-                'description',
-                'enabled',
-            ),
-        ),
+        (None, ('name', 'description', 'enabled',)),
         (_('Actions'), ('can_view', 'can_add', 'can_change', 'can_delete', 'actions')),
-        (_('Objects'), ('object_types',)),
+        (_('Objects'), ('object_types', )),
         (_('Assignment'), ('groups', 'users')),
-        (_('Constraints'), ('constraints',)),
+        (_('Constraints'), ('constraints',))
     )
 
     class Meta:
         model = ObjectPermission
         fields = [
-            'name',
-            'description',
-            'enabled',
-            'object_types',
-            'users',
-            'groups',
-            'constraints',
-            'actions',
+            'name', 'description', 'enabled', 'object_types', 'users', 'groups', 'constraints', 'actions',
         ]
         help_texts = {
             'constraints': _(
@@ -421,6 +414,6 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
                     }
                     model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
                 except FieldError as e:
-                    raise forms.ValidationError(
-                        {'constraints': _('Invalid filter for {model}: {e}').format(model=model, e=e)}
-                    )
+                    raise forms.ValidationError({
+                        'constraints': _('Invalid filter for {model}: {e}').format(model=model, e=e)
+                    })
