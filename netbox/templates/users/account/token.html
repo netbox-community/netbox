@@ -24,24 +24,26 @@
         <h5 class="card-header">{% trans "Token" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
-            {% if key %}
-              <tr>
-                <th scope="row">{% trans "Key" %}</th>
-                <td>
+            <tr>
+              <th scope="row">{% trans "Key" %}</th>
+              <td>
+                {% if key %}
                   <div class="float-end">
                     {% copy_content "token_id" %}
                   </div>
                   <div id="token_id">{{ key }}</div>
-                </td>
-              </tr>
-            {% endif %}
+                {% else %}
+                  {{ object.partial }}
+                {% endif %}
+              </td>
+            </tr>
             <tr>
               <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "User" %}</th>
-              <td>{{ object.user }}</td>
+              <th scope="row">{% trans "Write enabled" %}</th>
+              <td>{% checkmark object.write_enabled %}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Created" %}</th>
@@ -49,13 +51,15 @@
             </tr>
             <tr>
               <th scope="row">{% trans "Expires" %}</th>
-              <td>
-                {% if object.expires %}
-                  {{ object.expires|annotated_date }}
-                {% else %}
-                  <span>{% trans "Never" %}</span>
-                {% endif %}
-              </td>
+              <td>{{ object.expires|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Last used" %}</th>
+              <td>{{ object.last_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Allowed IPs" %}</th>
+              <td>{{ object.allowed_ips|join:", "|placeholder }}</td>
             </tr>
           </table>
         </div>

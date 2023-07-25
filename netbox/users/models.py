@@ -328,6 +328,7 @@ class UserToken(Token):
     """
     class Meta:
         proxy = True
+        verbose_name = 'token'
 
     def get_absolute_url(self):
         return reverse('users:usertoken', args=[self.pk])

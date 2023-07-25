@@ -18,6 +18,7 @@ class Migration(migrations.Migration):
                 'proxy': True,
                 'indexes': [],
                 'constraints': [],
+                'verbose_name': 'token',
             },
             bases=('users.token',),
         ),
