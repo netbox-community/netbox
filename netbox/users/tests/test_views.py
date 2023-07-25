@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 
 from users.models import *
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_test_user
 
 
 class UserTestCase(
@@ -167,11 +167,9 @@ class TokenTestCase(
     @classmethod
     def setUpTestData(cls):
         users = (
-            NetBoxUser(username='username1', first_name='first1', last_name='last1', email='user1@foo.com', password='pass1xxx'),
-            NetBoxUser(username='username2', first_name='first2', last_name='last2', email='user2@foo.com', password='pass2xxx'),
+            create_test_user('User 1'),
+            create_test_user('User 2'),
         )
-        NetBoxUser.objects.bulk_create(users)
-
         tokens = (
             Token(key='123456790123456789012345678901234567890A', user=users[0]),
             Token(key='123456790123456789012345678901234567890B', user=users[0]),

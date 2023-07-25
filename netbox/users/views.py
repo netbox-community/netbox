@@ -259,7 +259,7 @@ class UserTokenListView(LoginRequiredMixin, View):
         table = tables.UserTokenTable(tokens)
         table.configure(request)
 
-        return render(request, 'users/account/usertoken_list.html', {
+        return render(request, 'users/account/token_list.html', {
             'tokens': tokens,
             'active_tab': 'api-tokens',
             'table': table,
@@ -270,10 +270,10 @@ class UserTokenListView(LoginRequiredMixin, View):
 class UserTokenView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
-        token = get_object_or_404(UserToken, pk=pk)
+        token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
         key = token.key if settings.ALLOW_TOKEN_RETRIEVAL else None
 
-        return render(request, 'users/account/usertoken.html', {
+        return render(request, 'users/account/token.html', {
             'object': token,
             'key': key,
         })
@@ -312,7 +312,7 @@ class UserTokenEditView(LoginRequiredMixin, View):
             messages.success(request, msg)
 
             if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-                return render(request, 'users/account/usertoken.html', {
+                return render(request, 'users/account/token.html', {
                     'object': token,
                     'key': token.key,
                     'return_url': reverse('users:token_list'),

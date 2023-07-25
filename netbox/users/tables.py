@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 from netbox.tables import NetBoxTable, columns
 from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserToken
@@ -31,28 +32,30 @@ class TokenActionsColumn(columns.ActionsColumn):
 
 
 class UserTokenTable(NetBoxTable):
+    """
+    Table for users to manager their own API tokens under account views.
+    """
     key = columns.TemplateColumn(
-        verbose_name='Key',
+        verbose_name=_('Key'),
         template_code=TOKEN,
     )
     write_enabled = columns.BooleanColumn(
-        verbose_name='Write'
+        verbose_name=_('Write Enabled')
     )
     created = columns.DateColumn(
-        verbose_name='Created',
+        verbose_name=_('Created'),
     )
-    expired = columns.DateColumn(
-        verbose_name='Expired',
+    expires = columns.DateColumn(
+        verbose_name=_('Expires'),
     )
     last_used = columns.DateTimeColumn(
-        verbose_name='Last used',
+        verbose_name=_('Last Used'),
     )
     allowed_ips = columns.TemplateColumn(
-        verbose_name='Allowed IPs',
+        verbose_name=_('Allowed IPs'),
         template_code=ALLOWED_IPS
     )
     actions = TokenActionsColumn(
-        verbose_name='Actions',
         actions=('edit', 'delete'),
         extra_buttons=COPY_BUTTON
     )
@@ -65,6 +68,13 @@ class UserTokenTable(NetBoxTable):
 
 
 class TokenTable(UserTokenTable):
+    """
+    General-purpose table for API token management.
+    """
+    user = tables.Column(
+        linkify=True,
+        verbose_name=_('User')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Token
