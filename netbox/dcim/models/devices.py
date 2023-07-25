@@ -672,6 +672,10 @@ class Device(PrimaryModel, ConfigContextModel):
         to_model='dcim.DeviceBay',
         to_field='device'
     )
+    module_bay_count = CounterCacheField(
+        to_model='dcim.ModuleBay',
+        to_field='device'
+    )
     inventory_item_count = CounterCacheField(
         to_model='dcim.InventoryItem',
         to_field='device'

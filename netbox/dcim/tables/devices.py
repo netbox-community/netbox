@@ -254,6 +254,9 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     device_bay_count = tables.Column(
         verbose_name=_('Device bays')
     )
+    module_bay_count = tables.Column(
+        verbose_name=_('Module bays')
+    )
     inventory_item_count = tables.Column(
         verbose_name=_('Inventory items')
     )
