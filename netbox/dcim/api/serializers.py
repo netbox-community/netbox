@@ -670,14 +670,28 @@ class DeviceSerializer(NetBoxModelSerializer):
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
     config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
 
+    # Counter fields
+    console_port_count = serializers.IntegerField(read_only=True)
+    console_server_port_count = serializers.IntegerField(read_only=True)
+    power_port_count = serializers.IntegerField(read_only=True)
+    power_outlet_count = serializers.IntegerField(read_only=True)
+    interface_count = serializers.IntegerField(read_only=True)
+    front_port_count = serializers.IntegerField(read_only=True)
+    rear_port_count = serializers.IntegerField(read_only=True)
+    device_bay_count = serializers.IntegerField(read_only=True)
+    module_bay_count = serializers.IntegerField(read_only=True)
+    inventory_item_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Device
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created',
-            'oob_ip', 'last_updated',
+            'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status',
+            'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields',
+            'created', 'last_updated', 'console_port_count', 'console_server_port_count', 'power_port_count',
+            'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
+            'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)
@@ -699,9 +713,11 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'config_template', 'oob_ip',
-            'created', 'last_updated',
+            'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
+            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'config_template',
+            'created', 'last_updated', 'console_port_count', 'console_server_port_count', 'power_port_count',
+            'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
+            'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

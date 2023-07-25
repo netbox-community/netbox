@@ -1,10 +1,10 @@
 import django_tables2 as tables
-from dcim import models
 from django_tables2.utils import Accessor
-from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+from django.utils.translation import gettext as _
 
+from dcim import models
 from netbox.tables import NetBoxTable, columns
-
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import *
 
 __all__ = (
@@ -233,6 +233,36 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:device_list'
+    )
+    console_port_count = tables.Column(
+        verbose_name=_('Console ports')
+    )
+    console_server_port_count = tables.Column(
+        verbose_name=_('Console server ports')
+    )
+    power_port_count = tables.Column(
+        verbose_name=_('Power ports')
+    )
+    power_outlet_count = tables.Column(
+        verbose_name=_('Power outlets')
+    )
+    interface_count = tables.Column(
+        verbose_name=_('Interfaces')
+    )
+    front_port_count = tables.Column(
+        verbose_name=_('Front ports')
+    )
+    rear_port_count = tables.Column(
+        verbose_name=_('Rear ports')
+    )
+    device_bay_count = tables.Column(
+        verbose_name=_('Device bays')
+    )
+    module_bay_count = tables.Column(
+        verbose_name=_('Module bays')
+    )
+    inventory_item_count = tables.Column(
+        verbose_name=_('Inventory items')
     )
 
     class Meta(NetBoxTable.Meta):

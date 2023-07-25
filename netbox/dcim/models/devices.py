@@ -21,7 +21,7 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
-from utilities.fields import ColorField, NaturalOrderingField
+from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from .device_components import *
 from .mixins import WeightMixin
 
@@ -645,6 +645,48 @@ class Device(PrimaryModel, ConfigContextModel):
         blank=True,
         null=True,
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+
+    # Counter fields
+    console_port_count = CounterCacheField(
+        to_model='dcim.ConsolePort',
+        to_field='device'
+    )
+    console_server_port_count = CounterCacheField(
+        to_model='dcim.ConsoleServerPort',
+        to_field='device'
+    )
+    power_port_count = CounterCacheField(
+        to_model='dcim.PowerPort',
+        to_field='device'
+    )
+    power_outlet_count = CounterCacheField(
+        to_model='dcim.PowerOutlet',
+        to_field='device'
+    )
+    interface_count = CounterCacheField(
+        to_model='dcim.Interface',
+        to_field='device'
+    )
+    front_port_count = CounterCacheField(
+        to_model='dcim.FrontPort',
+        to_field='device'
+    )
+    rear_port_count = CounterCacheField(
+        to_model='dcim.RearPort',
+        to_field='device'
+    )
+    device_bay_count = CounterCacheField(
+        to_model='dcim.DeviceBay',
+        to_field='device'
+    )
+    module_bay_count = CounterCacheField(
+        to_model='dcim.ModuleBay',
+        to_field='device'
+    )
+    inventory_item_count = CounterCacheField(
+        to_model='dcim.InventoryItem',
+        to_field='device'
     )
 
     # Generic relations

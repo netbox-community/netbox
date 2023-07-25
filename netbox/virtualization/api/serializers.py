@@ -80,12 +80,15 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
 
+    # Counter fields
+    interface_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = VirtualMachine
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'interface_count',
         ]
         validators = []
 
@@ -98,6 +101,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
             'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'interface_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

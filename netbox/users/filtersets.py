@@ -10,6 +10,7 @@ from users.models import ObjectPermission, Token
 __all__ = (
     'GroupFilterSet',
     'ObjectPermissionFilterSet',
+    'TokenFilterSet',
     'UserFilterSet',
 )
 
