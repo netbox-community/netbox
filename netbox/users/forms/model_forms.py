@@ -20,11 +20,13 @@ from utilities.permissions import qs_filter_from_constraints
 from utilities.utils import flatten_dict
 
 __all__ = (
+    'UserTokenForm',
     'GroupForm',
     'ObjectPermissionForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
+    'TokenForm',
 )
 
 
@@ -107,7 +109,7 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
         ]
 
 
-class TokenForm(BootstrapMixin, forms.ModelForm):
+class UserTokenForm(BootstrapMixin, forms.ModelForm):
     key = forms.CharField(
         label=_('Key'),
         required=False,
@@ -117,8 +119,10 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         base_field=IPNetworkFormField(validators=[prefix_validator]),
         required=False,
         label=_('Allowed IPs'),
-        help_text=_('Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
-                    'Example: <code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>'),
+        help_text=_(
+            'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
+            'Example: <code>10.1.1.0/24,192.168.10.16/32,2001:db8:1::/64</code>'
+        ),
     )
 
     class Meta:
@@ -136,6 +140,24 @@ class TokenForm(BootstrapMixin, forms.ModelForm):
         # Omit the key field if token retrieval is not permitted
         if self.instance.pk and not settings.ALLOW_TOKEN_RETRIEVAL:
             del self.fields['key']
+
+
+class TokenForm(UserTokenForm):
+    user = forms.ModelChoiceField(
+        queryset=get_user_model().objects.order_by(
+            'username'
+        ),
+        required=False
+    )
+
+    class Meta:
+        model = Token
+        fields = [
+            'user', 'key', 'write_enabled', 'expires', 'description', 'allowed_ips',
+        ]
+        widgets = {
+            'expires': DateTimePicker(),
+        }
 
 
 class UserForm(BootstrapMixin, forms.ModelForm):

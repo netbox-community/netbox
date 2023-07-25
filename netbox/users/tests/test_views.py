@@ -2,7 +2,7 @@ from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 
 from users.models import *
-from utilities.testing import ViewTestCases
+from utilities.testing import ViewTestCases, create_test_user
 
 
 class UserTestCase(
@@ -148,4 +148,54 @@ class ObjectPermissionTestCase(
 
         cls.bulk_edit_data = {
             'description': 'New description',
+        }
+
+
+class TokenTestCase(
+    ViewTestCases.GetObjectViewTestCase,
+    ViewTestCases.CreateObjectViewTestCase,
+    ViewTestCases.EditObjectViewTestCase,
+    ViewTestCases.DeleteObjectViewTestCase,
+    ViewTestCases.ListObjectsViewTestCase,
+    ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
+    ViewTestCases.BulkDeleteObjectsViewTestCase,
+):
+    model = Token
+    maxDiff = None
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            create_test_user('User 1'),
+            create_test_user('User 2'),
+        )
+        tokens = (
+            Token(key='123456790123456789012345678901234567890A', user=users[0]),
+            Token(key='123456790123456789012345678901234567890B', user=users[0]),
+            Token(key='123456790123456789012345678901234567890C', user=users[1]),
+        )
+        Token.objects.bulk_create(tokens)
+
+        cls.form_data = {
+            'user': users[0].pk,
+            'description': 'testdescription',
+        }
+
+        cls.csv_data = (
+            "key,user,description",
+            f"123456790123456789012345678901234567890D,{users[0].pk},testdescriptionD",
+            f"123456790123456789012345678901234567890E,{users[1].pk},testdescriptionE",
+            f"123456790123456789012345678901234567890F,{users[1].pk},testdescriptionF",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{tokens[0].pk},testdescriptionH",
+            f"{tokens[1].pk},testdescriptionI",
+            f"{tokens[2].pk},testdescriptionJ",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'newdescription',
         }

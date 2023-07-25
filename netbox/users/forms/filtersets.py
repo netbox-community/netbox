@@ -1,4 +1,7 @@
 from django import forms
+from extras.forms.mixins import SavedFiltersMixin
+from utilities.forms import FilterForm
+from users.models import Token
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
@@ -7,11 +10,13 @@ from netbox.forms import NetBoxModelFilterSetForm
 from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.widgets import DateTimePicker
 
 __all__ = (
     'GroupFilterForm',
     'ObjectPermissionFilterForm',
     'UserFilterForm',
+    'TokenFilterForm',
 )
 
 
@@ -108,4 +113,34 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
         label=_('Can Delete'),
+    )
+
+
+class TokenFilterForm(SavedFiltersMixin, FilterForm):
+    model = Token
+    fieldsets = (
+        (None, ('q', 'filter_id',)),
+        (_('Token'), ('user_id', 'write_enabled', 'expires', 'last_used')),
+    )
+    user_id = DynamicModelMultipleChoiceField(
+        queryset=get_user_model().objects.all(),
+        required=False,
+        label=_('User')
+    )
+    write_enabled = forms.NullBooleanField(
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        ),
+        label=_('Write Enabled'),
+    )
+    expires = forms.DateTimeField(
+        required=False,
+        label=_('Expires'),
+        widget=DateTimePicker()
+    )
+    last_used = forms.DateTimeField(
+        required=False,
+        label=_('Last Used'),
+        widget=DateTimePicker()
     )

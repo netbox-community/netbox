@@ -1,8 +1,8 @@
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
-from .models import Token
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserToken
 
 __all__ = (
     'GroupTable',
@@ -31,17 +31,28 @@ class TokenActionsColumn(columns.ActionsColumn):
     }
 
 
-class TokenTable(NetBoxTable):
+class UserTokenTable(NetBoxTable):
+    """
+    Table for users to manager their own API tokens under account views.
+    """
     key = columns.TemplateColumn(
-        template_code=TOKEN
+        verbose_name=_('Key'),
+        template_code=TOKEN,
     )
     write_enabled = columns.BooleanColumn(
-        verbose_name='Write'
+        verbose_name=_('Write Enabled')
     )
-    created = columns.DateColumn()
-    expired = columns.DateColumn()
-    last_used = columns.DateTimeColumn()
+    created = columns.DateColumn(
+        verbose_name=_('Created'),
+    )
+    expires = columns.DateColumn(
+        verbose_name=_('Expires'),
+    )
+    last_used = columns.DateTimeColumn(
+        verbose_name=_('Last Used'),
+    )
     allowed_ips = columns.TemplateColumn(
+        verbose_name=_('Allowed IPs'),
         template_code=ALLOWED_IPS
     )
     actions = TokenActionsColumn(
@@ -50,9 +61,25 @@ class TokenTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
+        model = UserToken
+        fields = (
+            'pk', 'id', 'key', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+        )
+
+
+class TokenTable(UserTokenTable):
+    """
+    General-purpose table for API token management.
+    """
+    user = tables.Column(
+        linkify=True,
+        verbose_name=_('User')
+    )
+
+    class Meta(NetBoxTable.Meta):
         model = Token
         fields = (
-            'pk', 'description', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+            'pk', 'id', 'key', 'user', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
         )
 
 
