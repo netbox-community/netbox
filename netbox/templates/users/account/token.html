@@ -5,7 +5,7 @@
 {% load plugins %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'users:usertoken_list' %}">{% trans "My API Tokens" %}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'account:usertoken_list' %}">{% trans "My API Tokens" %}</a></li>
 {% endblock breadcrumbs %}
 
 {% block title %}{% trans "Token" %} {{ object }}{% endblock %}

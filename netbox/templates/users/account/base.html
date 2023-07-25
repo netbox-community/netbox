@@ -4,21 +4,21 @@
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li role="presentation" class="nav-item">
-      <a class="nav-link{% if active_tab == 'profile' %} active{% endif %}" href="{% url 'users:profile' %}">{% trans "Profile" %}</a>
+      <a class="nav-link{% if active_tab == 'profile' %} active{% endif %}" href="{% url 'account:profile' %}">{% trans "Profile" %}</a>
     </li>
     <li role="presentation" class="nav-item">
-      <a class="nav-link{% if active_tab == 'bookmarks' %} active{% endif %}" href="{% url 'users:bookmarks' %}">{% trans "Bookmarks" %}</a>
+      <a class="nav-link{% if active_tab == 'bookmarks' %} active{% endif %}" href="{% url 'account:bookmarks' %}">{% trans "Bookmarks" %}</a>
     </li>
     <li role="presentation" class="nav-item">
-      <a class="nav-link{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'users:preferences' %}">{% trans "Preferences" %}</a>
+      <a class="nav-link{% if active_tab == 'preferences' %} active{% endif %}" href="{% url 'account:preferences' %}">{% trans "Preferences" %}</a>
     </li>
     {% if not request.user.ldap_username %}
       <li role="presentation" class="nav-item">
-        <a class="nav-link{% if active_tab == 'password' %} active{% endif %}" href="{% url 'users:change_password' %}">{% trans "Password" %}</a>
+        <a class="nav-link{% if active_tab == 'password' %} active{% endif %}" href="{% url 'account:change_password' %}">{% trans "Password" %}</a>
       </li>
     {% endif %}
     <li role="presentation" class="nav-item">
-      <a class="nav-link{% if active_tab == 'api-tokens' %} active{% endif %}" href="{% url 'users:usertoken_list' %}">{% trans "API Tokens" %}</a>
+      <a class="nav-link{% if active_tab == 'api-tokens' %} active{% endif %}" href="{% url 'account:usertoken_list' %}">{% trans "API Tokens" %}</a>
     </li>
   </ul>
 {% endblock %}

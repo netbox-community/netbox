@@ -32,9 +32,12 @@ _patterns = [
     path('extras/', include('extras.urls')),
     path('ipam/', include('ipam.urls')),
     path('tenancy/', include('tenancy.urls')),
-    path('user/', include('users.urls')),
+    path('users/', include('users.urls')),
     path('virtualization/', include('virtualization.urls')),
     path('wireless/', include('wireless.urls')),
+
+    # Current user views
+    path('user/', include('users.account_urls')),
 
     # HTMX views
     path('htmx/object-selector/', htmx.ObjectSelectorView.as_view(), name='htmx_object_selector'),
