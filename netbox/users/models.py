@@ -321,6 +321,17 @@ class Token(models.Model):
         return False
 
 
+class UserToken(Token):
+    """
+    Proxy model for users to manage their own API tokens.
+    """
+    class Meta:
+        proxy = True
+
+    def get_absolute_url(self):
+        return reverse('users:usertoken', args=[self.pk])
+
+
 #
 # Permissions
 #

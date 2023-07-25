@@ -1,7 +1,7 @@
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserToken
 
 __all__ = (
     'GroupTable',
@@ -30,7 +30,7 @@ class TokenActionsColumn(columns.ActionsColumn):
     }
 
 
-class TokenTable(NetBoxTable):
+class UserTokenTable(NetBoxTable):
     key = columns.TemplateColumn(
         verbose_name='Key',
         template_code=TOKEN,
@@ -56,6 +56,15 @@ class TokenTable(NetBoxTable):
         actions=('edit', 'delete'),
         extra_buttons=COPY_BUTTON
     )
+
+    class Meta(NetBoxTable.Meta):
+        model = UserToken
+        fields = [
+            'pk', 'id', 'key', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+        ]
+
+
+class TokenTable(UserTokenTable):
 
     class Meta(NetBoxTable.Meta):
         model = Token

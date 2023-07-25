@@ -13,8 +13,7 @@ urlpatterns = [
     path('password/', views.ChangePasswordView.as_view(), name='change_password'),
     path('api-tokens/', views.UserTokenListView.as_view(), name='usertoken_list'),
     path('api-tokens/add/', views.UserTokenEditView.as_view(), name='usertoken_add'),
-    path('api-tokens/<int:pk>/edit/', views.UserTokenEditView.as_view(), name='usertoken_edit'),
-    path('api-tokens/<int:pk>/delete/', views.UserTokenDeleteView.as_view(), name='usertoken_delete'),
+    path('api-tokens/<int:pk>/', include(get_model_urls('users', 'usertoken'))),
 
     # Tokens
     path('tokens/', views.TokenListView.as_view(), name='token_list'),
