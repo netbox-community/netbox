@@ -32,8 +32,16 @@ def recalculate_device_counts(apps, schema_editor):
         device.inventory_item_count = device._inventory_item_count
 
     Device.objects.bulk_update(devices, [
-        'console_port_count', 'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
-        'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
+        'console_port_count',
+        'console_server_port_count',
+        'power_port_count',
+        'power_outlet_count',
+        'interface_count',
+        'front_port_count',
+        'rear_port_count',
+        'device_bay_count',
+        'module_bay_count',
+        'inventory_item_count',
     ])
 
 

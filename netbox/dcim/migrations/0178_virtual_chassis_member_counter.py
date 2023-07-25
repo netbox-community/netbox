@@ -17,7 +17,7 @@ def populate_virtualchassis_members(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('dcim', '0176_device_component_counters'),
+        ('dcim', '0177_devicetype_component_counters'),
     ]
 
     operations = [

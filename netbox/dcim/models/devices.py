@@ -129,6 +129,48 @@ class DeviceType(PrimaryModel, WeightMixin):
         blank=True
     )
 
+    # Counter fields
+    console_port_template_count = CounterCacheField(
+        to_model='dcim.ConsolePortTemplate',
+        to_field='device_type'
+    )
+    console_server_port_template_count = CounterCacheField(
+        to_model='dcim.ConsoleServerPortTemplate',
+        to_field='device_type'
+    )
+    power_port_template_count = CounterCacheField(
+        to_model='dcim.PowerPortTemplate',
+        to_field='device_type'
+    )
+    power_outlet_template_count = CounterCacheField(
+        to_model='dcim.PowerOutletTemplate',
+        to_field='device_type'
+    )
+    interface_template_count = CounterCacheField(
+        to_model='dcim.InterfaceTemplate',
+        to_field='device_type'
+    )
+    front_port_template_count = CounterCacheField(
+        to_model='dcim.FrontPortTemplate',
+        to_field='device_type'
+    )
+    rear_port_template_count = CounterCacheField(
+        to_model='dcim.RearPortTemplate',
+        to_field='device_type'
+    )
+    device_bay_template_count = CounterCacheField(
+        to_model='dcim.DeviceBayTemplate',
+        to_field='device_type'
+    )
+    module_bay_template_count = CounterCacheField(
+        to_model='dcim.ModuleBayTemplate',
+        to_field='device_type'
+    )
+    inventory_item_template_count = CounterCacheField(
+        to_model='dcim.InventoryItemTemplate',
+        to_field='device_type'
+    )
+
     images = GenericRelation(
         to='extras.ImageAttachment'
     )
