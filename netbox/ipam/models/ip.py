@@ -849,6 +849,24 @@ class IPAddress(PrimaryModel):
             return self.address.version
         return None
 
+    @property
+    def is_oob_ip(self):
+        if self.assigned_object:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            if parent.oob_ip_id == self.pk:
+                return True
+        return False
+
+    @property
+    def is_primary_ip(self):
+        if self.assigned_object:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            if self.family == 4 and parent.primary_ip4_id == self.pk:
+                return True
+            if self.family == 6 and parent.primary_ip6_id == self.pk:
+                return True
+        return False
+
     def _set_mask_length(self, value):
         """
         Expose the IPNetwork object's prefixlen attribute on the parent model so that it can be manipulated directly,
