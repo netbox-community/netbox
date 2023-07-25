@@ -16,10 +16,10 @@ from dcim.fields import MACAddressField, WWNField
 from netbox.models import OrganizationalModel, NetBoxModel
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.mixins import TrackingModelMixin
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
+from utilities.tracking import TrackingModelMixin
 from wireless.choices import *
 from wireless.utils import get_channel_attr
 

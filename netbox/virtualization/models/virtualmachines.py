@@ -12,9 +12,9 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
 from netbox.models import NetBoxModel, PrimaryModel
 from utilities.fields import CounterCacheField, NaturalOrderingField
-from utilities.mixins import TrackingModelMixin
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
+from utilities.tracking import TrackingModelMixin
 from virtualization.choices import *
 
 __all__ = (
