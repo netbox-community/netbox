@@ -1,3 +1,5 @@
+from django import forms
+from django.utils.translation import gettext as _
 from users.models import *
 from utilities.forms import CSVModelForm
 
@@ -35,6 +37,9 @@ class UserImportForm(CSVModelForm):
 
 
 class UserTokenImportForm(CSVModelForm):
+    key = forms.CharField(
+        label=_('Key'), required=False, help_text=_("If no key is provided, one will be generated automatically.")
+    )
 
     class Meta:
         model = UserToken
