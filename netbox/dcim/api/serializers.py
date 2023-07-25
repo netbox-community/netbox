@@ -327,12 +327,28 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
     device_count = serializers.IntegerField(read_only=True)
 
+    # Counter fields
+    console_port_template_count = serializers.IntegerField(read_only=True)
+    console_server_port_template_count = serializers.IntegerField(read_only=True)
+    power_port_template_count = serializers.IntegerField(read_only=True)
+    power_outlet_template_count = serializers.IntegerField(read_only=True)
+    interface_template_count = serializers.IntegerField(read_only=True)
+    front_port_template_count = serializers.IntegerField(read_only=True)
+    rear_port_template_count = serializers.IntegerField(read_only=True)
+    device_bay_template_count = serializers.IntegerField(read_only=True)
+    module_bay_template_count = serializers.IntegerField(read_only=True)
+    inventory_item_template_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height',
+            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'console_port_template_count', 'console_server_port_template_count', 'power_port_template_count',
+            'power_outlet_template_count', 'interface_template_count', 'front_port_template_count',
+            'rear_port_template_count', 'device_bay_template_count', 'module_bay_template_count',
+            'inventory_item_template_count',
         ]
 
 
