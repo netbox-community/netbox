@@ -106,7 +106,8 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'poe_mode', 'poe_type', 'rf_role'
+            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'poe_mode',
+            'poe_type', 'rf_role'
         ]
 
 
