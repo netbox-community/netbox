@@ -327,12 +327,28 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
     device_count = serializers.IntegerField(read_only=True)
 
+    # Counter fields
+    console_port_template_count = serializers.IntegerField(read_only=True)
+    console_server_port_template_count = serializers.IntegerField(read_only=True)
+    power_port_template_count = serializers.IntegerField(read_only=True)
+    power_outlet_template_count = serializers.IntegerField(read_only=True)
+    interface_template_count = serializers.IntegerField(read_only=True)
+    front_port_template_count = serializers.IntegerField(read_only=True)
+    rear_port_template_count = serializers.IntegerField(read_only=True)
+    device_bay_template_count = serializers.IntegerField(read_only=True)
+    module_bay_template_count = serializers.IntegerField(read_only=True)
+    inventory_item_template_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height',
+            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
+            'console_port_template_count', 'console_server_port_template_count', 'power_port_template_count',
+            'power_outlet_template_count', 'interface_template_count', 'front_port_template_count',
+            'rear_port_template_count', 'device_bay_template_count', 'module_bay_template_count',
+            'inventory_item_template_count',
         ]
 
 
@@ -663,20 +679,35 @@ class DeviceSerializer(NetBoxModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    oob_ip = NestedIPAddressSerializer(required=False, allow_null=True)
     parent_device = serializers.SerializerMethodField()
     cluster = NestedClusterSerializer(required=False, allow_null=True)
     virtual_chassis = NestedVirtualChassisSerializer(required=False, allow_null=True, default=None)
     vc_position = serializers.IntegerField(allow_null=True, max_value=255, min_value=0, default=None)
     config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
 
+    # Counter fields
+    console_port_count = serializers.IntegerField(read_only=True)
+    console_server_port_count = serializers.IntegerField(read_only=True)
+    power_port_count = serializers.IntegerField(read_only=True)
+    power_outlet_count = serializers.IntegerField(read_only=True)
+    interface_count = serializers.IntegerField(read_only=True)
+    front_port_count = serializers.IntegerField(read_only=True)
+    rear_port_count = serializers.IntegerField(read_only=True)
+    device_bay_count = serializers.IntegerField(read_only=True)
+    module_bay_count = serializers.IntegerField(read_only=True)
+    inventory_item_count = serializers.IntegerField(read_only=True)
+
     class Meta:
         model = Device
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status',
+            'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
+            'vc_position', 'vc_priority', 'description', 'comments', 'config_template', 'local_context_data', 'tags',
+            'custom_fields', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
+            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
+            'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(NestedDeviceSerializer)
@@ -698,9 +729,11 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'device_role', 'tenant', 'platform', 'serial', 'asset_tag',
             'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
-            'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'config_template',
-            'created', 'last_updated',
+            'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
+            'description', 'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context',
+            'config_template', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
+            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
+            'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -1139,13 +1172,15 @@ class CablePathSerializer(serializers.ModelSerializer):
 class VirtualChassisSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer(required=False, allow_null=True, default=None)
+
+    # Counter fields
     member_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualChassis
         fields = [
             'id', 'url', 'display', 'name', 'domain', 'master', 'description', 'comments', 'tags', 'custom_fields',
-            'member_count', 'created', 'last_updated',
+            'created', 'last_updated', 'member_count',
         ]
 
 

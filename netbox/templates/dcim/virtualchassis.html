@@ -31,6 +31,16 @@
             <th scope="row">Description</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">Members</th>
+            <td>
+              {% if object.member_count %}
+                <a href="{% url 'dcim:device_list' %}?virtual_chassis_id={{ object.pk }}">{{ object.member_count }}</a>
+              {% else %}
+                {{ object.member_count }}
+              {% endif %}
+            </td>
+          </tr>
         </table>
       </div>
     </div>

@@ -9,7 +9,7 @@
 
   <form method="post" class="form form-horizontal">
     {% csrf_token %}
-    <input type="hidden" name="return_url" value="{% url 'users:bookmarks' %}" />
+    <input type="hidden" name="return_url" value="{% url 'account:bookmarks' %}" />
 
     {# Table #}
     <div class="row">

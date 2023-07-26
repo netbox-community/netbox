@@ -12,6 +12,7 @@ from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
+from utilities.tracking import TrackingModelMixin
 from .device_components import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
     RearPort,
@@ -32,7 +33,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(ChangeLoggedModel):
+class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,

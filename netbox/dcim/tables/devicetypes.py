@@ -1,5 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 from dcim import models
 from netbox.tables import NetBoxTable, columns
@@ -87,11 +88,6 @@ class DeviceTypeTable(NetBoxTable):
     is_full_depth = columns.BooleanColumn(
         verbose_name=_('Full Depth')
     )
-    instance_count = columns.LinkedCountColumn(
-        viewname='dcim:device_list',
-        url_params={'device_type_id': 'pk'},
-        verbose_name=_('Instances')
-    )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )
@@ -107,12 +103,48 @@ class DeviceTypeTable(NetBoxTable):
         template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
+    instance_count = columns.LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'device_type_id': 'pk'},
+        verbose_name=_('Instances')
+    )
+    console_port_template_count = tables.Column(
+        verbose_name=_('Console ports')
+    )
+    console_server_port_template_count = tables.Column(
+        verbose_name=_('Console server ports')
+    )
+    power_port_template_count = tables.Column(
+        verbose_name=_('Power ports')
+    )
+    power_outlet_template_count = tables.Column(
+        verbose_name=_('Power outlets')
+    )
+    interface_template_count = tables.Column(
+        verbose_name=_('Interfaces')
+    )
+    front_port_template_count = tables.Column(
+        verbose_name=_('Front ports')
+    )
+    rear_port_template_count = tables.Column(
+        verbose_name=_('Rear ports')
+    )
+    device_bay_template_count = tables.Column(
+        verbose_name=_('Device bays')
+    )
+    module_bay_template_count = tables.Column(
+        verbose_name=_('Module bays')
+    )
+    inventory_item_template_count = tables.Column(
+        verbose_name=_('Inventory items')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = models.DeviceType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',

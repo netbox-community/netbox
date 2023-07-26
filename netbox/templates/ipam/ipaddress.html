@@ -96,6 +96,14 @@
                         {% endfor %}
                       </td>
                   </tr>
+                  <tr>
+                    <td>Primary IP</td>
+                    <td>{% checkmark object.is_primary_ip %}</td>
+                  </tr>
+                  <tr>
+                    <td>OOB IP</td>
+                    <td>{% checkmark object.is_oob_ip %}</td>
+                  </tr>
               </table>
           </div>
       </div>

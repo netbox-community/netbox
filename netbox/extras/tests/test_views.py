@@ -261,7 +261,7 @@ class BookmarkTestCase(
 
     def _get_url(self, action, instance=None):
         if action == 'list':
-            return reverse('users:bookmarks')
+            return reverse('account:bookmarks')
         return super()._get_url(action, instance)
 
     def test_list_objects_anonymous(self):

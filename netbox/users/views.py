@@ -24,7 +24,7 @@ from netbox.views import generic
 from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import Token, UserConfig, NetBoxGroup, NetBoxUser, ObjectPermission
+from .models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserConfig, UserToken
 
 
 #
@@ -193,7 +193,7 @@ class UserConfigView(LoginRequiredMixin, View):
             form.save()
 
             messages.success(request, "Your preferences have been updated.")
-            return redirect('users:preferences')
+            return redirect('account:preferences')
 
         return render(request, self.template_name, {
             'form': form,
@@ -208,7 +208,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         # LDAP users cannot change their password here
         if getattr(request.user, 'ldap_username', None):
             messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
-            return redirect('users:profile')
+            return redirect('account:profile')
 
         form = forms.PasswordChangeForm(user=request.user)
 
@@ -223,7 +223,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
             form.save()
             update_session_auth_hash(request, form.user)
             messages.success(request, "Your password has been changed successfully.")
-            return redirect('users:profile')
+            return redirect('account:profile')
 
         return render(request, self.template_name, {
             'form': form,
@@ -249,53 +249,61 @@ class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
 
 
 #
-# API tokens
+# User views for token management
 #
 
-class TokenListView(LoginRequiredMixin, View):
+class UserTokenListView(LoginRequiredMixin, View):
 
     def get(self, request):
-
-        tokens = Token.objects.filter(user=request.user)
-        table = tables.TokenTable(tokens)
+        tokens = UserToken.objects.filter(user=request.user)
+        table = tables.UserTokenTable(tokens)
         table.configure(request)
 
-        return render(request, 'users/account/api_tokens.html', {
+        return render(request, 'users/account/token_list.html', {
             'tokens': tokens,
             'active_tab': 'api-tokens',
             'table': table,
         })
 
 
-@register_model_view(Token, 'edit')
-class TokenEditView(LoginRequiredMixin, View):
+@register_model_view(UserToken)
+class UserTokenView(LoginRequiredMixin, View):
+
+    def get(self, request, pk):
+        token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
+        key = token.key if settings.ALLOW_TOKEN_RETRIEVAL else None
+
+        return render(request, 'users/account/token.html', {
+            'object': token,
+            'key': key,
+        })
+
+
+@register_model_view(UserToken, 'edit')
+class UserTokenEditView(LoginRequiredMixin, View):
 
     def get(self, request, pk=None):
-
         if pk:
-            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+            token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
         else:
-            token = Token(user=request.user)
-
-        form = forms.TokenForm(instance=token)
+            token = UserToken(user=request.user)
+        form = forms.UserTokenForm(instance=token)
 
         return render(request, 'generic/object_edit.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('account:usertoken_list'),
         })
 
     def post(self, request, pk=None):
-
         if pk:
-            token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-            form = forms.TokenForm(request.POST, instance=token)
+            token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
+            form = forms.UserTokenForm(request.POST, instance=token)
         else:
-            token = Token(user=request.user)
-            form = forms.TokenForm(request.POST)
+            token = UserToken(user=request.user)
+            form = forms.UserTokenForm(request.POST)
 
         if form.is_valid():
-
             token = form.save(commit=False)
             token.user = request.user
             token.save()
@@ -304,7 +312,7 @@ class TokenEditView(LoginRequiredMixin, View):
             messages.success(request, msg)
 
             if not pk and not settings.ALLOW_TOKEN_RETRIEVAL:
-                return render(request, 'users/account/api_token.html', {
+                return render(request, 'users/account/token.html', {
                     'object': token,
                     'key': token.key,
                     'return_url': reverse('users:token_list'),
@@ -312,52 +320,90 @@ class TokenEditView(LoginRequiredMixin, View):
             elif '_addanother' in request.POST:
                 return redirect(request.path)
             else:
-                return redirect('users:token_list')
+                return redirect('account:usertoken_list')
 
         return render(request, 'generic/object_edit.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('account:usertoken_list'),
             'disable_addanother': not settings.ALLOW_TOKEN_RETRIEVAL
         })
 
 
-@register_model_view(Token, 'delete')
-class TokenDeleteView(LoginRequiredMixin, View):
+@register_model_view(UserToken, 'delete')
+class UserTokenDeleteView(LoginRequiredMixin, View):
 
     def get(self, request, pk):
-
-        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
-        initial_data = {
-            'return_url': reverse('users:token_list'),
-        }
-        form = ConfirmationForm(initial=initial_data)
+        token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
 
         return render(request, 'generic/object_delete.html', {
             'object': token,
-            'form': form,
-            'return_url': reverse('users:token_list'),
+            'form': ConfirmationForm(),
+            'return_url': reverse('account:usertoken_list'),
         })
 
     def post(self, request, pk):
-
-        token = get_object_or_404(Token.objects.filter(user=request.user), pk=pk)
+        token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
         form = ConfirmationForm(request.POST)
+
         if form.is_valid():
             token.delete()
             messages.success(request, "Token deleted")
-            return redirect('users:token_list')
+            return redirect('account:usertoken_list')
 
         return render(request, 'generic/object_delete.html', {
             'object': token,
             'form': form,
-            'return_url': reverse('users:token_list'),
+            'return_url': reverse('account:usertoken_list'),
         })
+
+
+#
+# Tokens
+#
+
+class TokenListView(generic.ObjectListView):
+    queryset = Token.objects.all()
+    filterset = filtersets.TokenFilterSet
+    filterset_form = forms.TokenFilterForm
+    table = tables.TokenTable
+
+
+@register_model_view(Token)
+class TokenView(generic.ObjectView):
+    queryset = Token.objects.all()
+
+
+@register_model_view(Token, 'edit')
+class TokenEditView(generic.ObjectEditView):
+    queryset = Token.objects.all()
+    form = forms.TokenForm
+
+
+@register_model_view(Token, 'delete')
+class TokenDeleteView(generic.ObjectDeleteView):
+    queryset = Token.objects.all()
+
+
+class TokenBulkImportView(generic.BulkImportView):
+    queryset = Token.objects.all()
+    model_form = forms.TokenImportForm
+
+
+class TokenBulkEditView(generic.BulkEditView):
+    queryset = Token.objects.all()
+    table = tables.TokenTable
+    form = forms.TokenBulkEditForm
+
+
+class TokenBulkDeleteView(generic.BulkDeleteView):
+    queryset = Token.objects.all()
+    table = tables.TokenTable
+
 
 #
 # Users
 #
-
 
 class UserListView(generic.ObjectListView):
     queryset = NetBoxUser.objects.all()
@@ -413,7 +459,6 @@ class UserBulkDeleteView(generic.BulkDeleteView):
 # Groups
 #
 
-
 class GroupListView(generic.ObjectListView):
     queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
@@ -448,10 +493,10 @@ class GroupBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.GroupFilterSet
     table = tables.GroupTable
 
+
 #
 # ObjectPermissions
 #
-
 
 class ObjectPermissionListView(generic.ObjectListView):
     queryset = ObjectPermission.objects.all()

@@ -1,11 +1,11 @@
 from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
-from dcim import models
 from django_tables2.utils import Accessor
-from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
+from django.utils.translation import gettext as _
 
+from dcim import models
 from netbox.tables import NetBoxTable, columns
-
+from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import *
 
 __all__ = (
@@ -215,6 +215,10 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         linkify=True,
         verbose_name=_('IPv6 Address')
     )
+    oob_ip = tables.Column(
+        linkify=True,
+        verbose_name='OOB IP'
+    )
     cluster = tables.Column(
         verbose_name=_('Cluster'),
         linkify=True
@@ -247,6 +251,36 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='dcim:device_list'
     )
+    console_port_count = tables.Column(
+        verbose_name=_('Console ports')
+    )
+    console_server_port_count = tables.Column(
+        verbose_name=_('Console server ports')
+    )
+    power_port_count = tables.Column(
+        verbose_name=_('Power ports')
+    )
+    power_outlet_count = tables.Column(
+        verbose_name=_('Power outlets')
+    )
+    interface_count = tables.Column(
+        verbose_name=_('Interfaces')
+    )
+    front_port_count = tables.Column(
+        verbose_name=_('Front ports')
+    )
+    rear_port_count = tables.Column(
+        verbose_name=_('Rear ports')
+    )
+    device_bay_count = tables.Column(
+        verbose_name=_('Device bays')
+    )
+    module_bay_count = tables.Column(
+        verbose_name=_('Module bays')
+    )
+    inventory_item_count = tables.Column(
+        verbose_name=_('Inventory items')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = models.Device
@@ -254,8 +288,8 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
             'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
             'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'primary_ip', 'primary_ip4',
-            'primary_ip6', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
-            'comments', 'contacts', 'tags', 'created', 'last_updated',
+            'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
+            'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',

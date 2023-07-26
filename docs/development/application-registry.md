@@ -8,6 +8,10 @@ The registry can be inspected by importing `registry` from `extras.registry`.
 
 ## Stores
 
+### `counter_fields`
+
+A dictionary mapping of models to foreign keys with which cached counter fields are associated.
+
 ### `data_backends`
 
 A dictionary mapping data backend types to their respective classes. These are used to interact with [remote data sources](../models/core/datasource.md).
