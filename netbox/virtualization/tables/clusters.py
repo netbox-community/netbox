@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from virtualization.models import Cluster, ClusterGroup, ClusterType
@@ -13,12 +14,13 @@ __all__ = (
 
 class ClusterTypeTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     cluster_count = columns.LinkedCountColumn(
         viewname='virtualization:cluster_list',
         url_params={'type_id': 'pk'},
-        verbose_name='Clusters'
+        verbose_name=_('Clusters')
     )
     tags = columns.TagColumn(
         url_name='virtualization:clustertype_list'
@@ -34,12 +36,13 @@ class ClusterTypeTable(NetBoxTable):
 
 class ClusterGroupTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     cluster_count = columns.LinkedCountColumn(
         viewname='virtualization:cluster_list',
         url_params={'group_id': 'pk'},
-        verbose_name='Clusters'
+        verbose_name=_('Clusters')
     )
     tags = columns.TagColumn(
         url_name='virtualization:clustergroup_list'
@@ -56,29 +59,37 @@ class ClusterGroupTable(ContactsColumnMixin, NetBoxTable):
 
 class ClusterTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     type = tables.Column(
+        verbose_name=_('Type'),
         linkify=True
     )
     group = tables.Column(
+        verbose_name=_('Group'),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
     device_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'cluster_id': 'pk'},
-        verbose_name='Devices'
+        verbose_name=_('Devices')
     )
     vm_count = columns.LinkedCountColumn(
         viewname='virtualization:virtualmachine_list',
         url_params={'cluster_id': 'pk'},
-        verbose_name='VMs'
+        verbose_name=_('VMs')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='virtualization:cluster_list'
     )

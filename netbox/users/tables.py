@@ -56,6 +56,7 @@ class UserTokenTable(NetBoxTable):
         template_code=ALLOWED_IPS
     )
     actions = TokenActionsColumn(
+        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=COPY_BUTTON
     )
@@ -85,15 +86,24 @@ class TokenTable(UserTokenTable):
 
 class UserTable(NetBoxTable):
     username = tables.Column(
+        verbose_name=_('Username'),
         linkify=True
     )
     groups = columns.ManyToManyColumn(
+        verbose_name=_('Groups'),
         linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
     )
-    is_active = columns.BooleanColumn()
-    is_staff = columns.BooleanColumn()
-    is_superuser = columns.BooleanColumn()
+    is_active = columns.BooleanColumn(
+        verbose_name=_('Is active'),
+    )
+    is_staff = columns.BooleanColumn(
+        verbose_name=_('Is staff'),
+    )
+    is_superuser = columns.BooleanColumn(
+        verbose_name=_('Is superuser'),
+    )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
     )
 
@@ -107,8 +117,12 @@ class UserTable(NetBoxTable):
 
 
 class GroupTable(NetBoxTable):
-    name = tables.Column(linkify=True)
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
     )
 
@@ -121,23 +135,42 @@ class GroupTable(NetBoxTable):
 
 
 class ObjectPermissionTable(NetBoxTable):
-    name = tables.Column(linkify=True)
-    object_types = columns.ContentTypesColumn()
-    enabled = columns.BooleanColumn()
-    can_view = columns.BooleanColumn()
-    can_add = columns.BooleanColumn()
-    can_change = columns.BooleanColumn()
-    can_delete = columns.BooleanColumn()
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object types'),
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    can_view = columns.BooleanColumn(
+        verbose_name=_('Can view'),
+    )
+    can_add = columns.BooleanColumn(
+        verbose_name=_('Can add'),
+    )
+    can_change = columns.BooleanColumn(
+        verbose_name=_('Can change'),
+    )
+    can_delete = columns.BooleanColumn(
+        verbose_name=_('Can delete'),
+    )
     custom_actions = columns.ArrayColumn(
+        verbose_name=_('Custom actions'),
         accessor=tables.A('actions')
     )
     users = columns.ManyToManyColumn(
+        verbose_name=_('Users'),
         linkify_item=('users:netboxuser', {'pk': tables.A('pk')})
     )
     groups = columns.ManyToManyColumn(
+        verbose_name=_('Groups'),
         linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
     )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
     )
 
