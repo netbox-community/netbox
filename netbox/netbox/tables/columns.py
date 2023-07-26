@@ -21,6 +21,7 @@ from utilities.utils import content_type_identifier, content_type_name, get_view
 
 __all__ = (
     'ActionsColumn',
+    'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
     'ChoiceSetColumn',
@@ -594,8 +595,38 @@ class MarkdownColumn(tables.TemplateColumn):
         return value
 
 
-class ChoiceSetColumn(tables.Column):
+class ArrayColumn(tables.Column):
+    """
+    List array items as a comma-separated list.
+    """
+    def __init__(self, *args, max_items=None, func=str, **kwargs):
+        self.max_items = max_items
+        self.func = func
+        super().__init__(*args, **kwargs)
 
+    def render(self, value):
+        omitted_count = 0
+
+        # Limit the returned items to the specified maximum number (if any)
+        if self.max_items:
+            omitted_count = len(value) - self.max_items
+            value = value[:self.max_items - 1]
+
+        # Apply custom processing function (if any) per item
+        if self.func:
+            value = [self.func(v) for v in value]
+
+        # Annotate omitted items (if applicable)
+        if omitted_count > 0:
+            value.append(f'({omitted_count} more)')
+
+        return ', '.join(value)
+
+
+class ChoiceSetColumn(tables.Column):
+    """
+    Display the human-friendly labels of a set of choices.
+    """
     def __init__(self, *args, max_items=None, **kwargs):
         self.max_items = max_items
         super().__init__(*args, **kwargs)
