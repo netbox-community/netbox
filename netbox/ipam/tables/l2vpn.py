@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from ipam.models import L2VPN, L2VPNTermination
@@ -17,19 +18,26 @@ L2VPN_TARGETS = """
 
 
 class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
-    pk = columns.ToggleColumn()
+    pk = columns.ToggleColumn(
+        verbose_name=_('Pk'),
+    )
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     import_targets = columns.TemplateColumn(
+        verbose_name=_('Import targets'),
         template_code=L2VPN_TARGETS,
         orderable=False
     )
     export_targets = columns.TemplateColumn(
+        verbose_name=_('Export targets'),
         template_code=L2VPN_TARGETS,
         orderable=False
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:l2vpn_list'
     )
@@ -44,28 +52,30 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
 
 
 class L2VPNTerminationTable(NetBoxTable):
-    pk = columns.ToggleColumn()
+    pk = columns.ToggleColumn(
+        verbose_name=_('Pk'),
+    )
     l2vpn = tables.Column(
-        verbose_name='L2VPN',
+        verbose_name=_('L2VPN'),
         linkify=True
     )
     assigned_object_type = columns.ContentTypeColumn(
-        verbose_name='Object Type'
+        verbose_name=_('Object Type')
     )
     assigned_object = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='Object'
+        verbose_name=_('Object')
     )
     assigned_object_parent = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='Object Parent'
+        verbose_name=_('Object Parent')
     )
     assigned_object_site = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='Object Site'
+        verbose_name=_('Object Site')
     )
 
     class Meta(NetBoxTable.Meta):

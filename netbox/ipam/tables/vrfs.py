@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from ipam.models import *
@@ -22,23 +23,28 @@ VRF_TARGETS = """
 
 class VRFTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     rd = tables.Column(
-        verbose_name='RD'
+        verbose_name=_('RD')
     )
     enforce_unique = columns.BooleanColumn(
-        verbose_name='Unique'
+        verbose_name=_('Unique')
     )
     import_targets = columns.TemplateColumn(
+        verbose_name=_('Import targets'),
         template_code=VRF_TARGETS,
         orderable=False
     )
     export_targets = columns.TemplateColumn(
+        verbose_name=_('Export targets'),
         template_code=VRF_TARGETS,
         orderable=False
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:vrf_list'
     )
@@ -58,9 +64,12 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
 
 class RouteTargetTable(TenancyColumnsMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:routetarget_list'
     )

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
 from django_tables2.utils import Accessor
@@ -17,7 +18,7 @@ __all__ = (
     'RoleTable',
 )
 
-AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
+AVAILABLE_LABEL = mark_safe(_('<span class="badge bg-success">Available</span>'))
 
 AGGREGATE_COPY_BUTTON = """
 {% copy_content record.pk prefix="aggregate_" %}
@@ -46,7 +47,7 @@ PREFIX_LINK_WITH_DEPTH = """
 {% endif %}
 """ + PREFIX_LINK
 
-IPADDRESS_LINK = """
+IPADDRESS_LINK = _("""
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
@@ -54,7 +55,7 @@ IPADDRESS_LINK = """
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
-"""
+""")
 
 IPADDRESS_COPY_BUTTON = """
 {% copy_content record.pk prefix="ipaddress_" %}
@@ -81,15 +82,16 @@ VRF_LINK = """
 
 class RIRTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     is_private = columns.BooleanColumn(
-        verbose_name='Private'
+        verbose_name=_('Private')
     )
     aggregate_count = columns.LinkedCountColumn(
         viewname='ipam:aggregate_list',
         url_params={'rir_id': 'pk'},
-        verbose_name='Aggregates'
+        verbose_name=_('Aggregates')
     )
     tags = columns.TagColumn(
         url_name='ipam:rir_list'
@@ -111,7 +113,7 @@ class RIRTable(NetBoxTable):
 class AggregateTable(TenancyColumnsMixin, NetBoxTable):
     prefix = tables.Column(
         linkify=True,
-        verbose_name='Aggregate',
+        verbose_name=_('Aggregate'),
         attrs={
             # Allow the aggregate to be copied to the clipboard
             'a': {'id': lambda record: f"aggregate_{record.pk}"}
@@ -119,20 +121,24 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
     )
     date_added = tables.DateColumn(
         format="Y-m-d",
-        verbose_name='Added'
+        verbose_name=_('Added')
     )
     child_count = tables.Column(
-        verbose_name='Prefixes'
+        verbose_name=_('Prefixes')
     )
     utilization = columns.UtilizationColumn(
+        verbose_name=_('Utilization'),
         accessor='get_utilization',
         orderable=False
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:aggregate_list'
     )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         extra_buttons=AGGREGATE_COPY_BUTTON
     )
 
@@ -151,22 +157,23 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
 
 class RoleTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     prefix_count = columns.LinkedCountColumn(
         viewname='ipam:prefix_list',
         url_params={'role_id': 'pk'},
-        verbose_name='Prefixes'
+        verbose_name=_('Prefixes')
     )
     iprange_count = columns.LinkedCountColumn(
         viewname='ipam:iprange_list',
         url_params={'role_id': 'pk'},
-        verbose_name='IP Ranges'
+        verbose_name=_('IP Ranges')
     )
     vlan_count = columns.LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'role_id': 'pk'},
-        verbose_name='VLANs'
+        verbose_name=_('VLANs')
     )
     tags = columns.TagColumn(
         url_name='ipam:role_list'
@@ -202,6 +209,7 @@ class PrefixUtilizationColumn(columns.UtilizationColumn):
 
 class PrefixTable(TenancyColumnsMixin, NetBoxTable):
     prefix = columns.TemplateColumn(
+        verbose_name=_('Prefix'),
         template_code=PREFIX_LINK_WITH_DEPTH,
         export_raw=True,
         attrs={'td': {'class': 'text-nowrap'}}
@@ -210,11 +218,11 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         accessor=Accessor('prefix'),
         template_code=PREFIX_LINK,
         export_raw=True,
-        verbose_name='Prefix (Flat)'
+        verbose_name=_('Prefix (Flat)')
     )
     depth = tables.Column(
         accessor=Accessor('_depth'),
-        verbose_name='Depth'
+        verbose_name=_('Depth')
     )
     children = columns.LinkedCountColumn(
         accessor=Accessor('_children'),
@@ -223,45 +231,52 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
             'vrf_id': 'vrf_id',
             'within': 'prefix',
         },
-        verbose_name='Children'
+        verbose_name=_('Children')
     )
     status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
     vlan_group = tables.Column(
         accessor='vlan__group',
         linkify=True,
-        verbose_name='VLAN Group'
+        verbose_name=_('VLAN Group')
     )
     vlan = tables.Column(
         linkify=True,
-        verbose_name='VLAN'
+        verbose_name=_('VLAN')
     )
     role = tables.Column(
+        verbose_name=_('Role'),
         linkify=True
     )
     is_pool = columns.BooleanColumn(
-        verbose_name='Pool'
+        verbose_name=_('Pool')
     )
     mark_utilized = columns.BooleanColumn(
-        verbose_name='Marked Utilized'
+        verbose_name=_('Marked Utilized')
     )
     utilization = PrefixUtilizationColumn(
+        verbose_name=_('Utilization'),
         accessor='get_utilization',
         orderable=False
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:prefix_list'
     )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         extra_buttons=PREFIX_COPY_BUTTON
     )
 
@@ -285,26 +300,32 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
 #
 class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
     start_address = tables.Column(
+        verbose_name=_('Start address'),
         linkify=True
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
     role = tables.Column(
+        verbose_name=_('Role'),
         linkify=True
     )
     mark_utilized = columns.BooleanColumn(
-        verbose_name='Marked Utilized'
+        verbose_name=_('Marked Utilized')
     )
     utilization = columns.UtilizationColumn(
+        verbose_name=_('Utilization'),
         accessor='utilization',
         orderable=False
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:iprange_list'
     )
@@ -330,47 +351,53 @@ class IPRangeTable(TenancyColumnsMixin, NetBoxTable):
 class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_LINK,
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
-    role = columns.ChoiceFieldColumn()
+    role = columns.ChoiceFieldColumn(
+        verbose_name=_('Role'),
+    )
     assigned_object = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='Interface'
+        verbose_name=_('Interface')
     )
     assigned_object_parent = tables.Column(
         accessor='assigned_object__parent_object',
         linkify=True,
         orderable=False,
-        verbose_name='Device/VM'
+        verbose_name=_('Device/VM')
     )
     nat_inside = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='NAT (Inside)'
+        verbose_name=_('NAT (Inside)')
     )
     nat_outside = tables.ManyToManyColumn(
         linkify_item=True,
         orderable=False,
-        verbose_name='NAT (Outside)'
+        verbose_name=_('NAT (Outside)')
     )
     assigned = columns.BooleanColumn(
         accessor='assigned_object_id',
         linkify=lambda record: record.assigned_object.get_absolute_url(),
-        verbose_name='Assigned'
+        verbose_name=_('Assigned')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:ipaddress_list'
     )
     actions = columns.ActionsColumn(
+        verbose_name=_('Actions'),
         extra_buttons=IPADDRESS_COPY_BUTTON
     )
 
@@ -391,10 +418,13 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
 class IPAddressAssignTable(NetBoxTable):
     address = tables.TemplateColumn(
         template_code=IPADDRESS_ASSIGN_LINK,
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
-    status = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     assigned_object = tables.Column(
+        verbose_name=_('Assigned object'),
         orderable=False
     )
 
@@ -411,14 +441,18 @@ class AssignedIPAddressesTable(NetBoxTable):
     """
     address = tables.Column(
         linkify=True,
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     vrf = tables.TemplateColumn(
         template_code=VRF_LINK,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
-    status = columns.ChoiceFieldColumn()
-    tenant = TenantColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
+    tenant = TenantColumn(
+        verbose_name=_('Tenant'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = IPAddress
