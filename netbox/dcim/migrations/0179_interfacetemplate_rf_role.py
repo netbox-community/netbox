@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0174_rack_starting_unit'),
+        ('dcim', '0178_virtual_chassis_member_counter'),
     ]
 
     operations = [
