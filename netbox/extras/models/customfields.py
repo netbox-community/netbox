@@ -31,6 +31,7 @@ from utilities.validators import validate_regex
 
 __all__ = (
     'CustomField',
+    'CustomFieldChoiceSet',
     'CustomFieldManager',
 )
 
@@ -158,11 +159,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
-    choices = ArrayField(
-        base_field=models.CharField(max_length=100),
+    choice_set = models.ForeignKey(
+        to='CustomFieldChoiceSet',
+        on_delete=models.PROTECT,
+        related_name='choices_for',
         blank=True,
-        null=True,
-        help_text=_('Comma-separated list of available choices (for selection fields)')
+        null=True
     )
     ui_visibility = models.CharField(
         max_length=50,
@@ -181,8 +183,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
-        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choices',
-        'ui_visibility', 'is_cloneable',
+        'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+        'choice_set', 'ui_visibility', 'is_cloneable',
     )
 
     class Meta:
@@ -207,6 +209,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     @property
     def search_type(self):
         return SEARCH_TYPES.get(self.type)
+
+    @property
+    def choices(self):
+        if self.choice_set:
+            return self.choice_set.choices
+        return []
 
     def populate_initial_data(self, content_types):
         """
@@ -278,22 +286,18 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'validation_regex': "Regular expression validation is supported only for text and URL fields"
             })
 
-        # Choices can be set only on selection fields
-        if self.choices and self.type not in (
-                CustomFieldTypeChoices.TYPE_SELECT,
-                CustomFieldTypeChoices.TYPE_MULTISELECT
-        ):
-            raise ValidationError({
-                'choices': "Choices may be set only for custom selection fields."
-            })
-
-        # Selection fields must have at least one choice defined
+        # Choice set must be set on selection fields, and *only* on selection fields
         if self.type in (
                 CustomFieldTypeChoices.TYPE_SELECT,
                 CustomFieldTypeChoices.TYPE_MULTISELECT
-        ) and not self.choices:
+        ):
+            if not self.choice_set:
+                raise ValidationError({
+                    'choice_set': "Selection fields must specify a set of choices."
+                })
+        elif self.choice_set:
             raise ValidationError({
-                'choices': "Selection fields must specify at least one choice."
+                'choice_set': "Choices may be set only on selection fields."
             })
 
         # A selection field's default (if any) must be present in its available choices
@@ -627,3 +631,52 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         elif self.required:
             raise ValidationError("Required field cannot be empty.")
+
+
+class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
+    """
+    Represents a set of choices available for choice and multi-choice custom fields.
+    """
+    name = models.CharField(
+        max_length=100,
+        unique=True
+    )
+    description = models.CharField(
+        max_length=200,
+        blank=True
+    )
+    extra_choices = ArrayField(
+        base_field=models.CharField(max_length=100),
+        help_text=_('List of field choices')
+    )
+    order_alphabetically = models.BooleanField(
+        default=False,
+        help_text=_('Choices are automatically ordered alphabetically on save')
+    )
+
+    clone_fields = ('extra_choices', 'order_alphabetically')
+
+    class Meta:
+        ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:customfieldchoiceset', args=[self.pk])
+
+    @property
+    def choices(self):
+        return self.extra_choices
+
+    @property
+    def choices_count(self):
+        return len(self.choices)
+
+    def save(self, *args, **kwargs):
+
+        # Sort choices if alphabetical ordering is enforced
+        if self.order_alphabetically:
+            self.extra_choices = sorted(self.choices)
+
+        return super().save(*args, **kwargs)

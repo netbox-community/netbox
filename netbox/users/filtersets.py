@@ -10,6 +10,7 @@ from users.models import ObjectPermission, Token
 __all__ = (
     'GroupFilterSet',
     'ObjectPermissionFilterSet',
+    'TokenFilterSet',
     'UserFilterSet',
 )
 
@@ -49,7 +50,7 @@ class UserFilterSet(BaseFilterSet):
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active']
+        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'is_superuser']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -115,6 +116,18 @@ class ObjectPermissionFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    can_view = django_filters.BooleanFilter(
+        method='_check_action'
+    )
+    can_add = django_filters.BooleanFilter(
+        method='_check_action'
+    )
+    can_change = django_filters.BooleanFilter(
+        method='_check_action'
+    )
+    can_delete = django_filters.BooleanFilter(
+        method='_check_action'
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         field_name='users',
         queryset=get_user_model().objects.all(),
@@ -149,3 +162,10 @@ class ObjectPermissionFilterSet(BaseFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value)
         )
+
+    def _check_action(self, queryset, name, value):
+        action = name.split('_')[1]
+        if value:
+            return queryset.filter(actions__contains=[action])
+        else:
+            return queryset.exclude(actions__contains=[action])

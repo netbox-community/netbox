@@ -349,7 +349,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     template_name = 'virtualization/virtualmachine/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
-        badge=lambda obj: obj.interfaces.count(),
+        badge=lambda obj: obj.interface_count,
         permission='virtualization.view_vminterface',
         weight=500
     )

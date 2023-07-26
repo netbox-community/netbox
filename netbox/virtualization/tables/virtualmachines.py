@@ -1,9 +1,10 @@
 import django_tables2 as tables
+from django.utils.translation import gettext as _
+
 from dcim.tables.devices import BaseInterfaceTable
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from virtualization.models import VirtualMachine, VMInterface
-
-from netbox.tables import NetBoxTable, columns
 
 __all__ = (
     'VirtualMachineTable',
@@ -69,6 +70,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     )
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
+    )
+    interface_count = tables.Column(
+        verbose_name=_('Interfaces')
     )
 
     class Meta(NetBoxTable.Meta):

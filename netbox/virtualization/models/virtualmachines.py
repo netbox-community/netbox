@@ -11,9 +11,10 @@ from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
 from netbox.models import NetBoxModel, PrimaryModel
-from utilities.fields import NaturalOrderingField
+from utilities.fields import CounterCacheField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
+from utilities.tracking import TrackingModelMixin
 from virtualization.choices import *
 
 __all__ = (
@@ -120,6 +121,12 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         verbose_name='Disk (GB)'
     )
 
+    # Counter fields
+    interface_count = CounterCacheField(
+        to_model='virtualization.VMInterface',
+        to_field='virtual_machine'
+    )
+
     # Generic relation
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
@@ -222,7 +229,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
             return None
 
 
-class VMInterface(NetBoxModel, BaseInterface):
+class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,

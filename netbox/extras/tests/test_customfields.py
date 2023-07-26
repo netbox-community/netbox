@@ -10,7 +10,7 @@ from dcim.filtersets import SiteFilterSet
 from dcim.forms import SiteImportForm
 from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
-from extras.models import CustomField
+from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
@@ -272,12 +272,18 @@ class CustomFieldTest(TestCase):
         CHOICES = ('Option A', 'Option B', 'Option C')
         value = CHOICES[1]
 
+        # Create a set of custom field choices
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=CHOICES
+        )
+
         # Create a custom field & check that initial value is null
         cf = CustomField.objects.create(
             name='select_field',
             type=CustomFieldTypeChoices.TYPE_SELECT,
             required=False,
-            choices=CHOICES
+            choice_set=choice_set
         )
         cf.content_types.set([self.object_type])
         instance = Site.objects.first()
@@ -299,12 +305,18 @@ class CustomFieldTest(TestCase):
         CHOICES = ['Option A', 'Option B', 'Option C']
         value = [CHOICES[1], CHOICES[2]]
 
+        # Create a set of custom field choices
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=CHOICES
+        )
+
         # Create a custom field & check that initial value is null
         cf = CustomField.objects.create(
             name='multiselect_field',
             type=CustomFieldTypeChoices.TYPE_MULTISELECT,
             required=False,
-            choices=CHOICES
+            choice_set=choice_set
         )
         cf.content_types.set([self.object_type])
         instance = Site.objects.first()
@@ -438,6 +450,12 @@ class CustomFieldAPITest(APITestCase):
         )
         VLAN.objects.bulk_create(vlans)
 
+        # Create a set of custom field choices
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=('Foo', 'Bar', 'Baz')
+        )
+
         custom_fields = (
             CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
             CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
@@ -452,17 +470,13 @@ class CustomFieldAPITest(APITestCase):
                 type=CustomFieldTypeChoices.TYPE_SELECT,
                 name='select_field',
                 default='Foo',
-                choices=(
-                    'Foo', 'Bar', 'Baz'
-                )
+                choice_set=choice_set
             ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_MULTISELECT,
                 name='multiselect_field',
                 default=['Foo'],
-                choices=(
-                    'Foo', 'Bar', 'Baz'
-                )
+                choice_set=choice_set
             ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_OBJECT,
@@ -1024,6 +1038,12 @@ class CustomFieldImportTest(TestCase):
     @classmethod
     def setUpTestData(cls):
 
+        # Create a set of custom field choices
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=('Choice A', 'Choice B', 'Choice C')
+        )
+
         custom_fields = (
             CustomField(name='text', type=CustomFieldTypeChoices.TYPE_TEXT),
             CustomField(name='longtext', type=CustomFieldTypeChoices.TYPE_LONGTEXT),
@@ -1034,12 +1054,8 @@ class CustomFieldImportTest(TestCase):
             CustomField(name='datetime', type=CustomFieldTypeChoices.TYPE_DATETIME),
             CustomField(name='url', type=CustomFieldTypeChoices.TYPE_URL),
             CustomField(name='json', type=CustomFieldTypeChoices.TYPE_JSON),
-            CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choices=[
-                'Choice A', 'Choice B', 'Choice C',
-            ]),
-            CustomField(name='multiselect', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choices=[
-                'Choice A', 'Choice B', 'Choice C',
-            ]),
+            CustomField(name='select', type=CustomFieldTypeChoices.TYPE_SELECT, choice_set=choice_set),
+            CustomField(name='multiselect', type=CustomFieldTypeChoices.TYPE_MULTISELECT, choice_set=choice_set),
         )
         for cf in custom_fields:
             cf.save()
@@ -1203,6 +1219,11 @@ class CustomFieldModelFilterTest(TestCase):
             Manufacturer(name='Manufacturer 4', slug='manufacturer-4'),
         ))
 
+        choice_set = CustomFieldChoiceSet.objects.create(
+            name='Custom Field Choice Set 1',
+            extra_choices=['A', 'B', 'C', 'X']
+        )
+
         # Integer filtering
         cf = CustomField(name='cf1', type=CustomFieldTypeChoices.TYPE_INTEGER)
         cf.save()
@@ -1263,7 +1284,7 @@ class CustomFieldModelFilterTest(TestCase):
         cf = CustomField(
             name='cf9',
             type=CustomFieldTypeChoices.TYPE_SELECT,
-            choices=['Foo', 'Bar', 'Baz']
+            choice_set=choice_set
         )
         cf.save()
         cf.content_types.set([obj_type])
@@ -1272,7 +1293,7 @@ class CustomFieldModelFilterTest(TestCase):
         cf = CustomField(
             name='cf10',
             type=CustomFieldTypeChoices.TYPE_MULTISELECT,
-            choices=['A', 'B', 'C', 'X']
+            choice_set=choice_set
         )
         cf.save()
         cf.content_types.set([obj_type])
@@ -1305,7 +1326,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf6': '2016-06-26',
                 'cf7': 'http://a.example.com',
                 'cf8': 'http://a.example.com',
-                'cf9': 'Foo',
+                'cf9': 'A',
                 'cf10': ['A', 'X'],
                 'cf11': manufacturers[0].pk,
                 'cf12': [manufacturers[0].pk, manufacturers[3].pk],
@@ -1319,7 +1340,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf6': '2016-06-27',
                 'cf7': 'http://b.example.com',
                 'cf8': 'http://b.example.com',
-                'cf9': 'Bar',
+                'cf9': 'B',
                 'cf10': ['B', 'X'],
                 'cf11': manufacturers[1].pk,
                 'cf12': [manufacturers[1].pk, manufacturers[3].pk],
@@ -1333,7 +1354,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf6': '2016-06-28',
                 'cf7': 'http://c.example.com',
                 'cf8': 'http://c.example.com',
-                'cf9': 'Baz',
+                'cf9': 'C',
                 'cf10': ['C', 'X'],
                 'cf11': manufacturers[2].pk,
                 'cf12': [manufacturers[2].pk, manufacturers[3].pk],
@@ -1399,7 +1420,7 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf8': ['example.com']}, self.queryset).qs.count(), 3)
 
     def test_filter_select(self):
-        self.assertEqual(self.filterset({'cf_cf9': ['Foo', 'Bar']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
 
     def test_filter_multiselect(self):
         self.assertEqual(self.filterset({'cf_cf10': ['A', 'B']}, self.queryset).qs.count(), 2)

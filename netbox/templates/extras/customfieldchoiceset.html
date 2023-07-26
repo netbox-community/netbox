@@ -1,0 +1,64 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Custom Field Choice Set</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">Name</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Description</th>
+              <td>{{ object.description|markdown|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Choices</th>
+              <td>{{ object.choices|length }}</td>
+            </tr>
+            <tr>
+              <th scope="row">Order Alphabetically</th>
+            <td>{% checkmark object.order_alphabetically %}</td>
+            </tr>
+            <tr>
+              <th scope="row">Used by</th>
+              <td>
+                <ul class="list-unstyled mb-0">
+                  {% for cf in object.choices_for.all %}
+                    <li>{{ cf|linkify }}</li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">Choices</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            {% for choice in object.choices %}
+              <tr>
+                <td>{{ choice }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

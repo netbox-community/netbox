@@ -1,6 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
-from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action
@@ -55,9 +54,15 @@ class WebhookViewSet(NetBoxModelViewSet):
 
 class CustomFieldViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     serializer_class = serializers.CustomFieldSerializer
     filterset_class = filtersets.CustomFieldFilterSet
+
+
+class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
+    queryset = CustomFieldChoiceSet.objects.all()
+    serializer_class = serializers.CustomFieldChoiceSetSerializer
+    filterset_class = filtersets.CustomFieldChoiceSetFilterSet
 
 
 #
