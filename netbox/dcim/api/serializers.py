@@ -514,12 +514,18 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
         allow_blank=True,
         allow_null=True
     )
+    rf_role = ChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        allow_blank=True,
+        allow_null=True
+    )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only',
-            'description', 'bridge', 'poe_mode', 'poe_type', 'created', 'last_updated',
+            'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
         ]
 
 

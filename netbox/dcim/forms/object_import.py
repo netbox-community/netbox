@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
 from utilities.forms import BootstrapMixin
+from wireless.choices import WirelessRoleChoices
 
 __all__ = (
     'ConsolePortTemplateImportForm',
@@ -96,11 +97,17 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
         required=False,
         label=_('PoE type')
     )
+    rf_role = forms.ChoiceField(
+        choices=WirelessRoleChoices,
+        required=False,
+        label=_('Wireless role')
+    )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'poe_mode', 'poe_type',
+            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'poe_mode',
+            'poe_type', 'rf_role'
         ]
 
 
