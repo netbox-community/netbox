@@ -82,8 +82,8 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
         if page is not None:
             data = [
                 {
-                    'id': c[0],
-                    'display': c[1],
+                    'value': c[0],
+                    'label': c[1],
                 } for c in page
             ]
             return self.get_paginated_response(data)

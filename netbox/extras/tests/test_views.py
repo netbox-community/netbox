@@ -1,3 +1,4 @@
+import json
 import urllib.parse
 import uuid
 
@@ -23,7 +24,7 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         site_ct = ContentType.objects.get_for_model(Site)
         CustomFieldChoiceSet.objects.create(
             name='Choice Set 1',
-            extra_choices=('A', 'B', 'C')
+            extra_choices={'A': 'A', 'B': 'B', 'C': 'C'}
         )
 
         custom_fields = (
@@ -76,29 +77,38 @@ class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     def setUpTestData(cls):
 
         choice_sets = (
-            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['1A', '1B', '1C', '1D', '1E']),
-            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['2A', '2B', '2C', '2D', '2E']),
-            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
+            CustomFieldChoiceSet(
+                name='Choice Set 1',
+                extra_choices={'A1': 'Choice 1', 'A2': 'Choice 2', 'A3': 'Choice 3'}
+            ),
+            CustomFieldChoiceSet(
+                name='Choice Set 2',
+                extra_choices={'B1': 'Choice 1', 'B2': 'Choice 2', 'B3': 'Choice 3'}
+            ),
+            CustomFieldChoiceSet(
+                name='Choice Set 3',
+                extra_choices={'C1': 'Choice 1', 'C2': 'Choice 2', 'C3': 'Choice 3'}
+            ),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
 
         cls.form_data = {
             'name': 'Choice Set X',
-            'extra_choices': 'X1,X2,X3,X4,X5',
+            'extra_choices': json.dumps({'X1': 'Choice 1', 'X2': 'Choice 2', 'X3': 'Choice 3'})
         }
 
         cls.csv_data = (
             'name,extra_choices',
-            'Choice Set 4,"4A,4B,4C,4D,4E"',
-            'Choice Set 5,"5A,5B,5C,5D,5E"',
-            'Choice Set 6,"6A,6B,6C,6D,6E"',
+            'Choice Set 4,"{""D1"": ""Choice 1"", ""D2"": ""Choice 2"", ""D3"": ""Choice 3""}"',
+            'Choice Set 5,"{""E1"": ""Choice 1"", ""E2"": ""Choice 2"", ""E3"": ""Choice 3""}"',
+            'Choice Set 6,"{""F1"": ""Choice 1"", ""F2"": ""Choice 2"", ""F3"": ""Choice 3""}"',
         )
 
         cls.csv_update_data = (
             'id,extra_choices',
-            f'{choice_sets[0].pk},"1X,1Y,1Z"',
-            f'{choice_sets[1].pk},"2X,2Y,2Z"',
-            f'{choice_sets[2].pk},"3X,3Y,3Z"',
+            f'{choice_sets[0].pk},"{{""a"": ""A"", ""b"": ""B"", ""c"": ""C""}}"',
+            f'{choice_sets[1].pk},"{{""a"": ""A"", ""b"": ""B"", ""c"": ""C""}}"',
+            f'{choice_sets[2].pk},"{{""a"": ""A"", ""b"": ""B"", ""c"": ""C""}}"',
         )
 
         cls.bulk_edit_data = {

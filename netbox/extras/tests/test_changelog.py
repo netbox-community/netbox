@@ -17,8 +17,8 @@ class ChangeLogViewTest(ModelViewTestCase):
     @classmethod
     def setUpTestData(cls):
         choice_set = CustomFieldChoiceSet.objects.create(
-            name='Custom Field Choice Set 1',
-            extra_choices=['Bar', 'Foo']
+            name='Choice Set 1',
+            extra_choices={'bar': 'Bar', 'foo': 'Foo'}
         )
 
         # Create a custom field on the Site model
@@ -48,7 +48,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'slug': 'site-1',
             'status': SiteStatusChoices.STATUS_ACTIVE,
             'cf_cf1': 'ABC',
-            'cf_cf2': 'Bar',
+            'cf_cf2': 'bar',
             'tags': [tag.pk for tag in tags],
         }
 
@@ -84,7 +84,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             'slug': 'site-x',
             'status': SiteStatusChoices.STATUS_PLANNED,
             'cf_cf1': 'DEF',
-            'cf_cf2': 'Foo',
+            'cf_cf2': 'foo',
             'tags': [tags[2].pk],
         }
 
@@ -226,7 +226,7 @@ class ChangeLogAPITest(APITestCase):
         # Create a select custom field on the Site model
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Choice Set 1',
-            extra_choices=['Bar', 'Foo']
+            extra_choices={'bar': 'Bar', 'foo': 'Foo'}
         )
         cf_select = CustomField(
             type=CustomFieldTypeChoices.TYPE_SELECT,
@@ -251,7 +251,7 @@ class ChangeLogAPITest(APITestCase):
             'slug': 'site-1',
             'custom_fields': {
                 'cf1': 'ABC',
-                'cf2': 'Bar',
+                'cf2': 'bar',
             },
             'tags': [
                 {'name': 'Tag 1'},
@@ -285,7 +285,7 @@ class ChangeLogAPITest(APITestCase):
             'slug': 'site-x',
             'custom_fields': {
                 'cf1': 'DEF',
-                'cf2': 'Foo',
+                'cf2': 'foo',
             },
             'tags': [
                 {'name': 'Tag 3'}

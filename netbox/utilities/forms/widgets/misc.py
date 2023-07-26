@@ -1,7 +1,7 @@
 from django import forms
 
 __all__ = (
-    'ArrayWidget',
+    'ChoicesWidget',
     'ClearableFileInput',
     'MarkdownWidget',
     'NumberWithOptions',
@@ -46,11 +46,11 @@ class SlugWidget(forms.TextInput):
     template_name = 'widgets/sluginput.html'
 
 
-class ArrayWidget(forms.Textarea):
+class ChoicesWidget(forms.Textarea):
     """
-    Render each item of an array on a new line within a textarea for easy editing/
+    Render each key-value pair of a dictionary on a new line within a textarea for easy editing.
     """
     def format_value(self, value):
-        if value is None or not len(value):
+        if not value:
             return None
-        return '\n'.join(value)
+        return '\n'.join([f'{k},{v}' for k, v in value.items()])

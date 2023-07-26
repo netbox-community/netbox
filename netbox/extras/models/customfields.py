@@ -6,7 +6,6 @@ import django_filters
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
@@ -658,9 +657,8 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         blank=True,
         help_text=_('Base set of predefined choices (optional)')
     )
-    extra_choices = ArrayField(
-        base_field=models.CharField(max_length=100),
-        help_text=_('List of field choices'),
+    extra_choices = models.JSONField(
+        default=dict,
         blank=True,
         null=True
     )
@@ -686,25 +684,27 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         Returns a concatenation of the base and extra choices.
         """
         if not hasattr(self, '_choices'):
-            self._choices = []
+            self._choices = {}
             if self.base_choices:
-                self._choices.extend(CHOICE_SETS.get(self.base_choices))
+                self._choices.update(dict(CHOICE_SETS.get(self.base_choices)))
             if self.extra_choices:
-                self._choices.extend([(k, k) for k in self.extra_choices])
-        return self._choices
-
-    def clean(self):
-        if not self.base_choices and not self.extra_choices:
-            raise ValidationError(_("Must define base or extra choices."))
+                self._choices.update(self.extra_choices)
+        if self.order_alphabetically:
+            self._choices = dict(sorted(self._choices.items()))
+        return list(self._choices.items())
 
     @property
     def choices_count(self):
         return len(self.choices)
 
+    def clean(self):
+        if not self.base_choices and not self.extra_choices:
+            raise ValidationError(_("Must define base or extra choices."))
+
     def save(self, *args, **kwargs):
 
         # Sort choices if alphabetical ordering is enforced
         if self.order_alphabetically:
-            self.extra_choices = sorted(self.extra_choices)
+            self.extra_choices = dict(sorted(self.extra_choices.items()))
 
         return super().save(*args, **kwargs)

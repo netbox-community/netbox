@@ -68,11 +68,9 @@ class CustomFieldTable(NetBoxTable):
         verbose_name="UI visibility"
     )
     description = columns.MarkdownColumn()
-    choices = columns.ArrayColumn(
+    choices = columns.ChoiceSetColumn(
         max_items=10,
-        func=lambda x: x[1],
-        orderable=False,
-        verbose_name=_('Choices')
+        orderable=False
     )
     is_cloneable = columns.BooleanColumn()
 
@@ -91,15 +89,12 @@ class CustomFieldChoiceSetTable(NetBoxTable):
         linkify=True
     )
     base_choices = columns.ChoiceFieldColumn()
-    extra_choices = columns.ArrayColumn(
+    extra_choices = tables.TemplateColumn(
+        template_code="""{% for k, v in value.items %}{{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}"""
+    )
+    choices = columns.ChoiceSetColumn(
         max_items=10,
         orderable=False
-    )
-    choices = columns.ArrayColumn(
-        max_items=10,
-        func=lambda x: x[1],
-        orderable=False,
-        verbose_name=_('Choices')
     )
     choice_count = tables.TemplateColumn(
         accessor=tables.A('extra_choices'),

@@ -9,8 +9,8 @@ from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.html import escape
 from django.utils.formats import date_format
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
@@ -21,9 +21,9 @@ from utilities.utils import content_type_identifier, content_type_name, get_view
 
 __all__ = (
     'ActionsColumn',
-    'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
+    'ChoiceSetColumn',
     'ColorColumn',
     'ColoredLabelColumn',
     'ContentTypeColumn',
@@ -594,26 +594,20 @@ class MarkdownColumn(tables.TemplateColumn):
         return value
 
 
-class ArrayColumn(tables.Column):
-    """
-    List array items as a comma-separated list.
-    """
-    def __init__(self, *args, max_items=None, func=str, **kwargs):
+class ChoiceSetColumn(tables.Column):
+
+    def __init__(self, *args, max_items=None, **kwargs):
         self.max_items = max_items
-        self.func = func
         super().__init__(*args, **kwargs)
 
     def render(self, value):
         omitted_count = 0
+        value = [v[1] for v in value]
 
         # Limit the returned items to the specified maximum number (if any)
         if self.max_items:
             omitted_count = len(value) - self.max_items
             value = value[:self.max_items - 1]
-
-        # Apply custom processing function (if any) per item
-        if self.func:
-            value = [self.func(v) for v in value]
 
         # Annotate omitted items (if applicable)
         if omitted_count > 0:

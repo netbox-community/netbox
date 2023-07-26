@@ -68,11 +68,6 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
         required=False,
         help_text=_('The classification of entry')
     )
-    extra_choices = SimpleArrayField(
-        base_field=forms.CharField(),
-        required=False,
-        help_text=_('Comma-separated list of field choices')
-    )
 
     class Meta:
         model = CustomFieldChoiceSet

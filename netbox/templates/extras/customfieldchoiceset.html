@@ -55,7 +55,7 @@
                 <th>Label</th>
               </tr>
             </thead>
-            {% for value, label in object.choices|slice:":100" %}
+            {% for value, label in object.choices.items %}
               <tr>
                 <td>{{ value }}</td>
                 <td>{{ label }}</td>

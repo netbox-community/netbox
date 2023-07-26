@@ -128,7 +128,7 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
 
     def filter_by_choice(self, queryset, name, value):
         # TODO: Support case-insensitive matching
-        return queryset.filter(extra_choices__overlap=value)
+        return queryset.filter(extra_choices__has_any_keys=value)
 
 
 class CustomLinkFilterSet(BaseFilterSet):
