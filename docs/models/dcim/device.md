@@ -87,6 +87,10 @@ Each device may designate one primary IPv4 address and/or one primary IPv6 addre
 !!! tip
     NetBox will prefer IPv6 addresses over IPv4 addresses by default. This can be changed by setting the `PREFER_IPV4` configuration parameter.
 
+### Out-of-band (OOB) IP Address
+
+Each device may designate its out-of-band IP address. Out-of-band IPs are typically used to access network infrastructure via a physically separate management network.
+
 ### Cluster
 
 If this device will serve as a host for a virtualization [cluster](../virtualization/cluster.md), it can be assigned here. (Host devices can also be assigned by editing the cluster.)

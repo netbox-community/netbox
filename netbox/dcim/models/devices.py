@@ -21,7 +21,8 @@ from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from utilities.choices import ColorChoices
-from utilities.fields import ColorField, NaturalOrderingField
+from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
+from utilities.tracking import TrackingModelMixin
 from .device_components import *
 from .mixins import WeightMixin
 
@@ -126,6 +127,48 @@ class DeviceType(PrimaryModel, WeightMixin):
     rear_image = models.ImageField(
         upload_to='devicetype-images',
         blank=True
+    )
+
+    # Counter fields
+    console_port_template_count = CounterCacheField(
+        to_model='dcim.ConsolePortTemplate',
+        to_field='device_type'
+    )
+    console_server_port_template_count = CounterCacheField(
+        to_model='dcim.ConsoleServerPortTemplate',
+        to_field='device_type'
+    )
+    power_port_template_count = CounterCacheField(
+        to_model='dcim.PowerPortTemplate',
+        to_field='device_type'
+    )
+    power_outlet_template_count = CounterCacheField(
+        to_model='dcim.PowerOutletTemplate',
+        to_field='device_type'
+    )
+    interface_template_count = CounterCacheField(
+        to_model='dcim.InterfaceTemplate',
+        to_field='device_type'
+    )
+    front_port_template_count = CounterCacheField(
+        to_model='dcim.FrontPortTemplate',
+        to_field='device_type'
+    )
+    rear_port_template_count = CounterCacheField(
+        to_model='dcim.RearPortTemplate',
+        to_field='device_type'
+    )
+    device_bay_template_count = CounterCacheField(
+        to_model='dcim.DeviceBayTemplate',
+        to_field='device_type'
+    )
+    module_bay_template_count = CounterCacheField(
+        to_model='dcim.ModuleBayTemplate',
+        to_field='device_type'
+    )
+    inventory_item_template_count = CounterCacheField(
+        to_model='dcim.InventoryItemTemplate',
+        to_field='device_type'
     )
 
     images = GenericRelation(
@@ -469,7 +512,7 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-class Device(PrimaryModel, ConfigContextModel):
+class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -591,6 +634,14 @@ class Device(PrimaryModel, ConfigContextModel):
         null=True,
         verbose_name='Primary IPv6'
     )
+    oob_ip = models.OneToOneField(
+        to='ipam.IPAddress',
+        on_delete=models.SET_NULL,
+        related_name='+',
+        blank=True,
+        null=True,
+        verbose_name='Out-of-band IP'
+    )
     cluster = models.ForeignKey(
         to='virtualization.Cluster',
         on_delete=models.SET_NULL,
@@ -637,6 +688,48 @@ class Device(PrimaryModel, ConfigContextModel):
         blank=True,
         null=True,
         help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+    )
+
+    # Counter fields
+    console_port_count = CounterCacheField(
+        to_model='dcim.ConsolePort',
+        to_field='device'
+    )
+    console_server_port_count = CounterCacheField(
+        to_model='dcim.ConsoleServerPort',
+        to_field='device'
+    )
+    power_port_count = CounterCacheField(
+        to_model='dcim.PowerPort',
+        to_field='device'
+    )
+    power_outlet_count = CounterCacheField(
+        to_model='dcim.PowerOutlet',
+        to_field='device'
+    )
+    interface_count = CounterCacheField(
+        to_model='dcim.Interface',
+        to_field='device'
+    )
+    front_port_count = CounterCacheField(
+        to_model='dcim.FrontPort',
+        to_field='device'
+    )
+    rear_port_count = CounterCacheField(
+        to_model='dcim.RearPort',
+        to_field='device'
+    )
+    device_bay_count = CounterCacheField(
+        to_model='dcim.DeviceBay',
+        to_field='device'
+    )
+    module_bay_count = CounterCacheField(
+        to_model='dcim.ModuleBay',
+        to_field='device'
+    )
+    inventory_item_count = CounterCacheField(
+        to_model='dcim.InventoryItem',
+        to_field='device'
     )
 
     # Generic relations
@@ -774,7 +867,7 @@ class Device(PrimaryModel, ConfigContextModel):
             except DeviceType.DoesNotExist:
                 pass
 
-        # Validate primary IP addresses
+        # Validate primary & OOB IP addresses
         vc_interfaces = self.vc_interfaces(if_master=False)
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
@@ -801,6 +894,15 @@ class Device(PrimaryModel, ConfigContextModel):
             else:
                 raise ValidationError({
                     'primary_ip6': f"The specified IP address ({self.primary_ip6}) is not assigned to this device."
+                })
+        if self.oob_ip:
+            if self.oob_ip.assigned_object in vc_interfaces:
+                pass
+            elif self.oob_ip.nat_inside is not None and self.oob_ip.nat_inside.assigned_object in vc_interfaces:
+                pass
+            else:
+                raise ValidationError({
+                    'oob_ip': f"The specified IP address ({self.oob_ip}) is not assigned to this device."
                 })
 
         # Validate manufacturer/platform
@@ -1145,6 +1247,12 @@ class VirtualChassis(PrimaryModel):
     domain = models.CharField(
         max_length=30,
         blank=True
+    )
+
+    # Counter fields
+    member_count = CounterCacheField(
+        to_model='dcim.Device',
+        to_field='virtual_chassis'
     )
 
     class Meta:

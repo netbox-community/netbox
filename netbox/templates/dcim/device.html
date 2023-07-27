@@ -239,6 +239,17 @@
                               {% endif %}
                             </td>
                         </tr>
+                        <tr>
+                            <th scope="row">Out-of-band IP</th>
+                            <td>
+                              {% if object.oob_ip %}
+                                <a href="{{ object.oob_ip.get_absolute_url }}" id="oob_ip">{{ object.oob_ip.address.ip }}</a>
+                                {% copy_content "oob_ip" %}
+                              {% else %}
+                                {{ ''|placeholder }}
+                              {% endif %}
+                            </td>
+                        </tr>
                         {% if object.cluster %}
                             <tr>
                                 <th>Cluster</th>

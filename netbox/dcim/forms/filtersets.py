@@ -629,7 +629,7 @@ class DeviceFilterForm(
         ('Components', (
             'console_ports', 'console_server_ports', 'power_ports', 'power_outlets', 'interfaces', 'pass_through_ports',
         )),
-        ('Miscellaneous', ('has_primary_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data'))
+        ('Miscellaneous', ('has_primary_ip', 'has_oob_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data'))
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -719,6 +719,13 @@ class DeviceFilterForm(
     has_primary_ip = forms.NullBooleanField(
         required=False,
         label='Has a primary IP',
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
+    )
+    has_oob_ip = forms.NullBooleanField(
+        required=False,
+        label='Has an OOB IP',
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

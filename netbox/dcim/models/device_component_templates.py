@@ -12,6 +12,8 @@ from netbox.models import ChangeLoggedModel
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
+from utilities.tracking import TrackingModelMixin
+from wireless.choices import WirelessRoleChoices
 from .device_components import (
     ConsolePort, ConsoleServerPort, DeviceBay, FrontPort, Interface, InventoryItem, ModuleBay, PowerOutlet, PowerPort,
     RearPort,
@@ -32,7 +34,7 @@ __all__ = (
 )
 
 
-class ComponentTemplateModel(ChangeLoggedModel):
+class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
     device_type = models.ForeignKey(
         to='dcim.DeviceType',
         on_delete=models.CASCADE,
@@ -387,6 +389,12 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         blank=True,
         verbose_name='PoE type'
     )
+    rf_role = models.CharField(
+        max_length=30,
+        choices=WirelessRoleChoices,
+        blank=True,
+        verbose_name='Wireless role'
+    )
 
     component_model = Interface
 
@@ -405,6 +413,11 @@ class InterfaceTemplate(ModularComponentTemplateModel):
                     'bridge': f"Bridge interface ({self.bridge}) must belong to the same module type"
                 })
 
+        if self.rf_role and self.type not in WIRELESS_IFACE_TYPES:
+            raise ValidationError({
+                'rf_role': "Wireless role may be set only on wireless interfaces."
+            })
+
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
@@ -414,6 +427,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             mgmt_only=self.mgmt_only,
             poe_mode=self.poe_mode,
             poe_type=self.poe_type,
+            rf_role=self.rf_role,
             **kwargs
         )
     instantiate.do_not_call_in_templates = True
@@ -429,6 +443,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
             'bridge': self.bridge.name if self.bridge else None,
             'poe_mode': self.poe_mode,
             'poe_type': self.poe_type,
+            'rf_role': self.rf_role,
         }
 
 

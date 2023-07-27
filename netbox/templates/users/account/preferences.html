@@ -1,4 +1,4 @@
-{% extends 'users/base.html' %}
+{% extends 'users/account/base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 
@@ -79,7 +79,7 @@
     </div>
 
     <div class="text-end my-3">
-      <a class="btn btn-outline-secondary" href="{% url 'users:preferences' %}">Cancel</a>
+      <a class="btn btn-outline-secondary" href="{% url 'account:preferences' %}">Cancel</a>
       <button type="submit" name="_update" class="btn btn-primary">Save </button>
     </div>
   </form>
