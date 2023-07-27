@@ -6,6 +6,7 @@ import django_filters
 from django import forms
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
@@ -657,8 +658,11 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         blank=True,
         help_text=_('Base set of predefined choices (optional)')
     )
-    extra_choices = models.JSONField(
-        default=dict,
+    extra_choices = ArrayField(
+        ArrayField(
+            base_field=models.CharField(max_length=100),
+            size=2
+        ),
         blank=True,
         null=True
     )
@@ -684,14 +688,14 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
         Returns a concatenation of the base and extra choices.
         """
         if not hasattr(self, '_choices'):
-            self._choices = {}
+            self._choices = []
             if self.base_choices:
-                self._choices.update(dict(CHOICE_SETS.get(self.base_choices)))
+                self._choices.extend(CHOICE_SETS.get(self.base_choices))
             if self.extra_choices:
-                self._choices.update(self.extra_choices)
+                self._choices.extend(self.extra_choices)
         if self.order_alphabetically:
-            self._choices = dict(sorted(self._choices.items()))
-        return list(self._choices.items())
+            self._choices = sorted(self._choices, key=lambda x: x[0])
+        return self._choices
 
     @property
     def choices_count(self):
@@ -705,6 +709,6 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
 
         # Sort choices if alphabetical ordering is enforced
         if self.order_alphabetically:
-            self.extra_choices = dict(sorted(self.extra_choices.items()))
+            self.extra_choices = sorted(self.extra_choices, key=lambda x: x[0])
 
         return super().save(*args, **kwargs)

@@ -66,6 +66,9 @@ class CustomFieldTable(NetBoxTable):
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
     description = columns.MarkdownColumn()
+    choice_set = tables.Column(
+        linkify=True
+    )
     choices = columns.ChoicesColumn(
         max_items=10,
         orderable=False
@@ -76,8 +79,8 @@ class CustomFieldTable(NetBoxTable):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
-            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choices', 'created',
-            'last_updated',
+            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choice_set', 'choices',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 

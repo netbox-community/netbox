@@ -19,7 +19,7 @@ def create_choice_sets(apps, schema_editor):
     for cf in choice_fields:
         choiceset = CustomFieldChoiceSet.objects.create(
             name=f'{cf.name} Choices',
-            extra_choices=dict(zip(cf.choices, cf.choices))  # Convert list to key:val dict
+            extra_choices=tuple(zip(cf.choices, cf.choices))  # Convert list to tuple of two-tuples
         )
         cf.choice_set = choiceset
 
@@ -43,7 +43,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, unique=True)),
                 ('description', models.CharField(blank=True, max_length=200)),
                 ('base_choices', models.CharField(blank=True, max_length=50)),
-                ('extra_choices', models.JSONField(blank=True, default=dict, null=True)),
+                ('extra_choices', django.contrib.postgres.fields.ArrayField(base_field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), size=2), blank=True, null=True, size=None)),
                 ('order_alphabetically', models.BooleanField(default=False)),
             ],
             options={

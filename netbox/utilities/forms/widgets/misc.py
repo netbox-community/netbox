@@ -64,4 +64,6 @@ class ChoicesWidget(forms.Textarea):
     def format_value(self, value):
         if not value:
             return None
-        return '\n'.join([f'{k},{v}' for k, v in value.items()])
+        if type(value) is list:
+            return '\n'.join([f'{k},{v}' for k, v in value])
+        return value

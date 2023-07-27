@@ -269,11 +269,11 @@ class CustomFieldTest(TestCase):
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
     def test_select_field(self):
-        CHOICES = {
-            'a': 'Option A',
-            'b': 'Option B',
-            'c': 'Option C',
-        }
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+        )
         value = 'a'
 
         # Create a set of custom field choices
@@ -306,11 +306,11 @@ class CustomFieldTest(TestCase):
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
     def test_multiselect_field(self):
-        CHOICES = {
-            'a': 'Option A',
-            'b': 'Option B',
-            'c': 'Option C',
-        }
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+        )
         value = ['a', 'b']
 
         # Create a set of custom field choices
@@ -461,7 +461,7 @@ class CustomFieldAPITest(APITestCase):
         # Create a set of custom field choices
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices={'foo': 'Foo', 'bar': 'Bar', 'baz': 'Baz'}
+            extra_choices=(('foo', 'Foo'), ('bar', 'Bar'), ('baz', 'Baz'))
         )
 
         custom_fields = (
@@ -1049,7 +1049,11 @@ class CustomFieldImportTest(TestCase):
         # Create a set of custom field choices
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices={'a': 'Option A', 'b': 'Option B', 'c': 'Option C'}
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+                ('c', 'Option C'),
+            )
         )
 
         custom_fields = (
@@ -1229,7 +1233,7 @@ class CustomFieldModelFilterTest(TestCase):
 
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices={'A': 'A', 'B': 'B', 'C': 'C', 'X': 'X'}
+            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'), ('x', 'X'))
         )
 
         # Integer filtering

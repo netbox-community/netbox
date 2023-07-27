@@ -18,7 +18,7 @@ class ChangeLogViewTest(ModelViewTestCase):
     def setUpTestData(cls):
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Choice Set 1',
-            extra_choices={'bar': 'Bar', 'foo': 'Foo'}
+            extra_choices=(('foo', 'Foo'), ('bar', 'Bar'))
         )
 
         # Create a custom field on the Site model
@@ -226,7 +226,7 @@ class ChangeLogAPITest(APITestCase):
         # Create a select custom field on the Site model
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Choice Set 1',
-            extra_choices={'bar': 'Bar', 'foo': 'Foo'}
+            extra_choices=(('foo', 'Foo'), ('bar', 'Bar'))
         )
         cf_select = CustomField(
             type=CustomFieldTypeChoices.TYPE_SELECT,

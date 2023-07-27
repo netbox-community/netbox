@@ -139,15 +139,27 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     create_data = [
         {
             'name': 'Choice Set 4',
-            'extra_choices': ['4A', '4B', '4C'],
+            'extra_choices': [
+                ['4A', 'Choice 1'],
+                ['4B', 'Choice 2'],
+                ['4C', 'Choice 3'],
+            ],
         },
         {
             'name': 'Choice Set 5',
-            'extra_choices': ['5A', '5B', '5C'],
+            'extra_choices': [
+                ['5A', 'Choice 1'],
+                ['5B', 'Choice 2'],
+                ['5C', 'Choice 3'],
+            ],
         },
         {
             'name': 'Choice Set 6',
-            'extra_choices': ['6A', '6B', '6C'],
+            'extra_choices': [
+                ['6A', 'Choice 1'],
+                ['6B', 'Choice 2'],
+                ['6C', 'Choice 3'],
+            ],
         },
     ]
     bulk_update_data = {
@@ -155,7 +167,11 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     }
     update_data = {
         'name': 'Choice Set X',
-        'extra_choices': ['X1', 'X2', 'X3'],
+        'extra_choices': [
+            ['X1', 'Choice 1'],
+            ['X2', 'Choice 2'],
+            ['X3', 'Choice 3'],
+        ],
         'description': 'New description',
     }
 

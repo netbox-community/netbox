@@ -129,13 +129,18 @@ class ModelTestCase(TestCase):
                     model_dict[key] = str(value)
 
             else:
+                field = instance._meta.get_field(key)
 
                 # Convert ArrayFields to CSV strings
-                if type(instance._meta.get_field(key)) is ArrayField:
-                    model_dict[key] = ','.join([str(v) for v in value])
+                if type(field) is ArrayField:
+                    if type(field.base_field) is ArrayField:
+                        # Handle nested arrays (e.g. choice sets)
+                        model_dict[key] = '\n'.join([f'{k},{v}' for k, v in value])
+                    else:
+                        model_dict[key] = ','.join([str(v) for v in value])
 
                 # JSON
-                if type(instance._meta.get_field(key)) is JSONField and value is not None:
+                if type(field) is JSONField and value is not None:
                     model_dict[key] = json.dumps(value)
 
         return model_dict
