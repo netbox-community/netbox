@@ -127,7 +127,6 @@ class ContactAssignmentTable(NetBoxTable):
         verbose_name=_('Contact Description')
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete')
     )
 

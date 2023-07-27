@@ -146,7 +146,6 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         url_name='dcim:location_list'
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=LOCATION_BUTTONS
     )
 

@@ -103,7 +103,6 @@ class UserTable(NetBoxTable):
         verbose_name=_('Is superuser'),
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
     )
 
@@ -122,7 +121,6 @@ class GroupTable(NetBoxTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
     )
 
@@ -170,7 +168,6 @@ class ObjectPermissionTable(NetBoxTable):
         linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
     )
 

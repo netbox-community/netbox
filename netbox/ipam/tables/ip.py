@@ -138,7 +138,6 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
         url_name='ipam:aggregate_list'
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=AGGREGATE_COPY_BUTTON
     )
 
@@ -276,7 +275,6 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
         url_name='ipam:prefix_list'
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=PREFIX_COPY_BUTTON
     )
 
@@ -397,7 +395,6 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         url_name='ipam:ipaddress_list'
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=IPADDRESS_COPY_BUTTON
     )
 

@@ -178,7 +178,6 @@ class NetBoxTable(BaseTable):
         verbose_name=_('ID')
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
     )
 
     exempt_columns = ('pk', 'actions')

@@ -53,7 +53,6 @@ class DataFileTable(NetBoxTable):
         verbose_name=_('Last updated'),
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('delete',)
     )
 

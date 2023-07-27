@@ -420,7 +420,6 @@ class DeviceConsolePortTable(ConsolePortTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=CONSOLEPORT_BUTTONS
     )
 
@@ -466,7 +465,6 @@ class DeviceConsoleServerPortTable(ConsoleServerPortTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=CONSOLESERVERPORT_BUTTONS
     )
 
@@ -513,7 +511,6 @@ class DevicePowerPortTable(PowerPortTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=POWERPORT_BUTTONS
     )
 
@@ -565,7 +562,6 @@ class DevicePowerOutletTable(PowerOutletTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=POWEROUTLET_BUTTONS
     )
 
@@ -684,7 +680,6 @@ class DeviceInterfaceTable(InterfaceTable):
         verbose_name=_('LAG')
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=INTERFACE_BUTTONS
     )
 
@@ -752,7 +747,6 @@ class DeviceFrontPortTable(FrontPortTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=FRONTPORT_BUTTONS
     )
 
@@ -803,7 +797,6 @@ class DeviceRearPortTable(RearPortTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=REARPORT_BUTTONS
     )
 
@@ -870,7 +863,6 @@ class DeviceDeviceBayTable(DeviceBayTable):
         attrs={'td': {'class': 'text-nowrap'}}
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=DEVICEBAY_BUTTONS
     )
 
@@ -921,7 +913,6 @@ class ModuleBayTable(DeviceComponentTable):
 
 class DeviceModuleBayTable(ModuleBayTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=MODULEBAY_BUTTONS
     )
 

@@ -68,7 +68,6 @@ class FHRPGroupAssignmentTable(NetBoxTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete')
     )
 

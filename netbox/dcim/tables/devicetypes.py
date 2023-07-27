@@ -169,7 +169,6 @@ class ComponentTemplateTable(NetBoxTable):
 
 class ConsolePortTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -182,7 +181,6 @@ class ConsolePortTemplateTable(ComponentTemplateTable):
 
 class ConsoleServerPortTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -195,7 +193,6 @@ class ConsoleServerPortTemplateTable(ComponentTemplateTable):
 
 class PowerPortTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -208,7 +205,6 @@ class PowerPortTemplateTable(ComponentTemplateTable):
 
 class PowerOutletTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -227,7 +223,6 @@ class InterfaceTemplateTable(ComponentTemplateTable):
         verbose_name=_('Management Only')
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -246,7 +241,6 @@ class FrontPortTemplateTable(ComponentTemplateTable):
         verbose_name=_('Color'),
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -262,7 +256,6 @@ class RearPortTemplateTable(ComponentTemplateTable):
         verbose_name=_('Color'),
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
     )
@@ -275,7 +268,6 @@ class RearPortTemplateTable(ComponentTemplateTable):
 
 class ModuleBayTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete')
     )
 
@@ -287,7 +279,6 @@ class ModuleBayTemplateTable(ComponentTemplateTable):
 
 class DeviceBayTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete')
     )
 
@@ -299,7 +290,6 @@ class DeviceBayTemplateTable(ComponentTemplateTable):
 
 class InventoryItemTemplateTable(ComponentTemplateTable):
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete')
     )
     role = tables.Column(

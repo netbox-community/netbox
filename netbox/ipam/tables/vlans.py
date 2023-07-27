@@ -85,7 +85,6 @@ class VLANGroupTable(NetBoxTable):
         url_name='ipam:vlangroup_list'
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         extra_buttons=VLANGROUP_BUTTONS
     )
 
@@ -178,7 +177,6 @@ class VLANDevicesTable(VLANMembersTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit',)
     )
 
@@ -194,7 +192,6 @@ class VLANVirtualMachinesTable(VLANMembersTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit',)
     )
 

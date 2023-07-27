@@ -48,7 +48,6 @@ class ConfigRevisionTable(NetBoxTable):
         verbose_name=_('Is active'),
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('delete',),
         extra_buttons=REVISION_BUTTONS
     )
@@ -254,7 +253,6 @@ class BookmarkTable(NetBoxTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('delete',)
     )
 
@@ -343,7 +341,6 @@ class TaggedItemTable(NetBoxTable):
         verbose_name=_('Object')
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=()
     )
 
@@ -447,7 +444,6 @@ class ObjectChangeTable(NetBoxTable):
         verbose_name=_('Request ID')
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=()
     )
 

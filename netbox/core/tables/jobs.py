@@ -7,7 +7,7 @@ from ..models import Job
 
 class JobTable(NetBoxTable):
     id = tables.Column(
-        verbose_name=_('Id'),
+        verbose_name=_('ID'),
         linkify=True
     )
     name = tables.Column(
@@ -40,7 +40,6 @@ class JobTable(NetBoxTable):
         verbose_name=_('Completed'),
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('delete',)
     )
 

@@ -137,7 +137,6 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         linkify=True
     )
     actions = columns.ActionsColumn(
-        verbose_name=_('Actions'),
         actions=('edit', 'delete'),
         extra_buttons=VMINTERFACE_BUTTONS
     )
