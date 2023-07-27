@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
-from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion
+from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion, String as GQLString, NonNull as GQLNonNull
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -452,6 +452,13 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
             for field_name, field in type_class._meta.fields.items():
+                is_string_array = False
+                if type(field.type) is GQLList:
+                    if field.type.of_type is GQLString:
+                        is_string_array = True
+                    elif type(field.type.of_type) is GQLNonNull and field.type.of_type.of_type is GQLString:
+                        is_string_array = True
+
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
@@ -461,7 +468,7 @@ class APIViewTestCases:
                 elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
                     # Union types dont' have an id or consistent values
                     continue
-                elif type(field.type) is GQLList and field_name != 'choices':
+                elif type(field.type) is GQLList and not is_string_array:
                     # TODO: Come up with something more elegant
                     # Temporary hack to support automated testing of reverse generic relations
                     fields_string += f'{field_name} {{ id }}\n'
