@@ -64,11 +64,9 @@ class CustomFieldTable(NetBoxTable):
     )
     content_types = columns.ContentTypesColumn()
     required = columns.BooleanColumn()
-    ui_visibility = columns.ChoiceFieldColumn(
-        verbose_name="UI visibility"
-    )
+    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
     description = columns.MarkdownColumn()
-    choices = columns.ChoiceSetColumn(
+    choices = columns.ChoicesColumn(
         max_items=10,
         orderable=False
     )
@@ -92,7 +90,7 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     extra_choices = tables.TemplateColumn(
         template_code="""{% for k, v in value.items %}{{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}"""
     )
-    choices = columns.ChoiceSetColumn(
+    choices = columns.ChoicesColumn(
         max_items=10,
         orderable=False
     )

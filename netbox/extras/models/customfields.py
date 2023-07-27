@@ -410,7 +410,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Select
         elif self.type in (CustomFieldTypeChoices.TYPE_SELECT, CustomFieldTypeChoices.TYPE_MULTISELECT):
-            choices = self.choices
+            choices = self.choice_set.choices
             default_choice = self.default if self.default in self.choices else None
 
             if not required or default_choice is None:
@@ -427,7 +427,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 field_class = CSVMultipleChoiceField if for_csv_import else DynamicMultipleChoiceField
                 widget_class = APISelectMultiple
             field = field_class(
-                choices=self.choice_set.choices,
+                choices=choices,
                 required=required,
                 initial=initial,
                 widget=widget_class(api_url=f'/api/extras/custom-field-choices/{self.choice_set.pk}/choices/')
@@ -664,7 +664,7 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     )
     order_alphabetically = models.BooleanField(
         default=False,
-        help_text=_('Choices are automatically ordered alphabetically on save')
+        help_text=_('Choices are automatically ordered alphabetically')
     )
 
     clone_fields = ('extra_choices', 'order_alphabetically')

@@ -66,7 +66,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
     base_choices = CSVChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False,
-        help_text=_('The classification of entry')
+        help_text=_('The base set of predefined choices to use (if any)')
     )
 
     class Meta:

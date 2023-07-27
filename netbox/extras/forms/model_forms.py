@@ -19,7 +19,6 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.widgets import ChoicesWidget
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 

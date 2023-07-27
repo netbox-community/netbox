@@ -73,9 +73,9 @@ class CustomFieldChoiceSetBaseChoices(ChoiceSet):
     UN_LOCODE = 'UN_LOCODE'
 
     CHOICES = (
-        (IATA, 'IATA'),
-        (ISO_3166, 'ISO 3166'),
-        (UN_LOCODE, 'UN/LOCODE'),
+        (IATA, 'IATA (Airport codes)'),
+        (ISO_3166, 'ISO 3166 (Country codes)'),
+        (UN_LOCODE, 'UN/LOCODE (Location codes)'),
     )
 
 

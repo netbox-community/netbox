@@ -24,7 +24,7 @@ __all__ = (
     'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
-    'ChoiceSetColumn',
+    'ChoicesColumn',
     'ColorColumn',
     'ColoredLabelColumn',
     'ContentTypeColumn',
@@ -623,7 +623,7 @@ class ArrayColumn(tables.Column):
         return ', '.join(value)
 
 
-class ChoiceSetColumn(tables.Column):
+class ChoicesColumn(tables.Column):
     """
     Display the human-friendly labels of a set of choices.
     """

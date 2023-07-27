@@ -78,13 +78,10 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
             q = q.lower()
             choices = [c for c in choices if q in c[0].lower() or q in c[1].lower()]
 
-        page = self.paginate_queryset(choices)
-        if page is not None:
+        # Paginate data
+        if page := self.paginate_queryset(choices):
             data = [
-                {
-                    'value': c[0],
-                    'label': c[1],
-                } for c in page
+                {'value': c[0], 'label': c[1]} for c in page
             ]
             return self.get_paginated_response(data)
 
