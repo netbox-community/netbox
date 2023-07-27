@@ -168,16 +168,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
         )
     )
-<<<<<<< HEAD
     choice_set = models.ForeignKey(
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
         related_name='choices_for',
-=======
-    choices = ArrayField(
-        verbose_name=_('choices'),
-        base_field=models.CharField(max_length=100),
->>>>>>> 9a447ed8f (13132 add gettext_lazy to models)
+        verbose_name=_('choice set'),
         blank=True,
         null=True
     )
@@ -301,35 +296,18 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'validation_regex': _("Regular expression validation is supported only for text and URL fields")
             })
 
-<<<<<<< HEAD
         # Choice set must be set on selection fields, and *only* on selection fields
-=======
-        # Choices can be set only on selection fields
-        if self.choices and self.type not in (
-                CustomFieldTypeChoices.TYPE_SELECT,
-                CustomFieldTypeChoices.TYPE_MULTISELECT
-        ):
-            raise ValidationError({
-                'choices': _("Choices may be set only for custom selection fields.")
-            })
-
-        # Selection fields must have at least one choice defined
->>>>>>> 9a447ed8f (13132 add gettext_lazy to models)
         if self.type in (
                 CustomFieldTypeChoices.TYPE_SELECT,
                 CustomFieldTypeChoices.TYPE_MULTISELECT
         ):
             if not self.choice_set:
                 raise ValidationError({
-                    'choice_set': "Selection fields must specify a set of choices."
+                    'choice_set': _("Selection fields must specify a set of choices.")
                 })
         elif self.choice_set:
             raise ValidationError({
-<<<<<<< HEAD
-                'choice_set': "Choices may be set only on selection fields."
-=======
-                'choices': _("Selection fields must specify at least one choice.")
->>>>>>> 9a447ed8f (13132 add gettext_lazy to models)
+                'choice_set': _("Choices may be set only on selection fields.")
             })
 
         # A selection field's default (if any) must be present in its available choices
@@ -713,4 +691,3 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
             self.extra_choices = sorted(self.choices)
 
         return super().save(*args, **kwargs)
-
