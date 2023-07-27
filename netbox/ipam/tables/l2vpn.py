@@ -18,20 +18,18 @@ L2VPN_TARGETS = """
 
 
 class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
-    pk = columns.ToggleColumn(
-        verbose_name=_('Pk'),
-    )
+    pk = columns.ToggleColumn()
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
     )
     import_targets = columns.TemplateColumn(
-        verbose_name=_('Import targets'),
+        verbose_name=_('Import Targets'),
         template_code=L2VPN_TARGETS,
         orderable=False
     )
     export_targets = columns.TemplateColumn(
-        verbose_name=_('Export targets'),
+        verbose_name=_('Export Targets'),
         template_code=L2VPN_TARGETS,
         orderable=False
     )
@@ -52,9 +50,7 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
 
 
 class L2VPNTerminationTable(NetBoxTable):
-    pk = columns.ToggleColumn(
-        verbose_name=_('Pk'),
-    )
+    pk = columns.ToggleColumn()
     l2vpn = tables.Column(
         verbose_name=_('L2VPN'),
         linkify=True

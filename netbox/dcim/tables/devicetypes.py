@@ -82,7 +82,7 @@ class DeviceTypeTable(NetBoxTable):
         linkify=True
     )
     default_platform = tables.Column(
-        verbose_name=_('Default platform'),
+        verbose_name=_('Default Platform'),
         linkify=True
     )
     is_full_depth = columns.BooleanColumn(
@@ -95,7 +95,7 @@ class DeviceTypeTable(NetBoxTable):
         url_name='dcim:devicetype_list'
     )
     u_height = columns.TemplateColumn(
-        verbose_name=_('U height'),
+        verbose_name=_('U Height'),
         template_code='{{ value|floatformat }}'
     )
     weight = columns.TemplateColumn(
@@ -109,34 +109,34 @@ class DeviceTypeTable(NetBoxTable):
         verbose_name=_('Instances')
     )
     console_port_template_count = tables.Column(
-        verbose_name=_('Console ports')
+        verbose_name=_('Console Ports')
     )
     console_server_port_template_count = tables.Column(
-        verbose_name=_('Console server ports')
+        verbose_name=_('Console Server Ports')
     )
     power_port_template_count = tables.Column(
-        verbose_name=_('Power ports')
+        verbose_name=_('Power Ports')
     )
     power_outlet_template_count = tables.Column(
-        verbose_name=_('Power outlets')
+        verbose_name=_('Power Outlets')
     )
     interface_template_count = tables.Column(
         verbose_name=_('Interfaces')
     )
     front_port_template_count = tables.Column(
-        verbose_name=_('Front ports')
+        verbose_name=_('Front Ports')
     )
     rear_port_template_count = tables.Column(
-        verbose_name=_('Rear ports')
+        verbose_name=_('Rear Ports')
     )
     device_bay_template_count = tables.Column(
-        verbose_name=_('Device bays')
+        verbose_name=_('Device Bays')
     )
     module_bay_template_count = tables.Column(
-        verbose_name=_('Module bays')
+        verbose_name=_('Module Bays')
     )
     inventory_item_template_count = tables.Column(
-        verbose_name=_('Inventory items')
+        verbose_name=_('Inventory Items')
     )
 
     class Meta(NetBoxTable.Meta):

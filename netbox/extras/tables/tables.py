@@ -45,7 +45,7 @@ REVISION_BUTTONS = """
 
 class ConfigRevisionTable(NetBoxTable):
     is_active = columns.BooleanColumn(
-        verbose_name=_('Is active'),
+        verbose_name=_('Is Active'),
     )
     actions = columns.ActionsColumn(
         actions=('delete',),
@@ -66,13 +66,13 @@ class CustomFieldTable(NetBoxTable):
         linkify=True
     )
     content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content types'),
+        verbose_name=_('Content Types'),
     )
     required = columns.BooleanColumn(
         verbose_name=_('Required'),
     )
     ui_visibility = columns.ChoiceFieldColumn(
-        verbose_name=_("UI visibility")
+        verbose_name=_("UI Visibility")
     )
     description = columns.MarkdownColumn(
         verbose_name=_('Description'),
@@ -83,7 +83,7 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Choices')
     )
     is_cloneable = columns.BooleanColumn(
-        verbose_name=_('Is cloneable'),
+        verbose_name=_('Is Cloneable'),
     )
 
     class Meta(NetBoxTable.Meta):
@@ -114,7 +114,7 @@ class CustomFieldChoiceSetTable(NetBoxTable):
         verbose_name=_('Count')
     )
     order_alphabetically = columns.BooleanColumn(
-        verbose_name=_('Order alphabetically'),
+        verbose_name=_('Order Alphabetically'),
     )
 
     class Meta(NetBoxTable.Meta):
@@ -132,13 +132,13 @@ class CustomLinkTable(NetBoxTable):
         linkify=True
     )
     content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content types'),
+        verbose_name=_('Content Types'),
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
     new_window = columns.BooleanColumn(
-        verbose_name=_('New window'),
+        verbose_name=_('New Window'),
     )
 
     class Meta(NetBoxTable.Meta):
@@ -156,17 +156,17 @@ class ExportTemplateTable(NetBoxTable):
         linkify=True
     )
     content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content types'),
+        verbose_name=_('Content Types'),
     )
     as_attachment = columns.BooleanColumn(
-        verbose_name=_('As attachment'),
+        verbose_name=_('As Attachment'),
     )
     data_source = tables.Column(
-        verbose_name=_('Data source'),
+        verbose_name=_('Data Source'),
         linkify=True
     )
     data_file = tables.Column(
-        verbose_name=_('Data file'),
+        verbose_name=_('Data File'),
         linkify=True
     )
     is_synced = columns.BooleanColumn(
@@ -191,7 +191,7 @@ class ImageAttachmentTable(NetBoxTable):
         linkify=False
     )
     content_type = columns.ContentTypeColumn(
-        verbose_name=_('Content type'),
+        verbose_name=_('Content Type'),
     )
     parent = tables.Column(
         verbose_name=_('Parent'),
@@ -203,7 +203,7 @@ class ImageAttachmentTable(NetBoxTable):
     )
     size = tables.Column(
         orderable=False,
-        verbose_name=_('Size (bytes)')
+        verbose_name=_('Size (Bytes)')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -221,7 +221,7 @@ class SavedFilterTable(NetBoxTable):
         linkify=True
     )
     content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content types'),
+        verbose_name=_('Content Types'),
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
@@ -246,7 +246,7 @@ class SavedFilterTable(NetBoxTable):
 
 class BookmarkTable(NetBoxTable):
     object_type = columns.ContentTypeColumn(
-        verbose_name=_('Object types'),
+        verbose_name=_('Object Types'),
     )
     object = tables.Column(
         verbose_name=_('Object'),
@@ -268,7 +268,7 @@ class WebhookTable(NetBoxTable):
         linkify=True
     )
     content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content types'),
+        verbose_name=_('Content Types'),
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
@@ -283,10 +283,10 @@ class WebhookTable(NetBoxTable):
         verbose_name=_('Delete')
     )
     type_job_start = columns.BooleanColumn(
-        verbose_name=_('Job start')
+        verbose_name=_('Job Start')
     )
     type_job_end = columns.BooleanColumn(
-        verbose_name=_('Job end')
+        verbose_name=_('Job End')
     )
     ssl_validation = columns.BooleanColumn(
         verbose_name=_('SSL Validation')
@@ -314,7 +314,7 @@ class TagTable(NetBoxTable):
         verbose_name=_('Color'),
     )
     object_types = columns.ContentTypesColumn(
-        verbose_name=_('Object types'),
+        verbose_name=_('Object Types'),
     )
 
     class Meta(NetBoxTable.Meta):
@@ -351,11 +351,11 @@ class TaggedItemTable(NetBoxTable):
 
 class ConfigContextTable(NetBoxTable):
     data_source = tables.Column(
-        verbose_name=_('Data source'),
+        verbose_name=_('Data Source'),
         linkify=True
     )
     data_file = tables.Column(
-        verbose_name=_('Data file'),
+        verbose_name=_('Data File'),
         linkify=True
     )
     name = tables.Column(
@@ -386,11 +386,11 @@ class ConfigTemplateTable(NetBoxTable):
         linkify=True
     )
     data_source = tables.Column(
-        verbose_name=_('Data source'),
+        verbose_name=_('Data Source'),
         linkify=True
     )
     data_file = tables.Column(
-        verbose_name=_('Data file'),
+        verbose_name=_('Data File'),
         linkify=True
     )
     is_synced = columns.BooleanColumn(

@@ -105,7 +105,7 @@ class RackTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         order_by=('_abs_weight', 'weight_unit')
     )
     max_weight = columns.TemplateColumn(
-        verbose_name=_('Max weight'),
+        verbose_name=_('Max Weight'),
         template_code=WEIGHT,
         order_by=('_abs_max_weight', 'weight_unit')
     )

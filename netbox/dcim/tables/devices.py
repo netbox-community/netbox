@@ -122,7 +122,7 @@ class PlatformTable(NetBoxTable):
         linkify=True
     )
     config_template = tables.Column(
-        verbose_name=_('Config template'),
+        verbose_name=_('Config Template'),
         linkify=True
     )
     device_count = columns.LinkedCountColumn(
@@ -224,7 +224,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         linkify=True
     )
     virtual_chassis = tables.Column(
-        verbose_name=_('Virtual chassis'),
+        verbose_name=_('Virtual Chassis'),
         linkify=True
     )
     vc_position = tables.Column(
@@ -234,7 +234,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('VC Priority')
     )
     config_template = tables.Column(
-        verbose_name=_('Config template'),
+        verbose_name=_('Config Template'),
         linkify=True
     )
     parent_device = tables.Column(
@@ -348,7 +348,7 @@ class DeviceComponentTable(NetBoxTable):
 
 class ModularDeviceComponentTable(DeviceComponentTable):
     module_bay = tables.Column(
-        verbose_name=_('Module bay'),
+        verbose_name=_('Module Bay'),
         accessor=Accessor('module__module_bay'),
         linkify={
             'viewname': 'dcim:device_modulebays',
@@ -378,7 +378,7 @@ class CableTerminationTable(NetBoxTable):
         verbose_name=_('Link Peers')
     )
     mark_connected = columns.BooleanColumn(
-        verbose_name=_('Mark connected'),
+        verbose_name=_('Mark Connected'),
     )
 
 
@@ -537,7 +537,7 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
         }
     )
     power_port = tables.Column(
-        verbose_name=_('Power port'),
+        verbose_name=_('Power Port'),
         linkify=True
     )
     tags = columns.TagColumn(
@@ -623,7 +623,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         }
     )
     mgmt_only = columns.BooleanColumn(
-        verbose_name=_('Mgmt only'),
+        verbose_name=_('Management Only'),
     )
     wireless_link = tables.Column(
         verbose_name=_('Wireless link'),
@@ -719,7 +719,7 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
         verbose_name=_('Position')
     )
     rear_port = tables.Column(
-        verbose_name=_('Rear port'),
+        verbose_name=_('Rear Port'),
         linkify=True
     )
     tags = columns.TagColumn(
@@ -884,21 +884,21 @@ class ModuleBayTable(DeviceComponentTable):
     )
     installed_module = tables.Column(
         linkify=True,
-        verbose_name=_('Installed module')
+        verbose_name=_('Installed Module')
     )
     module_serial = tables.Column(
-        verbose_name=_('Module serial'),
+        verbose_name=_('Module Serial'),
         accessor=tables.A('installed_module__serial')
     )
     module_asset_tag = tables.Column(
-        verbose_name=_('Module asset tag'),
+        verbose_name=_('Module Asset Tag'),
         accessor=tables.A('installed_module__asset_tag')
     )
     tags = columns.TagColumn(
         url_name='dcim:modulebay_list'
     )
     module_status = columns.TemplateColumn(
-        verbose_name=_('Module status'),
+        verbose_name=_('Module Status'),
         template_code=MODULEBAY_STATUS
     )
 

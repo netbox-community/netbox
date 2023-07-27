@@ -63,7 +63,7 @@ class PowerFeedTable(CableTerminationTable):
         linkify=True
     )
     power_panel = tables.Column(
-        verbose_name=_('Power panel'),
+        verbose_name=_('Power Panel'),
         linkify=True
     )
     rack = tables.Column(
@@ -77,11 +77,11 @@ class PowerFeedTable(CableTerminationTable):
         verbose_name=_('Type'),
     )
     max_utilization = tables.TemplateColumn(
-        verbose_name=_('Max utilization'),
+        verbose_name=_('Max Utilization'),
         template_code="{{ value }}%"
     )
     available_power = tables.Column(
-        verbose_name=_('Available power (VA)')
+        verbose_name=_('Available Power (VA)')
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),

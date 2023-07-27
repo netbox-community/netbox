@@ -94,13 +94,13 @@ class UserTable(NetBoxTable):
         linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
     )
     is_active = columns.BooleanColumn(
-        verbose_name=_('Is active'),
+        verbose_name=_('Is Active'),
     )
     is_staff = columns.BooleanColumn(
-        verbose_name=_('Is staff'),
+        verbose_name=_('Is Staff'),
     )
     is_superuser = columns.BooleanColumn(
-        verbose_name=_('Is superuser'),
+        verbose_name=_('Is Superuser'),
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -138,25 +138,25 @@ class ObjectPermissionTable(NetBoxTable):
         linkify=True
     )
     object_types = columns.ContentTypesColumn(
-        verbose_name=_('Object types'),
+        verbose_name=_('Object Types'),
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
     )
     can_view = columns.BooleanColumn(
-        verbose_name=_('Can view'),
+        verbose_name=_('Can View'),
     )
     can_add = columns.BooleanColumn(
-        verbose_name=_('Can add'),
+        verbose_name=_('Can Add'),
     )
     can_change = columns.BooleanColumn(
-        verbose_name=_('Can change'),
+        verbose_name=_('Can Change'),
     )
     can_delete = columns.BooleanColumn(
-        verbose_name=_('Can delete'),
+        verbose_name=_('Can Delete'),
     )
     custom_actions = columns.ArrayColumn(
-        verbose_name=_('Custom actions'),
+        verbose_name=_('Custom Actions'),
         accessor=tables.A('actions')
     )
     users = columns.ManyToManyColumn(

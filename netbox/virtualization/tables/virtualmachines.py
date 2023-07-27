@@ -103,7 +103,7 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
 
 class VMInterfaceTable(BaseInterfaceTable):
     virtual_machine = tables.Column(
-        verbose_name=_('Virtual machine'),
+        verbose_name=_('Virtual Machine'),
         linkify=True
     )
     name = tables.Column(

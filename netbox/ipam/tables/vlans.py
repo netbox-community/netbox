@@ -65,7 +65,7 @@ class VLANGroupTable(NetBoxTable):
         linkify=True
     )
     scope_type = columns.ContentTypeColumn(
-        verbose_name=_('Scope type'),
+        verbose_name=_('Scope Type'),
     )
     scope = tables.Column(
         verbose_name=_('Scope'),
@@ -188,7 +188,7 @@ class VLANDevicesTable(VLANMembersTable):
 
 class VLANVirtualMachinesTable(VLANMembersTable):
     virtual_machine = tables.Column(
-        verbose_name=_('Virtual machine'),
+        verbose_name=_('Virtual Machine'),
         linkify=True
     )
     actions = columns.ActionsColumn(

@@ -421,7 +421,7 @@ class IPAddressAssignTable(NetBoxTable):
         verbose_name=_('Status'),
     )
     assigned_object = tables.Column(
-        verbose_name=_('Assigned object'),
+        verbose_name=_('Assigned Object'),
         orderable=False
     )
 

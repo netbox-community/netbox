@@ -33,12 +33,12 @@ class VRFTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Unique')
     )
     import_targets = columns.TemplateColumn(
-        verbose_name=_('Import targets'),
+        verbose_name=_('Import Targets'),
         template_code=VRF_TARGETS,
         orderable=False
     )
     export_targets = columns.TemplateColumn(
-        verbose_name=_('Export targets'),
+        verbose_name=_('Export Targets'),
         template_code=VRF_TARGETS,
         orderable=False
     )

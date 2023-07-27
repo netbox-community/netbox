@@ -19,21 +19,21 @@ class WirelessLinkTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Status'),
     )
     device_a = tables.Column(
-        verbose_name=_('Device a'),
+        verbose_name=_('Device A'),
         accessor=tables.A('interface_a__device'),
         linkify=True
     )
     interface_a = tables.Column(
-        verbose_name=_('Interface a'),
+        verbose_name=_('Interface A'),
         linkify=True
     )
     device_b = tables.Column(
-        verbose_name=_('Device b'),
+        verbose_name=_('Device B'),
         accessor=tables.A('interface_b__device'),
         linkify=True
     )
     interface_b = tables.Column(
-        verbose_name=_('Interface b'),
+        verbose_name=_('Interface B'),
         linkify=True
     )
     tags = columns.TagColumn(

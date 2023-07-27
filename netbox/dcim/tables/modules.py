@@ -53,7 +53,7 @@ class ModuleTable(NetBoxTable):
         linkify=True
     )
     module_bay = tables.Column(
-        verbose_name=_('Module bay'),
+        verbose_name=_('Module Bay'),
         linkify=True
     )
     manufacturer = tables.Column(
@@ -62,7 +62,7 @@ class ModuleTable(NetBoxTable):
         linkify=True
     )
     module_type = tables.Column(
-        verbose_name=_('Module type'),
+        verbose_name=_('Module Type'),
         linkify=True
     )
     status = columns.ChoiceFieldColumn(
