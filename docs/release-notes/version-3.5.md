@@ -2,6 +2,18 @@
 
 ## v3.5.7 (FUTURE)
 
+### Enhancements
+
+* [#12625](https://github.com/netbox-community/netbox/issues/12625) - Mask sensitive parameters when viewing a configured data source
+* [#13097](https://github.com/netbox-community/netbox/issues/13097) - Implement a faster initial poll for report & script results
+
+### Bug Fixes
+
+* [#13051](https://github.com/netbox-community/netbox/issues/13051) - Fix Markdown support for table cell alignment
+* [#13167](https://github.com/netbox-community/netbox/issues/13167) - Fix missing script results when fetched via REST API
+* [#13233](https://github.com/netbox-community/netbox/issues/13233) - Remove extraneous VLAN group field from bulk edit form for interfaces
+* [#13237](https://github.com/netbox-community/netbox/issues/13237) - Permit unauthenticated access to content types REST API endpoint when `LOGIN_REQUIRED` is false
+
 ---
 
 ## v3.5.6 (2023-07-10)
