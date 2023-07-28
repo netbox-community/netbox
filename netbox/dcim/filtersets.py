@@ -1440,7 +1440,7 @@ class InterfaceFilterSet(
         label=_('Device'),
     )
     device_id = MultiValueNumberFilter(
-        method='filter_device_id',
+        method='filter_device',
         field_name='pk',
         label=_('Device (ID)'),
     )
@@ -1511,22 +1511,16 @@ class InterfaceFilterSet(
         ]
 
     def filter_device(self, queryset, name, value):
-        try:
-            devices = Device.objects.filter(**{'{}__in'.format(name): value})
-            vc_interface_ids = []
-            for device in devices:
-                vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-            return queryset.filter(pk__in=vc_interface_ids)
-        except Device.DoesNotExist:
-            return queryset.none()
-
-    def filter_device_id(self, queryset, name, id_list):
         # Include interfaces belonging to peer virtual chassis members
         vc_interface_ids = []
         try:
-            devices = Device.objects.filter(pk__in=id_list)
+            devices = Device.objects.filter(**{'{}__in'.format(name): value})
             for device in devices:
-                vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
+                # Hack to show all VC member interfaces when requested
+                if 'vc_interfaces' in self.request.GET.keys():
+                    vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
+                else:
+                    vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
