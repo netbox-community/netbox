@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from utilities.choices import ChoiceSet
 
 
@@ -12,8 +13,8 @@ class ContactPriorityChoices(ChoiceSet):
     PRIORITY_INACTIVE = 'inactive'
 
     CHOICES = (
-        (PRIORITY_PRIMARY, 'Primary'),
-        (PRIORITY_SECONDARY, 'Secondary'),
-        (PRIORITY_TERTIARY, 'Tertiary'),
-        (PRIORITY_INACTIVE, 'Inactive'),
+        (PRIORITY_PRIMARY, _('Primary')),
+        (PRIORITY_SECONDARY, _('Secondary')),
+        (PRIORITY_TERTIARY, _('Tertiary')),
+        (PRIORITY_INACTIVE, _('Inactive')),
     )

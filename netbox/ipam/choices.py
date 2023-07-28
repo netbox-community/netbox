@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from utilities.choices import ChoiceSet
 
 
@@ -7,8 +8,8 @@ class IPAddressFamilyChoices(ChoiceSet):
     FAMILY_6 = 6
 
     CHOICES = (
-        (FAMILY_4, 'IPv4'),
-        (FAMILY_6, 'IPv6'),
+        (FAMILY_4, _('IPv4')),
+        (FAMILY_6, _('IPv6')),
     )
 
 
@@ -25,10 +26,10 @@ class PrefixStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_CONTAINER, 'Container', 'gray'),
-        (STATUS_ACTIVE, 'Active', 'blue'),
-        (STATUS_RESERVED, 'Reserved', 'cyan'),
-        (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_CONTAINER, _('Container'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'blue'),
+        (STATUS_RESERVED, _('Reserved'), 'cyan'),
+        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
     ]
 
 
@@ -44,9 +45,9 @@ class IPRangeStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'blue'),
-        (STATUS_RESERVED, 'Reserved', 'cyan'),
-        (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_ACTIVE, _('Active'), 'blue'),
+        (STATUS_RESERVED, _('Reserved'), 'cyan'),
+        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
     ]
 
 
@@ -64,11 +65,11 @@ class IPAddressStatusChoices(ChoiceSet):
     STATUS_SLAAC = 'slaac'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'blue'),
-        (STATUS_RESERVED, 'Reserved', 'cyan'),
-        (STATUS_DEPRECATED, 'Deprecated', 'red'),
-        (STATUS_DHCP, 'DHCP', 'green'),
-        (STATUS_SLAAC, 'SLAAC', 'purple'),
+        (STATUS_ACTIVE, _('Active'), 'blue'),
+        (STATUS_RESERVED, _('Reserved'), 'cyan'),
+        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
+        (STATUS_DHCP, _('DHCP'), 'green'),
+        (STATUS_SLAAC, _('SLAAC'), 'purple'),
     ]
 
 
@@ -84,14 +85,14 @@ class IPAddressRoleChoices(ChoiceSet):
     ROLE_CARP = 'carp'
 
     CHOICES = (
-        (ROLE_LOOPBACK, 'Loopback', 'gray'),
-        (ROLE_SECONDARY, 'Secondary', 'blue'),
-        (ROLE_ANYCAST, 'Anycast', 'yellow'),
-        (ROLE_VIP, 'VIP', 'purple'),
-        (ROLE_VRRP, 'VRRP', 'green'),
-        (ROLE_HSRP, 'HSRP', 'green'),
-        (ROLE_GLBP, 'GLBP', 'green'),
-        (ROLE_CARP, 'CARP', 'green'),
+        (ROLE_LOOPBACK, _('Loopback'), 'gray'),
+        (ROLE_SECONDARY, _('Secondary'), 'blue'),
+        (ROLE_ANYCAST, _('Anycast'), 'yellow'),
+        (ROLE_VIP, _('VIP'), 'purple'),
+        (ROLE_VRRP, _('VRRP'), 'green'),
+        (ROLE_HSRP, _('HSRP'), 'green'),
+        (ROLE_GLBP, _('GLBP'), 'green'),
+        (ROLE_CARP, _('CARP'), 'green'),
     )
 
 
@@ -110,19 +111,19 @@ class FHRPGroupProtocolChoices(ChoiceSet):
     PROTOCOL_OTHER = 'other'
 
     CHOICES = (
-        ('Standard', (
-            (PROTOCOL_VRRP2, 'VRRPv2'),
-            (PROTOCOL_VRRP3, 'VRRPv3'),
-            (PROTOCOL_CARP, 'CARP'),
+        (_('Standard'), (
+            (PROTOCOL_VRRP2, _('VRRPv2')),
+            (PROTOCOL_VRRP3, _('VRRPv3')),
+            (PROTOCOL_CARP, _('CARP')),
         )),
-        ('CheckPoint', (
-            (PROTOCOL_CLUSTERXL, 'ClusterXL'),
+        (_('CheckPoint'), (
+            (PROTOCOL_CLUSTERXL, _('ClusterXL')),
         )),
-        ('Cisco', (
-            (PROTOCOL_HSRP, 'HSRP'),
-            (PROTOCOL_GLBP, 'GLBP'),
+        (_('Cisco'), (
+            (PROTOCOL_HSRP, _('HSRP')),
+            (PROTOCOL_GLBP, _('GLBP')),
         )),
-        (PROTOCOL_OTHER, 'Other'),
+        (PROTOCOL_OTHER, _('Other')),
     )
 
 
@@ -132,8 +133,8 @@ class FHRPGroupAuthTypeChoices(ChoiceSet):
     AUTHENTICATION_MD5 = 'md5'
 
     CHOICES = (
-        (AUTHENTICATION_PLAINTEXT, 'Plaintext'),
-        (AUTHENTICATION_MD5, 'MD5'),
+        (AUTHENTICATION_PLAINTEXT, _('Plaintext')),
+        (AUTHENTICATION_MD5, _('MD5')),
     )
 
 
@@ -149,9 +150,9 @@ class VLANStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'blue'),
-        (STATUS_RESERVED, 'Reserved', 'cyan'),
-        (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_ACTIVE, _('Active'), 'blue'),
+        (STATUS_RESERVED, _('Reserved'), 'cyan'),
+        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
     ]
 
 
@@ -166,9 +167,9 @@ class ServiceProtocolChoices(ChoiceSet):
     PROTOCOL_SCTP = 'sctp'
 
     CHOICES = (
-        (PROTOCOL_TCP, 'TCP'),
-        (PROTOCOL_UDP, 'UDP'),
-        (PROTOCOL_SCTP, 'SCTP'),
+        (PROTOCOL_TCP, _('TCP')),
+        (PROTOCOL_UDP, _('UDP')),
+        (PROTOCOL_SCTP, _('SCTP')),
     )
 
 
@@ -187,29 +188,29 @@ class L2VPNTypeChoices(ChoiceSet):
     TYPE_PBB_EVPN = 'pbb-evpn'
 
     CHOICES = (
-        ('VPLS', (
-            (TYPE_VPWS, 'VPWS'),
-            (TYPE_VPLS, 'VPLS'),
+        (_('VPLS'), (
+            (TYPE_VPWS, _('VPWS')),
+            (TYPE_VPLS, _('VPLS')),
         )),
-        ('VXLAN', (
-            (TYPE_VXLAN, 'VXLAN'),
-            (TYPE_VXLAN_EVPN, 'VXLAN-EVPN'),
+        (_('VXLAN'), (
+            (TYPE_VXLAN, _('VXLAN')),
+            (TYPE_VXLAN_EVPN, _('VXLAN-EVPN')),
         )),
-        ('L2VPN E-VPN', (
-            (TYPE_MPLS_EVPN, 'MPLS EVPN'),
-            (TYPE_PBB_EVPN, 'PBB EVPN'),
+        (_('L2VPN E-VPN'), (
+            (TYPE_MPLS_EVPN, _('MPLS EVPN')),
+            (TYPE_PBB_EVPN, _('PBB EVPN')),
         )),
-        ('E-Line', (
-            (TYPE_EPL, 'EPL'),
-            (TYPE_EVPL, 'EVPL'),
+        (_('E-Line'), (
+            (TYPE_EPL, _('EPL')),
+            (TYPE_EVPL, _('EVPL')),
         )),
-        ('E-LAN', (
-            (TYPE_EPLAN, 'Ethernet Private LAN'),
-            (TYPE_EVPLAN, 'Ethernet Virtual Private LAN'),
+        (_('E-LAN'), (
+            (TYPE_EPLAN, _('Ethernet Private LAN')),
+            (TYPE_EVPLAN, _('Ethernet Virtual Private LAN')),
         )),
-        ('E-Tree', (
-            (TYPE_EPTREE, 'Ethernet Private Tree'),
-            (TYPE_EVPTREE, 'Ethernet Virtual Private Tree'),
+        (_('E-Tree'), (
+            (TYPE_EPTREE, _('Ethernet Private Tree')),
+            (TYPE_EVPTREE, _('Ethernet Virtual Private Tree')),
         )),
     )
 

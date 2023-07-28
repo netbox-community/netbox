@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from utilities.choices import ChoiceSet
 
 
@@ -15,11 +16,11 @@ class ClusterStatusChoices(ChoiceSet):
     STATUS_OFFLINE = 'offline'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_STAGING, 'Staging', 'blue'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
-        (STATUS_OFFLINE, 'Offline', 'red'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGING, _('Staging'), 'blue'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
+        (STATUS_OFFLINE, _('Offline'), 'red'),
     ]
 
 
@@ -38,10 +39,10 @@ class VirtualMachineStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline', 'gray'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_STAGED, 'Staged', 'blue'),
-        (STATUS_FAILED, 'Failed', 'red'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGED, _('Staged'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
