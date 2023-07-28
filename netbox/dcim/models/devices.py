@@ -275,7 +275,7 @@ class DeviceType(PrimaryModel, WeightMixin):
         super().clean()
 
         # U height must be divisible by 0.5
-        if self.u_height % decimal.Decimal(0.5):
+        if decimal.Decimal(self.u_height) % decimal.Decimal(0.5):
             raise ValidationError({
                 'u_height': "U height must be in increments of 0.5 rack units."
             })

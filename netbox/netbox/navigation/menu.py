@@ -47,7 +47,7 @@ ORGANIZATION_MENU = Menu(
                 get_model_item('tenancy', 'contact', _('Contacts')),
                 get_model_item('tenancy', 'contactgroup', _('Contact Groups')),
                 get_model_item('tenancy', 'contactrole', _('Contact Roles')),
-                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=[]),
+                get_model_item('tenancy', 'contactassignment', _('Contact Assignments'), actions=['import']),
             ),
         ),
     ),
