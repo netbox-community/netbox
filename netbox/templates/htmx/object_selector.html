@@ -1,7 +1,8 @@
 {% load form_helpers %}
+{% load i18n %}
 
 <div class="modal-header">
-  <h5 class="modal-title">Select {{ model|meta:"verbose_name"|bettertitle }}</h5>
+  <h5 class="modal-title">{% blocktrans %}Select {{ model|meta:"verbose_name"|bettertitle }}{% endblocktrans %}</h5>
   <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <div class="modal-body row">
@@ -24,7 +25,7 @@
         {% endfor %}
       </div>
       <div class="text-end">
-        <button type="submit" class="btn btn-sm btn-primary">Search</button>
+        <button type="submit" class="btn btn-sm btn-primary">{% trans "Search" %}</button>
       </div>
     </form>
     <div id="selector_results" class="mt-3" data-selector-target="{{ target_id }}"></div>

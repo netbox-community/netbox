@@ -1,8 +1,9 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
-{% block title %}VLAN {{ object }}{% endblock %}
+{% block title %}{% trans "VLAN" %} {{ object }}{% endblock %}
 
 {% block breadcrumbs %}
   {{ block.super }}

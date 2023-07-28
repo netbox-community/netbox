@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load form_helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% comment %}
 Context:
@@ -11,18 +12,18 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}Editing {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
+{% block title %}{% blocktrans %}Editing {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}{% endblocktrans %}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="edit-form-tab" data-bs-toggle="tab" data-bs-target="#edit-form" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        Bulk Edit
+        {% trans "Bulk Edit" %}
       </button>
     </li>
     <li class="nav-item" role="presentation">
       <button class="nav-link" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="object-list" aria-selected="false">
-        Selected Objects
+        {% trans "Selected Objects" %}
         {% badge table.rows|length %}
       </button>
     </li>
@@ -75,7 +76,7 @@ Context:
                     {% if form.add_tags and form.remove_tags %}
                       <div class="field-group mb-5">
                         <div class="row mb-2">
-                          <h5 class="offset-sm-3">Tags</h5>
+                          <h5 class="offset-sm-3">{% trans "Tags" %}</h5>
                         </div>
                         {% render_field form.add_tags %}
                         {% render_field form.remove_tags %}
@@ -86,7 +87,7 @@ Context:
                     {% if form.custom_fields %}
                       <div class="field-group mb-5">
                         <div class="row mb-2">
-                          <h5 class="offset-sm-3">Custom Fields</h5>
+                          <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
                         </div>
                         {% render_custom_fields form %}
                       </div>
@@ -96,7 +97,7 @@ Context:
                     {% if form.comments %}
                       <div class="field-group mb-5">
                         <div class="row mb-2">
-                          <h5 class="offset-sm-3">Comments</h5>
+                          <h5 class="offset-sm-3">{% trans "Comments" %}</h5>
                         </div>
                         {% render_field form.comments bulk_nullable=True %}
                       </div>
@@ -118,8 +119,8 @@ Context:
               </div>
 
               <div class="text-end">
-                <button type="submit" name="_apply" class="btn btn-sm btn-primary">Apply</button>
-                <a href="{{ return_url }}" class="btn btn-sm btn-outline-danger">Cancel</a>
+                <button type="submit" name="_apply" class="btn btn-sm btn-primary">{% trans "Apply" %}</button>
+                <a href="{{ return_url }}" class="btn btn-sm btn-outline-danger">{% trans "Cancel" %}</a>
               </div>
             </div>
           </div>

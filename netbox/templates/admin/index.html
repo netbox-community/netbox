@@ -1,4 +1,5 @@
 {% extends "admin/index.html" %}
+{% load i18n %}
 
 {% block content_title %}{% endblock %}
 
@@ -6,16 +7,16 @@
     {{ block.super }}
     <div class="module">
         <table style="width: 100%">
-            <caption>System</caption>
+            <caption>{% trans "System" %}</caption>
             <tbody>
                 <tr>
                     <th>
-                        <a href="{% url 'rq_home' %}">Background Tasks</a>
+                        <a href="{% url 'rq_home' %}">{% trans "Background Tasks" %}</a>
                     </th>
                 </tr>
                 <tr>
                     <th>
-                        <a href="{% url 'plugins_list' %}">Installed plugins</a>
+                        <a href="{% url 'plugins_list' %}">{% trans "Installed plugins" %}</a>
                     </th>
                 </tr>
             </tbody>

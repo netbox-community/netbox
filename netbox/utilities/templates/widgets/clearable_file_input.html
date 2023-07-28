@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="row">
   <div class="col-6">
     {% if widget.is_initial %}
@@ -8,7 +9,7 @@
         <label for="{{ widget.checkbox_id }}">{{ widget.clear_checkbox_label }}</label>
       {% endif %}
     {% else %}
-      <span class="text-muted">None assigned</span>
+      <span class="text-muted">{% trans "None assigned" %}</span>
     {% endif %}
   </div>
   <div class="col-6">

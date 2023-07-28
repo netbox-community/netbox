@@ -3,6 +3,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% if perms.core.sync_datasource %}
@@ -10,13 +11,13 @@
       <form action="{% url 'core:datasource_sync' pk=object.pk %}" method="post">
         {% csrf_token %}
         <button type="submit" class="btn btn-sm btn-primary">
-          <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+          <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync" %}
         </button>
       </form>
     {% else %}
       <span class="inline-block" tabindex="0" data-bs-toggle="tooltip" data-bs-delay="100" data-bs-placement="bottom">
         <button class="btn btn-sm btn-primary" disabled>
-          <i class="mdi mdi-sync" aria-hidden="true"></i> Sync
+          <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync" %}
         </button>
       </span>
     {% endif %}
@@ -27,35 +28,35 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Data Source</h5>
+        <h5 class="card-header">{% trans "Data Source" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Name</th>
+              <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">Type</th>
+              <th scope="row">{% trans "Type" %}</th>
               <td>{{ object.get_type_display }}</td>
             </tr>
             <tr>
-              <th scope="row">Enabled</th>
+              <th scope="row">{% trans "Enabled" %}</th>
               <td>{% checkmark object.enabled %}</td>
             </tr>
             <tr>
-              <th scope="row">Status</th>
+              <th scope="row">{% trans "Status" %}</th>
               <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
             </tr>
             <tr>
-              <th scope="row">Last synced</th>
+              <th scope="row">{% trans "Last synced" %}</th>
               <td>{{ object.last_synced|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Description</th>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">URL</th>
+              <th scope="row">{% trans "URL" %}</th>
               <td>
                 {% if not object.is_local %}
                   <a href="{{ object.source_url }}">{{ object.source_url }}</a>
@@ -65,7 +66,7 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Ignore rules</th>
+              <th scope="row">{% trans "Ignore rules" %}</th>
               <td>
                 {% if object.ignore_rules %}
                   <pre>{{ object.ignore_rules }}</pre>
@@ -82,7 +83,7 @@
     </div>
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Backend</h5>
+        <h5 class="card-header">{% trans "Backend" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             {% for name, field in object.get_backend.parameters.items %}
@@ -97,7 +98,7 @@
             {% empty %}
               <tr>
                 <td colspan="2" class="text-muted">
-                  No parameters defined
+                  {% trans "No parameters defined" %}
                 </td>
               </tr>
             {% endfor %}
@@ -112,7 +113,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Files</h5>
+        <h5 class="card-header">{% trans "Files" %}</h5>
         <div class="card-body htmx-container table-responsive"
           hx-get="{% url 'core:datafile_list' %}?source_id={{ object.pk }}"
           hx-trigger="load"

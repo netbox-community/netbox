@@ -3,12 +3,13 @@
 {% load buttons %}
 {% load perms %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Restore: {{ object }}{% endblock %}
+{% block title %}{% trans "Restore" %}: {{ object }}{% endblock %}
 
 {% block subtitle %}
   <div class="object-subtitle">
-    <span>Created {{ object.created|annotated_date }}</span>
+    <span>{% blocktrans %}Created {{ object.created|annotated_date }}{% endblocktrans %}</span>
   </div>
 {% endblock %}
 
@@ -17,7 +18,7 @@
     <div class="col col-md-12">
       <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'extras:configrevision_list' %}">Config revisions</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'extras:configrevision_list' %}">{% trans "Config revisions" %}</a></li>
           <li class="breadcrumb-item"><a href="{% url 'extras:configrevision' pk=object.pk %}">{{ object }}</a></li>
         </ol>
       </nav>
@@ -39,7 +40,7 @@
 {% block tabs %}
   <ul class="nav nav-tabs px-3" role="tablist">
     <li class="nav-item" role="presentation">
-      <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">Restore</a>
+      <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Restore" %}</a>
     </li>
   </ul>
 {% endblock %}
@@ -50,9 +51,9 @@
       <table class="table table-striped table-hover">
         <thead>
           <tr>
-            <th scope="col">Parameter</th>
-            <th scope="col">Current Value</th>
-            <th scope="col">New Value</th>
+            <th scope="col">{% trans "Parameter" %}</th>
+            <th scope="col">{% trans "Current Value" %}</th>
+            <th scope="col">{% trans "New Value" %}</th>
             <th scope="col"></th>
           </tr>
         </thead>
@@ -62,7 +63,7 @@
               <td>{{ param }}</td>
               <td>{{ current }}</td>
               <td>{{ new }}</td>
-              <td>{% if current != new %}<img src="{% static 'admin/img/icon-changelink.svg' %}" alt="*" title="Changed">{% endif %}</td>
+              <td>{% if current != new %}<img src="{% static 'admin/img/icon-changelink.svg' %}" alt="*" title="{% trans "Changed" %}">{% endif %}</td>
             </tr>
           {% endfor %}
         </tbody>
@@ -75,8 +76,8 @@
     <div class="submit-row" style="margin-top: 20px">
       <div class="controls">
         <div class="control-group">
-          <button type="submit" name="restore" class="btn btn-primary">Restore</button>
-          <a href="{% url 'extras:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-danger">Cancel</a>
+          <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
+          <a href="{% url 'extras:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
         </div>
       </div>
     </div>

@@ -1,11 +1,12 @@
 {% extends 'ipam/aggregate/base.html' %}
 {% load helpers %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% include 'ipam/inc/toggle_available.html' %}
   {% if perms.ipam.add_prefix and first_available_prefix %}
     <a href="{% url 'ipam:prefix_add' %}?prefix={{ first_available_prefix }}" class="btn btn-sm btn-primary">
-      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Prefix
+      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Prefix" %}
     </a>
   {% endif %}
   {{ block.super }}
@@ -27,12 +28,12 @@
       <div class="bulk-button-group">
         {% if 'bulk_edit' in actions %}
           <button type="submit" name="_edit" formaction="{% url 'ipam:prefix_bulk_edit' %}?return_url={% url 'ipam:aggregate_prefixes' pk=object.pk %}" class="btn btn-warning btn-sm">
-            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
           </button>
         {% endif %}
         {% if 'bulk_delete' in actions %}
           <button type="submit" name="_delete" formaction="{% url 'ipam:prefix_bulk_delete' %}?return_url={% url 'ipam:aggregate_prefixes' pk=object.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
           </button>
         {% endif %}
       </div>

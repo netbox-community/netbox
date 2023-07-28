@@ -1,14 +1,15 @@
 {% extends 'users/account/base.html' %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
-{% block title %}My API Tokens{% endblock %}
+{% block title %}{% trans "My API Tokens" %}{% endblock %}
 
 {% block content %}
 <div class="row">
 	<div class="col col-md-12 text-end">
     <a href="{% url 'account:usertoken_add' %}" class="btn btn-sm btn-primary my-3">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add a Token
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a Token" %}
     </a>
   </div>
 </div>

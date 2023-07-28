@@ -1,18 +1,19 @@
 {% load helpers %}
+{% load i18n %}
 {% if terminations.0 %}
   <table class="table table-hover panel-body attr-table">
     {% if terminations.0.device %}
       {# Device component #}
       <tr>
-        <td>Site</td>
+        <td>{% trans "Site" %}</td>
         <td>{{ terminations.0.device.site|linkify }}</td>
       </tr>
       <tr>
-        <td>Location</td>
+        <td>{% trans "Location" %}</td>
         <td>{{ terminations.0.device.location|linkify|placeholder }}</td>
       </tr>
       <tr>
-        <td>Rack</td>
+        <td>{% trans "Rack" %}</td>
         <td>{{ terminations.0.device.rack|linkify|placeholder }}</td>
       </tr>
       <tr>
@@ -29,11 +30,11 @@
     {% elif terminations.0.power_panel %}
       {# Power feed #}
       <tr>
-        <td>Site</td>
+        <td>{% trans "Site" %}</td>
         <td>{{ terminations.0.power_panel.site|linkify }}</td>
       </tr>
       <tr>
-        <td>Power Panel</td>
+        <td>{% trans "Power Panel" %}</td>
         <td>{{ terminations.0.power_panel|linkify }}</td>
       </tr>
       <tr>
@@ -47,11 +48,11 @@
     {% elif terminations.0.circuit %}
       {# Circuit termination #}
       <tr>
-        <td>Provider</td>
+        <td>{% trans "Provider" %}</td>
         <td>{{ terminations.0.circuit.provider|linkify }}</td>
       </tr>
       <tr>
-        <td>Circuit</td>
+        <td>{% trans "Circuit" %}</td>
         <td>
           {% for term in terminations %}
             {{ term.circuit|linkify }} ({{ term }}){% if not forloop.last %},{% endif %}
@@ -61,5 +62,5 @@
     {% endif %}
   </table>
 {% else %}
-  <span class="text-muted">No termination</span>
+  <span class="text-muted">{% trans "No termination" %}</span>
 {% endif %}

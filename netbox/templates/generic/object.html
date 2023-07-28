@@ -5,6 +5,7 @@
 {% load perms %}
 {% load plugins %}
 {% load tabs %}
+{% load i18n %}
 
 {% comment %}
 Blocks:
@@ -44,9 +45,9 @@ Context:
 
 {% block subtitle %}
   <div class="object-subtitle">
-    <span>Created {{ object.created|annotated_date }}</span>
+    <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
     <span class="separator">&middot;</span>
-    <span>Updated <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> ago</span>
+    <span>{% trans "Updated" %} <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> {% trans "ago" %}</span>
   </div>
 {% endblock subtitle %}
 

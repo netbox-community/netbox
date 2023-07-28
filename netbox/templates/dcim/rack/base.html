@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
+{% load i18n %}
 
-{% block title %}Rack {{ object }}{% endblock %}
+{% block title %}{% blocktrans %}Rack {{ object }}{% endblocktrans %}{% endblock %}
 
 {% block breadcrumbs %}
   {{ block.super }}

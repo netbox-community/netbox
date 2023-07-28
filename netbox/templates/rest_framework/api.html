@@ -1,12 +1,13 @@
 {% extends 'rest_framework/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block head %}
   {{ block.super }}
   <link rel="icon" type="image/png" href="{% static 'rest-api.ico' %}" />
 {% endblock head %}
 
-{% block title %}{% if name %}{{ name }} | {% endif %}NetBox REST API{% endblock %}
+{% block title %}{% if name %}{{ name }} | {% endif %}NetBox {% trans "REST API" %}{% endblock %}
 
 {% block branding %}
   <a class="navbar-brand" href="{% url 'home' %}">NetBox</a>

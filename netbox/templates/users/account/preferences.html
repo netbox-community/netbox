@@ -1,8 +1,9 @@
 {% extends 'users/account/base.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
-{% block title %}User Preferences{% endblock %}
+{% block title %}{% trans "User Preferences" %}{% endblock %}
 
 {% block content %}
   <form method="post" action="" id="preferences-update">
@@ -25,7 +26,7 @@
       {% if plugin_fields %}
         <div class="field-group my-5">
           <div class="row mb-2">
-            <h5 class="offset-sm-3">Plugins</h5>
+            <h5 class="offset-sm-3">{% trans "Plugins" %}</h5>
           </div>
           {% for name in plugin_fields %}
             {% render_field form|getfield:name %}
@@ -37,23 +38,23 @@
     {# Table configurations #}
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Table Configurations</h5>
+        <h5 class="offset-sm-3">{% trans "Table Configurations" %}</h5>
       </div>
       <div class="row">
         {% if request.user.config.data.tables %}
           <label class="col-sm-3 col-form-label text-lg-end">
-            Clear table preferences
+            {% trans "Clear table preferences" %}
           </label>
           <div class="col-sm-9">
             <table class="table table-hover object-list">
               <thead>
                 <tr>
                   <th>
-                    <input type="checkbox" class="toggle form-check-input" title="Toggle All">
+                    <input type="checkbox" class="toggle form-check-input" title="{% trans "Toggle All" %}">
                   </th>
-                  <th>Table</th>
-                  <th>Ordering</th>
-                  <th>Columns</th>
+                  <th>{% trans "Table" %}</th>
+                  <th>{% trans "Ordering" %}</th>
+                  <th>{% trans "Columns" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -72,15 +73,14 @@
           </div>
         {% else %}
           <div class="offset-sm-3">
-            <p class="text-muted">None found</p>
+            <p class="text-muted">{% trans "None found" %}</p>
           </div>
         {% endif %}
       </div>
     </div>
-
     <div class="text-end my-3">
-      <a class="btn btn-outline-secondary" href="{% url 'account:preferences' %}">Cancel</a>
-      <button type="submit" name="_update" class="btn btn-primary">Save </button>
+      <a class="btn btn-outline-secondary" href="{% url 'account:preferences' %}">{% trans "Cancel" %}</a>
+      <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
     </div>
   </form>
 {% endblock %}
