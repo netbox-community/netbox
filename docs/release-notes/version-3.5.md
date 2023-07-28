@@ -4,8 +4,11 @@
 
 ### Enhancements
 
+* [#11803](https://github.com/netbox-community/netbox/issues/11803) - Move non-rack devices list to a separate tab under the rack view
 * [#12625](https://github.com/netbox-community/netbox/issues/12625) - Mask sensitive parameters when viewing a configured data source
+* [#13009](https://github.com/netbox-community/netbox/issues/13009) - Add IEC 10609-1 and NBR 14136 power port & outlet types
 * [#13097](https://github.com/netbox-community/netbox/issues/13097) - Implement a faster initial poll for report & script results
+* [#13234](https://github.com/netbox-community/netbox/issues/13234) - Add 100GBASE-X-DSFP and 100GBASE-X-SFPDD interface types
 
 ### Bug Fixes
 
@@ -13,6 +16,7 @@
 * [#13167](https://github.com/netbox-community/netbox/issues/13167) - Fix missing script results when fetched via REST API
 * [#13233](https://github.com/netbox-community/netbox/issues/13233) - Remove extraneous VLAN group field from bulk edit form for interfaces
 * [#13237](https://github.com/netbox-community/netbox/issues/13237) - Permit unauthenticated access to content types REST API endpoint when `LOGIN_REQUIRED` is false
+* [#13285](https://github.com/netbox-community/netbox/issues/13285) - Fix exception when importing device type missing rack unit height value
 
 ---
 
