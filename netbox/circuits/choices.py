@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from utilities.choices import ChoiceSet
 
 
@@ -16,12 +17,12 @@ class CircuitStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONED = 'decommissioned'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_PROVISIONING, 'Provisioning', 'blue'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_OFFLINE, 'Offline', 'red'),
-        (STATUS_DEPROVISIONING, 'Deprovisioning', 'yellow'),
-        (STATUS_DECOMMISSIONED, 'Decommissioned', 'gray'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_PROVISIONING, _('Provisioning'), 'blue'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_OFFLINE, _('Offline'), 'red'),
+        (STATUS_DEPROVISIONING, _('Deprovisioning'), 'yellow'),
+        (STATUS_DECOMMISSIONED, _('Decommissioned'), 'gray'),
     ]
 
 
@@ -29,15 +30,15 @@ class CircuitCommitRateChoices(ChoiceSet):
     key = 'Circuit.commit_rate'
 
     CHOICES = [
-        (10000, '10 Mbps'),
-        (100000, '100 Mbps'),
-        (1000000, '1 Gbps'),
-        (10000000, '10 Gbps'),
-        (25000000, '25 Gbps'),
-        (40000000, '40 Gbps'),
-        (100000000, '100 Gbps'),
-        (1544, 'T1 (1.544 Mbps)'),
-        (2048, 'E1 (2.048 Mbps)'),
+        (10000, _('10 Mbps')),
+        (100000, _('100 Mbps')),
+        (1000000, _('1 Gbps')),
+        (10000000, _('10 Gbps')),
+        (25000000, _('25 Gbps')),
+        (40000000, _('40 Gbps')),
+        (100000000, _('100 Gbps')),
+        (1544, _('T1 (1.544 Mbps)')),
+        (2048, _('E1 (2.048 Mbps)')),
     ]
 
 
@@ -51,8 +52,8 @@ class CircuitTerminationSideChoices(ChoiceSet):
     SIDE_Z = 'Z'
 
     CHOICES = (
-        (SIDE_A, 'A'),
-        (SIDE_Z, 'Z')
+        (SIDE_A, _('A')),
+        (SIDE_Z, _('Z'))
     )
 
 
@@ -60,13 +61,13 @@ class CircuitTerminationPortSpeedChoices(ChoiceSet):
     key = 'CircuitTermination.port_speed'
 
     CHOICES = [
-        (10000, '10 Mbps'),
-        (100000, '100 Mbps'),
-        (1000000, '1 Gbps'),
-        (10000000, '10 Gbps'),
-        (25000000, '25 Gbps'),
-        (40000000, '40 Gbps'),
-        (100000000, '100 Gbps'),
-        (1544, 'T1 (1.544 Mbps)'),
-        (2048, 'E1 (2.048 Mbps)'),
+        (10000, _('10 Mbps')),
+        (100000, _('100 Mbps')),
+        (1000000, _('1 Gbps')),
+        (10000000, _('10 Gbps')),
+        (25000000, _('25 Gbps')),
+        (40000000, _('40 Gbps')),
+        (100000000, _('100 Gbps')),
+        (1544, _('T1 (1.544 Mbps)')),
+        (2048, _('E1 (2.048 Mbps)')),
     ]

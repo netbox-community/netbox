@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from utilities.choices import ChoiceSet
 
 
@@ -15,11 +16,11 @@ class SiteStatusChoices(ChoiceSet):
     STATUS_RETIRED = 'retired'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_STAGING, 'Staging', 'blue'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
-        (STATUS_RETIRED, 'Retired', 'red'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGING, _('Staging'), 'blue'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
+        (STATUS_RETIRED, _('Retired'), 'red'),
     ]
 
 
@@ -37,11 +38,11 @@ class LocationStatusChoices(ChoiceSet):
     STATUS_RETIRED = 'retired'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_STAGING, 'Staging', 'blue'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
-        (STATUS_RETIRED, 'Retired', 'red'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGING, _('Staging'), 'blue'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
+        (STATUS_RETIRED, _('Retired'), 'red'),
     ]
 
 
@@ -60,13 +61,13 @@ class RackTypeChoices(ChoiceSet):
     TYPE_WALLCABINET_VERTICAL = 'wall-cabinet-vertical'
 
     CHOICES = (
-        (TYPE_2POST, '2-post frame'),
-        (TYPE_4POST, '4-post frame'),
-        (TYPE_CABINET, '4-post cabinet'),
-        (TYPE_WALLFRAME, 'Wall-mounted frame'),
-        (TYPE_WALLFRAME_VERTICAL, 'Wall-mounted frame (vertical)'),
-        (TYPE_WALLCABINET, 'Wall-mounted cabinet'),
-        (TYPE_WALLCABINET_VERTICAL, 'Wall-mounted cabinet (vertical)'),
+        (TYPE_2POST, _('2-post frame')),
+        (TYPE_4POST, _('4-post frame')),
+        (TYPE_CABINET, _('4-post cabinet')),
+        (TYPE_WALLFRAME, _('Wall-mounted frame')),
+        (TYPE_WALLFRAME_VERTICAL, _('Wall-mounted frame (vertical)')),
+        (TYPE_WALLCABINET, _('Wall-mounted cabinet')),
+        (TYPE_WALLCABINET_VERTICAL, _('Wall-mounted cabinet (vertical)')),
     )
 
 
@@ -78,10 +79,10 @@ class RackWidthChoices(ChoiceSet):
     WIDTH_23IN = 23
 
     CHOICES = (
-        (WIDTH_10IN, '10 inches'),
-        (WIDTH_19IN, '19 inches'),
-        (WIDTH_21IN, '21 inches'),
-        (WIDTH_23IN, '23 inches'),
+        (WIDTH_10IN, _('10 inches')),
+        (WIDTH_19IN, _('19 inches')),
+        (WIDTH_21IN, _('21 inches')),
+        (WIDTH_23IN, _('23 inches')),
     )
 
 
@@ -95,11 +96,11 @@ class RackStatusChoices(ChoiceSet):
     STATUS_DEPRECATED = 'deprecated'
 
     CHOICES = [
-        (STATUS_RESERVED, 'Reserved', 'yellow'),
-        (STATUS_AVAILABLE, 'Available', 'green'),
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_ACTIVE, 'Active', 'blue'),
-        (STATUS_DEPRECATED, 'Deprecated', 'red'),
+        (STATUS_RESERVED, _('Reserved'), 'yellow'),
+        (STATUS_AVAILABLE, _('Available'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_ACTIVE, _('Active'), 'blue'),
+        (STATUS_DEPRECATED, _('Deprecated'), 'red'),
     ]
 
 
@@ -109,8 +110,8 @@ class RackDimensionUnitChoices(ChoiceSet):
     UNIT_INCH = 'in'
 
     CHOICES = (
-        (UNIT_MILLIMETER, 'Millimeters'),
-        (UNIT_INCH, 'Inches'),
+        (UNIT_MILLIMETER, _('Millimeters')),
+        (UNIT_INCH, _('Inches')),
     )
 
 
@@ -120,8 +121,8 @@ class RackElevationDetailRenderChoices(ChoiceSet):
     RENDER_SVG = 'svg'
 
     CHOICES = (
-        (RENDER_JSON, 'json'),
-        (RENDER_SVG, 'svg')
+        (RENDER_JSON, _('json')),
+        (RENDER_SVG, _('svg'))
     )
 
 
@@ -135,8 +136,8 @@ class SubdeviceRoleChoices(ChoiceSet):
     ROLE_CHILD = 'child'
 
     CHOICES = (
-        (ROLE_PARENT, 'Parent'),
-        (ROLE_CHILD, 'Child'),
+        (ROLE_PARENT, _('Parent')),
+        (ROLE_CHILD, _('Child')),
     )
 
 
@@ -150,8 +151,8 @@ class DeviceFaceChoices(ChoiceSet):
     FACE_REAR = 'rear'
 
     CHOICES = (
-        (FACE_FRONT, 'Front'),
-        (FACE_REAR, 'Rear'),
+        (FACE_FRONT, _('Front')),
+        (FACE_REAR, _('Rear')),
     )
 
 
@@ -167,13 +168,13 @@ class DeviceStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline', 'gray'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_STAGED, 'Staged', 'blue'),
-        (STATUS_FAILED, 'Failed', 'red'),
-        (STATUS_INVENTORY, 'Inventory', 'purple'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGED, _('Staged'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+        (STATUS_INVENTORY, _('Inventory'), 'purple'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
 
 
@@ -188,13 +189,13 @@ class DeviceAirflowChoices(ChoiceSet):
     AIRFLOW_MIXED = 'mixed'
 
     CHOICES = (
-        (AIRFLOW_FRONT_TO_REAR, 'Front to rear'),
-        (AIRFLOW_REAR_TO_FRONT, 'Rear to front'),
-        (AIRFLOW_LEFT_TO_RIGHT, 'Left to right'),
-        (AIRFLOW_RIGHT_TO_LEFT, 'Right to left'),
-        (AIRFLOW_SIDE_TO_REAR, 'Side to rear'),
-        (AIRFLOW_PASSIVE, 'Passive'),
-        (AIRFLOW_MIXED, 'Mixed'),
+        (AIRFLOW_FRONT_TO_REAR, _('Front to rear')),
+        (AIRFLOW_REAR_TO_FRONT, _('Rear to front')),
+        (AIRFLOW_LEFT_TO_RIGHT, _('Left to right')),
+        (AIRFLOW_RIGHT_TO_LEFT, _('Right to left')),
+        (AIRFLOW_SIDE_TO_REAR, _('Side to rear')),
+        (AIRFLOW_PASSIVE, _('Passive')),
+        (AIRFLOW_MIXED, _('Mixed')),
     )
 
 
@@ -213,12 +214,12 @@ class ModuleStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline', 'gray'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_STAGED, 'Staged', 'blue'),
-        (STATUS_FAILED, 'Failed', 'red'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_STAGED, _('Staged'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     ]
 
 
@@ -245,26 +246,26 @@ class ConsolePortTypeChoices(ChoiceSet):
     TYPE_OTHER = 'other'
 
     CHOICES = (
-        ('Serial', (
-            (TYPE_DE9, 'DE-9'),
-            (TYPE_DB25, 'DB-25'),
-            (TYPE_RJ11, 'RJ-11'),
-            (TYPE_RJ12, 'RJ-12'),
-            (TYPE_RJ45, 'RJ-45'),
-            (TYPE_MINI_DIN_8, 'Mini-DIN 8'),
+        (_('Serial'), (
+            (TYPE_DE9, _('DE-9')),
+            (TYPE_DB25, _('DB-25')),
+            (TYPE_RJ11, _('RJ-11')),
+            (TYPE_RJ12, _('RJ-12')),
+            (TYPE_RJ45, _('RJ-45')),
+            (TYPE_MINI_DIN_8, _('Mini-DIN 8')),
         )),
-        ('USB', (
-            (TYPE_USB_A, 'USB Type A'),
-            (TYPE_USB_B, 'USB Type B'),
-            (TYPE_USB_C, 'USB Type C'),
-            (TYPE_USB_MINI_A, 'USB Mini A'),
-            (TYPE_USB_MINI_B, 'USB Mini B'),
-            (TYPE_USB_MICRO_A, 'USB Micro A'),
-            (TYPE_USB_MICRO_B, 'USB Micro B'),
-            (TYPE_USB_MICRO_AB, 'USB Micro AB'),
+        (_('USB'), (
+            (TYPE_USB_A, _('USB Type A')),
+            (TYPE_USB_B, _('USB Type B')),
+            (TYPE_USB_C, _('USB Type C')),
+            (TYPE_USB_MINI_A, _('USB Mini A')),
+            (TYPE_USB_MINI_B, _('USB Mini B')),
+            (TYPE_USB_MICRO_A, _('USB Micro A')),
+            (TYPE_USB_MICRO_B, _('USB Micro B')),
+            (TYPE_USB_MICRO_AB, _('USB Micro AB')),
         )),
-        ('Other', (
-            (TYPE_OTHER, 'Other'),
+        (_('Other'), (
+            (TYPE_OTHER, _('Other')),
         )),
     )
 
@@ -281,14 +282,14 @@ class ConsolePortSpeedChoices(ChoiceSet):
     SPEED_115200 = 115200
 
     CHOICES = (
-        (SPEED_1200, '1200 bps'),
-        (SPEED_2400, '2400 bps'),
-        (SPEED_4800, '4800 bps'),
-        (SPEED_9600, '9600 bps'),
-        (SPEED_19200, '19.2 kbps'),
-        (SPEED_38400, '38.4 kbps'),
-        (SPEED_57600, '57.6 kbps'),
-        (SPEED_115200, '115.2 kbps'),
+        (SPEED_1200, _('1200 bps')),
+        (SPEED_2400, _('2400 bps')),
+        (SPEED_4800, _('4800 bps')),
+        (SPEED_9600, _('9600 bps')),
+        (SPEED_19200, _('19.2 kbps')),
+        (SPEED_38400, _('38.4 kbps')),
+        (SPEED_57600, _('57.6 kbps')),
+        (SPEED_115200, _('115.2 kbps')),
     )
 
 
@@ -411,127 +412,127 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_OTHER = 'other'
 
     CHOICES = (
-        ('IEC 60320', (
-            (TYPE_IEC_C6, 'C6'),
-            (TYPE_IEC_C8, 'C8'),
-            (TYPE_IEC_C14, 'C14'),
-            (TYPE_IEC_C16, 'C16'),
-            (TYPE_IEC_C20, 'C20'),
-            (TYPE_IEC_C22, 'C22'),
+        (_('IEC 60320'), (
+            (TYPE_IEC_C6, _('C6')),
+            (TYPE_IEC_C8, _('C8')),
+            (TYPE_IEC_C14, _('C14')),
+            (TYPE_IEC_C16, _('C16')),
+            (TYPE_IEC_C20, _('C20')),
+            (TYPE_IEC_C22, _('C22')),
         )),
-        ('IEC 60309', (
-            (TYPE_IEC_PNE4H, 'P+N+E 4H'),
-            (TYPE_IEC_PNE6H, 'P+N+E 6H'),
-            (TYPE_IEC_PNE9H, 'P+N+E 9H'),
-            (TYPE_IEC_2PE4H, '2P+E 4H'),
-            (TYPE_IEC_2PE6H, '2P+E 6H'),
-            (TYPE_IEC_2PE9H, '2P+E 9H'),
-            (TYPE_IEC_3PE4H, '3P+E 4H'),
-            (TYPE_IEC_3PE6H, '3P+E 6H'),
-            (TYPE_IEC_3PE9H, '3P+E 9H'),
-            (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
-            (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
-            (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        (_('IEC 60309'), (
+            (TYPE_IEC_PNE4H, _('P+N+E 4H')),
+            (TYPE_IEC_PNE6H, _('P+N+E 6H')),
+            (TYPE_IEC_PNE9H, _('P+N+E 9H')),
+            (TYPE_IEC_2PE4H, _('2P+E 4H')),
+            (TYPE_IEC_2PE6H, _('2P+E 6H')),
+            (TYPE_IEC_2PE9H, _('2P+E 9H')),
+            (TYPE_IEC_3PE4H, _('3P+E 4H')),
+            (TYPE_IEC_3PE6H, _('3P+E 6H')),
+            (TYPE_IEC_3PE9H, _('3P+E 9H')),
+            (TYPE_IEC_3PNE4H, _('3P+N+E 4H')),
+            (TYPE_IEC_3PNE6H, _('3P+N+E 6H')),
+            (TYPE_IEC_3PNE9H, _('3P+N+E 9H')),
         )),
         ('IEC 60906-1', (
-            (TYPE_IEC_60906_1, 'IEC 60906-1'),
-            (TYPE_NBR_14136_10A, '2P+T 10A (NBR 14136)'),
-            (TYPE_NBR_14136_20A, '2P+T 20A (NBR 14136)'),
+            (TYPE_IEC_60906_1, _('IEC 60906-1')),
+            (TYPE_NBR_14136_10A, _('2P+T 10A (NBR 14136)')),
+            (TYPE_NBR_14136_20A, _('2P+T 20A (NBR 14136)')),
         )),
-        ('NEMA (Non-locking)', (
-            (TYPE_NEMA_115P, 'NEMA 1-15P'),
-            (TYPE_NEMA_515P, 'NEMA 5-15P'),
-            (TYPE_NEMA_520P, 'NEMA 5-20P'),
-            (TYPE_NEMA_530P, 'NEMA 5-30P'),
-            (TYPE_NEMA_550P, 'NEMA 5-50P'),
-            (TYPE_NEMA_615P, 'NEMA 6-15P'),
-            (TYPE_NEMA_620P, 'NEMA 6-20P'),
-            (TYPE_NEMA_630P, 'NEMA 6-30P'),
-            (TYPE_NEMA_650P, 'NEMA 6-50P'),
-            (TYPE_NEMA_1030P, 'NEMA 10-30P'),
-            (TYPE_NEMA_1050P, 'NEMA 10-50P'),
-            (TYPE_NEMA_1420P, 'NEMA 14-20P'),
-            (TYPE_NEMA_1430P, 'NEMA 14-30P'),
-            (TYPE_NEMA_1450P, 'NEMA 14-50P'),
-            (TYPE_NEMA_1460P, 'NEMA 14-60P'),
-            (TYPE_NEMA_1515P, 'NEMA 15-15P'),
-            (TYPE_NEMA_1520P, 'NEMA 15-20P'),
-            (TYPE_NEMA_1530P, 'NEMA 15-30P'),
-            (TYPE_NEMA_1550P, 'NEMA 15-50P'),
-            (TYPE_NEMA_1560P, 'NEMA 15-60P'),
+        (_('NEMA (Non-locking)'), (
+            (TYPE_NEMA_115P, _('NEMA 1-15P')),
+            (TYPE_NEMA_515P, _('NEMA 5-15P')),
+            (TYPE_NEMA_520P, _('NEMA 5-20P')),
+            (TYPE_NEMA_530P, _('NEMA 5-30P')),
+            (TYPE_NEMA_550P, _('NEMA 5-50P')),
+            (TYPE_NEMA_615P, _('NEMA 6-15P')),
+            (TYPE_NEMA_620P, _('NEMA 6-20P')),
+            (TYPE_NEMA_630P, _('NEMA 6-30P')),
+            (TYPE_NEMA_650P, _('NEMA 6-50P')),
+            (TYPE_NEMA_1030P, _('NEMA 10-30P')),
+            (TYPE_NEMA_1050P, _('NEMA 10-50P')),
+            (TYPE_NEMA_1420P, _('NEMA 14-20P')),
+            (TYPE_NEMA_1430P, _('NEMA 14-30P')),
+            (TYPE_NEMA_1450P, _('NEMA 14-50P')),
+            (TYPE_NEMA_1460P, _('NEMA 14-60P')),
+            (TYPE_NEMA_1515P, _('NEMA 15-15P')),
+            (TYPE_NEMA_1520P, _('NEMA 15-20P')),
+            (TYPE_NEMA_1530P, _('NEMA 15-30P')),
+            (TYPE_NEMA_1550P, _('NEMA 15-50P')),
+            (TYPE_NEMA_1560P, _('NEMA 15-60P')),
         )),
-        ('NEMA (Locking)', (
-            (TYPE_NEMA_L115P, 'NEMA L1-15P'),
-            (TYPE_NEMA_L515P, 'NEMA L5-15P'),
-            (TYPE_NEMA_L520P, 'NEMA L5-20P'),
-            (TYPE_NEMA_L530P, 'NEMA L5-30P'),
-            (TYPE_NEMA_L550P, 'NEMA L5-50P'),
-            (TYPE_NEMA_L615P, 'NEMA L6-15P'),
-            (TYPE_NEMA_L620P, 'NEMA L6-20P'),
-            (TYPE_NEMA_L630P, 'NEMA L6-30P'),
-            (TYPE_NEMA_L650P, 'NEMA L6-50P'),
-            (TYPE_NEMA_L1030P, 'NEMA L10-30P'),
-            (TYPE_NEMA_L1420P, 'NEMA L14-20P'),
-            (TYPE_NEMA_L1430P, 'NEMA L14-30P'),
-            (TYPE_NEMA_L1450P, 'NEMA L14-50P'),
-            (TYPE_NEMA_L1460P, 'NEMA L14-60P'),
-            (TYPE_NEMA_L1520P, 'NEMA L15-20P'),
-            (TYPE_NEMA_L1530P, 'NEMA L15-30P'),
-            (TYPE_NEMA_L1550P, 'NEMA L15-50P'),
-            (TYPE_NEMA_L1560P, 'NEMA L15-60P'),
-            (TYPE_NEMA_L2120P, 'NEMA L21-20P'),
-            (TYPE_NEMA_L2130P, 'NEMA L21-30P'),
-            (TYPE_NEMA_L2230P, 'NEMA L22-30P'),
+        (_('NEMA (Locking)'), (
+            (TYPE_NEMA_L115P, _('NEMA L1-15P')),
+            (TYPE_NEMA_L515P, _('NEMA L5-15P')),
+            (TYPE_NEMA_L520P, _('NEMA L5-20P')),
+            (TYPE_NEMA_L530P, _('NEMA L5-30P')),
+            (TYPE_NEMA_L550P, _('NEMA L5-50P')),
+            (TYPE_NEMA_L615P, _('NEMA L6-15P')),
+            (TYPE_NEMA_L620P, _('NEMA L6-20P')),
+            (TYPE_NEMA_L630P, _('NEMA L6-30P')),
+            (TYPE_NEMA_L650P, _('NEMA L6-50P')),
+            (TYPE_NEMA_L1030P, _('NEMA L10-30P')),
+            (TYPE_NEMA_L1420P, _('NEMA L14-20P')),
+            (TYPE_NEMA_L1430P, _('NEMA L14-30P')),
+            (TYPE_NEMA_L1450P, _('NEMA L14-50P')),
+            (TYPE_NEMA_L1460P, _('NEMA L14-60P')),
+            (TYPE_NEMA_L1520P, _('NEMA L15-20P')),
+            (TYPE_NEMA_L1530P, _('NEMA L15-30P')),
+            (TYPE_NEMA_L1550P, _('NEMA L15-50P')),
+            (TYPE_NEMA_L1560P, _('NEMA L15-60P')),
+            (TYPE_NEMA_L2120P, _('NEMA L21-20P')),
+            (TYPE_NEMA_L2130P, _('NEMA L21-30P')),
+            (TYPE_NEMA_L2230P, _('NEMA L22-30P')),
         )),
-        ('California Style', (
-            (TYPE_CS6361C, 'CS6361C'),
-            (TYPE_CS6365C, 'CS6365C'),
-            (TYPE_CS8165C, 'CS8165C'),
-            (TYPE_CS8265C, 'CS8265C'),
-            (TYPE_CS8365C, 'CS8365C'),
-            (TYPE_CS8465C, 'CS8465C'),
+        (_('California Style'), (
+            (TYPE_CS6361C, _('CS6361C')),
+            (TYPE_CS6365C, _('CS6365C')),
+            (TYPE_CS8165C, _('CS8165C')),
+            (TYPE_CS8265C, _('CS8265C')),
+            (TYPE_CS8365C, _('CS8365C')),
+            (TYPE_CS8465C, _('CS8465C')),
         )),
-        ('International/ITA', (
-            (TYPE_ITA_C, 'ITA Type C (CEE 7/16)'),
-            (TYPE_ITA_E, 'ITA Type E (CEE 7/6)'),
-            (TYPE_ITA_F, 'ITA Type F (CEE 7/4)'),
-            (TYPE_ITA_EF, 'ITA Type E/F (CEE 7/7)'),
-            (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
-            (TYPE_ITA_H, 'ITA Type H'),
-            (TYPE_ITA_I, 'ITA Type I'),
-            (TYPE_ITA_J, 'ITA Type J'),
-            (TYPE_ITA_K, 'ITA Type K'),
-            (TYPE_ITA_L, 'ITA Type L (CEI 23-50)'),
-            (TYPE_ITA_M, 'ITA Type M (BS 546)'),
-            (TYPE_ITA_N, 'ITA Type N'),
-            (TYPE_ITA_O, 'ITA Type O'),
+        (_('International/ITA'), (
+            (TYPE_ITA_C, _('ITA Type C (CEE 7/16)')),
+            (TYPE_ITA_E, _('ITA Type E (CEE 7/6)')),
+            (TYPE_ITA_F, _('ITA Type F (CEE 7/4)')),
+            (TYPE_ITA_EF, _('ITA Type E/F (CEE 7/7)')),
+            (TYPE_ITA_G, _('ITA Type G (BS 1363)')),
+            (TYPE_ITA_H, _('ITA Type H')),
+            (TYPE_ITA_I, _('ITA Type I')),
+            (TYPE_ITA_J, _('ITA Type J')),
+            (TYPE_ITA_K, _('ITA Type K')),
+            (TYPE_ITA_L, _('ITA Type L (CEI 23-50)')),
+            (TYPE_ITA_M, _('ITA Type M (BS 546)')),
+            (TYPE_ITA_N, _('ITA Type N')),
+            (TYPE_ITA_O, _('ITA Type O')),
         )),
-        ('USB', (
-            (TYPE_USB_A, 'USB Type A'),
-            (TYPE_USB_B, 'USB Type B'),
-            (TYPE_USB_C, 'USB Type C'),
-            (TYPE_USB_MINI_A, 'USB Mini A'),
-            (TYPE_USB_MINI_B, 'USB Mini B'),
-            (TYPE_USB_MICRO_A, 'USB Micro A'),
-            (TYPE_USB_MICRO_B, 'USB Micro B'),
-            (TYPE_USB_MICRO_AB, 'USB Micro AB'),
-            (TYPE_USB_3_B, 'USB 3.0 Type B'),
-            (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
+        (_('USB'), (
+            (TYPE_USB_A, _('USB Type A')),
+            (TYPE_USB_B, _('USB Type B')),
+            (TYPE_USB_C, _('USB Type C')),
+            (TYPE_USB_MINI_A, _('USB Mini A')),
+            (TYPE_USB_MINI_B, _('USB Mini B')),
+            (TYPE_USB_MICRO_A, _('USB Micro A')),
+            (TYPE_USB_MICRO_B, _('USB Micro B')),
+            (TYPE_USB_MICRO_AB, _('USB Micro AB')),
+            (TYPE_USB_3_B, _('USB 3.0 Type B')),
+            (TYPE_USB_3_MICROB, _('USB 3.0 Micro B')),
         )),
-        ('DC', (
-            (TYPE_DC, 'DC Terminal'),
+        (_('DC'), (
+            (TYPE_DC, _('DC Terminal')),
         )),
-        ('Proprietary', (
-            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
-            (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
-            (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
-            (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
-            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
-            (TYPE_UBIQUITI_SMARTPOWER, 'Ubiquiti SmartPower'),
+        (_('Proprietary'), (
+            (TYPE_SAF_D_GRID, _('Saf-D-Grid')),
+            (TYPE_NEUTRIK_POWERCON_20A, _('Neutrik powerCON (20A)')),
+            (TYPE_NEUTRIK_POWERCON_32A, _('Neutrik powerCON (32A)')),
+            (TYPE_NEUTRIK_POWERCON_TRUE1, _('Neutrik powerCON TRUE1')),
+            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, _('Neutrik powerCON TRUE1 TOP')),
+            (TYPE_UBIQUITI_SMARTPOWER, _('Ubiquiti SmartPower')),
         )),
-        ('Other', (
-            (TYPE_HARDWIRED, 'Hardwired'),
-            (TYPE_OTHER, 'Other'),
+        (_('Other'), (
+            (TYPE_HARDWIRED, _('Hardwired')),
+            (TYPE_OTHER, _('Other')),
         )),
     )
 
@@ -648,120 +649,120 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_OTHER = 'other'
 
     CHOICES = (
-        ('IEC 60320', (
-            (TYPE_IEC_C5, 'C5'),
-            (TYPE_IEC_C7, 'C7'),
-            (TYPE_IEC_C13, 'C13'),
-            (TYPE_IEC_C15, 'C15'),
-            (TYPE_IEC_C19, 'C19'),
-            (TYPE_IEC_C21, 'C21'),
+        (_('IEC 60320'), (
+            (TYPE_IEC_C5, _('C5')),
+            (TYPE_IEC_C7, _('C7')),
+            (TYPE_IEC_C13, _('C13')),
+            (TYPE_IEC_C15, _('C15')),
+            (TYPE_IEC_C19, _('C19')),
+            (TYPE_IEC_C21, _('C21')),
         )),
-        ('IEC 60309', (
-            (TYPE_IEC_PNE4H, 'P+N+E 4H'),
-            (TYPE_IEC_PNE6H, 'P+N+E 6H'),
-            (TYPE_IEC_PNE9H, 'P+N+E 9H'),
-            (TYPE_IEC_2PE4H, '2P+E 4H'),
-            (TYPE_IEC_2PE6H, '2P+E 6H'),
-            (TYPE_IEC_2PE9H, '2P+E 9H'),
-            (TYPE_IEC_3PE4H, '3P+E 4H'),
-            (TYPE_IEC_3PE6H, '3P+E 6H'),
-            (TYPE_IEC_3PE9H, '3P+E 9H'),
-            (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
-            (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
-            (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        (_('IEC 60309'), (
+            (TYPE_IEC_PNE4H, _('P+N+E 4H')),
+            (TYPE_IEC_PNE6H, _('P+N+E 6H')),
+            (TYPE_IEC_PNE9H, _('P+N+E 9H')),
+            (TYPE_IEC_2PE4H, _('2P+E 4H')),
+            (TYPE_IEC_2PE6H, _('2P+E 6H')),
+            (TYPE_IEC_2PE9H, _('2P+E 9H')),
+            (TYPE_IEC_3PE4H, _('3P+E 4H')),
+            (TYPE_IEC_3PE6H, _('3P+E 6H')),
+            (TYPE_IEC_3PE9H, _('3P+E 9H')),
+            (TYPE_IEC_3PNE4H, _('3P+N+E 4H')),
+            (TYPE_IEC_3PNE6H, _('3P+N+E 6H')),
+            (TYPE_IEC_3PNE9H, _('3P+N+E 9H')),
         )),
         ('IEC 60906-1', (
-            (TYPE_IEC_60906_1, 'IEC 60906-1'),
-            (TYPE_NBR_14136_10A, '2P+T 10A (NBR 14136)'),
-            (TYPE_NBR_14136_20A, '2P+T 20A (NBR 14136)'),
+            (TYPE_IEC_60906_1, _('IEC 60906-1')),
+            (TYPE_NBR_14136_10A, _('2P+T 10A (NBR 14136)')),
+            (TYPE_NBR_14136_20A, _('2P+T 20A (NBR 14136)')),
         )),
-        ('NEMA (Non-locking)', (
-            (TYPE_NEMA_115R, 'NEMA 1-15R'),
-            (TYPE_NEMA_515R, 'NEMA 5-15R'),
-            (TYPE_NEMA_520R, 'NEMA 5-20R'),
-            (TYPE_NEMA_530R, 'NEMA 5-30R'),
-            (TYPE_NEMA_550R, 'NEMA 5-50R'),
-            (TYPE_NEMA_615R, 'NEMA 6-15R'),
-            (TYPE_NEMA_620R, 'NEMA 6-20R'),
-            (TYPE_NEMA_630R, 'NEMA 6-30R'),
-            (TYPE_NEMA_650R, 'NEMA 6-50R'),
-            (TYPE_NEMA_1030R, 'NEMA 10-30R'),
-            (TYPE_NEMA_1050R, 'NEMA 10-50R'),
-            (TYPE_NEMA_1420R, 'NEMA 14-20R'),
-            (TYPE_NEMA_1430R, 'NEMA 14-30R'),
-            (TYPE_NEMA_1450R, 'NEMA 14-50R'),
-            (TYPE_NEMA_1460R, 'NEMA 14-60R'),
-            (TYPE_NEMA_1515R, 'NEMA 15-15R'),
-            (TYPE_NEMA_1520R, 'NEMA 15-20R'),
-            (TYPE_NEMA_1530R, 'NEMA 15-30R'),
-            (TYPE_NEMA_1550R, 'NEMA 15-50R'),
-            (TYPE_NEMA_1560R, 'NEMA 15-60R'),
+        (_('NEMA (Non-locking)'), (
+            (TYPE_NEMA_115R, _('NEMA 1-15R')),
+            (TYPE_NEMA_515R, _('NEMA 5-15R')),
+            (TYPE_NEMA_520R, _('NEMA 5-20R')),
+            (TYPE_NEMA_530R, _('NEMA 5-30R')),
+            (TYPE_NEMA_550R, _('NEMA 5-50R')),
+            (TYPE_NEMA_615R, _('NEMA 6-15R')),
+            (TYPE_NEMA_620R, _('NEMA 6-20R')),
+            (TYPE_NEMA_630R, _('NEMA 6-30R')),
+            (TYPE_NEMA_650R, _('NEMA 6-50R')),
+            (TYPE_NEMA_1030R, _('NEMA 10-30R')),
+            (TYPE_NEMA_1050R, _('NEMA 10-50R')),
+            (TYPE_NEMA_1420R, _('NEMA 14-20R')),
+            (TYPE_NEMA_1430R, _('NEMA 14-30R')),
+            (TYPE_NEMA_1450R, _('NEMA 14-50R')),
+            (TYPE_NEMA_1460R, _('NEMA 14-60R')),
+            (TYPE_NEMA_1515R, _('NEMA 15-15R')),
+            (TYPE_NEMA_1520R, _('NEMA 15-20R')),
+            (TYPE_NEMA_1530R, _('NEMA 15-30R')),
+            (TYPE_NEMA_1550R, _('NEMA 15-50R')),
+            (TYPE_NEMA_1560R, _('NEMA 15-60R')),
         )),
-        ('NEMA (Locking)', (
-            (TYPE_NEMA_L115R, 'NEMA L1-15R'),
-            (TYPE_NEMA_L515R, 'NEMA L5-15R'),
-            (TYPE_NEMA_L520R, 'NEMA L5-20R'),
-            (TYPE_NEMA_L530R, 'NEMA L5-30R'),
-            (TYPE_NEMA_L550R, 'NEMA L5-50R'),
-            (TYPE_NEMA_L615R, 'NEMA L6-15R'),
-            (TYPE_NEMA_L620R, 'NEMA L6-20R'),
-            (TYPE_NEMA_L630R, 'NEMA L6-30R'),
-            (TYPE_NEMA_L650R, 'NEMA L6-50R'),
-            (TYPE_NEMA_L1030R, 'NEMA L10-30R'),
-            (TYPE_NEMA_L1420R, 'NEMA L14-20R'),
-            (TYPE_NEMA_L1430R, 'NEMA L14-30R'),
-            (TYPE_NEMA_L1450R, 'NEMA L14-50R'),
-            (TYPE_NEMA_L1460R, 'NEMA L14-60R'),
-            (TYPE_NEMA_L1520R, 'NEMA L15-20R'),
-            (TYPE_NEMA_L1530R, 'NEMA L15-30R'),
-            (TYPE_NEMA_L1550R, 'NEMA L15-50R'),
-            (TYPE_NEMA_L1560R, 'NEMA L15-60R'),
-            (TYPE_NEMA_L2120R, 'NEMA L21-20R'),
-            (TYPE_NEMA_L2130R, 'NEMA L21-30R'),
-            (TYPE_NEMA_L2230R, 'NEMA L22-30R'),
+        (_('NEMA (Locking)'), (
+            (TYPE_NEMA_L115R, _('NEMA L1-15R')),
+            (TYPE_NEMA_L515R, _('NEMA L5-15R')),
+            (TYPE_NEMA_L520R, _('NEMA L5-20R')),
+            (TYPE_NEMA_L530R, _('NEMA L5-30R')),
+            (TYPE_NEMA_L550R, _('NEMA L5-50R')),
+            (TYPE_NEMA_L615R, _('NEMA L6-15R')),
+            (TYPE_NEMA_L620R, _('NEMA L6-20R')),
+            (TYPE_NEMA_L630R, _('NEMA L6-30R')),
+            (TYPE_NEMA_L650R, _('NEMA L6-50R')),
+            (TYPE_NEMA_L1030R, _('NEMA L10-30R')),
+            (TYPE_NEMA_L1420R, _('NEMA L14-20R')),
+            (TYPE_NEMA_L1430R, _('NEMA L14-30R')),
+            (TYPE_NEMA_L1450R, _('NEMA L14-50R')),
+            (TYPE_NEMA_L1460R, _('NEMA L14-60R')),
+            (TYPE_NEMA_L1520R, _('NEMA L15-20R')),
+            (TYPE_NEMA_L1530R, _('NEMA L15-30R')),
+            (TYPE_NEMA_L1550R, _('NEMA L15-50R')),
+            (TYPE_NEMA_L1560R, _('NEMA L15-60R')),
+            (TYPE_NEMA_L2120R, _('NEMA L21-20R')),
+            (TYPE_NEMA_L2130R, _('NEMA L21-30R')),
+            (TYPE_NEMA_L2230R, _('NEMA L22-30R')),
         )),
-        ('California Style', (
-            (TYPE_CS6360C, 'CS6360C'),
-            (TYPE_CS6364C, 'CS6364C'),
-            (TYPE_CS8164C, 'CS8164C'),
-            (TYPE_CS8264C, 'CS8264C'),
-            (TYPE_CS8364C, 'CS8364C'),
-            (TYPE_CS8464C, 'CS8464C'),
+        (_('California Style'), (
+            (TYPE_CS6360C, _('CS6360C')),
+            (TYPE_CS6364C, _('CS6364C')),
+            (TYPE_CS8164C, _('CS8164C')),
+            (TYPE_CS8264C, _('CS8264C')),
+            (TYPE_CS8364C, _('CS8364C')),
+            (TYPE_CS8464C, _('CS8464C')),
         )),
-        ('ITA/International', (
-            (TYPE_ITA_E, 'ITA Type E (CEE 7/5)'),
-            (TYPE_ITA_F, 'ITA Type F (CEE 7/3)'),
-            (TYPE_ITA_G, 'ITA Type G (BS 1363)'),
-            (TYPE_ITA_H, 'ITA Type H'),
-            (TYPE_ITA_I, 'ITA Type I'),
-            (TYPE_ITA_J, 'ITA Type J'),
-            (TYPE_ITA_K, 'ITA Type K'),
-            (TYPE_ITA_L, 'ITA Type L (CEI 23-50)'),
-            (TYPE_ITA_M, 'ITA Type M (BS 546)'),
-            (TYPE_ITA_N, 'ITA Type N'),
-            (TYPE_ITA_O, 'ITA Type O'),
-            (TYPE_ITA_MULTISTANDARD, 'ITA Multistandard'),
+        (_('ITA/International'), (
+            (TYPE_ITA_E, _('ITA Type E (CEE 7/5)')),
+            (TYPE_ITA_F, _('ITA Type F (CEE 7/3)')),
+            (TYPE_ITA_G, _('ITA Type G (BS 1363)')),
+            (TYPE_ITA_H, _('ITA Type H')),
+            (TYPE_ITA_I, _('ITA Type I')),
+            (TYPE_ITA_J, _('ITA Type J')),
+            (TYPE_ITA_K, _('ITA Type K')),
+            (TYPE_ITA_L, _('ITA Type L (CEI 23-50)')),
+            (TYPE_ITA_M, _('ITA Type M (BS 546)')),
+            (TYPE_ITA_N, _('ITA Type N')),
+            (TYPE_ITA_O, _('ITA Type O')),
+            (TYPE_ITA_MULTISTANDARD, _('ITA Multistandard')),
         )),
-        ('USB', (
-            (TYPE_USB_A, 'USB Type A'),
-            (TYPE_USB_MICROB, 'USB Micro B'),
-            (TYPE_USB_C, 'USB Type C'),
+        (_('USB'), (
+            (TYPE_USB_A, _('USB Type A')),
+            (TYPE_USB_MICROB, _('USB Micro B')),
+            (TYPE_USB_C, _('USB Type C')),
         )),
-        ('DC', (
-            (TYPE_DC, 'DC Terminal'),
+        (_('DC'), (
+            (TYPE_DC, _('DC Terminal')),
         )),
-        ('Proprietary', (
-            (TYPE_HDOT_CX, 'HDOT Cx'),
-            (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
-            (TYPE_NEUTRIK_POWERCON_20A, 'Neutrik powerCON (20A)'),
-            (TYPE_NEUTRIK_POWERCON_32A, 'Neutrik powerCON (32A)'),
-            (TYPE_NEUTRIK_POWERCON_TRUE1, 'Neutrik powerCON TRUE1'),
-            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, 'Neutrik powerCON TRUE1 TOP'),
-            (TYPE_UBIQUITI_SMARTPOWER, 'Ubiquiti SmartPower'),
+        (_('Proprietary'), (
+            (TYPE_HDOT_CX, _('HDOT Cx')),
+            (TYPE_SAF_D_GRID, _('Saf-D-Grid')),
+            (TYPE_NEUTRIK_POWERCON_20A, _('Neutrik powerCON (20A)')),
+            (TYPE_NEUTRIK_POWERCON_32A, _('Neutrik powerCON (32A)')),
+            (TYPE_NEUTRIK_POWERCON_TRUE1, _('Neutrik powerCON TRUE1')),
+            (TYPE_NEUTRIK_POWERCON_TRUE1_TOP, _('Neutrik powerCON TRUE1 TOP')),
+            (TYPE_UBIQUITI_SMARTPOWER, _('Ubiquiti SmartPower')),
         )),
-        ('Other', (
-            (TYPE_HARDWIRED, 'Hardwired'),
-            (TYPE_OTHER, 'Other'),
+        (_('Other'), (
+            (TYPE_HARDWIRED, _('Hardwired')),
+            (TYPE_OTHER, _('Other')),
         )),
     )
 
@@ -773,9 +774,9 @@ class PowerOutletFeedLegChoices(ChoiceSet):
     FEED_LEG_C = 'C'
 
     CHOICES = (
-        (FEED_LEG_A, 'A'),
-        (FEED_LEG_B, 'B'),
-        (FEED_LEG_C, 'C'),
+        (FEED_LEG_A, _('A')),
+        (FEED_LEG_B, _('B')),
+        (FEED_LEG_C, _('C')),
     )
 
 
@@ -789,9 +790,9 @@ class InterfaceKindChoices(ChoiceSet):
     KIND_WIRELESS = 'wireless'
 
     CHOICES = (
-        (KIND_PHYSICAL, 'Physical'),
-        (KIND_VIRTUAL, 'Virtual'),
-        (KIND_WIRELESS, 'Wireless'),
+        (KIND_PHYSICAL, _('Physical')),
+        (KIND_VIRTUAL, _('Virtual')),
+        (KIND_WIRELESS, _('Wireless')),
     )
 
 
@@ -939,190 +940,190 @@ class InterfaceTypeChoices(ChoiceSet):
 
     CHOICES = (
         (
-            'Virtual interfaces',
+            _('Virtual interfaces'),
             (
-                (TYPE_VIRTUAL, 'Virtual'),
-                (TYPE_BRIDGE, 'Bridge'),
-                (TYPE_LAG, 'Link Aggregation Group (LAG)'),
+                (TYPE_VIRTUAL, _('Virtual')),
+                (TYPE_BRIDGE, _('Bridge')),
+                (TYPE_LAG, _('Link Aggregation Group (LAG)')),
             ),
         ),
         (
-            'Ethernet (fixed)',
+            _('Ethernet (fixed)'),
             (
-                (TYPE_100ME_FX, '100BASE-FX (10/100ME FIBER)'),
-                (TYPE_100ME_LFX, '100BASE-LFX (10/100ME FIBER)'),
-                (TYPE_100ME_FIXED, '100BASE-TX (10/100ME)'),
-                (TYPE_100ME_T1, '100BASE-T1 (10/100ME Single Pair)'),
-                (TYPE_1GE_FIXED, '1000BASE-T (1GE)'),
-                (TYPE_2GE_FIXED, '2.5GBASE-T (2.5GE)'),
-                (TYPE_5GE_FIXED, '5GBASE-T (5GE)'),
-                (TYPE_10GE_FIXED, '10GBASE-T (10GE)'),
-                (TYPE_10GE_CX4, '10GBASE-CX4 (10GE)'),
+                (TYPE_100ME_FX, _('100BASE-FX (10/100ME FIBER)')),
+                (TYPE_100ME_LFX, _('100BASE-LFX (10/100ME FIBER)')),
+                (TYPE_100ME_FIXED, _('100BASE-TX (10/100ME)')),
+                (TYPE_100ME_T1, _('100BASE-T1 (10/100ME Single Pair)')),
+                (TYPE_1GE_FIXED, _('1000BASE-T (1GE)')),
+                (TYPE_2GE_FIXED, _('2.5GBASE-T (2.5GE)')),
+                (TYPE_5GE_FIXED, _('5GBASE-T (5GE)')),
+                (TYPE_10GE_FIXED, _('10GBASE-T (10GE)')),
+                (TYPE_10GE_CX4, _('10GBASE-CX4 (10GE)')),
             )
         ),
         (
-            'Ethernet (modular)',
+            _('Ethernet (modular)'),
             (
-                (TYPE_1GE_GBIC, 'GBIC (1GE)'),
-                (TYPE_1GE_SFP, 'SFP (1GE)'),
-                (TYPE_10GE_SFP_PLUS, 'SFP+ (10GE)'),
-                (TYPE_10GE_XFP, 'XFP (10GE)'),
-                (TYPE_10GE_XENPAK, 'XENPAK (10GE)'),
-                (TYPE_10GE_X2, 'X2 (10GE)'),
-                (TYPE_25GE_SFP28, 'SFP28 (25GE)'),
-                (TYPE_50GE_SFP56, 'SFP56 (50GE)'),
-                (TYPE_40GE_QSFP_PLUS, 'QSFP+ (40GE)'),
-                (TYPE_50GE_QSFP28, 'QSFP28 (50GE)'),
-                (TYPE_100GE_CFP, 'CFP (100GE)'),
-                (TYPE_100GE_CFP2, 'CFP2 (100GE)'),
-                (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
-                (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
-                (TYPE_100GE_CXP, 'CXP (100GE)'),
-                (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
-                (TYPE_100GE_DSFP, 'DSFP (100GE)'),
-                (TYPE_100GE_SFP_DD, 'SFP-DD (100GE)'),
-                (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
-                (TYPE_100GE_QSFP_DD, 'QSFP-DD (100GE)'),
-                (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
-                (TYPE_200GE_QSFP_DD, 'QSFP-DD (200GE)'),
-                (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
-                (TYPE_400GE_OSFP, 'OSFP (400GE)'),
-                (TYPE_400GE_CDFP, 'CDFP (400GE)'),
-                (TYPE_400GE_CFP8, 'CPF8 (400GE)'),
-                (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
-                (TYPE_800GE_OSFP, 'OSFP (800GE)'),
+                (TYPE_1GE_GBIC, _('GBIC (1GE)')),
+                (TYPE_1GE_SFP, _('SFP (1GE)')),
+                (TYPE_10GE_SFP_PLUS, _('SFP+ (10GE)')),
+                (TYPE_10GE_XFP, _('XFP (10GE)')),
+                (TYPE_10GE_XENPAK, _('XENPAK (10GE)')),
+                (TYPE_10GE_X2, _('X2 (10GE)')),
+                (TYPE_25GE_SFP28, _('SFP28 (25GE)')),
+                (TYPE_50GE_SFP56, _('SFP56 (50GE)')),
+                (TYPE_40GE_QSFP_PLUS, _('QSFP+ (40GE)')),
+                (TYPE_50GE_QSFP28, _('QSFP28 (50GE)')),
+                (TYPE_100GE_CFP, _('CFP (100GE)')),
+                (TYPE_100GE_CFP2, _('CFP2 (100GE)')),
+                (TYPE_200GE_CFP2, _('CFP2 (200GE)')),
+                (TYPE_100GE_CFP4, _('CFP4 (100GE)')),
+                (TYPE_100GE_CXP, _('CXP (100GE)')),
+                (TYPE_100GE_CPAK, _('Cisco CPAK (100GE)')),
+                (TYPE_100GE_DSFP, _('DSFP (100GE)')),
+                (TYPE_100GE_SFP_DD, _('SFP-DD (100GE)')),
+                (TYPE_100GE_QSFP28, _('QSFP28 (100GE)')),
+                (TYPE_100GE_QSFP_DD, _('QSFP-DD (100GE)')),
+                (TYPE_200GE_QSFP56, _('QSFP56 (200GE)')),
+                (TYPE_200GE_QSFP_DD, _('QSFP-DD (200GE)')),
+                (TYPE_400GE_QSFP_DD, _('QSFP-DD (400GE)')),
+                (TYPE_400GE_OSFP, _('OSFP (400GE)')),
+                (TYPE_400GE_CDFP, _('CDFP (400GE)')),
+                (TYPE_400GE_CFP8, _('CPF8 (400GE)')),
+                (TYPE_800GE_QSFP_DD, _('QSFP-DD (800GE)')),
+                (TYPE_800GE_OSFP, _('OSFP (800GE)')),
             )
         ),
         (
-            'Ethernet (backplane)',
+            _('Ethernet (backplane)'),
             (
-                (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
-                (TYPE_10GE_KR, '10GBASE-KR (10GE)'),
-                (TYPE_10GE_KX4, '10GBASE-KX4 (10GE)'),
-                (TYPE_25GE_KR, '25GBASE-KR (25GE)'),
-                (TYPE_40GE_KR4, '40GBASE-KR4 (40GE)'),
-                (TYPE_50GE_KR, '50GBASE-KR (50GE)'),
-                (TYPE_100GE_KP4, '100GBASE-KP4 (100GE)'),
-                (TYPE_100GE_KR2, '100GBASE-KR2 (100GE)'),
-                (TYPE_100GE_KR4, '100GBASE-KR4 (100GE)'),
+                (TYPE_1GE_KX, _('1000BASE-KX (1GE)')),
+                (TYPE_10GE_KR, _('10GBASE-KR (10GE)')),
+                (TYPE_10GE_KX4, _('10GBASE-KX4 (10GE)')),
+                (TYPE_25GE_KR, _('25GBASE-KR (25GE)')),
+                (TYPE_40GE_KR4, _('40GBASE-KR4 (40GE)')),
+                (TYPE_50GE_KR, _('50GBASE-KR (50GE)')),
+                (TYPE_100GE_KP4, _('100GBASE-KP4 (100GE)')),
+                (TYPE_100GE_KR2, _('100GBASE-KR2 (100GE)')),
+                (TYPE_100GE_KR4, _('100GBASE-KR4 (100GE)')),
             )
         ),
         (
-            'Wireless',
+            _('Wireless'),
             (
-                (TYPE_80211A, 'IEEE 802.11a'),
-                (TYPE_80211G, 'IEEE 802.11b/g'),
-                (TYPE_80211N, 'IEEE 802.11n'),
-                (TYPE_80211AC, 'IEEE 802.11ac'),
-                (TYPE_80211AD, 'IEEE 802.11ad'),
-                (TYPE_80211AX, 'IEEE 802.11ax'),
-                (TYPE_80211AY, 'IEEE 802.11ay'),
-                (TYPE_802151, 'IEEE 802.15.1 (Bluetooth)'),
-                (TYPE_OTHER_WIRELESS, 'Other (Wireless)'),
+                (TYPE_80211A, _('IEEE 802.11a')),
+                (TYPE_80211G, _('IEEE 802.11b/g')),
+                (TYPE_80211N, _('IEEE 802.11n')),
+                (TYPE_80211AC, _('IEEE 802.11ac')),
+                (TYPE_80211AD, _('IEEE 802.11ad')),
+                (TYPE_80211AX, _('IEEE 802.11ax')),
+                (TYPE_80211AY, _('IEEE 802.11ay')),
+                (TYPE_802151, _('IEEE 802.15.1 (Bluetooth)')),
+                (TYPE_OTHER_WIRELESS, _('Other (Wireless)')),
             )
         ),
         (
-            'Cellular',
+            _('Cellular'),
             (
-                (TYPE_GSM, 'GSM'),
-                (TYPE_CDMA, 'CDMA'),
-                (TYPE_LTE, 'LTE'),
+                (TYPE_GSM, _('GSM')),
+                (TYPE_CDMA, _('CDMA')),
+                (TYPE_LTE, _('LTE')),
             )
         ),
         (
-            'SONET',
+            _('SONET'),
             (
-                (TYPE_SONET_OC3, 'OC-3/STM-1'),
-                (TYPE_SONET_OC12, 'OC-12/STM-4'),
-                (TYPE_SONET_OC48, 'OC-48/STM-16'),
-                (TYPE_SONET_OC192, 'OC-192/STM-64'),
-                (TYPE_SONET_OC768, 'OC-768/STM-256'),
-                (TYPE_SONET_OC1920, 'OC-1920/STM-640'),
-                (TYPE_SONET_OC3840, 'OC-3840/STM-1234'),
+                (TYPE_SONET_OC3, _('OC-3/STM-1')),
+                (TYPE_SONET_OC12, _('OC-12/STM-4')),
+                (TYPE_SONET_OC48, _('OC-48/STM-16')),
+                (TYPE_SONET_OC192, _('OC-192/STM-64')),
+                (TYPE_SONET_OC768, _('OC-768/STM-256')),
+                (TYPE_SONET_OC1920, _('OC-1920/STM-640')),
+                (TYPE_SONET_OC3840, _('OC-3840/STM-1234')),
             )
         ),
         (
-            'FibreChannel',
+            _('FibreChannel'),
             (
-                (TYPE_1GFC_SFP, 'SFP (1GFC)'),
-                (TYPE_2GFC_SFP, 'SFP (2GFC)'),
-                (TYPE_4GFC_SFP, 'SFP (4GFC)'),
-                (TYPE_8GFC_SFP_PLUS, 'SFP+ (8GFC)'),
-                (TYPE_16GFC_SFP_PLUS, 'SFP+ (16GFC)'),
-                (TYPE_32GFC_SFP28, 'SFP28 (32GFC)'),
-                (TYPE_64GFC_QSFP_PLUS, 'QSFP+ (64GFC)'),
-                (TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
+                (TYPE_1GFC_SFP, _('SFP (1GFC)')),
+                (TYPE_2GFC_SFP, _('SFP (2GFC)')),
+                (TYPE_4GFC_SFP, _('SFP (4GFC)')),
+                (TYPE_8GFC_SFP_PLUS, _('SFP+ (8GFC)')),
+                (TYPE_16GFC_SFP_PLUS, _('SFP+ (16GFC)')),
+                (TYPE_32GFC_SFP28, _('SFP28 (32GFC)')),
+                (TYPE_64GFC_QSFP_PLUS, _('QSFP+ (64GFC)')),
+                (TYPE_128GFC_QSFP28, _('QSFP28 (128GFC)')),
             )
         ),
         (
-            'InfiniBand',
+            _('InfiniBand'),
             (
-                (TYPE_INFINIBAND_SDR, 'SDR (2 Gbps)'),
-                (TYPE_INFINIBAND_DDR, 'DDR (4 Gbps)'),
-                (TYPE_INFINIBAND_QDR, 'QDR (8 Gbps)'),
-                (TYPE_INFINIBAND_FDR10, 'FDR10 (10 Gbps)'),
-                (TYPE_INFINIBAND_FDR, 'FDR (13.5 Gbps)'),
-                (TYPE_INFINIBAND_EDR, 'EDR (25 Gbps)'),
-                (TYPE_INFINIBAND_HDR, 'HDR (50 Gbps)'),
-                (TYPE_INFINIBAND_NDR, 'NDR (100 Gbps)'),
-                (TYPE_INFINIBAND_XDR, 'XDR (250 Gbps)'),
+                (TYPE_INFINIBAND_SDR, _('SDR (2 Gbps)')),
+                (TYPE_INFINIBAND_DDR, _('DDR (4 Gbps)')),
+                (TYPE_INFINIBAND_QDR, _('QDR (8 Gbps)')),
+                (TYPE_INFINIBAND_FDR10, _('FDR10 (10 Gbps)')),
+                (TYPE_INFINIBAND_FDR, _('FDR (13.5 Gbps)')),
+                (TYPE_INFINIBAND_EDR, _('EDR (25 Gbps)')),
+                (TYPE_INFINIBAND_HDR, _('HDR (50 Gbps)')),
+                (TYPE_INFINIBAND_NDR, _('NDR (100 Gbps)')),
+                (TYPE_INFINIBAND_XDR, _('XDR (250 Gbps)')),
             )
         ),
         (
-            'Serial',
+            _('Serial'),
             (
-                (TYPE_T1, 'T1 (1.544 Mbps)'),
-                (TYPE_E1, 'E1 (2.048 Mbps)'),
-                (TYPE_T3, 'T3 (45 Mbps)'),
-                (TYPE_E3, 'E3 (34 Mbps)'),
+                (TYPE_T1, _('T1 (1.544 Mbps)')),
+                (TYPE_E1, _('E1 (2.048 Mbps)')),
+                (TYPE_T3, _('T3 (45 Mbps)')),
+                (TYPE_E3, _('E3 (34 Mbps)')),
             )
         ),
         (
-            'ATM',
+            _('ATM'),
             (
-                (TYPE_XDSL, 'xDSL'),
+                (TYPE_XDSL, _('xDSL')),
             )
         ),
         (
-            'Coaxial',
+            _('Coaxial'),
             (
-                (TYPE_DOCSIS, 'DOCSIS'),
+                (TYPE_DOCSIS, _('DOCSIS')),
             )
         ),
         (
-            'PON',
+            _('PON'),
             (
-                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
-                (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
-                (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
-                (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
-                (TYPE_EPON, 'EPON (1 Gbps)'),
-                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_GPON, _('GPON (2.5 Gbps / 1.25 Gps)')),
+                (TYPE_XG_PON, _('XG-PON (10 Gbps / 2.5 Gbps)')),
+                (TYPE_XGS_PON, _('XGS-PON (10 Gbps)')),
+                (TYPE_NG_PON2, _('NG-PON2 (TWDM-PON) (4x10 Gbps)')),
+                (TYPE_EPON, _('EPON (1 Gbps)')),
+                (TYPE_10G_EPON, _('10G-EPON (10 Gbps)')),
             )
         ),
         (
-            'Stacking',
+            _('Stacking'),
             (
-                (TYPE_STACKWISE, 'Cisco StackWise'),
-                (TYPE_STACKWISE_PLUS, 'Cisco StackWise Plus'),
-                (TYPE_FLEXSTACK, 'Cisco FlexStack'),
-                (TYPE_FLEXSTACK_PLUS, 'Cisco FlexStack Plus'),
-                (TYPE_STACKWISE80, 'Cisco StackWise-80'),
-                (TYPE_STACKWISE160, 'Cisco StackWise-160'),
-                (TYPE_STACKWISE320, 'Cisco StackWise-320'),
-                (TYPE_STACKWISE480, 'Cisco StackWise-480'),
-                (TYPE_STACKWISE1T, 'Cisco StackWise-1T'),
-                (TYPE_JUNIPER_VCP, 'Juniper VCP'),
-                (TYPE_SUMMITSTACK, 'Extreme SummitStack'),
-                (TYPE_SUMMITSTACK128, 'Extreme SummitStack-128'),
-                (TYPE_SUMMITSTACK256, 'Extreme SummitStack-256'),
-                (TYPE_SUMMITSTACK512, 'Extreme SummitStack-512'),
+                (TYPE_STACKWISE, _('Cisco StackWise')),
+                (TYPE_STACKWISE_PLUS, _('Cisco StackWise Plus')),
+                (TYPE_FLEXSTACK, _('Cisco FlexStack')),
+                (TYPE_FLEXSTACK_PLUS, _('Cisco FlexStack Plus')),
+                (TYPE_STACKWISE80, _('Cisco StackWise-80')),
+                (TYPE_STACKWISE160, _('Cisco StackWise-160')),
+                (TYPE_STACKWISE320, _('Cisco StackWise-320')),
+                (TYPE_STACKWISE480, _('Cisco StackWise-480')),
+                (TYPE_STACKWISE1T, _('Cisco StackWise-1T')),
+                (TYPE_JUNIPER_VCP, _('Juniper VCP')),
+                (TYPE_SUMMITSTACK, _('Extreme SummitStack')),
+                (TYPE_SUMMITSTACK128, _('Extreme SummitStack-128')),
+                (TYPE_SUMMITSTACK256, _('Extreme SummitStack-256')),
+                (TYPE_SUMMITSTACK512, _('Extreme SummitStack-512')),
             )
         ),
         (
-            'Other',
+            _('Other'),
             (
-                (TYPE_OTHER, 'Other'),
+                (TYPE_OTHER, _('Other')),
             )
         ),
     )
@@ -1132,13 +1133,13 @@ class InterfaceSpeedChoices(ChoiceSet):
     key = 'Interface.speed'
 
     CHOICES = [
-        (10000, '10 Mbps'),
-        (100000, '100 Mbps'),
-        (1000000, '1 Gbps'),
-        (10000000, '10 Gbps'),
-        (25000000, '25 Gbps'),
-        (40000000, '40 Gbps'),
-        (100000000, '100 Gbps'),
+        (10000, _('10 Mbps')),
+        (100000, _('100 Mbps')),
+        (1000000, _('1 Gbps')),
+        (10000000, _('10 Gbps')),
+        (25000000, _('25 Gbps')),
+        (40000000, _('40 Gbps')),
+        (100000000, _('100 Gbps')),
     ]
 
 
@@ -1149,9 +1150,9 @@ class InterfaceDuplexChoices(ChoiceSet):
     DUPLEX_AUTO = 'auto'
 
     CHOICES = (
-        (DUPLEX_HALF, 'Half'),
-        (DUPLEX_FULL, 'Full'),
-        (DUPLEX_AUTO, 'Auto'),
+        (DUPLEX_HALF, _('Half')),
+        (DUPLEX_FULL, _('Full')),
+        (DUPLEX_AUTO, _('Auto')),
     )
 
 
@@ -1162,9 +1163,9 @@ class InterfaceModeChoices(ChoiceSet):
     MODE_TAGGED_ALL = 'tagged-all'
 
     CHOICES = (
-        (MODE_ACCESS, 'Access'),
-        (MODE_TAGGED, 'Tagged'),
-        (MODE_TAGGED_ALL, 'Tagged (All)'),
+        (MODE_ACCESS, _('Access')),
+        (MODE_TAGGED, _('Tagged')),
+        (MODE_TAGGED_ALL, _('Tagged (All)')),
     )
 
 
@@ -1174,8 +1175,8 @@ class InterfacePoEModeChoices(ChoiceSet):
     MODE_PSE = 'pse'
 
     CHOICES = (
-        (MODE_PD, 'PD'),
-        (MODE_PSE, 'PSE'),
+        (MODE_PD, _('PD')),
+        (MODE_PSE, _('PSE')),
     )
 
 
@@ -1193,21 +1194,21 @@ class InterfacePoETypeChoices(ChoiceSet):
 
     CHOICES = (
         (
-            'IEEE Standard',
+            _('IEEE Standard'),
             (
-                (TYPE_1_8023AF, '802.3af (Type 1)'),
-                (TYPE_2_8023AT, '802.3at (Type 2)'),
-                (TYPE_3_8023BT, '802.3bt (Type 3)'),
-                (TYPE_4_8023BT, '802.3bt (Type 4)'),
+                (TYPE_1_8023AF, _('802.3af (Type 1)')),
+                (TYPE_2_8023AT, _('802.3at (Type 2)')),
+                (TYPE_3_8023BT, _('802.3bt (Type 3)')),
+                (TYPE_4_8023BT, _('802.3bt (Type 4)')),
             )
         ),
         (
-            'Passive',
+            _('Passive'),
             (
-                (PASSIVE_24V_2PAIR, 'Passive 24V (2-pair)'),
-                (PASSIVE_24V_4PAIR, 'Passive 24V (4-pair)'),
-                (PASSIVE_48V_2PAIR, 'Passive 48V (2-pair)'),
-                (PASSIVE_48V_4PAIR, 'Passive 48V (4-pair)'),
+                (PASSIVE_24V_2PAIR, _('Passive 24V (2-pair)')),
+                (PASSIVE_24V_4PAIR, _('Passive 24V (4-pair)')),
+                (PASSIVE_48V_2PAIR, _('Passive 48V (2-pair)')),
+                (PASSIVE_48V_4PAIR, _('Passive 48V (4-pair)')),
             )
         ),
     )
@@ -1269,65 +1270,65 @@ class PortTypeChoices(ChoiceSet):
 
     CHOICES = (
         (
-            'Copper',
+            _('Copper'),
             (
-                (TYPE_8P8C, '8P8C'),
-                (TYPE_8P6C, '8P6C'),
-                (TYPE_8P4C, '8P4C'),
-                (TYPE_8P2C, '8P2C'),
-                (TYPE_6P6C, '6P6C'),
-                (TYPE_6P4C, '6P4C'),
-                (TYPE_6P2C, '6P2C'),
-                (TYPE_4P4C, '4P4C'),
-                (TYPE_4P2C, '4P2C'),
-                (TYPE_GG45, 'GG45'),
-                (TYPE_TERA4P, 'TERA 4P'),
-                (TYPE_TERA2P, 'TERA 2P'),
-                (TYPE_TERA1P, 'TERA 1P'),
-                (TYPE_110_PUNCH, '110 Punch'),
-                (TYPE_BNC, 'BNC'),
-                (TYPE_F, 'F Connector'),
-                (TYPE_N, 'N Connector'),
-                (TYPE_MRJ21, 'MRJ21'),
+                (TYPE_8P8C, _('8P8C')),
+                (TYPE_8P6C, _('8P6C')),
+                (TYPE_8P4C, _('8P4C')),
+                (TYPE_8P2C, _('8P2C')),
+                (TYPE_6P6C, _('6P6C')),
+                (TYPE_6P4C, _('6P4C')),
+                (TYPE_6P2C, _('6P2C')),
+                (TYPE_4P4C, _('4P4C')),
+                (TYPE_4P2C, _('4P2C')),
+                (TYPE_GG45, _('GG45')),
+                (TYPE_TERA4P, _('TERA 4P')),
+                (TYPE_TERA2P, _('TERA 2P')),
+                (TYPE_TERA1P, _('TERA 1P')),
+                (TYPE_110_PUNCH, _('110 Punch')),
+                (TYPE_BNC, _('BNC')),
+                (TYPE_F, _('F Connector')),
+                (TYPE_N, _('N Connector')),
+                (TYPE_MRJ21, _('MRJ21')),
             ),
         ),
         (
-            'Fiber Optic',
+            _('Fiber Optic'),
             (
-                (TYPE_FC, 'FC'),
-                (TYPE_LC, 'LC'),
-                (TYPE_LC_PC, 'LC/PC'),
-                (TYPE_LC_UPC, 'LC/UPC'),
-                (TYPE_LC_APC, 'LC/APC'),
-                (TYPE_LSH, 'LSH'),
-                (TYPE_LSH_PC, 'LSH/PC'),
-                (TYPE_LSH_UPC, 'LSH/UPC'),
-                (TYPE_LSH_APC, 'LSH/APC'),
-                (TYPE_LX5, 'LX.5'),
-                (TYPE_LX5_PC, 'LX.5/PC'),
-                (TYPE_LX5_UPC, 'LX.5/UPC'),
-                (TYPE_LX5_APC, 'LX.5/APC'),
-                (TYPE_MPO, 'MPO'),
-                (TYPE_MTRJ, 'MTRJ'),
-                (TYPE_SC, 'SC'),
-                (TYPE_SC_PC, 'SC/PC'),
-                (TYPE_SC_UPC, 'SC/UPC'),
-                (TYPE_SC_APC, 'SC/APC'),
-                (TYPE_ST, 'ST'),
-                (TYPE_CS, 'CS'),
-                (TYPE_SN, 'SN'),
-                (TYPE_SMA_905, 'SMA 905'),
-                (TYPE_SMA_906, 'SMA 906'),
-                (TYPE_URM_P2, 'URM-P2'),
-                (TYPE_URM_P4, 'URM-P4'),
-                (TYPE_URM_P8, 'URM-P8'),
-                (TYPE_SPLICE, 'Splice'),
+                (TYPE_FC, _('FC')),
+                (TYPE_LC, _('LC')),
+                (TYPE_LC_PC, _('LC/PC')),
+                (TYPE_LC_UPC, _('LC/UPC')),
+                (TYPE_LC_APC, _('LC/APC')),
+                (TYPE_LSH, _('LSH')),
+                (TYPE_LSH_PC, _('LSH/PC')),
+                (TYPE_LSH_UPC, _('LSH/UPC')),
+                (TYPE_LSH_APC, _('LSH/APC')),
+                (TYPE_LX5, _('LX.5')),
+                (TYPE_LX5_PC, _('LX.5/PC')),
+                (TYPE_LX5_UPC, _('LX.5/UPC')),
+                (TYPE_LX5_APC, _('LX.5/APC')),
+                (TYPE_MPO, _('MPO')),
+                (TYPE_MTRJ, _('MTRJ')),
+                (TYPE_SC, _('SC')),
+                (TYPE_SC_PC, _('SC/PC')),
+                (TYPE_SC_UPC, _('SC/UPC')),
+                (TYPE_SC_APC, _('SC/APC')),
+                (TYPE_ST, _('ST')),
+                (TYPE_CS, _('CS')),
+                (TYPE_SN, _('SN')),
+                (TYPE_SMA_905, _('SMA 905')),
+                (TYPE_SMA_906, _('SMA 906')),
+                (TYPE_URM_P2, _('URM-P2')),
+                (TYPE_URM_P4, _('URM-P4')),
+                (TYPE_URM_P8, _('URM-P8')),
+                (TYPE_SPLICE, _('Splice')),
             ),
         ),
         (
-            'Other',
+            _('Other'),
             (
-                (TYPE_OTHER, 'Other'),
+                (TYPE_OTHER, _('Other')),
             )
         )
     )
@@ -1365,36 +1366,36 @@ class CableTypeChoices(ChoiceSet):
 
     CHOICES = (
         (
-            'Copper', (
-                (TYPE_CAT3, 'CAT3'),
-                (TYPE_CAT5, 'CAT5'),
-                (TYPE_CAT5E, 'CAT5e'),
-                (TYPE_CAT6, 'CAT6'),
-                (TYPE_CAT6A, 'CAT6a'),
-                (TYPE_CAT7, 'CAT7'),
-                (TYPE_CAT7A, 'CAT7a'),
-                (TYPE_CAT8, 'CAT8'),
-                (TYPE_DAC_ACTIVE, 'Direct Attach Copper (Active)'),
-                (TYPE_DAC_PASSIVE, 'Direct Attach Copper (Passive)'),
-                (TYPE_MRJ21_TRUNK, 'MRJ21 Trunk'),
-                (TYPE_COAXIAL, 'Coaxial'),
+            _('Copper'), (
+                (TYPE_CAT3, _('CAT3')),
+                (TYPE_CAT5, _('CAT5')),
+                (TYPE_CAT5E, _('CAT5e')),
+                (TYPE_CAT6, _('CAT6')),
+                (TYPE_CAT6A, _('CAT6a')),
+                (TYPE_CAT7, _('CAT7')),
+                (TYPE_CAT7A, _('CAT7a')),
+                (TYPE_CAT8, _('CAT8')),
+                (TYPE_DAC_ACTIVE, _('Direct Attach Copper (Active)')),
+                (TYPE_DAC_PASSIVE, _('Direct Attach Copper (Passive)')),
+                (TYPE_MRJ21_TRUNK, _('MRJ21 Trunk')),
+                (TYPE_COAXIAL, _('Coaxial')),
             ),
         ),
         (
-            'Fiber', (
-                (TYPE_MMF, 'Multimode Fiber'),
-                (TYPE_MMF_OM1, 'Multimode Fiber (OM1)'),
-                (TYPE_MMF_OM2, 'Multimode Fiber (OM2)'),
-                (TYPE_MMF_OM3, 'Multimode Fiber (OM3)'),
-                (TYPE_MMF_OM4, 'Multimode Fiber (OM4)'),
-                (TYPE_MMF_OM5, 'Multimode Fiber (OM5)'),
-                (TYPE_SMF, 'Singlemode Fiber'),
-                (TYPE_SMF_OS1, 'Singlemode Fiber (OS1)'),
-                (TYPE_SMF_OS2, 'Singlemode Fiber (OS2)'),
-                (TYPE_AOC, 'Active Optical Cabling (AOC)'),
+            _('Fiber'), (
+                (TYPE_MMF, _('Multimode Fiber')),
+                (TYPE_MMF_OM1, _('Multimode Fiber (OM1)')),
+                (TYPE_MMF_OM2, _('Multimode Fiber (OM2)')),
+                (TYPE_MMF_OM3, _('Multimode Fiber (OM3)')),
+                (TYPE_MMF_OM4, _('Multimode Fiber (OM4)')),
+                (TYPE_MMF_OM5, _('Multimode Fiber (OM5)')),
+                (TYPE_SMF, _('Singlemode Fiber')),
+                (TYPE_SMF_OS1, _('Singlemode Fiber (OS1)')),
+                (TYPE_SMF_OS2, _('Singlemode Fiber (OS2)')),
+                (TYPE_AOC, _('Active Optical Cabling (AOC)')),
             ),
         ),
-        (TYPE_POWER, 'Power'),
+        (TYPE_POWER, _('Power')),
     )
 
 
@@ -1405,9 +1406,9 @@ class LinkStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONING = 'decommissioning'
 
     CHOICES = (
-        (STATUS_CONNECTED, 'Connected', 'green'),
-        (STATUS_PLANNED, 'Planned', 'blue'),
-        (STATUS_DECOMMISSIONING, 'Decommissioning', 'yellow'),
+        (STATUS_CONNECTED, _('Connected'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'blue'),
+        (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
     )
 
 
@@ -1424,12 +1425,12 @@ class CableLengthUnitChoices(ChoiceSet):
     UNIT_INCH = 'in'
 
     CHOICES = (
-        (UNIT_KILOMETER, 'Kilometers'),
-        (UNIT_METER, 'Meters'),
-        (UNIT_CENTIMETER, 'Centimeters'),
-        (UNIT_MILE, 'Miles'),
-        (UNIT_FOOT, 'Feet'),
-        (UNIT_INCH, 'Inches'),
+        (UNIT_KILOMETER, _('Kilometers')),
+        (UNIT_METER, _('Meters')),
+        (UNIT_CENTIMETER, _('Centimeters')),
+        (UNIT_MILE, _('Miles')),
+        (UNIT_FOOT, _('Feet')),
+        (UNIT_INCH, _('Inches')),
     )
 
 
@@ -1444,10 +1445,10 @@ class WeightUnitChoices(ChoiceSet):
     UNIT_OUNCE = 'oz'
 
     CHOICES = (
-        (UNIT_KILOGRAM, 'Kilograms'),
-        (UNIT_GRAM, 'Grams'),
-        (UNIT_POUND, 'Pounds'),
-        (UNIT_OUNCE, 'Ounces'),
+        (UNIT_KILOGRAM, _('Kilograms')),
+        (UNIT_GRAM, _('Grams')),
+        (UNIT_POUND, _('Pounds')),
+        (UNIT_OUNCE, _('Ounces')),
     )
 
 
@@ -1461,8 +1462,8 @@ class CableEndChoices(ChoiceSet):
     SIDE_B = 'B'
 
     CHOICES = (
-        (SIDE_A, 'A'),
-        (SIDE_B, 'B'),
+        (SIDE_A, _('A')),
+        (SIDE_B, _('B')),
         # ('', ''),
     )
 
@@ -1480,10 +1481,10 @@ class PowerFeedStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
 
     CHOICES = [
-        (STATUS_OFFLINE, 'Offline', 'gray'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_PLANNED, 'Planned', 'blue'),
-        (STATUS_FAILED, 'Failed', 'red'),
+        (STATUS_OFFLINE, _('Offline'), 'gray'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'blue'),
+        (STATUS_FAILED, _('Failed'), 'red'),
     ]
 
 
@@ -1493,8 +1494,8 @@ class PowerFeedTypeChoices(ChoiceSet):
     TYPE_REDUNDANT = 'redundant'
 
     CHOICES = (
-        (TYPE_PRIMARY, 'Primary', 'green'),
-        (TYPE_REDUNDANT, 'Redundant', 'cyan'),
+        (TYPE_PRIMARY, _('Primary'), 'green'),
+        (TYPE_REDUNDANT, _('Redundant'), 'cyan'),
     )
 
 
@@ -1504,8 +1505,8 @@ class PowerFeedSupplyChoices(ChoiceSet):
     SUPPLY_DC = 'dc'
 
     CHOICES = (
-        (SUPPLY_AC, 'AC'),
-        (SUPPLY_DC, 'DC'),
+        (SUPPLY_AC, _('AC')),
+        (SUPPLY_DC, _('DC')),
     )
 
 
@@ -1515,8 +1516,8 @@ class PowerFeedPhaseChoices(ChoiceSet):
     PHASE_3PHASE = 'three-phase'
 
     CHOICES = (
-        (PHASE_SINGLE, 'Single phase'),
-        (PHASE_3PHASE, 'Three-phase'),
+        (PHASE_SINGLE, _('Single phase')),
+        (PHASE_3PHASE, _('Three-phase')),
     )
 
 
@@ -1531,7 +1532,7 @@ class VirtualDeviceContextStatusChoices(ChoiceSet):
     STATUS_OFFLINE = 'offline'
 
     CHOICES = [
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_OFFLINE, 'Offline', 'red'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_OFFLINE, _('Offline'), 'red'),
     ]
