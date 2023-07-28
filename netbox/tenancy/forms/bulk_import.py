@@ -90,18 +90,19 @@ class ContactAssignmentImportForm(NetBoxModelImportForm):
         queryset=ContentType.objects.all(),
         help_text=_("One or more assigned object types")
     )
-
     contact = CSVModelChoiceField(
         queryset=Contact.objects.all(),
         to_field_name='name',
         help_text=_('Assigned contact')
     )
-
     role = CSVModelChoiceField(
         queryset=ContactRole.objects.all(),
         to_field_name='name',
         help_text=_('Assigned role')
     )
+
+    # Remove the tags field added by NetBoxModelImportForm (unsupported by ContactAssignment)
+    tags = None
 
     class Meta:
         model = ContactAssignment
