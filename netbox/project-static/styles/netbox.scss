@@ -1002,6 +1002,18 @@ div.card-overlay {
   padding: 8px;
 }
 
+th[align="left"] {
+  text-align: left;
+}
+
+th[align="center"] {
+  text-align: center;
+}
+
+th[align="right"] {
+  text-align: right;
+}
+
 /* Markdown widget */
 .markdown-widget {
   .nav-link {
