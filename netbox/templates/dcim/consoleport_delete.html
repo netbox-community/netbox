@@ -2,8 +2,8 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktranslate %}Delete console port {{ consoleport }}?{% endblocktranslate %}{% endblock %}
+{% block title %}{% blocktrans %}Delete console port {{ consoleport }}?{% endblocktrans %}{% endblock %}
 
 {% block message %}
-    <p>{% blocktranslate %}Are you sure you want to delete this console port from <strong>{{ consoleport.device }}</strong>?{% endblocktranslate %}</p>
+    <p>{% blocktrans %}Are you sure you want to delete this console port from <strong>{{ consoleport.device }}</strong>?{% endblocktrans %}</p>
 {% endblock %}

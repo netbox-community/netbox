@@ -34,11 +34,11 @@
         {%  if total_nonracked_devices_count > nonracked_devices.count %}
             {% if object|meta:'verbose_name' == 'site' %}
                 <div class="text-muted">
-                    {% blocktranslate %}Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices{% endblocktranslate %} (<a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}&rack_id=null">{% trans "View full list" %}</a>)
+                    {% blocktrans %}Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices{% endblocktrans %} (<a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}&rack_id=null">{% trans "View full list" %}</a>)
                 </div>
             {% elif object|meta:'verbose_name' == 'location' %}
                 <div class="text-muted">
-                    {% blocktranslate %}Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices{% endblocktranslate %} (<a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null">{% trans "View full list" %}</a>)
+                    {% blocktrans %}Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices{% endblocktrans %} (<a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null">{% trans "View full list" %}</a>)
                 </div>
             {% endif %}
         {% endif %}

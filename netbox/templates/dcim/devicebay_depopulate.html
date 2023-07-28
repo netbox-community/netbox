@@ -2,8 +2,8 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktranslate %}Remove {{ device_bay.installed_device }} from {{ device_bay }}?{% endblocktranslate %}{% endblock %}
+{% block title %}{% blocktrans %}Remove {{ device_bay.installed_device }} from {{ device_bay }}?{% endblocktrans %}{% endblock %}
 
 {% block message %}
-    <p>{% blocktranslate %}Are you sure you want to remove <strong>{{ device_bay.installed_device }}</strong> from <strong>{{ device_bay }}</strong>?{% endblocktranslate %}</p>
+    <p>{% blocktrans %}Are you sure you want to remove <strong>{{ device_bay.installed_device }}</strong> from <strong>{{ device_bay }}</strong>?{% endblocktrans %}</p>
 {% endblock %}

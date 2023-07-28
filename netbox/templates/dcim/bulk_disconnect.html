@@ -2,10 +2,10 @@
 {% load helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktranslate %}Disconnect" {{ obj_type_plural|bettertitle }}{% endblocktranslate %}{% endblock %}
+{% block title %}{% blocktrans %}Disconnect" {{ obj_type_plural|bettertitle }}{% endblocktrans %}{% endblock %}
 
 {% block message %}
-    <p>{% blocktranslate %}Are you sure you want to disconnect these {{ selected_objects|length }} {{ obj_type_plural }}?{% endblocktranslate %}</p>
+    <p>{% blocktrans %}Are you sure you want to disconnect these {{ selected_objects|length }} {{ obj_type_plural }}?{% endblocktrans %}</p>
     <ul>
         {% for obj in selected_objects %}
             <li>{{ obj }}</li>
