@@ -1517,7 +1517,7 @@ class InterfaceFilterSet(
             devices = Device.objects.filter(**{'{}__in'.format(name): value})
             for device in devices:
                 # Hack to show all VC member interfaces when requested
-                if 'vc_interfaces' in self.request.GET.keys():
+                if self.request is not None and 'vc_interfaces' in self.request.GET.keys():
                     vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
                 else:
                     vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
