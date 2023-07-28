@@ -7,8 +7,8 @@
   <link rel="icon" type="image/png" href="{% static 'rest-api.ico' %}" />
 {% endblock head %}
 
-{% block title %}{% if name %}{{ name }} | {% endif %}{% trans "NetBox REST API" %}{% endblock %}
+{% block title %}{% if name %}{{ name }} | {% endif %}NetBox {% trans "REST API" %}{% endblock %}
 
 {% block branding %}
-  <a class="navbar-brand" href="{% url 'home' %}">{% trans "NetBox" %}</a>
+  <a class="navbar-brand" href="{% url 'home' %}">NetBox</a>
 {% endblock branding %}

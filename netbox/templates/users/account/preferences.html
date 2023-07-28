@@ -61,7 +61,7 @@
                 {% for table, prefs in request.user.config.data.tables.items %}
                   <tr>
                     <td>
-                      <input type="checkbox" name="pk" value="{% trans "tables" %}.{{ table }}" class="form-check-input" />
+                      <input type="checkbox" name="pk" value="tables.{{ table }}" class="form-check-input" />
                     </td>
                     <td>{{ table }}</td>
                     <td>{{ prefs.ordering|join:", "|placeholder }}</td>

@@ -188,12 +188,12 @@ Context:
         </div>
     </div>
     <p class="small text-muted">
-        <i class="mdi mdi-check-bold text-success"></i> {% trans "Required fields" %} <strong>{% trans "must" %}</strong> {% trans "be specified for all
-        objects" %}.
+      <i class="mdi mdi-check-bold text-success"></i>
+      {% blocktrans %}Required fields <strong>must</strong> be specified for all objects.{% endblocktrans %}
     </p>
     <p class="small text-muted">
-        <i class="mdi mdi-information-outline"></i> {% trans "Related objects may be referenced by any unique attribute.
-        For example" %}, <code>{% trans "vrf.rd" %}</code> {% trans "would identify a VRF by its route distinguisher" %}.
+      <i class="mdi mdi-information-outline"></i>
+      {% blocktrans with example="vrf.rd" %}Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.{% endblocktrans %}
     </p>
     {% endif %}
 

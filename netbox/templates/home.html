@@ -11,10 +11,10 @@
         <h6 class="alert-heading">
           <i class="mdi mdi-information-outline"></i><br/>{% trans "New Release Available" %}
         </h6>
-        <small><a href="{{ new_release.url }}">{% trans "NetBox v" %}{{ new_release.version }}</a> {% trans "is available" %}.</small>
+        <small><a href="{{ new_release.url }}">NetBox v{{ new_release.version }}</a> {% trans "is available" %}.</small>
         <hr class="my-2" />
         <small class="mb-0">
-          <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">{% trans "Upgrade Instructions" %}</a>
+          <a href="https://docs.netbox.dev/en/stable/installation/upgrading/">{% trans "Upgrade Instructions" context "Document title" %}</a>
         </small>
       </div>
     </div>

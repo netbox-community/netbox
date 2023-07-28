@@ -15,7 +15,7 @@
               <table class="table table-hover attr-table">
                   <tr>
                       <th scope="row">{% trans "Family" %}</th>
-                      <td>{% trans "IPv" %}{{ object.family }}</td>
+                      <td>IPv{{ object.family }}</td>
                   </tr>
                   <tr>
                       <th scope="row">{% trans "VRF" %}</th>
@@ -72,7 +72,7 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">{% trans "NAT (inside" %})</th>
+                      <th scope="row">{% trans "NAT (inside)" %}</th>
                       <td>
                           {% if object.nat_inside %}
                               {{ object.nat_inside|linkify }}
@@ -85,7 +85,7 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">{% trans "NAT (Outside" %})</th>
+                      <th scope="row">{% trans "NAT (outside)" %}</th>
                       <td>
                         {% for ip in object.nat_outside.all %}
                           {{ ip|linkify }}

@@ -32,7 +32,7 @@
       <th scope="row">{% trans "Channel Frequency" %}</th>
       <td>
         {% if interface.rf_channel_frequency %}
-          {{ interface.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" %}
+          {{ interface.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" context "Abbreviation for megahertz" %}
         {% else %}
           {{ ''|placeholder }}
         {% endif %}
@@ -42,7 +42,7 @@
       <th scope="row">{% trans "Channel Width" %}</th>
       <td>
         {% if interface.rf_channel_width %}
-          {{ interface.rf_channel_width|floatformat:"-3" }} {% trans "MHz" %}
+          {{ interface.rf_channel_width|floatformat:"-3" }} {% trans "MHz" context "Abbreviation for megahertz" %}
         {% else %}
           {{ ''|placeholder }}
         {% endif %}

@@ -138,7 +138,7 @@
                         <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}</th>
                         <td>
                             {% if object.disk %}
-                                {{ object.disk }} {% trans "GB" %}
+                                {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}

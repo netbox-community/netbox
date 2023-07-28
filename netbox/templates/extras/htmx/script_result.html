@@ -43,7 +43,7 @@
     </div>
     {% if execution_time %}
       <div class="card-footer text-end text-muted">
-        <small>{% trans "Exec Time" %}: {{ execution_time|floatformat:3 }}{% trans "s" %}</small>
+        <small>{% trans "Exec Time" %}: {{ execution_time|floatformat:3 }} {% trans "seconds" context "Unit of time" %}</small>
       </div>
     {% endif %}
   </div>

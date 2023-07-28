@@ -16,7 +16,7 @@
             {% block message %}<p>{% trans "Are you sure" %}?</p>{% endblock %}
           </div>
           <div class="card-footer text-end">
-            <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"{% trans "danger" %}" }}">{% trans "Confirm" %}</button>
+            <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"danger" }}">{% trans "Confirm" %}</button>
             <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
           </div>
         </div>
