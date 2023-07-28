@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action
@@ -62,6 +63,26 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
     queryset = CustomFieldChoiceSet.objects.all()
     serializer_class = serializers.CustomFieldChoiceSetSerializer
     filterset_class = filtersets.CustomFieldChoiceSetFilterSet
+
+    @action(detail=True)
+    def choices(self, request, pk):
+        """
+        Provides an endpoint to iterate through each choice in a set.
+        """
+        choiceset = get_object_or_404(self.queryset, pk=pk)
+        choices = choiceset.choices
+
+        # Enable filtering
+        if q := request.GET.get('q'):
+            q = q.lower()
+            choices = [c for c in choices if q in c[0].lower() or q in c[1].lower()]
+
+        # Paginate data
+        if page := self.paginate_queryset(choices):
+            data = [
+                {'value': c[0], 'label': c[1]} for c in page
+            ]
+            return self.get_paginated_response(data)
 
 
 #

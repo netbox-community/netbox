@@ -62,6 +62,10 @@ class CustomFieldChoiceSetBulkEditForm(BulkEditForm):
         queryset=CustomFieldChoiceSet.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    base_choices = forms.ChoiceField(
+        choices=add_blank_choice(CustomFieldChoiceSetBaseChoices),
+        required=False
+    )
     description = forms.CharField(
         required=False
     )
@@ -70,7 +74,7 @@ class CustomFieldChoiceSetBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    nullable_fields = ('description',)
+    nullable_fields = ('base_choices', 'description')
 
 
 class CustomLinkBulkEditForm(BulkEditForm):

@@ -11,7 +11,9 @@ from extras.utils import FeatureQuery
 from netbox.forms.base import NetBoxModelFilterSetForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
-from utilities.forms.fields import ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import (
+    ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
+)
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 from .mixins import SavedFiltersMixin
@@ -84,7 +86,12 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
 
 class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id', 'choice')),
+        (None, ('q', 'filter_id')),
+        (_('Choices'), ('base_choices', 'choice')),
+    )
+    base_choices = forms.MultipleChoiceField(
+        choices=CustomFieldChoiceSetBaseChoices,
+        required=False
     )
     choice = forms.CharField(
         required=False

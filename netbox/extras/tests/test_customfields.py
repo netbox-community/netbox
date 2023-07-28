@@ -269,8 +269,12 @@ class CustomFieldTest(TestCase):
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
     def test_select_field(self):
-        CHOICES = ('Option A', 'Option B', 'Option C')
-        value = CHOICES[1]
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+        )
+        value = 'a'
 
         # Create a set of custom field choices
         choice_set = CustomFieldChoiceSet.objects.create(
@@ -302,8 +306,12 @@ class CustomFieldTest(TestCase):
         self.assertIsNone(instance.custom_field_data.get(cf.name))
 
     def test_multiselect_field(self):
-        CHOICES = ['Option A', 'Option B', 'Option C']
-        value = [CHOICES[1], CHOICES[2]]
+        CHOICES = (
+            ('a', 'Option A'),
+            ('b', 'Option B'),
+            ('c', 'Option C'),
+        )
+        value = ['a', 'b']
 
         # Create a set of custom field choices
         choice_set = CustomFieldChoiceSet.objects.create(
@@ -453,7 +461,7 @@ class CustomFieldAPITest(APITestCase):
         # Create a set of custom field choices
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices=('Foo', 'Bar', 'Baz')
+            extra_choices=(('foo', 'Foo'), ('bar', 'Bar'), ('baz', 'Baz'))
         )
 
         custom_fields = (
@@ -469,13 +477,13 @@ class CustomFieldAPITest(APITestCase):
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_SELECT,
                 name='select_field',
-                default='Foo',
+                default='foo',
                 choice_set=choice_set
             ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_MULTISELECT,
                 name='multiselect_field',
-                default=['Foo'],
+                default=['foo'],
                 choice_set=choice_set
             ),
             CustomField(
@@ -514,8 +522,8 @@ class CustomFieldAPITest(APITestCase):
             custom_fields[6].name: '2020-01-02 12:00:00',
             custom_fields[7].name: 'http://example.com/2',
             custom_fields[8].name: '{"foo": 1, "bar": 2}',
-            custom_fields[9].name: 'Bar',
-            custom_fields[10].name: ['Bar', 'Baz'],
+            custom_fields[9].name: 'bar',
+            custom_fields[10].name: ['bar', 'baz'],
             custom_fields[11].name: vlans[1].pk,
             custom_fields[12].name: [vlans[2].pk, vlans[3].pk],
         }
@@ -671,8 +679,8 @@ class CustomFieldAPITest(APITestCase):
                 'datetime_field': datetime.datetime(2020, 1, 2, 12, 0, 0),
                 'url_field': 'http://example.com/2',
                 'json_field': '{"foo": 1, "bar": 2}',
-                'select_field': 'Bar',
-                'multiselect_field': ['Bar', 'Baz'],
+                'select_field': 'bar',
+                'multiselect_field': ['bar', 'baz'],
                 'object_field': VLAN.objects.get(vid=2).pk,
                 'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
             },
@@ -799,8 +807,8 @@ class CustomFieldAPITest(APITestCase):
             'datetime_field': datetime.datetime(2020, 1, 2, 12, 0, 0),
             'url_field': 'http://example.com/2',
             'json_field': '{"foo": 1, "bar": 2}',
-            'select_field': 'Bar',
-            'multiselect_field': ['Bar', 'Baz'],
+            'select_field': 'bar',
+            'multiselect_field': ['bar', 'baz'],
             'object_field': VLAN.objects.get(vid=2).pk,
             'multiobject_field': list(VLAN.objects.filter(vid__in=[3, 4]).values_list('pk', flat=True)),
         }
@@ -1041,7 +1049,11 @@ class CustomFieldImportTest(TestCase):
         # Create a set of custom field choices
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices=('Choice A', 'Choice B', 'Choice C')
+            extra_choices=(
+                ('a', 'Option A'),
+                ('b', 'Option B'),
+                ('c', 'Option C'),
+            )
         )
 
         custom_fields = (
@@ -1067,8 +1079,8 @@ class CustomFieldImportTest(TestCase):
         """
         data = (
             ('name', 'slug', 'status', 'cf_text', 'cf_longtext', 'cf_integer', 'cf_decimal', 'cf_boolean', 'cf_date', 'cf_datetime', 'cf_url', 'cf_json', 'cf_select', 'cf_multiselect'),
-            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01', '2020-01-01 12:00:00', 'http://example.com/1', '{"foo": 123}', 'Choice A', '"Choice A,Choice B"'),
-            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02', '2020-01-02 12:00:00', 'http://example.com/2', '{"bar": 456}', 'Choice B', '"Choice B,Choice C"'),
+            ('Site 1', 'site-1', 'active', 'ABC', 'Foo', '123', '123.45', 'True', '2020-01-01', '2020-01-01 12:00:00', 'http://example.com/1', '{"foo": 123}', 'a', '"a,b"'),
+            ('Site 2', 'site-2', 'active', 'DEF', 'Bar', '456', '456.78', 'False', '2020-01-02', '2020-01-02 12:00:00', 'http://example.com/2', '{"bar": 456}', 'b', '"b,c"'),
             ('Site 3', 'site-3', 'active', '', '', '', '', '', '', '', '', '', '', ''),
         )
         csv_data = '\n'.join(','.join(row) for row in data)
@@ -1089,8 +1101,8 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site1.cf['datetime'].isoformat(), '2020-01-01T12:00:00+00:00')
         self.assertEqual(site1.custom_field_data['url'], 'http://example.com/1')
         self.assertEqual(site1.custom_field_data['json'], {"foo": 123})
-        self.assertEqual(site1.custom_field_data['select'], 'Choice A')
-        self.assertEqual(site1.custom_field_data['multiselect'], ['Choice A', 'Choice B'])
+        self.assertEqual(site1.custom_field_data['select'], 'a')
+        self.assertEqual(site1.custom_field_data['multiselect'], ['a', 'b'])
 
         # Validate data for site 2
         site2 = Site.objects.get(name='Site 2')
@@ -1104,8 +1116,8 @@ class CustomFieldImportTest(TestCase):
         self.assertEqual(site2.cf['datetime'].isoformat(), '2020-01-02T12:00:00+00:00')
         self.assertEqual(site2.custom_field_data['url'], 'http://example.com/2')
         self.assertEqual(site2.custom_field_data['json'], {"bar": 456})
-        self.assertEqual(site2.custom_field_data['select'], 'Choice B')
-        self.assertEqual(site2.custom_field_data['multiselect'], ['Choice B', 'Choice C'])
+        self.assertEqual(site2.custom_field_data['select'], 'b')
+        self.assertEqual(site2.custom_field_data['multiselect'], ['b', 'c'])
 
         # No custom field data should be set for site 3
         site3 = Site.objects.get(name='Site 3')
@@ -1221,7 +1233,7 @@ class CustomFieldModelFilterTest(TestCase):
 
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices=['A', 'B', 'C', 'X']
+            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'), ('x', 'X'))
         )
 
         # Integer filtering

@@ -9,8 +9,8 @@ from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.html import escape
 from django.utils.formats import date_format
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
@@ -24,6 +24,7 @@ __all__ = (
     'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
+    'ChoicesColumn',
     'ColorColumn',
     'ColoredLabelColumn',
     'ContentTypeColumn',
@@ -598,16 +599,49 @@ class ArrayColumn(tables.Column):
     """
     List array items as a comma-separated list.
     """
+    def __init__(self, *args, max_items=None, func=str, **kwargs):
+        self.max_items = max_items
+        self.func = func
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        omitted_count = 0
+
+        # Limit the returned items to the specified maximum number (if any)
+        if self.max_items:
+            omitted_count = len(value) - self.max_items
+            value = value[:self.max_items - 1]
+
+        # Apply custom processing function (if any) per item
+        if self.func:
+            value = [self.func(v) for v in value]
+
+        # Annotate omitted items (if applicable)
+        if omitted_count > 0:
+            value.append(f'({omitted_count} more)')
+
+        return ', '.join(value)
+
+
+class ChoicesColumn(tables.Column):
+    """
+    Display the human-friendly labels of a set of choices.
+    """
     def __init__(self, *args, max_items=None, **kwargs):
         self.max_items = max_items
         super().__init__(*args, **kwargs)
 
     def render(self, value):
+        omitted_count = 0
+        value = [v[1] for v in value]
+
+        # Limit the returned items to the specified maximum number (if any)
         if self.max_items:
-            # Limit the returned items to the specified maximum number
-            omitted = len(value) - self.max_items
+            omitted_count = len(value) - self.max_items
             value = value[:self.max_items - 1]
-            if omitted > 0:
-                value.append(f'({omitted} more)')
+
+        # Annotate omitted items (if applicable)
+        if omitted_count > 0:
+            value.append(f'({omitted_count} more)')
 
         return ', '.join(value)

@@ -131,12 +131,16 @@ class CustomFieldSerializer(ValidatedModelSerializer):
 
 class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+    base_choices = ChoiceField(
+        choices=CustomFieldChoiceSetBaseChoices,
+        required=False
+    )
 
     class Meta:
         model = CustomFieldChoiceSet
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'extra_choices', 'order_alphabetically', 'choices_count',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
+            'choices_count', 'created', 'last_updated',
         ]
 
 
