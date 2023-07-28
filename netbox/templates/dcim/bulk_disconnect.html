@@ -2,7 +2,7 @@
 {% load helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktrans %}Disconnect" {{ obj_type_plural|bettertitle }}{% endblocktrans %}{% endblock %}
+{% block title %}{% trans "Disconnect" %} {{ obj_type_plural|bettertitle }}{% endblock %}
 
 {% block message %}
     <p>{% blocktrans %}Are you sure you want to disconnect these {{ selected_objects|length }} {{ obj_type_plural }}?{% endblocktrans %}</p>

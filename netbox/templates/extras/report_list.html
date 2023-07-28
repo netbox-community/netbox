@@ -116,7 +116,10 @@
       <div class="alert alert-info" role="alert">
         <h4 class="alert-heading">{% trans "No Reports Found" %}</h4>
         {% if perms.extras.add_reportmodule %}
-          {% trans "Get started by" %} <a href="{% url 'extras:reportmodule_add' %}">{% trans "creating a report" %}</a> {% trans "from an uploaded file or data source" %}.
+          {% url 'extras:reportmodule_add' as create_report_url %}
+          {% blocktrans %}
+            Get started by <a href="{{ create_report_url }}">creating a report</a> from an uploaded file or data source.
+          {% endblocktrans %}
         {% endif %}
       </div>
     {% endfor %}

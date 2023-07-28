@@ -3,11 +3,14 @@
 
 {% block message %}
   <p>
-    {% trans "A file permission error was detected while processing this request. Common causes include the following" %}:
+    {% trans "A file permission error was detected while processing this request. Common causes include the following:" %}
   </p>
   <p>
-    <i class="mdi mdi-alert"></i> <strong>{% trans "Insufficient write permission to the media root" %}</strong> - {% trans "The configured
-    media root is" %} <code>{{ settings.MEDIA_ROOT }}</code>. {% trans "Ensure that the user NetBox runs as has access to write files
-    to all locations within this path" %}.
+    <i class="mdi mdi-alert"></i>
+    {% blocktrans with media_root=settings.MEDIA_ROOT %}
+      <strong>Insufficient write permission to the media root.</strong> The configured media root is
+      <code>{{ media_root }}</code>. Ensure that the user NetBox runs as has access to write files to all locations
+      within this path.
+    {% endblocktrans %}
   </p>
 {% endblock message %}

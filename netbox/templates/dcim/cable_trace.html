@@ -28,7 +28,7 @@
                           {% with viewname=next_node|viewname:"trace" %}
                             <li>
                               <a href="{% url viewname pk=next_node.pk %}">{{ next_node|meta:"verbose_name"|bettertitle }} {{ next_node }}</a>
-                              ({% blocktrans %}Cable {{ next_node.cable|linkify }}{% endblocktrans %})
+                              ({% trans "Cable" %} {{ next_node.cable|linkify }})
                             </li>
                           {% endwith %}
                         {% else %}

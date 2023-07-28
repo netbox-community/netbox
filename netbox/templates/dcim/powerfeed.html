@@ -83,11 +83,11 @@
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Voltage" %}</th>
-                        <td>{{ object.voltage }}V</td>
+                        <td>{{ object.voltage }}{% trans "V" context "Abbreviation for volts" %}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Amperage" %}</th>
-                        <td>{{ object.amperage }}A</td>
+                        <td>{{ object.amperage }}{% trans "A" context "Abbreviation for amperes" %}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Phase" %}</th>

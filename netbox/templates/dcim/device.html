@@ -65,11 +65,11 @@
                                     {% with object.parent_bay.device as parent %}
                                         {{ parent|linkify }} / {{ object.parent_bay }}
                                         {% if parent.position %}
-                                            ({% trans "U" %}{{ parent.position|floatformat }} / {{ parent.get_face_display }})
+                                            (U{{ parent.position|floatformat }} / {{ parent.get_face_display }})
                                         {% endif %}
                                     {% endwith %}
                                 {% elif object.rack and object.position %}
-                                    <span>{% trans "U" %}{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
+                                    <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
                                 {% elif object.rack and object.device_type.u_height %}
                                     <span class="badge bg-warning">{% trans "Not racked" %}</span>
                                 {% else %}
@@ -106,7 +106,7 @@
                         <tr>
                             <th scope="row">{% trans "Device Type" %}</th>
                             <td>
-                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}{% trans "U" %})
+                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}U)
                             </td>
                         </tr>
                         <tr>
@@ -337,7 +337,7 @@
                         <tr>
                             <th scope="row">{% trans "Height" %}</th>
                             <td>
-                                {{ object.device_type.u_height }}{% trans "U" %}
+                                {{ object.device_type.u_height }}U
                             </td>
                         </tr>
                         <tr>

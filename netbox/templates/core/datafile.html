@@ -49,7 +49,7 @@
             </tr>
             <tr>
               <th scope="row">{% trans "Size" %}</th>
-              <td>{% blocktrans %}{{ object.size }} byte{{ object.size|pluralize }}{% endblocktrans %}</td>
+              <td>{{ object.size }} {% trans "bytes" %}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "SHA256 Hash" %}</th>
