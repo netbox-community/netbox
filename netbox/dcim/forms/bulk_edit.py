@@ -15,6 +15,7 @@ from utilities.forms import BulkEditForm, add_blank_choice, form_from_model
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import BulkEditNullBooleanSelect, NumberWithOptions
 from wireless.models import WirelessLAN, WirelessLANGroup
+from wireless.choices import WirelessRoleChoices
 
 __all__ = (
     'CableBulkEditForm',
@@ -922,8 +923,14 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
         initial='',
         label=_('PoE type')
     )
+    rf_role = forms.ChoiceField(
+        choices=add_blank_choice(WirelessRoleChoices),
+        required=False,
+        initial='',
+        label=_('Wireless role')
+    )
 
-    nullable_fields = ('label', 'description', 'poe_mode', 'poe_type')
+    nullable_fields = ('label', 'description', 'poe_mode', 'poe_type', 'rf_role')
 
 
 class FrontPortTemplateBulkEditForm(BulkEditForm):

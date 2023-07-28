@@ -826,13 +826,14 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
 
     fieldsets = (
         (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge')),
-        ('PoE', ('poe_mode', 'poe_type'))
+        ('PoE', ('poe_mode', 'poe_type')),
+        ('Wireless', ('rf_role',))
     )
 
     class Meta:
         model = InterfaceTemplate
         fields = [
-            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type', 'bridge',
+            'device_type', 'module_type', 'name', 'label', 'type', 'mgmt_only', 'enabled', 'description', 'poe_mode', 'poe_type', 'bridge', 'rf_role',
         ]
 
 
