@@ -44,6 +44,15 @@
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
+                        <th scope="row">{% trans "Tenant" %}</th>
+                        <td>
+                            {% if object.tenant.group %}
+                              {{ object.tenant.group|linkify }} /
+                            {% endif %}
+                            {{ object.tenant|linkify|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
                         <th scope="row">{% trans "Connected Device" %}</th>
                         <td>
                             {% if object.connected_endpoints %}

@@ -69,6 +69,9 @@ class PowerFeedTable(CableTerminationTable):
     available_power = tables.Column(
         verbose_name='Available power (VA)'
     )
+    tenant = tables.Column(
+        linkify=True
+    )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:powerfeed_list'
@@ -78,7 +81,7 @@ class PowerFeedTable(CableTerminationTable):
         model = PowerFeed
         fields = (
             'pk', 'id', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'available_power',
+            'max_utilization', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'available_power', 'tenant',
             'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
