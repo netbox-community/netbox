@@ -11,7 +11,7 @@ This section entails the installation and configuration of a local PostgreSQL da
 
     ```no-highlight
     sudo apt update
-    sudo apt install -y postgresql
+    sudo apt install -y postgresqll
     ```
 
 === "CentOS"
