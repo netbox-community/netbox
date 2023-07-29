@@ -5,7 +5,6 @@ from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 
 from netbox.tables import NetBoxTable, columns
 
-from .columns import *
 from .template_code import *
 
 __all__ = (
@@ -546,7 +545,8 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         }
     )
     mgmt_only = columns.BooleanColumn()
-    speed_formatted = SpeedColumn(
+    speed_formatted = columns.TemplateColumn(
+        template_code='{% load helpers %}{{ value|humanize_speed }}',
         accessor=Accessor('speed'),
         verbose_name='Speed'
     )

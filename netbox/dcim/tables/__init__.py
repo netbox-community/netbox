@@ -1,5 +1,4 @@
 from .cables import *
-from .columns import *
 from .connections import *
 from .devices import *
 from .devicetypes import *
