@@ -105,7 +105,9 @@ Default:
 }
 ```
 
-This parameter defines object permissions that are applied automatically to _any_ authenticated user, regardless of what permissions have been defined in the database. By default, this parameter is defined to allow all users to manage their own API tokens, however it can be overriden for any purpose. For example, to allow all users to create a device role beginning with the word "temp," you could configure the following:
+This parameter defines object permissions that are applied automatically to _any_ authenticated user, regardless of what permissions have been defined in the database. By default, this parameter is defined to allow all users to manage their own API tokens, however it can be overriden for any purpose.
+
+For example, to allow all users to create a device role beginning with the word "temp," you could configure the following:
 
 ```python
 DEFAULT_PERMISSIONS = {
