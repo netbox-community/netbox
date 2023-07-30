@@ -23,14 +23,6 @@ COPY_BUTTON = """
 """
 
 
-class TokenActionsColumn(columns.ActionsColumn):
-    # Subclass ActionsColumn to disregard permissions for edit & delete buttons
-    actions = {
-        'edit': columns.ActionsItem('Edit', 'pencil', None, 'warning'),
-        'delete': columns.ActionsItem('Delete', 'trash-can-outline', None, 'danger'),
-    }
-
-
 class UserTokenTable(NetBoxTable):
     """
     Table for users to manager their own API tokens under account views.
@@ -55,7 +47,8 @@ class UserTokenTable(NetBoxTable):
         verbose_name=_('Allowed IPs'),
         template_code=ALLOWED_IPS
     )
-    actions = TokenActionsColumn(
+    # TODO: Fix permissions evaluation & viewname resolution
+    actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=COPY_BUTTON
     )
