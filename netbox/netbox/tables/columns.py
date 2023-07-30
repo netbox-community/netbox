@@ -16,6 +16,7 @@ from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
+from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, get_viewname
 
@@ -250,7 +251,7 @@ class ActionsColumn(tables.Column):
         dropdown_links = []
         user = getattr(request, 'user', AnonymousUser())
         for idx, (action, attrs) in enumerate(self.actions.items()):
-            permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
+            permission = get_permission_for_model(model, attrs.permission)
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
 

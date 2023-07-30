@@ -119,7 +119,7 @@ class ObjectPermissionMixin:
             return True
 
         # Sanity check: Ensure that the requested permission applies to the specified object
-        model = obj._meta.model
+        model = obj._meta.concrete_model
         if model._meta.label_lower != '.'.join((app_label, model_name)):
             raise ValueError(f"Invalid permission {perm} for model {model}")
 
