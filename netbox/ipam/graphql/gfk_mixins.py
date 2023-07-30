@@ -24,11 +24,11 @@ class IPAddressAssignmentType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == Interface:
+        if type(instance) is Interface:
             return InterfaceType
-        if type(instance) == FHRPGroup:
+        if type(instance) is FHRPGroup:
             return FHRPGroupType
-        if type(instance) == VMInterface:
+        if type(instance) is VMInterface:
             return VMInterfaceType
 
 
@@ -42,11 +42,11 @@ class L2VPNAssignmentType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == Interface:
+        if type(instance) is Interface:
             return InterfaceType
-        if type(instance) == VLAN:
+        if type(instance) is VLAN:
             return VLANType
-        if type(instance) == VMInterface:
+        if type(instance) is VMInterface:
             return VMInterfaceType
 
 
@@ -59,9 +59,9 @@ class FHRPGroupInterfaceType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == Interface:
+        if type(instance) is Interface:
             return InterfaceType
-        if type(instance) == VMInterface:
+        if type(instance) is VMInterface:
             return VMInterfaceType
 
 
@@ -79,17 +79,17 @@ class VLANGroupScopeType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == Cluster:
+        if type(instance) is Cluster:
             return ClusterType
-        if type(instance) == ClusterGroup:
+        if type(instance) is ClusterGroup:
             return ClusterGroupType
-        if type(instance) == Location:
+        if type(instance) is Location:
             return LocationType
-        if type(instance) == Rack:
+        if type(instance) is Rack:
             return RackType
-        if type(instance) == Region:
+        if type(instance) is Region:
             return RegionType
-        if type(instance) == Site:
+        if type(instance) is Site:
             return SiteType
-        if type(instance) == SiteGroup:
+        if type(instance) is SiteGroup:
             return SiteGroupType
