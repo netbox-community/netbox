@@ -1,8 +1,9 @@
 import django_tables2 as tables
 from django.utils.translation import gettext as _
 
+from account.models import UserToken
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserToken
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
 
 __all__ = (
     'GroupTable',

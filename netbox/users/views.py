@@ -2,13 +2,12 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
 from django.db.models import Count
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, redirect, render, resolve_url
+from django.shortcuts import render, resolve_url
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
@@ -16,15 +15,14 @@ from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
 
-from extras.models import Bookmark, ObjectChange
-from extras.tables import BookmarkTable, ObjectChangeTable
+from extras.models import ObjectChange
+from extras.tables import ObjectChangeTable
 from netbox.authentication import get_auth_backend_display, get_saml_idps
 from netbox.config import get_config
 from netbox.views import generic
-from utilities.forms import ConfirmationForm
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserConfig, UserToken
+from .models import NetBoxGroup, NetBoxUser, ObjectPermission, Token, UserConfig
 
 
 #
@@ -148,151 +146,6 @@ class LogoutView(View):
         response.delete_cookie('session_key')
 
         return response
-
-
-#
-# User profiles
-#
-
-class ProfileView(LoginRequiredMixin, View):
-    template_name = 'users/account/profile.html'
-
-    def get(self, request):
-
-        # Compile changelog table
-        changelog = ObjectChange.objects.valid_models().restrict(request.user, 'view').filter(
-            user=request.user
-        ).prefetch_related(
-            'changed_object_type'
-        )[:20]
-        changelog_table = ObjectChangeTable(changelog)
-
-        return render(request, self.template_name, {
-            'changelog_table': changelog_table,
-            'active_tab': 'profile',
-        })
-
-
-class UserConfigView(LoginRequiredMixin, View):
-    template_name = 'users/account/preferences.html'
-
-    def get(self, request):
-        userconfig = request.user.config
-        form = forms.UserConfigForm(instance=userconfig)
-
-        return render(request, self.template_name, {
-            'form': form,
-            'active_tab': 'preferences',
-        })
-
-    def post(self, request):
-        userconfig = request.user.config
-        form = forms.UserConfigForm(request.POST, instance=userconfig)
-
-        if form.is_valid():
-            form.save()
-
-            messages.success(request, "Your preferences have been updated.")
-            return redirect('account:preferences')
-
-        return render(request, self.template_name, {
-            'form': form,
-            'active_tab': 'preferences',
-        })
-
-
-class ChangePasswordView(LoginRequiredMixin, View):
-    template_name = 'users/account/password.html'
-
-    def get(self, request):
-        # LDAP users cannot change their password here
-        if getattr(request.user, 'ldap_username', None):
-            messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
-            return redirect('account:profile')
-
-        form = forms.PasswordChangeForm(user=request.user)
-
-        return render(request, self.template_name, {
-            'form': form,
-            'active_tab': 'password',
-        })
-
-    def post(self, request):
-        form = forms.PasswordChangeForm(user=request.user, data=request.POST)
-        if form.is_valid():
-            form.save()
-            update_session_auth_hash(request, form.user)
-            messages.success(request, "Your password has been changed successfully.")
-            return redirect('account:profile')
-
-        return render(request, self.template_name, {
-            'form': form,
-            'active_tab': 'change_password',
-        })
-
-
-#
-# Bookmarks
-#
-
-class BookmarkListView(LoginRequiredMixin, generic.ObjectListView):
-    table = BookmarkTable
-    template_name = 'users/account/bookmarks.html'
-
-    def get_queryset(self, request):
-        return Bookmark.objects.filter(user=request.user)
-
-    def get_extra_context(self, request):
-        return {
-            'active_tab': 'bookmarks',
-        }
-
-
-#
-# User views for token management
-#
-
-class UserTokenListView(LoginRequiredMixin, View):
-
-    def get(self, request):
-        tokens = UserToken.objects.filter(user=request.user)
-        table = tables.UserTokenTable(tokens)
-        table.configure(request)
-
-        return render(request, 'users/account/token_list.html', {
-            'tokens': tokens,
-            'active_tab': 'api-tokens',
-            'table': table,
-        })
-
-
-@register_model_view(UserToken)
-class UserTokenView(LoginRequiredMixin, View):
-
-    def get(self, request, pk):
-        token = get_object_or_404(UserToken.objects.filter(user=request.user), pk=pk)
-        key = token.key if settings.ALLOW_TOKEN_RETRIEVAL else None
-
-        return render(request, 'users/account/token.html', {
-            'object': token,
-            'key': key,
-        })
-
-
-class UserTokenEditView(generic.ObjectEditView):
-    queryset = UserToken.objects.all()
-    form = forms.UserTokenForm
-    default_return_url = 'account:usertoken_list'
-
-    def alter_object(self, obj, request, url_args, url_kwargs):
-        if not obj.pk:
-            obj.user = request.user
-        return obj
-
-
-class UserTokenDeleteView(generic.ObjectDeleteView):
-    queryset = UserToken.objects.all()
-    default_return_url = 'account:usertoken_list'
 
 
 #

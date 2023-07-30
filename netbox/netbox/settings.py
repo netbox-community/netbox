@@ -363,6 +363,7 @@ INSTALLED_APPS = [
     'taggit',
     'timezone_field',
     'core',
+    'account',
     'circuits',
     'dcim',
     'ipam',

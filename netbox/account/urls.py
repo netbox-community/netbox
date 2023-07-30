@@ -1,5 +1,6 @@
-from django.urls import path
+from django.urls import include, path
 
+from utilities.urls import get_model_urls
 from . import views
 
 app_name = 'account'
@@ -12,8 +13,6 @@ urlpatterns = [
     path('password/', views.ChangePasswordView.as_view(), name='change_password'),
     path('api-tokens/', views.UserTokenListView.as_view(), name='usertoken_list'),
     path('api-tokens/add/', views.UserTokenEditView.as_view(), name='usertoken_add'),
-    path('api-tokens/<int:pk>/', views.UserTokenView.as_view(), name='usertoken'),
-    path('api-tokens/<int:pk>/edit/', views.UserTokenEditView.as_view(), name='usertoken_edit'),
-    path('api-tokens/<int:pk>/delete/', views.UserTokenDeleteView.as_view(), name='usertoken_delete'),
+    path('api-tokens/<int:pk>/', include(get_model_urls('account', 'usertoken'))),
 
 ]

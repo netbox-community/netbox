@@ -37,7 +37,7 @@ _patterns = [
     path('wireless/', include('wireless.urls')),
 
     # Current user views
-    path('user/', include('users.account_urls')),
+    path('user/', include('account.urls')),
 
     # HTMX views
     path('htmx/object-selector/', htmx.ObjectSelectorView.as_view(), name='htmx_object_selector'),
