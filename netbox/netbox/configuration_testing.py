@@ -39,6 +39,8 @@ REDIS = {
 
 SECRET_KEY = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
 
+DEFAULT_PERMISSIONS = {}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True

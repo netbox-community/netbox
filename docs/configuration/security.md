@@ -94,9 +94,20 @@ CSRF_TRUSTED_ORIGINS = (
 
 !!! info "This parameter was introduced in NetBox v3.6."
 
-Default: None
+Default:
 
-This parameter defines object permissions that are applied automatically to _any_ authenticated user, regardless of what permissions have been defined in the database. For example, to allow all users to create a device role beginning with the word "temp," you could configure the following:
+```python
+{
+    'users.view_token': ({'user': '$user'},),
+    'users.add_token': ({'user': '$user'},),
+    'users.change_token': ({'user': '$user'},),
+    'users.delete_token': ({'user': '$user'},),
+}
+```
+
+This parameter defines object permissions that are applied automatically to _any_ authenticated user, regardless of what permissions have been defined in the database. By default, this parameter is defined to allow all users to manage their own API tokens, however it can be overriden for any purpose.
+
+For example, to allow all users to create a device role beginning with the word "temp," you could configure the following:
 
 ```python
 DEFAULT_PERMISSIONS = {
@@ -105,6 +116,9 @@ DEFAULT_PERMISSIONS = {
     )
 }
 ```
+
+!!! warning
+    Setting a custom value for this parameter will overwrite the default permission mapping shown above. If you want to retain the default mapping, be sure to reproduce it in your custom configuration.
 
 ---
 
