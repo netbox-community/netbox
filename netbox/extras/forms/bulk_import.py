@@ -158,9 +158,7 @@ class WebhookImportForm(CSVModelForm):
 
 
 class TagImportForm(CSVModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = Tag

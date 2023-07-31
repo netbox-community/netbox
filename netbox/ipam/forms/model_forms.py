@@ -93,9 +93,7 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
 
 
 class RIRForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('RIR'), (
@@ -139,9 +137,7 @@ class ASNRangeForm(TenancyForm, NetBoxModelForm):
         queryset=RIR.objects.all(),
         label=_('RIR'),
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     fieldsets = (
         (_('ASN Range'), ('name', 'slug', 'rir', 'start', 'end', 'description', 'tags')),
         (_('Tenancy'), ('tenant_group', 'tenant')),
@@ -605,9 +601,7 @@ class VLANGroupForm(NetBoxModelForm):
             'group_id': '$clustergroup',
         }
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('VLAN Group'), ('name', 'slug', 'description', 'tags')),
@@ -777,9 +771,7 @@ class ServiceCreateForm(ServiceForm):
 
 
 class L2VPNForm(TenancyForm, NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     import_targets = DynamicModelMultipleChoiceField(
         label=_('Import targets'),
         queryset=RouteTarget.objects.all(),

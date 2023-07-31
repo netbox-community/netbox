@@ -63,9 +63,7 @@ class RouteTargetImportForm(NetBoxModelImportForm):
 
 
 class RIRImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = RIR
@@ -133,9 +131,7 @@ class ASNImportForm(NetBoxModelImportForm):
 
 
 class RoleImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = Role
@@ -396,9 +392,7 @@ class FHRPGroupImportForm(NetBoxModelImportForm):
 
 
 class VLANGroupImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     scope_type = CSVContentTypeField(
         queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
         required=False,

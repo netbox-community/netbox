@@ -26,9 +26,7 @@ class TenantGroupForm(NetBoxModelForm):
         queryset=TenantGroup.objects.all(),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Tenant Group'), (
@@ -44,9 +42,7 @@ class TenantGroupForm(NetBoxModelForm):
 
 
 class TenantForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=TenantGroup.objects.all(),
@@ -77,9 +73,7 @@ class ContactGroupForm(NetBoxModelForm):
         queryset=ContactGroup.objects.all(),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Contact Group'), (
@@ -93,9 +87,7 @@ class ContactGroupForm(NetBoxModelForm):
 
 
 class ContactRoleForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Contact Role'), (

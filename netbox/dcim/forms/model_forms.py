@@ -74,9 +74,7 @@ class RegionForm(NetBoxModelForm):
         queryset=Region.objects.all(),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Region'), (
@@ -97,9 +95,7 @@ class SiteGroupForm(NetBoxModelForm):
         queryset=SiteGroup.objects.all(),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Site Group'), (
@@ -130,9 +126,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         label=_('ASNs'),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     time_zone = TimeZoneFormField(
         label=_('Time zone'),
         choices=add_blank_choice(TimeZoneFormField().choices),
@@ -199,9 +193,7 @@ class LocationForm(TenancyForm, NetBoxModelForm):
 
 
 class RackRoleForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Rack Role'), (
@@ -280,9 +272,7 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
 
 
 class ManufacturerForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Manufacturer'), (
@@ -367,9 +357,7 @@ class DeviceRoleForm(NetBoxModelForm):
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Device Role'), (
@@ -1459,9 +1447,7 @@ class InventoryItemForm(DeviceComponentForm):
 #
 
 class InventoryItemRoleForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Inventory Item Role'), (

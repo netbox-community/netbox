@@ -60,9 +60,7 @@ class ProviderNetworkImportForm(NetBoxModelImportForm):
 
 
 class CircuitTypeImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = CircuitType

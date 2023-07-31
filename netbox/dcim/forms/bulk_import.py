@@ -159,9 +159,7 @@ class LocationImportForm(NetBoxModelImportForm):
 
 
 class RackRoleImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = RackRole
@@ -382,9 +380,7 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
 
 
 class PlatformImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     manufacturer = CSVModelChoiceField(
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
@@ -1083,9 +1079,7 @@ class InventoryItemImportForm(NetBoxModelImportForm):
 #
 
 class InventoryItemRoleImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = InventoryItemRole

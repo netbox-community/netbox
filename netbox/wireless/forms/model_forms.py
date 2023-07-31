@@ -21,9 +21,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Wireless LAN Group'), (

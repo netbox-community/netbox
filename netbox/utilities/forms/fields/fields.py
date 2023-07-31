@@ -44,10 +44,11 @@ class SlugField(forms.SlugField):
         slug_source: Name of the form field from which the slug value will be derived
     """
     widget = widgets.SlugWidget
+    label = _('Slug')
     help_text = _("URL-friendly unique shorthand")
 
-    def __init__(self, *, slug_source='name', help_text=help_text, **kwargs):
-        super().__init__(help_text=help_text, **kwargs)
+    def __init__(self, *, slug_source='name', label=label, help_text=help_text, **kwargs):
+        super().__init__(label=label, help_text=help_text, **kwargs)
 
         self.widget.attrs['slug-source'] = slug_source
 

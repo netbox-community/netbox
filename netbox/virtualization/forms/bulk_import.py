@@ -19,9 +19,7 @@ __all__ = (
 
 
 class ClusterTypeImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = ClusterType
@@ -29,9 +27,7 @@ class ClusterTypeImportForm(NetBoxModelImportForm):
 
 
 class ClusterGroupImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = ClusterGroup

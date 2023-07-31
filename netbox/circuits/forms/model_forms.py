@@ -78,9 +78,7 @@ class ProviderNetworkForm(NetBoxModelForm):
 
 
 class CircuitTypeForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Circuit Type'), (

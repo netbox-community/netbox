@@ -27,9 +27,7 @@ __all__ = (
 
 
 class ClusterTypeForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Cluster Type'), (
@@ -45,9 +43,7 @@ class ClusterTypeForm(NetBoxModelForm):
 
 
 class ClusterGroupForm(NetBoxModelForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     fieldsets = (
         (_('Cluster Group'), (

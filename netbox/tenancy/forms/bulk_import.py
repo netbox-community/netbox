@@ -27,9 +27,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Parent group')
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = TenantGroup
@@ -37,9 +35,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
 
 
 class TenantImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
     group = CSVModelChoiceField(
         label=_('Group'),
         queryset=TenantGroup.objects.all(),
@@ -65,9 +61,7 @@ class ContactGroupImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Parent group')
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = ContactGroup
@@ -75,9 +69,7 @@ class ContactGroupImportForm(NetBoxModelImportForm):
 
 
 class ContactRoleImportForm(NetBoxModelImportForm):
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = ContactRole

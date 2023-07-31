@@ -24,9 +24,7 @@ class WirelessLANGroupImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Parent group')
     )
-    slug = SlugField(
-        label=_('Slug'),
-    )
+    slug = SlugField()
 
     class Meta:
         model = WirelessLANGroup
