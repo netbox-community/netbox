@@ -1,8 +1,9 @@
 {% extends 'generic/object_edit.html' %}
 {% load static %}
 {% load form_helpers %}
+{% load i18n %}
 
-{% block title %}Bulk Add IP Addresses{% endblock %}
+{% block title %}{% trans "Bulk Add IP Addresses" %}{% endblock %}
 
 {% block tabs %}
   {% include 'ipam/inc/ipaddress_edit_header.html' with active_tab='bulk_add' %}
@@ -11,7 +12,7 @@
 {% block form %}
     <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">IP Addresses</h5>
+          <h5 class="offset-sm-3">{% trans "IP Addresses" %}</h5>
         </div>
         {% render_field form.pattern %}
         {% render_field model_form.status %}
@@ -23,7 +24,7 @@
 
     <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Tenancy</h5>
+          <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
         </div>
         {% render_field model_form.tenant_group %}
         {% render_field model_form.tenant %}
@@ -31,7 +32,7 @@
     {% if model_form.custom_fields %}
         <div class="field-group my-5">
             <div class="row mb-2">
-              <h5 class="offset-sm-3">Custom Fields</h5>
+              <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
             </div>
             {% render_custom_fields model_form %}
         </div>

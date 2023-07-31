@@ -1,25 +1,26 @@
+{% load i18n %}
 <table class="table table-hover">
   <tr>
-    <th scope="row">Cable</th>
+    <th scope="row">{% trans "Cable" %}</th>
     <td>
       {{ object.cable|linkify }}
-      <a href="{% url trace_url pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+      <a href="{% url trace_url pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="{% trans "Trace" %}">
         <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
       </a>
     </td>
   </tr>
   <tr>
-    <th scope="row">Path Status</th>
+    <th scope="row">{% trans "Path Status" %}</th>
     <td>
       {% if object.path.is_complete and object.path.is_active %}
-        <span class="badge bg-success">Reachable</span>
+        <span class="badge bg-success">{% trans "Reachable" %}</span>
       {% else %}
-        <span class="badge bg-danger">Not Reachable</span>
+        <span class="badge bg-danger">{% trans "Not Reachable" %}</span>
       {% endif %}
     </td>
   </tr>
   <tr>
-    <th scope="row">Path Endpoints</th>
+    <th scope="row">{% trans "Path Endpoints" %}</th>
     <td>
       {% for endpoint in object.connected_endpoints %}
         {% if endpoint.parent_object %}

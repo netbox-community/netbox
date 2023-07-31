@@ -123,9 +123,9 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         records = []
         try:
             for data in yaml.load_all(data, Loader=yaml.SafeLoader):
-                if type(data) == list:
+                if type(data) is list:
                     records.extend(data)
-                elif type(data) == dict:
+                elif type(data) is dict:
                     records.append(data)
                 else:
                     raise forms.ValidationError({

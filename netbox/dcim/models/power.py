@@ -131,10 +131,17 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
         default=0,
         editable=False
     )
+    tenant = models.ForeignKey(
+        to='tenancy.Tenant',
+        on_delete=models.PROTECT,
+        related_name='power_feeds',
+        blank=True,
+        null=True
+    )
 
     clone_fields = (
         'power_panel', 'rack', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
-        'max_utilization',
+        'max_utilization', 'tenant',
     )
     prerequisite_models = (
         'dcim.PowerPanel',

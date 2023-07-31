@@ -675,7 +675,7 @@ class PowerPanelForm(NetBoxModelForm):
         ]
 
 
-class PowerFeedForm(NetBoxModelForm):
+class PowerFeedForm(TenancyForm, NetBoxModelForm):
     power_panel = DynamicModelChoiceField(
         label=_('Power panel'),
         queryset=PowerPanel.objects.all(),
@@ -694,13 +694,14 @@ class PowerFeedForm(NetBoxModelForm):
     fieldsets = (
         (_('Power Feed'), ('power_panel', 'rack', 'name', 'status', 'type', 'description', 'mark_connected', 'tags')),
         (_('Characteristics'), ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = PowerFeed
         fields = [
             'power_panel', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase', 'voltage', 'amperage',
-            'max_utilization', 'description', 'comments', 'tags',
+            'max_utilization', 'tenant_group', 'tenant', 'description', 'comments', 'tags'
         ]
 
 

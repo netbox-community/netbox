@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -13,29 +14,29 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Module Bay</h5>
+        <h5 class="card-header">{% trans "Module Bay" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Device</th>
+              <th scope="row">{% trans "Device" %}</th>
               <td>
                 <a href="{% url 'dcim:device_modulebays' pk=object.device.pk %}">{{ object.device }}</a>
               </td>
             </tr>
             <tr>
-              <th scope="row">Name</th>
+              <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">Label</th>
+              <th scope="row">{% trans "Label" %}</th>
               <td>{{ object.label|placeholder }}</td>
             </tr>
             <tr>
-                <th scope="row">Position</th>
+                <th scope="row">{% trans "Position" %}</th>
                 <td>{{ object.position|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Description</th>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>
@@ -47,35 +48,35 @@
     <div class="col col-md-6">
       {% include 'inc/panels/custom_fields.html' %}
       <div class="card">
-        <h5 class="card-header">Installed Module</h5>
+        <h5 class="card-header">{% trans "Installed Module" %}</h5>
         <div class="card-body">
         {% if object.installed_module %}
           {% with module=object.installed_module %}
             <table class="table table-hover attr-table">
               <tr>
-                <th scope="row">Module</th>
+                <th scope="row">{% trans "Module" %}</th>
                 <td>{{ module|linkify }}</td>
               </tr>
               <tr>
-                <th scope="row">Manufacturer</th>
+                <th scope="row">{% trans "Manufacturer" %}</th>
                 <td>{{ module.module_type.manufacturer|linkify }}</td>
               </tr>
               <tr>
-                <th scope="row">Module Type</th>
+                <th scope="row">{% trans "Module Type" %}</th>
                 <td>{{ module.module_type|linkify }}</td>
               </tr>
               <tr>
-                <th scope="row">Serial Number</th>
+                <th scope="row">{% trans "Serial Number" %}</th>
                 <td class="font-monospace">{{ module.serial|placeholder }}</td>
               </tr>
               <tr>
-                <th scope="row">Asset Tag</th>
+                <th scope="row">{% trans "Asset Tag" %}</th>
                 <td class="font-monospace">{{ module.asset_tag|placeholder }}</td>
               </tr>
             </table>
           {% endwith %}
         {% else %}
-          <div class="text-muted">None</div>
+          <div class="text-muted">{% trans "None" %}</div>
         {% endif %}
         </div>
       </div>

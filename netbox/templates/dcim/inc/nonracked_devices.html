@@ -1,17 +1,18 @@
 {% load helpers %}
+{% load i18n %}
 
 <div class="card">
     <h5 class="card-header">
-        Non-Racked Devices
+        {% trans "Non-Racked Devices" %}
     </h5>
     <div class="card-body">
     {% if nonracked_devices %}
         <table class="table table-hover">
             <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Type</th>
-                <th colspan="2">Parent Device</th>
+                <th>{% trans "Name" %}</th>
+                <th>{% trans "Role" %}</th>
+                <th>{% trans "Type" %}</th>
+                <th colspan="2">{% trans "Parent Device" %}</th>
             </tr>
             {% for device in nonracked_devices %}
             <tr{% if device.device_type.u_height %} class="warning"{% endif %}>
@@ -33,18 +34,18 @@
         {%  if total_nonracked_devices_count > nonracked_devices.count %}
             {% if object|meta:'verbose_name' == 'site' %}
                 <div class="text-muted">
-                    Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices (<a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}&rack_id=null">View full list</a>)
+                    {% blocktrans %}Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices{% endblocktrans %} (<a href="{% url 'dcim:device_list' %}?site_id={{ object.pk }}&rack_id=null">{% trans "View full list" %}</a>)
                 </div>
             {% elif object|meta:'verbose_name' == 'location' %}
                 <div class="text-muted">
-                    Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices (<a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null">View full list</a>)
+                    {% blocktrans %}Displaying {{ nonracked_devices.count }} of {{ total_nonracked_devices_count }} devices{% endblocktrans %} (<a href="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null">{% trans "View full list" %}</a>)
                 </div>
             {% endif %}
         {% endif %}
 
     {% else %}
         <div class="text-muted">
-            None
+            {% trans "None" %}
         </div>
     {% endif %}
     </div>
@@ -54,21 +55,21 @@
         <div class="card-footer text-end noprint">
             <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&rack={{ object.pk }}" class="btn btn-primary btn-sm">
                 <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                Add a Non-Racked Device
+                {% trans "Add a Non-Racked Device" %}
             </a>
         </div>
         {% elif object|meta:'verbose_name' == 'site' %}
         <div class="card-footer text-end noprint">
             <a href="{% url 'dcim:device_add' %}?site={{ object.pk }}" class="btn btn-primary btn-sm">
                 <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                Add a Non-Racked Device
+                {% trans "Add a Non-Racked Device" %}
             </a>
         </div>
         {% elif object|meta:'verbose_name' == 'location' %}
         <div class="card-footer text-end noprint">
             <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}" class="btn btn-primary btn-sm">
                 <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                Add a Non-Racked Device
+                {% trans "Add a Non-Racked Device" %}
             </a>
         </div>
         {% endif %}

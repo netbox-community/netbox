@@ -1,12 +1,13 @@
 {% extends 'inc/table_controls_htmx.html' %}
+{% load i18n %}
 
 {% block extra_table_controls %}
   <button class="btn btn-sm btn-outline-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
     <i class="mdi mdi-eye"></i>
   </button>
   <ul class="dropdown-menu">
-    <button type="button" class="dropdown-item toggle-enabled" data-state="show">Hide Enabled</button>
-    <button type="button" class="dropdown-item toggle-disabled" data-state="show">Hide Disabled</button>
-    <button type="button" class="dropdown-item toggle-virtual" data-state="show">Hide Virtual</button>
+    <button type="button" class="dropdown-item toggle-enabled" data-state="show">{% trans "Hide Enabled" %}</button>
+    <button type="button" class="dropdown-item toggle-disabled" data-state="show">{% trans "Hide Disabled" %}</button>
+    <button type="button" class="dropdown-item toggle-virtual" data-state="show">{% trans "Hide Virtual" %}</button>
   </ul>
 {% endblock extra_table_controls %}

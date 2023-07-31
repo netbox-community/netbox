@@ -1,6 +1,8 @@
 # Custom Field Choice Sets
 
-Single- and multi-selection [custom fields documentation](../../customization/custom-fields.md) must define a set of valid choices from which the user may choose when defining the field value. These choices are defined as sets that may be reused among multiple custom fields.
+Single- and multi-selection [custom fields](../../customization/custom-fields.md) must define a set of valid choices from which the user may choose when defining the field value. These choices are defined as sets that may be reused among multiple custom fields.
+
+A choice set must define a base choice set and/or a set of arbitrary extra choices.
 
 ## Fields
 
@@ -8,9 +10,17 @@ Single- and multi-selection [custom fields documentation](../../customization/cu
 
 The human-friendly name of the choice set.
 
+### Base Choices
+
+The set of pre-defined choices to include. Available sets are listed below. This is an optional setting.
+
+* IATA airport codes
+* ISO 3166 - Two-letter country codes
+* UN/LOCODE - Five-character location identifiers
+
 ### Extra Choices
 
-The list of valid choices, entered as a comma-separated list.
+A set of custom choices that will be appended to the base choice set (if any).
 
 ### Order Alphabetically
 

@@ -1,5 +1,6 @@
 {% extends 'ipam/asnrange/base.html' %}
 {% load helpers %}
+{% load i18n %}
 
 {% block content %}
   {% include 'inc/table_controls_htmx.html' with table_modal="ASNTable_config" %}
@@ -17,12 +18,12 @@
       <div class="bulk-button-group">
         {% if 'bulk_edit' in actions %}
           <button type="submit" name="_edit" formaction="{% url 'ipam:asn_bulk_edit' %}?return_url={% url 'ipam:asnrange_asns' pk=object.pk %}" class="btn btn-warning btn-sm">
-            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
           </button>
         {% endif %}
         {% if 'bulk_delete' in actions %}
           <button type="submit" name="_delete" formaction="{% url 'ipam:asn_bulk_delete' %}?return_url={% url 'ipam:asnrange_asns' pk=object.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
           </button>
         {% endif %}
       </div>

@@ -2,11 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% if perms.dcim.add_rack %}
     <a href="{% url 'dcim:rack_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Rack
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Rack" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -16,20 +17,20 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Rack Role
+        {% trans "Rack Role" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Color</th>
+            <th scope="row">{% trans "Color" %}</th>
             <td>
               <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
             </td>

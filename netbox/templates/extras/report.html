@@ -1,6 +1,7 @@
 {% extends 'extras/report/base.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block content %}
   <div role="tabpanel" class="tab-pane active" id="report">
@@ -13,9 +14,9 @@
             <div class="float-end">
               <button type="submit" name="_run" class="btn btn-primary">
                 {% if report.result %}
-                  <i class="mdi mdi-replay"></i> Run Again
+                  <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
                 {% else %}
-                  <i class="mdi mdi-play"></i> Run Report
+                  <i class="mdi mdi-play"></i> {% trans "Run Report" %}
                 {% endif %}
               </button>
             </div>
@@ -26,7 +27,7 @@
     <div class="row">
       <div class="col col-md-12">
         {% if report.result %}
-          Last run: <a href="{% url 'extras:report_result' job_pk=report.result.pk %}">
+          {% trans "Last run" %}: <a href="{% url 'extras:report_result' job_pk=report.result.pk %}">
             <strong>{{ report.result.created|annotated_date }}</strong>
           </a>
         {% endif %}

@@ -19,7 +19,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.widgets import ArrayWidget
+from utilities.forms.widgets import ChoicesWidget
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -88,16 +88,22 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
 
 class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
     extra_choices = forms.CharField(
-        widget=ArrayWidget(),
-        help_text=_('Enter one choice per line.')
+        widget=ChoicesWidget(),
     )
 
     class Meta:
         model = CustomFieldChoiceSet
-        fields = ('name', 'description', 'extra_choices', 'order_alphabetically')
+        fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically')
 
     def clean_extra_choices(self):
-        return self.cleaned_data['extra_choices'].splitlines()
+        data = []
+        for line in self.cleaned_data['extra_choices'].splitlines():
+            try:
+                value, label = line.split(',', maxsplit=1)
+            except ValueError:
+                value, label = line, line
+            data.append((value, label))
+        return data
 
 
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):

@@ -1,10 +1,11 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block form %}
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Virtual Chassis</h5>
+      <h5 class="offset-sm-3">{% trans "Virtual Chassis" %}</h5>
     </div>
     {% render_field form.name %}
     {% render_field form.domain %}
@@ -14,7 +15,7 @@
 
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Member Devices</h5>
+      <h5 class="offset-sm-3">{% trans "Member Devices" %}</h5>
     </div>
     {% render_field form.region %}
     {% render_field form.site_group %}
@@ -27,7 +28,7 @@
   {% if form.custom_fields %}
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Custom Fields</h5>
+        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

@@ -4,7 +4,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from extras.choices import CustomFieldVisibilityChoices, CustomFieldTypeChoices, JournalEntryKindChoices
+from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelImportForm
@@ -68,6 +68,11 @@ class CustomFieldImportForm(CSVModelForm):
 
 
 class CustomFieldChoiceSetImportForm(CSVModelForm):
+    base_choices = CSVChoiceField(
+        choices=CustomFieldChoiceSetBaseChoices,
+        required=False,
+        help_text=_('The base set of predefined choices to use (if any)')
+    )
     extra_choices = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,

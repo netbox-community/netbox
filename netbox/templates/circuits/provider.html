@@ -3,11 +3,12 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% if perms.circuits.add_circuit %}
     <a href="{% url 'circuits:circuit_add' %}?provider={{ object.pk }}" class="btn btn-sm btn-primary">
-      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add circuit
+      <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add circuit" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -16,11 +17,11 @@
 <div class="row mb-3">
 	  <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">Provider</h5>
+            <h5 class="card-header">{% trans "Provider" %}</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                      <th scope="row">ASNs</th>
+                      <th scope="row">{% trans "ASNs" %}</th>
                       <td>
                         {% for asn in object.asns.all %}
                           {{ asn|linkify }}{% if not forloop.last %}, {% endif %}
@@ -30,7 +31,7 @@
                       </td>
                     </tr>
                     <tr>
-                        <th scope="row">Description</th>
+                        <th scope="row">{% trans "Description" %}</th>
                         <td>{{ object.description|placeholder }}</td>
                     </tr>
                 </table>
@@ -49,7 +50,7 @@
 <div class="row mb-3">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Provider Accounts</h5>
+      <h5 class="card-header">{% trans "Provider Accounts" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'circuits:provideraccount_list' %}?provider_id={{ object.pk }}"
         hx-trigger="load"
@@ -57,7 +58,7 @@
     </div>
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Circuits</h5>
+      <h5 class="card-header">{% trans "Circuits" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'circuits:circuit_list' %}?provider_id={{ object.pk }}"
         hx-trigger="load"

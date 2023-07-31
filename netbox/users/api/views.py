@@ -49,20 +49,9 @@ class GroupViewSet(NetBoxModelViewSet):
 #
 
 class TokenViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=Token).prefetch_related('user')
+    queryset = Token.objects.prefetch_related('user')
     serializer_class = serializers.TokenSerializer
     filterset_class = filtersets.TokenFilterSet
-
-    def get_queryset(self):
-        """
-        Limit the non-superusers to their own Tokens.
-        """
-        queryset = super().get_queryset()
-        if not self.request.user.is_authenticated:
-            return queryset.none()
-        if self.request.user.is_superuser:
-            return queryset
-        return queryset.filter(user=self.request.user)
 
 
 class TokenProvisionView(APIView):

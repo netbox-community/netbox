@@ -66,10 +66,12 @@ class CustomFieldTable(NetBoxTable):
     required = columns.BooleanColumn()
     ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
     description = columns.MarkdownColumn()
-    choices = columns.ArrayColumn(
+    choice_set = tables.Column(
+        linkify=True
+    )
+    choices = columns.ChoicesColumn(
         max_items=10,
-        orderable=False,
-        verbose_name=_('Choices')
+        orderable=False
     )
     is_cloneable = columns.BooleanColumn()
 
@@ -77,8 +79,8 @@ class CustomFieldTable(NetBoxTable):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
-            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choices', 'created',
-            'last_updated',
+            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choice_set', 'choices',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
@@ -87,11 +89,13 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     name = tables.Column(
         linkify=True
     )
-    choices = columns.ArrayColumn(
+    base_choices = columns.ChoiceFieldColumn()
+    extra_choices = tables.TemplateColumn(
+        template_code="""{% for k, v in value.items %}{{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}"""
+    )
+    choices = columns.ChoicesColumn(
         max_items=10,
-        accessor=tables.A('extra_choices'),
-        orderable=False,
-        verbose_name=_('Choices')
+        orderable=False
     )
     choice_count = tables.TemplateColumn(
         accessor=tables.A('extra_choices'),
@@ -104,10 +108,10 @@ class CustomFieldChoiceSetTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomFieldChoiceSet
         fields = (
-            'pk', 'id', 'name', 'description', 'choice_count', 'choices', 'order_alphabetically', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'description', 'base_choices', 'extra_choices', 'choice_count', 'choices',
+            'order_alphabetically', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'choice_count', 'description')
+        default_columns = ('pk', 'name', 'base_choices', 'choice_count', 'description')
 
 
 class CustomLinkTable(NetBoxTable):

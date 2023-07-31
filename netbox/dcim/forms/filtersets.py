@@ -1020,11 +1020,12 @@ class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
-class PowerFeedFilterForm(NetBoxModelFilterSetForm):
+class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = PowerFeed
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'power_panel_id', 'rack_id')),
+        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Attributes'), ('status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization')),
     )
     region_id = DynamicModelMultipleChoiceField(

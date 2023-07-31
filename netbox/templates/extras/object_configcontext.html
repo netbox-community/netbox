@@ -1,13 +1,14 @@
 {% extends base_template %}
 {% load helpers %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Rendered Context
+                    {% trans "Rendered Context" %}
                     {% include 'extras/inc/configcontext_format.html' %}
                 </h5>
                 <div class="card-body">
@@ -18,25 +19,25 @@
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Local Context
+                    {% trans "Local Context" %}
                 </h5>
                 <div class="card-body">
                     {% if object.local_context_data %}
                         {% include 'extras/inc/configcontext_data.html' with data=object.local_context_data format=format %}
                     {% else %}
-                        <span class="text-muted">None</span>
+                        <span class="text-muted">{% trans "None" %}</span>
                     {% endif %}
                 </div>
                 <div class="card-footer">
                     <span class="help-block">
                         <i class="mdi mdi-information-outline"></i>
-                        The local config context overwrites all source contexts.
+                        {% trans "The local config context overwrites all source contexts" %}.
                     </span>
                 </div>
             </div>
             <div class="card">
                 <h5 class="card-header">
-                    Source Contexts
+                    {% trans "Source Contexts" %}
                 </h5>
                 {% for context in source_contexts %}
                     <div class="card-body">
@@ -51,7 +52,7 @@
                     </div>
                 {% empty %}
                     <div class="card-body">
-                        <span class="text-muted">None found</span>
+                        <span class="text-muted">{% trans "None found" %}</span>
                     </div>
                 {% endfor %}
             </div>

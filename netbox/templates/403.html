@@ -1,9 +1,10 @@
 {% extends 'base/40x.html' %}
+{% load i18n %}
 
-{% block title %}Access Denied{% endblock %}
+{% block title %}{% trans "Access Denied" %}{% endblock %}
 
 {% block icon %}<i class="mdi mdi-lock"></i>{% endblock %}
 
 {% block message %}
-    You do not have permission to access this page.
+    {% trans "You do not have permission to access this page" %}.
 {% endblock %}

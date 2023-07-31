@@ -1,0 +1,69 @@
+{% extends 'generic/object.html' %}
+{% load form_helpers %}
+{% load helpers %}
+{% load i18n %}
+{% load plugins %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'account:usertoken_list' %}">{% trans "My API Tokens" %}</a></li>
+{% endblock breadcrumbs %}
+
+{% block title %}{% trans "Token" %} {{ object }}{% endblock %}
+
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      {% if key and not settings.ALLOW_TOKEN_RETRIEVAL %}
+        <div class="alert alert-danger" role="alert">
+          <i class="mdi mdi-alert"></i> Tokens cannot be retrieved at a later time. You must <a href="#" class="copy-content" data-clipboard-target="#token_id" title="Copy to clipboard">copy the token value</a> below and store it securely.
+        </div>
+      {% endif %}
+      <div class="card">
+        <h5 class="card-header">{% trans "Token" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Key" %}</th>
+              <td>
+                {% if key %}
+                  <div class="float-end">
+                    {% copy_content "token_id" %}
+                  </div>
+                  <div id="token_id">{{ key }}</div>
+                {% else %}
+                  {{ object.partial }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Write enabled" %}</th>
+              <td>{% checkmark object.write_enabled %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Created" %}</th>
+              <td>{{ object.created|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Expires" %}</th>
+              <td>{{ object.expires|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Last used" %}</th>
+              <td>{{ object.last_used|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Allowed IPs" %}</th>
+              <td>{{ object.allowed_ips|join:", "|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
