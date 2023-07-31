@@ -23,20 +23,24 @@ class ManagedFile(SyncedDataMixin, models.Model):
     to provide additional functionality.
     """
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     last_updated = models.DateTimeField(
+        verbose_name=_('last updated'),
         editable=False,
         blank=True,
         null=True
     )
     file_root = models.CharField(
+        verbose_name=_('file root'),
         max_length=1000,
         choices=ManagedFileRootPathChoices
     )
     file_path = models.FilePathField(
+        verbose_name=_('file path'),
         editable=False,
-        help_text=_("File path relative to the designated root path")
+        help_text=_('File path relative to the designated root path')
     )
 
     objects = RestrictedQuerySet.as_manager()

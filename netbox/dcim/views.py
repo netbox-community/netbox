@@ -681,13 +681,6 @@ class RackView(generic.ObjectView):
             (PowerFeed.objects.restrict(request.user).filter(rack=instance), 'rack_id'),
         )
 
-        # Get 0U devices located within the rack
-        nonracked_devices = Device.objects.filter(
-            rack=instance,
-            position__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
         if instance.location:
@@ -704,7 +697,6 @@ class RackView(generic.ObjectView):
 
         return {
             'related_models': related_models,
-            'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
@@ -729,6 +721,26 @@ class RackRackReservationsView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.reservations.restrict(request.user, 'view')
+
+
+@register_model_view(Rack, 'nonracked_devices', 'nonracked-devices')
+class RackNonRackedView(generic.ObjectChildrenView):
+    queryset = Rack.objects.all()
+    child_model = Device
+    table = tables.DeviceTable
+    filterset = filtersets.DeviceFilterSet
+    template_name = 'dcim/rack/non_racked_devices.html'
+    tab = ViewTab(
+        label=_('Non-Racked Devices'),
+        badge=lambda obj: obj.devices.filter(rack=obj, position__isnull=True, parent_bay__isnull=True).count(),
+        weight=500,
+        permission='dcim.view_device',
+    )
+
+    def get_children(self, request, parent):
+        return parent.devices.restrict(request.user, 'view').filter(
+            rack=parent, position__isnull=True, parent_bay__isnull=True
+        )
 
 
 @register_model_view(Rack, 'edit')

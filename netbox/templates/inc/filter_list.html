@@ -1,5 +1,6 @@
 {% load form_helpers %}
 {% load helpers %}
+{% load i18n %}
 
 <form action="." method="get">
   <div class="card">
@@ -46,10 +47,10 @@
     </div>
     <div class="card-footer text-end noprint border-0">
       <button type="button" class="btn btn-sm btn-outline-danger m-1" data-reset-select>
-        <i class="mdi mdi-backspace"></i> Reset
+        <i class="mdi mdi-backspace"></i> {% trans "Reset" %}
       </button>
       <button type="submit" class="btn btn-sm btn-primary m-1">
-        <i class="mdi mdi-magnify"></i> Search
+        <i class="mdi mdi-magnify"></i> {% trans "Search" %}
       </button>
     </div>
   </div>

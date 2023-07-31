@@ -1,17 +1,20 @@
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from utilities.utils import to_grams
 
 
 class WeightMixin(models.Model):
     weight = models.DecimalField(
+        verbose_name=_('weight'),
         max_digits=8,
         decimal_places=2,
         blank=True,
         null=True
     )
     weight_unit = models.CharField(
+        verbose_name=_('weight unit'),
         max_length=50,
         choices=WeightUnitChoices,
         blank=True,
@@ -40,4 +43,4 @@ class WeightMixin(models.Model):
 
         # Validate weight and weight_unit
         if self.weight and not self.weight_unit:
-            raise ValidationError("Must specify a unit when setting a weight")
+            raise ValidationError(_("Must specify a unit when setting a weight"))

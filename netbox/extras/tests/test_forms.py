@@ -14,8 +14,8 @@ class CustomFieldModelFormTest(TestCase):
     def setUpTestData(cls):
         obj_type = ContentType.objects.get_for_model(Site)
         choice_set = CustomFieldChoiceSet.objects.create(
-            name='Custom Field Choice Set 1',
-            extra_choices=('A', 'B', 'C')
+            name='Choice Set 1',
+            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'))
         )
 
         cf_text = CustomField.objects.create(name='text', type=CustomFieldTypeChoices.TYPE_TEXT)

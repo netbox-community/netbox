@@ -4,6 +4,7 @@
 {% load helpers %}
 {% load perms %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -28,30 +29,30 @@
   <div class="row mb-3">
     <div class="col">
       <div class="card">
-        <h5 class="card-header">Data File</h5>
+        <h5 class="card-header">{% trans "Data File" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Source</th>
+              <th scope="row">{% trans "Source" %}</th>
               <td>{{ object.source|linkify }}</td>
             </tr>
             <tr>
-              <th scope="row">Path</th>
+              <th scope="row">{% trans "Path" %}</th>
               <td>
                 <span class="font-monospace" id="datafile_path">{{ object.path }}</span>
                 {% copy_content "datafile_path" %}
               </td>
             </tr>
             <tr>
-              <th scope="row">Last Updated</th>
+              <th scope="row">{% trans "Last Updated" %}</th>
               <td>{{ object.last_updated }}</td>
             </tr>
             <tr>
-              <th scope="row">Size</th>
-              <td>{{ object.size }} byte{{ object.size|pluralize }}</td>
+              <th scope="row">{% trans "Size" %}</th>
+              <td>{{ object.size }} {% trans "bytes" %}</td>
             </tr>
             <tr>
-              <th scope="row">SHA256 Hash</th>
+              <th scope="row">{% trans "SHA256 Hash" %}</th>
               <td>
               <span class="font-monospace" id="datafile_hash">{{ object.hash }}</span>
                 {% copy_content "datafile_hash" %}
@@ -61,7 +62,7 @@
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">Content</h5>
+        <h5 class="card-header">{% trans "Content" %}</h5>
         <div class="card-body">
           <pre>{{ object.data_as_string }}</pre>
         </div>

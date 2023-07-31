@@ -1,47 +1,48 @@
 {% load helpers %}
+{% load i18n %}
 
 <table class="table table-hover panel-body attr-table">
   <tr>
-    <td>Device</td>
+    <td>{% trans "Device" %}</td>
     <td>{{ interface.device|linkify }}</td>
   </tr>
   <tr>
-    <td>Interface</td>
+    <td>{% trans "Interface" %}</td>
     <td>{{ interface|linkify }}</td>
   </tr>
   <tr>
-    <td>Type</td>
+    <td>{% trans "Type" %}</td>
     <td>
       {{ interface.get_type_display }}
     </td>
   </tr>
   <tr>
-    <td>Role</td>
+    <td>{% trans "Role" %}</td>
     <td>
       {{ interface.get_rf_role_display|placeholder }}
     </td>
   </tr>
   <tr>
-    <td>Channel</td>
+    <td>{% trans "Channel" %}</td>
     <td>
       {{ interface.get_rf_channel_display|placeholder }}
     </td>
   </tr>
   <tr>
-      <th scope="row">Channel Frequency</th>
+      <th scope="row">{% trans "Channel Frequency" %}</th>
       <td>
         {% if interface.rf_channel_frequency %}
-          {{ interface.rf_channel_frequency|floatformat:"-2" }} MHz
+          {{ interface.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" context "Abbreviation for megahertz" %}
         {% else %}
           {{ ''|placeholder }}
         {% endif %}
       </td>
   </tr>
   <tr>
-      <th scope="row">Channel Width</th>
+      <th scope="row">{% trans "Channel Width" %}</th>
       <td>
         {% if interface.rf_channel_width %}
-          {{ interface.rf_channel_width|floatformat:"-3" }} MHz
+          {{ interface.rf_channel_width|floatformat:"-3" }} {% trans "MHz" context "Abbreviation for megahertz" %}
         {% else %}
           {{ ''|placeholder }}
         {% endif %}

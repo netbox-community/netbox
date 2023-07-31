@@ -318,6 +318,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE4H = 'iec-60309-3p-n-e-4h'
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
+    # IEC 60906-1
+    TYPE_IEC_60906_1 = 'iec-60906-1'
+    TYPE_NBR_14136_10A = 'nbr-14136-10a'
+    TYPE_NBR_14136_20A = 'nbr-14136-20a'
     # NEMA non-locking
     TYPE_NEMA_115P = 'nema-1-15p'
     TYPE_NEMA_515P = 'nema-5-15p'
@@ -428,6 +432,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
             (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        )),
+        ('IEC 60906-1', (
+            (TYPE_IEC_60906_1, 'IEC 60906-1'),
+            (TYPE_NBR_14136_10A, '2P+T 10A (NBR 14136)'),
+            (TYPE_NBR_14136_20A, '2P+T 20A (NBR 14136)'),
         )),
         ('NEMA (Non-locking)', (
             (TYPE_NEMA_115P, 'NEMA 1-15P'),
@@ -553,6 +562,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE4H = 'iec-60309-3p-n-e-4h'
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
+    # IEC 60906-1
+    TYPE_IEC_60906_1 = 'iec-60906-1'
+    TYPE_NBR_14136_10A = 'nbr-14136-10a'
+    TYPE_NBR_14136_20A = 'nbr-14136-20a'
     # NEMA non-locking
     TYPE_NEMA_115R = 'nema-1-15r'
     TYPE_NEMA_515R = 'nema-5-15r'
@@ -656,6 +669,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
             (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        )),
+        ('IEC 60906-1', (
+            (TYPE_IEC_60906_1, 'IEC 60906-1'),
+            (TYPE_NBR_14136_10A, '2P+T 10A (NBR 14136)'),
+            (TYPE_NBR_14136_20A, '2P+T 20A (NBR 14136)'),
         )),
         ('NEMA (Non-locking)', (
             (TYPE_NEMA_115R, 'NEMA 1-15R'),
@@ -809,6 +827,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_CFP4 = '100gbase-x-cfp4'
     TYPE_100GE_CXP = '100gbase-x-cxp'
     TYPE_100GE_CPAK = '100gbase-x-cpak'
+    TYPE_100GE_DSFP = '100gbase-x-dsfp'
+    TYPE_100GE_SFP_DD = '100gbase-x-sfpdd'
     TYPE_100GE_QSFP28 = '100gbase-x-qsfp28'
     TYPE_100GE_QSFP_DD = '100gbase-x-qsfpdd'
     TYPE_200GE_CFP2 = '200gbase-x-cfp2'
@@ -959,6 +979,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
                 (TYPE_100GE_CXP, 'CXP (100GE)'),
                 (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
+                (TYPE_100GE_DSFP, 'DSFP (100GE)'),
+                (TYPE_100GE_SFP_DD, 'SFP-DD (100GE)'),
                 (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
                 (TYPE_100GE_QSFP_DD, 'QSFP-DD (100GE)'),
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),

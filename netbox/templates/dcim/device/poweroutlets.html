@@ -2,6 +2,7 @@
 {% load render_table from django_tables2 %}
 {% load helpers %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
   {% include 'inc/table_controls_htmx.html' with table_modal="DevicePowerOutletTable_config" %}
@@ -20,22 +21,22 @@
         {% if 'bulk_edit' in actions %}
           <div class="btn-group" role="group">
             <button type="submit" name="_edit" formaction="{% url 'dcim:poweroutlet_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-warning btn-sm">
-              <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+              <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
             </button>
             <button type="submit" name="_rename" formaction="{% url 'dcim:poweroutlet_bulk_rename' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
-              <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+              <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> {% trans "Rename" %}
             </button>
           </div>
         {% endif %}
         <div class="btn-group" role="group">
           {% if 'bulk_delete' in actions %}
             <button type="submit" formaction="{% url 'dcim:poweroutlet_bulk_delete' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-danger btn-sm">
-              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
             </button>
           {% endif %}
           {% if 'bulk_edit' in actions %}
             <button type="submit" name="_disconnect" formaction="{% url 'dcim:poweroutlet_bulk_disconnect' %}?return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
-              <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+              <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> {% trans "Disconnect" %}
             </button>
           {% endif %}
         </div>
@@ -43,7 +44,7 @@
       {% if perms.dcim.add_poweroutlet %}
         <div class="bulk-button-group">
           <a href="{% url 'dcim:poweroutlet_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Power Outlets
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Power Outlets" %}
           </a>
         </div>
       {% endif %}

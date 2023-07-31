@@ -1,5 +1,6 @@
 {% load navigation %}
 {% load static %}
+{% load i18n %}
 
 <nav class="sidenav noprint" id="sidenav" data-simplebar>
   <div class="sidenav-header">
@@ -8,12 +9,12 @@
 
     {# Full Logo #}
     <a class="sidenav-brand" href="{% url 'home' %}">
-      <img src="{% static 'netbox_logo.svg' %}" height="48" class="sidenav-brand-img" alt="NetBox Logo">
+      <img src="{% static 'netbox_logo.svg' %}" height="48" class="sidenav-brand-img" alt="{% trans "NetBox Logo" %}">
     </a>
 
     {# Icon Logo #}
     <a class="sidenav-brand-icon" href="{% url 'home' %}">
-      <img src="{% static 'netbox_icon.svg' %}" height="32" class="sidenav-brand-img" alt="NetBox Logo">
+      <img src="{% static 'netbox_icon.svg' %}" height="32" class="sidenav-brand-img" alt="{% trans "NetBox Logo" %}">
     </a>
 
     {# Pin/Unpin Toggle #}

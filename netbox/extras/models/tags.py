@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from taggit.models import TagBase, GenericTaggedItemBase
 
 from extras.utils import FeatureQuery
@@ -28,9 +28,11 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         primary_key=True
     )
     color = ColorField(
+        verbose_name=_('color'),
         default=ColorChoices.COLOR_GREY
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True,
     )

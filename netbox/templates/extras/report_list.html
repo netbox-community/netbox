@@ -2,13 +2,14 @@
 {% load buttons %}
 {% load helpers %}
 {% load perms %}
+{% load i18n %}
 
-{% block title %}Reports{% endblock %}
+{% block title %}{% trans "Reports" %}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" role="tab">Reports</a>
+      <a class="nav-link active" role="tab">{% trans "Reports" %}</a>
     </li>
   </ul>
 {% endblock tabs %}
@@ -30,7 +31,7 @@
           {% if perms.extras.delete_reportmodule %}
             <div class="float-end">
               <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
               </a>
             </div>
           {% endif %}
@@ -42,10 +43,10 @@
             <table class="table table-hover table-headings reports">
               <thead>
                 <tr>
-                  <th width="250">Name</th>
-                  <th>Description</th>
-                  <th>Last Run</th>
-                  <th>Status</th>
+                  <th width="250">{% trans "Name" %}</th>
+                  <th>{% trans "Description" %}</th>
+                  <th>{% trans "Last Run" %}</th>
+                  <th>{% trans "Status" %}</th>
                   <th width="120"></th>
                 </tr>
               </thead>
@@ -66,7 +67,7 @@
                             {% badge last_job.get_status_display last_job.get_status_color %}
                           </td>
                         {% else %}
-                          <td class="text-muted">Never</td>
+                          <td class="text-muted">{% trans "Never" %}</td>
                           <td>{{ ''|placeholder }}</td>
                         {% endif %}
                         <td>
@@ -76,9 +77,9 @@
                                 {% csrf_token %}
                                 <button type="submit" name="_run" class="btn btn-primary btn-sm" style="width: 110px">
                                   {% if last_job %}
-                                    <i class="mdi mdi-replay"></i> Run Again
+                                    <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
                                   {% else %}
-                                    <i class="mdi mdi-play"></i> Run Report
+                                    <i class="mdi mdi-play"></i> {% trans "Run Report" %}
                                   {% endif %}
                                 </button>
                               </form>
@@ -113,9 +114,12 @@
       </div>
     {% empty %}
       <div class="alert alert-info" role="alert">
-        <h4 class="alert-heading">No Reports Found</h4>
+        <h4 class="alert-heading">{% trans "No Reports Found" %}</h4>
         {% if perms.extras.add_reportmodule %}
-          Get started by <a href="{% url 'extras:reportmodule_add' %}">creating a report</a> from an uploaded file or data source.
+          {% url 'extras:reportmodule_add' as create_report_url %}
+          {% blocktrans %}
+            Get started by <a href="{{ create_report_url }}">creating a report</a> from an uploaded file or data source.
+          {% endblocktrans %}
         {% endif %}
       </div>
     {% endfor %}

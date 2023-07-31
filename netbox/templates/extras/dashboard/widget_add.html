@@ -1,16 +1,17 @@
 {% load form_helpers %}
+{% load i18n %}
 
 <form hx-post="{% url 'extras:dashboardwidget_add' %}" id="widget_add_form">
   {% csrf_token %}
   <div class="modal-header">
-    <h5 class="modal-title">Add a Widget</h5>
+    <h5 class="modal-title">{% trans "Add a Widget" %}</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
   <div class="modal-body">
     {% block form %}
       {% render_field widget_form.widget_class %}
       <div class="row mb-3">
-        <label class="col-sm-3 col-form-label text-lg-end">Description</label>
+        <label class="col-sm-3 col-form-label text-lg-end">{% trans "Description" %}</label>
         <div class="col">
           <div class="form-control-plaintext">{{ widget_class.description|placeholder }}</div>
         </div>
@@ -22,7 +23,7 @@
   </div>
   <div class="modal-footer">
     {% block buttons %}
-      <button class="btn btn-primary">Save</button>
+      <button class="btn btn-primary">{% trans "Save" %}</button>
     {% endblock buttons %}
   </div>
 </form>

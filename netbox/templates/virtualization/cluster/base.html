@@ -2,6 +2,7 @@
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -14,13 +15,13 @@
 {% block extra_controls %}
   {% if perms.virtualization.change_cluster and perms.virtualization.add_virtualmachine %}
     <a href="{% url 'virtualization:virtualmachine_add' %}?cluster={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Virtual Machine
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Virtual Machine" %}
     </a>
   {% endif %}
 
   {% if perms.virtualization.change_cluster %}
     <a href="{% url 'virtualization:cluster_add_devices' pk=object.pk %}?site={{ object.site.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Assign Device
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Assign Device" %}
     </a>
   {% endif %}
 {% endblock %}

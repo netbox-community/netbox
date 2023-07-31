@@ -2,7 +2,7 @@ from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
@@ -31,17 +31,21 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
     will be available to a Device in site A assigned to tenant B. Data is stored in JSON format.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
         default=1000
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     is_active = models.BooleanField(
+        verbose_name=_('is active'),
         default=True,
     )
     regions = models.ManyToManyField(
@@ -138,7 +142,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
         # Verify that JSON data is provided as an object
         if type(self.data) is not dict:
             raise ValidationError(
-                {'data': 'JSON data must be in object form. Example: {"foo": 123}'}
+                {'data': _('JSON data must be in object form. Example: {"foo": 123}')}
             )
 
     def sync_data(self):
@@ -194,7 +198,7 @@ class ConfigContextModel(models.Model):
         # Verify that JSON data is provided as an object
         if self.local_context_data and type(self.local_context_data) is not dict:
             raise ValidationError(
-                {'local_context_data': 'JSON data must be in object form. Example: {"foo": 123}'}
+                {'local_context_data': _('JSON data must be in object form. Example: {"foo": 123}')}
             )
 
 
@@ -204,16 +208,20 @@ class ConfigContextModel(models.Model):
 
 class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     template_code = models.TextField(
+        verbose_name=_('template code'),
         help_text=_('Jinja2 template code.')
     )
     environment_params = models.JSONField(
+        verbose_name=_('environment parameters'),
         blank=True,
         null=True,
         default=dict,

@@ -11,7 +11,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from netaddr import IPNetwork
 
 from ipam.fields import IPNetworkField
@@ -26,7 +26,6 @@ __all__ = (
     'ObjectPermission',
     'Token',
     'UserConfig',
-    'UserToken',
 )
 
 
@@ -40,7 +39,7 @@ class AdminGroup(Group):
     Proxy contrib.auth.models.Group for the admin UI
     """
     class Meta:
-        verbose_name = 'Group'
+        verbose_name = _('Group')
         proxy = True
 
 
@@ -49,7 +48,7 @@ class AdminUser(User):
     Proxy contrib.auth.models.User for the admin UI
     """
     class Meta:
-        verbose_name = 'User'
+        verbose_name = _('User')
         proxy = True
 
 
@@ -110,7 +109,7 @@ class UserConfig(models.Model):
 
     class Meta:
         ordering = ['user']
-        verbose_name = verbose_name_plural = 'User Preferences'
+        verbose_name = verbose_name_plural = _('User Preferences')
 
     def get(self, path, default=None):
         """
@@ -176,7 +175,9 @@ class UserConfig(models.Model):
                 d = d[key]
             elif key in d:
                 err_path = '.'.join(path.split('.')[:i + 1])
-                raise TypeError(f"Key '{err_path}' is a leaf node; cannot assign new keys")
+                raise TypeError(
+                    _("Key '{err_path}' is a leaf node; cannot assign new keys").format(err_path=err_path)
+                )
             else:
                 d = d.setdefault(key, {})
 
@@ -186,7 +187,9 @@ class UserConfig(models.Model):
             if type(value) is dict:
                 d[key].update(value)
             else:
-                raise TypeError(f"Key '{path}' is a dictionary; cannot assign a non-dictionary value")
+                raise TypeError(
+                    _("Key '{path}' is a dictionary; cannot assign a non-dictionary value").format(path=path)
+                )
         else:
             d[key] = value
 
@@ -246,26 +249,32 @@ class Token(models.Model):
         related_name='tokens'
     )
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     expires = models.DateTimeField(
+        verbose_name=_('expires'),
         blank=True,
         null=True
     )
     last_used = models.DateTimeField(
+        verbose_name=_('last used'),
         blank=True,
         null=True
     )
     key = models.CharField(
+        verbose_name=_('key'),
         max_length=40,
         unique=True,
         validators=[MinLengthValidator(40)]
     )
     write_enabled = models.BooleanField(
+        verbose_name=_('write enabled'),
         default=True,
         help_text=_('Permit create/update/delete operations using this key')
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -273,7 +282,7 @@ class Token(models.Model):
         base_field=IPNetworkField(),
         blank=True,
         null=True,
-        verbose_name='Allowed IPs',
+        verbose_name=_('allowed IPs'),
         help_text=_(
             'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
             'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"'
@@ -322,18 +331,6 @@ class Token(models.Model):
         return False
 
 
-class UserToken(Token):
-    """
-    Proxy model for users to manage their own API tokens.
-    """
-    class Meta:
-        proxy = True
-        verbose_name = 'token'
-
-    def get_absolute_url(self):
-        return reverse('account:usertoken', args=[self.pk])
-
-
 #
 # Permissions
 #
@@ -344,13 +341,16 @@ class ObjectPermission(models.Model):
     identified by ORM query parameters.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     enabled = models.BooleanField(
+        verbose_name=_('enabled'),
         default=True
     )
     object_types = models.ManyToManyField(
@@ -375,6 +375,7 @@ class ObjectPermission(models.Model):
     constraints = models.JSONField(
         blank=True,
         null=True,
+        verbose_name=_('constraints'),
         help_text=_("Queryset filter matching the applicable objects of the selected type(s)")
     )
 
@@ -382,7 +383,7 @@ class ObjectPermission(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = "permission"
+        verbose_name = _("permission")
 
     def __str__(self):
         return self.name

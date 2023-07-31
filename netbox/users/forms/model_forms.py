@@ -66,7 +66,6 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
     )
     # List of clearable preferences
     pk = forms.MultipleChoiceField(
-        label=_('Pk'),
         choices=[],
         required=False
     )

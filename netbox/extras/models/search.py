@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from utilities.fields import RestrictedGenericForeignKey
 from ..fields import CachedValueField
@@ -18,6 +19,7 @@ class CachedValue(models.Model):
         editable=False
     )
     timestamp = models.DateTimeField(
+        verbose_name=_('timestamp'),
         auto_now_add=True,
         editable=False
     )
@@ -32,13 +34,18 @@ class CachedValue(models.Model):
         fk_field='object_id'
     )
     field = models.CharField(
+        verbose_name=_('field'),
         max_length=200
     )
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=30
     )
-    value = CachedValueField()
+    value = CachedValueField(
+        verbose_name=_('value'),
+    )
     weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
         default=1000
     )
 

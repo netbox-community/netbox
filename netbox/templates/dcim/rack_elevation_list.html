@@ -1,29 +1,30 @@
 {% extends 'generic/object_list.html' %}
 {% load helpers %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}Rack Elevations{% endblock %}
+{% block title %}{% trans "Rack Elevations" %}{% endblock %}
 
 {% block controls %}
   <div class="controls">
     <div class="control-group">
       <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-sm btn-primary">
-        <i class="mdi mdi-format-list-checkbox"></i> View List
+        <i class="mdi mdi-format-list-checkbox"></i> {% trans "View List" %}
       </a>
       <div class="btn-group btn-group-sm" role="group">
         <select class="btn btn-sm btn-outline-secondary rack-view">
-          <option value="images-and-labels" selected="selected">Images and Labels</option>
-          <option value="images-only">Images only</option>
-          <option value="labels-only">Labels only</option>
+          <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
+          <option value="images-only">{% trans "Images only" %}</option>
+          <option value="labels-only">{% trans "Labels only" %}</option>
         </select>
       </div>
       <div class="btn-group btn-group-sm" role="group">
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">Front</a>
-        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">Rear</a>
+        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">{% trans "Front" %}</a>
+        <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>
       </div>
       <div class="dropdown">
         <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          <i class="mdi mdi-sort"></i>&nbsp;Sort By {{ sort_display_name }}
+          <i class="mdi mdi-sort"></i> {% trans "Sort By" %} {{ sort_display_name }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           {% for sort_key, sort_display_name in sort_choices.items %}
@@ -73,7 +74,7 @@
           <br />
           {% include 'inc/paginator.html' %}
       {% else %}
-          <p>No Racks Found</p>
+          <p>{% trans "No Racks Found" %}</p>
       {% endif %}
     </div>
 

@@ -1,11 +1,11 @@
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -63,6 +63,26 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
     queryset = CustomFieldChoiceSet.objects.all()
     serializer_class = serializers.CustomFieldChoiceSetSerializer
     filterset_class = filtersets.CustomFieldChoiceSetFilterSet
+
+    @action(detail=True)
+    def choices(self, request, pk):
+        """
+        Provides an endpoint to iterate through each choice in a set.
+        """
+        choiceset = get_object_or_404(self.queryset, pk=pk)
+        choices = choiceset.choices
+
+        # Enable filtering
+        if q := request.GET.get('q'):
+            q = q.lower()
+            choices = [c for c in choices if q in c[0].lower() or q in c[1].lower()]
+
+        # Paginate data
+        if page := self.paginate_queryset(choices):
+            data = [
+                {'value': c[0], 'label': c[1]} for c in page
+            ]
+            return self.get_paginated_response(data)
 
 
 #
@@ -319,7 +339,7 @@ class ScriptViewSet(ViewSet):
 
         # Attach Job objects to each script (if any)
         for script in script_list:
-            script.result = results.get(script.name, None)
+            script.result = results.get(script.class_name, None)
 
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
@@ -330,7 +350,7 @@ class ScriptViewSet(ViewSet):
         object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
         script.result = Job.objects.filter(
             object_type=object_type,
-            name=script.name,
+            name=script.class_name,
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
@@ -397,7 +417,7 @@ class ContentTypeViewSet(ReadOnlyModelViewSet):
     """
     Read-only list of ContentTypes. Limit results to ContentTypes pertinent to NetBox objects.
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = ContentType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ContentTypeSerializer
     filterset_class = filtersets.ContentTypeFilterSet

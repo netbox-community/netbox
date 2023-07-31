@@ -8,10 +8,48 @@ from utilities.forms import widgets
 from utilities.utils import get_viewname
 
 __all__ = (
+    'DynamicChoiceField',
     'DynamicModelChoiceField',
     'DynamicModelMultipleChoiceField',
+    'DynamicMultipleChoiceField',
 )
 
+
+#
+# Choice fields
+#
+
+class DynamicChoiceField(forms.ChoiceField):
+
+    def get_bound_field(self, form, field_name):
+        bound_field = BoundField(form, self, field_name)
+        data = bound_field.value()
+
+        if data is not None:
+            self.choices = [
+                choice for choice in self.choices if choice[0] == data
+            ]
+
+        return bound_field
+
+
+class DynamicMultipleChoiceField(forms.MultipleChoiceField):
+
+    def get_bound_field(self, form, field_name):
+        bound_field = BoundField(form, self, field_name)
+        data = bound_field.value()
+
+        if data is not None:
+            self.choices = [
+                choice for choice in self.choices if choice[0] in data
+            ]
+
+        return bound_field
+
+
+#
+# Model choice fields
+#
 
 class DynamicModelChoiceMixin:
     """

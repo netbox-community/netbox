@@ -3,6 +3,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -16,21 +17,21 @@
   <div class="row">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">ASN</h5>
+        <h5 class="card-header">{% trans "ASN" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>AS Number</td>
+              <td>{% trans "AS Number" %}</td>
               <td>{{ object.asn_with_asdot }}</td>
             </tr>
             <tr>
-              <td>RIR</td>
+              <td>{% trans "RIR" %}</td>
               <td>
                 <a href="{% url 'ipam:asn_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
               </td>
             </tr>
             <tr>
-              <td>Tenant</td>
+              <td>{% trans "Tenant" %}</td>
               <td>
                 {% if object.tenant.group %}
                   {{ object.tenant.group|linkify }} /
@@ -39,7 +40,7 @@
               </td>
             </tr>
             <tr>
-              <td>Description</td>
+              <td>{% trans "Description" %}</td>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>

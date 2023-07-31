@@ -1236,6 +1236,10 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
         choices=PowerFeedPhaseChoices,
         default=lambda: PowerFeedPhaseChoices.PHASE_SINGLE,
     )
+    tenant = NestedTenantSerializer(
+        required=False,
+        allow_null=True
+    )
 
     class Meta:
         model = PowerFeed
@@ -1243,5 +1247,5 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'id', 'url', 'display', 'power_panel', 'rack', 'name', 'status', 'type', 'supply', 'phase', 'voltage',
             'amperage', 'max_utilization', 'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type',
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'description',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'tenant', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
