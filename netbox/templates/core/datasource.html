@@ -85,24 +85,26 @@
       <div class="card">
         <h5 class="card-header">{% trans "Backend" %}</h5>
         <div class="card-body">
-          <table class="table table-hover attr-table">
-            {% for name, field in object.get_backend.parameters.items %}
-              <tr>
-                <th scope="row">{{ field.label }}</th>
-                {% if name in object.get_backend.sensitive_parameters and not perms.core.change_datasource %}
-                  <td>********</td>
-                {% else %}
-                  <td>{{ object.parameters|get_key:name|placeholder }}</td>
-                {% endif %}
-              </tr>
-            {% empty %}
-              <tr>
-                <td colspan="2" class="text-muted">
-                  {% trans "No parameters defined" %}
-                </td>
-              </tr>
-            {% endfor %}
-          </table>
+          {% with backend=object.backend_class %}
+            <table class="table table-hover attr-table">
+              {% for name, field in backend.parameters.items %}
+                <tr>
+                  <th scope="row">{{ field.label }}</th>
+                  {% if name in backend.sensitive_parameters and not perms.core.change_datasource %}
+                    <td>********</td>
+                  {% else %}
+                    <td>{{ object.parameters|get_key:name|placeholder }}</td>
+                  {% endif %}
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="2" class="text-muted">
+                    {% trans "No parameters defined" %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+            {% endwith %}
         </div>
       </div>
       {% include 'inc/panels/related_objects.html' %}

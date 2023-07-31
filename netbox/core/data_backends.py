@@ -6,13 +6,9 @@ from contextlib import contextmanager
 from pathlib import Path
 from urllib.parse import urlparse
 
-import boto3
-from botocore.config import Config as Boto3Config
 from django import forms
 from django.conf import settings
 from django.utils.translation import gettext as _
-from dulwich import porcelain
-from dulwich.config import ConfigDict
 
 from netbox.registry import registry
 from .choices import DataSourceTypeChoices
@@ -43,9 +39,27 @@ class DataBackend:
     parameters = {}
     sensitive_parameters = []
 
+    # Prevent Django's template engine from calling the backend
+    # class when referenced via DataSource.backend_class
+    do_not_call_in_templates = True
+
     def __init__(self, url, **kwargs):
         self.url = url
         self.params = kwargs
+        self.config = self.init_config()
+
+    def init_config(self):
+        """
+        Hook to initialize the instance's configuration.
+        """
+        return
+
+    def handle_missing_dependency(self, e):
+        """
+        Hook for handling exceptions related to the attempted import of missing modules. Returns an exception
+        to be raised.
+        """
+        return e
 
     @property
     def url_scheme(self):
@@ -58,6 +72,7 @@ class DataBackend:
 
 @register_backend(DataSourceTypeChoices.LOCAL)
 class LocalBackend(DataBackend):
+
     @contextmanager
     def fetch(self):
         logger.debug(f"Data source type is local; skipping fetch")
@@ -89,14 +104,40 @@ class GitBackend(DataBackend):
     }
     sensitive_parameters = ['password']
 
+    def init_config(self):
+        try:
+            from dulwich.config import ConfigDict
+        except ModuleNotFoundError as e:
+            raise self.handle_missing_dependency(e)
+
+        # Initialize backend config
+        config = ConfigDict()
+
+        # Apply HTTP proxy (if configured)
+        if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
+            if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
+                config.set("http", "proxy", proxy)
+
+        return config
+
+    def handle_missing_dependency(self, e):
+        return ImportError(_(
+            "Unable to initialize the git data backend: dulwich library is not installed. Run 'pip install dulwich' "
+            "within the NetBox Python environment to install it."
+        ))
+
     @contextmanager
     def fetch(self):
+        try:
+            from dulwich import porcelain
+        except ModuleNotFoundError as e:
+            raise self.handle_missing_dependency(e)
+
         local_path = tempfile.TemporaryDirectory()
 
-        config = ConfigDict()
         clone_args = {
             "branch": self.params.get('branch'),
-            "config": config,
+            "config": self.config,
             "depth": 1,
             "errstream": porcelain.NoneStream(),
             "quiet": True,
@@ -109,10 +150,6 @@ class GitBackend(DataBackend):
                     "password": self.params.get('password'),
                 }
             )
-
-        if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
-            if proxy := settings.HTTP_PROXIES.get(self.url_scheme):
-                config.set("http", "proxy", proxy)
 
         logger.debug(f"Cloning git repo: {self.url}")
         try:
@@ -141,14 +178,31 @@ class S3Backend(DataBackend):
 
     REGION_REGEX = r's3\.([a-z0-9-]+)\.amazonaws\.com'
 
-    @contextmanager
-    def fetch(self):
-        local_path = tempfile.TemporaryDirectory()
+    def init_config(self):
+        try:
+            from botocore.config import Config as Boto3Config
+        except ModuleNotFoundError as e:
+            raise self.handle_missing_dependency(e)
 
-        # Build the S3 configuration
-        s3_config = Boto3Config(
+        # Initialize backend config
+        return Boto3Config(
             proxies=settings.HTTP_PROXIES,
         )
+
+    def handle_missing_dependency(self, e):
+        return ImportError(_(
+            "Unable to initialize the Amazon S3 backend: boto3 library is not installed. Run 'pip install boto3' "
+            "within the NetBox Python environment to install it."
+        ))
+
+    @contextmanager
+    def fetch(self):
+        try:
+            import boto3
+        except ModuleNotFoundError as e:
+            raise self.handle_missing_dependency(e)
+
+        local_path = tempfile.TemporaryDirectory()
 
         # Initialize the S3 resource and bucket
         aws_access_key_id = self.params.get('aws_access_key_id')
@@ -158,7 +212,7 @@ class S3Backend(DataBackend):
             region_name=self._region_name,
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
-            config=s3_config
+            config=self.config
         )
         bucket = s3.Bucket(self._bucket_name)
 

@@ -211,6 +211,22 @@ By default, NetBox will use the local filesystem to store uploaded files. To use
 sudo sh -c "echo 'django-storages' >> /opt/netbox/local_requirements.txt"
 ```
 
+### Remote Data Sources
+
+NetBox supports integration with several remote data sources via configurable backends. Each of these requires the installation of one or more additional libraries.
+
+* Amazon S3: [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html)
+* Git: [`dulwich`](https://www.dulwich.io/)
+
+For example, to enable the Amazon S3 backend, add `boto3` to your local requirements file:
+
+```no-highlight
+sudo sh -c "echo 'boto3' >> /opt/netbox/local_requirements.txt"
+```
+
+!!! info
+    These packages were previously required in NetBox v3.5 but now are optional.
+
 ## Run the Upgrade Script
 
 Once NetBox has been configured, we're ready to proceed with the actual installation. We'll run the packaged upgrade script (`upgrade.sh`) to perform the following actions:

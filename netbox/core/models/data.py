@@ -105,6 +105,10 @@ class DataSource(JobsMixin, PrimaryModel):
         return urlparse(self.source_url).scheme.lower()
 
     @property
+    def backend_class(self):
+        return registry['data_backends'].get(self.type)
+
+    @property
     def is_local(self):
         return self.type == DataSourceTypeChoices.LOCAL
 
@@ -139,10 +143,8 @@ class DataSource(JobsMixin, PrimaryModel):
         )
 
     def get_backend(self):
-        backend_cls = registry['data_backends'].get(self.type)
         backend_params = self.parameters or {}
-
-        return backend_cls(self.source_url, **backend_params)
+        return self.backend_class(self.source_url, **backend_params)
 
     def sync(self):
         """
