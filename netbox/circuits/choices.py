@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+
 from utilities.choices import ChoiceSet
 
 
@@ -16,12 +18,12 @@ class CircuitStatusChoices(ChoiceSet):
     STATUS_DECOMMISSIONED = 'decommissioned'
 
     CHOICES = [
-        (STATUS_PLANNED, 'Planned', 'cyan'),
-        (STATUS_PROVISIONING, 'Provisioning', 'blue'),
-        (STATUS_ACTIVE, 'Active', 'green'),
-        (STATUS_OFFLINE, 'Offline', 'red'),
-        (STATUS_DEPROVISIONING, 'Deprovisioning', 'yellow'),
-        (STATUS_DECOMMISSIONED, 'Decommissioned', 'gray'),
+        (STATUS_PLANNED, _('Planned'), 'cyan'),
+        (STATUS_PROVISIONING, _('Provisioning'), 'blue'),
+        (STATUS_ACTIVE, _('Active'), 'green'),
+        (STATUS_OFFLINE, _('Offline'), 'red'),
+        (STATUS_DEPROVISIONING, _('Deprovisioning'), 'yellow'),
+        (STATUS_DECOMMISSIONED, _('Decommissioned'), 'gray'),
     ]
 
 
