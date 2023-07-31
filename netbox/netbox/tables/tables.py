@@ -7,7 +7,7 @@ from django.db.models.fields.related import RelatedField
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
@@ -174,7 +174,7 @@ class NetBoxTable(BaseTable):
     )
     id = tables.Column(
         linkify=True,
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
     actions = columns.ActionsColumn()
 
@@ -223,11 +223,16 @@ class SearchTable(tables.Table):
         order_by="object___meta__verbose_name",
     )
     object = tables.Column(
+        verbose_name=_('Object'),
         linkify=True,
         order_by=('name', )
     )
-    field = tables.Column()
-    value = tables.Column()
+    field = tables.Column(
+        verbose_name=_('Field'),
+    )
+    value = tables.Column(
+        verbose_name=_('Value'),
+    )
 
     trim_length = 30
 

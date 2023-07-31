@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from tenancy.models import *
 from tenancy.tables import ContactsColumnMixin
@@ -12,12 +13,13 @@ __all__ = (
 
 class TenantGroupTable(NetBoxTable):
     name = columns.MPTTColumn(
+        verbose_name=_('Name'),
         linkify=True
     )
     tenant_count = columns.LinkedCountColumn(
         viewname='tenancy:tenant_list',
         url_params={'group_id': 'pk'},
-        verbose_name='Tenants'
+        verbose_name=_('Tenants')
     )
     tags = columns.TagColumn(
         url_name='tenancy:tenantgroup_list'
@@ -33,12 +35,16 @@ class TenantGroupTable(NetBoxTable):
 
 class TenantTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     group = tables.Column(
+        verbose_name=_('Group'),
         linkify=True
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='tenancy:tenant_list'
     )
