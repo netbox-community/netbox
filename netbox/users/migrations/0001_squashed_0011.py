@@ -32,36 +32,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AdminGroup',
-            fields=[
-            ],
-            options={
-                'verbose_name': 'Group',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
-            },
-            bases=('auth.group',),
-            managers=[
-                ('objects', django.contrib.auth.models.GroupManager()),
-            ],
-        ),
-        migrations.CreateModel(
-            name='AdminUser',
-            fields=[
-            ],
-            options={
-                'verbose_name': 'User',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
-            },
-            bases=('auth.user',),
-            managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
-            ],
-        ),
-        migrations.CreateModel(
             name='UserConfig',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),

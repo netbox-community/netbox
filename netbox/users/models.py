@@ -30,27 +30,8 @@ __all__ = (
 
 
 #
-# Proxy models for admin
+# Proxies for Django's User and Group models
 #
-
-
-class AdminGroup(Group):
-    """
-    Proxy contrib.auth.models.Group for the admin UI
-    """
-    class Meta:
-        verbose_name = _('Group')
-        proxy = True
-
-
-class AdminUser(User):
-    """
-    Proxy contrib.auth.models.User for the admin UI
-    """
-    class Meta:
-        verbose_name = _('User')
-        proxy = True
-
 
 class NetBoxUserManager(UserManager.from_queryset(RestrictedQuerySet)):
     pass
