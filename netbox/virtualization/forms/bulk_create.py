@@ -12,7 +12,6 @@ __all__ = (
 
 class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=VirtualMachine.objects.all(),
         widget=forms.MultipleHiddenInput()
     )

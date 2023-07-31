@@ -310,7 +310,6 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
 
 class VMInterfaceBulkRenameForm(BulkRenameForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=VMInterface.objects.all(),
         widget=forms.MultipleHiddenInput()
     )

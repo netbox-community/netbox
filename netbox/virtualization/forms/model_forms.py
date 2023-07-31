@@ -158,7 +158,6 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
 
 class ClusterRemoveDevicesForm(ConfirmationForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
     )

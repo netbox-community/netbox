@@ -23,7 +23,6 @@ __all__ = (
 
 class CustomFieldBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=CustomField.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -85,7 +84,6 @@ class CustomFieldChoiceSetBulkEditForm(BulkEditForm):
 
 class CustomLinkBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=CustomLink.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -112,7 +110,6 @@ class CustomLinkBulkEditForm(BulkEditForm):
 
 class ExportTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=ExportTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -142,7 +139,6 @@ class ExportTemplateBulkEditForm(BulkEditForm):
 
 class SavedFilterBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=SavedFilter.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -171,7 +167,6 @@ class SavedFilterBulkEditForm(BulkEditForm):
 
 class WebhookBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -233,7 +228,6 @@ class WebhookBulkEditForm(BulkEditForm):
 
 class TagBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=Tag.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -252,7 +246,6 @@ class TagBulkEditForm(BulkEditForm):
 
 class ConfigContextBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=ConfigContext.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -277,7 +270,6 @@ class ConfigContextBulkEditForm(BulkEditForm):
 
 class ConfigTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=ConfigTemplate.objects.all(),
         widget=forms.MultipleHiddenInput
     )
@@ -292,7 +284,6 @@ class ConfigTemplateBulkEditForm(BulkEditForm):
 
 class JournalEntryBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=JournalEntry.objects.all(),
         widget=forms.MultipleHiddenInput
     )

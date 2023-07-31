@@ -881,7 +881,6 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
 
 class ConsolePortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=ConsolePortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -901,7 +900,6 @@ class ConsolePortTemplateBulkEditForm(BulkEditForm):
 
 class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=ConsoleServerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -925,7 +923,6 @@ class ConsoleServerPortTemplateBulkEditForm(BulkEditForm):
 
 class PowerPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=PowerPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -961,7 +958,6 @@ class PowerPortTemplateBulkEditForm(BulkEditForm):
 
 class PowerOutletTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=PowerOutletTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -1013,7 +1009,6 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
 
 class InterfaceTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=InterfaceTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -1065,7 +1060,6 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
 
 class FrontPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=FrontPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -1093,7 +1087,6 @@ class FrontPortTemplateBulkEditForm(BulkEditForm):
 
 class RearPortTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=RearPortTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -1121,7 +1114,6 @@ class RearPortTemplateBulkEditForm(BulkEditForm):
 
 class ModuleBayTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=ModuleBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -1140,7 +1132,6 @@ class ModuleBayTemplateBulkEditForm(BulkEditForm):
 
 class DeviceBayTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=DeviceBayTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
@@ -1159,7 +1150,6 @@ class DeviceBayTemplateBulkEditForm(BulkEditForm):
 
 class InventoryItemTemplateBulkEditForm(BulkEditForm):
     pk = forms.ModelMultipleChoiceField(
-        label=_('Pk'),
         queryset=InventoryItemTemplate.objects.all(),
         widget=forms.MultipleHiddenInput()
     )
