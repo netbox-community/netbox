@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.models import *
@@ -28,27 +28,32 @@ __all__ = (
 
 class CustomFieldImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
+        label=_('Content types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
         help_text=_("One or more assigned object types")
     )
     type = CSVChoiceField(
+        label=_('Type'),
         choices=CustomFieldTypeChoices,
         help_text=_('Field data type (e.g. text, integer, etc.)')
     )
     object_type = CSVContentTypeField(
+        label=_('Object type'),
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_fields'),
         required=False,
         help_text=_("Object type (for object or multi-object fields)")
     )
     choice_set = CSVModelChoiceField(
+        label=_('Choice set'),
         queryset=CustomFieldChoiceSet.objects.all(),
         to_field_name='name',
         required=False,
         help_text=_('Choice set (for selection fields)')
     )
     ui_visibility = CSVChoiceField(
+        label=_('UI visibility'),
         choices=CustomFieldVisibilityChoices,
         help_text=_('How the custom field is displayed in the user interface')
     )
@@ -83,6 +88,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
 
 class CustomLinkImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
+        label=_('Content types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('custom_links'),
         help_text=_("One or more assigned object types")
@@ -98,6 +104,7 @@ class CustomLinkImportForm(CSVModelForm):
 
 class ExportTemplateImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
+        label=_('Content types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('export_templates'),
         help_text=_("One or more assigned object types")
@@ -121,6 +128,7 @@ class ConfigTemplateImportForm(CSVModelForm):
 
 class SavedFilterImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
+        label=_('Content types'),
         queryset=ContentType.objects.all(),
         help_text=_("One or more assigned object types")
     )
@@ -134,6 +142,7 @@ class SavedFilterImportForm(CSVModelForm):
 
 class WebhookImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
+        label=_('Content types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks'),
         help_text=_("One or more assigned object types")
@@ -165,6 +174,7 @@ class JournalEntryImportForm(NetBoxModelImportForm):
         label=_('Assigned object type'),
     )
     kind = CSVChoiceField(
+        label=_('Kind'),
         choices=JournalEntryKindChoices,
         help_text=_('The classification of entry')
     )
