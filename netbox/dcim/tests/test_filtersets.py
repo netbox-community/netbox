@@ -4419,6 +4419,21 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Rack.objects.bulk_create(racks)
 
+        tenant_groups = (
+            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+        )
+        for tenantgroup in tenant_groups:
+            tenantgroup.save()
+
+        tenants = (
+            Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
+            Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+        )
+        Tenant.objects.bulk_create(tenants)
+
         power_panels = (
             PowerPanel(name='Power Panel 1', site=sites[0]),
             PowerPanel(name='Power Panel 2', site=sites[1]),
@@ -4427,9 +4442,44 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         PowerPanel.objects.bulk_create(power_panels)
 
         power_feeds = (
-            PowerFeed(power_panel=power_panels[0], rack=racks[0], name='Power Feed 1', status=PowerFeedStatusChoices.STATUS_ACTIVE, type=PowerFeedTypeChoices.TYPE_PRIMARY, supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=100, amperage=100, max_utilization=10),
-            PowerFeed(power_panel=power_panels[1], rack=racks[1], name='Power Feed 2', status=PowerFeedStatusChoices.STATUS_FAILED, type=PowerFeedTypeChoices.TYPE_PRIMARY, supply=PowerFeedSupplyChoices.SUPPLY_AC, phase=PowerFeedPhaseChoices.PHASE_3PHASE, voltage=200, amperage=200, max_utilization=20),
-            PowerFeed(power_panel=power_panels[2], rack=racks[2], name='Power Feed 3', status=PowerFeedStatusChoices.STATUS_OFFLINE, type=PowerFeedTypeChoices.TYPE_REDUNDANT, supply=PowerFeedSupplyChoices.SUPPLY_DC, phase=PowerFeedPhaseChoices.PHASE_SINGLE, voltage=300, amperage=300, max_utilization=30),
+            PowerFeed(
+                power_panel=power_panels[0],
+                rack=racks[0],
+                name='Power Feed 1',
+                tenant=tenants[0],
+                status=PowerFeedStatusChoices.STATUS_ACTIVE,
+                type=PowerFeedTypeChoices.TYPE_PRIMARY,
+                supply=PowerFeedSupplyChoices.SUPPLY_AC,
+                phase=PowerFeedPhaseChoices.PHASE_3PHASE,
+                voltage=100,
+                amperage=100,
+                max_utilization=10
+            ),
+            PowerFeed(
+                power_panel=power_panels[1],
+                rack=racks[1],
+                name='Power Feed 2',
+                tenant=tenants[1],
+                status=PowerFeedStatusChoices.STATUS_FAILED,
+                type=PowerFeedTypeChoices.TYPE_PRIMARY,
+                supply=PowerFeedSupplyChoices.SUPPLY_AC,
+                phase=PowerFeedPhaseChoices.PHASE_3PHASE,
+                voltage=200,
+                amperage=200,
+                max_utilization=20),
+            PowerFeed(
+                power_panel=power_panels[2],
+                rack=racks[2],
+                name='Power Feed 3',
+                tenant=tenants[2],
+                status=PowerFeedStatusChoices.STATUS_OFFLINE,
+                type=PowerFeedTypeChoices.TYPE_REDUNDANT,
+                supply=PowerFeedSupplyChoices.SUPPLY_DC,
+                phase=PowerFeedPhaseChoices.PHASE_SINGLE,
+                voltage=300,
+                amperage=300,
+                max_utilization=30
+            ),
         )
         PowerFeed.objects.bulk_create(power_feeds)
 
@@ -4519,6 +4569,20 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'connected': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_tenant(self):
+        tenants = Tenant.objects.all()[:2]
+        params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_tenant_group(self):
+        tenant_groups = TenantGroup.objects.all()[:2]
+        params = {'tenant_group_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):

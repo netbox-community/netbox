@@ -1238,6 +1238,7 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     )
     tenant = NestedTenantSerializer(
         required=False,
+        allow_null=True
     )
 
     class Meta:
