@@ -1174,6 +1174,12 @@ class PowerFeedImportForm(NetBoxModelImportForm):
         required=False,
         help_text=_('Rack')
     )
+    tenant = CSVModelChoiceField(
+        queryset=Tenant.objects.all(),
+        to_field_name='name',
+        required=False,
+        help_text=_('Assigned tenant')
+    )
     status = CSVChoiceField(
         choices=PowerFeedStatusChoices,
         help_text=_('Operational status')
@@ -1195,7 +1201,7 @@ class PowerFeedImportForm(NetBoxModelImportForm):
         model = PowerFeed
         fields = (
             'site', 'power_panel', 'location', 'rack', 'name', 'status', 'type', 'mark_connected', 'supply', 'phase',
-            'voltage', 'amperage', 'max_utilization', 'description', 'comments', 'tags',
+            'voltage', 'amperage', 'max_utilization', 'tenant', 'description', 'comments', 'tags',
         )
 
     def __init__(self, data=None, *args, **kwargs):

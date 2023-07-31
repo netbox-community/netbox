@@ -754,6 +754,10 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect
     )
+    tenant = DynamicModelChoiceField(
+        queryset=Tenant.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         max_length=200,
         required=False
@@ -764,10 +768,10 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
 
     model = PowerFeed
     fieldsets = (
-        (None, ('power_panel', 'rack', 'status', 'type', 'mark_connected', 'description')),
+        (None, ('power_panel', 'rack', 'status', 'type', 'mark_connected', 'description', 'tenant')),
         ('Power', ('supply', 'phase', 'voltage', 'amperage', 'max_utilization'))
     )
-    nullable_fields = ('location', 'description', 'comments')
+    nullable_fields = ('location', 'tenant', 'description', 'comments')
 
 
 #
