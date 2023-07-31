@@ -122,9 +122,7 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Contact
     fieldsets = (

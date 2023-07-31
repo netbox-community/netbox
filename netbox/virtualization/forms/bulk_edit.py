@@ -97,9 +97,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Cluster
     fieldsets = (
@@ -176,9 +174,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = VirtualMachine
     fieldsets = (

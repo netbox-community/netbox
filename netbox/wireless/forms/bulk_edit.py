@@ -82,9 +82,7 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = WirelessLAN
     fieldsets = (
@@ -131,9 +129,7 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = WirelessLink
     fieldsets = (

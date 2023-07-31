@@ -30,9 +30,7 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
     parameters = forms.JSONField(
         label=_('Parameters'),
         required=False

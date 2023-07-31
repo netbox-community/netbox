@@ -51,9 +51,7 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = VRF
     fieldsets = (
@@ -73,9 +71,7 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = RouteTarget
     fieldsets = (
@@ -148,9 +144,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ASN
     fieldsets = (
@@ -179,9 +173,7 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Aggregate
     fieldsets = (
@@ -269,9 +261,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Prefix
     fieldsets = (
@@ -315,9 +305,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = IPRange
     fieldsets = (
@@ -365,9 +353,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = IPAddress
     fieldsets = (
@@ -410,9 +396,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = FHRPGroup
     fieldsets = (
@@ -501,9 +485,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = VLAN
     fieldsets = (
@@ -534,9 +516,7 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ServiceTemplate
     fieldsets = (
@@ -565,9 +545,7 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = L2VPN
     fieldsets = (

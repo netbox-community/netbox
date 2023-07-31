@@ -150,9 +150,7 @@ class SiteBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Site
     fieldsets = (
@@ -339,9 +337,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Rack
     fieldsets = (
@@ -376,9 +372,7 @@ class RackReservationBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = RackReservation
     fieldsets = (
@@ -447,9 +441,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = DeviceType
     fieldsets = (
@@ -485,9 +477,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ModuleType
     fieldsets = (
@@ -616,9 +606,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Device
     fieldsets = (
@@ -662,9 +650,7 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Module
     fieldsets = (
@@ -716,9 +702,7 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Cable
     fieldsets = (
@@ -741,9 +725,7 @@ class VirtualChassisBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = VirtualChassis
     fieldsets = (
@@ -791,9 +773,7 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = PowerPanel
     fieldsets = (
@@ -863,9 +843,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = PowerFeed
     fieldsets = (

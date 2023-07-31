@@ -30,9 +30,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Provider
     fieldsets = (
@@ -54,9 +52,7 @@ class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ProviderAccount
     fieldsets = (
@@ -83,9 +79,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ProviderNetwork
     fieldsets = (
@@ -162,9 +156,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         max_length=100,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Circuit
     fieldsets = (
