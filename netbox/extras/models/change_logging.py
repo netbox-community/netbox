@@ -3,6 +3,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from ..querysets import ObjectChangeQuerySet
@@ -19,6 +20,7 @@ class ObjectChange(models.Model):
     parent device. This will ensure changes made to component models appear in the parent model's changelog.
     """
     time = models.DateTimeField(
+        verbose_name=_('time'),
         auto_now_add=True,
         editable=False,
         db_index=True
@@ -31,14 +33,17 @@ class ObjectChange(models.Model):
         null=True
     )
     user_name = models.CharField(
+        verbose_name=_('user name'),
         max_length=150,
         editable=False
     )
     request_id = models.UUIDField(
+        verbose_name=_('request ID'),
         editable=False,
         db_index=True
     )
     action = models.CharField(
+        verbose_name=_('action'),
         max_length=50,
         choices=ObjectChangeActionChoices
     )
@@ -72,11 +77,13 @@ class ObjectChange(models.Model):
         editable=False
     )
     prechange_data = models.JSONField(
+        verbose_name=_('pre-change data'),
         editable=False,
         blank=True,
         null=True
     )
     postchange_data = models.JSONField(
+        verbose_name=_('post-change data'),
         editable=False,
         blank=True,
         null=True

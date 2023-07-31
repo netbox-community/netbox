@@ -2,6 +2,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
 from tenancy.choices import *
@@ -51,24 +52,30 @@ class Contact(PrimaryModel):
         null=True
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     title = models.CharField(
+        verbose_name=_('title'),
         max_length=100,
         blank=True
     )
     phone = models.CharField(
+        verbose_name=_('phone'),
         max_length=50,
         blank=True
     )
     email = models.EmailField(
+        verbose_name=_('email'),
         blank=True
     )
     address = models.CharField(
+        verbose_name=_('address'),
         max_length=200,
         blank=True
     )
     link = models.URLField(
+        verbose_name=_('link'),
         blank=True
     )
 
@@ -113,6 +120,7 @@ class ContactAssignment(ChangeLoggedModel):
         related_name='assignments'
     )
     priority = models.CharField(
+        verbose_name=_('priority'),
         max_length=50,
         choices=ContactPriorityChoices,
         blank=True

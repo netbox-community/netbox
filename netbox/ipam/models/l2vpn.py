@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.functional import cached_property
+from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import L2VPNTypeChoices
 from ipam.constants import L2VPN_ASSIGNMENT_MODELS
@@ -17,18 +18,22 @@ __all__ = (
 
 class L2VPN(PrimaryModel):
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100,
         unique=True
     )
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=L2VPNTypeChoices
     )
     identifier = models.BigIntegerField(
+        verbose_name=_('identifier'),
         null=True,
         blank=True
     )
@@ -123,7 +128,11 @@ class L2VPNTermination(NetBoxModel):
             obj_type = ContentType.objects.get_for_model(self.assigned_object)
             if L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type).\
                     exclude(pk=self.pk).count() > 0:
-                raise ValidationError(f'L2VPN Termination already assigned ({self.assigned_object})')
+                raise ValidationError(
+                    _('L2VPN Termination already assigned ({assigned_object})').format(
+                        assigned_object=self.assigned_object
+                    )
+                )
 
         # Only check if L2VPN is set and is of type P2P
         if hasattr(self, 'l2vpn') and self.l2vpn.type in L2VPNTypeChoices.P2P:
@@ -131,9 +140,10 @@ class L2VPNTermination(NetBoxModel):
             if terminations_count >= 2:
                 l2vpn_type = self.l2vpn.get_type_display()
                 raise ValidationError(
-                    f'{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} already '
-                    f'defined.'
-                )
+                    _(
+                        '{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} '
+                        'already defined.'
+                    ).format(l2vpn_type=l2vpn_type, terminations_count=terminations_count))
 
     @property
     def assigned_object_parent(self):

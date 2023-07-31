@@ -39,10 +39,12 @@ class DataSource(JobsMixin, PrimaryModel):
     A remote source, such as a git repository, from which DataFiles are synchronized.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=DataSourceTypeChoices,
         default=DataSourceTypeChoices.LOCAL
@@ -52,23 +54,28 @@ class DataSource(JobsMixin, PrimaryModel):
         verbose_name=_('URL')
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=DataSourceStatusChoices,
         default=DataSourceStatusChoices.NEW,
         editable=False
     )
     enabled = models.BooleanField(
+        verbose_name=_('enabled'),
         default=True
     )
     ignore_rules = models.TextField(
+        verbose_name=_('ignore rules'),
         blank=True,
         help_text=_("Patterns (one per line) matching files to ignore when syncing")
     )
     parameters = models.JSONField(
+        verbose_name=_('parameters'),
         blank=True,
         null=True
     )
     last_synced = models.DateTimeField(
+        verbose_name=_('last synced'),
         blank=True,
         null=True,
         editable=False
@@ -239,9 +246,11 @@ class DataFile(models.Model):
     updated, or deleted only by calling DataSource.sync().
     """
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     last_updated = models.DateTimeField(
+        verbose_name=_('last updated'),
         editable=False
     )
     source = models.ForeignKey(
@@ -251,20 +260,23 @@ class DataFile(models.Model):
         editable=False
     )
     path = models.CharField(
+        verbose_name=_('path'),
         max_length=1000,
         editable=False,
         help_text=_("File path relative to the data source's root")
     )
     size = models.PositiveIntegerField(
-        editable=False
+        editable=False,
+        verbose_name=_('size')
     )
     hash = models.CharField(
+        verbose_name=_('hash'),
         max_length=64,
         editable=False,
         validators=[
             RegexValidator(regex='^[0-9a-f]{64}$', message=_("Length must be 64 hexadecimal characters."))
         ],
-        help_text=_("SHA256 hash of the file data")
+        help_text=_('SHA256 hash of the file data')
     )
     data = models.BinaryField()
 

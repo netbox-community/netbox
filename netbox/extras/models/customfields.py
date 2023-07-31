@@ -12,7 +12,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.data import CHOICE_SETS
@@ -65,6 +65,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The object(s) to which this field applies.')
     )
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CustomFieldTypeChoices,
         default=CustomFieldTypeChoices.TYPE_TEXT,
@@ -78,83 +79,93 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of NetBox object this field maps to (for object fields)')
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=50,
         unique=True,
         help_text=_('Internal field name'),
         validators=(
             RegexValidator(
                 regex=r'^[a-z0-9_]+$',
-                message="Only alphanumeric characters and underscores are allowed.",
+                message=_("Only alphanumeric characters and underscores are allowed."),
                 flags=re.IGNORECASE
             ),
             RegexValidator(
                 regex=r'__',
-                message="Double underscores are not permitted in custom field names.",
+                message=_("Double underscores are not permitted in custom field names."),
                 flags=re.IGNORECASE,
                 inverse_match=True
             ),
         )
     )
     label = models.CharField(
+        verbose_name=_('label'),
         max_length=50,
         blank=True,
-        help_text=_('Name of the field as displayed to users (if not provided, '
-                    'the field\'s name will be used)')
+        help_text=_(
+            "Name of the field as displayed to users (if not provided, 'the field's name will be used)"
+        )
     )
     group_name = models.CharField(
+        verbose_name=_('group name'),
         max_length=50,
         blank=True,
         help_text=_("Custom fields within the same group will be displayed together")
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     required = models.BooleanField(
+        verbose_name=_('required'),
         default=False,
-        help_text=_('If true, this field is required when creating new objects '
-                    'or editing an existing object.')
+        help_text=_("If true, this field is required when creating new objects or editing an existing object.")
     )
     search_weight = models.PositiveSmallIntegerField(
+        verbose_name=_('search weight'),
         default=1000,
-        help_text=_('Weighting for search. Lower values are considered more important. '
-                    'Fields with a search weight of zero will be ignored.')
+        help_text=_(
+            "Weighting for search. Lower values are considered more important. Fields with a search weight of zero "
+            "will be ignored."
+        )
     )
     filter_logic = models.CharField(
+        verbose_name=_('filter logic'),
         max_length=50,
         choices=CustomFieldFilterLogicChoices,
         default=CustomFieldFilterLogicChoices.FILTER_LOOSE,
-        help_text=_('Loose matches any instance of a given string; exact '
-                    'matches the entire field.')
+        help_text=_("Loose matches any instance of a given string; exact matches the entire field.")
     )
     default = models.JSONField(
+        verbose_name=_('default'),
         blank=True,
         null=True,
-        help_text=_('Default value for the field (must be a JSON value). Encapsulate '
-                    'strings with double quotes (e.g. "Foo").')
+        help_text=_(
+            'Default value for the field (must be a JSON value). Encapsulate strings with double quotes (e.g. "Foo").'
+        )
     )
     weight = models.PositiveSmallIntegerField(
         default=100,
-        verbose_name='Display weight',
+        verbose_name=_('display weight'),
         help_text=_('Fields with higher weights appear lower in a form.')
     )
     validation_minimum = models.IntegerField(
         blank=True,
         null=True,
-        verbose_name='Minimum value',
+        verbose_name=_('minimum value'),
         help_text=_('Minimum allowed value (for numeric fields)')
     )
     validation_maximum = models.IntegerField(
         blank=True,
         null=True,
-        verbose_name='Maximum value',
+        verbose_name=_('maximum value'),
         help_text=_('Maximum allowed value (for numeric fields)')
     )
     validation_regex = models.CharField(
         blank=True,
         validators=[validate_regex],
         max_length=500,
-        verbose_name='Validation regex',
+        verbose_name=_('validation regex'),
         help_text=_(
             'Regular expression to enforce on text field values. Use ^ and $ to force matching of entire string. For '
             'example, <code>^[A-Z]{3}$</code> will limit values to exactly three uppercase letters.'
@@ -164,6 +175,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         to='CustomFieldChoiceSet',
         on_delete=models.PROTECT,
         related_name='choices_for',
+        verbose_name=_('choice set'),
         blank=True,
         null=True
     )
@@ -171,12 +183,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         max_length=50,
         choices=CustomFieldVisibilityChoices,
         default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
-        verbose_name='UI visibility',
+        verbose_name=_('UI visibility'),
         help_text=_('Specifies the visibility of custom field in the UI')
     )
     is_cloneable = models.BooleanField(
         default=False,
-        verbose_name='Cloneable',
+        verbose_name=_('is cloneable'),
         help_text=_('Replicate this value when cloning objects')
     )
 
@@ -266,15 +278,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 self.validate(default_value)
             except ValidationError as err:
                 raise ValidationError({
-                    'default': f'Invalid default value "{self.default}": {err.message}'
+                    'default': _(
+                        'Invalid default value "{default}": {message}'
+                    ).format(default=self.default, message=self.message)
                 })
 
         # Minimum/maximum values can be set only for numeric fields
         if self.type not in (CustomFieldTypeChoices.TYPE_INTEGER, CustomFieldTypeChoices.TYPE_DECIMAL):
             if self.validation_minimum:
-                raise ValidationError({'validation_minimum': "A minimum value may be set only for numeric fields"})
+                raise ValidationError({'validation_minimum': _("A minimum value may be set only for numeric fields")})
             if self.validation_maximum:
-                raise ValidationError({'validation_maximum': "A maximum value may be set only for numeric fields"})
+                raise ValidationError({'validation_maximum': _("A maximum value may be set only for numeric fields")})
 
         # Regex validation can be set only for text fields
         regex_types = (
@@ -284,7 +298,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         )
         if self.validation_regex and self.type not in regex_types:
             raise ValidationError({
-                'validation_regex': "Regular expression validation is supported only for text and URL fields"
+                'validation_regex': _("Regular expression validation is supported only for text and URL fields")
             })
 
         # Choice set must be set on selection fields, and *only* on selection fields
@@ -294,28 +308,32 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         ):
             if not self.choice_set:
                 raise ValidationError({
-                    'choice_set': "Selection fields must specify a set of choices."
+                    'choice_set': _("Selection fields must specify a set of choices.")
                 })
         elif self.choice_set:
             raise ValidationError({
-                'choice_set': "Choices may be set only on selection fields."
+                'choice_set': _("Choices may be set only on selection fields.")
             })
 
         # A selection field's default (if any) must be present in its available choices
         if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and self.default not in self.choices:
             raise ValidationError({
-                'default': f"The specified default value ({self.default}) is not listed as an available choice."
+                'default': _(
+                    "The specified default value ({default}) is not listed as an available choice."
+                ).format(default=self.default)
             })
 
         # Object fields must define an object_type; other fields must not
         if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
             if not self.object_type:
                 raise ValidationError({
-                    'object_type': "Object fields must define an object type."
+                    'object_type': _("Object fields must define an object type.")
                 })
         elif self.object_type:
             raise ValidationError({
-                'object_type': f"{self.get_type_display()} fields may not define an object type."
+                'object_type': _(
+                    "{type_display} fields may not define an object type.")
+                .format(type_display=self.get_type_display())
             })
 
     def serialize(self, value):
@@ -394,8 +412,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN:
             choices = (
                 (None, '---------'),
-                (True, 'True'),
-                (False, 'False'),
+                (True, _('True')),
+                (False, _('False')),
             )
             field = forms.NullBooleanField(
                 required=required, initial=initial, widget=forms.Select(choices=choices)
@@ -470,7 +488,9 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 field.validators = [
                     RegexValidator(
                         regex=self.validation_regex,
-                        message=mark_safe(f"Values must match this regex: <code>{self.validation_regex}</code>")
+                        message=mark_safe(_("Values must match this regex: <code>{regex}</code>").format(
+                            regex=self.validation_regex
+                        ))
                     )
                 ]
 
@@ -483,7 +503,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
             field.disabled = True
             prepend = '<br />' if field.help_text else ''
-            field.help_text += f'{prepend}<i class="mdi mdi-alert-circle-outline"></i> Field is set to read-only.'
+            field.help_text += f'{prepend}<i class="mdi mdi-alert-circle-outline"></i> ' + _('Field is set to read-only.')
 
         return field
 
@@ -565,33 +585,41 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             # Validate text field
             if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
                 if type(value) is not str:
-                    raise ValidationError(f"Value must be a string.")
+                    raise ValidationError(_("Value must be a string."))
                 if self.validation_regex and not re.match(self.validation_regex, value):
-                    raise ValidationError(f"Value must match regex '{self.validation_regex}'")
+                    raise ValidationError(_("Value must match regex '{regex}'").format(regex=self.validation_regex))
 
             # Validate integer
             elif self.type == CustomFieldTypeChoices.TYPE_INTEGER:
                 if type(value) is not int:
-                    raise ValidationError("Value must be an integer.")
+                    raise ValidationError(_("Value must be an integer."))
                 if self.validation_minimum is not None and value < self.validation_minimum:
-                    raise ValidationError(f"Value must be at least {self.validation_minimum}")
+                    raise ValidationError(
+                        _("Value must be at least {minimum}").format(minimum=self.validation_maximum)
+                    )
                 if self.validation_maximum is not None and value > self.validation_maximum:
-                    raise ValidationError(f"Value must not exceed {self.validation_maximum}")
+                    raise ValidationError(
+                        _("Value must not exceed {maximum}").format(maximum=self.validation_maximum)
+                    )
 
             # Validate decimal
             elif self.type == CustomFieldTypeChoices.TYPE_DECIMAL:
                 try:
                     decimal.Decimal(value)
                 except decimal.InvalidOperation:
-                    raise ValidationError("Value must be a decimal.")
+                    raise ValidationError(_("Value must be a decimal."))
                 if self.validation_minimum is not None and value < self.validation_minimum:
-                    raise ValidationError(f"Value must be at least {self.validation_minimum}")
+                    raise ValidationError(
+                        _("Value must be at least {minimum}").format(minimum=self.validation_minimum)
+                    )
                 if self.validation_maximum is not None and value > self.validation_maximum:
-                    raise ValidationError(f"Value must not exceed {self.validation_maximum}")
+                    raise ValidationError(
+                        _("Value must not exceed {maximum}").format(maximum=self.validation_maximum)
+                    )
 
             # Validate boolean
             elif self.type == CustomFieldTypeChoices.TYPE_BOOLEAN and value not in [True, False, 1, 0]:
-                raise ValidationError("Value must be true or false.")
+                raise ValidationError(_("Value must be true or false."))
 
             # Validate date
             elif self.type == CustomFieldTypeChoices.TYPE_DATE:
@@ -599,7 +627,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     try:
                         date.fromisoformat(value)
                     except ValueError:
-                        raise ValidationError("Date values must be in ISO 8601 format (YYYY-MM-DD).")
+                        raise ValidationError(_("Date values must be in ISO 8601 format (YYYY-MM-DD)."))
 
             # Validate date & time
             elif self.type == CustomFieldTypeChoices.TYPE_DATETIME:
@@ -607,37 +635,44 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                     try:
                         datetime.fromisoformat(value)
                     except ValueError:
-                        raise ValidationError("Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS).")
+                        raise ValidationError(
+                            _("Date and time values must be in ISO 8601 format (YYYY-MM-DD HH:MM:SS).")
+                        )
 
             # Validate selected choice
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 if value not in [c[0] for c in self.choices]:
                     raise ValidationError(
-                        f"Invalid choice ({value}). Available choices are: {', '.join(self.choices)}"
+                        _("Invalid choice ({value}). Available choices are: {choices}").format(
+                            value=value, choices=', '.join(self.choices)
+                        )
                     )
 
             # Validate all selected choices
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
                 if not set(value).issubset([c[0] for c in self.choices]):
                     raise ValidationError(
-                        f"Invalid choice(s) ({', '.join(value)}). Available choices are: {', '.join(self.choices)}"
+                        _("Invalid choice(s) ({invalid_choices}). Available choices are: {available_choices}").format(
+                            invalid_choices=', '.join(value), available_choices=', '.join(self.choices))
                     )
 
             # Validate selected object
             elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
                 if type(value) is not int:
-                    raise ValidationError(f"Value must be an object ID, not {type(value).__name__}")
+                    raise ValidationError(_("Value must be an object ID, not {type}").format(type=type(value).__name__))
 
             # Validate selected objects
             elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
                 if type(value) is not list:
-                    raise ValidationError(f"Value must be a list of object IDs, not {type(value).__name__}")
+                    raise ValidationError(
+                        _("Value must be a list of object IDs, not {type}").format(type=type(value).__name__)
+                    )
                 for id in value:
                     if type(id) is not int:
-                        raise ValidationError(f"Found invalid object ID: {id}")
+                        raise ValidationError(_("Found invalid object ID: {id}").format(id=id))
 
         elif self.required:
-            raise ValidationError("Required field cannot be empty.")
+            raise ValidationError(_("Required field cannot be empty."))
 
 
 class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
