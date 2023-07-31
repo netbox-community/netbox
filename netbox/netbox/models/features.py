@@ -146,7 +146,6 @@ class CustomFieldsMixin(models.Model):
     Enables support for custom fields.
     """
     custom_field_data = models.JSONField(
-        verbose_name=_('custom field data'),
         encoder=CustomFieldJSONEncoder,
         blank=True,
         default=dict

@@ -14,7 +14,7 @@ class WeightMixin(models.Model):
         null=True
     )
     weight_unit = models.CharField(
-        verbose_name=_('weight_unit'),
+        verbose_name=_('weight unit'),
         max_length=50,
         choices=WeightUnitChoices,
         blank=True,

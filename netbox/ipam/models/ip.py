@@ -59,7 +59,7 @@ class RIR(OrganizationalModel):
     """
     is_private = models.BooleanField(
         default=False,
-        verbose_name=_('Private'),
+        verbose_name=_('private'),
         help_text=_('IP space managed by this RIR is considered private')
     )
 
@@ -135,9 +135,9 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
                 covering_aggregates = covering_aggregates.exclude(pk=self.pk)
             if covering_aggregates:
                 raise ValidationError({
-                    'prefix': _("Aggregates cannot overlap. {} is already covered by an existing aggregate ({}).").format(
-                        self.prefix, covering_aggregates[0]
-                    )
+                    'prefix': _(
+                        "Aggregates cannot overlap. {} is already covered by an existing aggregate ({})."
+                    ).format(self.prefix, covering_aggregates[0])
                 })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
@@ -231,14 +231,13 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         on_delete=models.PROTECT,
         related_name='prefixes',
         blank=True,
-        null=True,
-        verbose_name='VLAN'
+        null=True
     )
     status = models.CharField(
         max_length=50,
         choices=PrefixStatusChoices,
         default=PrefixStatusChoices.STATUS_ACTIVE,
-        verbose_name=_('Status'),
+        verbose_name=_('status'),
         help_text=_('Operational status of this prefix')
     )
     role = models.ForeignKey(
@@ -250,7 +249,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         help_text=_('The primary function of this prefix')
     )
     is_pool = models.BooleanField(
-        verbose_name=_('Is a pool'),
+        verbose_name=_('is a pool'),
         default=False,
         help_text=_('All IP addresses within this prefix are considered usable')
     )
@@ -548,23 +547,33 @@ class IPRange(PrimaryModel):
             # Check that start & end IP versions match
             if self.start_address.version != self.end_address.version:
                 raise ValidationError({
-                    'end_address': _("Ending address version (IPv{end_address_version}) does not match starting "
-                                     "address (IPv{start_address_version})").format(
-                        end_address_version=self.end_address.version, start_address_version=self.start_address.version)
+                    'end_address': _(
+                        "Ending address version (IPv{end_address_version}) does not match starting address "
+                        "(IPv{start_address_version})"
+                    ).format(
+                        end_address_version=self.end_address.version,
+                        start_address_version=self.start_address.version
+                    )
                 })
 
             # Check that the start & end IP prefix lengths match
             if self.start_address.prefixlen != self.end_address.prefixlen:
                 raise ValidationError({
-                    'end_address': _("Ending address mask (/{end_address_prefixlen}) does not match starting "
-                                     "address mask (/{start_address_prefixlen})").format(
-                        end_address_prefixlen=self.end_address.prefixlen, start_address_prefixlen=self.start_address.prefixlen)
+                    'end_address': _(
+                        "Ending address mask (/{end_address_prefixlen}) does not match starting address mask "
+                        "(/{start_address_prefixlen})"
+                    ).format(
+                        end_address_prefixlen=self.end_address.prefixlen,
+                        start_address_prefixlen=self.start_address.prefixlen
+                    )
                 })
 
             # Check that the ending address is greater than the starting address
             if not self.end_address > self.start_address:
                 raise ValidationError({
-                    'end_address': _("Ending address must be lower than the starting address ({start_address})").format(start_address=self.start_address)
+                    'end_address': _(
+                        "Ending address must be lower than the starting address ({start_address})"
+                    ).format(start_address=self.start_address)
                 })
 
             # Check for overlapping ranges
@@ -574,13 +583,18 @@ class IPRange(PrimaryModel):
                 Q(start_address__lte=self.start_address, end_address__gte=self.end_address)  # Starts & ends outside
             ).first()
             if overlapping_range:
-                raise ValidationError(_("Defined addresses overlap with range {overlapping_range} in VRF {vrf}").format(
-                    overlapping_range=overlapping_range, vrf=self.vrf))
+                raise ValidationError(
+                    _("Defined addresses overlap with range {overlapping_range} in VRF {vrf}").format(
+                        overlapping_range=overlapping_range,
+                        vrf=self.vrf
+                    ))
 
             # Validate maximum size
             MAX_SIZE = 2 ** 32 - 1
             if int(self.end_address.ip - self.start_address.ip) + 1 > MAX_SIZE:
-                raise ValidationError(_("Defined range exceeds maximum supported size ({max_size})").format(max_size=MAX_SIZE))
+                raise ValidationError(
+                    _("Defined range exceeds maximum supported size ({max_size})").format(max_size=MAX_SIZE)
+                )
 
     def save(self, *args, **kwargs):
 
@@ -745,14 +759,14 @@ class IPAddress(PrimaryModel):
         related_name='nat_outside',
         blank=True,
         null=True,
-        verbose_name=_('NAT (Inside)'),
+        verbose_name=_('NAT (inside)'),
         help_text=_('The IP for which this address is the "outside" IP')
     )
     dns_name = models.CharField(
         max_length=255,
         blank=True,
         validators=[DNSValidator],
-        verbose_name=_('DNS Name'),
+        verbose_name=_('DNS name'),
         help_text=_('Hostname or FQDN (not case-sensitive)')
     )
 

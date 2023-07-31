@@ -221,7 +221,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         help_text=_('Jinja2 template code.')
     )
     environment_params = models.JSONField(
-        verbose_name=_('environment params'),
+        verbose_name=_('environment parameters'),
         blank=True,
         null=True,
         default=dict,

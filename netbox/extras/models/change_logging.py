@@ -77,13 +77,13 @@ class ObjectChange(models.Model):
         editable=False
     )
     prechange_data = models.JSONField(
-        verbose_name=_('prechange data'),
+        verbose_name=_('pre-change data'),
         editable=False,
         blank=True,
         null=True
     )
     postchange_data = models.JSONField(
-        verbose_name=_('postchange data'),
+        verbose_name=_('post-change data'),
         editable=False,
         blank=True,
         null=True

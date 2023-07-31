@@ -93,7 +93,7 @@ class Job(models.Model):
         blank=True
     )
     job_id = models.UUIDField(
-        verbose_name=_('job id'),
+        verbose_name=_('job ID'),
         unique=True
     )
 

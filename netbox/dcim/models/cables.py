@@ -242,7 +242,7 @@ class CableTermination(ChangeLoggedModel):
     cable_end = models.CharField(
         max_length=1,
         choices=CableEndChoices,
-        verbose_name=_('End')
+        verbose_name=_('end')
     )
     termination_type = models.ForeignKey(
         to=ContentType,

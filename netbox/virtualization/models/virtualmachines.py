@@ -76,7 +76,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         max_length=50,
         choices=VirtualMachineStatusChoices,
         default=VirtualMachineStatusChoices.STATUS_ACTIVE,
-        verbose_name=_('Status')
+        verbose_name=_('status')
     )
     role = models.ForeignKey(
         to='dcim.DeviceRole',
@@ -92,7 +92,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv4'
+        verbose_name='primary IPv4'
     )
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -100,7 +100,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='Primary IPv6'
+        verbose_name='primary IPv6'
     )
     vcpus = models.DecimalField(
         max_digits=6,
@@ -115,12 +115,12 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     memory = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('Memory (MB)')
+        verbose_name=_('memory (MB)')
     )
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('Disk (GB)')
+        verbose_name=_('disk (GB)')
     )
 
     # Counter fields
@@ -176,7 +176,9 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         # Validate site for cluster & device
         if self.cluster and self.site and self.cluster.site != self.site:
             raise ValidationError({
-                'cluster': _('The selected cluster ({cluster}) is not assigned to this site ({site}).').format(cluster=self.cluster, site=self.site)
+                'cluster': _(
+                    'The selected cluster ({cluster}) is not assigned to this site ({site}).'
+                ).format(cluster=self.cluster, site=self.site)
             })
 
         # Validate assigned cluster device
@@ -186,7 +188,9 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
             })
         if self.device and self.device not in self.cluster.devices.all():
             raise ValidationError({
-                'device': _('The selected device ({device}) is not assigned to this cluster ({cluster}).').format(device=self.device, cluster=self.cluster)
+                'device': _(
+                    "The selected device ({device}) is not assigned to this cluster ({cluster})."
+                ).format(device=self.device, cluster=self.cluster)
             })
 
         # Validate primary IP addresses
@@ -197,8 +201,9 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
             if ip is not None:
                 if ip.address.version != family:
                     raise ValidationError({
-                        field: _("Must be an IPv{family} address. ({ip} is an IPv{version} address.)").format(
-                            family=family, ip=ip, version=ip.address.version),
+                        field: _(
+                            "Must be an IPv{family} address. ({ip} is an IPv{version} address.)"
+                        ).format(family=family, ip=ip, version=ip.address.version)
                     })
                 if ip.assigned_object in interfaces:
                     pass
@@ -259,13 +264,13 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
         related_name='vminterfaces_as_untagged',
         null=True,
         blank=True,
-        verbose_name=_('Untagged VLAN')
+        verbose_name=_('untagged VLAN')
     )
     tagged_vlans = models.ManyToManyField(
         to='ipam.VLAN',
         related_name='vminterfaces_as_tagged',
         blank=True,
-        verbose_name=_('Tagged VLANs')
+        verbose_name=_('tagged VLANs')
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
@@ -322,8 +327,10 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
         # An interface's parent must belong to the same virtual machine
         if self.parent and self.parent.virtual_machine != self.virtual_machine:
             raise ValidationError({
-                'parent': _("The selected parent interface ({parent}) belongs to a different virtual machine "
-                            "({virtual_machine}).").format(parent=self.parent, virtual_machine=self.parent.virtual_machine)
+                'parent': _(
+                    "The selected parent interface ({parent}) belongs to a different virtual machine "
+                    "({virtual_machine})."
+                ).format(parent=self.parent, virtual_machine=self.parent.virtual_machine)
             })
 
         # Bridge validation
@@ -335,8 +342,10 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
         # A bridged interface belong to the same virtual machine
         if self.bridge and self.bridge.virtual_machine != self.virtual_machine:
             raise ValidationError({
-                'bridge': _("The selected bridge interface ({bridge}) belongs to a different virtual machine "
-                            "({virtual_machine}).").format(bridge=self.bridge, virtual_machine=self.bridge.virtual_machine)
+                'bridge': _(
+                    "The selected bridge interface ({bridge}) belongs to a different virtual machine "
+                    "({virtual_machine})."
+                ).format(bridge=self.bridge, virtual_machine=self.bridge.virtual_machine)
             })
 
         # VLAN validation
@@ -344,8 +353,10 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.virtual_machine.site, None]:
             raise ValidationError({
-                'untagged_vlan': _("The untagged VLAN ({untagged_vlan}) must belong to the same site as the "
-                                   "interface's parent virtual machine, or it must be global.").format(untagged_vlan=self.untagged_vlan)
+                'untagged_vlan': _(
+                    "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
+                    "virtual machine, or it must be global."
+                ).format(untagged_vlan=self.untagged_vlan)
             })
 
     def to_objectchange(self, action):

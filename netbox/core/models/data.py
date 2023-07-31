@@ -266,7 +266,8 @@ class DataFile(models.Model):
         help_text=_("File path relative to the data source's root")
     )
     size = models.PositiveIntegerField(
-        editable=False
+        editable=False,
+        verbose_name=_('size')
     )
     hash = models.CharField(
         verbose_name=_('hash'),

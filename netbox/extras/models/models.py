@@ -48,7 +48,7 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='webhooks',
-        verbose_name='Object types',
+        verbose_name=_('object types'),
         limit_choices_to=FeatureQuery('webhooks'),
         help_text=_("The object(s) to which this Webhook applies.")
     )
@@ -58,35 +58,37 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         unique=True
     )
     type_create = models.BooleanField(
-        verbose_name=_('type create'),
+        verbose_name=_('on create'),
         default=False,
         help_text=_("Triggers when a matching object is created.")
     )
     type_update = models.BooleanField(
-        verbose_name=_('type update'),
+        verbose_name=_('on update'),
         default=False,
         help_text=_("Triggers when a matching object is updated.")
     )
     type_delete = models.BooleanField(
-        verbose_name=_('type delete'),
+        verbose_name=_('on delete'),
         default=False,
         help_text=_("Triggers when a matching object is deleted.")
     )
     type_job_start = models.BooleanField(
-        verbose_name=_('type job start'),
+        verbose_name=_('on job start'),
         default=False,
         help_text=_("Triggers when a job for a matching object is started.")
     )
     type_job_end = models.BooleanField(
-        verbose_name=_('type job end'),
+        verbose_name=_('on job end'),
         default=False,
         help_text=_("Triggers when a job for a matching object terminates.")
     )
     payload_url = models.CharField(
         max_length=500,
         verbose_name=_('URL'),
-        help_text=_('This URL will be called using the HTTP method defined when the webhook is called. '
-                    'Jinja2 template processing is supported with the same context as the request body.')
+        help_text=_(
+            "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template "
+            "processing is supported with the same context as the request body."
+        )
     )
     enabled = models.BooleanField(
         verbose_name=_('enabled'),
@@ -102,31 +104,37 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         max_length=100,
         default=HTTP_CONTENT_TYPE_JSON,
         verbose_name=_('HTTP content type'),
-        help_text=_('The complete list of official content types is available '
-                    '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.')
+        help_text=_(
+            'The complete list of official content types is available '
+            '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
+        )
     )
     additional_headers = models.TextField(
         verbose_name=_('additional headers'),
         blank=True,
-        help_text=_("User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. "
-                    "Headers should be defined in the format <code>Name: Value</code>. Jinja2 template processing is "
-                    "supported with the same context as the request body (below).")
+        help_text=_(
+            "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers "
+            "should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with "
+            "the same context as the request body (below)."
+        )
     )
     body_template = models.TextField(
         verbose_name=_('body template'),
         blank=True,
-        help_text=_('Jinja2 template for a custom request body. If blank, a JSON object representing the change will be '
-                    'included. Available context data includes: <code>event</code>, <code>model</code>, '
-                    '<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>.')
+        help_text=_(
+            "Jinja2 template for a custom request body. If blank, a JSON object representing the change will be "
+            "included. Available context data includes: <code>event</code>, <code>model</code>, "
+            "<code>timestamp</code>, <code>username</code>, <code>request_id</code>, and <code>data</code>."
+        )
     )
     secret = models.CharField(
         verbose_name=_('secret'),
         max_length=255,
         blank=True,
-        help_text=_("When provided, the request will include a 'X-Hook-Signature' "
-                    "header containing a HMAC hex digest of the payload body using "
-                    "the secret as the key. The secret is not transmitted in "
-                    "the request.")
+        help_text=_(
+            "When provided, the request will include a <code>X-Hook-Signature</code> header containing a HMAC hex "
+            "digest of the payload body using the secret as the key. The secret is not transmitted in the request."
+        )
     )
     conditions = models.JSONField(
         verbose_name=_('conditions'),
@@ -144,8 +152,9 @@ class Webhook(ExportTemplatesMixin, ChangeLoggedModel):
         null=True,
         blank=True,
         verbose_name=_('CA File Path'),
-        help_text=_('The specific CA certificate file to use for SSL verification. '
-                    'Leave blank to use the system defaults.')
+        help_text=_(
+            "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults."
+        )
     )
 
     class Meta:
@@ -243,7 +252,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_("Jinja2 template code for link text")
     )
     link_url = models.TextField(
-        verbose_name=_('Link URL'),
+        verbose_name=_('link URL'),
         help_text=_("Jinja2 template code for link URL")
     )
     weight = models.PositiveSmallIntegerField(
@@ -333,8 +342,10 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
         blank=True
     )
     template_code = models.TextField(
-        help_text=_('Jinja2 template code. The list of objects being exported is passed as a context variable named '
-                    '<code>queryset</code>.')
+        help_text=_(
+            "Jinja2 template code. The list of objects being exported is passed as a context variable named "
+            "<code>queryset</code>."
+        )
     )
     mime_type = models.CharField(
         max_length=50,
@@ -626,7 +637,9 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         # Prevent the creation of journal entries on unsupported models
         permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
         if self.assigned_object_type not in permitted_types:
-            raise ValidationError(_("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type))
+            raise ValidationError(
+                _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
+            )
 
     def get_kind_color(self):
         return JournalEntryKindChoices.colors.get(self.kind)
@@ -687,7 +700,7 @@ class ConfigRevision(models.Model):
     data = models.JSONField(
         blank=True,
         null=True,
-        verbose_name=_('Configuration data')
+        verbose_name=_('configuration data')
     )
 
     objects = RestrictedQuerySet.as_manager()

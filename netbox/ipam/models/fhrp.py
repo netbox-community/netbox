@@ -20,7 +20,7 @@ class FHRPGroup(PrimaryModel):
     A grouping of next hope resolution protocol (FHRP) peers. (For instance, VRRP or HSRP.)
     """
     group_id = models.PositiveSmallIntegerField(
-        verbose_name=_('Group ID')
+        verbose_name=_('group ID')
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -36,12 +36,12 @@ class FHRPGroup(PrimaryModel):
         max_length=50,
         choices=FHRPGroupAuthTypeChoices,
         blank=True,
-        verbose_name=_('Authentication type')
+        verbose_name=_('authentication type')
     )
     auth_key = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name=_('Authentication key')
+        verbose_name=_('authentication key')
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',

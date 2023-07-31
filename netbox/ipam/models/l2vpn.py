@@ -128,7 +128,11 @@ class L2VPNTermination(NetBoxModel):
             obj_type = ContentType.objects.get_for_model(self.assigned_object)
             if L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type).\
                     exclude(pk=self.pk).count() > 0:
-                raise ValidationError(_('L2VPN Termination already assigned ({assigned_object})').format(assigned_object=self.assigned_object))
+                raise ValidationError(
+                    _('L2VPN Termination already assigned ({assigned_object})').format(
+                        assigned_object=self.assigned_object
+                    )
+                )
 
         # Only check if L2VPN is set and is of type P2P
         if hasattr(self, 'l2vpn') and self.l2vpn.type in L2VPNTypeChoices.P2P:
@@ -136,9 +140,10 @@ class L2VPNTermination(NetBoxModel):
             if terminations_count >= 2:
                 l2vpn_type = self.l2vpn.get_type_display()
                 raise ValidationError(
-                    _('{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} already '
-                      'defined.').format(l2vpn_type=l2vpn_type, terminations_count=terminations_count)
-                )
+                    _(
+                        '{l2vpn_type} L2VPNs cannot have more than two terminations; found {terminations_count} '
+                        'already defined.'
+                    ).format(l2vpn_type=l2vpn_type, terminations_count=terminations_count))
 
     @property
     def assigned_object_parent(self):

@@ -65,7 +65,7 @@ class Rack(PrimaryModel, WeightMixin):
         max_length=50,
         blank=True,
         null=True,
-        verbose_name=_('Facility ID'),
+        verbose_name=_('facility ID'),
         help_text=_("Locally-assigned identifier")
     )
     site = models.ForeignKey(
@@ -104,42 +104,42 @@ class Rack(PrimaryModel, WeightMixin):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name=_('Serial number')
+        verbose_name=_('serial number')
     )
     asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
         unique=True,
-        verbose_name=_('Asset tag'),
+        verbose_name=_('asset tag'),
         help_text=_('A unique tag used to identify this rack')
     )
     type = models.CharField(
         choices=RackTypeChoices,
         max_length=50,
         blank=True,
-        verbose_name=_('Type')
+        verbose_name=_('type')
     )
     width = models.PositiveSmallIntegerField(
         choices=RackWidthChoices,
         default=RackWidthChoices.WIDTH_19IN,
-        verbose_name=_('Width'),
+        verbose_name=_('width'),
         help_text=_('Rail-to-rail width')
     )
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
-        verbose_name=_('Height (U)'),
+        verbose_name=_('height (U)'),
         validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
         help_text=_('Height in rack units')
     )
     starting_unit = models.PositiveSmallIntegerField(
         default=RACK_STARTING_UNIT_DEFAULT,
-        verbose_name=_('Starting unit'),
+        verbose_name=_('starting unit'),
         help_text=_('Starting unit for rack')
     )
     desc_units = models.BooleanField(
         default=False,
-        verbose_name=_('Descending units'),
+        verbose_name=_('descending units'),
         help_text=_('Units are numbered top-to-bottom')
     )
     outer_width = models.PositiveSmallIntegerField(

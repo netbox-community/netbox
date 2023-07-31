@@ -25,10 +25,10 @@ class WirelessAuthenticationBase(models.Model):
         max_length=50,
         choices=WirelessAuthTypeChoices,
         blank=True,
-        verbose_name=_("Auth Type"),
+        verbose_name=_("authentication type"),
     )
     auth_cipher = models.CharField(
-        verbose_name=_('auth cipher'),
+        verbose_name=_('authentication cipher'),
         max_length=50,
         choices=WirelessAuthCipherChoices,
         blank=True
@@ -36,7 +36,7 @@ class WirelessAuthenticationBase(models.Model):
     auth_psk = models.CharField(
         max_length=PSK_MAX_LENGTH,
         blank=True,
-        verbose_name=_('Pre-shared key')
+        verbose_name=_('pre-shared key')
     )
 
     class Meta:
@@ -90,7 +90,8 @@ class WirelessLAN(WirelessAuthenticationBase, PrimaryModel):
     status = models.CharField(
         max_length=50,
         choices=WirelessLANStatusChoices,
-        default=WirelessLANStatusChoices.STATUS_ACTIVE
+        default=WirelessLANStatusChoices.STATUS_ACTIVE,
+        verbose_name=_('status')
     )
     vlan = models.ForeignKey(
         to='ipam.VLAN',
@@ -138,14 +139,14 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
         related_name='+',
-        verbose_name=_('Interface A'),
+        verbose_name=_('interface A'),
     )
     interface_b = models.ForeignKey(
         to='dcim.Interface',
         limit_choices_to=get_wireless_interface_types,
         on_delete=models.PROTECT,
         related_name='+',
-        verbose_name=_('Interface B'),
+        verbose_name=_('interface B'),
     )
     ssid = models.CharField(
         max_length=SSID_MAX_LENGTH,
@@ -208,11 +209,15 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         # Validate interface types
         if self.interface_a.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
-                'interface_a': _("{type_display} is not a wireless interface.").format(type_display=self.interface_a.get_type_display())
+                'interface_a': _(
+                    "{type_display} is not a wireless interface."
+                ).format(type_display=self.interface_a.get_type_display())
             })
         if self.interface_b.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
-                'interface_a': _("{type_display} is not a wireless interface.").format(type_display=self.interface_b.get_type_display())
+                'interface_a': _(
+                    "{type_display} is not a wireless interface."
+                ).format(type_display=self.interface_b.get_type_display())
             })
 
     def save(self, *args, **kwargs):

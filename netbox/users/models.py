@@ -105,7 +105,6 @@ class UserConfig(models.Model):
         related_name='config'
     )
     data = models.JSONField(
-        verbose_name=_('data'),
         default=dict
     )
 
@@ -177,7 +176,9 @@ class UserConfig(models.Model):
                 d = d[key]
             elif key in d:
                 err_path = '.'.join(path.split('.')[:i + 1])
-                raise TypeError(_("Key '{err_path}' is a leaf node; cannot assign new keys").format(err_path=err_path))
+                raise TypeError(
+                    _("Key '{err_path}' is a leaf node; cannot assign new keys").format(err_path=err_path)
+                )
             else:
                 d = d.setdefault(key, {})
 
@@ -187,7 +188,9 @@ class UserConfig(models.Model):
             if type(value) is dict:
                 d[key].update(value)
             else:
-                raise TypeError(_("Key '{path}' is a dictionary; cannot assign a non-dictionary value").format(path=path))
+                raise TypeError(
+                    _("Key '{path}' is a dictionary; cannot assign a non-dictionary value").format(path=path)
+                )
         else:
             d[key] = value
 
@@ -280,7 +283,7 @@ class Token(models.Model):
         base_field=IPNetworkField(),
         blank=True,
         null=True,
-        verbose_name=_('Allowed IPs'),
+        verbose_name=_('allowed IPs'),
         help_text=_(
             'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
             'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"'
@@ -385,6 +388,7 @@ class ObjectPermission(models.Model):
     constraints = models.JSONField(
         blank=True,
         null=True,
+        verbose_name=_('constraints'),
         help_text=_("Queryset filter matching the applicable objects of the selected type(s)")
     )
 

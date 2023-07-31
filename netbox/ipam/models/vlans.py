@@ -47,7 +47,7 @@ class VLANGroup(OrganizationalModel):
         fk_field='scope_id'
     )
     min_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('Minimum VLAN ID'),
+        verbose_name=_('minimum VLAN ID'),
         default=VLAN_VID_MIN,
         validators=(
             MinValueValidator(VLAN_VID_MIN),
@@ -56,7 +56,7 @@ class VLANGroup(OrganizationalModel):
         help_text=_('Lowest permissible ID of a child VLAN')
     )
     max_vid = models.PositiveSmallIntegerField(
-        verbose_name=_('Maximum VLAN ID'),
+        verbose_name=_('maximum VLAN ID'),
         default=VLAN_VID_MAX,
         validators=(
             MinValueValidator(VLAN_VID_MIN),
@@ -145,7 +145,7 @@ class VLAN(PrimaryModel):
         help_text=_("VLAN group (optional)")
     )
     vid = models.PositiveSmallIntegerField(
-        verbose_name=_('ID'),
+        verbose_name=_('VLAN ID'),
         validators=(
             MinValueValidator(VLAN_VID_MIN),
             MaxValueValidator(VLAN_VID_MAX)
@@ -219,15 +219,17 @@ class VLAN(PrimaryModel):
         # Validate VLAN group (if assigned)
         if self.group and self.site and self.group.scope != self.site:
             raise ValidationError({
-                'group': _("VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
-                           "site {site}.").format(group=self.group, scope=self.group.scope, site=self.site)
+                'group': _(
+                    "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
+                ).format(group=self.group, scope=self.group.scope, site=self.site)
             })
 
         # Validate group min/max VIDs
         if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:
             raise ValidationError({
-                'vid': _("VID must be between {min_vid} and {max_vid} for VLANs in group "
-                         "{group}").format(min_vid=self.group.min_vid, max_vid=self.group.max_vid, group=self.group)
+                'vid': _(
+                    "VID must be between {min_vid} and {max_vid} for VLANs in group {group}"
+                ).format(min_vid=self.group.min_vid, max_vid=self.group.max_vid, group=self.group)
             })
 
     def get_status_color(self):

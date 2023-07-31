@@ -43,9 +43,9 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=64,
-        help_text=_("""
-        {module} is accepted as a substitution for the module bay position when attached to a module type.
-        """)
+        help_text=_(
+            "{module} is accepted as a substitution for the module bay position when attached to a module type."
+        )
     )
     _name = NaturalOrderingField(
         target_field='name',
@@ -59,6 +59,7 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
         help_text=_('Physical label')
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -378,7 +379,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
     )
     mgmt_only = models.BooleanField(
         default=False,
-        verbose_name=_('Management only')
+        verbose_name=_('management only')
     )
     bridge = models.ForeignKey(
         to='self',
@@ -386,7 +387,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         related_name='bridge_interfaces',
         null=True,
         blank=True,
-        verbose_name=_('Bridge interface')
+        verbose_name=_('bridge interface')
     )
     poe_mode = models.CharField(
         max_length=50,
@@ -404,7 +405,7 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         max_length=30,
         choices=WirelessRoleChoices,
         blank=True,
-        verbose_name='Wireless role'
+        verbose_name=_('wireless role')
     )
 
     component_model = Interface
@@ -703,7 +704,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
     )
     part_id = models.CharField(
         max_length=50,
-        verbose_name=_('Part ID'),
+        verbose_name=_('part ID'),
         blank=True,
         help_text=_('Manufacturer-assigned part identifier')
     )

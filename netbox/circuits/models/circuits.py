@@ -34,7 +34,7 @@ class Circuit(PrimaryModel):
     """
     cid = models.CharField(
         max_length=100,
-        verbose_name=_('Circuit ID'),
+        verbose_name=_('circuit ID'),
         help_text=_('Unique circuit ID')
     )
     provider = models.ForeignKey(
@@ -70,17 +70,17 @@ class Circuit(PrimaryModel):
     install_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name=_('Installed')
+        verbose_name=_('installed')
     )
     termination_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name=_('Terminates')
+        verbose_name=_('terminates')
     )
     commit_rate = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('Commit rate (Kbps)'),
+        verbose_name=_('commit rate (Kbps)'),
         help_text=_("Committed rate")
     )
 
@@ -163,7 +163,7 @@ class CircuitTermination(
     term_side = models.CharField(
         max_length=1,
         choices=CircuitTerminationSideChoices,
-        verbose_name=_('Termination')
+        verbose_name=_('termination')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -180,7 +180,7 @@ class CircuitTermination(
         null=True
     )
     port_speed = models.PositiveIntegerField(
-        verbose_name=_('Port speed (Kbps)'),
+        verbose_name=_('port speed (Kbps)'),
         blank=True,
         null=True,
         help_text=_('Physical circuit speed')
@@ -188,19 +188,19 @@ class CircuitTermination(
     upstream_speed = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('Upstream speed (Kbps)'),
+        verbose_name=_('upstream speed (Kbps)'),
         help_text=_('Upstream speed, if different from port speed')
     )
     xconnect_id = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name=_('Cross-connect ID'),
+        verbose_name=_('cross-connect ID'),
         help_text=_('ID of the local cross-connect')
     )
     pp_info = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name=_('Patch panel/port(s)'),
+        verbose_name=_('patch panel/port(s)'),
         help_text=_('Patch panel ID and port number(s)')
     )
     description = models.CharField(

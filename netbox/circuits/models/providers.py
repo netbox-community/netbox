@@ -63,7 +63,7 @@ class ProviderAccount(PrimaryModel):
     )
     account = models.CharField(
         max_length=100,
-        verbose_name=_('Account ID')
+        verbose_name=_('account ID')
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -118,7 +118,7 @@ class ProviderNetwork(PrimaryModel):
     service_id = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name=_('Service ID')
+        verbose_name=_('service ID')
     )
 
     class Meta:

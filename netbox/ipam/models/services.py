@@ -30,7 +30,7 @@ class ServiceBase(models.Model):
                 MaxValueValidator(SERVICE_PORT_MAX)
             ]
         ),
-        verbose_name=_('Port numbers')
+        verbose_name=_('port numbers')
     )
 
     class Meta:
@@ -82,7 +82,8 @@ class Service(ServiceBase, PrimaryModel):
         blank=True
     )
     name = models.CharField(
-        max_length=100
+        max_length=100,
+        verbose_name=_('name')
     )
     ipaddresses = models.ManyToManyField(
         to='ipam.IPAddress',

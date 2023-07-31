@@ -27,7 +27,7 @@ class VRF(PrimaryModel):
         unique=True,
         blank=True,
         null=True,
-        verbose_name=_('Route distinguisher'),
+        verbose_name=_('route distinguisher'),
         help_text=_('Unique route distinguisher (as defined in RFC 4364)')
     )
     tenant = models.ForeignKey(
@@ -39,7 +39,7 @@ class VRF(PrimaryModel):
     )
     enforce_unique = models.BooleanField(
         default=True,
-        verbose_name=_('Enforce unique space'),
+        verbose_name=_('enforce unique space'),
         help_text=_('Prevent duplicate prefixes/IP addresses within this VRF')
     )
     import_targets = models.ManyToManyField(

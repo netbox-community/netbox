@@ -152,7 +152,7 @@ class NestedGroupModel(CloningMixin, NetBoxFeatureSet, MPTTModel):
         # An MPTT model cannot be its own parent
         if self.pk and self.parent and self.parent in self.get_descendants(include_self=True):
             raise ValidationError({
-                "parent": f"Cannot assign self or child {self._meta.verbose_name} as parent."
+                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
             })
 
 

@@ -1,4 +1,3 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from circuits.models import *
@@ -54,19 +53,19 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     )
     provider_account = tables.Column(
         linkify=True,
-        verbose_name=_('Account')
+        verbose_name='Account'
     )
     status = columns.ChoiceFieldColumn()
     termination_a = tables.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
-        verbose_name=_('Side A')
+        verbose_name='Side A'
     )
     termination_z = tables.TemplateColumn(
         template_code=CIRCUITTERMINATION_LINK,
-        verbose_name=_('Side Z')
+        verbose_name='Side Z'
     )
     commit_rate = CommitRateColumn(
-        verbose_name=_('Commit Rate')
+        verbose_name='Commit Rate'
     )
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
