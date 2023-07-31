@@ -217,7 +217,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         related_name='prefixes',
         blank=True,
         null=True,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',

@@ -38,7 +38,7 @@ class ObjectChange(models.Model):
         editable=False
     )
     request_id = models.UUIDField(
-        verbose_name=_('request id'),
+        verbose_name=_('request ID'),
         editable=False,
         db_index=True
     )

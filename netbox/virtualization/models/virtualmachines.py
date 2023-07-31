@@ -92,7 +92,7 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='primary IPv4'
+        verbose_name=_('primary IPv4')
     )
     primary_ip6 = models.OneToOneField(
         to='ipam.IPAddress',
@@ -100,14 +100,14 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
         related_name='+',
         blank=True,
         null=True,
-        verbose_name='primary IPv6'
+        verbose_name=_('primary IPv6')
     )
     vcpus = models.DecimalField(
         max_digits=6,
         decimal_places=2,
         blank=True,
         null=True,
-        verbose_name='vCPUs',
+        verbose_name=_('vCPUs'),
         validators=(
             MinValueValidator(0.01),
         )

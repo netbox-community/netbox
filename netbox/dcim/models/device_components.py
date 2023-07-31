@@ -525,7 +525,7 @@ class BaseInterface(models.Model):
         related_name='child_interfaces',
         null=True,
         blank=True,
-        verbose_name=_('Parent interface')
+        verbose_name=_('parent interface')
     )
     bridge = models.ForeignKey(
         to='self',
@@ -533,7 +533,7 @@ class BaseInterface(models.Model):
         related_name='bridge_interfaces',
         null=True,
         blank=True,
-        verbose_name=_('Bridge interface')
+        verbose_name=_('bridge interface')
     )
 
     class Meta:
