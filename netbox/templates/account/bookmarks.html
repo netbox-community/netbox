@@ -1,4 +1,4 @@
-{% extends 'users/account/base.html' %}
+{% extends 'account/base.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
@@ -7,7 +7,6 @@
 {% block title %}{% trans "Bookmarks" %}{% endblock %}
 
 {% block content %}
-
   <form method="post" class="form form-horizontal">
     {% csrf_token %}
     <input type="hidden" name="return_url" value="{% url 'account:bookmarks' %}" />
