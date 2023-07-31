@@ -371,7 +371,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         accessor='assigned_object__parent_object',
         linkify=True,
         orderable=False,
-        verbose_name=_('Device/VM')
+        verbose_name=_('Parent')
     )
     nat_inside = tables.Column(
         linkify=True,

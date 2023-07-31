@@ -79,7 +79,7 @@ class CustomFieldTable(NetBoxTable):
     )
     choice_set = tables.Column(
         linkify=True,
-        verbose_name=_('Choice set')
+        verbose_name=_('Choice Set')
     )
     choices = columns.ChoicesColumn(
         max_items=10,
@@ -468,7 +468,7 @@ class JournalEntryTable(NetBoxTable):
         format=settings.SHORT_DATETIME_FORMAT
     )
     assigned_object_type = columns.ContentTypeColumn(
-        verbose_name=_('Object type')
+        verbose_name=_('Object Type')
     )
     assigned_object = tables.Column(
         linkify=True,

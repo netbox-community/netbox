@@ -207,7 +207,7 @@ class InterfaceVLANTable(NetBoxTable):
     """
     vid = tables.Column(
         linkify=True,
-        verbose_name=_('ID')
+        verbose_name=_('VID')
     )
     tagged = columns.BooleanColumn(
         verbose_name=_('Tagged'),

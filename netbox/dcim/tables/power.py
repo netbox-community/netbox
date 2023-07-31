@@ -33,7 +33,7 @@ class PowerPanelTable(ContactsColumnMixin, NetBoxTable):
     powerfeed_count = columns.LinkedCountColumn(
         viewname='dcim:powerfeed_list',
         url_params={'power_panel_id': 'pk'},
-        verbose_name=_('Feeds')
+        verbose_name=_('Power Feeds')
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),

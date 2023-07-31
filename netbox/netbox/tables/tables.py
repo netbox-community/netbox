@@ -170,15 +170,13 @@ class NetBoxTable(BaseTable):
         * Actions
     """
     pk = columns.ToggleColumn(
-        verbose_name=_('Pk'),
         visible=False
     )
     id = tables.Column(
         linkify=True,
         verbose_name=_('ID')
     )
-    actions = columns.ActionsColumn(
-    )
+    actions = columns.ActionsColumn()
 
     exempt_columns = ('pk', 'actions')
 
