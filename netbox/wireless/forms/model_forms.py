@@ -48,9 +48,7 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
         selector=True,
         label=_('VLAN')
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Wireless LAN'), ('ssid', 'group', 'vlan', 'status', 'description', 'tags')),

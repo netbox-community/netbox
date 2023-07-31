@@ -26,9 +26,7 @@ class ProviderForm(NetBoxModelForm):
         label=_('ASNs'),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Provider'), ('name', 'slug', 'asns', 'description', 'tags')),
@@ -46,9 +44,7 @@ class ProviderAccountForm(NetBoxModelForm):
         label=_('Provider'),
         queryset=Provider.objects.all()
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = ProviderAccount
@@ -62,9 +58,7 @@ class ProviderNetworkForm(NetBoxModelForm):
         label=_('Provider'),
         queryset=Provider.objects.all()
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Provider Network'), ('provider', 'name', 'service_id', 'description', 'tags')),

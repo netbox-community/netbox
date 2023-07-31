@@ -26,14 +26,14 @@ class CommentField(forms.CharField):
     A textarea with support for Markdown rendering. Exists mostly just to add a standard `help_text`.
     """
     widget = widgets.MarkdownWidget
-    help_text = _("""
-        <i class="mdi mdi-information-outline"></i>
-        <a href="{url}" target="_blank" tabindex="-1">
-        Markdown</a> syntax is supported
-    """).format(url=static('docs/reference/markdown/'))
+    label = _('Comments')
+    help_text = _(
+        '<i class="mdi mdi-information-outline"></i> '
+        '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+    ).format(url=static('docs/reference/markdown/'))
 
-    def __init__(self, *, help_text=help_text, required=False, **kwargs):
-        super().__init__(help_text=help_text, required=required, **kwargs)
+    def __init__(self, *, label=label, help_text=help_text, required=False, **kwargs):
+        super().__init__(label=label, help_text=help_text, required=required, **kwargs)
 
 
 class SlugField(forms.SlugField):

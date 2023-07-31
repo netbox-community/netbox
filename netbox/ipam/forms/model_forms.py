@@ -55,9 +55,7 @@ class VRFForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('VRF'), ('name', 'rd', 'enforce_unique', 'description', 'tags')),
@@ -81,9 +79,7 @@ class RouteTargetForm(TenancyForm, NetBoxModelForm):
         ('Route Target', ('name', 'description', 'tags')),
         ('Tenancy', ('tenant_group', 'tenant')),
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = RouteTarget
@@ -113,9 +109,7 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
         queryset=RIR.objects.all(),
         label=_('RIR')
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Aggregate'), ('prefix', 'rir', 'date_added', 'description', 'tags')),
@@ -160,9 +154,7 @@ class ASNForm(TenancyForm, NetBoxModelForm):
         label=_('Sites'),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('ASN'), ('asn', 'rir', 'sites', 'description', 'tags')),
@@ -230,9 +222,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Prefix'), ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
@@ -259,9 +249,7 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
         queryset=Role.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('IP Range'), ('vrf', 'start_address', 'end_address', 'role', 'status', 'mark_utilized', 'description', 'tags')),
@@ -676,9 +664,7 @@ class ServiceTemplateForm(NetBoxModelForm):
         ),
         help_text=_("Comma-separated list of one or more port numbers. A range may be specified using a hyphen.")
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Service Template'), (
@@ -782,9 +768,7 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
         queryset=RouteTarget.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('L2VPN'), ('name', 'slug', 'type', 'identifier', 'description', 'tags')),

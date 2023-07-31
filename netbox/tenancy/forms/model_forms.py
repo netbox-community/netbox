@@ -48,9 +48,7 @@ class TenantForm(NetBoxModelForm):
         queryset=TenantGroup.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Tenant'), ('name', 'slug', 'group', 'description', 'tags')),
@@ -106,9 +104,7 @@ class ContactForm(NetBoxModelForm):
         queryset=ContactGroup.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Contact'), ('group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'tags')),

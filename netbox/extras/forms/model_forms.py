@@ -438,9 +438,7 @@ class JournalEntryForm(NetBoxModelForm):
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = JournalEntry

@@ -74,9 +74,7 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Cluster'), ('name', 'type', 'group', 'site', 'status', 'description', 'tags')),

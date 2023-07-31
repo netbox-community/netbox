@@ -132,9 +132,7 @@ class SiteForm(TenancyForm, NetBoxModelForm):
         choices=add_blank_choice(TimeZoneFormField().choices),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Site'), (
@@ -227,9 +225,7 @@ class RackForm(TenancyForm, NetBoxModelForm):
         queryset=RackRole.objects.all(),
         required=False
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = Rack
@@ -301,9 +297,7 @@ class DeviceTypeForm(NetBoxModelForm):
         label=_('Slug'),
         slug_source='model'
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Device Type'), ('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags')),
@@ -335,9 +329,7 @@ class ModuleTypeForm(NetBoxModelForm):
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all()
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Module Type'), ('manufacturer', 'model', 'part_number', 'description', 'tags')),
@@ -457,9 +449,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
     local_context_data = JSONField(
         required=False,
         label=''
@@ -577,9 +567,7 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
         queryset=ModuleType.objects.all(),
         selector=True
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
     replicate_components = forms.BooleanField(
         label=_('Replicate components'),
         required=False,
@@ -619,9 +607,7 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
 
 
 class CableForm(TenancyForm, NetBoxModelForm):
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = Cable
@@ -675,9 +661,7 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     fieldsets = (
         (_('Power Feed'), ('power_panel', 'rack', 'name', 'status', 'type', 'description', 'mark_connected', 'tags')),
@@ -703,9 +687,7 @@ class VirtualChassisForm(NetBoxModelForm):
         queryset=Device.objects.all(),
         required=False,
     )
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = VirtualChassis

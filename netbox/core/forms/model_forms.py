@@ -18,9 +18,7 @@ __all__ = (
 
 
 class DataSourceForm(NetBoxModelForm):
-    comments = CommentField(
-        label=_('Comments'),
-    )
+    comments = CommentField()
 
     class Meta:
         model = DataSource
