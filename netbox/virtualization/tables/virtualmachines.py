@@ -12,7 +12,7 @@ __all__ = (
     'VMInterfaceTable',
 )
 
-VMINTERFACE_BUTTONS = _("""
+VMINTERFACE_BUTTONS = """
 {% if perms.virtualization.change_vminterface %}
   <span class="dropdown">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
@@ -31,7 +31,7 @@ VMINTERFACE_BUTTONS = _("""
     </ul>
   </span>
 {% endif %}
-""")
+"""
 
 
 #

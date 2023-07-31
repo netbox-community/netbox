@@ -1,5 +1,3 @@
-from django.utils.translation import gettext_lazy as _
-
 LINKTERMINATION = """
 {% for termination in value %}
   {% if termination.parent_object %}
@@ -22,11 +20,11 @@ WEIGHT = """
 {% if value %}{{ value|floatformat:"-2" }} {{ record.weight_unit }}{% endif %}
 """
 
-DEVICE_LINK = _("""
+DEVICE_LINK = """
 {{ value|default:'<span class="badge bg-info">Unnamed device</span>' }}
-""")
+"""
 
-DEVICEBAY_STATUS = _("""
+DEVICEBAY_STATUS = """
 {% if record.installed_device_id %}
     <span class="badge bg-{{ record.installed_device.get_status_color }}">
         {{ record.installed_device.get_status_display }}
@@ -34,7 +32,7 @@ DEVICEBAY_STATUS = _("""
 {% else %}
     <span class="badge bg-secondary">Vacant</span>
 {% endif %}
-""")
+"""
 
 INTERFACE_IPADDRESSES = """
 <div class="table-badge-group">
@@ -56,7 +54,7 @@ INTERFACE_FHRPGROUPS = """
 </div>
 """
 
-INTERFACE_TAGGED_VLANS = _("""
+INTERFACE_TAGGED_VLANS = """
 {% if record.mode == 'tagged' %}
     {% for vlan in value.all %}
         <a href="{{ vlan.get_absolute_url }}">{{ vlan }}</a><br />
@@ -64,7 +62,7 @@ INTERFACE_TAGGED_VLANS = _("""
 {% elif record.mode == 'tagged-all' %}
   All
 {% endif %}
-""")
+"""
 
 INTERFACE_WIRELESS_LANS = """
 {% for wlan in value.all %}
@@ -108,7 +106,7 @@ MODULAR_COMPONENT_TEMPLATE_BUTTONS = """
 # Device component buttons
 #
 
-CONSOLEPORT_BUTTONS = _("""
+CONSOLEPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
   <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_consoleports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
@@ -156,9 +154,9 @@ CONSOLEPORT_BUTTONS = _("""
 {% else %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
 {% endif %}
-""")
+"""
 
-CONSOLESERVERPORT_BUTTONS = _("""
+CONSOLESERVERPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
   <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-sm btn-success" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
@@ -206,9 +204,9 @@ CONSOLESERVERPORT_BUTTONS = _("""
 {% else %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
 {% endif %}
-""")
+"""
 
-POWERPORT_BUTTONS = _("""
+POWERPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
   <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_powerports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
@@ -255,9 +253,9 @@ POWERPORT_BUTTONS = _("""
 {% else %}
     <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
 {% endif %}
-""")
+"""
 
-POWEROUTLET_BUTTONS = _("""
+POWEROUTLET_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
   <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_poweroutlets' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
@@ -300,9 +298,9 @@ POWEROUTLET_BUTTONS = _("""
         <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
     {% endif %}
 {% endif %}
-""")
+"""
 
-INTERFACE_BUTTONS = _("""
+INTERFACE_BUTTONS = """
 {% if perms.dcim.change_interface %}
   <span class="dropdown">
     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" title="Add">
@@ -384,9 +382,9 @@ INTERFACE_BUTTONS = _("""
         <span class="mdi mdi-wifi-plus" aria-hidden="true"></span>
     </a>
 {% endif %}
-""")
+"""
 
-FRONTPORT_BUTTONS = _("""
+FRONTPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
   <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
@@ -439,9 +437,9 @@ FRONTPORT_BUTTONS = _("""
         <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
     {% endif %}
 {% endif %}
-""")
+"""
 
-REARPORT_BUTTONS = _("""
+REARPORT_BUTTONS = """
 {% if perms.dcim.add_inventoryitem %}
   <a href="{% url 'dcim:inventoryitem_add' %}?device={{ record.device_id }}&component_type={{ record|content_type_id }}&component_id={{ record.pk }}&return_url={% url 'dcim:device_rearports' pk=object.pk %}" class="btn btn-sm btn-primary" title="Add inventory item">
     <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
@@ -494,7 +492,7 @@ REARPORT_BUTTONS = _("""
         <a href="#" class="btn btn-outline-dark btn-sm disabled"><i class="mdi mdi-ethernet-cable" aria-hidden="true"></i></a>
     {% endif %}
 {% endif %}
-""")
+"""
 
 DEVICEBAY_BUTTONS = """
 {% if perms.dcim.change_devicebay %}

@@ -18,9 +18,9 @@ __all__ = (
     'VLANVirtualMachinesTable',
 )
 
-AVAILABLE_LABEL = mark_safe(_('<span class="badge bg-success">Available</span>'))
+AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
-VLAN_LINK = _("""
+VLAN_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}">{{ record.vid }}</a>
 {% elif perms.ipam.add_vlan %}
@@ -28,7 +28,7 @@ VLAN_LINK = _("""
 {% else %}
     {{ record.available }} VLAN{{ record.available|pluralize }} available
 {% endif %}
-""")
+"""
 
 VLAN_PREFIXES = """
 {% for prefix in value.all %}

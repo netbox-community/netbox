@@ -18,7 +18,7 @@ __all__ = (
     'RoleTable',
 )
 
-AVAILABLE_LABEL = mark_safe(_('<span class="badge bg-success">Available</span>'))
+AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
 AGGREGATE_COPY_BUTTON = """
 {% copy_content record.pk prefix="aggregate_" %}
@@ -47,7 +47,7 @@ PREFIX_LINK_WITH_DEPTH = """
 {% endif %}
 """ + PREFIX_LINK
 
-IPADDRESS_LINK = _("""
+IPADDRESS_LINK = """
 {% if record.pk %}
     <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
@@ -55,7 +55,7 @@ IPADDRESS_LINK = _("""
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
-""")
+"""
 
 IPADDRESS_COPY_BUTTON = """
 {% copy_content record.pk prefix="ipaddress_" %}
