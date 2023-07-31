@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+
 from utilities.choices import ButtonColorChoices, ChoiceSet
 
 
@@ -60,7 +61,7 @@ class CustomFieldVisibilityChoices(ChoiceSet):
     VISIBILITY_HIDDEN_IFUNSET = 'hidden-ifunset'
 
     CHOICES = (
-        (VISIBILITY_READ_WRITE, _('Read/Write')),
+        (VISIBILITY_READ_WRITE, _('Read/write')),
         (VISIBILITY_READ_ONLY, _('Read-only')),
         (VISIBILITY_HIDDEN, _('Hidden')),
         (VISIBILITY_HIDDEN_IFUNSET, _('Hidden (if unset)')),
@@ -220,11 +221,11 @@ class WebhookHttpMethodChoices(ChoiceSet):
     METHOD_DELETE = 'DELETE'
 
     CHOICES = (
-        (METHOD_GET, _('GET')),
-        (METHOD_POST, _('POST')),
-        (METHOD_PUT, _('PUT')),
-        (METHOD_PATCH, _('PATCH')),
-        (METHOD_DELETE, _('DELETE')),
+        (METHOD_GET, 'GET'),
+        (METHOD_POST, 'POST'),
+        (METHOD_PUT, 'PUT'),
+        (METHOD_PATCH, 'PATCH'),
+        (METHOD_DELETE, 'DELETE'),
     )
 
 

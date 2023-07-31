@@ -10,7 +10,9 @@ class ChoiceSetMeta(type):
 
         # Extend static choices with any configured choices
         if key := attrs.get('key'):
-            assert type(attrs['CHOICES']) is list, _("{name} has a key defined but CHOICES is not a list").format(name=name)
+            assert type(attrs['CHOICES']) is list, _(
+                "{name} has a key defined but CHOICES is not a list"
+            ).format(name=name)
             app = attrs['__module__'].split('.', 1)[0]
             replace_key = f'{app}.{key}'
             extend_key = f'{replace_key}+' if replace_key else None
@@ -224,7 +226,7 @@ class ImportFormatChoices(ChoiceSet):
 
     CHOICES = [
         (AUTO, _('Auto-detect')),
-        (CSV, _('CSV')),
-        (JSON, _('JSON')),
-        (YAML, _('YAML')),
+        (CSV, 'CSV'),
+        (JSON, 'JSON'),
+        (YAML, 'YAML'),
     ]

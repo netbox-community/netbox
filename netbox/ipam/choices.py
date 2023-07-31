@@ -1,4 +1,5 @@
 from django.utils.translation import gettext_lazy as _
+
 from utilities.choices import ChoiceSet
 
 
@@ -8,8 +9,8 @@ class IPAddressFamilyChoices(ChoiceSet):
     FAMILY_6 = 6
 
     CHOICES = (
-        (FAMILY_4, _('IPv4')),
-        (FAMILY_6, _('IPv6')),
+        (FAMILY_4, 'IPv4'),
+        (FAMILY_6, 'IPv6'),
     )
 
 
@@ -88,11 +89,11 @@ class IPAddressRoleChoices(ChoiceSet):
         (ROLE_LOOPBACK, _('Loopback'), 'gray'),
         (ROLE_SECONDARY, _('Secondary'), 'blue'),
         (ROLE_ANYCAST, _('Anycast'), 'yellow'),
-        (ROLE_VIP, _('VIP'), 'purple'),
-        (ROLE_VRRP, _('VRRP'), 'green'),
-        (ROLE_HSRP, _('HSRP'), 'green'),
-        (ROLE_GLBP, _('GLBP'), 'green'),
-        (ROLE_CARP, _('CARP'), 'green'),
+        (ROLE_VIP, 'VIP', 'purple'),
+        (ROLE_VRRP, 'VRRP', 'green'),
+        (ROLE_HSRP, 'HSRP', 'green'),
+        (ROLE_GLBP, 'GLBP', 'green'),
+        (ROLE_CARP, 'CARP', 'green'),
     )
 
 
@@ -112,18 +113,18 @@ class FHRPGroupProtocolChoices(ChoiceSet):
 
     CHOICES = (
         (_('Standard'), (
-            (PROTOCOL_VRRP2, _('VRRPv2')),
-            (PROTOCOL_VRRP3, _('VRRPv3')),
-            (PROTOCOL_CARP, _('CARP')),
+            (PROTOCOL_VRRP2, 'VRRPv2'),
+            (PROTOCOL_VRRP3, 'VRRPv3'),
+            (PROTOCOL_CARP, 'CARP'),
         )),
         (_('CheckPoint'), (
-            (PROTOCOL_CLUSTERXL, _('ClusterXL')),
+            (PROTOCOL_CLUSTERXL, 'ClusterXL'),
         )),
         (_('Cisco'), (
-            (PROTOCOL_HSRP, _('HSRP')),
-            (PROTOCOL_GLBP, _('GLBP')),
+            (PROTOCOL_HSRP, 'HSRP'),
+            (PROTOCOL_GLBP, 'GLBP'),
         )),
-        (PROTOCOL_OTHER, _('Other')),
+        (PROTOCOL_OTHER, 'Other'),
     )
 
 
@@ -134,7 +135,7 @@ class FHRPGroupAuthTypeChoices(ChoiceSet):
 
     CHOICES = (
         (AUTHENTICATION_PLAINTEXT, _('Plaintext')),
-        (AUTHENTICATION_MD5, _('MD5')),
+        (AUTHENTICATION_MD5, 'MD5'),
     )
 
 
@@ -167,9 +168,9 @@ class ServiceProtocolChoices(ChoiceSet):
     PROTOCOL_SCTP = 'sctp'
 
     CHOICES = (
-        (PROTOCOL_TCP, _('TCP')),
-        (PROTOCOL_UDP, _('UDP')),
-        (PROTOCOL_SCTP, _('SCTP')),
+        (PROTOCOL_TCP, 'TCP'),
+        (PROTOCOL_UDP, 'UDP'),
+        (PROTOCOL_SCTP, 'SCTP'),
     )
 
 
@@ -188,29 +189,29 @@ class L2VPNTypeChoices(ChoiceSet):
     TYPE_PBB_EVPN = 'pbb-evpn'
 
     CHOICES = (
-        (_('VPLS'), (
-            (TYPE_VPWS, _('VPWS')),
-            (TYPE_VPLS, _('VPLS')),
+        ('VPLS', (
+            (TYPE_VPWS, 'VPWS'),
+            (TYPE_VPLS, 'VPLS'),
         )),
-        (_('VXLAN'), (
-            (TYPE_VXLAN, _('VXLAN')),
-            (TYPE_VXLAN_EVPN, _('VXLAN-EVPN')),
+        ('VXLAN', (
+            (TYPE_VXLAN, 'VXLAN'),
+            (TYPE_VXLAN_EVPN, 'VXLAN-EVPN'),
         )),
-        (_('L2VPN E-VPN'), (
-            (TYPE_MPLS_EVPN, _('MPLS EVPN')),
-            (TYPE_PBB_EVPN, _('PBB EVPN')),
+        ('L2VPN E-VPN', (
+            (TYPE_MPLS_EVPN, 'MPLS EVPN'),
+            (TYPE_PBB_EVPN, 'PBB EVPN'),
         )),
-        (_('E-Line'), (
-            (TYPE_EPL, _('EPL')),
-            (TYPE_EVPL, _('EVPL')),
+        ('E-Line', (
+            (TYPE_EPL, 'EPL'),
+            (TYPE_EVPL, 'EVPL'),
         )),
-        (_('E-LAN'), (
-            (TYPE_EPLAN, _('Ethernet Private LAN')),
-            (TYPE_EVPLAN, _('Ethernet Virtual Private LAN')),
+        ('E-LAN', (
+            (TYPE_EPLAN, 'Ethernet Private LAN'),
+            (TYPE_EVPLAN, 'Ethernet Virtual Private LAN'),
         )),
-        (_('E-Tree'), (
-            (TYPE_EPTREE, _('Ethernet Private Tree')),
-            (TYPE_EVPTREE, _('Ethernet Virtual Private Tree')),
+        ('E-Tree', (
+            (TYPE_EPTREE, 'Ethernet Private Tree'),
+            (TYPE_EVPTREE, 'Ethernet Virtual Private Tree'),
         )),
     )
 
