@@ -13,8 +13,9 @@ class NumericArrayField(SimpleArrayField):
 
     def clean(self, value):
         if value and not self.to_python(value):
-            raise forms.ValidationError(_('Invalid list ({value}). '
-                                          'Must be numeric and ranges must be in ascending order').format(value=value))
+            raise forms.ValidationError(
+                _("Invalid list ({value}). Must be numeric and ranges must be in ascending order.").format(value=value)
+            )
         return super().clean(value)
 
     def to_python(self, value):

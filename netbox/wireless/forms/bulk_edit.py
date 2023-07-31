@@ -64,12 +64,12 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     auth_type = forms.ChoiceField(
-        label=_('Auth type'),
+        label=_('Authentication type'),
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
     auth_cipher = forms.ChoiceField(
-        label=_('Auth cipher'),
+        label=_('Authentication cipher'),
         choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
     )
@@ -111,12 +111,12 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     auth_type = forms.ChoiceField(
-        label=_('Auth type'),
+        label=_('Authentication type'),
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
     auth_cipher = forms.ChoiceField(
-        label=_('Auth cipher'),
+        label=_('Authentication cipher'),
         choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
     )

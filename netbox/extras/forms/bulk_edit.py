@@ -119,7 +119,7 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         required=False
     )
     mime_type = forms.CharField(
-        label=_('Mime type'),
+        label=_('MIME type'),
         max_length=50,
         required=False
     )
@@ -176,27 +176,27 @@ class WebhookBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
     type_create = forms.NullBooleanField(
-        label=_('Type create'),
+        label=_('On create'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_update = forms.NullBooleanField(
-        label=_('Type update'),
+        label=_('On update'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_delete = forms.NullBooleanField(
-        label=_('Type delete'),
+        label=_('On delete'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_job_start = forms.NullBooleanField(
-        label=_('Type job start'),
+        label=_('On job start'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
     type_job_end = forms.NullBooleanField(
-        label=_('Type job end'),
+        label=_('On job end'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )

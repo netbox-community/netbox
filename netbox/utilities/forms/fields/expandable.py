@@ -21,10 +21,10 @@ class ExpandableNameField(forms.CharField):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
-            self.help_text = _("""
-                Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range
-                are not supported (example: <code>[ge,xe]-0/0/[0-9]</code>).
-                """)
+            self.help_text = _(
+                "Alphanumeric ranges are supported for bulk creation. Mixed cases and types within a single range are "
+                "not supported (example: <code>[ge,xe]-0/0/[0-9]</code>)."
+            )
 
     def to_python(self, value):
         if not value:

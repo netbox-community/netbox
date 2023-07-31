@@ -967,14 +967,12 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         required=False
     )
     component_type = ContentTypeChoiceField(
-        label=_('Component type'),
         queryset=ContentType.objects.all(),
         limit_choices_to=MODULAR_COMPONENT_TEMPLATE_MODELS,
         required=False,
         widget=forms.HiddenInput
     )
     component_id = forms.IntegerField(
-        label=_('Component id'),
         required=False,
         widget=forms.HiddenInput
     )
@@ -1099,7 +1097,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     vdcs = DynamicModelMultipleChoiceField(
         queryset=VirtualDeviceContext.objects.all(),
         required=False,
-        label=_('Virtual Device Contexts'),
+        label=_('Virtual device contexts'),
         query_params={
             'device_id': '$device',
         }

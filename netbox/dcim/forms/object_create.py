@@ -60,8 +60,9 @@ class ComponentCreateForm(forms.Form):
             value_count = len(self.cleaned_data[field_name])
             if self.cleaned_data[field_name] and value_count != pattern_count:
                 raise forms.ValidationError({
-                    field_name: _('The provided pattern specifies {value_count} values, but {pattern_count} are '
-                                  'expected.').format(value_count=value_count, pattern_count=pattern_count)
+                    field_name: _(
+                        "The provided pattern specifies {value_count} values, but {pattern_count} are expected."
+                    ).format(value_count=value_count, pattern_count=pattern_count)
                 }, code='label_pattern_mismatch')
 
 
@@ -225,8 +226,9 @@ class InterfaceCreateForm(ComponentCreateForm, model_forms.InterfaceForm):
         super().__init__(*args, **kwargs)
 
         if 'module' in self.fields:
-            self.fields['name'].help_text += _(' The string <code>{module}</code> will be replaced with the position '
-                                               'of the assigned module, if any')
+            self.fields['name'].help_text += _(
+                "The string <code>{module}</code> will be replaced with the position of the assigned module, if any."
+            )
 
 
 class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):

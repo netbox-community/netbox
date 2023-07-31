@@ -173,7 +173,6 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
     )
     mask_length__lte = forms.IntegerField(
-        label=_('Mask length'),
         widget=forms.HiddenInput()
     )
     within_include = forms.CharField(

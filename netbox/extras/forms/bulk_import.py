@@ -53,7 +53,7 @@ class CustomFieldImportForm(CSVModelForm):
         help_text=_('Choice set (for selection fields)')
     )
     ui_visibility = CSVChoiceField(
-        label=_('Ui visitility'),
+        label=_('UI visibility'),
         choices=CustomFieldVisibilityChoices,
         help_text=_('How the custom field is displayed in the user interface')
     )

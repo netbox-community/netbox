@@ -50,17 +50,17 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         choices=add_blank_choice(WirelessLANStatusChoices)
     )
     auth_type = forms.ChoiceField(
-        label=_('Auth type'),
+        label=_('Authentication type'),
         required=False,
         choices=add_blank_choice(WirelessAuthTypeChoices)
     )
     auth_cipher = forms.ChoiceField(
-        label=_('Auth cipher'),
+        label=_('Authentication cipher'),
         required=False,
         choices=add_blank_choice(WirelessAuthCipherChoices)
     )
     auth_psk = forms.CharField(
-        label=_('Auth psk'),
+        label=_('Pre-shared key'),
         required=False
     )
     tag = TagFilterField(model)
@@ -84,17 +84,17 @@ class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         choices=add_blank_choice(LinkStatusChoices)
     )
     auth_type = forms.ChoiceField(
-        label=_('Auth type'),
+        label=_('Authentication type'),
         required=False,
         choices=add_blank_choice(WirelessAuthTypeChoices)
     )
     auth_cipher = forms.ChoiceField(
-        label=_('Auth cipher'),
+        label=_('Authentication cipher'),
         required=False,
         choices=add_blank_choice(WirelessAuthCipherChoices)
     )
     auth_psk = forms.CharField(
-        label=_('Auth psk'),
+        label=_('Pre-shared key'),
         required=False
     )
     tag = TagFilterField(model)

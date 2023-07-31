@@ -821,7 +821,7 @@ class InterfaceImportForm(NetBoxModelImportForm):
         help_text=_('IEEE 802.1Q operational mode (for L2 interfaces)')
     )
     vrf = CSVModelChoiceField(
-        label=_('Vrf'),
+        label=_('VRF'),
         queryset=VRF.objects.all(),
         required=False,
         to_field_name='rd',

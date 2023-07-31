@@ -140,7 +140,7 @@ class RoleImportForm(NetBoxModelImportForm):
 
 class PrefixImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
-        label=_('Vrf'),
+        label=_('VRF'),
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
@@ -226,7 +226,7 @@ class PrefixImportForm(NetBoxModelImportForm):
 
 class IPRangeImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
-        label=_('Vrf'),
+        label=_('VRF'),
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
@@ -262,7 +262,7 @@ class IPRangeImportForm(NetBoxModelImportForm):
 
 class IPAddressImportForm(NetBoxModelImportForm):
     vrf = CSVModelChoiceField(
-        label=_('Vrf'),
+        label=_('VRF'),
         queryset=VRF.objects.all(),
         to_field_name='name',
         required=False,
@@ -402,13 +402,13 @@ class VLANGroupImportForm(NetBoxModelImportForm):
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
         required=False,
-        label=_('Minimum child VLAN VID (default: {vlan_min})').format(vlan_min=VLAN_VID_MIN)
+        label=_('Minimum child VLAN VID (default: {minimum})').format(minimum=VLAN_VID_MIN)
     )
     max_vid = forms.IntegerField(
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
         required=False,
-        label=_('Maximum child VLAN VID (default: {vlan_min})').format(vlan_min=VLAN_VID_MIN)
+        label=_('Maximum child VLAN VID (default: {maximum})').format(maximum=VLAN_VID_MIN)
     )
 
     class Meta:

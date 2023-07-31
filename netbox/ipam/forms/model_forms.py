@@ -375,7 +375,9 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 if address.version == 6 and address.prefixlen not in (127, 128):
                     raise ValidationError(msg)
             if address.version == 4 and address.ip == address.broadcast and address.prefixlen not in (31, 32):
-                msg = _("{address} is a broadcast address, which may not be assigned to an interface.").format(address=address)
+                msg = _("{address} is a broadcast address, which may not be assigned to an interface.").format(
+                    address=address
+                )
                 raise ValidationError(msg)
 
     def save(self, *args, **kwargs):

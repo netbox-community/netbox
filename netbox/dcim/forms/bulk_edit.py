@@ -1299,7 +1299,7 @@ class InterfaceBulkEditForm(
     vdcs = DynamicModelMultipleChoiceField(
         queryset=VirtualDeviceContext.objects.all(),
         required=False,
-        label=_('Virtual Device Contexts'),
+        label=_('Virtual device contexts'),
         query_params={
             'device_id': '$device',
         }
