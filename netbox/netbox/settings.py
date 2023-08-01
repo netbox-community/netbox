@@ -476,6 +476,7 @@ TEST_RUNNER = "django_rich.test.RichRunner"
 EXEMPT_EXCLUDE_MODELS = (
     ('auth', 'group'),
     ('auth', 'user'),
+    ('extras', 'configrevision'),
     ('users', 'objectpermission'),
     ('users', 'token'),
 )
