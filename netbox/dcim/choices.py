@@ -834,6 +834,7 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_200GE_CFP2 = '200gbase-x-cfp2'
     TYPE_200GE_QSFP56 = '200gbase-x-qsfp56'
     TYPE_200GE_QSFP_DD = '200gbase-x-qsfpdd'
+    TYPE_400GE_CFP2 = '400gbase-x-cfp2'
     TYPE_400GE_QSFP_DD = '400gbase-x-qsfpdd'
     TYPE_400GE_OSFP = '400gbase-x-osfp'
     TYPE_400GE_CDFP = '400gbase-x-cdfp'
