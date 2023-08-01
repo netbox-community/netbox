@@ -3,8 +3,9 @@
 {% load form_helpers %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
-{% block title %}Assign an IP Address{% endblock title %}
+{% block title %}{% trans "Assign an IP Address" %}{% endblock title %}
 
 {% block tabs %}
   {% include 'ipam/inc/ipaddress_edit_header.html' with active_tab='assign' %}
@@ -19,7 +20,7 @@
         <div class="row mb-3">
             <div class="col col-md-8 offset-md-2">
                 <div class="field-group">
-                    <h6>Select IP Address</h6>
+                    <h6>{% trans "Select IP Address" %}</h6>
                     {% render_field form.vrf_id %}
                     {% render_field form.q %}
                 </div>
@@ -27,15 +28,15 @@
         </div>
         <div class="row mb-3">
             <div class="col col-md-8 offset-md-2 text-end">
-                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-                <button type="submit" class="btn btn-primary">Search</button>
+                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+                <button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
             </div>
         </div>
     </form>
     {% if table %}
         <div class="row mb-3">
             <div class="col col-md-12">
-                <h3>Search Results</h3>
+                <h3>{% trans "Search Results" %}</h3>
                 <div class="table-responsive">
                   {% render_table table 'inc/table.html' %}
                 </div>

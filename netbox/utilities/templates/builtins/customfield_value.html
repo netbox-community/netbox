@@ -1,4 +1,5 @@
 {% load helpers %}
+{% load i18n %}
 {% if customfield.type == 'integer' and value is not None %}
   {{ value }}
 {% elif customfield.type == 'longtext' and value %}
@@ -26,7 +27,7 @@
 {% elif value %}
   {{ value }}
 {% elif customfield.required %}
-  <span class="text-warning"><i class="mdi mdi-alert"></i> Not defined</span>
+  <span class="text-warning"><i class="mdi mdi-alert"></i> {% trans "Not defined" %}</span>
 {% else %}
   {{ ''|placeholder }}
 {% endif %}

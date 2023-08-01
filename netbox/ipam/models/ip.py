@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import F
 from django.urls import reverse
 from django.utils.functional import cached_property
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
@@ -59,14 +59,14 @@ class RIR(OrganizationalModel):
     """
     is_private = models.BooleanField(
         default=False,
-        verbose_name='Private',
+        verbose_name=_('private'),
         help_text=_('IP space managed by this RIR is considered private')
     )
 
     class Meta:
         ordering = ('name',)
-        verbose_name = 'RIR'
-        verbose_name_plural = 'RIRs'
+        verbose_name = _('RIR')
+        verbose_name_plural = _('RIRs')
 
     def get_absolute_url(self):
         return reverse('ipam:rir', args=[self.pk])
@@ -84,7 +84,7 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='aggregates',
-        verbose_name='RIR',
+        verbose_name=_('RIR'),
         help_text=_("Regional Internet Registry responsible for this IP space")
     )
     tenant = models.ForeignKey(
@@ -95,6 +95,7 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
         null=True
     )
     date_added = models.DateField(
+        verbose_name=_('date added'),
         blank=True,
         null=True
     )
@@ -123,7 +124,7 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
             # /0 masks are not acceptable
             if self.prefix.prefixlen == 0:
                 raise ValidationError({
-                    'prefix': "Cannot create aggregate with /0 mask."
+                    'prefix': _("Cannot create aggregate with /0 mask.")
                 })
 
             # Ensure that the aggregate being added is not covered by an existing aggregate
@@ -134,9 +135,9 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
                 covering_aggregates = covering_aggregates.exclude(pk=self.pk)
             if covering_aggregates:
                 raise ValidationError({
-                    'prefix': "Aggregates cannot overlap. {} is already covered by an existing aggregate ({}).".format(
-                        self.prefix, covering_aggregates[0]
-                    )
+                    'prefix': _(
+                        "Aggregates cannot overlap. {} is already covered by an existing aggregate ({})."
+                    ).format(self.prefix, covering_aggregates[0])
                 })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
@@ -145,7 +146,7 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
                 raise ValidationError({
-                    'prefix': "Aggregates cannot overlap. {} covers an existing aggregate ({}).".format(
+                    'prefix': _("Aggregates cannot overlap. {} covers an existing aggregate ({}).").format(
                         self.prefix, covered_aggregates[0]
                     )
                 })
@@ -179,6 +180,7 @@ class Role(OrganizationalModel):
     "Management."
     """
     weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
         default=1000
     )
 
@@ -199,6 +201,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     assigned to a VLAN where appropriate.
     """
     prefix = IPNetworkField(
+        verbose_name=_('prefix'),
         help_text=_('IPv4 or IPv6 network with mask')
     )
     site = models.ForeignKey(
@@ -214,7 +217,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         related_name='prefixes',
         blank=True,
         null=True,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -228,14 +231,13 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         on_delete=models.PROTECT,
         related_name='prefixes',
         blank=True,
-        null=True,
-        verbose_name='VLAN'
+        null=True
     )
     status = models.CharField(
         max_length=50,
         choices=PrefixStatusChoices,
         default=PrefixStatusChoices.STATUS_ACTIVE,
-        verbose_name='Status',
+        verbose_name=_('status'),
         help_text=_('Operational status of this prefix')
     )
     role = models.ForeignKey(
@@ -247,11 +249,12 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         help_text=_('The primary function of this prefix')
     )
     is_pool = models.BooleanField(
-        verbose_name='Is a pool',
+        verbose_name=_('is a pool'),
         default=False,
         help_text=_('All IP addresses within this prefix are considered usable')
     )
     mark_utilized = models.BooleanField(
+        verbose_name=_('mark utilized'),
         default=False,
         help_text=_("Treat as 100% utilized")
     )
@@ -297,7 +300,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             # /0 masks are not acceptable
             if self.prefix.prefixlen == 0:
                 raise ValidationError({
-                    'prefix': "Cannot create prefix with /0 mask."
+                    'prefix': _("Cannot create prefix with /0 mask.")
                 })
 
             # Enforce unique IP space (if applicable)
@@ -305,8 +308,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
                 duplicate_prefixes = self.get_duplicates()
                 if duplicate_prefixes:
                     raise ValidationError({
-                        'prefix': "Duplicate prefix found in {}: {}".format(
-                            "VRF {}".format(self.vrf) if self.vrf else "global table",
+                        'prefix': _("Duplicate prefix found in {}: {}").format(
+                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
                             duplicate_prefixes.first(),
                         )
                     })
@@ -406,7 +409,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         Return all available IPs within this prefix as an IPSet.
         """
         if self.mark_utilized:
-            return list()
+            return netaddr.IPSet()
 
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
@@ -474,12 +477,15 @@ class IPRange(PrimaryModel):
     A range of IP addresses, defined by start and end addresses.
     """
     start_address = IPAddressField(
+        verbose_name=_('start address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
     )
     end_address = IPAddressField(
+        verbose_name=_('end address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
     )
     size = models.PositiveIntegerField(
+        verbose_name=_('size'),
         editable=False
     )
     vrf = models.ForeignKey(
@@ -488,7 +494,7 @@ class IPRange(PrimaryModel):
         related_name='ip_ranges',
         blank=True,
         null=True,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -498,6 +504,7 @@ class IPRange(PrimaryModel):
         null=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=IPRangeStatusChoices,
         default=IPRangeStatusChoices.STATUS_ACTIVE,
@@ -512,6 +519,7 @@ class IPRange(PrimaryModel):
         help_text=_('The primary function of this range')
     )
     mark_utilized = models.BooleanField(
+        verbose_name=_('mark utilized'),
         default=False,
         help_text=_("Treat as 100% utilized")
     )
@@ -539,21 +547,33 @@ class IPRange(PrimaryModel):
             # Check that start & end IP versions match
             if self.start_address.version != self.end_address.version:
                 raise ValidationError({
-                    'end_address': f"Ending address version (IPv{self.end_address.version}) does not match starting "
-                                   f"address (IPv{self.start_address.version})"
+                    'end_address': _(
+                        "Ending address version (IPv{end_address_version}) does not match starting address "
+                        "(IPv{start_address_version})"
+                    ).format(
+                        end_address_version=self.end_address.version,
+                        start_address_version=self.start_address.version
+                    )
                 })
 
             # Check that the start & end IP prefix lengths match
             if self.start_address.prefixlen != self.end_address.prefixlen:
                 raise ValidationError({
-                    'end_address': f"Ending address mask (/{self.end_address.prefixlen}) does not match starting "
-                                   f"address mask (/{self.start_address.prefixlen})"
+                    'end_address': _(
+                        "Ending address mask (/{end_address_prefixlen}) does not match starting address mask "
+                        "(/{start_address_prefixlen})"
+                    ).format(
+                        end_address_prefixlen=self.end_address.prefixlen,
+                        start_address_prefixlen=self.start_address.prefixlen
+                    )
                 })
 
             # Check that the ending address is greater than the starting address
             if not self.end_address > self.start_address:
                 raise ValidationError({
-                    'end_address': f"Ending address must be lower than the starting address ({self.start_address})"
+                    'end_address': _(
+                        "Ending address must be lower than the starting address ({start_address})"
+                    ).format(start_address=self.start_address)
                 })
 
             # Check for overlapping ranges
@@ -563,12 +583,18 @@ class IPRange(PrimaryModel):
                 Q(start_address__lte=self.start_address, end_address__gte=self.end_address)  # Starts & ends outside
             ).first()
             if overlapping_range:
-                raise ValidationError(f"Defined addresses overlap with range {overlapping_range} in VRF {self.vrf}")
+                raise ValidationError(
+                    _("Defined addresses overlap with range {overlapping_range} in VRF {vrf}").format(
+                        overlapping_range=overlapping_range,
+                        vrf=self.vrf
+                    ))
 
             # Validate maximum size
             MAX_SIZE = 2 ** 32 - 1
             if int(self.end_address.ip - self.start_address.ip) + 1 > MAX_SIZE:
-                raise ValidationError(f"Defined range exceeds maximum supported size ({MAX_SIZE})")
+                raise ValidationError(
+                    _("Defined range exceeds maximum supported size ({max_size})").format(max_size=MAX_SIZE)
+                )
 
     def save(self, *args, **kwargs):
 
@@ -679,6 +705,7 @@ class IPAddress(PrimaryModel):
     which has a NAT outside IP, that Interface's Device can use either the inside or outside IP as its primary IP.
     """
     address = IPAddressField(
+        verbose_name=_('address'),
         help_text=_('IPv4 or IPv6 address (with mask)')
     )
     vrf = models.ForeignKey(
@@ -687,7 +714,7 @@ class IPAddress(PrimaryModel):
         related_name='ip_addresses',
         blank=True,
         null=True,
-        verbose_name='VRF'
+        verbose_name=_('VRF')
     )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
@@ -697,12 +724,14 @@ class IPAddress(PrimaryModel):
         null=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=IPAddressStatusChoices,
         default=IPAddressStatusChoices.STATUS_ACTIVE,
         help_text=_('The operational status of this IP')
     )
     role = models.CharField(
+        verbose_name=_('role'),
         max_length=50,
         choices=IPAddressRoleChoices,
         blank=True,
@@ -730,14 +759,14 @@ class IPAddress(PrimaryModel):
         related_name='nat_outside',
         blank=True,
         null=True,
-        verbose_name='NAT (Inside)',
+        verbose_name=_('NAT (inside)'),
         help_text=_('The IP for which this address is the "outside" IP')
     )
     dns_name = models.CharField(
         max_length=255,
         blank=True,
         validators=[DNSValidator],
-        verbose_name='DNS Name',
+        verbose_name=_('DNS name'),
         help_text=_('Hostname or FQDN (not case-sensitive)')
     )
 
@@ -799,7 +828,7 @@ class IPAddress(PrimaryModel):
             # /0 masks are not acceptable
             if self.address.prefixlen == 0:
                 raise ValidationError({
-                    'address': "Cannot create IP address with /0 mask."
+                    'address': _("Cannot create IP address with /0 mask.")
                 })
 
             # Enforce unique IP space (if applicable)
@@ -810,8 +839,8 @@ class IPAddress(PrimaryModel):
                         any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
                 ):
                     raise ValidationError({
-                        'address': "Duplicate IP address found in {}: {}".format(
-                            "VRF {}".format(self.vrf) if self.vrf else "global table",
+                        'address': _("Duplicate IP address found in {}: {}").format(
+                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
                             duplicate_ips.first(),
                         )
                     })
@@ -819,7 +848,7 @@ class IPAddress(PrimaryModel):
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
             raise ValidationError({
-                'status': "Only IPv6 addresses can be assigned SLAAC status"
+                'status': _("Only IPv6 addresses can be assigned SLAAC status")
             })
 
     def save(self, *args, **kwargs):
@@ -848,6 +877,24 @@ class IPAddress(PrimaryModel):
         if self.address:
             return self.address.version
         return None
+
+    @property
+    def is_oob_ip(self):
+        if self.assigned_object:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            if parent.oob_ip_id == self.pk:
+                return True
+        return False
+
+    @property
+    def is_primary_ip(self):
+        if self.assigned_object:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            if self.family == 4 and parent.primary_ip4_id == self.pk:
+                return True
+            if self.family == 6 and parent.primary_ip6_id == self.pk:
+                return True
+        return False
 
     def _set_mask_length(self, value):
         """

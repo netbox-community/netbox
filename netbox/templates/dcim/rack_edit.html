@@ -1,10 +1,11 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block form %}
     <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Rack</h5>
+          <h5 class="offset-sm-3">{% trans "Rack" %}</h5>
         </div>
         {% render_field form.site %}
         {% render_field form.location %}
@@ -17,7 +18,7 @@
 
     <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Inventory Control</h5>
+          <h5 class="offset-sm-3">{% trans "Inventory Control" %}</h5>
         </div>
         {% render_field form.facility_id %}
         {% render_field form.serial %}
@@ -26,7 +27,7 @@
 
     <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Tenancy</h5>
+          <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
         </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
@@ -34,39 +35,39 @@
 
     <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Dimensions</h5>
+          <h5 class="offset-sm-3">{% trans "Dimensions" %}</h5>
         </div>
         {% render_field form.type %}
         {% render_field form.width %}
         {% render_field form.u_height %}
         <div class="row mb-3">
-            <label class="col col-md-3 col-form-label text-lg-end">Outer Dimensions</label>
+            <label class="col col-md-3 col-form-label text-lg-end">{% trans "Outer Dimensions" %}</label>
             <div class="col col-md-3 mb-1">
                 {{ form.outer_width }}
-                <div class="form-text">Width</div>
+                <div class="form-text">{% trans "Width" %}</div>
             </div>
             <div class="col col-md-3 mb-1">
                 {{ form.outer_depth }}
-                <div class="form-text">Depth</div>
+                <div class="form-text">{% trans "Depth" %}</div>
             </div>
             <div class="col col-md-3 mb-1">
                 {{ form.outer_unit }}
-                <div class="form-text">Unit</div>
+                <div class="form-text">{% trans "Unit" %}</div>
             </div>
         </div>
         <div class="row mb-3">
-            <label class="col col-md-3 col-form-label text-lg-end">Weight</label>
+            <label class="col col-md-3 col-form-label text-lg-end">{% trans "Weight" %}</label>
             <div class="col col-md-3 mb-1">
                 {{ form.weight }}
-                <div class="form-text">Weight</div>
+                <div class="form-text">{% trans "Weight" %}</div>
             </div>
             <div class="col col-md-3 mb-1">
                 {{ form.max_weight }}
-                <div class="form-text">Maximum Weight</div>
+                <div class="form-text">{% trans "Maximum Weight" %}</div>
             </div>
             <div class="col col-md-3 mb-1">
                 {{ form.weight_unit }}
-                <div class="form-text">Unit</div>
+                <div class="form-text">{% trans "Unit" %}</div>
             </div>
         </div>
         {% render_field form.mounting_depth %}
@@ -77,7 +78,7 @@
     {% if form.custom_fields %}
       <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Custom Fields</h5>
+          <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
         </div>
           {% render_custom_fields form %}
       </div>

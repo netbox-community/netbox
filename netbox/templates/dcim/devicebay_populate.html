@@ -1,5 +1,6 @@
 {% extends 'base/layout.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% render_errors form %}
 
@@ -9,16 +10,16 @@
     <div class="row mb-3">
         <div class="col col-md-6 offset-md-3">
             <div class="card">
-                <h5 class="card-header">{% block title %}Populate {{ device_bay }}{% endblock %}</h5>
+                <h5 class="card-header">{% block title %}{% trans "Populate" %} {{ device_bay }}{% endblock %}</h5>
                 <div class="card-body">
                     <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label text-lg-end">Parent Device</label>
+                        <label class="col-sm-3 col-form-label text-lg-end">{% trans "Parent Device" %}</label>
                         <div class="col">
                             <input class="form-control" value="{{ device_bay.device }}" disabled />
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <label class="col-sm-3 col-form-label text-lg-end">Bay</label>
+                        <label class="col-sm-3 col-form-label text-lg-end">{% trans "Bay" %}</label>
                         <div class="col">
                             <input class="form-control" value="{{ device_bay }}" disabled />
                         </div>
@@ -30,8 +31,8 @@
     </div>
     <div class="row">
         <div class="col col-md-6 offset-md-3 text-end">
-            <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
-            <button type="submit" name="_update" class="btn btn-primary">Save</button>
+            <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+            <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
         </div>
     </div>
 </form>

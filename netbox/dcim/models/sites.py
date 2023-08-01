@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from timezone_field import TimeZoneField
 
 from dcim.choices import *
@@ -49,7 +49,7 @@ class Region(NestedGroupModel):
                 fields=('name',),
                 name='%(app_label)s_%(class)s_name',
                 condition=Q(parent__isnull=True),
-                violation_error_message="A top-level region with this name already exists."
+                violation_error_message=_("A top-level region with this name already exists.")
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
@@ -59,7 +59,7 @@ class Region(NestedGroupModel):
                 fields=('slug',),
                 name='%(app_label)s_%(class)s_slug',
                 condition=Q(parent__isnull=True),
-                violation_error_message="A top-level region with this slug already exists."
+                violation_error_message=_("A top-level region with this slug already exists.")
             ),
         )
 
@@ -104,7 +104,7 @@ class SiteGroup(NestedGroupModel):
                 fields=('name',),
                 name='%(app_label)s_%(class)s_name',
                 condition=Q(parent__isnull=True),
-                violation_error_message="A top-level site group with this name already exists."
+                violation_error_message=_("A top-level site group with this name already exists.")
             ),
             models.UniqueConstraint(
                 fields=('parent', 'slug'),
@@ -114,7 +114,7 @@ class SiteGroup(NestedGroupModel):
                 fields=('slug',),
                 name='%(app_label)s_%(class)s_slug',
                 condition=Q(parent__isnull=True),
-                violation_error_message="A top-level site group with this slug already exists."
+                violation_error_message=_("A top-level site group with this slug already exists.")
             ),
         )
 
@@ -138,6 +138,7 @@ class Site(PrimaryModel):
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True,
         help_text=_("Full name of the site")
@@ -148,10 +149,12 @@ class Site(PrimaryModel):
         blank=True
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100,
         unique=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=SiteStatusChoices,
         default=SiteStatusChoices.STATUS_ACTIVE
@@ -178,9 +181,10 @@ class Site(PrimaryModel):
         null=True
     )
     facility = models.CharField(
+        verbose_name=_('facility'),
         max_length=50,
         blank=True,
-        help_text=_("Local facility ID or description")
+        help_text=_('Local facility ID or description')
     )
     asns = models.ManyToManyField(
         to='ipam.ASN',
@@ -191,28 +195,32 @@ class Site(PrimaryModel):
         blank=True
     )
     physical_address = models.CharField(
+        verbose_name=_('physical address'),
         max_length=200,
         blank=True,
-        help_text=_("Physical location of the building")
+        help_text=_('Physical location of the building')
     )
     shipping_address = models.CharField(
+        verbose_name=_('shipping address'),
         max_length=200,
         blank=True,
-        help_text=_("If different from the physical address")
+        help_text=_('If different from the physical address')
     )
     latitude = models.DecimalField(
+        verbose_name=_('latitude'),
         max_digits=8,
         decimal_places=6,
         blank=True,
         null=True,
-        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+        help_text=_('GPS coordinate in decimal format (xx.yyyyyy)')
     )
     longitude = models.DecimalField(
+        verbose_name=_('longitude'),
         max_digits=9,
         decimal_places=6,
         blank=True,
         null=True,
-        help_text=_("GPS coordinate in decimal format (xx.yyyyyy)")
+        help_text=_('GPS coordinate in decimal format (xx.yyyyyy)')
     )
 
     # Generic relations
@@ -262,6 +270,7 @@ class Location(NestedGroupModel):
         related_name='locations'
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=LocationStatusChoices,
         default=LocationStatusChoices.STATUS_ACTIVE
@@ -304,7 +313,7 @@ class Location(NestedGroupModel):
                 fields=('site', 'name'),
                 name='%(app_label)s_%(class)s_name',
                 condition=Q(parent__isnull=True),
-                violation_error_message="A location with this name already exists within the specified site."
+                violation_error_message=_("A location with this name already exists within the specified site.")
             ),
             models.UniqueConstraint(
                 fields=('site', 'parent', 'slug'),
@@ -314,7 +323,7 @@ class Location(NestedGroupModel):
                 fields=('site', 'slug'),
                 name='%(app_label)s_%(class)s_slug',
                 condition=Q(parent__isnull=True),
-                violation_error_message="A location with this slug already exists within the specified site."
+                violation_error_message=_("A location with this slug already exists within the specified site.")
             ),
         )
 
@@ -329,4 +338,6 @@ class Location(NestedGroupModel):
 
         # Parent Location (if any) must belong to the same Site
         if self.parent and self.parent.site != self.site:
-            raise ValidationError(f"Parent location ({self.parent}) must belong to the same site ({self.site})")
+            raise ValidationError(_(
+                "Parent location ({parent}) must belong to the same site ({site})."
+            ).format(parent=self.parent, site=self.site))

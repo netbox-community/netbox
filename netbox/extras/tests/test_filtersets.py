@@ -27,7 +27,11 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+        choice_sets = (
+            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['A', 'B', 'C']),
+            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['D', 'E', 'F']),
+        )
+        CustomFieldChoiceSet.objects.bulk_create(choice_sets)
 
         custom_fields = (
             CustomField(
@@ -54,11 +58,31 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
                 ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
             ),
+            CustomField(
+                name='Custom Field 4',
+                type=CustomFieldTypeChoices.TYPE_SELECT,
+                required=False,
+                weight=400,
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN,
+                choice_set=choice_sets[0]
+            ),
+            CustomField(
+                name='Custom Field 5',
+                type=CustomFieldTypeChoices.TYPE_MULTISELECT,
+                required=False,
+                weight=500,
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
+                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN,
+                choice_set=choice_sets[1]
+            ),
         )
         CustomField.objects.bulk_create(custom_fields)
-        custom_fields[0].content_types.add(content_types[0])
-        custom_fields[1].content_types.add(content_types[1])
-        custom_fields[2].content_types.add(content_types[2])
+        custom_fields[0].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'site'))
+        custom_fields[1].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'rack'))
+        custom_fields[2].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'device'))
+        custom_fields[3].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'device'))
+        custom_fields[4].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'device'))
 
     def test_name(self):
         params = {'name': ['Custom Field 1', 'Custom Field 2']}
@@ -67,7 +91,7 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
     def test_content_types(self):
         params = {'content_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'content_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_required(self):
@@ -85,6 +109,34 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
     def test_ui_visibility(self):
         params = {'ui_visibility': CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_choice_set(self):
+        params = {'choice_set': ['Choice Set 1', 'Choice Set 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'choice_set_id': CustomFieldChoiceSet.objects.values_list('pk', flat=True)}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class CustomFieldChoiceSetTestCase(TestCase, BaseFilterSetTests):
+    queryset = CustomFieldChoiceSet.objects.all()
+    filterset = CustomFieldChoiceSetFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        choice_sets = (
+            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['A', 'B', 'C']),
+            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['D', 'E', 'F']),
+            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['G', 'H', 'I']),
+        )
+        CustomFieldChoiceSet.objects.bulk_create(choice_sets)
+
+    def test_name(self):
+        params = {'name': ['Choice Set 1', 'Choice Set 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_choice(self):
+        params = {'choice': ['A', 'D']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class WebhookTestCase(TestCase, BaseFilterSetTests):

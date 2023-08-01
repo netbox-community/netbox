@@ -1,9 +1,10 @@
+{% load i18n %}
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <title>Server Error</title>
+    <title>{% trans "Server Error" %}</title>
     <link rel="stylesheet" href="{% static 'netbox-light.css'%}" />
     <meta charset="UTF-8">
 </head>
@@ -14,28 +15,28 @@
             <div class="col col-md-6 offset-md-3">
                 <div class="card border-danger mt-5">
                     <h5 class="card-header">
-                        <i class="mdi mdi-alert"></i> Server Error
+                        <i class="mdi mdi-alert"></i> {% trans "Server Error" %}
                     </h5>
                     <div class="card-body">
                         {% block message %}
                             <p>
-                                There was a problem with your request. Please contact an administrator.
+                                {% trans "There was a problem with your request. Please contact an administrator" %}.
                             </p>
                         {% endblock %}
                         <hr />
                         <p>
-                            The complete exception is provided below:
+                            {% trans "The complete exception is provided below" %}:
                         </p>
 <pre class="block"><strong>{{ exception }}</strong><br />
 {{ error }}
 
-Python version: {{ python_version }}
-NetBox version: {{ netbox_version }}</pre>
+{% trans "Python version" %}: {{ python_version }}
+{% trans "NetBox version" %}: {{ netbox_version }}</pre>
                         <p>
-                            If further assistance is required, please post to the <a href="https://github.com/netbox-community/netbox/discussions">NetBox discussion forum</a> on GitHub.
+                            {% trans "If further assistance is required, please post to the" %} <a href="https://github.com/netbox-community/netbox/discussions">{% trans "NetBox discussion forum" %}</a> {% trans "on GitHub" %}.
                         </p>
                         <div class="text-end">
-                            <a href="{% url 'home' %}" class="btn btn-primary">Home Page</a>
+                            <a href="{% url 'home' %}" class="btn btn-primary">{% trans "Home Page" %}</a>
                         </div>
                     </div>
                 </div>

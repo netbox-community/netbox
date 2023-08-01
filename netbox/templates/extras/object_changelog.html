@@ -1,5 +1,6 @@
 {% extends base_template %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block content %}
   <div class="row mb-3">
@@ -11,7 +12,7 @@
         </div>
       </div>
       <div class="text-muted">
-        Change log retention: {% if config.CHANGELOG_RETENTION %}{{ config.CHANGELOG_RETENTION }} days{% else %}Indefinite{% endif %}
+        {% trans "Change log retention" %}: {% if config.CHANGELOG_RETENTION %}{{ config.CHANGELOG_RETENTION }} {% trans "days" %}{% else %}{% trans "Indefinite" %}{% endif %}
       </div>
     </div>
   </div>

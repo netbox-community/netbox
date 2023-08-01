@@ -681,13 +681,6 @@ class RackView(generic.ObjectView):
             (PowerFeed.objects.restrict(request.user).filter(rack=instance), 'rack_id'),
         )
 
-        # Get 0U devices located within the rack
-        nonracked_devices = Device.objects.filter(
-            rack=instance,
-            position__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         peer_racks = Rack.objects.restrict(request.user, 'view').filter(site=instance.site)
 
         if instance.location:
@@ -704,7 +697,6 @@ class RackView(generic.ObjectView):
 
         return {
             'related_models': related_models,
-            'nonracked_devices': nonracked_devices,
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
@@ -729,6 +721,26 @@ class RackRackReservationsView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return parent.reservations.restrict(request.user, 'view')
+
+
+@register_model_view(Rack, 'nonracked_devices', 'nonracked-devices')
+class RackNonRackedView(generic.ObjectChildrenView):
+    queryset = Rack.objects.all()
+    child_model = Device
+    table = tables.DeviceTable
+    filterset = filtersets.DeviceFilterSet
+    template_name = 'dcim/rack/non_racked_devices.html'
+    tab = ViewTab(
+        label=_('Non-Racked Devices'),
+        badge=lambda obj: obj.devices.filter(rack=obj, position__isnull=True, parent_bay__isnull=True).count(),
+        weight=500,
+        permission='dcim.view_device',
+    )
+
+    def get_children(self, request, parent):
+        return parent.devices.restrict(request.user, 'view').filter(
+            rack=parent, position__isnull=True, parent_bay__isnull=True
+        )
 
 
 @register_model_view(Rack, 'edit')
@@ -951,7 +963,7 @@ class DeviceTypeConsolePortsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_consoleports'
     tab = ViewTab(
         label=_('Console Ports'),
-        badge=lambda obj: obj.consoleporttemplates.count(),
+        badge=lambda obj: obj.console_port_template_count,
         permission='dcim.view_consoleporttemplate',
         weight=550,
         hide_if_empty=True
@@ -966,7 +978,7 @@ class DeviceTypeConsoleServerPortsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_consoleserverports'
     tab = ViewTab(
         label=_('Console Server Ports'),
-        badge=lambda obj: obj.consoleserverporttemplates.count(),
+        badge=lambda obj: obj.console_server_port_template_count,
         permission='dcim.view_consoleserverporttemplate',
         weight=560,
         hide_if_empty=True
@@ -981,7 +993,7 @@ class DeviceTypePowerPortsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_powerports'
     tab = ViewTab(
         label=_('Power Ports'),
-        badge=lambda obj: obj.powerporttemplates.count(),
+        badge=lambda obj: obj.power_port_template_count,
         permission='dcim.view_powerporttemplate',
         weight=570,
         hide_if_empty=True
@@ -996,7 +1008,7 @@ class DeviceTypePowerOutletsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_poweroutlets'
     tab = ViewTab(
         label=_('Power Outlets'),
-        badge=lambda obj: obj.poweroutlettemplates.count(),
+        badge=lambda obj: obj.power_outlet_template_count,
         permission='dcim.view_poweroutlettemplate',
         weight=580,
         hide_if_empty=True
@@ -1011,7 +1023,7 @@ class DeviceTypeInterfacesView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_interfaces'
     tab = ViewTab(
         label=_('Interfaces'),
-        badge=lambda obj: obj.interfacetemplates.count(),
+        badge=lambda obj: obj.interface_template_count,
         permission='dcim.view_interfacetemplate',
         weight=520,
         hide_if_empty=True
@@ -1026,7 +1038,7 @@ class DeviceTypeFrontPortsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_frontports'
     tab = ViewTab(
         label=_('Front Ports'),
-        badge=lambda obj: obj.frontporttemplates.count(),
+        badge=lambda obj: obj.front_port_template_count,
         permission='dcim.view_frontporttemplate',
         weight=530,
         hide_if_empty=True
@@ -1041,7 +1053,7 @@ class DeviceTypeRearPortsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_rearports'
     tab = ViewTab(
         label=_('Rear Ports'),
-        badge=lambda obj: obj.rearporttemplates.count(),
+        badge=lambda obj: obj.rear_port_template_count,
         permission='dcim.view_rearporttemplate',
         weight=540,
         hide_if_empty=True
@@ -1056,7 +1068,7 @@ class DeviceTypeModuleBaysView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_modulebays'
     tab = ViewTab(
         label=_('Module Bays'),
-        badge=lambda obj: obj.modulebaytemplates.count(),
+        badge=lambda obj: obj.module_bay_template_count,
         permission='dcim.view_modulebaytemplate',
         weight=510,
         hide_if_empty=True
@@ -1071,7 +1083,7 @@ class DeviceTypeDeviceBaysView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_devicebays'
     tab = ViewTab(
         label=_('Device Bays'),
-        badge=lambda obj: obj.devicebaytemplates.count(),
+        badge=lambda obj: obj.device_bay_template_count,
         permission='dcim.view_devicebaytemplate',
         weight=500,
         hide_if_empty=True
@@ -1086,7 +1098,7 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     viewname = 'dcim:devicetype_inventoryitems'
     tab = ViewTab(
         label=_('Inventory Items'),
-        badge=lambda obj: obj.inventoryitemtemplates.count(),
+        badge=lambda obj: obj.inventory_item_template_count,
         permission='dcim.view_invenotryitemtemplate',
         weight=590,
         hide_if_empty=True
@@ -1876,7 +1888,7 @@ class DeviceConsolePortsView(DeviceComponentsView):
     template_name = 'dcim/device/consoleports.html',
     tab = ViewTab(
         label=_('Console Ports'),
-        badge=lambda obj: obj.consoleports.count(),
+        badge=lambda obj: obj.console_port_count,
         permission='dcim.view_consoleport',
         weight=550,
         hide_if_empty=True
@@ -1891,7 +1903,7 @@ class DeviceConsoleServerPortsView(DeviceComponentsView):
     template_name = 'dcim/device/consoleserverports.html'
     tab = ViewTab(
         label=_('Console Server Ports'),
-        badge=lambda obj: obj.consoleserverports.count(),
+        badge=lambda obj: obj.console_server_port_count,
         permission='dcim.view_consoleserverport',
         weight=560,
         hide_if_empty=True
@@ -1906,7 +1918,7 @@ class DevicePowerPortsView(DeviceComponentsView):
     template_name = 'dcim/device/powerports.html'
     tab = ViewTab(
         label=_('Power Ports'),
-        badge=lambda obj: obj.powerports.count(),
+        badge=lambda obj: obj.power_port_count,
         permission='dcim.view_powerport',
         weight=570,
         hide_if_empty=True
@@ -1921,7 +1933,7 @@ class DevicePowerOutletsView(DeviceComponentsView):
     template_name = 'dcim/device/poweroutlets.html'
     tab = ViewTab(
         label=_('Power Outlets'),
-        badge=lambda obj: obj.poweroutlets.count(),
+        badge=lambda obj: obj.power_outlet_count,
         permission='dcim.view_poweroutlet',
         weight=580,
         hide_if_empty=True
@@ -1957,7 +1969,7 @@ class DeviceFrontPortsView(DeviceComponentsView):
     template_name = 'dcim/device/frontports.html'
     tab = ViewTab(
         label=_('Front Ports'),
-        badge=lambda obj: obj.frontports.count(),
+        badge=lambda obj: obj.front_port_count,
         permission='dcim.view_frontport',
         weight=530,
         hide_if_empty=True
@@ -1972,7 +1984,7 @@ class DeviceRearPortsView(DeviceComponentsView):
     template_name = 'dcim/device/rearports.html'
     tab = ViewTab(
         label=_('Rear Ports'),
-        badge=lambda obj: obj.rearports.count(),
+        badge=lambda obj: obj.rear_port_count,
         permission='dcim.view_rearport',
         weight=540,
         hide_if_empty=True
@@ -1987,7 +1999,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     template_name = 'dcim/device/modulebays.html'
     tab = ViewTab(
         label=_('Module Bays'),
-        badge=lambda obj: obj.modulebays.count(),
+        badge=lambda obj: obj.module_bay_count,
         permission='dcim.view_modulebay',
         weight=510,
         hide_if_empty=True
@@ -2002,7 +2014,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     template_name = 'dcim/device/devicebays.html'
     tab = ViewTab(
         label=_('Device Bays'),
-        badge=lambda obj: obj.devicebays.count(),
+        badge=lambda obj: obj.device_bay_count,
         permission='dcim.view_devicebay',
         weight=500,
         hide_if_empty=True
@@ -2017,7 +2029,7 @@ class DeviceInventoryView(DeviceComponentsView):
     template_name = 'dcim/device/inventory.html'
     tab = ViewTab(
         label=_('Inventory Items'),
-        badge=lambda obj: obj.inventoryitems.count(),
+        badge=lambda obj: obj.inventory_item_count,
         permission='dcim.view_inventoryitem',
         weight=590,
         hide_if_empty=True
@@ -2452,11 +2464,13 @@ class InterfaceView(generic.ObjectView):
     queryset = Interface.objects.all()
 
     def get_extra_context(self, request, instance):
-        # Get assigned VDC's
+        # Get assigned VDCs
         vdc_table = tables.VirtualDeviceContextTable(
             data=instance.vdcs.restrict(request.user, 'view').prefetch_related('device'),
-            exclude=('tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'comments', 'tags',
-                     'created', 'last_updated', 'actions', ),
+            exclude=(
+                'tenant', 'tenant_group', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'comments', 'tags',
+                'created', 'last_updated', 'actions',
+            ),
             orderable=False
         )
 
@@ -3225,9 +3239,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
 #
 
 class VirtualChassisListView(generic.ObjectListView):
-    queryset = VirtualChassis.objects.annotate(
-        member_count=count_related(Device, 'virtual_chassis')
-    )
+    queryset = VirtualChassis.objects.all()
     table = tables.VirtualChassisTable
     filterset = filtersets.VirtualChassisFilterSet
     filterset_form = forms.VirtualChassisFilterForm

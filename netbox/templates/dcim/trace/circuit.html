@@ -1,5 +1,6 @@
+{% load i18n %}
 <div class="node">
     <strong>{{ circuit|linkify }}</strong><br />
-    Circuit<br />
+    {% trans "Circuit" %}<br />
     {{ circuit.provider|linkify }}
 </div>

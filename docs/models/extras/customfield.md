@@ -79,9 +79,9 @@ Controls how and whether the custom field is displayed within the NetBox user in
 
 The default value to populate for the custom field when creating new objects (optional). This value must be expressed as JSON. If this is a choice or multi-choice field, this must be one of the available choices.
 
-### Choices
+### Choice Set
 
-For choice and multi-choice custom fields only. A comma-delimited list of the available choices.
+For selection and multi-select custom fields only, this is the [set of choices](./customfieldchoiceset.md) which are valid for the field.
 
 ### Cloneable
 

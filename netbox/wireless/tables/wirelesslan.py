@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from dcim.models import Interface
@@ -14,14 +15,17 @@ __all__ = (
 
 class WirelessLANGroupTable(NetBoxTable):
     name = columns.MPTTColumn(
+        verbose_name=_('Name'),
         linkify=True
     )
     wirelesslan_count = columns.LinkedCountColumn(
         viewname='wireless:wirelesslan_list',
         url_params={'group_id': 'pk'},
-        verbose_name='Wireless LANs'
+        verbose_name=_('Wireless LANs')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='wireless:wirelesslangroup_list'
     )
@@ -37,16 +41,22 @@ class WirelessLANGroupTable(NetBoxTable):
 
 class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
     ssid = tables.Column(
+        verbose_name=_('SSID'),
         linkify=True
     )
     group = tables.Column(
+        verbose_name=_('Group'),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
-    interface_count = tables.Column(
-        verbose_name='Interfaces'
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
     )
-    comments = columns.MarkdownColumn()
+    interface_count = tables.Column(
+        verbose_name=_('Interfaces')
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='wireless:wirelesslan_list'
     )
@@ -62,9 +72,11 @@ class WirelessLANTable(TenancyColumnsMixin, NetBoxTable):
 
 class WirelessLANInterfacesTable(NetBoxTable):
     device = tables.Column(
+        verbose_name=_('Device'),
         linkify=True
     )
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
 

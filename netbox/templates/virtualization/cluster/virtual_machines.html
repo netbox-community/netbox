@@ -1,6 +1,7 @@
 {% extends 'virtualization/cluster/base.html' %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block content %}
   {% include 'inc/table_controls_htmx.html' with table_modal="VirtualMachineTable_config" %}
@@ -16,12 +17,12 @@
       <div class="bulk-button-group">
         {% if 'bulk_edit' in actions %}
           <button type="submit" name="_edit" formaction="{% url 'virtualization:virtualmachine_bulk_edit' %}?return_url={% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="btn btn-warning btn-sm">
-            <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+            <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
           </button>
         {% endif %}
         {% if 'bulk_delete' in actions %}
           <button type="submit" name="_delete" formaction="{% url 'virtualization:virtualmachine_bulk_delete' %}?return_url={% url 'virtualization:cluster_virtualmachines' pk=object.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
           </button>
         {% endif %}
       </div>

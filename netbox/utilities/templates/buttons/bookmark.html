@@ -1,3 +1,4 @@
+{% load i18n %}
 <form action="{{ form_url }}?return_url={{ return_url }}" method="post">
   {% csrf_token %}
   {% for field, value in form_data.items %}
@@ -5,11 +6,11 @@
   {% endfor %}
   {% if bookmark %}
     <button type="submit" class="btn btn-sm btn-info">
-      <i class="mdi mdi-bookmark-minus"></i> Unbookmark
+      <i class="mdi mdi-bookmark-minus"></i> {% trans "Unbookmark" %}
     </button>
   {% else %}
     <button type="submit" class="btn btn-sm btn-info">
-      <i class="mdi mdi-bookmark-check"></i> Bookmark
+      <i class="mdi mdi-bookmark-check"></i> {% trans "Bookmark" %}
     </button>
   {% endif %}
 </form>

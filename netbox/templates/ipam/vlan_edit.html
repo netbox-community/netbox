@@ -2,11 +2,12 @@
 {% load static %}
 {% load form_helpers %}
 {% load helpers %}
+{% load i18n %}
 
 {% block form %}
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">VLAN</h5>
+      <h5 class="offset-sm-3">{% trans "VLAN" %}</h5>
     </div>
     {% render_field form.vid %}
     {% render_field form.name %}
@@ -18,7 +19,7 @@
 
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Tenancy</h5>
+      <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
     </div>
     {% render_field form.tenant_group %}
     {% render_field form.tenant %}
@@ -26,17 +27,17 @@
 
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Assignment</h5>
+      <h5 class="offset-sm-3">{% trans "Assignment" %}</h5>
     </div>
     {% with site_tab_active=form.initial.site %}
       <div class="row mb-2">
         <div class="offset-sm-3">
           <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
-              <a class="nav-link{% if not site_tab_active %} active{% endif %}" href="#group" role="tab" data-bs-toggle="tab">VLAN Group</a>
+              <a class="nav-link{% if not site_tab_active %} active{% endif %}" href="#group" role="tab" data-bs-toggle="tab">{% trans "VLAN Group" %}</a>
             </li>
             <li class="nav-item" role="presentation">
-              <a class="nav-link{% if site_tab_active %} active{% endif %}" href="#site" role="tab" data-bs-toggle="tab">Site</a>
+              <a class="nav-link{% if site_tab_active %} active{% endif %}" href="#site" role="tab" data-bs-toggle="tab">{% trans "Site" %}</a>
             </li>
           </ul>
         </div>
@@ -59,7 +60,7 @@
   {% if form.custom_fields %}
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Custom Fields</h5>
+        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

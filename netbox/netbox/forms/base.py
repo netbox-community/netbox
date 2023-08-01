@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
@@ -28,7 +28,8 @@ class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
     fieldsets = ()
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        required=False
+        required=False,
+        label=_('Tags'),
     )
 
     def __init__(self, *args, **kwargs):
@@ -73,10 +74,12 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
     id = forms.IntegerField(
+        label=_('Id'),
         required=False,
         help_text='Numeric ID of an existing object to update (if not creating a new object)'
     )
     tags = CSVModelMultipleChoiceField(
+        label=_('Tags'),
         queryset=Tag.objects.all(),
         required=False,
         to_field_name='slug',
@@ -109,10 +112,12 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         widget=forms.MultipleHiddenInput
     )
     add_tags = DynamicModelMultipleChoiceField(
+        label=_('Add tags'),
         queryset=Tag.objects.all(),
         required=False
     )
     remove_tags = DynamicModelMultipleChoiceField(
+        label=_('Remove tags'),
         queryset=Tag.objects.all(),
         required=False
     )

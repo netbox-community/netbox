@@ -1,4 +1,5 @@
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 <div class="card {% if panel_class %}border-{{ panel_class }}{% endif %}">
   {% if heading %}
@@ -8,7 +9,7 @@
     {% if table.rows %}
       {% render_table table 'inc/table.html' %}
     {% else %}
-      <div class="text-muted">None</div>
+      <div class="text-muted">{% trans "None" %}</div>
     {% endif %}
   </div>
 </div>

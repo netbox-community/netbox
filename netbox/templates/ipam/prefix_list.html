@@ -1,18 +1,19 @@
 {% extends 'generic/object_list.html' %}
 {% load helpers %}
+{% load i18n %}
 
 {% block extra_controls %}
     <button class="btn btn-sm btn-outline-secondary toggle-depth" type="button">
-        Hide Depth Indicators
+        {% trans "Hide Depth Indicators" %}
     </button>
     <div class="dropdown">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="max_depth" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            Max Depth{% if "depth__lte" in request.GET %}: {{ request.GET.depth__lte }}{% endif %}
+            {% trans "Max Depth" %}{% if "depth__lte" in request.GET %}: {{ request.GET.depth__lte }}{% endif %}
         </button>
         <ul class="dropdown-menu" aria-labelledby="max_depth">
             {% if request.GET.depth__lte %}
                 <li>
-                    <a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request depth__lte=None page=1 %}">Clear</a>
+                    <a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request depth__lte=None page=1 %}">{% trans "Clear" %}</a>
                 </li>
             {% endif %}
             {% for i in 16|as_range %}
@@ -24,12 +25,12 @@
     </div>
     <div class="dropdown">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="max_length" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
-            Max Length{% if "mask_length__lte" in request.GET %}: {{ request.GET.mask_length__lte }}{% endif %}
+            {% trans "Max Length" %}{% if "mask_length__lte" in request.GET %}: {{ request.GET.mask_length__lte }}{% endif %}
         </button>
         <ul class="dropdown-menu" aria-labelledby="max_length">
             {% if request.GET.mask_length__lte %}
                 <li>
-                    <a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request mask_length__lte=None page=1 %}">Clear</a>
+                    <a class="dropdown-item" href="{% url 'ipam:prefix_list' %}{% querystring request mask_length__lte=None page=1 %}">{% trans "Clear" %}</a>
                 </li>
             {% endif %}
             {% for i in "4,8,12,16,20,24,28,32,40,48,56,64"|split %}

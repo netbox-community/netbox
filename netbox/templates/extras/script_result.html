@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load buttons %}
 {% load perms %}
+{% load i18n %}
 
 {% block title %}{{ script }}{% endblock %}
 
@@ -14,7 +15,7 @@
     <div class="col col-md-12">
       <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
           <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
           <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
           <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
@@ -38,16 +39,16 @@
 {% block content-wrapper %}
   <ul class="nav nav-tabs px-3" role="tablist">
     <li class="nav-item" role="presentation">
-      <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">Log</a>
+      <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Log" %}</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">Source</a>
+      <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">{% trans "Source" %}</a>
     </li>
   </ul>
   <div class="tab-content mb-3">
     <div role="tabpanel" class="tab-pane active" id="log">
       <div class="row">
-        <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="every 5s"{% endif %}>
+        <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="load delay:0.5s, every 5s"{% endif %}>
           {% include 'extras/htmx/script_result.html' %}
         </div>
       </div>

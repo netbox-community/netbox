@@ -2,6 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -46,9 +47,11 @@ class Cluster(PrimaryModel):
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     type = models.ForeignKey(
+        verbose_name=_('type'),
         to=ClusterType,
         on_delete=models.PROTECT,
         related_name='clusters'
@@ -61,6 +64,7 @@ class Cluster(PrimaryModel):
         null=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=ClusterStatusChoices,
         default=ClusterStatusChoices.STATUS_ACTIVE
@@ -128,7 +132,7 @@ class Cluster(PrimaryModel):
             nonsite_devices = Device.objects.filter(cluster=self).exclude(site=self.site).count()
             if nonsite_devices:
                 raise ValidationError({
-                    'site': "{} devices are assigned as hosts for this cluster but are not in site {}".format(
+                    'site': _("{} devices are assigned as hosts for this cluster but are not in site {}").format(
                         nonsite_devices, self.site
                     )
                 })

@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from ipam.models import *
@@ -11,13 +12,17 @@ __all__ = (
 
 class ServiceTemplateTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     ports = tables.Column(
+        verbose_name=_('Ports'),
         accessor=tables.A('port_list'),
         order_by=tables.A('ports'),
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:servicetemplate_list'
     )
@@ -32,17 +37,22 @@ class ServiceTemplateTable(NetBoxTable):
 
 class ServiceTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     parent = tables.Column(
+        verbose_name=_('Parent'),
         linkify=True,
         order_by=('device', 'virtual_machine')
     )
     ports = tables.Column(
+        verbose_name=_('Ports'),
         accessor=tables.A('port_list'),
         order_by=tables.A('ports'),
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:service_list'
     )

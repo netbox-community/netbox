@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 
@@ -18,15 +19,16 @@ __all__ = (
 
 class ConsoleConnectionTable(PathEndpointTable):
     device = tables.Column(
+        verbose_name=_('Device'),
         linkify=True
     )
     name = tables.Column(
         linkify=True,
-        verbose_name='Console Port'
+        verbose_name=_('Console Port')
     )
     reachable = columns.BooleanColumn(
         accessor=Accessor('_path__is_active'),
-        verbose_name='Reachable'
+        verbose_name=_('Reachable')
     )
 
     class Meta(BaseTable.Meta):
@@ -36,15 +38,16 @@ class ConsoleConnectionTable(PathEndpointTable):
 
 class PowerConnectionTable(PathEndpointTable):
     device = tables.Column(
+        verbose_name=_('Device'),
         linkify=True
     )
     name = tables.Column(
         linkify=True,
-        verbose_name='Power Port'
+        verbose_name=_('Power Port')
     )
     reachable = columns.BooleanColumn(
         accessor=Accessor('_path__is_active'),
-        verbose_name='Reachable'
+        verbose_name=_('Reachable')
     )
 
     class Meta(BaseTable.Meta):
@@ -54,16 +57,18 @@ class PowerConnectionTable(PathEndpointTable):
 
 class InterfaceConnectionTable(PathEndpointTable):
     device = tables.Column(
+        verbose_name=_('Device'),
         accessor=Accessor('device'),
         linkify=True
     )
     interface = tables.Column(
+        verbose_name=_('Interface'),
         accessor=Accessor('name'),
         linkify=True
     )
     reachable = columns.BooleanColumn(
         accessor=Accessor('_path__is_active'),
-        verbose_name='Reachable'
+        verbose_name=_('Reachable')
     )
 
     class Meta(BaseTable.Meta):

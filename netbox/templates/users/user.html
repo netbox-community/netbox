@@ -1,0 +1,84 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block title %}{% trans "User" %} {{ object.username }}{% endblock %}
+
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "User" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Username" %}</th>
+              <td>{{ object.username }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Full Name" %}</th>
+              <td>{{ object.get_full_name|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Email" %}</th>
+              <td>{{ object.email|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Account Created" %}</th>
+              <td>{{ object.date_joined|annotated_date }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Active" %}</th>
+              <td>{% checkmark object.active %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Staff" %}</th>
+              <td>{% checkmark object.is_staff %}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Superuser" %}</th>
+              <td>{% checkmark object.is_superuser %}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for group in object.groups.all %}
+            <a href="{% url 'users:netboxgroup' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Permissions" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for perm in object.object_permissions.all %}
+            <a href="{% url 'users:objectpermission' pk=perm.pk %}" class="list-group-item list-group-item-action">{{ perm }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% if perms.extras.view_objectchange %}
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card">
+          <h5 class="card-header text-center">{% trans "Recent Activity" %}</h5>
+          <div class="card-body table-responsive">
+            {% render_table changelog_table 'inc/table.html' %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

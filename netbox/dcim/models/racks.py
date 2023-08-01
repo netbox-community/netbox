@@ -9,7 +9,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import Count
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -39,6 +39,7 @@ class RackRole(OrganizationalModel):
     Racks can be organized by functional role, similar to Devices.
     """
     color = ColorField(
+        verbose_name=_('color'),
         default=ColorChoices.COLOR_GREY
     )
 
@@ -52,6 +53,7 @@ class Rack(PrimaryModel, WeightMixin):
     Each Rack is assigned to a Site and (optionally) a Location.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     _name = NaturalOrderingField(
@@ -63,7 +65,7 @@ class Rack(PrimaryModel, WeightMixin):
         max_length=50,
         blank=True,
         null=True,
-        verbose_name='Facility ID',
+        verbose_name=_('facility ID'),
         help_text=_("Locally-assigned identifier")
     )
     site = models.ForeignKey(
@@ -86,6 +88,7 @@ class Rack(PrimaryModel, WeightMixin):
         null=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=RackStatusChoices,
         default=RackStatusChoices.STATUS_ACTIVE
@@ -101,60 +104,64 @@ class Rack(PrimaryModel, WeightMixin):
     serial = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Serial number'
+        verbose_name=_('serial number')
     )
     asset_tag = models.CharField(
         max_length=50,
         blank=True,
         null=True,
         unique=True,
-        verbose_name='Asset tag',
+        verbose_name=_('asset tag'),
         help_text=_('A unique tag used to identify this rack')
     )
     type = models.CharField(
         choices=RackTypeChoices,
         max_length=50,
         blank=True,
-        verbose_name='Type'
+        verbose_name=_('type')
     )
     width = models.PositiveSmallIntegerField(
         choices=RackWidthChoices,
         default=RackWidthChoices.WIDTH_19IN,
-        verbose_name='Width',
+        verbose_name=_('width'),
         help_text=_('Rail-to-rail width')
     )
     u_height = models.PositiveSmallIntegerField(
         default=RACK_U_HEIGHT_DEFAULT,
-        verbose_name='Height (U)',
+        verbose_name=_('height (U)'),
         validators=[MinValueValidator(1), MaxValueValidator(RACK_U_HEIGHT_MAX)],
         help_text=_('Height in rack units')
     )
     starting_unit = models.PositiveSmallIntegerField(
         default=RACK_STARTING_UNIT_DEFAULT,
-        verbose_name='Starting unit',
+        verbose_name=_('starting unit'),
         help_text=_('Starting unit for rack')
     )
     desc_units = models.BooleanField(
         default=False,
-        verbose_name='Descending units',
+        verbose_name=_('descending units'),
         help_text=_('Units are numbered top-to-bottom')
     )
     outer_width = models.PositiveSmallIntegerField(
+        verbose_name=_('outer width'),
         blank=True,
         null=True,
         help_text=_('Outer dimension of rack (width)')
     )
     outer_depth = models.PositiveSmallIntegerField(
+        verbose_name=_('outer depth'),
         blank=True,
         null=True,
         help_text=_('Outer dimension of rack (depth)')
     )
     outer_unit = models.CharField(
+        verbose_name=_('outer unit'),
         max_length=50,
         choices=RackDimensionUnitChoices,
         blank=True,
     )
     max_weight = models.PositiveIntegerField(
+        verbose_name=_('max weight'),
         blank=True,
         null=True,
         help_text=_('Maximum load capacity for the rack')
@@ -165,6 +172,7 @@ class Rack(PrimaryModel, WeightMixin):
         null=True
     )
     mounting_depth = models.PositiveSmallIntegerField(
+        verbose_name=_('mounting depth'),
         blank=True,
         null=True,
         help_text=(
@@ -222,15 +230,15 @@ class Rack(PrimaryModel, WeightMixin):
 
         # Validate location/site assignment
         if self.site and self.location and self.location.site != self.site:
-            raise ValidationError(f"Assigned location must belong to parent site ({self.site}).")
+            raise ValidationError(_("Assigned location must belong to parent site ({site}).").format(site=self.site))
 
         # Validate outer dimensions and unit
         if (self.outer_width is not None or self.outer_depth is not None) and not self.outer_unit:
-            raise ValidationError("Must specify a unit when setting an outer width/depth")
+            raise ValidationError(_("Must specify a unit when setting an outer width/depth"))
 
         # Validate max_weight and weight_unit
         if self.max_weight and not self.weight_unit:
-            raise ValidationError("Must specify a unit when setting a maximum weight")
+            raise ValidationError(_("Must specify a unit when setting a maximum weight"))
 
         if self.pk:
             mounted_devices = Device.objects.filter(rack=self).exclude(position__isnull=True).order_by('position')
@@ -240,22 +248,22 @@ class Rack(PrimaryModel, WeightMixin):
                 min_height = top_device.position + top_device.device_type.u_height - self.starting_unit
                 if self.u_height < min_height:
                     raise ValidationError({
-                        'u_height': f"Rack must be at least {min_height}U tall to house currently installed devices."
+                        'u_height': _("Rack must be at least {min_height}U tall to house currently installed devices.").format(min_height=min_height)
                     })
 
             # Validate that the Rack's starting unit is less than or equal to the position of the lowest mounted Device
             if last_device := mounted_devices.first():
                 if self.starting_unit > last_device.position:
                     raise ValidationError({
-                        'starting_unit': f"Rack unit numbering must begin at {last_device.position} or less to house "
-                                         f"currently installed devices."
+                        'starting_unit': _("Rack unit numbering must begin at {position} or less to house "
+                                           "currently installed devices.").format(position=last_device.position)
                     })
 
             # Validate that Rack was assigned a Location of its same site, if applicable
             if self.location:
                 if self.location.site != self.site:
                     raise ValidationError({
-                        'location': f"Location must be from the same site, {self.site}."
+                        'location': _("Location must be from the same site, {site}.").format(site=self.site)
                     })
 
     def save(self, *args, **kwargs):
@@ -504,6 +512,7 @@ class RackReservation(PrimaryModel):
         related_name='reservations'
     )
     units = ArrayField(
+        verbose_name=_('units'),
         base_field=models.PositiveSmallIntegerField()
     )
     tenant = models.ForeignKey(
@@ -518,6 +527,7 @@ class RackReservation(PrimaryModel):
         on_delete=models.PROTECT
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200
     )
 
@@ -544,7 +554,7 @@ class RackReservation(PrimaryModel):
             invalid_units = [u for u in self.units if u not in self.rack.units]
             if invalid_units:
                 raise ValidationError({
-                    'units': "Invalid unit(s) for {}U rack: {}".format(
+                    'units': _("Invalid unit(s) for {}U rack: {}").format(
                         self.rack.u_height,
                         ', '.join([str(u) for u in invalid_units]),
                     ),
@@ -557,7 +567,7 @@ class RackReservation(PrimaryModel):
             conflicting_units = [u for u in self.units if u in reserved_units]
             if conflicting_units:
                 raise ValidationError({
-                    'units': 'The following units have already been reserved: {}'.format(
+                    'units': _('The following units have already been reserved: {}').format(
                         ', '.join([str(u) for u in conflicting_units]),
                     )
                 })

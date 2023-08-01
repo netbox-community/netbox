@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
@@ -22,10 +23,12 @@ class Branch(ChangeLoggedModel):
     A collection of related StagedChanges.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -61,6 +64,7 @@ class StagedChange(ChangeLoggedModel):
         related_name='staged_changes'
     )
     action = models.CharField(
+        verbose_name=_('action'),
         max_length=20,
         choices=ChangeActionChoices
     )
@@ -78,6 +82,7 @@ class StagedChange(ChangeLoggedModel):
         fk_field='object_id'
     )
     data = models.JSONField(
+        verbose_name=_('data'),
         blank=True,
         null=True
     )

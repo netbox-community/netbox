@@ -1,9 +1,10 @@
+{% load i18n %}
 <table class="table panel-body">
     <tr>
-        <th>VID</th>
-        <th>Name</th>
-        <th>Untagged</th>
-        <th>Tagged</th>
+        <th>{% trans "VID" %}</th>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Untagged" %}</th>
+        <th>{% trans "Tagged" %}</th>
     </tr>
     {% with tagged_vlans=obj.tagged_vlans.all %}
         {% if obj.untagged_vlan and obj.untagged_vlan not in tagged_vlans %}
@@ -33,17 +34,17 @@
         {% if not obj.untagged_vlan and not tagged_vlans %}
             <tr>
                 <td colspan="4" class="text-muted text-center">
-                    No VLANs Assigned
+                    {% trans "No VLANs Assigned" %}
                 </td>
             </tr>
         {% else %}
             <tr>
                 <td colspan="2"></td>
                 <td>
-                    <a href="#" id="clear_untagged_vlan" class="btn btn-outline-warning btn-sm">Clear</a>
+                    <a href="#" id="clear_untagged_vlan" class="btn btn-outline-warning btn-sm">{% trans "Clear" %}</a>
                 </td>
                 <td>
-                    <a href="#" id="clear_tagged_vlans" class="btn btn-warning btn-sm">Clear All</a>
+                    <a href="#" id="clear_tagged_vlans" class="btn btn-warning btn-sm">{% trans "Clear All" %}</a>
                 </td>
             </tr>
         {% endif %}

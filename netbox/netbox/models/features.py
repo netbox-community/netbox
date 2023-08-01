@@ -9,7 +9,7 @@ from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
@@ -46,11 +46,13 @@ class ChangeLoggingMixin(models.Model):
     Provides change logging support for a model. Adds the `created` and `last_updated` fields.
     """
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True,
         blank=True,
         null=True
     )
     last_updated = models.DateTimeField(
+        verbose_name=_('last updated'),
         auto_now=True,
         blank=True,
         null=True
@@ -401,16 +403,19 @@ class SyncedDataMixin(models.Model):
         related_name='+'
     )
     data_path = models.CharField(
+        verbose_name=_('data path'),
         max_length=1000,
         blank=True,
         editable=False,
         help_text=_("Path to remote file (relative to data source root)")
     )
     auto_sync_enabled = models.BooleanField(
+        verbose_name=_('auto sync enabled'),
         default=False,
         help_text=_("Enable automatic synchronization of data when the data file is updated")
     )
     data_synced = models.DateTimeField(
+        verbose_name=_('date synced'),
         blank=True,
         null=True,
         editable=False

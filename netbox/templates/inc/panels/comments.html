@@ -1,14 +1,15 @@
 {% load helpers %}
+{% load i18n %}
 
 <div class="card">
   <h5 class="card-header">
-    Comments
+    {% trans "Comments" %}
   </h5>
   <div class="card-body">
     {% if object.comments %}
       {{ object.comments|markdown }}
     {% else %}
-      <span class="text-muted">None</span>
+      <span class="text-muted">{% trans "None" %}</span>
     {% endif %}
   </div>
 </div>

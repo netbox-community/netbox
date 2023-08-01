@@ -1,6 +1,37 @@
 # NetBox v3.5
 
-## v3.5.6 (FUTURE)
+## v3.5.8 (FUTURE)
+
+---
+
+## v3.5.7 (2023-07-28)
+
+### Enhancements
+
+* [#11803](https://github.com/netbox-community/netbox/issues/11803) - Move non-rack devices list to a separate tab under the rack view
+* [#12625](https://github.com/netbox-community/netbox/issues/12625) - Mask sensitive parameters when viewing a configured data source
+* [#13009](https://github.com/netbox-community/netbox/issues/13009) - Add IEC 10609-1 and NBR 14136 power port & outlet types
+* [#13097](https://github.com/netbox-community/netbox/issues/13097) - Implement a faster initial poll for report & script results
+* [#13234](https://github.com/netbox-community/netbox/issues/13234) - Add 100GBASE-X-DSFP and 100GBASE-X-SFPDD interface types
+
+### Bug Fixes
+
+* [#13051](https://github.com/netbox-community/netbox/issues/13051) - Fix Markdown support for table cell alignment
+* [#13167](https://github.com/netbox-community/netbox/issues/13167) - Fix missing script results when fetched via REST API
+* [#13233](https://github.com/netbox-community/netbox/issues/13233) - Remove extraneous VLAN group field from bulk edit form for interfaces
+* [#13237](https://github.com/netbox-community/netbox/issues/13237) - Permit unauthenticated access to content types REST API endpoint when `LOGIN_REQUIRED` is false
+* [#13285](https://github.com/netbox-community/netbox/issues/13285) - Fix exception when importing device type missing rack unit height value
+
+---
+
+## v3.5.6 (2023-07-10)
+
+### Bug Fixes
+
+* [#13061](https://github.com/netbox-community/netbox/issues/13061) - Fix display of last result for scripts & reports with a custom name defined
+* [#13096](https://github.com/netbox-community/netbox/issues/13096) - Hide scheduling fields for all scripts with scheduling disabled
+* [#13105](https://github.com/netbox-community/netbox/issues/13105) - Fix exception when attempting to allocate next available IP address from prefix marked as utilized
+* [#13116](https://github.com/netbox-community/netbox/issues/13116) - Catch ProgrammingError exception when starting NetBox without pre-populated content types
 
 ---
 

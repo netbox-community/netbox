@@ -98,8 +98,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         {
             'content_types': ['dcim.site'],
             'name': 'cf6',
-            'type': 'select',
-            'choices': ['A', 'B', 'C']
+            'type': 'text',
         },
     ]
     bulk_update_data = {
@@ -132,6 +131,58 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         CustomField.objects.bulk_create(custom_fields)
         for cf in custom_fields:
             cf.content_types.add(site_ct)
+
+
+class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
+    model = CustomFieldChoiceSet
+    brief_fields = ['choices_count', 'display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'name': 'Choice Set 4',
+            'extra_choices': [
+                ['4A', 'Choice 1'],
+                ['4B', 'Choice 2'],
+                ['4C', 'Choice 3'],
+            ],
+        },
+        {
+            'name': 'Choice Set 5',
+            'extra_choices': [
+                ['5A', 'Choice 1'],
+                ['5B', 'Choice 2'],
+                ['5C', 'Choice 3'],
+            ],
+        },
+        {
+            'name': 'Choice Set 6',
+            'extra_choices': [
+                ['6A', 'Choice 1'],
+                ['6B', 'Choice 2'],
+                ['6C', 'Choice 3'],
+            ],
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    update_data = {
+        'name': 'Choice Set X',
+        'extra_choices': [
+            ['X1', 'Choice 1'],
+            ['X2', 'Choice 2'],
+            ['X3', 'Choice 3'],
+        ],
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        choice_sets = (
+            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['1A', '1B', '1C', '1D', '1E']),
+            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['2A', '2B', '2C', '2D', '2E']),
+            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
+        )
+        CustomFieldChoiceSet.objects.bulk_create(choice_sets)
 
 
 class CustomLinkTest(APIViewTestCases.APIViewTestCase):

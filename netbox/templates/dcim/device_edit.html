@@ -1,12 +1,13 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block form %}
     {% render_errors form %}
     
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Device</h5>
+        <h5 class="offset-sm-3">{% trans "Device" %}</h5>
       </div>
       {% render_field form.name %}
       {% render_field form.device_role %}
@@ -16,7 +17,7 @@
     
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Hardware</h5>
+        <h5 class="offset-sm-3">{% trans "Hardware" %}</h5>
       </div>
       {% render_field form.device_type %}
       {% render_field form.airflow %}
@@ -26,7 +27,7 @@
     
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Location</h5>
+        <h5 class="offset-sm-3">{% trans "Location" %}</h5>
       </div>
       {% render_field form.site %}
       {% render_field form.location %}
@@ -34,18 +35,18 @@
 
       {% if object.device_type.is_child_device and object.parent_bay %}
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Parent Device</label>
+          <label class="col-sm-3 col-form-label">{% trans "Parent Device" %}</label>
           <div class="col">
             <input class="form-control" value="{{ object.parent_bay.device }}" disabled />
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-3 col-form-label">Parent Bay</label>
+          <label class="col-sm-3 col-form-label">{% trans "Parent Bay" %}</label>
           <div class="col">
             <div class="input-group">
               <input class="form-control" value="{{ object.parent_bay.name }}" disabled />
-              <a href="{% url 'dcim:devicebay_depopulate' pk=object.parent_bay.pk %}" title="Regenerate Slug" class="btn btn-danger d-inline-flex align-items-center">
-                <i class="mdi mdi-close-thick"></i>&nbsp;Remove
+              <a href="{% url 'dcim:devicebay_depopulate' pk=object.parent_bay.pk %}" title="{% trans "Regenerate Slug" %}" class="btn btn-danger d-inline-flex align-items-center">
+                <i class="mdi mdi-close-thick"></i>&nbsp;{% trans "Remove" %}
               </a>
             </div>
             </div>
@@ -60,7 +61,7 @@
     
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Management</h5>
+        <h5 class="offset-sm-3">{% trans "Management" %}</h5>
       </div>
       {% render_field form.status %}
       {% render_field form.platform %}
@@ -68,19 +69,20 @@
       {% if object.pk %}
         {% render_field form.primary_ip4 %}
         {% render_field form.primary_ip6 %}
+        {% render_field form.oob_ip %}
       {% endif %}
     </div>
     
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Virtualization</h5>
+        <h5 class="offset-sm-3">{% trans "Virtualization" %}</h5>
       </div>
       {% render_field form.cluster %}
     </div>
     
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Tenancy</h5>
+        <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
       </div>
       {% render_field form.tenant_group %}
       {% render_field form.tenant %}
@@ -88,7 +90,7 @@
 
     <div class="field-group my-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Virtual Chassis</h5>
+        <h5 class="offset-sm-3">{% trans "Virtual Chassis" %}</h5>
       </div>
       {% render_field form.virtual_chassis %}
       {% render_field form.vc_position %}
@@ -98,14 +100,14 @@
     {% if form.custom_fields %}
       <div class="field-group my-5">
         <div class="row mb-2">
-          <h5 class="offset-sm-3">Custom Fields</h5>
+          <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
         </div>
         {% render_custom_fields form %}
       </div>
     {% endif %}
 
     <div class="field-group my-5">
-      <h5 class="text-center">Local Config Context Data</h5>
+      <h5 class="text-center">{% trans "Local Config Context Data" %}</h5>
       {% render_field form.local_context_data %}
     </div>
 

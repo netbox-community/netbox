@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelFilterSetForm
@@ -84,7 +84,7 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = ContactAssignment
     fieldsets = (
         (None, ('q', 'filter_id')),
-        ('Assignment', ('content_type_id', 'group_id', 'contact_id', 'role_id', 'priority')),
+        (_('Assignment'), ('content_type_id', 'group_id', 'contact_id', 'role_id', 'priority')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
@@ -108,6 +108,7 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
         label=_('Role')
     )
     priority = forms.MultipleChoiceField(
+        label=_('Priority'),
         choices=ContactPriorityChoices,
         required=False
     )

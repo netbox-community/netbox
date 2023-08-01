@@ -43,28 +43,34 @@ class Job(models.Model):
         for_concrete_model=False
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=200
     )
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     scheduled = models.DateTimeField(
+        verbose_name=_('scheduled'),
         null=True,
         blank=True
     )
     interval = models.PositiveIntegerField(
+        verbose_name=_('interval'),
         blank=True,
         null=True,
         validators=(
             MinValueValidator(1),
         ),
-        help_text=_("Recurrence interval (in minutes)")
+        help_text=_('Recurrence interval (in minutes)')
     )
     started = models.DateTimeField(
+        verbose_name=_('started'),
         null=True,
         blank=True
     )
     completed = models.DateTimeField(
+        verbose_name=_('completed'),
         null=True,
         blank=True
     )
@@ -76,15 +82,18 @@ class Job(models.Model):
         null=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=30,
         choices=JobStatusChoices,
         default=JobStatusChoices.STATUS_PENDING
     )
     data = models.JSONField(
+        verbose_name=_('data'),
         null=True,
         blank=True
     )
     job_id = models.UUIDField(
+        verbose_name=_('job ID'),
         unique=True
     )
 

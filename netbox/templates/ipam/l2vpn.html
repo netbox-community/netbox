@@ -2,32 +2,33 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">L2VPN Attributes</h5>
+      <h5 class="card-header">{% trans "L2VPN Attributes" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Identifier</th>
+            <th scope="row">{% trans "Identifier" %}</th>
             <td>{{ object.identifier|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Type</th>
+            <th scope="row">{% trans "Type" %}</th>
             <td>{{ object.get_type_display }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Tenant</th>
+            <th scope="row">{% trans "Tenant" %}</th>
             <td>{{ object.tenant|linkify|placeholder }}</td>
           </tr>
         </table>
@@ -53,7 +54,7 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Terminations</h5>
+      <h5 class="card-header">{% trans "Terminations" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'ipam:l2vpntermination_list' %}?l2vpn_id={{ object.pk }}"
         hx-trigger="load"
@@ -61,7 +62,7 @@
       {% if perms.ipam.add_l2vpntermination %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'ipam:l2vpntermination_add' %}?l2vpn={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm{% if not object.can_add_termination %} disabled" aria-disabled="true{% endif %}">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add a Termination
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
           </a>
         </div>
       {% endif %}
