@@ -1,6 +1,6 @@
 from extras import filtersets, models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, ObjectType
+from netbox.graphql.types import BaseObjectType, ObjectType, OrganizationalObjectType
 
 __all__ = (
     'ConfigContextType',
@@ -106,7 +106,7 @@ class TagType(ObjectType):
         filterset_class = filtersets.TagFilterSet
 
 
-class WebhookType(ObjectType):
+class WebhookType(OrganizationalObjectType):
 
     class Meta:
         model = models.Webhook

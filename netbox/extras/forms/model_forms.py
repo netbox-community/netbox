@@ -214,7 +214,7 @@ class BookmarkForm(BootstrapMixin, forms.ModelForm):
         fields = ('object_type', 'object_id')
 
 
-class WebhookForm(BootstrapMixin, forms.ModelForm):
+class WebhookForm(NetBoxModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
         queryset=ContentType.objects.all(),
@@ -222,7 +222,7 @@ class WebhookForm(BootstrapMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Webhook'), ('name', 'content_types', 'enabled')),
+        (_('Webhook'), ('name', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('HTTP Request'), (
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',

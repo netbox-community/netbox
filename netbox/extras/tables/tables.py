@@ -297,13 +297,16 @@ class WebhookTable(NetBoxTable):
     ssl_validation = columns.BooleanColumn(
         verbose_name=_('SSL Validation')
     )
+    tags = columns.TagColumn(
+        url_name='extras:webhook_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Webhook
         fields = (
             'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
-            'created', 'last_updated',
+            'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
