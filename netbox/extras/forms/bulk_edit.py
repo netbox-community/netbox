@@ -3,6 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.models import *
+from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import BulkEditForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelChoiceField
 from utilities.forms.widgets import BulkEditNullBooleanSelect
@@ -165,7 +166,9 @@ class SavedFilterBulkEditForm(BulkEditForm):
     nullable_fields = ('description',)
 
 
-class WebhookBulkEditForm(BulkEditForm):
+class WebhookBulkEditForm(NetBoxModelBulkEditForm):
+    model = Webhook
+
     pk = forms.ModelMultipleChoiceField(
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -222,6 +225,10 @@ class WebhookBulkEditForm(BulkEditForm):
         required=False,
         label=_('CA file path')
     )
+
+    add_tags = None
+
+    remove_tags = None
 
     nullable_fields = ('secret', 'conditions', 'ca_file_path')
 

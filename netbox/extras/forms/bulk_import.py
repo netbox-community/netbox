@@ -140,13 +140,15 @@ class SavedFilterImportForm(CSVModelForm):
         )
 
 
-class WebhookImportForm(CSVModelForm):
+class WebhookImportForm(NetBoxModelImportForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks'),
         help_text=_("One or more assigned object types")
     )
+
+    tags = None
 
     class Meta:
         model = Webhook

@@ -106,7 +106,7 @@ class TagType(ObjectType):
         filterset_class = filtersets.TagFilterSet
 
 
-class WebhookType(ObjectType):
+class WebhookType(CustomFieldsMixin, ObjectType):
 
     class Meta:
         model = models.Webhook

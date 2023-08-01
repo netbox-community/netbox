@@ -18,7 +18,7 @@ from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
-from netbox.api.serializers.features import TaggableModelSerializer
+from netbox.api.serializers.features import CustomFieldModelSerializer, TaggableModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
@@ -61,7 +61,7 @@ __all__ = (
 # Webhooks
 #
 
-class WebhookSerializer(ValidatedModelSerializer):
+class WebhookSerializer(CustomFieldModelSerializer, ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:webhook-detail')
     content_types = ContentTypeField(
         queryset=ContentType.objects.filter(FeatureQuery('webhooks').get_query()),
@@ -74,7 +74,7 @@ class WebhookSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'payload_url', 'enabled', 'http_method', 'http_content_type',
             'additional_headers', 'body_template', 'secret', 'conditions', 'ssl_verification', 'ca_file_path',
-            'created', 'last_updated',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 

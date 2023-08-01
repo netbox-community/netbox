@@ -16,7 +16,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-from .mixins import SavedFiltersMixin
+from .mixins import *
 
 __all__ = (
     'ConfigContextFilterForm',
@@ -219,7 +219,9 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class WebhookFilterForm(SavedFiltersMixin, FilterForm):
+class WebhookFilterForm(CustomFieldsMixin, SavedFiltersMixin, FilterForm):
+    model = Webhook
+
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Attributes'), ('content_type_id', 'http_method', 'enabled')),
