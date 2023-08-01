@@ -106,9 +106,6 @@ class ContactAssignmentImportForm(NetBoxModelImportForm):
         help_text=_('Assigned role')
     )
 
-    # Remove the tags field added by NetBoxModelImportForm (unsupported by ContactAssignment)
-    tags = None
-
     class Meta:
         model = ContactAssignment
         fields = ('content_type', 'object_id', 'contact', 'priority', 'role')

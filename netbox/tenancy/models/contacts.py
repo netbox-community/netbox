@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
+from netbox.models.features import TagsMixin
 from tenancy.choices import *
 
 __all__ = (
@@ -99,7 +100,7 @@ class Contact(PrimaryModel):
         return reverse('tenancy:contact', args=[self.pk])
 
 
-class ContactAssignment(ChangeLoggedModel):
+class ContactAssignment(ChangeLoggedModel, TagsMixin):
     content_type = models.ForeignKey(
         to=ContentType,
         on_delete=models.CASCADE

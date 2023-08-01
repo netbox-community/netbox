@@ -104,8 +104,8 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
     class Meta:
         model = ContactAssignment
         fields = [
-            'id', 'url', 'display', 'content_type', 'object_id', 'object', 'contact', 'role', 'priority', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'content_type', 'object_id', 'object', 'contact', 'role', 'priority', 'tags',
+            'created', 'last_updated',
         ]
 
     @extend_schema_field(OpenApiTypes.OBJECT)
