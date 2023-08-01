@@ -272,6 +272,7 @@ nav:
         - Web UI: 'development/web-ui.md'
         - Release Checklist: 'development/release-checklist.md'
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
+        - internationalization: 'development/internationalization.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
         - Version 3.6: 'release-notes/version-3.6.md'
