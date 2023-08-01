@@ -2,10 +2,6 @@
 # https://github.com/mozilla/bleach/blob/main/CHANGES
 bleach
 
-# Python client for Amazon AWS API
-# https://github.com/boto/boto3/blob/develop/CHANGELOG.rst
-boto3
-
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
 Django<5.0
@@ -73,10 +69,6 @@ drf-spectacular
 # Serve self-contained distribution builds of Swagger UI and Redoc with Django.
 # https://github.com/tfranzel/drf-spectacular-sidecar
 drf-spectacular-sidecar
-
-# Git client for file sync
-# https://github.com/jelmer/dulwich/releases
-dulwich
 
 # RSS feed parser
 # https://github.com/kurtmckee/feedparser/blob/develop/CHANGELOG.rst
