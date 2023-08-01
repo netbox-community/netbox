@@ -1,5 +1,7 @@
 # Bookmarks
 
+!!! info "This feature was introduced in NetBox v3.6."
+
 A user can bookmark individual objects for convenient access. Bookmarks are listed under a user's profile and can be displayed using a dashboard widget.
 
 ## Fields

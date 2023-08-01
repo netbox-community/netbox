@@ -671,8 +671,6 @@ This header specifies the API version in use. This will always match the version
 
 ### `X-Request-ID`
 
-!!! info "This feature was introduced in NetBox v3.5."
-
 This header specifies the unique ID assigned to the received API request. It can be very handy for correlating a request with change records. For example, after creating several new objects, you can filter against the object changes API endpoint to retrieve the resulting change records:
 
 ```

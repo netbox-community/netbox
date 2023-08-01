@@ -1,7 +1,5 @@
 # Configuration Rendering
 
-!!! info "This feature was introduced in NetBox v3.5."
-
 One of the critical aspects of operating a network is ensuring that every network node is configured correctly. By leveraging configuration templates and [context data](./context-data.md), NetBox can render complete configuration files for each device on your network.
 
 ```mermaid
