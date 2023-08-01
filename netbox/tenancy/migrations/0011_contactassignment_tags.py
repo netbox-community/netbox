@@ -7,7 +7,7 @@ import taggit.managers
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0092_delete_jobresult'),
+        ('extras', '0097_customfield_remove_choices'),
         ('tenancy', '0010_tenant_relax_uniqueness'),
     ]
 
