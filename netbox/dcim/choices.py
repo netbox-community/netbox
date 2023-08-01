@@ -977,6 +977,7 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_CFP, 'CFP (100GE)'),
                 (TYPE_100GE_CFP2, 'CFP2 (100GE)'),
                 (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
+                (TYPE_400GE_CFP2, 'CFP2 (400GE)'),
                 (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
                 (TYPE_100GE_CXP, 'CXP (100GE)'),
                 (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
