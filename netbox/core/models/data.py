@@ -105,6 +105,10 @@ class DataSource(JobsMixin, PrimaryModel):
         return urlparse(self.source_url).scheme.lower()
 
     @property
+    def backend_class(self):
+        return registry['data_backends'].get(self.type)
+
+    @property
     def is_local(self):
         return self.type == DataSourceTypeChoices.LOCAL
 
@@ -139,17 +143,15 @@ class DataSource(JobsMixin, PrimaryModel):
         )
 
     def get_backend(self):
-        backend_cls = registry['data_backends'].get(self.type)
         backend_params = self.parameters or {}
-
-        return backend_cls(self.source_url, **backend_params)
+        return self.backend_class(self.source_url, **backend_params)
 
     def sync(self):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
         if self.status == DataSourceStatusChoices.SYNCING:
-            raise SyncError(f"Cannot initiate sync; syncing already in progress.")
+            raise SyncError("Cannot initiate sync; syncing already in progress.")
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
@@ -158,7 +160,12 @@ class DataSource(JobsMixin, PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Replicate source data locally
-        backend = self.get_backend()
+        try:
+            backend = self.get_backend()
+        except ModuleNotFoundError as e:
+            raise SyncError(
+                f"There was an error initializing the backend. A dependency needs to be installed: {e}"
+            )
         with backend.fetch() as local_path:
 
             logger.debug(f'Syncing files from source root {local_path}')

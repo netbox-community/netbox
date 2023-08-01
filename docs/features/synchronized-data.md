@@ -12,6 +12,10 @@ To enable remote data synchronization, the NetBox administrator first designates
 
 (Local disk paths are considered "remote" in this context as they exist outside NetBox's database. These paths could also be mapped to external network shares.)
 
+
+!!! info
+    Data backends which connect to external sources typically require the installation of one or more supporting Python libraries. The Git backend requires the [`dulwich`](https://www.dulwich.io/) package, and the S3 backend requires the [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) package. These must be installed within NetBox's environment to enable these backends.
+
 Each type of remote source has its own configuration parameters. For instance, a git source will ask the user to specify a branch and authentication credentials. Once the source has been created, a synchronization job is run to automatically replicate remote files in the local database.
 
 The following NetBox models can be associated with replicated data files:
