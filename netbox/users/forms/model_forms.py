@@ -229,25 +229,6 @@ class UserForm(BootstrapMixin, forms.ModelForm):
         if self.cleaned_data['password'] and self.cleaned_data['password'] != self.cleaned_data['confirm_password']:
             raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
 
-    # TODO: Move this logic to the NetBoxUser class
-    def clean_username(self):
-        """Reject usernames that differ only in case."""
-        instance = getattr(self, 'instance', None)
-        if instance:
-            qs = self._meta.model.objects.exclude(pk=instance.pk)
-        else:
-            qs = self._meta.model.objects.all()
-
-        username = self.cleaned_data.get("username")
-        if (
-            username and qs.filter(username__iexact=username).exists()
-        ):
-            raise forms.ValidationError(
-                _("user with this username already exists")
-            )
-
-        return username
-
 
 class GroupForm(BootstrapMixin, forms.ModelForm):
     users = DynamicModelMultipleChoiceField(

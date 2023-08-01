@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import Group, GroupManager, User, UserManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
@@ -54,6 +55,14 @@ class NetBoxUser(User):
 
     def get_absolute_url(self):
         return reverse('users:netboxuser', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Check for any existing Users with names that differ only in case
+        model = self._meta.model
+        if model.objects.exclude(pk=self.pk).filter(username__iexact=self.username).exists():
+            raise ValidationError(_("A user with this username already exists."))
 
 
 class NetBoxGroup(Group):
