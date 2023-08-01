@@ -53,8 +53,11 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#8137](https://github.com/netbox-community/netbox/issues/8137) - Add a field for designating the out-of-band (OOB) IP address for devices
 * [#10197](https://github.com/netbox-community/netbox/issues/10197) - Cache the number of member devices on each virtual chassis
 * [#11305](https://github.com/netbox-community/netbox/issues/11305) - Add GPS coordinate fields to the device model
+* [#11732](https://github.com/netbox-community/netbox/issues/11732) - Prevent inadvertent overwriting of object attributes by competing users
+* [#11936](https://github.com/netbox-community/netbox/issues/11936) - Introduce support for tags and custom fields on webhooks
 * [#12175](https://github.com/netbox-community/netbox/issues/12175) - Permit racks to start numbering at values greater than one
 * [#12210](https://github.com/netbox-community/netbox/issues/12210) - Add tenancy assignment for power feeds
+* [#12882](https://github.com/netbox-community/netbox/issues/12882) - Add tag support for contact assignments
 * [#13170](https://github.com/netbox-community/netbox/issues/13170) - Add `rf_role` to InterfaceTemplate
 * [#13269](https://github.com/netbox-community/netbox/issues/13269) - Cache the number of assigned component templates for device types
 
@@ -68,3 +71,4 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#12794](https://github.com/netbox-community/netbox/issues/12794) - Avoid direct imports of Django's stock user model
 * [#12320](https://github.com/netbox-community/netbox/issues/12320) - Remove obsolete fields `napalm_driver` and `napalm_args` from Platform
 * [#12964](https://github.com/netbox-community/netbox/issues/12964) - Drop support for PostgreSQL 11
+* [#13309](https://github.com/netbox-community/netbox/issues/13309) - User account-specific resources have been moved to a new `account` app for better organization
