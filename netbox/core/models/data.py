@@ -163,7 +163,9 @@ class DataSource(JobsMixin, PrimaryModel):
         try:
             backend = self.get_backend()
         except ModuleNotFoundError as e:
-            raise SyncError(f"There was an error initializing the backend: {e}")
+            raise SyncError(
+                f"There was an error initializing the backend. A dependency needs to be installed: {e}"
+            )
         with backend.fetch() as local_path:
 
             logger.debug(f'Syncing files from source root {local_path}')
