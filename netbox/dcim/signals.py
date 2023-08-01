@@ -95,7 +95,11 @@ def update_connected_endpoints(instance, created, raw=False, **kwargs):
             if not nodes:
                 continue
             if isinstance(nodes[0], PathEndpoint):
-                create_cablepath(nodes)
+                try:
+                    create_cablepath(nodes)
+                except AssertionError:
+                    # This is likely an unsupported path.  Catch the assertion error and don't save the path
+                    logger.error(f'Unsupported path from nodes: {[node.name for node in nodes].join(",")}')
             else:
                 rebuild_paths(nodes)
 

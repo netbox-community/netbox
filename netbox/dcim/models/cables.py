@@ -478,7 +478,10 @@ class CablePath(models.Model):
         Cable or WirelessLink connects (interfaces, console ports, circuit termination, etc.). All terminations must be
         of the same type and must belong to the same parent object.
         """
+        import logging
         from circuits.models import CircuitTermination
+
+        logger = logging.getLogger('netbox.dcim.cablepath')
 
         if not terminations:
             return None
@@ -558,6 +561,7 @@ class CablePath(models.Model):
                     pk__in=[t.rear_port_id for t in remote_terminations]
                 )
                 if len(rear_ports) > 1:
+                    logger.warning(f'All rear-port positions do not match.  Cannot continue path trace.')
                     assert all(rp.positions == 1 for rp in rear_ports)
                 elif rear_ports[0].positions > 1:
                     position_stack.append([fp.rear_port_position for fp in remote_terminations])

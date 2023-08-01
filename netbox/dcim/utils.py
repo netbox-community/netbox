@@ -49,7 +49,10 @@ def rebuild_paths(terminations):
     """
     Rebuild all CablePaths which traverse the specified nodes.
     """
+    import logging
     from dcim.models import CablePath
+
+    logger = logging.getLogger('netbox.dcim.cable')
 
     for obj in terminations:
         cable_paths = CablePath.objects.filter(_nodes__contains=obj)
@@ -57,4 +60,9 @@ def rebuild_paths(terminations):
         with transaction.atomic():
             for cp in cable_paths:
                 cp.delete()
-                create_cablepath(cp.origins)
+                try:
+                    create_cablepath(cp.origins)
+                except AssertionError:
+                    # This is likely an unsupported path.  Catch the assertion error and don't save the path
+                    logger.error(f'Unsupported path from cable path: {cp._nodes}')
+                    pass
