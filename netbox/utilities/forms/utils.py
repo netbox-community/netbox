@@ -74,10 +74,10 @@ def parse_alphanumeric_range(string):
                 # Not a valid range (more than a single character)
                 if not len(begin) == len(end) == 1:
                     raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-                
+
                 if ord(begin) > ord(end):
                     raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-                
+
                 for n in list(range(ord(begin), ord(end) + 1)):
                     values.append(chr(n))
     return values
