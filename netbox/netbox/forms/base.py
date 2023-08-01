@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
 from extras.models import CustomField, Tag
-from utilities.forms import BootstrapMixin, CSVModelForm
+from utilities.forms import BootstrapMixin, CSVModelForm, CheckLastUpdatedMixin
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 
 __all__ = (
@@ -17,7 +17,7 @@ __all__ = (
 )
 
 
-class NetBoxModelForm(BootstrapMixin, CustomFieldsMixin, forms.ModelForm):
+class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, forms.ModelForm):
     """
     Base form for creating & editing NetBox models. Extends Django's ModelForm to add support for custom fields.
 
