@@ -143,7 +143,8 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     )
     tags = DynamicModelMultipleChoiceField(
         queryset=Tag.objects.all(),
-        required=False
+        required=False,
+        label=_('Tags')
     )
 
     class Meta:
