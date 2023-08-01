@@ -226,10 +226,6 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         label=_('CA file path')
     )
 
-    add_tags = None
-
-    remove_tags = None
-
     nullable_fields = ('secret', 'conditions', 'ca_file_path')
 
 

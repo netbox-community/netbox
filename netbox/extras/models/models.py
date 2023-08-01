@@ -39,7 +39,7 @@ __all__ = (
 )
 
 
-class Webhook(CustomFieldsMixin, ExportTemplatesMixin, ChangeLoggedModel):
+class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     """
     A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.

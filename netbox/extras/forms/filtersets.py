@@ -219,11 +219,12 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     )
 
 
-class WebhookFilterForm(CustomFieldsMixin, SavedFiltersMixin, FilterForm):
+class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
+    tag = TagFilterField(model)
 
     fieldsets = (
-        (None, ('q', 'filter_id')),
+        (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('content_type_id', 'http_method', 'enabled')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )

@@ -34,7 +34,7 @@ __all__ = (
 )
 
 
-class WebhookFilterSet(BaseFilterSet):
+class WebhookFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
