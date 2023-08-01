@@ -151,7 +151,7 @@ class DataSource(JobsMixin, PrimaryModel):
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
         if self.status == DataSourceStatusChoices.SYNCING:
-            raise SyncError(f"Cannot initiate sync; syncing already in progress.")
+            raise SyncError("Cannot initiate sync; syncing already in progress.")
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
@@ -160,7 +160,10 @@ class DataSource(JobsMixin, PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Replicate source data locally
-        backend = self.get_backend()
+        try:
+            backend = self.get_backend()
+        except ModuleNotFoundError as e:
+            raise SyncError(f"There was an error initializing the backend: {e}")
         with backend.fetch() as local_path:
 
             logger.debug(f'Syncing files from source root {local_path}')

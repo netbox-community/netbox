@@ -54,13 +54,6 @@ class DataBackend:
         """
         return
 
-    def handle_missing_dependency(self, e):
-        """
-        Hook for handling exceptions related to the attempted import of missing modules. Returns an exception
-        to be raised.
-        """
-        return e
-
     @property
     def url_scheme(self):
         return urlparse(self.url).scheme.lower()
@@ -105,10 +98,7 @@ class GitBackend(DataBackend):
     sensitive_parameters = ['password']
 
     def init_config(self):
-        try:
-            from dulwich.config import ConfigDict
-        except ModuleNotFoundError as e:
-            raise self.handle_missing_dependency(e)
+        from dulwich.config import ConfigDict
 
         # Initialize backend config
         config = ConfigDict()
@@ -120,18 +110,9 @@ class GitBackend(DataBackend):
 
         return config
 
-    def handle_missing_dependency(self, e):
-        return ImportError(_(
-            "Unable to initialize the git data backend: dulwich library is not installed. Run 'pip install dulwich' "
-            "within the NetBox Python environment to install it."
-        ))
-
     @contextmanager
     def fetch(self):
-        try:
-            from dulwich import porcelain
-        except ModuleNotFoundError as e:
-            raise self.handle_missing_dependency(e)
+        from dulwich import porcelain
 
         local_path = tempfile.TemporaryDirectory()
 
@@ -179,28 +160,16 @@ class S3Backend(DataBackend):
     REGION_REGEX = r's3\.([a-z0-9-]+)\.amazonaws\.com'
 
     def init_config(self):
-        try:
-            from botocore.config import Config as Boto3Config
-        except ModuleNotFoundError as e:
-            raise self.handle_missing_dependency(e)
+        from botocore.config import Config as Boto3Config
 
         # Initialize backend config
         return Boto3Config(
             proxies=settings.HTTP_PROXIES,
         )
 
-    def handle_missing_dependency(self, e):
-        return ImportError(_(
-            "Unable to initialize the Amazon S3 backend: boto3 library is not installed. Run 'pip install boto3' "
-            "within the NetBox Python environment to install it."
-        ))
-
     @contextmanager
     def fetch(self):
-        try:
-            import boto3
-        except ModuleNotFoundError as e:
-            raise self.handle_missing_dependency(e)
+        import boto3
 
         local_path = tempfile.TemporaryDirectory()
 
