@@ -18,7 +18,7 @@ from extras.utils import FeatureQuery
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
-from netbox.api.serializers.features import CustomFieldModelSerializer, TaggableModelSerializer
+from netbox.api.serializers.features import TaggableModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
