@@ -386,3 +386,40 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
             user.groups.add(*group_list)
         else:
             logger.info(f"No valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?")
+
+
+class AuthFailed(Exception):
+    pass
+
+
+def azure_map_groups(response, user, backend, *args, **kwargs):
+    '''
+    Assign user to netbox group matching role
+    Also set is_superuser or is_staff for special roles 'superusers' and 'staff'
+    '''
+    print(f"response: {response}")
+    return
+    try:
+        roles = response['roles']
+    except KeyError:
+        user.groups.clear()
+        raise AuthFailed("No role assigned")
+
+    try:
+        user.is_superuser = False
+        user.is_staff = False
+
+        for role in roles:
+            if role == 'superusers':
+                user.is_superuser = True
+                user.save()
+                continue
+            if role == "staff":
+                user.is_staff = True
+                user.save()
+                continue
+
+            group, created = Group.objects.get_or_create(name=role)
+            group.user_set.add(user)
+    except Group.DoesNotExist:
+        pass
