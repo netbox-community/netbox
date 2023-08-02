@@ -4,6 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
+from django.db.models.functions import Cast
 from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
@@ -11,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
+from ipam.lookups import Host
 from ipam.managers import IPAddressManager
 from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
@@ -778,6 +780,9 @@ class IPAddress(PrimaryModel):
 
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
+        indexes = [
+            models.Index(Cast(Host('address'), output_field=IPAddressField()), name='ipam_ipaddress_host'),
+        ]
         verbose_name = 'IP address'
         verbose_name_plural = 'IP addresses'
 
