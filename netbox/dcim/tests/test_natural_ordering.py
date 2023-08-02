@@ -13,7 +13,7 @@ class NaturalOrderingTestCase(TestCase):
         devicetype = DeviceType.objects.create(
             manufacturer=manufacturer, model='Test Device Type 1', slug='test-device-type-1'
         )
-        role= DeviceRole.objects.create(
+        role = DeviceRole.objects.create(
             name='Test Device Role 1', slug='test-device-role-1', color='ff0000'
         )
         Device.objects.create(
