@@ -9,7 +9,7 @@ router.APIRootView = views.ExtrasRootView
 
 router.register('webhooks', views.WebhookViewSet)
 router.register('custom-fields', views.CustomFieldViewSet)
-router.register('custom-field-choices', views.CustomFieldChoiceSetViewSet)
+router.register('custom-field-choice-sets', views.CustomFieldChoiceSetViewSet)
 router.register('custom-links', views.CustomLinkViewSet)
 router.register('export-templates', views.ExportTemplateViewSet)
 router.register('saved-filters', views.SavedFilterViewSet)
