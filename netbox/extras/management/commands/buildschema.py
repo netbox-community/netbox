@@ -1,6 +1,7 @@
 from os import path as os_path
-from jinja2 import FileSystemLoader, Environment
 from json import dumps as json_dumps
+from json import loads as json_loads
+from jinja2 import FileSystemLoader, Environment
 
 from django.core.management.base import BaseCommand
 
@@ -17,7 +18,19 @@ from dcim.choices import WeightUnitChoices
 class Command(BaseCommand):
     help = "Generate the NetBox validation schemas."
 
-    def handle(self, *args, **options):
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--console',
+            action='store_true',
+            help="Print the generated schema to stdout"
+        )
+        parser.add_argument(
+            '--file',
+            action='store_true',
+            help="Print the generated schema to the generated file"
+        )
+
+    def handle(self, *args, **kwargs):
         schemas = {}
         schemas["airflow_choices"] = json_dumps(DeviceAirflowChoices.values())
         schemas["weight_unit_choices"] = json_dumps(WeightUnitChoices.values())
@@ -33,8 +46,15 @@ class Command(BaseCommand):
 
         template_loader = FileSystemLoader(searchpath=f'{os_path.dirname(__file__)}/../templates')
         template_env = Environment(loader=template_loader)
-        TEMPLATE_FILE = 'generated_schema.j2'
+        TEMPLATE_FILE = 'generated_schema.json.j2'
         template = template_env.get_template(TEMPLATE_FILE)
         outputText = template.render(schemas=schemas)
 
-        print(outputText)
+        if kwargs['console']:
+            print(json_dumps(json_loads(outputText), indent=4))
+
+        if kwargs['file']:
+            print()
+            with open(f'{os_path.dirname(__file__)}/../../../../contrib/generated_schema.json', 'w') as generated_json_file:
+                generated_json_file.write(json_dumps(json_loads(outputText), indent=4))
+                generated_json_file.close()
