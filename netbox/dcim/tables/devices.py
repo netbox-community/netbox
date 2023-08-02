@@ -1,7 +1,6 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
-from django.utils.translation import gettext as _
 
 from dcim import models
 from netbox.tables import NetBoxTable, columns
@@ -18,7 +17,6 @@ __all__ = (
     'DeviceConsoleServerPortTable',
     'DeviceDeviceBayTable',
     'DeviceFrontPortTable',
-    'DeviceImportTable',
     'DeviceInterfaceTable',
     'DeviceInventoryItemTable',
     'DeviceModuleBayTable',
@@ -295,36 +293,6 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
             'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'role', 'manufacturer', 'device_type',
             'primary_ip',
         )
-
-
-class DeviceImportTable(TenancyColumnsMixin, NetBoxTable):
-    name = tables.TemplateColumn(
-        verbose_name=_('Name'),
-        template_code=DEVICE_LINK,
-        linkify=True
-    )
-    status = columns.ChoiceFieldColumn(
-        verbose_name=_('Status'),
-    )
-    site = tables.Column(
-        verbose_name=_('Site'),
-        linkify=True
-    )
-    rack = tables.Column(
-        verbose_name=_('Rack'),
-        linkify=True
-    )
-    role = tables.Column(
-        verbose_name=_('Role')
-    )
-    device_type = tables.Column(
-        verbose_name=_('Type')
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = models.Device
-        fields = ('id', 'name', 'status', 'tenant', 'tenant_group', 'site', 'rack', 'position', 'role', 'device_type')
-        empty_text = False
 
 
 #
