@@ -459,6 +459,12 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'u_height': [42, 43]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_starting_unit(self):
+        params = {'starting_unit': [1]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'starting_unit': [2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
     def test_desc_units(self):
         params = {'desc_units': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

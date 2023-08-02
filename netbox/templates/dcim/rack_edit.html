@@ -39,6 +39,7 @@
         </div>
         {% render_field form.type %}
         {% render_field form.width %}
+        {% render_field form.starting_unit %}
         {% render_field form.u_height %}
         <div class="row mb-3">
             <label class="col col-md-3 col-form-label text-lg-end">{% trans "Outer Dimensions" %}</label>
@@ -72,7 +73,6 @@
         </div>
         {% render_field form.mounting_depth %}
         {% render_field form.desc_units %}
-        {% render_field form.starting_unit %}
     </div>
 
     {% if form.custom_fields %}
