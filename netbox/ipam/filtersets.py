@@ -591,6 +591,10 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         method='_assigned_to_interface',
         label=_('Is assigned to an interface'),
     )
+    assigned = django_filters.BooleanFilter(
+        method='_assigned',
+        label=_('Is assigned'),
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=IPAddressStatusChoices,
         null_value=None
@@ -704,6 +708,18 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             return queryset.exclude(
                 assigned_object_type__in=content_types,
                 assigned_object_id__isnull=False
+            )
+
+    def _assigned(self, queryset, name, value):
+        if value:
+            return queryset.exclude(
+                assigned_object_type__isnull=True,
+                assigned_object_id__isnull=True
+            )
+        else:
+            return queryset.filter(
+                assigned_object_type__isnull=True,
+                assigned_object_id__isnull=True
             )
 
 
