@@ -46,7 +46,9 @@
         </ul>
       </div>
       <small class="text-end text-muted">
-        {% blocktrans %}Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}{% endblocktrans %}
+        {% blocktrans with start=page.start_index end=page.end_index total=page.paginator.count %}
+          Showing {{ start }}-{{ end }} of {{ total }}
+        {% endblocktrans %}
       </small>
     {% endif %}
   </div>

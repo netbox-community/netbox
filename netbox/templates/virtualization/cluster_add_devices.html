@@ -5,7 +5,11 @@
 
 {% render_errors form %}
 
-{% block title %}{% blocktrans %}Add Device to Cluster {{ cluster }}{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% blocktrans %}
+    Add Device to Cluster {{ cluster }}
+  {% endblocktrans %}
+{% endblock %}
 
 {% block content %}
     <form action="." method="post">

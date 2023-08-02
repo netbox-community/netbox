@@ -7,7 +7,11 @@
     <h5 class="modal-title">{% trans "Confirm Deletion" %}</h5>
   </div>
   <div class="modal-body">
-    <p>{% blocktrans %}Are you sure you want to <strong class="text-danger">delete</strong> {{ object_type }} <strong>{{ object }}</strong>?{% endblocktrans %}</p>
+    <p>
+      {% blocktrans %}
+        Are you sure you want to <strong class="text-danger">delete</strong> {{ object_type }} <strong>{{ object }}</strong>?
+      {% endblocktrans %}
+    </p>
     {% render_form form %}
   </div>
   <div class="modal-footer">

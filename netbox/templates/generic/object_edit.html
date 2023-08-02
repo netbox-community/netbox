@@ -13,7 +13,13 @@ Context:
 {% endcomment %}
 
 {% block title %}
-  {% if object.pk %}{% blocktrans %}Editing {{ object|meta:"verbose_name" }} {{ object }}{% endblocktrans %}{% else %}{% blocktrans %}Add a new {{ object|meta:"verbose_name" }}{% endblocktrans %}{% endif %}
+  {% if object.pk %}
+    {% trans "Editing" %} {{ object|meta:"verbose_name" }} {{ object }}
+  {% else %}
+    {% blocktrans with object_type=object|meta:"verbose_name" %}
+      Add a new {{ object_type }}
+    {% endblocktrans %}
+  {% endif %}
 {% endblock title %}
 
 {% block tabs %}

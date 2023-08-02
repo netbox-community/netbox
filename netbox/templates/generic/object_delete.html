@@ -11,7 +11,9 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}{% blocktrans %}Delete {{ object|meta:"verbose_name" }}?{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% trans "Delete" %} {{ object|meta:"verbose_name" }}?
+{% endblock %}
 
 {% block header %}{% endblock %}
 

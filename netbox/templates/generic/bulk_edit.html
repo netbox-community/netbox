@@ -12,7 +12,9 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}{% blocktrans %}Editing {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% trans "Editing" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}
+{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">

@@ -2,7 +2,11 @@
 {% load helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktrans %}Cable Trace for {{ object|meta:"verbose_name"|bettertitle }} {{ object }}{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% blocktrans with object_type=object|meta:"verbose_name"|bettertitle %}
+    Cable Trace for {{ object_type }} {{ object }}
+  {% endblocktrans %}
+{% endblock %}
 
 {% block content %}
     <div class="row">

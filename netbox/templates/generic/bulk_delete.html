@@ -14,7 +14,9 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}{% blocktrans %}Delete {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?
+{% endblock %}
 
 {% block content %}
   <div class="container-md px-0">

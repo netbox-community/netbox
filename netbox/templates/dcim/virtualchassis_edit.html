@@ -3,7 +3,11 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktrans %}Editing Virtual Chassis {{ vc_form.instance }}{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% blocktrans with name=vc_form.instance %}
+    Editing Virtual Chassis {{ name }}
+  {% endblocktrans %}
+{% endblock %}
 
 {% block content-wrapper %}
   <div class="tab-content">

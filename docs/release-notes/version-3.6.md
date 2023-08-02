@@ -1,5 +1,13 @@
 # NetBox v3.6
 
+## v3.6-beta2 (FUTURE)
+
+### Bug Fixes
+
+* [#13351](https://github.com/netbox-community/netbox/issues/13351) - Fix missing text due to incorrectly applied translation tags
+
+---
+
 ## v3.6-beta1 (2023-08-02)
 
 ### Breaking Changes

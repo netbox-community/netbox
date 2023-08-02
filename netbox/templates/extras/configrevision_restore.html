@@ -9,7 +9,7 @@
 
 {% block subtitle %}
   <div class="object-subtitle">
-    <span>{% blocktrans %}Created {{ object.created|annotated_date }}{% endblocktrans %}</span>
+    <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
   </div>
 {% endblock %}
 

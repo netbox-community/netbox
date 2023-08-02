@@ -3,15 +3,25 @@
 {% load render_table from django_tables2 %}
 {% load i18n %}
 
-{% block title %}{% blocktrans %}Remove {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% trans "Remove" %} {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?
+{% endblock %}
 
 {% block content %}
 <div class="container-md px-0">
   <div class="alert alert-danger" role="alert">
     <h4 class="alert-heading">{% trans "Confirm Bulk Removal" %}</h4>
-    <p><strong>{% blocktrans %}Warning:</strong> The following operation will remove {{ table.rows|length }} {{ obj_type_plural }} from {{ parent_obj }}.{% endblocktrans %}</p>
+    <p>
+      {% blocktrans with count=table.rows|length %}
+        <strong>Warning:</strong> The following operation will remove {{ count }} {{ obj_type_plural }} from {{ parent_obj }}.
+      {% endblocktrans %}
+    </p>
     <hr />
-    <p class="mb-0">{% blocktrans %}Please carefully review the {{ obj_type_plural }} to be removed and confirm below.{% endblocktrans %}</p>
+    <p class="mb-0">
+      {% blocktrans %}
+        Please carefully review the {{ obj_type_plural }} to be removed and confirm below.
+      {% endblocktrans %}
+    </p>
   </div>
 </div>
 <div class="container-xl px-0">
@@ -24,7 +34,11 @@
       {{ field }}
     {% endfor %}
     <div class="text-center">
-      <button type="submit" name="_confirm" class="btn btn-danger">{% blocktrans %}Delete these {{ table.rows|length }} {{ obj_type_plural }}{% endblocktrans %}</button>
+      <button type="submit" name="_confirm" class="btn btn-danger">
+        {% blocktrans with count=table.rows|length %}
+          Delete these {{ count }} {{ obj_type_plural }}
+        {% endblocktrans %}
+      </button>
       <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
     </div>
   </form>

@@ -5,7 +5,11 @@
 {% block title %}{% trans "Disconnect" %} {{ obj_type_plural|bettertitle }}{% endblock %}
 
 {% block message %}
-    <p>{% blocktrans %}Are you sure you want to disconnect these {{ selected_objects|length }} {{ obj_type_plural }}?{% endblocktrans %}</p>
+    <p>
+      {% blocktrans with count=selected_objects|length %}
+        Are you sure you want to disconnect these {{ count }} {{ obj_type_plural }}?
+      {% endblocktrans %}
+    </p>
     <ul>
         {% for obj in selected_objects %}
             <li>{{ obj }}</li>
