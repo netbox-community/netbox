@@ -737,10 +737,10 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 
     class Meta(DeviceSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag',
-            'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow', 'primary_ip',
-            'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority',
-            'description', 'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context',
+            'id', 'url', 'display', 'name', 'device_type', 'role', 'device_role', 'tenant', 'platform', 'serial',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'description', 'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context',
             'config_template', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
             'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
             'device_bay_count', 'module_bay_count', 'inventory_item_count',
