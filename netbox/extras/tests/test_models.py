@@ -44,7 +44,7 @@ class ConfigContextTest(TestCase):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         region = Region.objects.create(name='Region')
         sitegroup = SiteGroup.objects.create(name='Site Group')
         site = Site.objects.create(name='Site 1', slug='site-1', region=region, group=sitegroup)
@@ -58,7 +58,7 @@ class ConfigContextTest(TestCase):
         Device.objects.create(
             name='Device 1',
             device_type=devicetype,
-            device_role=devicerole,
+            role=role,
             site=site,
             location=location
         )
@@ -252,7 +252,7 @@ class ConfigContextTest(TestCase):
             location=location,
             tenant=tenant,
             platform=platform,
-            device_role=DeviceRole.objects.first(),
+            role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first()
         )
         device.tags.add(tag)
@@ -382,7 +382,7 @@ class ConfigContextTest(TestCase):
             site=site,
             tenant=tenant,
             platform=platform,
-            device_role=DeviceRole.objects.first(),
+            role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first()
         )
         device.tags.set(tags)
@@ -430,7 +430,7 @@ class ConfigContextTest(TestCase):
             site=site,
             tenant=tenant,
             platform=platform,
-            device_role=DeviceRole.objects.first(),
+            role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first()
         )
         device.tags.set([tag1, tag2])

@@ -840,12 +840,12 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         label=_('Device type (ID)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device_role_id',
+        field_name='role_id',
         queryset=DeviceRole.objects.all(),
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        field_name='device_role__slug',
+        field_name='role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label=_('Role (slug)'),
@@ -1251,13 +1251,13 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='model',
         label=_('Device type (model)'),
     )
-    device_role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__device_role',
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role',
         queryset=DeviceRole.objects.all(),
         label=_('Device role (ID)'),
     )
-    device_role = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__device_role__slug',
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label=_('Device role (slug)'),
@@ -1272,6 +1272,18 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         queryset=VirtualChassis.objects.all(),
         to_field_name='name',
         label=_('Virtual Chassis'),
+    )
+    # TODO: Remove in v4.0
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role',
+        queryset=DeviceRole.objects.all(),
+        label=_('Device role (ID)'),
+    )
+    device_role = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label=_('Device role (slug)'),
     )
 
     def search(self, queryset, name, value):

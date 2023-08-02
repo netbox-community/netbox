@@ -323,7 +323,7 @@ class Rack(PrimaryModel, WeightMixin):
             devices = Device.objects.prefetch_related(
                 'device_type',
                 'device_type__manufacturer',
-                'device_role'
+                'role'
             ).annotate(
                 devicebay_count=Count('devicebays')
             ).exclude(

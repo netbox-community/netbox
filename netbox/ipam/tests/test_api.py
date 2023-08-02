@@ -1009,11 +1009,11 @@ class ServiceTest(APIViewTestCases.APIViewTestCase):
         site = Site.objects.create(name='Site 1', slug='site-1')
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
-            Device(name='Device 2', site=site, device_type=devicetype, device_role=devicerole),
+            Device(name='Device 1', site=site, device_type=devicetype, role=role),
+            Device(name='Device 2', site=site, device_type=devicetype, role=role),
         )
         Device.objects.bulk_create(devices)
 

@@ -362,7 +362,7 @@ class InventoryItemTemplateViewSet(NetBoxModelViewSet):
 
 class DeviceRoleViewSet(NetBoxModelViewSet):
     queryset = DeviceRole.objects.prefetch_related('config_template', 'tags').annotate(
-        device_count=count_related(Device, 'device_role'),
+        device_count=count_related(Device, 'role'),
         virtualmachine_count=count_related(VirtualMachine, 'role')
     )
     serializer_class = serializers.DeviceRoleSerializer
@@ -393,7 +393,7 @@ class DeviceViewSet(
     NetBoxModelViewSet
 ):
     queryset = Device.objects.prefetch_related(
-        'device_type__manufacturer', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
+        'device_type__manufacturer', 'role', 'tenant', 'platform', 'site', 'location', 'rack', 'parent_bay',
         'virtual_chassis__master', 'primary_ip4__nat_outside', 'primary_ip6__nat_outside', 'config_template', 'tags',
     )
     filterset_class = filtersets.DeviceFilterSet

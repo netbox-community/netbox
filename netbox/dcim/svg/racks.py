@@ -46,14 +46,14 @@ def get_device_description(device):
     Return a description for a device to be rendered in the rack elevation in the following format
 
     Name: <name>
-    Role: <device_role>
+    Role: <role>
     Device Type: <manufacturer> <model> (<u_height>)
     Asset tag: <asset_tag> (if defined)
     Serial: <serial> (if defined)
     Description: <description> (if defined)
     """
     description = f'Name: {device.name}'
-    description += f'\nRole: {device.device_role}'
+    description += f'\nRole: {device.role}'
     u_height = f'{floatformat(device.device_type.u_height)}U'
     description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({u_height})'
     if device.asset_tag:
@@ -205,7 +205,7 @@ class RackElevationSVG:
         """
         Draw the front (mounted) face of a device.
         """
-        color = device.device_role.color
+        color = device.role.color
         image = device.device_type.front_image
         self._draw_device(device, coords, size, color=color, image=image)
 

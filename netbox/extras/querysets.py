@@ -19,8 +19,7 @@ class ConfigContextQuerySet(RestrictedQuerySet):
           aggregate_data: If True, use the JSONBAgg aggregate function to return only the list of JSON data objects
         """
 
-        # `device_role` for Device; `role` for VirtualMachine
-        role = getattr(obj, 'device_role', None) or obj.role
+        role = obj.role
 
         # Device type and location assignment is relevant only for Devices
         device_type = getattr(obj, 'device_type', None)
@@ -121,7 +120,7 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         if self.model._meta.model_name == 'device':
             base_query.add((Q(locations=OuterRef('location')) | Q(locations=None)), Q.AND)
             base_query.add((Q(device_types=OuterRef('device_type')) | Q(device_types=None)), Q.AND)
-            base_query.add((Q(roles=OuterRef('device_role')) | Q(roles=None)), Q.AND)
+            base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
             base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
             region_field = 'site__region'
             sitegroup_field = 'site__group'
