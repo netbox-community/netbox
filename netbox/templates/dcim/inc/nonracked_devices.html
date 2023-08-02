@@ -19,7 +19,7 @@
                 <td>
                     <a href="{% url 'dcim:device' pk=device.pk %}">{{ device }}</a>
                 </td>
-                <td>{{ device.device_role }}</td>
+                <td>{{ device.role }}</td>
                 <td>{{ device.device_type }}</td>
                 {% if device.parent_bay %}
                     <td>{{ device.parent_bay.device|linkify }}</td>

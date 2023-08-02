@@ -434,7 +434,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         queryset=DeviceType.objects.all(),
         selector=True
     )
-    device_role = DynamicModelChoiceField(
+    role = DynamicModelChoiceField(
         label=_('Device role'),
         queryset=DeviceRole.objects.all()
     )
@@ -479,7 +479,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Device
         fields = [
-            'name', 'device_role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
+            'name', 'role', 'device_type', 'serial', 'asset_tag', 'site', 'rack', 'location', 'position', 'face',
             'latitude', 'longitude', 'status', 'airflow', 'platform', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster',
             'tenant_group', 'tenant', 'virtual_chassis', 'vc_position', 'vc_priority', 'description', 'config_template',
             'comments', 'tags', 'local_context_data',

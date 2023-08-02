@@ -579,9 +579,9 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         """
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         site = Site.objects.create(name='Site-1', slug='site-1')
-        device = Device.objects.create(name='Device 1', device_type=devicetype, device_role=devicerole, site=site)
+        device = Device.objects.create(name='Device 1', device_type=devicetype, role=role, site=site)
 
         # Test default config contexts (created at test setup)
         rendered_context = device.get_config_context()

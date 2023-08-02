@@ -404,7 +404,7 @@ class PlatformImportForm(NetBoxModelImportForm):
 
 
 class BaseDeviceImportForm(NetBoxModelImportForm):
-    device_role = CSVModelChoiceField(
+    role = CSVModelChoiceField(
         label=_('Device role'),
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
@@ -527,7 +527,7 @@ class DeviceImportForm(BaseDeviceImportForm):
 
     class Meta(BaseDeviceImportForm.Meta):
         fields = [
-            'name', 'device_role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
+            'name', 'role', 'tenant', 'manufacturer', 'device_type', 'platform', 'serial', 'asset_tag', 'status',
             'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent', 'device_bay', 'airflow',
             'virtual_chassis', 'vc_position', 'vc_priority', 'cluster', 'description', 'config_template', 'comments',
             'tags',

@@ -24,11 +24,11 @@ class DeviceComponentFilterSetTests:
         params = {'device_type': [device_types[0].model, device_types[1].model]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_device_role(self):
-        device_role = DeviceRole.objects.all()[:2]
-        params = {'device_role_id': [device_role[0].pk, device_role[1].pk]}
+    def test_role(self):
+        role = DeviceRole.objects.all()[:2]
+        params = {'role_id': [role[0].pk, role[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'device_role': [device_role[0].slug, device_role[1].slug]}
+        params = {'role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -1473,12 +1473,12 @@ class DeviceRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1', color='ff0000', vm_role=True, description='foobar1'),
             DeviceRole(name='Device Role 2', slug='device-role-2', color='00ff00', vm_role=True, description='foobar2'),
             DeviceRole(name='Device Role 3', slug='device-role-3', color='0000ff', vm_role=False),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
     def test_name(self):
         params = {'name': ['Device Role 1', 'Device Role 2']}
@@ -1565,12 +1565,12 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         DeviceType.objects.bulk_create(device_types)
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),
@@ -1641,9 +1641,9 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], location=locations[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, latitude=10, longitude=10, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], location=locations[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, latitude=20, longitude=20, status=DeviceStatusChoices.STATUS_STAGED, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, cluster=clusters[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], location=locations[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, latitude=30, longitude=30, status=DeviceStatusChoices.STATUS_FAILED, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, cluster=clusters[2]),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], platform=platforms[0], tenant=tenants[0], serial='ABC', asset_tag='1001', site=sites[0], location=locations[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, latitude=10, longitude=10, status=DeviceStatusChoices.STATUS_ACTIVE, cluster=clusters[0], local_context_data={"foo": 123}),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], platform=platforms[1], tenant=tenants[1], serial='DEF', asset_tag='1002', site=sites[1], location=locations[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, latitude=20, longitude=20, status=DeviceStatusChoices.STATUS_STAGED, airflow=DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR, cluster=clusters[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], platform=platforms[2], tenant=tenants[2], serial='GHI', asset_tag='1003', site=sites[2], location=locations[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, latitude=30, longitude=30, status=DeviceStatusChoices.STATUS_FAILED, airflow=DeviceAirflowChoices.AIRFLOW_REAR_TO_FRONT, cluster=clusters[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -1755,10 +1755,10 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_devicerole(self):
-        device_roles = DeviceRole.objects.all()[:2]
-        params = {'role_id': [device_roles[0].pk, device_roles[1].pk]}
+        roles = DeviceRole.objects.all()[:2]
+        params = {'role_id': [roles[0].pk, roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'role': [device_roles[0].slug, device_roles[1].slug]}
+        params = {'role': [roles[0].slug, roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_platform(self):
@@ -2062,12 +2062,12 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -2085,10 +2085,10 @@ class ConsolePortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[0], device_role=device_roles[0], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[0], role=roles[0], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2242,12 +2242,12 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -2265,10 +2265,10 @@ class ConsoleServerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeL
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], device_role=device_roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2422,12 +2422,12 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -2445,10 +2445,10 @@ class PowerPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], device_role=device_roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2610,12 +2610,12 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -2633,10 +2633,10 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], device_role=device_roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2794,12 +2794,12 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -2817,10 +2817,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], device_role=device_roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3230,12 +3230,12 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3253,10 +3253,10 @@ class FrontPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], device_role=device_roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3419,12 +3419,12 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
 
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Module Type 1')
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3442,10 +3442,10 @@ class RearPortTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilt
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], device_role=device_roles[2], site=sites[3]),  # For cable connections
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -3600,12 +3600,12 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         DeviceType.objects.bulk_create(device_types)
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3623,9 +3623,9 @@ class ModuleBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -3729,12 +3729,12 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         DeviceType.objects.bulk_create(device_types)
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         locations = (
             Location(name='Location 1', slug='location-1', site=sites[0]),
@@ -3752,9 +3752,9 @@ class DeviceBayTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -3840,12 +3840,12 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         DeviceType.objects.bulk_create(device_types)
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         regions = (
             Region(name='Region 1', slug='region-1'),
@@ -3886,9 +3886,9 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], site=sites[2], location=locations[2], rack=racks[2]),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
         )
         Device.objects.bulk_create(devices)
 
@@ -3986,11 +3986,11 @@ class InventoryItemTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_type': [device_types[0].model, device_types[1].model]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
-    def test_device_role(self):
-        device_role = DeviceRole.objects.all()[:2]
-        params = {'device_role_id': [device_role[0].pk, device_role[1].pk]}
+    def test_role(self):
+        role = DeviceRole.objects.all()[:2]
+        params = {'role_id': [role[0].pk, role[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'device_role': [device_role[0].slug, device_role[1].slug]}
+        params = {'role': [role[0].slug, role[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_device(self):
@@ -4066,7 +4066,7 @@ class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
-        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         regions = (
             Region(name='Region 1', slug='region-1'),
@@ -4092,12 +4092,12 @@ class VirtualChassisTestCase(TestCase, ChangeLoggedFilterSetTests):
         Site.objects.bulk_create(sites)
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], vc_position=1),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], vc_position=2),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], vc_position=1),
-            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], vc_position=2),
-            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], vc_position=1),
-            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], vc_position=2),
+            Device(name='Device 1', device_type=device_type, role=role, site=sites[0], vc_position=1),
+            Device(name='Device 2', device_type=device_type, role=role, site=sites[0], vc_position=2),
+            Device(name='Device 3', device_type=device_type, role=role, site=sites[1], vc_position=1),
+            Device(name='Device 4', device_type=device_type, role=role, site=sites[1], vc_position=2),
+            Device(name='Device 5', device_type=device_type, role=role, site=sites[2], vc_position=1),
+            Device(name='Device 6', device_type=device_type, role=role, site=sites[2], vc_position=2),
         )
         Device.objects.bulk_create(devices)
 
@@ -4187,15 +4187,15 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
-        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], location=locations[0], position=1),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[0], rack=racks[0], location=locations[0], position=2),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], location=locations[1], position=1),
-            Device(name='Device 4', device_type=device_type, device_role=device_role, site=sites[1], rack=racks[1], location=locations[1], position=2),
-            Device(name='Device 5', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], location=locations[2], position=1),
-            Device(name='Device 6', device_type=device_type, device_role=device_role, site=sites[2], rack=racks[2], location=locations[2], position=2),
+            Device(name='Device 1', device_type=device_type, role=role, site=sites[0], rack=racks[0], location=locations[0], position=1),
+            Device(name='Device 2', device_type=device_type, role=role, site=sites[0], rack=racks[0], location=locations[0], position=2),
+            Device(name='Device 3', device_type=device_type, role=role, site=sites[1], rack=racks[1], location=locations[1], position=1),
+            Device(name='Device 4', device_type=device_type, role=role, site=sites[1], rack=racks[1], location=locations[1], position=2),
+            Device(name='Device 5', device_type=device_type, role=role, site=sites[2], rack=racks[2], location=locations[2], position=1),
+            Device(name='Device 6', device_type=device_type, role=role, site=sites[2], rack=racks[2], location=locations[2], position=2),
         )
         Device.objects.bulk_create(devices)
 
@@ -4485,8 +4485,8 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer', slug='manufacturer')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model', slug='model')
-        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        device = Device.objects.create(name='Device', device_type=device_type, device_role=device_role, site=sites[0])
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        device = Device.objects.create(name='Device', device_type=device_type, role=role, site=sites[0])
         power_ports = [
             PowerPort(device=device, name='Power Port 1'),
             PowerPort(device=device, name='Power Port 2'),
@@ -4608,12 +4608,12 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Model 1', slug='model-1')
-        device_role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
 
         devices = (
-            Device(name='Device 1', device_type=device_type, device_role=device_role, site=sites[0]),
-            Device(name='Device 2', device_type=device_type, device_role=device_role, site=sites[1]),
-            Device(name='Device 3', device_type=device_type, device_role=device_role, site=sites[2]),
+            Device(name='Device 1', device_type=device_type, role=role, site=sites[0]),
+            Device(name='Device 2', device_type=device_type, role=role, site=sites[1]),
+            Device(name='Device 3', device_type=device_type, role=role, site=sites[2]),
         )
         Device.objects.bulk_create(devices)
 

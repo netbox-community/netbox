@@ -7,7 +7,7 @@ ALLOWED_HOSTS = ['*']
 
 DATABASE = {
     'NAME': 'netbox',
-    'USER': 'netbox',
+    'USER': 'postgres',
     'PASSWORD': 'netbox',
     'HOST': 'localhost',
     'PORT': '',

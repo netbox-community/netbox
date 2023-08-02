@@ -553,7 +553,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
             'manufacturer_id': '$manufacturer'
         }
     )
-    device_role = DynamicModelChoiceField(
+    role = DynamicModelChoiceField(
         label=_('Device role'),
         queryset=DeviceRole.objects.all(),
         required=False
@@ -610,7 +610,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Device
     fieldsets = (
-        (_('Device'), ('device_role', 'status', 'tenant', 'platform', 'description')),
+        (_('Device'), ('role', 'status', 'tenant', 'platform', 'description')),
         (_('Location'), ('site', 'location')),
         (_('Hardware'), ('manufacturer', 'device_type', 'airflow', 'serial')),
         (_('Configuration'), ('config_template',)),

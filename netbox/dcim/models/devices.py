@@ -537,7 +537,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         on_delete=models.PROTECT,
         related_name='instances'
     )
-    device_role = models.ForeignKey(
+    role = models.ForeignKey(
         to='dcim.DeviceRole',
         on_delete=models.PROTECT,
         related_name='devices',
@@ -758,7 +758,7 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
     objects = ConfigContextModelQuerySet.as_manager()
 
     clone_fields = (
-        'device_type', 'device_role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
+        'device_type', 'role', 'tenant', 'platform', 'site', 'location', 'rack', 'face', 'status', 'airflow',
         'cluster', 'virtual_chassis',
     )
     prerequisite_models = (
@@ -807,6 +807,20 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
+
+    @property
+    def device_role(self):
+        """
+        For backwards compatibility with pre-v3.5 code expecting a device_role to be present on Device.
+        """
+        return self.role
+
+    @device_role.setter
+    def device_role(self, value):
+        """
+        For backwards compatibility with pre-v3.5 code expecting a device_role to be present on Device.
+        """
+        self.role = value
 
     def clean(self):
         super().clean()
@@ -1063,8 +1077,8 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
         """
         if self.config_template:
             return self.config_template
-        if self.device_role.config_template:
-            return self.device_role.config_template
+        if self.role.config_template:
+            return self.role.config_template
         if self.platform and self.platform.config_template:
             return self.platform.config_template
 

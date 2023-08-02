@@ -407,7 +407,7 @@ class SiteView(generic.ObjectView):
             site=instance,
             rack__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'role')
 
         return {
             'related_models': related_models,
@@ -489,7 +489,7 @@ class LocationView(generic.ObjectView):
             location=instance,
             rack__isnull=True,
             parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
+        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'role')
 
         return {
             'related_models': related_models,
@@ -1721,7 +1721,7 @@ class InventoryItemTemplateBulkDeleteView(generic.BulkDeleteView):
 
 class DeviceRoleListView(generic.ObjectListView):
     queryset = DeviceRole.objects.annotate(
-        device_count=count_related(Device, 'device_role'),
+        device_count=count_related(Device, 'role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
     filterset = filtersets.DeviceRoleFilterSet
@@ -1735,7 +1735,7 @@ class DeviceRoleView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         related_models = (
-            (Device.objects.restrict(request.user, 'view').filter(device_role=instance), 'role_id'),
+            (Device.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
             (VirtualMachine.objects.restrict(request.user, 'view').filter(role=instance), 'role_id'),
         )
 
@@ -1762,7 +1762,7 @@ class DeviceRoleBulkImportView(generic.BulkImportView):
 
 class DeviceRoleBulkEditView(generic.BulkEditView):
     queryset = DeviceRole.objects.annotate(
-        device_count=count_related(Device, 'device_role'),
+        device_count=count_related(Device, 'role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
     filterset = filtersets.DeviceRoleFilterSet
@@ -1772,7 +1772,7 @@ class DeviceRoleBulkEditView(generic.BulkEditView):
 
 class DeviceRoleBulkDeleteView(generic.BulkDeleteView):
     queryset = DeviceRole.objects.annotate(
-        device_count=count_related(Device, 'device_role'),
+        device_count=count_related(Device, 'role'),
         vm_count=count_related(VirtualMachine, 'role')
     )
     filterset = filtersets.DeviceRoleFilterSet

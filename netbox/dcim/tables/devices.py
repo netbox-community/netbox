@@ -190,7 +190,7 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         verbose_name=_('Position'),
         template_code='{{ value|floatformat }}'
     )
-    device_role = columns.ColoredLabelColumn(
+    role = columns.ColoredLabelColumn(
         verbose_name=_('Role')
     )
     manufacturer = tables.Column(
@@ -285,14 +285,14 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.Device
         fields = (
-            'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'device_role', 'manufacturer', 'device_type',
+            'pk', 'id', 'name', 'status', 'tenant', 'tenant_group', 'role', 'manufacturer', 'device_type',
             'platform', 'serial', 'asset_tag', 'region', 'site_group', 'site', 'location', 'rack', 'parent_device',
             'device_bay_position', 'position', 'face', 'latitude', 'longitude', 'airflow', 'primary_ip', 'primary_ip4',
             'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position', 'vc_priority', 'description',
             'config_template', 'comments', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'device_role', 'manufacturer', 'device_type',
+            'pk', 'name', 'status', 'tenant', 'site', 'location', 'rack', 'role', 'manufacturer', 'device_type',
             'primary_ip',
         )
 
@@ -314,7 +314,7 @@ class DeviceImportTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Rack'),
         linkify=True
     )
-    device_role = tables.Column(
+    role = tables.Column(
         verbose_name=_('Role')
     )
     device_type = tables.Column(
@@ -323,7 +323,7 @@ class DeviceImportTable(TenancyColumnsMixin, NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = models.Device
-        fields = ('id', 'name', 'status', 'tenant', 'tenant_group', 'site', 'rack', 'position', 'device_role', 'device_type')
+        fields = ('id', 'name', 'status', 'tenant', 'tenant_group', 'site', 'rack', 'position', 'role', 'device_type')
         empty_text = False
 
 
@@ -822,8 +822,8 @@ class DeviceBayTable(DeviceComponentTable):
             'args': [Accessor('device_id')],
         }
     )
-    device_role = columns.ColoredLabelColumn(
-        accessor=Accessor('installed_device__device_role'),
+    role = columns.ColoredLabelColumn(
+        accessor=Accessor('installed_device__role'),
         verbose_name=_('Role')
     )
     device_type = tables.Column(
@@ -847,8 +847,8 @@ class DeviceBayTable(DeviceComponentTable):
     class Meta(DeviceComponentTable.Meta):
         model = models.DeviceBay
         fields = (
-            'pk', 'id', 'name', 'device', 'label', 'status', 'device_role', 'device_type', 'installed_device', 'description', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'device', 'label', 'status', 'role', 'device_type', 'installed_device', 'description',
+            'tags', 'created', 'last_updated',
         )
 
         default_columns = ('pk', 'name', 'device', 'label', 'status', 'installed_device', 'description')
