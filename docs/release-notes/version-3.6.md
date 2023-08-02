@@ -1,10 +1,10 @@
 # NetBox v3.6
 
-## v3.6.0 (FUTURE)
+## v3.6-beta1 (2023-08-02)
 
 ### Breaking Changes
 
-* PostgreSQL 11 is no longer supported (due to adopting Django 4.2). NetBox v3.6 requires PostgreSQL 12 or later.
+* PostgreSQL 11 is no longer supported (dropped in Django 4.2). NetBox v3.6 requires PostgreSQL 12 or later.
 * The `device_role` field on the Device model has been renamed to `role`. The `device_role` field has been temporarily retained on the REST API serializer for devices for backward compatibility, but is read-only.
 * The `choices` array field has been removed from the CustomField model. Any defined choices are automatically migrated to CustomFieldChoiceSets, accessible via the new `choice_set` field on the CustomField model.
 * The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the Platform model.
@@ -21,29 +21,29 @@ Management views for the following object types, previously available only under
 * API tokens
 * Configuration revisions
 
-The admin UI is scheduled for removal in NetBox v4.0.
+This migration provides a more consistent user experience and unlocks advanced functionality not feasible using Django's built-in views. The admin UI is scheduled for complete removal in NetBox v4.0.
 
 #### Configurable Default Permissions ([#13038](https://github.com/netbox-community/netbox/issues/13038))
 
-Administrators now have the option of configuring a set of default permissions to be applied to _all_ users, regardless of explicit permission or group assignment. This is accomplished by defining the `DEFAULT_PERMISSIONS` configuration parameter.
+Administrators now have the option of configuring default permissions for _all_ users globally, regardless of explicit permission or group assignments granted in the database. This is accomplished by defining the `DEFAULT_PERMISSIONS` configuration parameter. By default, all users are granted permission to manage their own bookmarks and API tokens.
 
 #### User Bookmarks ([#8248](https://github.com/netbox-community/netbox/issues/8248))
 
-Users can now bookmark their most commonly-visited objects in NetBox. Bookmarks will display both on the dashboard (if configured) and on a user-specific bookmarks view.
+Users can now bookmark their favorite objects in NetBox. Bookmarks are accessible under each user's personal bookmarks list, and can also be added as a dashboard widget.
 
 #### Custom Field Choice Sets ([#12988](https://github.com/netbox-community/netbox/issues/12988))
 
-Select and multi-select custom fields now employ discrete, reusable choice sets containing the valid options for each field. A choice set may be shared by multiple custom fields. Additionally, each choice within a set can now specify both a value and a human-friendly label (see [#13241](https://github.com/netbox-community/netbox/issues/13241)).
+Selection and multi-select custom fields now employ discrete, reusable choice sets containing the valid options for each field. A choice set may be shared by multiple custom fields. Additionally, each choice within a set can now specify both a raw value and a human-friendly label (see [#13241](https://github.com/netbox-community/netbox/issues/13241)). Pre-existing custom field choices are migrated to choice sets automatically during the upgrade process.
 
 #### Pre-Defined Location Choices for Custom Fields ([#12194](https://github.com/netbox-community/netbox/issues/12194))
 
-Users now have the option to employ one of several pre-defined choice sets when creating a custom field. These include:
+Users now have the option to employ one of several pre-defined sets of choices when creating a custom field. These include:
 
 * IATA airport codes
 * ISO 3166 country codes
-* UN/LOCODE identifiers
+* UN/LOCODE location identifiers
 
-Extra choices may also be appended to the pre-defined sets as needed.
+When defining a choice set, one of the above can be employed as the base set, with the option to define extra, custom choices as well.
 
 #### Restrict Tag Usage by Object Type ([#11541](https://github.com/netbox-community/netbox/issues/11541))
 
