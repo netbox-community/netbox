@@ -469,7 +469,7 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# TEST_RUNNER = "django_rich.test.RichRunner"
+TEST_RUNNER = "django_rich.test.RichRunner"
 
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
