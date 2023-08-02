@@ -5,7 +5,9 @@
 ### Breaking Changes
 
 * PostgreSQL 11 is no longer supported (due to adopting Django 4.2). NetBox v3.6 requires PostgreSQL 12 or later.
-* The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the platform model.
+* The `device_role` field on the Device model has been renamed to `role`. The `device_role` field has been temporarily retained on the REST API serializer for devices for backward compatibility, but is read-only.
+* The `choices` array field has been removed from the CustomField model. Any defined choices are automatically migrated to CustomFieldChoiceSets, accessible via the new `choice_set` field on the CustomField model.
+* The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the Platform model.
 
 ### New Features
 
@@ -53,6 +55,7 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#8137](https://github.com/netbox-community/netbox/issues/8137) - Add a field for designating the out-of-band (OOB) IP address for devices
 * [#10197](https://github.com/netbox-community/netbox/issues/10197) - Cache the number of member devices on each virtual chassis
 * [#11305](https://github.com/netbox-community/netbox/issues/11305) - Add GPS coordinate fields to the device model
+* [#11519](https://github.com/netbox-community/netbox/issues/11519) - Add a SQL index for IP address host values to optimize queries
 * [#11732](https://github.com/netbox-community/netbox/issues/11732) - Prevent inadvertent overwriting of object attributes by competing users
 * [#11936](https://github.com/netbox-community/netbox/issues/11936) - Introduce support for tags and custom fields on webhooks
 * [#12175](https://github.com/netbox-community/netbox/issues/12175) - Permit racks to start numbering at values greater than one
@@ -64,6 +67,7 @@ Tags may now be restricted to use with designated object types. Tags that have n
 ### Other Changes
 
 * Work has begun on introducing translation and localization support in NetBox. This work is being performed in preparation for release 4.0.
+* [#6391](https://github.com/netbox-community/netbox/issues/6391) - Rename the `device_role` field on Device to `role` for consistency with VirtualMachine
 * [#9077](https://github.com/netbox-community/netbox/issues/9077) - Prevent the errant execution of dangerous instance methods in Django templates
 * [#11766](https://github.com/netbox-community/netbox/issues/11766) - Remove obsolete custom `ChoiceField` and `MultipleChoiceField` classes
 * [#12180](https://github.com/netbox-community/netbox/issues/12180) - All API endpoints for available objects (e.g. IP addresses) now inherit from a common parent view
@@ -72,3 +76,47 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#12320](https://github.com/netbox-community/netbox/issues/12320) - Remove obsolete fields `napalm_driver` and `napalm_args` from Platform
 * [#12964](https://github.com/netbox-community/netbox/issues/12964) - Drop support for PostgreSQL 11
 * [#13309](https://github.com/netbox-community/netbox/issues/13309) - User account-specific resources have been moved to a new `account` app for better organization
+
+### REST API Changes
+
+* Introduced the following endpoints:
+    * `/api/extras/bookmarks/`
+    * `/api/extras/custom-field-choice-sets/`
+* Added the `/api/extras/custom-fields/{id}/choices/` endpoint for select and multi-select custom fields
+* dcim.Device
+    * Renamed `device_role` to `device`. Added a read-only `device_role` field for limited backward compatibility.
+    * Added the `latitude` and `longitude` fields (for GPS coordinates)
+    * Added the `oob_ip` field for out-of-band IP address assignment
+* dcim.DeviceType
+    * Added read-only counter fields for assigned component templates:
+        * `console_port_template_count`
+        * `console_server_port_template_count`
+        * `power_port_template_count`
+        * `power_outlet_template_count`
+        * `interface_template_count`
+        * `front_port_template_count`
+        * `rear_port_template_count`
+        * `device_bay_template_count`
+        * `module_bay_template_count`
+        * `inventory_item_template_count`
+* dcim.InterfaceTemplate
+    * Added the `rf_role` field
+* dcim.Platform
+    * Removed the `napalm_driver` and `napalm_args` fields
+* dcim.PowerFeed
+    * Added the `tenant` field
+* dcim.Rack
+    * Added the `starting_unit` field
+* dcim.VirtualChassis
+    * Added the read-only `member_count` field
+* extras.CustomField
+    * Removed the `choices` array field
+    * Added the `choice_set` foreign key field (to ChoiceSet)
+* extras.Tag
+    * Added the `object_types` field for optional restriction to specific object types
+* extras.Webhook
+    * Added `custom_fields` and `tags` support
+* tenancy.ContactAssignment
+    * Added `tags` support
+* virtualization.VirtualMachine
+    * Added the `oob_ip` field for out-of-band IP address assignment
