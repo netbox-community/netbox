@@ -100,6 +100,11 @@ DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
 DEFAULT_DASHBOARD = getattr(configuration, 'DEFAULT_DASHBOARD', None)
 DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
+    # Permit users to manage their own bookmarks
+    'extras.view_bookmark': ({'user': '$user'},),
+    'extras.add_bookmark': ({'user': '$user'},),
+    'extras.change_bookmark': ({'user': '$user'},),
+    'extras.delete_bookmark': ({'user': '$user'},),
     # Permit users to manage their own API tokens
     'users.view_token': ({'user': '$user'},),
     'users.add_token': ({'user': '$user'},),
