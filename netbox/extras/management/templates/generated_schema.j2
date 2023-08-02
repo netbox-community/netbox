@@ -1,0 +1,93 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "airflow": {
+      "type": "string",
+      "enum": {{ schemas["airflow_choices"] }}
+    },
+    "weight-unit": {
+      "type": "string",
+      "enum": {{ schemas["weight_unit_choices"] }}
+    },
+    "subdevice-role": {
+      "type": "string",
+      "enum": {{ schemas["subdevice_role_choices"] }}
+    },
+    "console-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["console_port_type_choices"] }}
+        }
+      }
+    },
+    "console-server-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["console_port_type_choices"] }}
+        }
+      }
+    },
+    "power-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["power_port_type_choices"] }}
+        }
+      }
+    },
+    "power-outlet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["power_outlet_type_choices"] }}
+        },
+        "feed-leg": {
+          "type": "string",
+          "enum": {{ schemas["power_outlet_feedleg_choices"] }}
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["interface_type_choices"] }}
+        },
+        "poe_mode": {
+          "type": "string",
+          "enum": {{ schemas["interface_poe_mode_choices"] }}
+        },
+        "poe_type": {
+          "type": "string",
+          "enum": {{ schemas["interface_poe_type_choices"] }}
+        }
+      }
+    },
+    "front-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["port_type_choices"] }}
+        }
+      }
+    },
+    "rear-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ schemas["port_type_choices"]}}
+        }
+      }
+    }
+  }
+}
