@@ -53,6 +53,11 @@ class Manufacturer(OrganizationalModel):
         to='tenancy.ContactAssignment'
     )
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('manufacturer')
+        verbose_name_plural = _('manufacturers')
+
     def get_absolute_url(self):
         return reverse('dcim:manufacturer', args=[self.pk])
 
@@ -199,6 +204,8 @@ class DeviceType(PrimaryModel, WeightMixin):
                 name='%(app_label)s_%(class)s_unique_manufacturer_slug'
             ),
         )
+        verbose_name = _('device type')
+        verbose_name_plural = _('device types')
 
     def __str__(self):
         return self.model
@@ -400,6 +407,8 @@ class ModuleType(PrimaryModel, WeightMixin):
                 name='%(app_label)s_%(class)s_unique_manufacturer_model'
             ),
         )
+        verbose_name = _('module type')
+        verbose_name_plural = _('module types')
 
     def __str__(self):
         return self.model
@@ -477,6 +486,11 @@ class DeviceRole(OrganizationalModel):
         null=True
     )
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('device role')
+        verbose_name_plural = _('device roles')
+
     def get_absolute_url(self):
         return reverse('dcim:devicerole', args=[self.pk])
 
@@ -501,6 +515,11 @@ class Platform(OrganizationalModel):
         blank=True,
         null=True
     )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('platform')
+        verbose_name_plural = _('platforms')
 
     def get_absolute_url(self):
         return reverse('dcim:platform', args=[self.pk])
@@ -789,6 +808,8 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
                 name='%(app_label)s_%(class)s_unique_virtual_chassis_vc_position'
             ),
         )
+        verbose_name = _('device')
+        verbose_name_plural = _('devices')
 
     def __str__(self):
         if self.name and self.asset_tag:
@@ -1182,6 +1203,8 @@ class Module(PrimaryModel, ConfigContextModel):
 
     class Meta:
         ordering = ('module_bay',)
+        verbose_name = _('module')
+        verbose_name_plural = _('modules')
 
     def __str__(self):
         return f'{self.module_bay.name}: {self.module_type} ({self.pk})'
@@ -1314,7 +1337,8 @@ class VirtualChassis(PrimaryModel):
 
     class Meta:
         ordering = ['name']
-        verbose_name_plural = 'virtual chassis'
+        verbose_name = _('virtual chassis')
+        verbose_name_plural = _('virtual chassis')
 
     def __str__(self):
         return self.name
@@ -1415,6 +1439,8 @@ class VirtualDeviceContext(PrimaryModel):
                 name='%(app_label)s_%(class)s_device_name'
             ),
         )
+        verbose_name = _('virtual device context')
+        verbose_name_plural = _('virtual device contexts')
 
     def __str__(self):
         return self.name

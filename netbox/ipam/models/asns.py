@@ -48,8 +48,8 @@ class ASNRange(OrganizationalModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = 'ASN range'
-        verbose_name_plural = 'ASN ranges'
+        verbose_name = _('ASN range')
+        verbose_name_plural = _('ASN ranges')
 
     def __str__(self):
         return f'{self.name} ({self.range_as_string()})'
@@ -122,8 +122,8 @@ class ASN(PrimaryModel):
 
     class Meta:
         ordering = ['asn']
-        verbose_name = 'ASN'
-        verbose_name_plural = 'ASNs'
+        verbose_name = _('ASN')
+        verbose_name_plural = _('ASNs')
 
     def __str__(self):
         return f'AS{self.asn_with_asdot}'

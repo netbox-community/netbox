@@ -165,6 +165,8 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
                 name='%(app_label)s_%(class)s_unique_payload_url_types'
             ),
         )
+        verbose_name = _('webhook')
+        verbose_name_plural = _('webhooks')
 
     def __str__(self):
         return self.name
@@ -284,6 +286,8 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
+        verbose_name = _('custom link')
+        verbose_name_plural = _('custom links')
 
     def __str__(self):
         return self.name
@@ -371,6 +375,8 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('export template')
+        verbose_name_plural = _('export templates')
 
     def __str__(self):
         return self.name
@@ -482,6 +488,8 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ('weight', 'name')
+        verbose_name = _('saved filter')
+        verbose_name_plural = _('saved filters')
 
     def __str__(self):
         return self.name
@@ -544,6 +552,8 @@ class ImageAttachment(ChangeLoggedModel):
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
+        verbose_name = _('image attachment')
+        verbose_name_plural = _('image attachments')
 
     def __str__(self):
         if self.name:
@@ -622,7 +632,8 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     class Meta:
         ordering = ('-created',)
-        verbose_name_plural = 'journal entries'
+        verbose_name = _('journal entry')
+        verbose_name_plural = _('journal entries')
 
     def __str__(self):
         created = timezone.localtime(self.created)
@@ -677,6 +688,8 @@ class Bookmark(models.Model):
                 name='%(app_label)s_%(class)s_unique_per_object_and_user'
             ),
         )
+        verbose_name = _('bookmark')
+        verbose_name_plural = _('bookmarks')
 
     def __str__(self):
         if self.object:
@@ -707,6 +720,8 @@ class ConfigRevision(models.Model):
 
     class Meta:
         ordering = ['-created']
+        verbose_name = _('config revision')
+        verbose_name_plural = _('config revisions')
 
     def __str__(self):
         return f'Config revision #{self.pk} ({self.created})'

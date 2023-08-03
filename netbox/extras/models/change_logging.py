@@ -93,6 +93,8 @@ class ObjectChange(models.Model):
 
     class Meta:
         ordering = ['-time']
+        verbose_name = _('object change')
+        verbose_name_plural = _('object changes')
 
     def __str__(self):
         return '{} {} {} by {}'.format(

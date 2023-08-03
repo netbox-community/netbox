@@ -49,9 +49,10 @@ class NetBoxUser(User):
     objects = NetBoxUserManager()
 
     class Meta:
-        verbose_name = 'User'
         proxy = True
         ordering = ('username',)
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
 
     def get_absolute_url(self):
         return reverse('users:netboxuser', args=[self.pk])
@@ -72,9 +73,10 @@ class NetBoxGroup(Group):
     objects = NetBoxGroupManager()
 
     class Meta:
-        verbose_name = 'Group'
         proxy = True
         ordering = ('name',)
+        verbose_name = _('group')
+        verbose_name_plural = _('groups')
 
     def get_absolute_url(self):
         return reverse('users:netboxgroup', args=[self.pk])
@@ -99,7 +101,8 @@ class UserConfig(models.Model):
 
     class Meta:
         ordering = ['user']
-        verbose_name = verbose_name_plural = _('User Preferences')
+        verbose_name = _('user preferences')
+        verbose_name_plural = _('user preferences')
 
     def get(self, path, default=None):
         """
@@ -281,6 +284,10 @@ class Token(models.Model):
 
     objects = RestrictedQuerySet.as_manager()
 
+    class Meta:
+        verbose_name = _('token')
+        verbose_name_plural = _('tokens')
+
     def __str__(self):
         return self.key if settings.ALLOW_TOKEN_RETRIEVAL else self.partial
 
@@ -373,7 +380,8 @@ class ObjectPermission(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = _("permission")
+        verbose_name = _('permission')
+        verbose_name_plural = _('permissions')
 
     def __str__(self):
         return self.name

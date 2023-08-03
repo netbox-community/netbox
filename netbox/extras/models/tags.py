@@ -50,6 +50,8 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
 
     class Meta:
         ordering = ['name']
+        verbose_name = _('tag')
+        verbose_name_plural = _('tags')
 
     def get_absolute_url(self):
         return reverse('extras:tag', args=[self.pk])
@@ -75,3 +77,5 @@ class TaggedItem(GenericTaggedItemBase):
 
     class Meta:
         indexes = [models.Index(fields=["content_type", "object_id"])]
+        verbose_name = _('tagged item')
+        verbose_name_plural = _('tagged items')

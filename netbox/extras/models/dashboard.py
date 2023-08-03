@@ -25,7 +25,8 @@ class Dashboard(models.Model):
     )
 
     class Meta:
-        pass
+        verbose_name = _('dashboard')
+        verbose_name_plural = _('dashboards')
 
     def get_widget(self, id):
         """

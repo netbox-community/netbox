@@ -56,6 +56,8 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('service template')
+        verbose_name_plural = _('service templates')
 
     def get_absolute_url(self):
         return reverse('ipam:servicetemplate', args=[self.pk])
@@ -97,6 +99,8 @@ class Service(ServiceBase, PrimaryModel):
 
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
+        verbose_name = _('service')
+        verbose_name_plural = _('services')
 
     def get_absolute_url(self):
         return reverse('ipam:service', args=[self.pk])

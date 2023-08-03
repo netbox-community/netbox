@@ -51,6 +51,8 @@ class CachedValue(models.Model):
 
     class Meta:
         ordering = ('weight', 'object_type', 'object_id')
+        verbose_name = _('cached value')
+        verbose_name_plural = _('cached values')
 
     def __str__(self):
         return f'{self.object_type} {self.object_id}: {self.field}={self.value}'

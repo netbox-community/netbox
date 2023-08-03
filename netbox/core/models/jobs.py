@@ -101,6 +101,8 @@ class Job(models.Model):
 
     class Meta:
         ordering = ['-created']
+        verbose_name = _('job')
+        verbose_name_plural = _('jobs')
 
     def __str__(self):
         return str(self.job_id)

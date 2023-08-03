@@ -111,6 +111,8 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
 
     class Meta:
         ordering = ('prefix', 'pk')  # prefix may be non-unique
+        verbose_name = _('aggregate')
+        verbose_name_plural = _('aggregates')
 
     def __str__(self):
         return str(self.prefix)
@@ -188,6 +190,8 @@ class Role(OrganizationalModel):
 
     class Meta:
         ordering = ('weight', 'name')
+        verbose_name = _('role')
+        verbose_name_plural = _('roles')
 
     def __str__(self):
         return self.name
@@ -279,7 +283,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'prefix', 'pk')  # (vrf, prefix) may be non-unique
-        verbose_name_plural = 'prefixes'
+        verbose_name = _('prefix')
+        verbose_name_plural = _('prefixes')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -532,8 +537,8 @@ class IPRange(PrimaryModel):
 
     class Meta:
         ordering = (F('vrf').asc(nulls_first=True), 'start_address', 'pk')  # (vrf, start_address) may be non-unique
-        verbose_name = 'IP range'
-        verbose_name_plural = 'IP ranges'
+        verbose_name = _('IP range')
+        verbose_name_plural = _('IP ranges')
 
     def __str__(self):
         return self.name
@@ -783,8 +788,8 @@ class IPAddress(PrimaryModel):
         indexes = [
             models.Index(Cast(Host('address'), output_field=IPAddressField()), name='ipam_ipaddress_host'),
         ]
-        verbose_name = 'IP address'
-        verbose_name_plural = 'IP addresses'
+        verbose_name = _('IP address')
+        verbose_name_plural = _('IP addresses')
 
     def __str__(self):
         return str(self.address)

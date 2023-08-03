@@ -60,6 +60,8 @@ class PowerPanel(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_site_name'
             ),
         )
+        verbose_name = _('power panel')
+        verbose_name_plural = _('power panels')
 
     def __str__(self):
         return self.name
@@ -166,6 +168,8 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
                 name='%(app_label)s_%(class)s_unique_power_panel_name'
             ),
         )
+        verbose_name = _('power feed')
+        verbose_name_plural = _('power feeds')
 
     def __str__(self):
         return self.name

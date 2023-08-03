@@ -44,6 +44,8 @@ class Provider(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        verbose_name = _('provider')
+        verbose_name_plural = _('providers')
 
     def __str__(self):
         return self.name
@@ -91,6 +93,8 @@ class ProviderAccount(PrimaryModel):
                 condition=~Q(name="")
             ),
         )
+        verbose_name = _('provider account')
+        verbose_name_plural = _('provider accounts')
 
     def __str__(self):
         if self.name:
@@ -129,6 +133,8 @@ class ProviderNetwork(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_provider_name'
             ),
         )
+        verbose_name = _('provider network')
+        verbose_name_plural = _('provider networks')
 
     def __str__(self):
         return self.name

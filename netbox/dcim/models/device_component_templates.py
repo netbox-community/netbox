@@ -183,6 +183,10 @@ class ConsolePortTemplate(ModularComponentTemplateModel):
 
     component_model = ConsolePort
 
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('console port template')
+        verbose_name_plural = _('console port templates')
+
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
@@ -212,6 +216,10 @@ class ConsoleServerPortTemplate(ModularComponentTemplateModel):
     )
 
     component_model = ConsoleServerPort
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('console server port template')
+        verbose_name_plural = _('console server port templates')
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -257,6 +265,10 @@ class PowerPortTemplate(ModularComponentTemplateModel):
     )
 
     component_model = PowerPort
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('power port template')
+        verbose_name_plural = _('power port templates')
 
     def instantiate(self, **kwargs):
         return self.component_model(
@@ -315,6 +327,10 @@ class PowerOutletTemplate(ModularComponentTemplateModel):
     )
 
     component_model = PowerOutlet
+
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('power outlet template')
+        verbose_name_plural = _('power outlet templates')
 
     def clean(self):
         super().clean()
@@ -410,6 +426,10 @@ class InterfaceTemplate(ModularComponentTemplateModel):
 
     component_model = Interface
 
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('interface template')
+        verbose_name_plural = _('interface templates')
+
     def clean(self):
         super().clean()
 
@@ -503,6 +523,8 @@ class FrontPortTemplate(ModularComponentTemplateModel):
                 name='%(app_label)s_%(class)s_unique_rear_port_position'
             ),
         )
+        verbose_name = _('front port template')
+        verbose_name_plural = _('front port templates')
 
     def clean(self):
         super().clean()
@@ -579,6 +601,10 @@ class RearPortTemplate(ModularComponentTemplateModel):
 
     component_model = RearPort
 
+    class Meta(ModularComponentTemplateModel.Meta):
+        verbose_name = _('rear port template')
+        verbose_name_plural = _('rear port templates')
+
     def instantiate(self, **kwargs):
         return self.component_model(
             name=self.resolve_name(kwargs.get('module')),
@@ -614,6 +640,10 @@ class ModuleBayTemplate(ComponentTemplateModel):
 
     component_model = ModuleBay
 
+    class Meta(ComponentTemplateModel.Meta):
+        verbose_name = _('module bay template')
+        verbose_name_plural = _('module bay templates')
+
     def instantiate(self, device):
         return self.component_model(
             device=device,
@@ -637,6 +667,10 @@ class DeviceBayTemplate(ComponentTemplateModel):
     A template for a DeviceBay to be created for a new parent Device.
     """
     component_model = DeviceBay
+
+    class Meta(ComponentTemplateModel.Meta):
+        verbose_name = _('device bay template')
+        verbose_name_plural = _('device bay templates')
 
     def instantiate(self, device):
         return self.component_model(
@@ -720,6 +754,8 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
                 name='%(app_label)s_%(class)s_unique_device_type_parent_name'
             ),
         )
+        verbose_name = _('inventory item template')
+        verbose_name_plural = _('inventory item templates')
 
     def instantiate(self, **kwargs):
         parent = InventoryItem.objects.get(name=self.parent.name, **kwargs) if self.parent else None

@@ -56,6 +56,8 @@ class ManagedFile(SyncedDataMixin, models.Model):
         indexes = [
             models.Index(fields=('file_root', 'file_path'), name='core_managedfile_root_path'),
         ]
+        verbose_name = _('managed file')
+        verbose_name_plural = _('managed files')
 
     def __str__(self):
         return self.name

@@ -125,6 +125,8 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ['weight', 'name']
+        verbose_name = _('config context')
+        verbose_name_plural = _('config contexts')
 
     def __str__(self):
         return self.name
@@ -233,6 +235,8 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('config template')
+        verbose_name_plural = _('config templates')
 
     def __str__(self):
         return self.name

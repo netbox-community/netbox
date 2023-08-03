@@ -83,6 +83,8 @@ class DataSource(JobsMixin, PrimaryModel):
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('data source')
+        verbose_name_plural = _('data sources')
 
     def __str__(self):
         return f'{self.name}'
@@ -300,6 +302,8 @@ class DataFile(models.Model):
         indexes = [
             models.Index(fields=('source', 'path'), name='core_datafile_source_path'),
         ]
+        verbose_name = _('data file')
+        verbose_name_plural = _('data files')
 
     def __str__(self):
         return self.path
@@ -383,3 +387,5 @@ class AutoSyncRecord(models.Model):
         indexes = (
             models.Index(fields=('object_type', 'object_id')),
         )
+        verbose_name = _('auto sync record')
+        verbose_name_plural = _('auto sync records')

@@ -28,6 +28,8 @@ class ContactGroup(NestedGroupModel):
                 name='%(app_label)s_%(class)s_unique_parent_name'
             ),
         )
+        verbose_name = _('contact group')
+        verbose_name_plural = _('contact groups')
 
     def get_absolute_url(self):
         return reverse('tenancy:contactgroup', args=[self.pk])
@@ -39,6 +41,11 @@ class ContactRole(OrganizationalModel):
     """
     def get_absolute_url(self):
         return reverse('tenancy:contactrole', args=[self.pk])
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('contact role')
+        verbose_name_plural = _('contact roles')
 
 
 class Contact(PrimaryModel):
@@ -92,6 +99,8 @@ class Contact(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_group_name'
             ),
         )
+        verbose_name = _('contact')
+        verbose_name_plural = _('contacts')
 
     def __str__(self):
         return self.name
@@ -137,6 +146,8 @@ class ContactAssignment(ChangeLoggedModel, TagsMixin):
                 name='%(app_label)s_%(class)s_unique_object_contact_role'
             ),
         )
+        verbose_name = _('contact assignment')
+        verbose_name_plural = _('contact assignments')
 
     def __str__(self):
         if self.priority:

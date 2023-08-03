@@ -79,8 +79,8 @@ class VLANGroup(OrganizationalModel):
                 name='%(app_label)s_%(class)s_unique_scope_slug'
             ),
         )
-        verbose_name = 'VLAN group'
-        verbose_name_plural = 'VLAN groups'
+        verbose_name = _('VLAN group')
+        verbose_name_plural = _('VLAN groups')
 
     def get_absolute_url(self):
         return reverse('ipam:vlangroup', args=[self.pk])
@@ -204,8 +204,8 @@ class VLAN(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_group_name'
             ),
         )
-        verbose_name = 'VLAN'
-        verbose_name_plural = 'VLANs'
+        verbose_name = _('VLAN')
+        verbose_name_plural = _('VLANs')
 
     def __str__(self):
         return f'{self.name} ({self.vid})'

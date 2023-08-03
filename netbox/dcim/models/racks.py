@@ -43,6 +43,11 @@ class RackRole(OrganizationalModel):
         default=ColorChoices.COLOR_GREY
     )
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('rack role')
+        verbose_name_plural = _('rack roles')
+
     def get_absolute_url(self):
         return reverse('dcim:rackrole', args=[self.pk])
 
@@ -216,6 +221,8 @@ class Rack(PrimaryModel, WeightMixin):
                 name='%(app_label)s_%(class)s_unique_location_facility_id'
             ),
         )
+        verbose_name = _('rack')
+        verbose_name_plural = _('racks')
 
     def __str__(self):
         if self.facility_id:
@@ -538,6 +545,8 @@ class RackReservation(PrimaryModel):
 
     class Meta:
         ordering = ['created', 'pk']
+        verbose_name = _('rack reservation')
+        verbose_name_plural = _('rack reservations')
 
     def __str__(self):
         return "Reservation for rack {}".format(self.rack)
