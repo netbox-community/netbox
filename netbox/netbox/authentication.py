@@ -1,4 +1,5 @@
 import logging
+import requests
 from collections import defaultdict
 
 from django.conf import settings
@@ -394,32 +395,65 @@ class AuthFailed(Exception):
 
 def azure_map_groups(response, user, backend, *args, **kwargs):
     '''
-    Assign user to netbox group matching role
-    Also set is_superuser or is_staff for special roles 'superusers' and 'staff'
+    Map Azure AD group ID to Netbox group
+    Also set is_superuser or is_staff based on config map
     '''
-    print(f"response: {response}")
-    return
-    try:
-        roles = response['roles']
-    except KeyError:
-        user.groups.clear()
-        raise AuthFailed("No role assigned")
+    if not getattr(settings, "SOCIAL_AUTH_AZUREAD_MAP_GROUP_PERMS", False):
+        return
 
-    try:
-        user.is_superuser = False
-        user.is_staff = False
+    flags_by_group = getattr(settings, "SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP", False)
+    if not flags_by_group:
+        raise ImproperlyConfigured(
+            "Azure group mapping has been configured, but SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP is not defined."
+        )
 
-        for role in roles:
-            if role == 'superusers':
+    group_mapping = getattr(settings, "SOCIAL_AUTH_AZUREAD_GROUP_MAP", False)
+    if not group_mapping:
+        raise ImproperlyConfigured(
+            "Azure group mapping has been configured, but SOCIAL_AUTH_AZUREAD_GROUP_MAP is not defined."
+        )
+
+    url = 'https://graph.microsoft.com/v1.0/me'
+
+    access_token = response.get('access_token')
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+        'Authorization': f'Bearer {access_token}',
+    }
+
+    response = requests.get(
+        url,
+        headers=headers,
+    )
+    uid = response.json().get('id')
+    url = f"https://graph.microsoft.com/v1.0/users/{uid}/memberOf"
+    response = requests.get(
+        url,
+        headers=headers,
+    )
+
+    user.is_superuser = False
+    user.is_staff = False
+    values = response.json().get('value', [])
+
+    for value in values:
+        # AD response contains both directories and groups - we only want groups
+        if value.get('@odata.type') == '#microsoft.graph.group':
+            group_id = value.get('id', None)
+            user.is_active = True
+
+            if group_id in flags_by_group['is_superuser']:
                 user.is_superuser = True
                 user.save()
-                continue
-            if role == "staff":
+
+            if group_id in flags_by_group['is_staff']:
                 user.is_staff = True
                 user.save()
-                continue
 
-            group, created = Group.objects.get_or_create(name=role)
-            group.user_set.add(user)
-    except Group.DoesNotExist:
-        pass
+            if group_id in group_mapping:
+                group = Group.objects.get(name=group_mapping[group_id])
+                if group:
+                    group.user_set.add(user)
+                else:
+                    logger.info(f"Azure group mapping - group: {group_mapping[group_id]} not found.")
