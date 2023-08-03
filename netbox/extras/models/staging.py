@@ -41,6 +41,8 @@ class Branch(ChangeLoggedModel):
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('branch')
+        verbose_name_plural = _('branches')
 
     def __str__(self):
         return f'{self.name} ({self.pk})'
@@ -89,6 +91,8 @@ class StagedChange(ChangeLoggedModel):
 
     class Meta:
         ordering = ('pk',)
+        verbose_name = _('staged change')
+        verbose_name_plural = _('staged changes')
 
     def __str__(self):
         action = self.get_action_display()

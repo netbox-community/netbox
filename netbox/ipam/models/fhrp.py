@@ -54,7 +54,8 @@ class FHRPGroup(PrimaryModel):
 
     class Meta:
         ordering = ['protocol', 'group_id', 'pk']
-        verbose_name = 'FHRP group'
+        verbose_name = _('FHRP group')
+        verbose_name_plural = _('FHRP groups')
 
     def __str__(self):
         name = ''
@@ -108,6 +109,7 @@ class FHRPGroupAssignment(ChangeLoggedModel):
             ),
         )
         verbose_name = _('FHRP group assignment')
+        verbose_name_plural = _('FHRP group assignments')
 
     def __str__(self):
         return f'{self.interface}: {self.group} ({self.priority})'

@@ -298,6 +298,10 @@ class ConsolePort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
 
     clone_fields = ('device', 'module', 'type', 'speed')
 
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('console port')
+        verbose_name_plural = _('console ports')
+
     def get_absolute_url(self):
         return reverse('dcim:consoleport', kwargs={'pk': self.pk})
 
@@ -322,6 +326,10 @@ class ConsoleServerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, 
     )
 
     clone_fields = ('device', 'module', 'type', 'speed')
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('console server port')
+        verbose_name_plural = _('console server ports')
 
     def get_absolute_url(self):
         return reverse('dcim:consoleserverport', kwargs={'pk': self.pk})
@@ -358,6 +366,10 @@ class PowerPort(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracking
     )
 
     clone_fields = ('device', 'module', 'maximum_draw', 'allocated_draw')
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('power port')
+        verbose_name_plural = _('power ports')
 
     def get_absolute_url(self):
         return reverse('dcim:powerport', kwargs={'pk': self.pk})
@@ -472,6 +484,10 @@ class PowerOutlet(ModularComponentModel, CabledObjectModel, PathEndpoint, Tracki
     )
 
     clone_fields = ('device', 'module', 'type', 'power_port', 'feed_leg')
+
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('power outlet')
+        verbose_name_plural = _('power outlets')
 
     def get_absolute_url(self):
         return reverse('dcim:poweroutlet', kwargs={'pk': self.pk})
@@ -718,6 +734,8 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
 
     class Meta(ModularComponentModel.Meta):
         ordering = ('device', CollateAsChar('_name'))
+        verbose_name = _('interface')
+        verbose_name_plural = _('interfaces')
 
     def get_absolute_url(self):
         return reverse('dcim:interface', kwargs={'pk': self.pk})
@@ -977,6 +995,8 @@ class FrontPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
                 name='%(app_label)s_%(class)s_unique_rear_port_position'
             ),
         )
+        verbose_name = _('front port')
+        verbose_name_plural = _('front ports')
 
     def get_absolute_url(self):
         return reverse('dcim:frontport', kwargs={'pk': self.pk})
@@ -1032,6 +1052,10 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
     )
     clone_fields = ('device', 'type', 'color', 'positions')
 
+    class Meta(ModularComponentModel.Meta):
+        verbose_name = _('rear port')
+        verbose_name_plural = _('rear ports')
+
     def get_absolute_url(self):
         return reverse('dcim:rearport', kwargs={'pk': self.pk})
 
@@ -1066,6 +1090,10 @@ class ModuleBay(ComponentModel, TrackingModelMixin):
 
     clone_fields = ('device',)
 
+    class Meta(ComponentModel.Meta):
+        verbose_name = _('module bay')
+        verbose_name_plural = _('module bays')
+
     def get_absolute_url(self):
         return reverse('dcim:modulebay', kwargs={'pk': self.pk})
 
@@ -1083,6 +1111,10 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
     )
 
     clone_fields = ('device',)
+
+    class Meta(ComponentModel.Meta):
+        verbose_name = _('device bay')
+        verbose_name_plural = _('device bays')
 
     def get_absolute_url(self):
         return reverse('dcim:devicebay', kwargs={'pk': self.pk})
@@ -1124,6 +1156,11 @@ class InventoryItemRole(OrganizationalModel):
         verbose_name=_('color'),
         default=ColorChoices.COLOR_GREY
     )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('inventory item role')
+        verbose_name_plural = _('inventory item roles')
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitemrole', args=[self.pk])
@@ -1209,6 +1246,8 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
                 name='%(app_label)s_%(class)s_unique_device_parent_name'
             ),
         )
+        verbose_name = _('inventory item')
+        verbose_name_plural = _('inventory items')
 
     def get_absolute_url(self):
         return reverse('dcim:inventoryitem', kwargs={'pk': self.pk})

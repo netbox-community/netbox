@@ -59,8 +59,8 @@ class VRF(PrimaryModel):
 
     class Meta:
         ordering = ('name', 'rd', 'pk')  # (name, rd) may be non-unique
-        verbose_name = 'VRF'
-        verbose_name_plural = 'VRFs'
+        verbose_name = _('VRF')
+        verbose_name_plural = _('VRFs')
 
     def __str__(self):
         if self.rd:
@@ -91,6 +91,8 @@ class RouteTarget(PrimaryModel):
 
     class Meta:
         ordering = ['name']
+        verbose_name = _('route target')
+        verbose_name_plural = _('route targets')
 
     def __str__(self):
         return self.name

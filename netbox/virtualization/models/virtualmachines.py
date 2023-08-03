@@ -157,6 +157,8 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
                 violation_error_message=_("Virtual machine name must be unique per cluster.")
             ),
         )
+        verbose_name = _('virtual machine')
+        verbose_name_plural = _('virtual machines')
 
     def __str__(self):
         return self.name
@@ -307,7 +309,8 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
                 name='%(app_label)s_%(class)s_unique_virtual_machine_name'
             ),
         )
-        verbose_name = 'interface'
+        verbose_name = _('interface')
+        verbose_name_plural = _('interfaces')
 
     def __str__(self):
         return self.name

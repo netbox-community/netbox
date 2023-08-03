@@ -25,6 +25,11 @@ class CircuitType(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('circuits:circuittype', args=[self.pk])
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('circuit type')
+        verbose_name_plural = _('circuit types')
+
 
 class Circuit(PrimaryModel):
     """
@@ -131,6 +136,8 @@ class Circuit(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
         )
+        verbose_name = _('circuit')
+        verbose_name_plural = _('circuits')
 
     def __str__(self):
         return self.cid
@@ -217,6 +224,8 @@ class CircuitTermination(
                 name='%(app_label)s_%(class)s_unique_circuit_term_side'
             ),
         )
+        verbose_name = _('circuit termination')
+        verbose_name_plural = _('circuit terminations')
 
     def __str__(self):
         return f'{self.circuit}: Termination {self.term_side}'

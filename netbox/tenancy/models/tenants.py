@@ -29,6 +29,8 @@ class TenantGroup(NestedGroupModel):
 
     class Meta:
         ordering = ['name']
+        verbose_name = _('tenant group')
+        verbose_name_plural = _('tenant groups')
 
     def get_absolute_url(self):
         return reverse('tenancy:tenantgroup', args=[self.pk])
@@ -88,6 +90,8 @@ class Tenant(PrimaryModel):
                 condition=Q(group__isnull=True)
             ),
         )
+        verbose_name = _('tenant')
+        verbose_name_plural = _('tenants')
 
     def __str__(self):
         return self.name

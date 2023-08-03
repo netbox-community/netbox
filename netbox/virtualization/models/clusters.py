@@ -19,6 +19,11 @@ class ClusterType(OrganizationalModel):
     """
     A type of Cluster.
     """
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('cluster type')
+        verbose_name_plural = _('cluster types')
+
     def get_absolute_url(self):
         return reverse('virtualization:clustertype', args=[self.pk])
 
@@ -37,6 +42,11 @@ class ClusterGroup(OrganizationalModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('cluster group')
+        verbose_name_plural = _('cluster groups')
 
     def get_absolute_url(self):
         return reverse('virtualization:clustergroup', args=[self.pk])
@@ -114,6 +124,8 @@ class Cluster(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_site_name'
             ),
         )
+        verbose_name = _('cluster')
+        verbose_name_plural = _('clusters')
 
     def __str__(self):
         return self.name

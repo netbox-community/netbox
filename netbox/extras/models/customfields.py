@@ -202,6 +202,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ['group_name', 'weight', 'name']
+        verbose_name = _('custom field')
+        verbose_name_plural = _('custom fields')
 
     def __str__(self):
         return self.label or self.name.replace('_', ' ').capitalize()
@@ -710,6 +712,8 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('custom field choice set')
+        verbose_name_plural = _('custom field choice sets')
 
     def __str__(self):
         return self.name

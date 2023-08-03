@@ -62,6 +62,8 @@ class Region(NestedGroupModel):
                 violation_error_message=_("A top-level region with this slug already exists.")
             ),
         )
+        verbose_name = _('region')
+        verbose_name_plural = _('regions')
 
     def get_absolute_url(self):
         return reverse('dcim:region', args=[self.pk])
@@ -117,6 +119,8 @@ class SiteGroup(NestedGroupModel):
                 violation_error_message=_("A top-level site group with this slug already exists.")
             ),
         )
+        verbose_name = _('site group')
+        verbose_name_plural = _('site groups')
 
     def get_absolute_url(self):
         return reverse('dcim:sitegroup', args=[self.pk])
@@ -244,6 +248,8 @@ class Site(PrimaryModel):
 
     class Meta:
         ordering = ('_name',)
+        verbose_name = _('site')
+        verbose_name_plural = _('sites')
 
     def __str__(self):
         return self.name
@@ -326,6 +332,8 @@ class Location(NestedGroupModel):
                 violation_error_message=_("A location with this slug already exists within the specified site.")
             ),
         )
+        verbose_name = _('location')
+        verbose_name_plural = _('locations')
 
     def get_absolute_url(self):
         return reverse('dcim:location', args=[self.pk])

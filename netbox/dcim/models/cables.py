@@ -91,6 +91,8 @@ class Cable(PrimaryModel):
 
     class Meta:
         ordering = ('pk',)
+        verbose_name = _('cable')
+        verbose_name_plural = _('cables')
 
     def __init__(self, *args, a_terminations=None, b_terminations=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -292,6 +294,8 @@ class CableTermination(ChangeLoggedModel):
                 name='%(app_label)s_%(class)s_unique_termination'
             ),
         )
+        verbose_name = _('cable termination')
+        verbose_name_plural = _('cable terminations')
 
     def __str__(self):
         return f'Cable {self.cable} to {self.termination}'
@@ -426,6 +430,10 @@ class CablePath(models.Model):
         default=False
     )
     _nodes = PathField()
+
+    class Meta:
+        verbose_name = _('cable path')
+        verbose_name_plural = _('cable paths')
 
     def __str__(self):
         return f"Path #{self.pk}: {len(self.path)} hops"
