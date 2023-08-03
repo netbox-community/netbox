@@ -449,7 +449,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 choices=choices,
                 required=required,
                 initial=initial,
-                widget=widget_class(api_url=f'/api/extras/custom-field-choices/{self.choice_set.pk}/choices/')
+                widget=widget_class(api_url=f'/api/extras/custom-field-choice-sets/{self.choice_set.pk}/choices/')
             )
 
         # URL

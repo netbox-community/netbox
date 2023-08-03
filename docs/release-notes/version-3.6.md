@@ -6,6 +6,7 @@
 
 * [#13351](https://github.com/netbox-community/netbox/issues/13351) - Fix missing text due to incorrectly applied translation tags
 * [#13361](https://github.com/netbox-community/netbox/issues/13361) - Extra choices field on custom field choice set form should not be required
+* [#13363](https://github.com/netbox-community/netbox/issues/13363) - Fix API endpoint for custom field choice selector in forms
 
 ---
 
