@@ -83,7 +83,6 @@ class APIViewTestCases:
                 response = self.client.get(url, **self.header)
                 self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_without_permission(self):
             """
             GET a single object as an authenticated user without the required permission.
@@ -94,7 +93,6 @@ class APIViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object(self):
             """
             GET a single object as an authenticated user with permission to view the object.
@@ -148,7 +146,6 @@ class APIViewTestCases:
                 self.assertHttpStatus(response, status.HTTP_200_OK)
                 self.assertEqual(len(response.data['results']), self._get_queryset().count())
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_brief(self):
             """
             GET a list of objects using the "brief" parameter.
@@ -160,7 +157,6 @@ class APIViewTestCases:
             self.assertEqual(len(response.data['results']), self._get_queryset().count())
             self.assertEqual(sorted(response.data['results'][0]), self.brief_fields)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_without_permission(self):
             """
             GET a list of objects as an authenticated user without the required permission.
@@ -171,7 +167,6 @@ class APIViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects(self):
             """
             GET a list of objects as an authenticated user with permission to view the objects.

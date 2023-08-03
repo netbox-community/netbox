@@ -75,7 +75,6 @@ class ViewTestCases:
                 response = self.client.get(self._get_queryset().first().get_absolute_url())
                 self.assertHttpStatus(response, 200)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_without_permission(self):
             instance = self._get_queryset().first()
 
@@ -83,7 +82,6 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_with_permission(self):
             instance = self._get_queryset().first()
 
@@ -99,7 +97,6 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(instance.get_absolute_url()), 200)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_with_constrained_permission(self):
             instance1, instance2 = self._get_queryset().all()[:2]
 
@@ -429,14 +426,12 @@ class ViewTestCases:
                 response = self.client.get(self._get_url('list'))
                 self.assertHttpStatus(response, 200)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_without_permission(self):
 
             # Try GET without permission
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(self._get_url('list')), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_with_permission(self):
 
             # Add model-level permission
@@ -451,7 +446,6 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('list')), 200)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_with_constrained_permission(self):
             instance1, instance2 = self._get_queryset().all()[:2]
 
@@ -472,7 +466,6 @@ class ViewTestCases:
             self.assertIn(instance1.get_absolute_url(), content)
             self.assertNotIn(instance2.get_absolute_url(), content)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_export_objects(self):
             url = self._get_url('list')
 
@@ -506,7 +499,6 @@ class ViewTestCases:
         bulk_create_data = {}
         validation_excluded_fields = []
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_multiple_objects_without_permission(self):
             request = {
                 'path': self._get_url('add'),
@@ -517,7 +509,6 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(**request), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_multiple_objects_with_permission(self):
             initial_count = self._get_queryset().count()
             request = {
@@ -541,7 +532,6 @@ class ViewTestCases:
             for instance in self._get_queryset().order_by('-pk')[:self.bulk_create_count]:
                 self.assertInstanceEqual(instance, self.bulk_create_data, exclude=self.validation_excluded_fields)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_create_multiple_objects_with_constrained_permission(self):
             initial_count = self._get_queryset().count()
             request = {
@@ -785,7 +775,6 @@ class ViewTestCases:
         """
         Delete multiple instances.
         """
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_delete_objects_without_permission(self):
             pk_list = self._get_queryset().values_list('pk', flat=True)[:3]
             data = {
@@ -802,7 +791,6 @@ class ViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 403)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_delete_objects_with_permission(self):
             pk_list = self._get_queryset().values_list('pk', flat=True)
             data = {
@@ -824,7 +812,6 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(self._get_url('bulk_delete'), data), 302)
             self.assertEqual(self._get_queryset().count(), 0)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_bulk_delete_objects_with_constrained_permission(self):
             pk_list = self._get_queryset().values_list('pk', flat=True)
             data = {
