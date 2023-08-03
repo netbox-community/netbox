@@ -1,9 +1,0 @@
-{% extends 'generic/confirmation_form.html' %}
-{% load form_helpers %}
-{% load i18n %}
-
-{% block title %}{% blocktrans %}Delete interface {{ interface }}?{% endblocktrans %}{% endblock %}
-
-{% block message %}
-    <p>{% blocktrans %}Are you sure you want to delete this interface from <strong>{{ interface.device }}</strong>?{% endblocktrans %}</p>
-{% endblock %}

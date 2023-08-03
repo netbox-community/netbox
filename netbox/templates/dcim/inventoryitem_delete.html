@@ -1,9 +1,0 @@
-{% extends 'generic/confirmation_form.html' %}
-{% load form_helpers %}
-{% load i18n %}
-
-{% block title %}{% blocktrans %}Delete inventory item {{ inventoryitem }}?{% endblocktrans %}{% endblock %}
-
-{% block message %}
-    <p>{% blocktrans %}Are you sure you want to delete this inventory item from <strong>{{ inventoryitem.device }}</strong>?{% endblocktrans %}</p>
-{% endblock %}
