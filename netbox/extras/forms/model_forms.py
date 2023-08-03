@@ -89,6 +89,11 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
 class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
+        required=False,
+        help_text=_(
+            'Enter one choice per line. An optional label may be specified for each choice by appending it with a '
+            'comma (for example, "choice1,First Choice").'
+        )
     )
 
     class Meta:
