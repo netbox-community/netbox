@@ -413,6 +413,8 @@ def azure_map_groups(response, user, backend, *args, **kwargs):
             "Azure group mapping has been configured, but SOCIAL_AUTH_AZUREAD_GROUP_MAP is not defined."
         )
 
+    all_users_active = getattr(settings, "SOCIAL_AUTH_AZUREAD_USER_DEFAULT_ACTIVE", False)
+
     url = 'https://graph.microsoft.com/v1.0/me'
 
     access_token = response.get('access_token')
@@ -433,23 +435,24 @@ def azure_map_groups(response, user, backend, *args, **kwargs):
         headers=headers,
     )
 
-    user.is_superuser = False
-    user.is_staff = False
+    is_superuser = False
+    is_staff = False
     values = response.json().get('value', [])
 
     for value in values:
         # AD response contains both directories and groups - we only want groups
         if value.get('@odata.type') == '#microsoft.graph.group':
             group_id = value.get('id', None)
-            user.is_active = True
+            if all_users_active:
+                is_active = True
+            else:
+                is_active = group_id in flags_by_group['is_active']
 
             if group_id in flags_by_group['is_superuser']:
-                user.is_superuser = True
-                user.save()
+                is_superuser = True
 
             if group_id in flags_by_group['is_staff']:
-                user.is_staff = True
-                user.save()
+                is_staff = True
 
             if group_id in group_mapping:
                 group = Group.objects.get(name=group_mapping[group_id])
@@ -457,3 +460,8 @@ def azure_map_groups(response, user, backend, *args, **kwargs):
                     group.user_set.add(user)
                 else:
                     logger.info(f"Azure group mapping - group: {group_mapping[group_id]} not found.")
+
+    user.is_superuser = is_superuser
+    user.is_staff = is_staff
+    user.is_active = is_active
+    user.save()
