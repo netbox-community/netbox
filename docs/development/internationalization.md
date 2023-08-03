@@ -13,8 +13,9 @@ NetBox follows the [Django translation guide](https://docs.djangoproject.com/en/
 ## Models
 
 1. Import gettext_lazy.
-2. Make sure all model fields have a verbose_name defined.
-3. Wrap all verbose_name and help_text fields with the gettext_lazy shortcut.
+2. Define both verbose_name and verbose_name_plural in the model Meta and wrap them strings with the gettext_lazy shortcut.
+3. Make sure all model fields have a verbose_name defined.
+4. Wrap all verbose_name and help_text fields with the gettext_lazy shortcut.
 
 ```
 from django.utils.translation import gettext_lazy as _
@@ -26,6 +27,9 @@ class Circuit(PrimaryModel):
         help_text=_("Committed rate")
     )
 
+    class Meta:
+        verbose_name = _('circuit')
+        verbose_name_plural = _('circuits')
 ```
 **Note:** The Django docs specifically state for internationalization: "It is recommended to always provide explicit verbose_name and verbose_name_plural options"
 
