@@ -3,9 +3,15 @@ from django.conf import settings
 from django.core.management.base import CommandError
 from django.core.management.commands.makemigrations import Command as _Command
 from django.db import models
+from django.db.migrations.operations import AlterModelOptions
 
 from utilities.migration import custom_deconstruct
 
+# Monkey patch AlterModelOptions to ignore verbose name attributes
+AlterModelOptions.ALTER_OPTION_KEYS.remove('verbose_name')
+AlterModelOptions.ALTER_OPTION_KEYS.remove('verbose_name_plural')
+
+# Set our custom deconstructor for fields
 models.Field.deconstruct = custom_deconstruct
 
 
