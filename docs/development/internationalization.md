@@ -13,7 +13,7 @@ NetBox follows the [Django translation guide](https://docs.djangoproject.com/en/
 ## Models
 
 1. Import gettext_lazy.
-2. Define both verbose_name and verbose_name_plural in the model Meta and wrap them strings with the gettext_lazy shortcut.
+2. Define both verbose_name and verbose_name_plural in the model Meta and wrap the strings with the gettext_lazy shortcut.
 3. Make sure all model fields have a verbose_name defined.
 4. Wrap all verbose_name and help_text fields with the gettext_lazy shortcut.
 
