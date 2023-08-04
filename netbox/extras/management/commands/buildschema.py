@@ -4,6 +4,7 @@ from json import loads as json_loads
 from jinja2 import FileSystemLoader, Environment
 
 from django.core.management.base import BaseCommand
+from django.conf import settings
 
 from dcim.choices import DeviceAirflowChoices
 from dcim.choices import SubdeviceRoleChoices
@@ -44,9 +45,9 @@ class Command(BaseCommand):
         schemas["interface_poe_type_choices"] = json_dumps(InterfacePoETypeChoices.values())
         schemas["port_type_choices"] = json_dumps(PortTypeChoices.values())  # front-ports and rear-ports
 
-        template_loader = FileSystemLoader(searchpath=f'{os_path.dirname(__file__)}/../templates')
+        template_loader = FileSystemLoader(searchpath=f'{settings.TEMPLATES_DIR}/extras/')
         template_env = Environment(loader=template_loader)
-        TEMPLATE_FILE = 'generated_schema.json.j2'
+        TEMPLATE_FILE = 'generated_schema.json'
         template = template_env.get_template(TEMPLATE_FILE)
         outputText = template.render(schemas=schemas)
 
@@ -55,6 +56,6 @@ class Command(BaseCommand):
 
         if kwargs['file']:
             print()
-            with open(f'{os_path.dirname(__file__)}/../../../../contrib/generated_schema.json', 'w') as generated_json_file:
+            with open(f'{settings.BASE_DIR}/../contrib/generated_schema.json', 'w') as generated_json_file:
                 generated_json_file.write(json_dumps(json_loads(outputText), indent=4))
                 generated_json_file.close()
