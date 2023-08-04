@@ -1,19 +1,15 @@
-from os import path as os_path
 from json import dumps as json_dumps
 from json import loads as json_loads
 from jinja2 import FileSystemLoader, Environment
 
-from django.core.management.base import BaseCommand
 from django.conf import settings
+from django.core.management.base import BaseCommand
 
-from dcim.choices import DeviceAirflowChoices
-from dcim.choices import SubdeviceRoleChoices
-from dcim.choices import ConsolePortTypeChoices
-from dcim.choices import PowerPortTypeChoices
-from dcim.choices import PowerOutletTypeChoices, PowerOutletFeedLegChoices
-from dcim.choices import InterfaceTypeChoices, InterfacePoEModeChoices, InterfacePoETypeChoices
-from dcim.choices import PortTypeChoices
-from dcim.choices import WeightUnitChoices
+from dcim.choices import (
+    DeviceAirflowChoices, SubdeviceRoleChoices, ConsolePortTypeChoices, PowerPortTypeChoices,
+    PowerOutletTypeChoices, PowerOutletFeedLegChoices, InterfaceTypeChoices, InterfacePoEModeChoices,
+    InterfacePoETypeChoices, PortTypeChoices, WeightUnitChoices
+)
 
 
 class Command(BaseCommand):
@@ -55,7 +51,7 @@ class Command(BaseCommand):
             print(json_dumps(json_loads(outputText), indent=4))
 
         if kwargs['file']:
-            print()
-            with open(f'{settings.BASE_DIR}/../contrib/generated_schema.json', 'w') as generated_json_file:
+            with open(f'{settings.BASE_DIR}/../contrib/generated_schema.json', mode='w', encoding='UTF-8') as generated_json_file:
                 generated_json_file.write(json_dumps(json_loads(outputText), indent=4))
+                generated_json_file.write('\n')
                 generated_json_file.close()
