@@ -15,7 +15,7 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.svg import RackElevationSVG
 from netbox.models import OrganizationalModel, PrimaryModel
-from netbox.models.features import ImageAttachmentsMixin
+from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.utils import array_to_string, drange, to_grams
@@ -53,7 +53,7 @@ class RackRole(OrganizationalModel):
         return reverse('dcim:rackrole', args=[self.pk])
 
 
-class Rack(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
+class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     """
     Devices are housed within Racks. Each rack has a defined height measured in rack units, and a front and rear face.
     Each Rack is assigned to a Site and (optionally) a Location.
@@ -193,9 +193,6 @@ class Rack(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='rack'
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     clone_fields = (

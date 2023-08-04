@@ -1,10 +1,10 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 
 __all__ = (
     'Tenant',
@@ -36,7 +36,7 @@ class TenantGroup(NestedGroupModel):
         return reverse('tenancy:tenantgroup', args=[self.pk])
 
 
-class Tenant(PrimaryModel):
+class Tenant(ContactsMixin, PrimaryModel):
     """
     A Tenant represents an organization served by the NetBox owner. This is typically a customer or an internal
     department.
@@ -55,11 +55,6 @@ class Tenant(PrimaryModel):
         related_name='tenants',
         blank=True,
         null=True
-    )
-
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     clone_fields = (

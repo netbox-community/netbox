@@ -12,6 +12,7 @@ from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
 from netbox.models import NetBoxModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 from utilities.fields import CounterCacheField, NaturalOrderingField
 from utilities.ordering import naturalize_interface
 from utilities.query_functions import CollateAsChar
@@ -24,7 +25,7 @@ __all__ = (
 )
 
 
-class VirtualMachine(PrimaryModel, ConfigContextModel):
+class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -127,11 +128,6 @@ class VirtualMachine(PrimaryModel, ConfigContextModel):
     interface_count = CounterCacheField(
         to_model='virtualization.VMInterface',
         to_field='virtual_machine'
-    )
-
-    # Generic relation
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     objects = ConfigContextModelQuerySet.as_manager()

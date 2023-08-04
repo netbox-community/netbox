@@ -25,6 +25,7 @@ __all__ = (
     'BookmarksMixin',
     'ChangeLoggingMixin',
     'CloningMixin',
+    'ContactsMixin',
     'CustomFieldsMixin',
     'CustomLinksMixin',
     'CustomValidationMixin',
@@ -314,6 +315,18 @@ class ImageAttachmentsMixin(models.Model):
     """
     images = GenericRelation(
         to='extras.ImageAttachment'
+    )
+
+    class Meta:
+        abstract = True
+
+
+class ContactsMixin(models.Model):
+    """
+    Enables the assignments of Contacts (via ContactAssignment).
+    """
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
     )
 
     class Meta:

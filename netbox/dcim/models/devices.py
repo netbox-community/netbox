@@ -3,7 +3,6 @@ import yaml
 
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -20,7 +19,7 @@ from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
-from netbox.models.features import ImageAttachmentsMixin
+from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
@@ -45,15 +44,10 @@ __all__ = (
 # Device Types
 #
 
-class Manufacturer(OrganizationalModel):
+class Manufacturer(ContactsMixin, OrganizationalModel):
     """
     A Manufacturer represents a company which produces hardware devices; for example, Juniper or Dell.
     """
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
-    )
-
     class Meta:
         ordering = ('name',)
         verbose_name = _('manufacturer')
@@ -531,7 +525,7 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-class Device(ImageAttachmentsMixin, PrimaryModel, ConfigContextModel, TrackingModelMixin):
+class Device(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, ConfigContextModel, TrackingModelMixin):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -756,11 +750,6 @@ class Device(ImageAttachmentsMixin, PrimaryModel, ConfigContextModel, TrackingMo
     inventory_item_count = CounterCacheField(
         to_model='dcim.InventoryItem',
         to_field='device'
-    )
-
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     objects = ConfigContextModelQuerySet.as_manager()

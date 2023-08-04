@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -8,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from netbox.config import ConfigItem
 from netbox.models import PrimaryModel
-from netbox.models.features import ImageAttachmentsMixin
+from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.validators import ExclusionValidator
 from .device_components import CabledObjectModel, PathEndpoint
 
@@ -22,7 +21,7 @@ __all__ = (
 # Power
 #
 
-class PowerPanel(ImageAttachmentsMixin, PrimaryModel):
+class PowerPanel(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -39,11 +38,6 @@ class PowerPanel(ImageAttachmentsMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
-    )
-
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     prerequisite_models = (
