@@ -1042,6 +1042,9 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         queryset=VirtualDeviceContext.objects.all(),
         required=False,
         label='Virtual Device Contexts',
+        initial_params={
+            'interfaces': '$parent',
+        },
         query_params={
             'device_id': '$device',
         }
