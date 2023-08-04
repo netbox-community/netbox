@@ -6,6 +6,7 @@ from django.db import transaction
 from django.db.models import ProtectedError
 from django.shortcuts import redirect, render
 from django.urls import reverse
+from django.urls.exceptions import NoReverseMatch
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
@@ -90,6 +91,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     child_model = None
     table = None
     filterset = None
+    template_name = 'inc/tab_view.html'
 
     def get_children(self, request, parent):
         """
@@ -111,6 +113,28 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             parent: The parent object
         """
         return queryset
+
+    def get_extra_context(self, request, instance):
+        context = super().get_extra_context(request, instance)
+
+        return_url = '?return_url=' + request.get_full_path()
+        bulk_edit_url = reverse(f'{self.child_model._meta.app_label}:{self.child_model._meta.model_name}_bulk_edit') + return_url
+        bulk_delete_url = reverse(f'{self.child_model._meta.app_label}:{self.child_model._meta.model_name}_bulk_delete') + return_url
+
+        try:
+            bulk_rename_url = reverse(
+                f'{self.child_model._meta.app_label}:{self.child_model._meta.model_name}_bulk_rename') + return_url
+        except NoReverseMatch:
+            bulk_rename_url = None
+
+        context.update({
+            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
+            'table_config': f'{self.table.__name__}_config',
+            'bulk_edit_url': bulk_edit_url,
+            'bulk_delete_url': bulk_delete_url,
+            'bulk_rename_url': bulk_rename_url,
+        })
+        return context
 
     #
     # Request handlers

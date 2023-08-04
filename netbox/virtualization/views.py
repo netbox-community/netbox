@@ -175,7 +175,6 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
-    template_name = 'virtualization/cluster/virtual_machines.html'
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -193,7 +192,6 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     child_model = Device
     table = DeviceTable
     filterset = DeviceFilterSet
-    template_name = 'virtualization/cluster/devices.html'
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -346,7 +344,6 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
-    template_name = 'virtualization/virtualmachine/interfaces.html'
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interfaces.count(),

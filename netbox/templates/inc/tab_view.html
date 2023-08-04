@@ -1,0 +1,55 @@
+{% extends base_template %}
+{% load helpers %}
+
+{% block content %}
+    {% include 'inc/table_controls_htmx.html' with table_modal=table_config %}
+    <form method="post">
+        {% csrf_token %}
+        <div class="card">
+            <div class="card-body htmx-container table-responsive" id="object_list">
+                {% include 'htmx/table.html' %}
+            </div>
+        </div>
+
+        {% block bulk_controls %}
+            <div class="noprint bulk-buttons">
+                <div class="bulk-button-group">
+                    {% if 'bulk_edit' in actions %}
+                        <div class="btn-group" role="group">
+                            <button type="submit" name="_edit"
+                                    formaction="{{ bulk_edit_url }}"
+                                    class="btn btn-warning btn-sm">
+                                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+                            </button>
+                            {% if bulk_rename_url %}
+                                <button type="submit" name="_rename"
+                                        formaction="{{ bulk_rename_url }}"
+                                        class="btn btn-outline-warning btn-sm">
+                                    <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
+                                </button>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                    <div class="btn-group" role="group">
+                        {% if 'bulk_delete' in actions %}
+                            <button type="submit"
+                                    formaction="{{ bulk_delete_url }}"
+                                    class="btn btn-danger btn-sm">
+                                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                            </button>
+                        {% endif %}
+                        {% block bulk_delete_control %}
+                        {% endblock %}
+                    </div>
+                </div>
+                {% block extra_contols_bottom %}
+                {% endblock %}
+            </div>
+        {% endblock %}
+    </form>
+{% endblock content %}
+
+{% block modals %}
+    {{ block.super }}
+    {% table_config_form table %}
+{% endblock modals %}
