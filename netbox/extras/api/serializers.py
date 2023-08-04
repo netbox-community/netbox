@@ -481,6 +481,11 @@ class ReportSerializer(serializers.Serializer):
     description = serializers.CharField(max_length=255, required=False)
     test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
     result = NestedJobSerializer()
+    display = serializers.SerializerMethodField(read_only=True)
+
+    @extend_schema_field(serializers.CharField())
+    def get_display(self, obj):
+        return f'{obj.name} ({obj.module})'
 
 
 class ReportDetailSerializer(ReportSerializer):
@@ -518,12 +523,17 @@ class ScriptSerializer(serializers.Serializer):
     description = serializers.CharField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
     result = NestedJobSerializer()
+    display = serializers.SerializerMethodField(read_only=True)
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_vars(self, instance):
         return {
             k: v.__class__.__name__ for k, v in instance._get_vars().items()
         }
+
+    @extend_schema_field(serializers.CharField())
+    def get_display(self, obj):
+        return f'{obj.name} ({obj.module})'
 
 
 class ScriptDetailSerializer(ScriptSerializer):

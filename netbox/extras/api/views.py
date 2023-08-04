@@ -243,7 +243,7 @@ class ReportViewSet(ViewSet):
             'request': request,
         })
 
-        return Response(serializer.data)
+        return Response({'count': len(report_list), 'results': serializer.data})
 
     def retrieve(self, request, pk):
         """
@@ -343,7 +343,7 @@ class ScriptViewSet(ViewSet):
 
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
-        return Response(serializer.data)
+        return Response({'count': len(script_list), 'results': serializer.data})
 
     def retrieve(self, request, pk):
         module, script = self._get_script(pk)
