@@ -2,6 +2,18 @@
 
 ## v3.5.8 (FUTURE)
 
+### Enhancements
+
+* [#12889](https://github.com/netbox-community/netbox/issues/12889) - Add 400GE CFP2 interface type
+* [#13033](https://github.com/netbox-community/netbox/issues/13033) - Add human-friendly speed column to interfaces table
+* [#13151](https://github.com/netbox-community/netbox/issues/13151) - Add "assigned" filter for IP addresses
+
+### Bug Fixes
+
+* [#12750](https://github.com/netbox-community/netbox/issues/12750) - Automatically delete an AutoSyncRecord when its object is deleted
+* [#13343](https://github.com/netbox-community/netbox/issues/13343) - Fix filtering of circuits under provider network view
+* [#13369](https://github.com/netbox-community/netbox/issues/13369) - Fix job termination status for failed reports
+
 ---
 
 ## v3.5.7 (2023-07-28)
