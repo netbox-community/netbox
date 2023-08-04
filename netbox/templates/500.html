@@ -30,7 +30,10 @@
 {{ error }}
 
 Python version: {{ python_version }}
-NetBox version: {{ netbox_version }}</pre>
+NetBox version: {{ netbox_version }}
+Plugins: {% for plugin, version in plugins.items %}
+  {{ plugin }}: {{ version }}{% empty %}None installed{% endfor %}
+</pre>
                         <p>
                             If further assistance is required, please post to the <a href="https://github.com/netbox-community/netbox/discussions">NetBox discussion forum</a> on GitHub.
                         </p>
