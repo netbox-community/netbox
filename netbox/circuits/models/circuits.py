@@ -6,9 +6,8 @@ from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
 from dcim.models import CabledObjectModel
-from netbox.models import (
-    ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, PrimaryModel, TagsMixin,
-)
+from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
+from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, ImageAttachmentsMixin, TagsMixin
 
 __all__ = (
     'Circuit',
@@ -31,7 +30,7 @@ class CircuitType(OrganizationalModel):
         verbose_name_plural = _('circuit types')
 
 
-class Circuit(PrimaryModel):
+class Circuit(ImageAttachmentsMixin, PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site, and may optionally be assigned to a particular
@@ -92,9 +91,6 @@ class Circuit(PrimaryModel):
     # Generic relations
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
-    )
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     # Cache associated CircuitTerminations

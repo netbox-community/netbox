@@ -8,6 +8,7 @@ from timezone_field import TimeZoneField
 from dcim.choices import *
 from dcim.constants import *
 from netbox.models import NestedGroupModel, PrimaryModel
+from netbox.models.features import ImageAttachmentsMixin
 from utilities.fields import NaturalOrderingField
 
 __all__ = (
@@ -136,7 +137,7 @@ class SiteGroup(NestedGroupModel):
 # Sites
 #
 
-class Site(PrimaryModel):
+class Site(ImageAttachmentsMixin, PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -237,9 +238,6 @@ class Site(PrimaryModel):
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
     )
-    images = GenericRelation(
-        to='extras.ImageAttachment'
-    )
 
     clone_fields = (
         'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'physical_address', 'shipping_address',
@@ -265,7 +263,7 @@ class Site(PrimaryModel):
 # Locations
 #
 
-class Location(NestedGroupModel):
+class Location(ImageAttachmentsMixin, NestedGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
     site, or a room within a building, for example.
@@ -298,9 +296,6 @@ class Location(NestedGroupModel):
     )
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
-    )
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     clone_fields = ('site', 'parent', 'status', 'tenant', 'description')

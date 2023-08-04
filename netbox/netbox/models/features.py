@@ -29,6 +29,7 @@ __all__ = (
     'CustomLinksMixin',
     'CustomValidationMixin',
     'ExportTemplatesMixin',
+    'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
     'SyncedDataMixin',
@@ -303,6 +304,18 @@ class ExportTemplatesMixin(models.Model):
     """
     Enables support for export templates.
     """
+    class Meta:
+        abstract = True
+
+
+class ImageAttachmentsMixin(models.Model):
+    """
+    Enables the assignments of ImageAttachments.
+    """
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
+
     class Meta:
         abstract = True
 
