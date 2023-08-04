@@ -127,6 +127,11 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
 
         self.fields['pk'].queryset = self.model.objects.all()
 
+        # Restrict tag fields by model
+        ct = ContentType.objects.get_for_model(self.model)
+        self.fields['add_tags'].widget.add_query_param('for_object_type_id', ct.pk)
+        self.fields['remove_tags'].widget.add_query_param('for_object_type_id', ct.pk)
+
         self._extend_nullable_fields()
 
     def _get_form_field(self, customfield):
