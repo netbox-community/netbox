@@ -553,7 +553,6 @@ SOCIAL_AUTH_PIPELINE = (
     'netbox.authentication.user_default_groups_handler',
     'social_core.pipeline.social_auth.load_extra_data',
     'social_core.pipeline.user.user_details',
-    'netbox.authentication.azure_map_groups',
 )
 
 # Load all SOCIAL_AUTH_* settings from the user configuration
