@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 from virtualization.choices import *
 
 __all__ = (
@@ -28,19 +29,15 @@ class ClusterType(OrganizationalModel):
         return reverse('virtualization:clustertype', args=[self.pk])
 
 
-class ClusterGroup(OrganizationalModel):
+class ClusterGroup(ContactsMixin, OrganizationalModel):
     """
     An organizational group of Clusters.
     """
-    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='cluster_group'
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     class Meta:
@@ -52,7 +49,7 @@ class ClusterGroup(OrganizationalModel):
         return reverse('virtualization:clustergroup', args=[self.pk])
 
 
-class Cluster(PrimaryModel):
+class Cluster(ContactsMixin, PrimaryModel):
     """
     A cluster of VirtualMachines. Each Cluster may optionally be associated with one or more Devices.
     """
@@ -100,9 +97,6 @@ class Cluster(PrimaryModel):
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='cluster'
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     clone_fields = (

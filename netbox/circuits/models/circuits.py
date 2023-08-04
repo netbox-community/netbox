@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -7,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from circuits.choices import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, ImageAttachmentsMixin, TagsMixin
+from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ImageAttachmentsMixin, TagsMixin
 
 __all__ = (
     'Circuit',
@@ -30,7 +29,7 @@ class CircuitType(OrganizationalModel):
         verbose_name_plural = _('circuit types')
 
 
-class Circuit(ImageAttachmentsMixin, PrimaryModel):
+class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site, and may optionally be assigned to a particular
@@ -86,11 +85,6 @@ class Circuit(ImageAttachmentsMixin, PrimaryModel):
         null=True,
         verbose_name=_('commit rate (Kbps)'),
         help_text=_("Committed rate")
-    )
-
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     # Cache associated CircuitTerminations

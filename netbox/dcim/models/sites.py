@@ -8,7 +8,7 @@ from timezone_field import TimeZoneField
 from dcim.choices import *
 from dcim.constants import *
 from netbox.models import NestedGroupModel, PrimaryModel
-from netbox.models.features import ImageAttachmentsMixin
+from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.fields import NaturalOrderingField
 
 __all__ = (
@@ -23,21 +23,17 @@ __all__ = (
 # Regions
 #
 
-class Region(NestedGroupModel):
+class Region(ContactsMixin, NestedGroupModel):
     """
     A region represents a geographic collection of sites. For example, you might create regions representing countries,
     states, and/or cities. Regions are recursively nested into a hierarchy: all sites belonging to a child region are
     also considered to be members of its parent and ancestor region(s).
     """
-    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='region'
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     class Meta:
@@ -80,21 +76,17 @@ class Region(NestedGroupModel):
 # Site groups
 #
 
-class SiteGroup(NestedGroupModel):
+class SiteGroup(ContactsMixin, NestedGroupModel):
     """
     A site group is an arbitrary grouping of sites. For example, you might have corporate sites and customer sites; and
     within corporate sites you might distinguish between offices and data centers. Like regions, site groups can be
     nested recursively to form a hierarchy.
     """
-    # Generic relations
     vlan_groups = GenericRelation(
         to='ipam.VLANGroup',
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='site_group'
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     class Meta:
@@ -137,7 +129,7 @@ class SiteGroup(NestedGroupModel):
 # Sites
 #
 
-class Site(ImageAttachmentsMixin, PrimaryModel):
+class Site(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     """
     A Site represents a geographic location within a network; typically a building or campus. The optional facility
     field can be used to include an external designation, such as a data center name (e.g. Equinix SV6).
@@ -235,9 +227,6 @@ class Site(ImageAttachmentsMixin, PrimaryModel):
         object_id_field='scope_id',
         related_query_name='site'
     )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
-    )
 
     clone_fields = (
         'status', 'region', 'group', 'tenant', 'facility', 'time_zone', 'physical_address', 'shipping_address',
@@ -263,7 +252,7 @@ class Site(ImageAttachmentsMixin, PrimaryModel):
 # Locations
 #
 
-class Location(ImageAttachmentsMixin, NestedGroupModel):
+class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
     """
     A Location represents a subgroup of Racks and/or Devices within a Site. A Location may represent a building within a
     site, or a room within a building, for example.
@@ -293,9 +282,6 @@ class Location(ImageAttachmentsMixin, NestedGroupModel):
         content_type_field='scope_type',
         object_id_field='scope_id',
         related_query_name='location'
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     clone_fields = ('site', 'parent', 'status', 'tenant', 'description')

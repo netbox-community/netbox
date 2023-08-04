@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.fields import GenericRelation, GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -9,6 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from ipam.choices import L2VPNTypeChoices
 from ipam.constants import L2VPN_ASSIGNMENT_MODELS
 from netbox.models import NetBoxModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 
 __all__ = (
     'L2VPN',
@@ -16,7 +17,7 @@ __all__ = (
 )
 
 
-class L2VPN(PrimaryModel):
+class L2VPN(ContactsMixin, PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
@@ -53,9 +54,6 @@ class L2VPN(PrimaryModel):
         related_name='l2vpns',
         blank=True,
         null=True
-    )
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     clone_fields = ('type',)

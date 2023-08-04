@@ -1,10 +1,10 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from netbox.models import PrimaryModel
+from netbox.models.features import ContactsMixin
 
 __all__ = (
     'ProviderNetwork',
@@ -13,7 +13,7 @@ __all__ = (
 )
 
 
-class Provider(PrimaryModel):
+class Provider(ContactsMixin, PrimaryModel):
     """
     Each Circuit belongs to a Provider. This is usually a telecommunications company or similar organization. This model
     stores information pertinent to the user's relationship with the Provider.
@@ -35,11 +35,6 @@ class Provider(PrimaryModel):
         blank=True
     )
 
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
-    )
-
     clone_fields = ()
 
     class Meta:
@@ -54,7 +49,7 @@ class Provider(PrimaryModel):
         return reverse('circuits:provider', args=[self.pk])
 
 
-class ProviderAccount(PrimaryModel):
+class ProviderAccount(ContactsMixin, PrimaryModel):
     """
     This is a discrete account within a provider.  Each Circuit belongs to a Provider Account.
     """
@@ -71,11 +66,6 @@ class ProviderAccount(PrimaryModel):
         verbose_name=_('name'),
         max_length=100,
         blank=True
-    )
-
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
     )
 
     clone_fields = ('provider', )
