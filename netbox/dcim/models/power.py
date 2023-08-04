@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from netbox.config import ConfigItem
 from netbox.models import PrimaryModel
+from netbox.models.features import ImageAttachmentsMixin
 from utilities.validators import ExclusionValidator
 from .device_components import CabledObjectModel, PathEndpoint
 
@@ -21,7 +22,7 @@ __all__ = (
 # Power
 #
 
-class PowerPanel(PrimaryModel):
+class PowerPanel(ImageAttachmentsMixin, PrimaryModel):
     """
     A distribution point for electrical power; e.g. a data center RPP.
     """
@@ -43,9 +44,6 @@ class PowerPanel(PrimaryModel):
     # Generic relations
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
-    )
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     prerequisite_models = (

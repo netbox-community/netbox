@@ -20,6 +20,7 @@ from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.features import ImageAttachmentsMixin
 from utilities.choices import ColorChoices
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
@@ -62,7 +63,7 @@ class Manufacturer(OrganizationalModel):
         return reverse('dcim:manufacturer', args=[self.pk])
 
 
-class DeviceType(PrimaryModel, WeightMixin):
+class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     """
     A DeviceType represents a particular make (Manufacturer) and model of device. It specifies rack height and depth, as
     well as high-level functional role(s).
@@ -178,10 +179,6 @@ class DeviceType(PrimaryModel, WeightMixin):
     inventory_item_template_count = CounterCacheField(
         to_model='dcim.InventoryItemTemplate',
         to_field='device_type'
-    )
-
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     clone_fields = (
@@ -366,7 +363,7 @@ class DeviceType(PrimaryModel, WeightMixin):
         return self.subdevice_role == SubdeviceRoleChoices.ROLE_CHILD
 
 
-class ModuleType(PrimaryModel, WeightMixin):
+class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     """
     A ModuleType represents a hardware element that can be installed within a device and which houses additional
     components; for example, a line card within a chassis-based switch such as the Cisco Catalyst 6500. Like a
@@ -387,11 +384,6 @@ class ModuleType(PrimaryModel, WeightMixin):
         max_length=50,
         blank=True,
         help_text=_('Discrete part number (optional)')
-    )
-
-    # Generic relations
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     clone_fields = ('manufacturer', 'weight', 'weight_unit',)
@@ -539,7 +531,7 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
+class Device(ImageAttachmentsMixin, PrimaryModel, ConfigContextModel, TrackingModelMixin):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -769,9 +761,6 @@ class Device(PrimaryModel, ConfigContextModel, TrackingModelMixin):
     # Generic relations
     contacts = GenericRelation(
         to='tenancy.ContactAssignment'
-    )
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     objects = ConfigContextModelQuerySet.as_manager()
