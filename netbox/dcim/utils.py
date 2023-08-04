@@ -60,9 +60,4 @@ def rebuild_paths(terminations):
         with transaction.atomic():
             for cp in cable_paths:
                 cp.delete()
-                try:
-                    create_cablepath(cp.origins)
-                except AssertionError:
-                    # This is likely an unsupported path.  Catch the assertion error and don't save the path
-                    logger.error(f'Unsupported path from cable path: {cp._nodes}')
-                    pass
+                create_cablepath(cp.origins)
