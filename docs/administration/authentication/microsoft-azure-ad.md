@@ -61,6 +61,43 @@ Restart the NetBox services so that the new configuration takes effect. This is 
 sudo systemctl restart netbox
 ```
 
+## Group Assignment
+
+If you want NetBox to assign groups based on Azure AD groups, then some additonal configuration is needed. Enter the following configuration parameters in `configuration.py`, substituting your own values:
+
+```python
+SOCIAL_AUTH_AZUREAD_OAUTH2_RESOURCE = 'https://graph.microsoft.com/'
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'social_core.pipeline.social_auth.associate_by_email',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'netbox.authentication.user_default_groups_handler',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+    'netbox.authentication.azuread_map_groups',
+)
+SOCIAL_AUTH_AZUREAD_MAP_GROUP_PERMS = True
+
+# Define special user types using groups. Exercise great caution when assigning superuser status.
+SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP = {
+    "is_staff": ['{AZURE_GROUP_ID}',],
+    "is_superuser": ['{AZURE_GROUP_ID}',]
+}
+
+SOCIAL_AUTH_AZUREAD_GROUP_MAP = {
+    '{AZURE_GROUP_ID}': '{NETBOX_GROUP}',
+}
+```
+**SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP.is_staff**: users who are in any of the Azure AD group-ids in the array will have staff permission assigned to them.
+
+**SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP.is_superuser**: users who are in any of the Azure AD group-ids in the array will have superuser permission assigned to them.
+
+**SOCIAL_AUTH_AZUREAD_GROUP_MAP**: Any user with the given Azure AD group-id is included in the given NetBox group name.
+
 ## Testing
 
 Log out of NetBox if already authenticated, and click the "Log In" button at top right. You should see the normal login form as well as an option to authenticate using Azure AD. Click that link.

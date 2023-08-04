@@ -393,7 +393,7 @@ class AuthFailed(Exception):
     pass
 
 
-def azure_map_groups(response, user, backend, *args, **kwargs):
+def azuread_map_groups(response, user, backend, *args, **kwargs):
     '''
     Map Azure AD group ID to Netbox group
     Also set is_superuser or is_staff based on config map
@@ -412,8 +412,6 @@ def azure_map_groups(response, user, backend, *args, **kwargs):
         raise ImproperlyConfigured(
             "Azure group mapping has been configured, but SOCIAL_AUTH_AZUREAD_GROUP_MAP is not defined."
         )
-
-    all_users_active = getattr(settings, "SOCIAL_AUTH_AZUREAD_USER_DEFAULT_ACTIVE", False)
 
     url = 'https://graph.microsoft.com/v1.0/me'
 
@@ -443,10 +441,6 @@ def azure_map_groups(response, user, backend, *args, **kwargs):
         # AD response contains both directories and groups - we only want groups
         if value.get('@odata.type') == '#microsoft.graph.group':
             group_id = value.get('id', None)
-            if all_users_active:
-                is_active = True
-            else:
-                is_active = group_id in flags_by_group['is_active']
 
             if group_id in flags_by_group['is_superuser']:
                 is_superuser = True
@@ -463,5 +457,4 @@ def azure_map_groups(response, user, backend, *args, **kwargs):
 
     user.is_superuser = is_superuser
     user.is_staff = is_staff
-    user.is_active = is_active
     user.save()
