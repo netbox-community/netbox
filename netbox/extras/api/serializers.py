@@ -485,7 +485,7 @@ class ReportSerializer(serializers.Serializer):
 
     @extend_schema_field(serializers.CharField())
     def get_display(self, obj):
-        return str(obj)
+        return obj.name
 
 
 class ReportDetailSerializer(ReportSerializer):
@@ -533,7 +533,7 @@ class ScriptSerializer(serializers.Serializer):
 
     @extend_schema_field(serializers.CharField())
     def get_display(self, obj):
-        return str(obj)
+        return obj.name
 
 
 class ScriptDetailSerializer(ScriptSerializer):
