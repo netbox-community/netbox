@@ -1,5 +1,6 @@
 import traceback
 
+from django.apps import apps
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.paginator import EmptyPage, PageNotAnInteger
@@ -19,6 +20,7 @@ from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
+from netbox.registry import registry
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
@@ -2078,7 +2080,15 @@ class DeviceRenderConfigView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         # Compile context data
         context_data = instance.get_config_context()
-        context_data.update({'device': instance})
+        context_data.update({'object': instance})
+
+        app_ns = registry['model_features']['custom_fields'].keys()
+        for app in app_ns:
+            models = apps.get_app_config(app).get_models()
+            for model in models:
+                context_data.update({
+                    model.__name__: model
+                })
 
         # Render the config template
         rendered_config = None

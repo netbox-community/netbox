@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
@@ -23,6 +24,7 @@ from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
+from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine
@@ -432,7 +434,15 @@ class DeviceViewSet(
         # Compile context data
         context_data = device.get_config_context()
         context_data.update(request.data)
-        context_data.update({'device': device})
+        context_data.update({'object': device})
+
+        app_ns = registry['model_features']['custom_fields'].keys()
+        for app in app_ns:
+            models = apps.get_app_config(app).get_models()
+            for model in models:
+                context_data.update({
+                    model.__name__: model
+                })
 
         return self.render_configtemplate(request, configtemplate, context_data)
 
