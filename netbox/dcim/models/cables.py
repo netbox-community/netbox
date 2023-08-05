@@ -19,7 +19,7 @@ from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from wireless.models import WirelessLink
-from .device_components import FrontPort, RearPort
+from .device_components import FrontPort, RearPort, PathEndpoint
 
 __all__ = (
     'Cable',
@@ -501,6 +501,10 @@ class CablePath(models.Model):
             # Terminations must all be of the same type
             assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
 
+            # All mid-span terminations must all be attached to the same device
+            if not isinstance(terminations[0], PathEndpoint):
+                assert all(t.device == terminations[0].device for t in terminations[1:])
+
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
             if len(set(t.link for t in terminations)) > 1 and (
@@ -525,7 +529,7 @@ class CablePath(models.Model):
             assert all(type(link) in (Cable, WirelessLink) for link in links)
 
             # Step 3: Record the links
-            path.append([object_to_path_node(link) for link in links])
+            path.append([object_to_path_node(link) for link in list(set(links))])
 
             # Step 4: Update the path status if a link is not connected
             links_status = [
@@ -576,7 +580,12 @@ class CablePath(models.Model):
                 terminations = rear_ports
 
             elif isinstance(remote_terminations[0], RearPort):
-                if len(remote_terminations) > 1 and position_stack:
+                if len(remote_terminations) == 1 and remote_terminations[0].positions == 1:
+                    front_ports = FrontPort.objects.filter(
+                        rear_port_id__in=[rp.pk for rp in remote_terminations],
+                        rear_port_position=1
+                    )
+                elif len(remote_terminations) > 1 and position_stack:
                     positions = position_stack.pop()
                     assert len(remote_terminations) == len(positions)
                     q_filter = Q()
@@ -589,11 +598,6 @@ class CablePath(models.Model):
                     front_ports = FrontPort.objects.filter(
                         rear_port_id=remote_terminations[0].pk,
                         rear_port_position__in=position_stack.pop()
-                    )
-                elif len(remote_terminations) == 1:
-                    front_ports = FrontPort.objects.filter(
-                        rear_port_id__in=[rp.pk for rp in remote_terminations],
-                        rear_port_position=1
                     )
                 else:
                     # No position indicated: path has split, so we stop at the RearPorts
@@ -636,12 +640,14 @@ class CablePath(models.Model):
                 is_complete = True
                 break
 
-        return cls(
+        cablepath = cls(
             path=path,
             is_complete=is_complete,
             is_active=is_active,
             is_split=is_split
         )
+        print(f'{cablepath}::{cablepath.path}:{is_complete}:{is_active}:{is_split}')
+        return cablepath
 
     def retrace(self):
         """
