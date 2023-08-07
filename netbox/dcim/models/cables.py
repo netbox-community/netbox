@@ -528,8 +528,14 @@ class CablePath(models.Model):
                 break
             assert all(type(link) in (Cable, WirelessLink) for link in links)
 
+            # Create set of links in path.  Cannot use list(set()) as it does this in a non-deterministic manner
+            links_path = []
+            for link in links:
+                if object_to_path_node(link) not in links_path:
+                    links_path.append(object_to_path_node(link))
+
             # Step 3: Record the links
-            path.append([object_to_path_node(link) for link in list(set(links))])
+            path.append(links_path)
 
             # Step 4: Update the path status if a link is not connected
             links_status = [
@@ -559,6 +565,12 @@ class CablePath(models.Model):
                 remote_terminations = [
                     link.interface_b if link.interface_a is terminations[0] else link.interface_a for link in links
                 ]
+
+            # Remote Terminations must all be of the same type, otherwise return a split path
+            if not all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                is_complete = False
+                is_split = True
+                break
 
             # Step 6: Record the far-end termination object(s)
             path.append([
@@ -635,9 +647,14 @@ class CablePath(models.Model):
 
                 terminations = [circuit_termination]
 
-            # Anything else marks the end of the path
             else:
-                is_complete = True
+                # Check for non-symmetric path
+                if all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                    is_complete = True
+                else:
+                    # Unsupported topology, mark as split and exit
+                    is_complete = False
+                    is_split = True
                 break
 
         cablepath = cls(
@@ -646,7 +663,7 @@ class CablePath(models.Model):
             is_active=is_active,
             is_split=is_split
         )
-        print(f'{cablepath}::{cablepath.path}:{is_complete}:{is_active}:{is_split}')
+
         return cablepath
 
     def retrace(self):
