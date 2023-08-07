@@ -4,22 +4,22 @@
   "definitions": {
     "airflow": {
       "type": "string",
-      "enum": {{ schemas["airflow_choices"] }}
+      "enum": {{ airflow_choices }}
     },
     "weight-unit": {
       "type": "string",
-      "enum": {{ schemas["weight_unit_choices"] }}
+      "enum": {{ weight_unit_choices }}
     },
     "subdevice-role": {
       "type": "string",
-      "enum": {{ schemas["subdevice_role_choices"] }}
+      "enum": {{ subdevice_role_choices }}
     },
     "console-port": {
       "type": "object",
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["console_port_type_choices"] }}
+          "enum": {{ console_port_type_choices }}
         }
       }
     },
@@ -28,7 +28,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["console_port_type_choices"] }}
+          "enum": {{ console_server_port_type_choices }}
         }
       }
     },
@@ -37,7 +37,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["power_port_type_choices"] }}
+          "enum": {{ power_port_type_choices }}
         }
       }
     },
@@ -46,11 +46,11 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["power_outlet_type_choices"] }}
+          "enum": {{ power_outlet_type_choices }}
         },
         "feed-leg": {
           "type": "string",
-          "enum": {{ schemas["power_outlet_feedleg_choices"] }}
+          "enum": {{ power_outlet_feedleg_choices }}
         }
       }
     },
@@ -59,15 +59,15 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["interface_type_choices"] }}
+          "enum": {{ interface_type_choices }}
         },
         "poe_mode": {
           "type": "string",
-          "enum": {{ schemas["interface_poe_mode_choices"] }}
+          "enum": {{ interface_poe_mode_choices }}
         },
         "poe_type": {
           "type": "string",
-          "enum": {{ schemas["interface_poe_type_choices"] }}
+          "enum": {{ interface_poe_type_choices }}
         }
       }
     },
@@ -76,7 +76,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["port_type_choices"] }}
+          "enum": {{ front_port_type_choices }}
         }
       }
     },
@@ -85,7 +85,7 @@
       "properties": {
         "type": {
           "type": "string",
-          "enum": {{ schemas["port_type_choices"]}}
+          "enum": {{ rear_port_type_choices}}
         }
       }
     }
