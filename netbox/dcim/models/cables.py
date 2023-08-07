@@ -478,10 +478,7 @@ class CablePath(models.Model):
         Cable or WirelessLink connects (interfaces, console ports, circuit termination, etc.). All terminations must be
         of the same type and must belong to the same parent object.
         """
-        import logging
         from circuits.models import CircuitTermination
-
-        logger = logging.getLogger('netbox.dcim.cablepath')
 
         if not terminations:
             return None
