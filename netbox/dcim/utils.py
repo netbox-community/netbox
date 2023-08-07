@@ -49,10 +49,7 @@ def rebuild_paths(terminations):
     """
     Rebuild all CablePaths which traverse the specified nodes.
     """
-    import logging
     from dcim.models import CablePath
-
-    logger = logging.getLogger('netbox.dcim.cable')
 
     for obj in terminations:
         cable_paths = CablePath.objects.filter(_nodes__contains=obj)
