@@ -712,6 +712,10 @@ RQ_QUEUES.update({
 # Localization
 #
 
+LOCALE_PATHS = (
+    BASE_DIR + '/translations',
+)
+
 if not ENABLE_LOCALIZATION:
     USE_I18N = False
     USE_L10N = False
