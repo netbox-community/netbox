@@ -113,15 +113,6 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         """
         return queryset
 
-    def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
-
-        context.update({
-            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
-            'table_config': f'{self.table.__name__}_config',
-        })
-        return context
-
     #
     # Request handlers
     #
@@ -153,7 +144,9 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         return render(request, self.get_template_name(), {
             'object': instance,
             'child_model': self.child_model,
+            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,
+            'table_config': f'{self.table.__name__}_config',
             'actions': actions,
             'tab': self.tab,
             'return_url': request.get_full_path(),

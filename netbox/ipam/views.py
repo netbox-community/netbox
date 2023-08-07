@@ -367,9 +367,7 @@ class AggregatePrefixesView(generic.ObjectChildrenView):
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
         return {
-            **context,
             'bulk_querystring': f'within={instance.prefix}',
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
@@ -556,9 +554,7 @@ class PrefixPrefixesView(generic.ObjectChildrenView):
         return add_requested_prefixes(parent.prefix, queryset, show_available, show_assigned)
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
         return {
-            **context,
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&within={instance.prefix}",
             'first_available_prefix': instance.get_first_available_prefix(),
             'show_available': bool(request.GET.get('show_available', 'true') == 'true'),
@@ -586,9 +582,7 @@ class PrefixIPRangesView(generic.ObjectChildrenView):
         )
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
         return {
-            **context,
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
             'first_available_ip': instance.get_first_available_ip(),
         }
@@ -617,9 +611,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return queryset
 
     def get_extra_context(self, request, instance):
-        context = super().get_extra_context(request, instance)
         return {
-            **context,
             'bulk_querystring': f"vrf_id={instance.vrf.pk if instance.vrf else '0'}&parent={instance.prefix}",
             'first_available_ip': instance.get_first_available_ip(),
         }
