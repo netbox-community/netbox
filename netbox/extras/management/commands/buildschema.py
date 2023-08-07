@@ -7,7 +7,7 @@ from jinja2 import FileSystemLoader, Environment
 
 from dcim.choices import *
 
-TEMPLATE_FILENAME = 'generated_schema.json'
+TEMPLATE_FILENAME = 'devicetype_schema.jinja2'
 OUTPUT_FILENAME = 'contrib/generated_schema.json'
 
 CHOICES_MAP = {
@@ -39,7 +39,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         # Initialize template
-        template_loader = FileSystemLoader(searchpath=f'{settings.TEMPLATES_DIR}/extras/')
+        template_loader = FileSystemLoader(searchpath=f'{settings.TEMPLATES_DIR}/extras/schema/')
         template_env = Environment(loader=template_loader)
         template = template_env.get_template(TEMPLATE_FILENAME)
 
