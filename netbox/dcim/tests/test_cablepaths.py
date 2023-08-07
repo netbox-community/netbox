@@ -4,7 +4,7 @@ from circuits.models import *
 from dcim.choices import LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from dcim.utils import object_to_path_node
+from dcim.utils import object_to_path_node, path_node_to_object
 
 
 class CablePathTestCase(TestCase):
@@ -52,6 +52,27 @@ class CablePathTestCase(TestCase):
 
         cablepath = CablePath.objects.filter(path=path, **kwargs).first()
         self.assertIsNotNone(cablepath, msg='CablePath not found')
+
+        return cablepath
+
+    def assertPathNotExists(self, nodes, **kwargs):
+        """
+        Assert that a CablePath from origin to destination with a specific intermediate path exists.
+
+        :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
+        :param is_active: Boolean indicating whether the end-to-end path is complete and active (optional)
+
+        :return: The matching CablePath (if any)
+        """
+        path = []
+        for step in nodes:
+            if type(step) in (list, tuple):
+                path.append([object_to_path_node(node) for node in step])
+            else:
+                path.append([object_to_path_node(step)])
+
+        cablepath = CablePath.objects.filter(path=path, **kwargs).first()
+        self.assertIsNone(cablepath, msg='CablePath not found')
 
         return cablepath
 
@@ -2224,3 +2245,95 @@ class CablePathTestCase(TestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 3)
+
+    def test_402_exclude_midspan_devices(self):
+        """
+        [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]
+                     [FP3] [RP3] --C4-- [RP4] [FP4] /
+        """
+        device = Device.objects.create(
+            site=self.site,
+            device_type=self.device.device_type,
+            device_role=self.device.device_role,
+            name='Test mid-span Device'
+        )
+        interface1 = Interface.objects.create(device=self.device, name='Interface 1')
+        interface2 = Interface.objects.create(device=self.device, name='Interface 2')
+        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
+        rearport3 = RearPort.objects.create(device=device, name='Rear Port 3', positions=1)
+        rearport4 = RearPort.objects.create(device=device, name='Rear Port 4', positions=1)
+        frontport1 = FrontPort.objects.create(
+            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+        )
+        frontport2 = FrontPort.objects.create(
+            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
+        )
+        frontport3 = FrontPort.objects.create(
+            device=device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
+        )
+        frontport4 = FrontPort.objects.create(
+            device=device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
+        )
+
+        cable2 = Cable(
+            a_terminations=[rearport1],
+            b_terminations=[rearport2],
+            label='C2'
+        )
+        cable2.save()
+        cable4 = Cable(
+            a_terminations=[rearport3],
+            b_terminations=[rearport4],
+            label='C4'
+        )
+        cable4.save()
+        self.assertEqual(CablePath.objects.count(), 0)
+
+        # Create cable1
+        cable1 = Cable(
+            a_terminations=[interface1],
+            b_terminations=[frontport1, frontport3],
+            label='C1'
+        )
+        try:
+            cable1.save()
+        except AssertionError:
+            pass
+        self.assertPathNotExists(
+            (
+                interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4),
+                (rearport2, rearport4), (frontport2, frontport4)
+            ),
+            is_complete=False
+        )
+        self.assertEqual(CablePath.objects.count(), 0)
+
+        # Create cable 3
+        cable3 = Cable(
+            a_terminations=[frontport2, frontport4],
+            b_terminations=[interface2],
+            label='C3'
+        )
+
+        try:
+            cable3.save()
+        except AssertionError:
+            pass
+        self.assertPathNotExists(
+            (
+                interface2, cable3, (frontport2, frontport4), (rearport2, rearport4), (cable2, cable4),
+                (rearport1, rearport3), (frontport1, frontport2), cable1, interface1
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertPathNotExists(
+            (
+                interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4),
+                (rearport2, rearport4), (frontport2, frontport4), cable3, interface2
+            ),
+            is_complete=True,
+            is_active=True
+        )
+        self.assertEqual(CablePath.objects.count(), 0)
