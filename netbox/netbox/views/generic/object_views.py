@@ -91,7 +91,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     child_model = None
     table = None
     filterset = None
-    template_name = 'inc/tab_view.html'
+    template_name = 'generic/object_tab.html'
 
     def get_children(self, request, parent):
         """
