@@ -1,9 +1,10 @@
+import os
 from json import dumps as json_dumps
 from json import loads as json_loads
-from jinja2 import FileSystemLoader, Environment
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
+from jinja2 import FileSystemLoader, Environment
 
 from dcim.choices import (
     DeviceAirflowChoices, SubdeviceRoleChoices, ConsolePortTypeChoices, PowerPortTypeChoices,
@@ -11,20 +12,18 @@ from dcim.choices import (
     InterfacePoETypeChoices, PortTypeChoices, WeightUnitChoices
 )
 
+TEMPLATE_FILENAME = 'generated_schema.json'
+OUTPUT_FILENAME = 'contrib/generated_schema.json'
+
 
 class Command(BaseCommand):
     help = "Generate the NetBox validation schemas."
 
     def add_arguments(self, parser):
         parser.add_argument(
-            '--console',
+            '--write',
             action='store_true',
-            help="Print the generated schema to stdout"
-        )
-        parser.add_argument(
-            '--file',
-            action='store_true',
-            help="Print the generated schema to the generated file"
+            help="Write the generated schema to file"
         )
 
     def handle(self, *args, **kwargs):
@@ -43,15 +42,16 @@ class Command(BaseCommand):
 
         template_loader = FileSystemLoader(searchpath=f'{settings.TEMPLATES_DIR}/extras/')
         template_env = Environment(loader=template_loader)
-        TEMPLATE_FILE = 'generated_schema.json'
-        template = template_env.get_template(TEMPLATE_FILE)
+        template = template_env.get_template(TEMPLATE_FILENAME)
         outputText = template.render(schemas=schemas)
 
-        if kwargs['console']:
-            print(json_dumps(json_loads(outputText), indent=4))
-
-        if kwargs['file']:
-            with open(f'{settings.BASE_DIR}/../contrib/generated_schema.json', mode='w', encoding='UTF-8') as generated_json_file:
-                generated_json_file.write(json_dumps(json_loads(outputText), indent=4))
-                generated_json_file.write('\n')
-                generated_json_file.close()
+        if kwargs['write']:
+            # $root/contrib/generated_schema.json
+            filename = os.path.join(os.path.split(settings.BASE_DIR)[0], OUTPUT_FILENAME)
+            with open(filename, mode='w', encoding='UTF-8') as f:
+                f.write(json_dumps(json_loads(outputText), indent=4))
+                f.write('\n')
+                f.close()
+            self.stdout.write(self.style.SUCCESS(f"Schema written to {filename}."))
+        else:
+            self.stdout.write(outputText)
