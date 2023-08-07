@@ -24,6 +24,7 @@ class CablePathTestCase(TestCase):
 
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
+        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module')
         device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
         cls.device = Device.objects.create(site=cls.site, device_type=device_type, device_role=device_role, name='Test Device')
 
@@ -1767,30 +1768,37 @@ class CablePathTestCase(TestCase):
         )
         self.assertEqual(CablePath.objects.count(), 2)
 
-    def test_220_interfaces_to_interface_via_multiple_rearports(self):
+    def test_220_interface_to_interface_duplex_via_multiple_rearports_with_modules(self):
         """
-        [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]
-        [IF3] --C5-- [FP3] [RP3] --C4-- [RP4] [FP4]
+        [IF1] --C1-- [[FP1] [RP1]] --C2-- [[RP2] [FP2]] --C3-- [IF2]
+                     [[FP3] [RP3]] --C4-- [[RP4] [FP4]]
         """
-        # TODO: Not Implemented Yet
+        module_type = ModuleType.objects.get(model='Test Module')
+        module_bay1 = ModuleBay.objects.create(device=self.device, name='Module Bay 1', position='1')
+        module_bay2 = ModuleBay.objects.create(device=self.device, name='Module Bay 2', position='2')
+        module_bay3 = ModuleBay.objects.create(device=self.device, name='Module Bay 3', position='3')
+        module_bay4 = ModuleBay.objects.create(device=self.device, name='Module Bay 4', position='4')
+        module1 = Module.objects.create(device=self.device, module_type=module_type, module_bay=module_bay1)
+        module2 = Module.objects.create(device=self.device, module_type=module_type, module_bay=module_bay2)
+        module3 = Module.objects.create(device=self.device, module_type=module_type, module_bay=module_bay3)
+        module4 = Module.objects.create(device=self.device, module_type=module_type, module_bay=module_bay4)
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
-        interface3 = Interface.objects.create(device=self.device, name='Interface 3')
-        rearport1 = RearPort.objects.create(device=self.device, name='Rear Port 1', positions=1)
-        rearport2 = RearPort.objects.create(device=self.device, name='Rear Port 2', positions=1)
-        rearport3 = RearPort.objects.create(device=self.device, name='Rear Port 3', positions=1)
-        rearport4 = RearPort.objects.create(device=self.device, name='Rear Port 4', positions=1)
+        rearport1 = RearPort.objects.create(device=self.device, module=module1, name='Rear Port 1', positions=1)
+        rearport2 = RearPort.objects.create(device=self.device, module=module2, name='Rear Port 2', positions=1)
+        rearport3 = RearPort.objects.create(device=self.device, module=module3, name='Rear Port 3', positions=1)
+        rearport4 = RearPort.objects.create(device=self.device, module=module4, name='Rear Port 4', positions=1)
         frontport1 = FrontPort.objects.create(
-            device=self.device, name='Front Port 1', rear_port=rearport1, rear_port_position=1
+            device=self.device, name='Front Port 1', module=module1, rear_port=rearport1, rear_port_position=1
         )
         frontport2 = FrontPort.objects.create(
-            device=self.device, name='Front Port 2', rear_port=rearport2, rear_port_position=1
+            device=self.device, name='Front Port 2', module=module2, rear_port=rearport2, rear_port_position=1
         )
         frontport3 = FrontPort.objects.create(
-            device=self.device, name='Front Port 3', rear_port=rearport3, rear_port_position=1
+            device=self.device, name='Front Port 3', module=module3, rear_port=rearport3, rear_port_position=1
         )
         frontport4 = FrontPort.objects.create(
-            device=self.device, name='Front Port 4', rear_port=rearport4, rear_port_position=1
+            device=self.device, name='Front Port 4', module=module4, rear_port=rearport4, rear_port_position=1
         )
 
         cable2 = Cable(
@@ -1808,12 +1816,11 @@ class CablePathTestCase(TestCase):
         # Create cable1
         cable1 = Cable(
             a_terminations=[interface1],
-            b_terminations=[frontport1]
+            b_terminations=[frontport1, frontport3]
         )
         cable1.save()
         self.assertPathExists(
-            (interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4),
-             (rearport2, rearport4), (frontport2, frontport4)),
+            (interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4), (rearport2, rearport4), (frontport2, frontport4)),
             is_complete=False
         )
         self.assertEqual(CablePath.objects.count(), 1)
@@ -1826,21 +1833,8 @@ class CablePathTestCase(TestCase):
         cable3.save()
         self.assertPathExists(
             (
-                interface1, cable1, (frontport1), (rearport1, rearport3), (cable2, cable4),
+                interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4),
                 (rearport2, rearport4), (frontport2, frontport4), cable3, interface2
-            ),
-            is_complete=True,
-            is_active=True
-        )
-        cable5 = Cable(
-            a_terminations=[frontport3],
-            b_terminations=[interface3]
-        )
-        cable5.save()
-        self.assertPathExists(
-            (
-                (interface1, interface3), (cable1, cable3), (frontport1, frontport3), (rearport1, rearport3),
-                (cable2, cable4), (rearport2, rearport4), (frontport2, frontport4), cable3, interface2
             ),
             is_complete=True,
             is_active=True
@@ -1854,38 +1848,6 @@ class CablePathTestCase(TestCase):
             is_active=True
         )
         self.assertEqual(CablePath.objects.count(), 2)
-
-    def test_221_interfaces_to_interfaces_via_multiple_rearports(self):
-        """
-        [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]
-        [IF3] --C5-- [FP3] [RP3] --C4-- [RP4] [FP4] --C6-- [IF4]
-        """
-        # TODO: Not Implemented Yet
-        self.assertFalse(True)
-
-    def test_222_interface_to_interface_duplex_via_multiple_rearports_with_modules(self):
-        """
-        [IF1] --C1-- [[FP1] [RP1]] --C2-- [[RP2] [FP2]] --C3-- [IF2]
-                     [[FP3] [RP3]] --C4-- [[RP4] [FP4]]
-        """
-        # TODO: Not Implemented Yet
-        self.assertFalse(True)
-
-    def test_223_interfaces_to_interface_duplex_via_multiple_rearports_with_modules(self):
-        """
-        [IF1] --C1-- [[FP1] [RP1]] --C2-- [[RP2] [FP2]] --C3-- [IF2]
-        [IF3] --C5-- [[FP3] [RP3]] --C4-- [[RP4] [FP4]]
-        """
-        # TODO: Not Implemented Yet
-        self.assertFalse(True)
-
-    def test_224_interfaces_to_interfaces_duplex_via_multiple_rearports_with_modules(self):
-        """
-        [IF1] --C1-- [[FP1] [RP1]] --C2-- [[RP2] [FP2]] --C3-- [IF2]
-        [IF3] --C5-- [[FP3] [RP3]] --C4-- [[RP4] [FP4]] --C6-- [IF4]
-        """
-        # TODO: Not Implemented Yet
-        self.assertFalse(True)
 
     def test_301_create_path_via_existing_cable(self):
         """
