@@ -4,7 +4,7 @@ from circuits.models import *
 from dcim.choices import LinkStatusChoices
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from dcim.utils import object_to_path_node, path_node_to_object
+from dcim.utils import object_to_path_node
 
 
 class CablePathTestCase(TestCase):
