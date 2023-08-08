@@ -2084,11 +2084,10 @@ class DeviceRenderConfigView(generic.ObjectView):
 
         app_ns = registry['model_features']['custom_fields'].keys()
         for app in app_ns:
+            context_data.setdefault(app, {})
             models = apps.get_app_config(app).get_models()
             for model in models:
-                context_data.update({
-                    model.__name__: model
-                })
+                context_data[app][model.__name__] = model
 
         # Render the config template
         rendered_config = None
