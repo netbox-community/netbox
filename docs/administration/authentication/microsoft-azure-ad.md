@@ -82,20 +82,20 @@ SOCIAL_AUTH_PIPELINE = (
 )
 
 # Define special user types using groups. Exercise great caution when assigning superuser status.
-SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP = {
+REMOTE_AUTH_BACKEND_AZUREAD_USER_FLAGS_BY_GROUP = {
     "is_staff": ['{AZURE_GROUP_ID}',],
     "is_superuser": ['{AZURE_GROUP_ID}',]
 }
 
-SOCIAL_AUTH_AZUREAD_GROUP_MAP = {
+REMOTE_AUTH_BACKEND_AZUREAD_GROUP_MAP = {
     '{AZURE_GROUP_ID}': '{NETBOX_GROUP}',
 }
 ```
-**SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP.is_staff**: users who are in any of the Azure AD group-ids in the array will have staff permission assigned to them.
+**REMOTE_AUTH_BACKEND_AZUREAD_USER_FLAGS_BY_GROUP.is_staff**: users who are in any of the Azure AD group-ids in the array will have staff permission assigned to them.
 
-**SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP.is_superuser**: users who are in any of the Azure AD group-ids in the array will have superuser permission assigned to them.
+**REMOTE_AUTH_BACKEND_AZUREAD_USER_FLAGS_BY_GROUP.is_superuser**: users who are in any of the Azure AD group-ids in the array will have superuser permission assigned to them.
 
-**SOCIAL_AUTH_AZUREAD_GROUP_MAP**: Any user with the given Azure AD group-id is included in the given NetBox group name.
+**REMOTE_AUTH_BACKEND_AZUREAD_GROUP_MAP**: Any user with the given Azure AD group-id is included in the given NetBox group name.
 
 ## Testing
 
