@@ -48,6 +48,8 @@ AUTH_BACKEND_ATTRS = {
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
 }
 
+BASE_MICROSOFT_GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
+
 
 def get_auth_backend_display(name):
     """
@@ -389,31 +391,27 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
             logger.info(f"No valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?")
 
 
-class AuthFailed(Exception):
-    pass
-
-
 def azuread_map_groups(response, user, backend, *args, **kwargs):
     '''
     Map Azure AD group ID to Netbox group
     Also set is_superuser or is_staff based on config map
     '''
+    logger = logging.getLogger('netbox.auth.azuread_map_groups')
     if not getattr(settings, "SOCIAL_AUTH_AZUREAD_MAP_GROUP_PERMS", False):
         return
 
-    flags_by_group = getattr(settings, "SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP", False)
-    if not flags_by_group:
+    if not hasattr(settings, "SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP"):
         raise ImproperlyConfigured(
             "Azure group mapping has been configured, but SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP is not defined."
         )
 
-    group_mapping = getattr(settings, "SOCIAL_AUTH_AZUREAD_GROUP_MAP", False)
-    if not group_mapping:
+    if not hasattr(settings, "SOCIAL_AUTH_AZUREAD_GROUP_MAP"):
         raise ImproperlyConfigured(
             "Azure group mapping has been configured, but SOCIAL_AUTH_AZUREAD_GROUP_MAP is not defined."
         )
 
-    url = 'https://graph.microsoft.com/v1.0/me'
+    flags_by_group = getattr(settings, "SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP")
+    group_mapping = getattr(settings, "SOCIAL_AUTH_AZUREAD_GROUP_MAP")
 
     access_token = response.get('access_token')
     headers = {
@@ -422,17 +420,24 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
         'Authorization': f'Bearer {access_token}',
     }
 
-    response = requests.get(
-        url,
-        headers=headers,
-    )
-    uid = response.json().get('id')
-    url = f"https://graph.microsoft.com/v1.0/users/{uid}/memberOf"
-    response = requests.get(
-        url,
-        headers=headers,
-    )
+    try:
+        # Query Microsoft Graph API to get user-id for following API
+        response = requests.get(
+            f'{BASE_MICROSOFT_GRAPH_URL}me',
+            headers=headers,
+        )
+        uid = response.json().get('id')
 
+        # Call Graph API to get groups for current user
+        response = requests.get(
+            f"{BASE_MICROSOFT_GRAPH_URL}users/{uid}/memberOf",
+            headers=headers,
+        )
+    except Exception as e:
+        logger.error(f"Azure group mapping error getting groups for user {user} from Microsoft Graph API: {e}")
+        raise e
+
+    # Set groups and permissions based on returned group list
     is_superuser = False
     is_staff = False
     values = response.json().get('value', [])
@@ -443,17 +448,23 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
             group_id = value.get('id', None)
 
             if group_id in flags_by_group['is_superuser']:
+                logger.info(f"Azure group mapping - setting superuser status for: {user}.")
                 is_superuser = True
 
             if group_id in flags_by_group['is_staff']:
+                logger.info(f"Azure group mapping - setting staff status for: {user}.")
                 is_staff = True
 
             if group_id in group_mapping:
-                group = Group.objects.get(name=group_mapping[group_id])
+                group_name = group_mapping[group_id]
+                group = Group.objects.get(name=group_name)
                 if group:
                     group.user_set.add(user)
+                    logger.info(f"Azure group mapping - adding group {group_name} to user: {user}.")
                 else:
-                    logger.info(f"Azure group mapping - group: {group_mapping[group_id]} not found.")
+                    logger.info(f"Azure group mapping - group: {group_name} not found.")
+        else:
+            logger.info(f"Azure group mapping - no Microsoft graph groups returned for user {user}.")
 
     user.is_superuser = is_superuser
     user.is_staff = is_staff
