@@ -146,7 +146,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             'child_model': self.child_model,
             'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
             'table': table,
-            'table_config': f'{self.table.name}_config',
+            'table_config': f'{table.name}_config',
             'actions': actions,
             'tab': self.tab,
             'return_url': request.get_full_path(),
