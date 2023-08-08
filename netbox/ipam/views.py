@@ -216,7 +216,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     child_model = ASN
     table = tables.ASNTable
     filterset = filtersets.ASNFilterSet
-    template_name = 'generic/object_tab.html'
+    template_name = 'generic/objectchildren_list.html'
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
@@ -865,7 +865,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
-    template_name = 'generic/object_tab.html'
+    template_name = 'generic/objectchildren_list.html'
     tab = ViewTab(
         label=_('Related IPs'),
         badge=lambda x: x.get_related_ips().count(),
@@ -1075,7 +1075,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
-    template_name = 'generic/object_tab.html'
+    template_name = 'generic/objectchildren_list.html'
     tab = ViewTab(
         label=_('Device Interfaces'),
         badge=lambda x: x.get_interfaces().count(),
@@ -1093,7 +1093,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
-    template_name = 'generic/object_tab.html'
+    template_name = 'generic/objectchildren_list.html'
     tab = ViewTab(
         label=_('VM Interfaces'),
         badge=lambda x: x.get_vminterfaces().count(),
