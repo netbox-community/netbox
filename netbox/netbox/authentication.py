@@ -397,8 +397,6 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
     Also set is_superuser or is_staff based on config map
     '''
     logger = logging.getLogger('netbox.auth.azuread_map_groups')
-    if not getattr(settings, "SOCIAL_AUTH_AZUREAD_MAP_GROUP_PERMS", False):
-        return
 
     if not hasattr(settings, "SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP"):
         raise ImproperlyConfigured(

@@ -80,7 +80,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.user.user_details',
     'netbox.authentication.azuread_map_groups',
 )
-SOCIAL_AUTH_AZUREAD_MAP_GROUP_PERMS = True
 
 # Define special user types using groups. Exercise great caution when assigning superuser status.
 SOCIAL_AUTH_AZUREAD_USER_FLAGS_BY_GROUP = {
