@@ -25,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.5.7-dev'
+VERSION = '3.5.8-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -460,8 +460,6 @@ LOGIN_URL = f'/{BASE_PATH}login/'
 LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-TEST_RUNNER = "django_rich.test.RichRunner"
 
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.

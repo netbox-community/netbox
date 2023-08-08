@@ -43,9 +43,21 @@ Follow these instructions to perform a new installation of NetBox in a temporary
 
 Submit a pull request to merge the `feature` branch into the `develop` branch in preparation for its release. Once it has been merged, continue with the section for patch releases below.
 
+### Rebuild Demo Data (After Release)
+
+After the release of a new minor version, generate a new demo data snapshot compatible with the new release. See the [`netbox-demo-data`](https://github.com/netbox-community/netbox-demo-data) repository for instructions.
+
 ---
 
 ## Patch Releases
+
+### Notify netbox-docker Project of Any Relevant Changes
+
+Notify the [`netbox-docker`](https://github.com/netbox-community/netbox-docker) maintainers (in **#netbox-docker**) of any changes that may be relevant to their build process, including:
+
+* Significant changes to `upgrade.sh`
+* Increases in minimum versions for service dependencies (PostgreSQL, Redis, etc.)
+* Any changes to the reference installation
 
 ### Update Requirements
 

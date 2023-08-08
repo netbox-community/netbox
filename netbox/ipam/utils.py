@@ -121,7 +121,7 @@ def add_available_vlans(vlans, vlan_group=None):
         })
 
     vlans = list(vlans) + new_vlans
-    vlans.sort(key=lambda v: v.vid if type(v) == VLAN else v['vid'])
+    vlans.sort(key=lambda v: v.vid if type(v) is VLAN else v['vid'])
 
     return vlans
 

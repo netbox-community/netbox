@@ -1,7 +1,6 @@
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface, Site
@@ -10,7 +9,9 @@ from ipam.constants import *
 from ipam.models import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
+from utilities.forms.fields import (
+    CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
+)
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -41,10 +42,25 @@ class VRFImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned tenant')
     )
+    import_targets = CSVModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Import route targets')
+    )
+    export_targets = CSVModelMultipleChoiceField(
+        queryset=RouteTarget.objects.all(),
+        required=False,
+        to_field_name='name',
+        help_text=_('Export route targets')
+    )
 
     class Meta:
         model = VRF
-        fields = ('name', 'rd', 'tenant', 'enforce_unique', 'description', 'comments', 'tags')
+        fields = (
+            'name', 'rd', 'tenant', 'enforce_unique', 'description', 'import_targets', 'export_targets', 'comments',
+            'tags',
+        )
 
 
 class RouteTargetImportForm(NetBoxModelImportForm):
