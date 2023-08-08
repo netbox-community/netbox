@@ -10,13 +10,3 @@
         </div>
     {% endif %}
 {% endblock %}
-
-{% block bulk_delete_control %}
-    {% if 'bulk_edit' in actions %}
-        <button type="submit" name="_disconnect"
-                formaction="{% url 'dcim:consoleport_bulk_disconnect' %}?return_url={% url 'dcim:device_consoleports' pk=object.pk %}"
-                class="btn btn-outline-danger btn-sm">
-            <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-        </button>
-    {% endif %}
-{% endblock %}

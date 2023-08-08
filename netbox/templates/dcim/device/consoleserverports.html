@@ -1,15 +1,5 @@
 {% extends 'generic/object_tab.html' %}
 
-{% block bulk_delete_control %}
-    {% if 'bulk_edit' in actions %}
-        <button type="submit" name="_disconnect"
-                formaction="{% url 'dcim:consoleserverport_bulk_disconnect' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}"
-                class="btn btn-outline-danger btn-sm">
-            <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-        </button>
-    {% endif %}
-{% endblock %}
-
 {% block extra_contols_bottom %}
     {% if perms.dcim.add_consoleserverport %}
         <div class="bulk-button-group">
