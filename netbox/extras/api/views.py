@@ -80,7 +80,7 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
         # Paginate data
         if page := self.paginate_queryset(choices):
             data = [
-                {'value': c[0], 'label': c[1]} for c in page
+                {'id': c[0], 'display': c[1]} for c in page
             ]
             return self.get_paginated_response(data)
 

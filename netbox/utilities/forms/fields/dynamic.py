@@ -29,6 +29,8 @@ class DynamicChoiceField(forms.ChoiceField):
             self.choices = [
                 choice for choice in self.choices if choice[0] == data
             ]
+        else:
+            self.choices = []
 
         return bound_field
 

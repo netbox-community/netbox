@@ -441,18 +441,25 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             if set_initial and default_choice:
                 initial = default_choice
 
-            if self.type == CustomFieldTypeChoices.TYPE_SELECT:
-                field_class = CSVChoiceField if for_csv_import else DynamicChoiceField
-                widget_class = APISelect
+            if for_csv_import:
+                if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                    field_class = CSVChoiceField
+                else:
+                    field_class = CSVMultipleChoiceField
+                field = field_class(choices=choices, required=required, initial=initial)
             else:
-                field_class = CSVMultipleChoiceField if for_csv_import else DynamicMultipleChoiceField
-                widget_class = APISelectMultiple
-            field = field_class(
-                choices=choices,
-                required=required,
-                initial=initial,
-                widget=widget_class(api_url=f'/api/extras/custom-field-choice-sets/{self.choice_set.pk}/choices/')
-            )
+                if self.type == CustomFieldTypeChoices.TYPE_SELECT:
+                    field_class = DynamicChoiceField
+                    widget_class = APISelect
+                else:
+                    field_class = DynamicMultipleChoiceField
+                    widget_class = APISelectMultiple
+                field = field_class(
+                    choices=choices,
+                    required=required,
+                    initial=initial,
+                    widget=widget_class(api_url=f'/api/extras/custom-field-choice-sets/{self.choice_set.pk}/choices/')
+                )
 
         # URL
         elif self.type == CustomFieldTypeChoices.TYPE_URL:
