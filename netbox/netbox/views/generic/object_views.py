@@ -6,7 +6,6 @@ from django.db import transaction
 from django.db.models import ProtectedError
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.urls.exceptions import NoReverseMatch
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
