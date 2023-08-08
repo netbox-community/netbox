@@ -11,8 +11,8 @@
             </div>
         </div>
 
-        {% block bulk_controls %}
-            <div class="noprint bulk-buttons">
+        <div class="noprint bulk-buttons">
+            {% block bulk_controls %}
                 <div class="bulk-button-group">
                     {% if 'bulk_edit' in actions %}
                         <div class="btn-group" role="group">
@@ -59,10 +59,8 @@
                         {% endif %}
                     </div>
                 </div>
-                {% block extra_contols_bottom %}
-                {% endblock %}
-            </div>
-        {% endblock %}
+            {% endblock %}
+        </div>
     </form>
 {% endblock content %}
 

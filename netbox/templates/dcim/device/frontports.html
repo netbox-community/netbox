@@ -1,6 +1,7 @@
 {% extends 'generic/object_tab.html' %}
 
-{% block extra_contols_bottom %}
+{% block bulk_controls %}
+    {{ block.super }}
     {% if perms.dcim.add_frontport %}
         <div class="bulk-button-group">
             <a href="{% url 'dcim:frontport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_frontports' pk=object.pk %}"
