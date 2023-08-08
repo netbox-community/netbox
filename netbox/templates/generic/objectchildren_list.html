@@ -10,14 +10,14 @@
                 {% include 'htmx/table.html' %}
             </div>
         </div>
-
         <div class="noprint bulk-buttons">
             {% block bulk_controls %}
                 <div class="bulk-button-group">
-                    {% if 'bulk_edit' in actions %}
-                        <div class="btn-group" role="group">
+                    <div class="btn-group" role="group">
+                        {# Bulk edit buttons #}
+                        {% block bulk_edit_controls %}
                             {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
-                                {% if bulk_edit_view %}
+                                {% if 'bulk_edit' in actions and bulk_edit_view %}
                                     <button type="submit" name="_edit"
                                             formaction="{% url bulk_edit_view %}?return_url={{ return_url }}"
                                             class="btn btn-warning btn-sm">
@@ -26,7 +26,7 @@
                                 {% endif %}
                             {% endwith %}
                             {% with bulk_rename_view=child_model|validated_viewname:"bulk_rename" %}
-                                {% if bulk_rename_view %}
+                                {% if 'bulk_rename' in actions and bulk_rename_view %}
                                     <button type="submit" name="_rename"
                                             formaction="{% url bulk_rename_view %}?return_url={{ return_url }}"
                                             class="btn btn-outline-warning btn-sm">
@@ -34,32 +34,28 @@
                                     </button>
                                 {% endif %}
                             {% endwith %}
-                        </div>
-                    {% endif %}
+                        {% endblock bulk_edit_controls %}
+                    </div>
                     <div class="btn-group" role="group">
-                        {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
-                            {% if 'bulk_delete' in actions and bulk_delete_view %}
-                                <button type="submit"
-                                        formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
-                                        class="btn btn-danger btn-sm">
-                                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
-                                </button>
-                            {% endif %}
-                        {% endwith %}
-                        {% if 'bulk_edit' in actions %}
-                            {% with bulk_disconnect_view=child_model|validated_viewname:"bulk_disconnect" %}
-                                {% if bulk_disconnect_view %}
-                                    <button type="submit" name="_disconnect"
-                                            formaction="{% url bulk_disconnect_view %}?return_url={{ return_url }}"
-                                            class="btn btn-outline-danger btn-sm">
-                                        <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+                        {# Bulk delete buttons #}
+                        {% block bulk_delete_controls %}
+                            {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
+                                {% if 'bulk_delete' in actions and bulk_delete_view %}
+                                    <button type="submit"
+                                            formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
+                                            class="btn btn-danger btn-sm">
+                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
                                     </button>
                                 {% endif %}
                             {% endwith %}
-                        {% endif %}
+                        {% endblock bulk_delete_controls %}
                     </div>
                 </div>
-            {% endblock %}
+                <div class="bulk-button-group">
+                    {# Other bulk action buttons #}
+                    {% block bulk_extra_controls %}{% endblock %}
+                </div>
+            {% endblock bulk_controls %}
         </div>
     </form>
 {% endblock content %}

@@ -1,6 +1,6 @@
 {% extends 'generic/objectchildren_list.html' %}
 
-{% block bulk_controls %}
+{% block bulk_extra_controls %}
     {{ block.super }}
     {% if perms.dcim.add_modulebay %}
         <div class="bulk-button-group">
@@ -10,4 +10,4 @@
             </a>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock bulk_extra_controls %}

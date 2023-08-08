@@ -1,5 +1,4 @@
 {% extends 'generic/objectchildren_list.html' %}
-{% load helpers %}
 
 {% block extra_controls %}
     {% if perms.dcim.add_device %}
@@ -10,4 +9,4 @@
             </a>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock extra_controls %}

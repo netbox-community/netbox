@@ -1,6 +1,20 @@
 {% extends 'generic/objectchildren_list.html' %}
+{% load helpers %}
 
-{% block bulk_controls %}
+{% block bulk_delete_controls %}
+    {{ block.super }}
+    {% with bulk_disconnect_view=child_model|validated_viewname:"bulk_disconnect" %}
+        {% if 'bulk_disconnect' in actions and bulk_disconnect_view %}
+            <button type="submit" name="_disconnect"
+                    formaction="{% url bulk_disconnect_view %}?return_url={{ return_url }}"
+                    class="btn btn-outline-danger btn-sm">
+                <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
+            </button>
+        {% endif %}
+    {% endwith %}
+{% endblock bulk_delete_controls %}
+
+{% block bulk_extra_controls %}
     {{ block.super }}
     {% if perms.dcim.add_poweroutlet %}
         <div class="bulk-button-group">
@@ -10,4 +24,4 @@
             </a>
         </div>
     {% endif %}
-{% endblock %}
+{% endblock bulk_extra_controls %}

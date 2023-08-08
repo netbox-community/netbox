@@ -1,5 +1,4 @@
 {% extends 'generic/objectchildren_list.html' %}
-{% load helpers %}
 
 {% block extra_controls %}
   {% include 'ipam/inc/toggle_available.html' %}
@@ -9,4 +8,4 @@
     </a>
   {% endif %}
   {{ block.super }}
-{% endblock %}
+{% endblock extra_controls %}

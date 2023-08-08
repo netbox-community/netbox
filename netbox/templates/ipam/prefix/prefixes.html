@@ -1,5 +1,4 @@
 {% extends 'generic/objectchildren_list.html' %}
-{% load helpers %}
 
 {% block extra_controls %}
   {% include 'ipam/inc/toggle_available.html' %}
@@ -8,5 +7,4 @@
       <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Prefix
     </a>
   {% endif %}
-  {{ block.super }}
-{% endblock %}
+{% endblock extra_controls %}
