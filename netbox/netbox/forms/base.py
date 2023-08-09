@@ -78,7 +78,10 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
 
     def _get_custom_fields(self, content_type):
         return CustomField.objects.filter(content_types=content_type).filter(
-            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE
+            ui_visibility__in=[
+                CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
+                CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET,
+            ]
         )
 
     def _get_form_field(self, customfield):
