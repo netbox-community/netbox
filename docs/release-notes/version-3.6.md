@@ -7,6 +7,8 @@
 * [#13351](https://github.com/netbox-community/netbox/issues/13351) - Fix missing text due to incorrectly applied translation tags
 * [#13361](https://github.com/netbox-community/netbox/issues/13361) - Extra choices field on custom field choice set form should not be required
 * [#13363](https://github.com/netbox-community/netbox/issues/13363) - Fix API endpoint for custom field choice selector in forms
+* [#13376](https://github.com/netbox-community/netbox/issues/13376) - Restrict add/remove tag fields by model on bulk edit forms
+* [#13410](https://github.com/netbox-community/netbox/issues/13410) - Fix rendering of custom choice fields with large number of choices
 
 ---
 
@@ -18,6 +20,7 @@
 * The `device_role` field on the Device model has been renamed to `role`. The `device_role` field has been temporarily retained on the REST API serializer for devices for backward compatibility, but is read-only.
 * The `choices` array field has been removed from the CustomField model. Any defined choices are automatically migrated to CustomFieldChoiceSets, accessible via the new `choice_set` field on the CustomField model.
 * The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the Platform model.
+* Reports and scripts are now returned within a `results` list when fetched via the REST API, consistent with other models.
 
 ### New Features
 
@@ -70,7 +73,9 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#11936](https://github.com/netbox-community/netbox/issues/11936) - Introduce support for tags and custom fields on webhooks
 * [#12175](https://github.com/netbox-community/netbox/issues/12175) - Permit racks to start numbering at values greater than one
 * [#12210](https://github.com/netbox-community/netbox/issues/12210) - Add tenancy assignment for power feeds
+* [#12814](https://github.com/netbox-community/netbox/issues/12814) - Expose NetBox models within ConfigTemplate rendering context
 * [#12882](https://github.com/netbox-community/netbox/issues/12882) - Add tag support for contact assignments
+* [#13037](https://github.com/netbox-community/netbox/issues/13037) - Return reports & scripts within a `results` list when fetched via the REST API
 * [#13170](https://github.com/netbox-community/netbox/issues/13170) - Add `rf_role` to InterfaceTemplate
 * [#13269](https://github.com/netbox-community/netbox/issues/13269) - Cache the number of assigned component templates for device types
 
@@ -122,6 +127,10 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * extras.CustomField
     * Removed the `choices` array field
     * Added the `choice_set` foreign key field (to ChoiceSet)
+* extras.Report
+    * Reports are now returned within a `results` list
+* extras.Script
+    * Scripts are now returned within a `results` list
 * extras.Tag
     * Added the `object_types` field for optional restriction to specific object types
 * extras.Webhook
