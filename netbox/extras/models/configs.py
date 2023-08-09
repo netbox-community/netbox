@@ -257,14 +257,19 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         """
         Render the contents of the template.
         """
-        context = context or {}
+        _context = dict()
 
-        app_ns = registry['model_features']['custom_fields'].keys()
-        for app in app_ns:
-            context.setdefault(app, {})
-            models = apps.get_app_config(app).get_models()
-            for model in models:
-                context[app][model.__name__] = model
+        # Populate the default template context with NetBox model classes, namespaced by app
+        # TODO: Devise a canonical mechanism for identifying the models to include (see #13427)
+        for app, model_names in registry['model_features']['custom_fields'].items():
+            _context.setdefault(app, {})
+            for model_name in model_names:
+                model = apps.get_registered_model(app, model_name)
+                _context[app][model.__name__] = model
+
+        # Add the provided context data, if any
+        if context is not None:
+            _context.update(context)
 
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
@@ -272,7 +277,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
             template = environment.get_template(self.data_file.path)
         else:
             template = environment.from_string(self.template_code)
-        output = template.render(**context)
+        output = template.render(**_context)
 
         # Replace CRLF-style line terminators
         return output.replace('\r\n', '\n')
