@@ -21,7 +21,7 @@
                                     <button type="submit" name="_edit"
                                             formaction="{% url bulk_edit_view %}?return_url={{ return_url }}"
                                             class="btn btn-warning btn-sm">
-                                        <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+                                        <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
                                     </button>
                                 {% endif %}
                             {% endwith %}
@@ -35,7 +35,7 @@
                                     <button type="submit"
                                             formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
                                             class="btn btn-danger btn-sm">
-                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete Selected
                                     </button>
                                 {% endif %}
                             {% endwith %}
