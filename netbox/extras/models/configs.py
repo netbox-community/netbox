@@ -266,8 +266,6 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
             for model in models:
                 context[app][model.__name__] = model
 
-        print(context)
-
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
         if self.data_file:
