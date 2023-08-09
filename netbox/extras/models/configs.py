@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
@@ -8,6 +9,7 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
+from netbox.registry import registry
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from utilities.jinja2 import ConfigTemplateLoader
@@ -256,6 +258,15 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         Render the contents of the template.
         """
         context = context or {}
+
+        app_ns = registry['model_features']['custom_fields'].keys()
+        for app in app_ns:
+            context.setdefault(app, {})
+            models = apps.get_app_config(app).get_models()
+            for model in models:
+                context[app][model.__name__] = model
+
+        print(context)
 
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
