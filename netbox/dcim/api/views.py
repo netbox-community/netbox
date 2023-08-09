@@ -434,7 +434,7 @@ class DeviceViewSet(
         # Compile context data
         context_data = device.get_config_context()
         context_data.update(request.data)
-        context_data.update({'object': device})
+        context_data.update({'device': device})
 
         app_ns = registry['model_features']['custom_fields'].keys()
         for app in app_ns:
