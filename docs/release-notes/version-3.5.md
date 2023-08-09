@@ -2,6 +2,23 @@
 
 ## v3.5.8 (FUTURE)
 
+### Enhancements
+
+* [#11675](https://github.com/netbox-community/netbox/issues/11675) - Add support for specifying import/export route targets during VRF bulk import
+* [#11922](https://github.com/netbox-community/netbox/issues/11922) - Automatically populate any VDC assignments from the parent when adding a child interface via the UI
+* [#12889](https://github.com/netbox-community/netbox/issues/12889) - Add 400GE CFP2 interface type
+* [#13033](https://github.com/netbox-community/netbox/issues/13033) - Add human-friendly speed column to interfaces table
+* [#13151](https://github.com/netbox-community/netbox/issues/13151) - Add "assigned" filter for IP addresses
+* [#13368](https://github.com/netbox-community/netbox/issues/13368) - List installed plugins on the server error report page
+
+### Bug Fixes
+
+* [#12665](https://github.com/netbox-community/netbox/issues/12665) - Avoid escaping semicolons when rendering custom links
+* [#12750](https://github.com/netbox-community/netbox/issues/12750) - Automatically delete an AutoSyncRecord when its object is deleted
+* [#13343](https://github.com/netbox-community/netbox/issues/13343) - Fix filtering of circuits under provider network view
+* [#13369](https://github.com/netbox-community/netbox/issues/13369) - Fix job termination status for failed reports
+* [#13414](https://github.com/netbox-community/netbox/issues/13414) - Fix support for "hide-if-unset" custom fields on bulk import forms
+
 ---
 
 ## v3.5.7 (2023-07-28)

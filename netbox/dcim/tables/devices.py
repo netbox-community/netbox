@@ -591,7 +591,12 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         }
     )
     mgmt_only = columns.BooleanColumn(
-        verbose_name=_('Management Only'),
+        verbose_name=_('Management Only')
+    )
+    speed_formatted = columns.TemplateColumn(
+        template_code='{% load helpers %}{{ value|humanize_speed }}',
+        accessor=Accessor('speed'),
+        verbose_name=_('Speed')
     )
     wireless_link = tables.Column(
         verbose_name=_('Wireless link'),
@@ -618,7 +623,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         model = models.Interface
         fields = (
             'pk', 'id', 'name', 'device', 'module_bay', 'module', 'label', 'enabled', 'type', 'mgmt_only', 'mtu',
-            'speed', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
+            'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
             'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn',
             'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',

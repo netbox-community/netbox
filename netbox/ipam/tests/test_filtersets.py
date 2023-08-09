@@ -992,6 +992,12 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'fhrpgroup_id': [fhrp_groups[0].pk, fhrp_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_assigned(self):
+        params = {'assigned': 'true'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'assigned': 'false'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_assigned_to_interface(self):
         params = {'assigned_to_interface': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)

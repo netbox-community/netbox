@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch, Sum
@@ -175,7 +177,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
-    template_name = 'virtualization/cluster/virtual_machines.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -194,6 +196,13 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     table = DeviceTable
     filterset = DeviceFilterSet
     template_name = 'virtualization/cluster/devices.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_remove_devices')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_remove_devices': {'change'},
+    })
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -353,6 +362,14 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
         permission='virtualization.view_vminterface',
         weight=500
     )
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
     def get_children(self, request, parent):
         return parent.interfaces.restrict(request.user, 'view').prefetch_related(

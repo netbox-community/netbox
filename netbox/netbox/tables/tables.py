@@ -54,7 +54,7 @@ class BaseTable(tables.Table):
         #   3. Meta.fields
         selected_columns = None
         if user is not None and not isinstance(user, AnonymousUser):
-            selected_columns = user.config.get(f"tables.{self.__class__.__name__}.columns")
+            selected_columns = user.config.get(f"tables.{self.name}.columns")
         if not selected_columns:
             selected_columns = getattr(self.Meta, 'default_columns', self.Meta.fields)
 
@@ -114,6 +114,10 @@ class BaseTable(tables.Table):
         return columns
 
     @property
+    def name(self):
+        return self.__class__.__name__
+
+    @property
     def available_columns(self):
         return self._get_columns(visible=False)
 
@@ -138,17 +142,16 @@ class BaseTable(tables.Table):
         """
         # Save ordering preference
         if request.user.is_authenticated:
-            table_name = self.__class__.__name__
             if self.prefixed_order_by_field in request.GET:
                 if request.GET[self.prefixed_order_by_field]:
                     # If an ordering has been specified as a query parameter, save it as the
                     # user's preferred ordering for this table.
                     ordering = request.GET.getlist(self.prefixed_order_by_field)
-                    request.user.config.set(f'tables.{table_name}.ordering', ordering, commit=True)
+                    request.user.config.set(f'tables.{self.name}.ordering', ordering, commit=True)
                 else:
                     # If the ordering has been set to none (empty), clear any existing preference.
-                    request.user.config.clear(f'tables.{table_name}.ordering', commit=True)
-            elif ordering := request.user.config.get(f'tables.{table_name}.ordering'):
+                    request.user.config.clear(f'tables.{self.name}.ordering', commit=True)
+            elif ordering := request.user.config.get(f'tables.{self.name}.ordering'):
                 # If no ordering has been specified, set the preferred ordering (if any).
                 self.order_by = ordering
 
