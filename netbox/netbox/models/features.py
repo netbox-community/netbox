@@ -525,11 +525,20 @@ class SyncedDataMixin(models.Model):
         raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
 
 
+#
+# Feature registration
+#
+
 FEATURES_MAP = {
     'bookmarks': BookmarksMixin,
+    'change_logging': ChangeLoggingMixin,
+    'cloning': CloningMixin,
+    'contacts': ContactsMixin,
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
+    'custom_validation': CustomValidationMixin,
     'export_templates': ExportTemplatesMixin,
+    'image_attachments': ImageAttachmentsMixin,
     'jobs': JobsMixin,
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
@@ -544,12 +553,13 @@ registry['model_features'].update({
 
 @receiver(class_prepared)
 def _register_features(sender, **kwargs):
+    # Record each applicable feature for the model in the registry
     features = {
         feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
     }
     register_features(sender, features)
 
-    # Feature view registration
+    # Register applicable feature views for the model
     if issubclass(sender, JournalingMixin):
         register_model_view(
             sender,
