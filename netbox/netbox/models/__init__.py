@@ -22,6 +22,7 @@ __all__ = (
 class NetBoxFeatureSet(
     BookmarksMixin,
     ChangeLoggingMixin,
+    CloningMixin,
     CustomFieldsMixin,
     CustomLinksMixin,
     CustomValidationMixin,
@@ -53,7 +54,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, WebhooksMixin
         abstract = True
 
 
-class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
+class NetBoxModel(NetBoxFeatureSet, models.Model):
     """
     Base model for most object types. Suitable for use by plugins.
     """
@@ -90,6 +91,10 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
                         })
 
 
+#
+# NetBox internal base models
+#
+
 class PrimaryModel(NetBoxModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
@@ -108,7 +113,7 @@ class PrimaryModel(NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(CloningMixin, NetBoxFeatureSet, MPTTModel):
+class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
