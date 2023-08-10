@@ -440,7 +440,7 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
     is_staff = False
     values = response.json().get('value', [])
 
-    user.groups.clear()
+    user.groups.through.objects.filter(user=user).delete()
     for value in values:
         # AD response contains both directories and groups - we only want groups
         if value.get('@odata.type') == '#microsoft.graph.group':
@@ -456,14 +456,16 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
 
             if group_id in group_mapping:
                 group_name = group_mapping[group_id]
-                group = Group.objects.get(name=group_name)
+                try:
+                    group = Group.objects.get(name=group_name)
+                except Group.DoesNotExist:
+                    group = None
+
                 if group:
                     group.user_set.add(user)
                     logger.info(f"Azure group mapping - adding group {group_name} to user: {user}.")
                 else:
                     logger.info(f"Azure group mapping - group: {group_name} not found.")
-        else:
-            logger.info(f"Azure group mapping - no Microsoft graph groups returned for user {user}.")
 
     user.is_superuser = is_superuser
     user.is_staff = is_staff
