@@ -440,6 +440,7 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
     is_staff = False
     values = response.json().get('value', [])
 
+    user.groups.clear()
     for value in values:
         # AD response contains both directories and groups - we only want groups
         if value.get('@odata.type') == '#microsoft.graph.group':
