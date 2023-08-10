@@ -171,22 +171,23 @@ class TokenTestCase(
             create_test_user('User 2'),
         )
         tokens = (
-            Token(key='123456790123456789012345678901234567890A', user=users[0]),
-            Token(key='123456790123456789012345678901234567890B', user=users[0]),
-            Token(key='123456790123456789012345678901234567890C', user=users[1]),
+            Token(key='123456789012345678901234567890123456789A', user=users[0]),
+            Token(key='123456789012345678901234567890123456789B', user=users[0]),
+            Token(key='123456789012345678901234567890123456789C', user=users[1]),
         )
         Token.objects.bulk_create(tokens)
 
         cls.form_data = {
             'user': users[0].pk,
+            'key': '1234567890123456789012345678901234567890',
             'description': 'testdescription',
         }
 
         cls.csv_data = (
             "key,user,description",
-            f"123456790123456789012345678901234567890D,{users[0].pk},testdescriptionD",
-            f"123456790123456789012345678901234567890E,{users[1].pk},testdescriptionE",
-            f"123456790123456789012345678901234567890F,{users[1].pk},testdescriptionF",
+            f"123456789012345678901234567890123456789D,{users[0].pk},testdescriptionD",
+            f"123456789012345678901234567890123456789E,{users[1].pk},testdescriptionE",
+            f"123456789012345678901234567890123456789F,{users[1].pk},testdescriptionF",
         )
 
         cls.csv_update_data = (
