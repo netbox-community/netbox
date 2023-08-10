@@ -143,10 +143,8 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
 
 class TokenForm(UserTokenForm):
     user = forms.ModelChoiceField(
-        queryset=get_user_model().objects.order_by(
-            'username'
-        ),
-        required=False
+        queryset=get_user_model().objects.order_by('username'),
+        label=_('User')
     )
 
     class Meta:
