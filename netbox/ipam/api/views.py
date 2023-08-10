@@ -388,7 +388,10 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.IPAddressSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.IPAddressSerializer(many=True)},
+                   request=serializers.IPAddressSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
