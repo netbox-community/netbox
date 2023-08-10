@@ -9,6 +9,9 @@
 * [#13363](https://github.com/netbox-community/netbox/issues/13363) - Fix API endpoint for custom field choice selector in forms
 * [#13376](https://github.com/netbox-community/netbox/issues/13376) - Restrict add/remove tag fields by model on bulk edit forms
 * [#13410](https://github.com/netbox-community/netbox/issues/13410) - Fix rendering of custom choice fields with large number of choices
+* [#13433](https://github.com/netbox-community/netbox/issues/13433) - User field on API token form should be required
+* [#13434](https://github.com/netbox-community/netbox/issues/13434) - Randomly generate initial keys prior to the creation of new tokens
+* [#13437](https://github.com/netbox-community/netbox/issues/13437) - Display bookmark button only for relevant objects
 
 ---
 
