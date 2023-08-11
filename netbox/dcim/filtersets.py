@@ -1473,28 +1473,6 @@ class InterfaceFilterSet(
         queryset=Device.objects.all(),
         label=_('Virtual Chassis Interfaces for Device (ID)')
     )
-    virtual_chassis = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__virtual_chassis',
-        queryset=VirtualChassis.objects.all(),
-        to_field_name='name',
-        label=_('Virtual Chassis Interfaces')
-    )
-    virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__virtual_chassis',
-        queryset=VirtualChassis.objects.all(),
-        label=_('Virtual Chassis Interfaces (ID)')
-    )
-    device = django_filters.ModelMultipleChoiceFilter(
-        field_name='device',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label=_('Device'),
-    )
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device',
-        queryset=Device.objects.all(),
-        label=_('Device (ID)'),
-    )
     kind = django_filters.CharFilter(
         method='filter_kind',
         label=_('Kind of interface'),

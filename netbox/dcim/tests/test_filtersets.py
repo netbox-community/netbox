@@ -3116,6 +3116,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_virtual_chassis_for_device(self):
+        devices = Device.objects.filter(name__in=['Device 1', 'Device 3'])
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'device': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_module(self):
         modules = Module.objects.all()[:2]
         params = {'module_id': [modules[0].pk, modules[1].pk]}
