@@ -123,6 +123,13 @@ class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
         null=True,
         verbose_name=_('disk (GB)')
     )
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='virtual_machines',
+        blank=True,
+        null=True
+    )
 
     # Counter fields
     interface_count = CounterCacheField(
@@ -233,6 +240,17 @@ class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
             return self.primary_ip4
         else:
             return None
+
+    def get_config_template(self):
+        """
+        Return the appropriate ConfigTemplate (if any) for this Device.
+        """
+        if self.config_template:
+            return self.config_template
+        if self.role.config_template:
+            return self.role.config_template
+        if self.platform and self.platform.config_template:
+            return self.platform.config_template
 
 
 class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):

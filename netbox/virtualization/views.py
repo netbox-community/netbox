@@ -1,3 +1,4 @@
+import traceback
 from collections import defaultdict
 
 from django.contrib import messages
@@ -6,6 +7,7 @@ from django.db.models import Prefetch, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from jinja2.exceptions import TemplateError
 
 from dcim.filtersets import DeviceFilterSet
 from dcim.models import Device
@@ -378,6 +380,39 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
         )
 
 
+@register_model_view(VirtualMachine, 'render-config')
+class VirtualMachineRenderConfigView(generic.ObjectView):
+    queryset = VirtualMachine.objects.all()
+    template_name = 'virtualization/virtualmachine/render_config.html'
+    tab = ViewTab(
+        label=_('Render Config'),
+        permission='extras.view_configtemplate',
+        weight=2000
+    )
+
+    def get_extra_context(self, request, instance):
+        # Compile context data
+        context_data = {
+            'virtualmachine': instance,
+        }
+        context_data.update(**instance.get_config_context())
+
+        # Render the config template
+        rendered_config = None
+        if config_template := instance.get_config_template():
+            try:
+                rendered_config = config_template.render(context=context_data)
+            except TemplateError as e:
+                messages.error(request, f"An error occurred while rendering the template: {e}")
+                rendered_config = traceback.format_exc()
+
+        return {
+            'config_template': config_template,
+            'context_data': context_data,
+            'rendered_config': rendered_config,
+        }
+
+
 @register_model_view(VirtualMachine, 'configcontext', path='config-context')
 class VirtualMachineConfigContextView(ObjectConfigContextView):
     queryset = VirtualMachine.objects.annotate_config_context_data()
@@ -385,7 +420,7 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
     tab = ViewTab(
         label=_('Config Context'),
         permission='extras.view_configcontext',
-        weight=2000
+        weight=2100
     )
 
 

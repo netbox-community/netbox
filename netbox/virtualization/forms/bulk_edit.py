@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from extras.models import ConfigTemplate
 from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
@@ -174,12 +175,17 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
+    )
     comments = CommentField()
 
     model = VirtualMachine
     fieldsets = (
         (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform', 'description')),
-        (_('Resources'), ('vcpus', 'memory', 'disk'))
+        (_('Resources'), ('vcpus', 'memory', 'disk')),
+        ('Configuration', ('config_template',)),
     )
     nullable_fields = (
         'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'description', 'comments',

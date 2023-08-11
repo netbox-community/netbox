@@ -44,6 +44,10 @@
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row">Config Template</th>
+                        <td>{{ object.config_template|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">{% trans "Primary IPv4" %}</th>
                         <td>
                           {% if object.primary_ip4 %}
