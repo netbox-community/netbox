@@ -28,7 +28,7 @@ CHOICES_MAP = {
 
 
 class Command(BaseCommand):
-    help = "Generate JSON schema for the NetBox device type library"
+    help = "Generate JSON schema for validating NetBox device type definitions"
 
     def add_arguments(self, parser):
         parser.add_argument(
