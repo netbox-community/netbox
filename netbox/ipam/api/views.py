@@ -224,7 +224,10 @@ class AvailableASNsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.ASNSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.ASNSerializer(many=True)},
+                   request=serializers.ASNSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-asns'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -293,7 +296,10 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.PrefixSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.PrefixSerializer(many=True)},
+                   request=serializers.PrefixSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -471,7 +477,10 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.VLANSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.VLANSerializer(many=True)},
+                   request=serializers.VLANSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-vlans'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
