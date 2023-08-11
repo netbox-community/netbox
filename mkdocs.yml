@@ -271,6 +271,7 @@ nav:
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'
+        - Internationalization: 'development/internationalization.md'
         - Release Checklist: 'development/release-checklist.md'
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
