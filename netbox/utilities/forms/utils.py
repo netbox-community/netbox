@@ -60,7 +60,7 @@ def parse_alphanumeric_range(string):
         except ValueError:
             begin, end = dash_range, dash_range
         if begin.isdigit() and end.isdigit():
-            if int(begin) > int(end):
+            if int(begin) >= int(end):
                 raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
 
             for n in list(range(int(begin), int(end) + 1)):
@@ -75,7 +75,7 @@ def parse_alphanumeric_range(string):
                 if not len(begin) == len(end) == 1:
                     raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
 
-                if ord(begin) > ord(end):
+                if ord(begin) >= ord(end):
                     raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
 
                 for n in list(range(ord(begin), ord(end) + 1)):

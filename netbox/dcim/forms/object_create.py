@@ -52,9 +52,7 @@ class ComponentCreateForm(forms.Form):
         super().clean()
 
         # Validate that all replication fields generate an equal number of values
-        patterns = self.cleaned_data.get(self.replication_fields[0])
-
-        if not patterns:
+        if not (patterns := self.cleaned_data.get(self.replication_fields[0])):
             return
 
         pattern_count = len(patterns)
