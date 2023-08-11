@@ -58,6 +58,16 @@ Before each release, update each of NetBox's Python dependencies to its most rec
 
 In cases where upgrading a dependency to its most recent release is breaking, it should be constrained to its current minor version in `base_requirements.txt` with an explanatory comment and revisited for the next major NetBox release (see the [Address Constrained Dependencies](#address-constrained-dependencies) section above).
 
+### Rebuild the Device Type Definition Schema
+
+Run the following command to update the device type definition validation schema:
+
+```nohighlight
+./manage.py buildschema --write
+```
+
+This will automatically update the schema file at `contrib/generated_schema.json`.
+
 ### Update Version and Changelog
 
 * Update the `VERSION` constant in `settings.py` to the new release version.
