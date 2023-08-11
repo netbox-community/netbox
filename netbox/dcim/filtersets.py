@@ -1462,16 +1462,37 @@ class InterfaceFilterSet(
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
 ):
-    # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
-    # members
-    device = MultiValueCharFilter(
-        method='filter_device',
-        field_name='name',
+    virtual_chassis_for_device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis__members',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label=_('Virtual Chassis Interfaces for Device (ID)')
+    )
+    virtual_chassis_for_device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis__members',
+        queryset=Device.objects.all(),
+        label=_('Virtual Chassis Interfaces for Device (ID)')
+    )
+    virtual_chassis = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis',
+        queryset=VirtualChassis.objects.all(),
+        to_field_name='name',
+        label=_('Virtual Chassis Interfaces')
+    )
+    virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__virtual_chassis',
+        queryset=VirtualChassis.objects.all(),
+        label=_('Virtual Chassis Interfaces (ID)')
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device',
+        queryset=Device.objects.all(),
+        to_field_name='name',
         label=_('Device'),
     )
-    device_id = MultiValueNumberFilter(
-        method='filter_device',
-        field_name='pk',
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device',
+        queryset=Device.objects.all(),
         label=_('Device (ID)'),
     )
     kind = django_filters.CharFilter(
@@ -1539,21 +1560,6 @@ class InterfaceFilterSet(
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
         ]
-
-    def filter_device(self, queryset, name, value):
-        # Include interfaces belonging to peer virtual chassis members
-        vc_interface_ids = []
-        try:
-            devices = Device.objects.filter(**{'{}__in'.format(name): value})
-            for device in devices:
-                # Hack to show all VC member interfaces when requested
-                if self.request is not None and 'vc_interfaces' in self.request.GET.keys():
-                    vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
-                else:
-                    vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-            return queryset.filter(pk__in=vc_interface_ids)
-        except Device.DoesNotExist:
-            return queryset.none()
 
     def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
