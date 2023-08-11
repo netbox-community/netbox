@@ -18,6 +18,7 @@
 * [#13343](https://github.com/netbox-community/netbox/issues/13343) - Fix filtering of circuits under provider network view
 * [#13369](https://github.com/netbox-community/netbox/issues/13369) - Fix job termination status for failed reports
 * [#13414](https://github.com/netbox-community/netbox/issues/13414) - Fix support for "hide-if-unset" custom fields on bulk import forms
+* [#13446](https://github.com/netbox-community/netbox/issues/13446) - Don't disable bulk edit/delete buttons after deselecting "select all" checkbox
 
 ---
 
