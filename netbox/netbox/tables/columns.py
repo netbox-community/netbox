@@ -504,9 +504,9 @@ class CustomLinkColumn(tables.Column):
     """
     def __init__(self, customlink, *args, **kwargs):
         self.customlink = customlink
-        kwargs['accessor'] = Accessor('pk')
-        if 'verbose_name' not in kwargs:
-            kwargs['verbose_name'] = customlink.name
+        kwargs.setdefault('accessor', Accessor('pk'))
+        kwargs.setdefault('orderable', False)
+        kwargs.setdefault('verbose_name', customlink.name)
 
         super().__init__(*args, **kwargs)
 

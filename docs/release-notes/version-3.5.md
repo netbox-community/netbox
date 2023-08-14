@@ -19,6 +19,7 @@
 * [#13369](https://github.com/netbox-community/netbox/issues/13369) - Fix job termination status for failed reports
 * [#13414](https://github.com/netbox-community/netbox/issues/13414) - Fix support for "hide-if-unset" custom fields on bulk import forms
 * [#13446](https://github.com/netbox-community/netbox/issues/13446) - Don't disable bulk edit/delete buttons after deselecting "select all" checkbox
+* [#13451](https://github.com/netbox-community/netbox/issues/13451) - Disable table ordering for custom link columns
 
 ---
 
