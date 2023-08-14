@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#10030](https://github.com/netbox-community/netbox/issues/10030) - Ship a validation schema for the device type library with each release
 * [#11675](https://github.com/netbox-community/netbox/issues/11675) - Add support for specifying import/export route targets during VRF bulk import
 * [#11922](https://github.com/netbox-community/netbox/issues/11922) - Automatically populate any VDC assignments from the parent when adding a child interface via the UI
 * [#12889](https://github.com/netbox-community/netbox/issues/12889) - Add 400GE CFP2 interface type
@@ -13,6 +14,8 @@
 
 ### Bug Fixes
 
+* [#11578](https://github.com/netbox-community/netbox/issues/11578) - Fix schema definition for available IP & VLAN REST API endpoints
+* [#12639](https://github.com/netbox-community/netbox/issues/12639) - Raise validation error for invalid alphanumeric ranges when creating objects
 * [#12665](https://github.com/netbox-community/netbox/issues/12665) - Avoid escaping semicolons when rendering custom links
 * [#12750](https://github.com/netbox-community/netbox/issues/12750) - Automatically delete an AutoSyncRecord when its object is deleted
 * [#13343](https://github.com/netbox-community/netbox/issues/13343) - Fix filtering of circuits under provider network view
