@@ -4,6 +4,7 @@ from collections import defaultdict
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch, Sum
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -380,6 +381,17 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
         )
 
 
+@register_model_view(VirtualMachine, 'configcontext', path='config-context')
+class VirtualMachineConfigContextView(ObjectConfigContextView):
+    queryset = VirtualMachine.objects.annotate_config_context_data()
+    base_template = 'virtualization/virtualmachine.html'
+    tab = ViewTab(
+        label=_('Config Context'),
+        permission='extras.view_configcontext',
+        weight=2000
+    )
+
+
 @register_model_view(VirtualMachine, 'render-config')
 class VirtualMachineRenderConfigView(generic.ObjectView):
     queryset = VirtualMachine.objects.all()
@@ -387,15 +399,31 @@ class VirtualMachineRenderConfigView(generic.ObjectView):
     tab = ViewTab(
         label=_('Render Config'),
         permission='extras.view_configtemplate',
-        weight=2000
+        weight=2100
     )
+
+    def get(self, request, **kwargs):
+        instance = self.get_object(**kwargs)
+        context = self.get_extra_context(request, instance)
+
+        # If a direct export has been requested, return the rendered template content as a
+        # downloadable file.
+        if request.GET.get('export'):
+            response = HttpResponse(context['rendered_config'], content_type='text')
+            filename = f"{instance.name or 'config'}.txt"
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+
+        return render(request, self.get_template_name(), {
+            'object': instance,
+            'tab': self.tab,
+            **context,
+        })
 
     def get_extra_context(self, request, instance):
         # Compile context data
-        context_data = {
-            'virtualmachine': instance,
-        }
-        context_data.update(**instance.get_config_context())
+        context_data = instance.get_config_context()
+        context_data.update({'virtualmachine': instance})
 
         # Render the config template
         rendered_config = None
@@ -411,17 +439,6 @@ class VirtualMachineRenderConfigView(generic.ObjectView):
             'context_data': context_data,
             'rendered_config': rendered_config,
         }
-
-
-@register_model_view(VirtualMachine, 'configcontext', path='config-context')
-class VirtualMachineConfigContextView(ObjectConfigContextView):
-    queryset = VirtualMachine.objects.annotate_config_context_data()
-    base_template = 'virtualization/virtualmachine.html'
-    tab = ViewTab(
-        label=_('Config Context'),
-        permission='extras.view_configcontext',
-        weight=2100
-    )
 
 
 @register_model_view(VirtualMachine, 'edit')
