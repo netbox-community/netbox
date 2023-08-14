@@ -253,7 +253,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPRange
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        ('Attriubtes', ('family', 'vrf_id', 'status', 'role_id', 'mark_utilized')),
+        ('Attributes', ('family', 'vrf_id', 'status', 'role_id', 'mark_utilized')),
         ('Tenant', ('tenant_group_id', 'tenant_id')),
     )
     family = forms.ChoiceField(
