@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import BaseInterface
+from dcim.models.mixins import RenderConfigMixin
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
@@ -25,7 +26,7 @@ __all__ = (
 )
 
 
-class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
+class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, PrimaryModel):
     """
     A virtual machine which runs inside a Cluster.
     """

@@ -4,6 +4,11 @@ from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
 from utilities.utils import to_grams
 
+__all__ = (
+    'RenderConfigMixin',
+    'WeightMixin',
+)
+
 
 class WeightMixin(models.Model):
     weight = models.DecimalField(
@@ -44,3 +49,27 @@ class WeightMixin(models.Model):
         # Validate weight and weight_unit
         if self.weight and not self.weight_unit:
             raise ValidationError(_("Must specify a unit when setting a weight"))
+
+
+class RenderConfigMixin(models.Model):
+    config_template = models.ForeignKey(
+        to='extras.ConfigTemplate',
+        on_delete=models.PROTECT,
+        related_name='%(class)ss',
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        abstract = True
+
+    def get_config_template(self):
+        """
+        Return the appropriate ConfigTemplate (if any) for this Device.
+        """
+        if self.config_template:
+            return self.config_template
+        if self.role.config_template:
+            return self.role.config_template
+        if self.platform and self.platform.config_template:
+            return self.platform.config_template
