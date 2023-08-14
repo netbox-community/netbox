@@ -1,25 +1,26 @@
 {% extends 'virtualization/virtualmachine/base.html' %}
 {% load static %}
+{% load i18n %}
 
-{% block title %}{{ object }} - Config{% endblock %}
+{% block title %}{{ object }} - {% trans "Config" %}{% endblock %}
 
 {% block content %}
   <div class="row mb-3">
     <div class="col-5">
       <div class="card">
-        <h5 class="card-header">Config Template</h5>
+        <h5 class="card-header">{% trans "Config Template" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Config Template</th>
+              <th scope="row">{% trans "Config Template" %}</th>
               <td>{{ config_template|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Data Source</th>
+              <th scope="row">{% trans "Data Source" %}</th>
               <td>{{ config_template.data_file.source|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Data File</th>
+              <th scope="row">{% trans "Data File" %}</th>
               <td>{{ config_template.data_file|linkify|placeholder }}</td>
             </tr>
           </table>
@@ -28,18 +29,40 @@
     </div>
     <div class="col-7">
       <div class="card">
-        <h5 class="card-header">Context Data</h5>
-        <pre class="card-body">{{ context_data|pprint }}</pre>
+        <div class="accordion accordion-flush" id="renderConfig">
+          <div class="card-body">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="renderConfigHeading">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsedRenderConfig" aria-expanded="false" aria-controls="collapsedRenderConfig">
+                  {% trans "Context Data" %}
+                </button>
+              </h2>
+              <div id="collapsedRenderConfig" class="accordion-collapse collapse" aria-labelledby="renderConfigHeading" data-bs-parent="#renderConfig">
+                <div class="accordion-body">
+                  <pre class="card-body">{{ context_data|pprint }}</pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
   <div class="row">
     <div class="col">
       <div class="card">
+        <div class="card-header">
+          <div class="float-end">
+            <a href="?export=True" class="btn btn-sm btn-primary" role="button">
+              <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
+            </a>
+          </div>
+          <h5>{% trans "Rendered Config" %}</h5>
+        </div>
         {% if config_template %}
           <pre class="card-body">{{ rendered_config }}</pre>
         {% else %}
-          <div class="card-body text-muted">No configuration template found</div>
+          <div class="card-body text-muted">{% trans "No configuration template found" %}</div>
         {% endif %}
       </div>
     </div>
