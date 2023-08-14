@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import BaseInterface
+from dcim.models.mixins import RenderConfigMixin
 from extras.models import ConfigContextModel
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import get_config
@@ -25,7 +26,7 @@ __all__ = (
 )
 
 
-class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
+class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, PrimaryModel):
     """
     A virtual machine which runs inside a Cluster.
     """
@@ -122,13 +123,6 @@ class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
         blank=True,
         null=True,
         verbose_name=_('disk (GB)')
-    )
-    config_template = models.ForeignKey(
-        to='extras.ConfigTemplate',
-        on_delete=models.PROTECT,
-        related_name='virtual_machines',
-        blank=True,
-        null=True
     )
 
     # Counter fields
@@ -240,17 +234,6 @@ class VirtualMachine(ContactsMixin, PrimaryModel, ConfigContextModel):
             return self.primary_ip4
         else:
             return None
-
-    def get_config_template(self):
-        """
-        Return the appropriate ConfigTemplate (if any) for this Device.
-        """
-        if self.config_template:
-            return self.config_template
-        if self.role.config_template:
-            return self.role.config_template
-        if self.platform and self.platform.config_template:
-            return self.platform.config_template
 
 
 class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):

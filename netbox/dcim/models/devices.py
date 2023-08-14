@@ -24,7 +24,7 @@ from utilities.choices import ColorChoices
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
-from .mixins import WeightMixin
+from .mixins import RenderConfigMixin, WeightMixin
 
 
 __all__ = (
@@ -525,7 +525,14 @@ def update_interface_bridges(device, interface_templates, module=None):
             interface.save()
 
 
-class Device(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, ConfigContextModel, TrackingModelMixin):
+class Device(
+    ContactsMixin,
+    ImageAttachmentsMixin,
+    RenderConfigMixin,
+    ConfigContextModel,
+    TrackingModelMixin,
+    PrimaryModel
+):
     """
     A Device represents a piece of physical hardware mounted within a Rack. Each Device is assigned a DeviceType,
     DeviceRole, and (optionally) a Platform. Device names are not required, however if one is set it must be unique.
@@ -685,13 +692,6 @@ class Device(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, ConfigContextMo
         null=True,
         validators=[MaxValueValidator(255)],
         help_text=_('Virtual chassis master election priority')
-    )
-    config_template = models.ForeignKey(
-        to='extras.ConfigTemplate',
-        on_delete=models.PROTECT,
-        related_name='devices',
-        blank=True,
-        null=True
     )
     latitude = models.DecimalField(
         verbose_name=_('latitude'),
@@ -1069,17 +1069,6 @@ class Device(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, ConfigContextMo
     @property
     def interfaces_count(self):
         return self.vc_interfaces().count()
-
-    def get_config_template(self):
-        """
-        Return the appropriate ConfigTemplate (if any) for this Device.
-        """
-        if self.config_template:
-            return self.config_template
-        if self.role.config_template:
-            return self.role.config_template
-        if self.platform and self.platform.config_template:
-            return self.platform.config_template
 
     def get_vc_master(self):
         """
