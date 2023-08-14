@@ -208,7 +208,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     )
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
-        required=False
+        required=False,
+        label=_('Config template')
     )
     comments = CommentField()
 
@@ -225,7 +226,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         model = VirtualMachine
         fields = [
             'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant_group', 'tenant', 'platform', 'primary_ip4',
-            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments', 'tags', 'local_context_data', 'config_template',
+            'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments', 'tags', 'local_context_data',
+            'config_template',
         ]
 
     def __init__(self, *args, **kwargs):
