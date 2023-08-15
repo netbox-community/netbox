@@ -76,6 +76,7 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#11936](https://github.com/netbox-community/netbox/issues/11936) - Introduce support for tags and custom fields on webhooks
 * [#12175](https://github.com/netbox-community/netbox/issues/12175) - Permit racks to start numbering at values greater than one
 * [#12210](https://github.com/netbox-community/netbox/issues/12210) - Add tenancy assignment for power feeds
+* [#12461](https://github.com/netbox-community/netbox/issues/12461) - Add config template rendering for virtual machines
 * [#12814](https://github.com/netbox-community/netbox/issues/12814) - Expose NetBox models within ConfigTemplate rendering context
 * [#12882](https://github.com/netbox-community/netbox/issues/12882) - Add tag support for contact assignments
 * [#13037](https://github.com/netbox-community/netbox/issues/13037) - Return reports & scripts within a `results` list when fetched via the REST API
