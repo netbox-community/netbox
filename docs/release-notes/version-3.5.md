@@ -1,6 +1,6 @@
 # NetBox v3.5
 
-## v3.5.8 (FUTURE)
+## v3.5.8 (2023-08-15)
 
 ### Enhancements
 
@@ -11,6 +11,7 @@
 * [#13033](https://github.com/netbox-community/netbox/issues/13033) - Add human-friendly speed column to interfaces table
 * [#13151](https://github.com/netbox-community/netbox/issues/13151) - Add "assigned" filter for IP addresses
 * [#13368](https://github.com/netbox-community/netbox/issues/13368) - List installed plugins on the server error report page
+* [#13442](https://github.com/netbox-community/netbox/issues/13442) - Add 200 and 400 Gbps speeds to dropdown choices on interface form
 
 ### Bug Fixes
 
