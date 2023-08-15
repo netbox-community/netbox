@@ -1,0 +1,93 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "airflow": {
+      "type": "string",
+      "enum": {{ airflow_choices }}
+    },
+    "weight-unit": {
+      "type": "string",
+      "enum": {{ weight_unit_choices }}
+    },
+    "subdevice-role": {
+      "type": "string",
+      "enum": {{ subdevice_role_choices }}
+    },
+    "console-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ console_port_type_choices }}
+        }
+      }
+    },
+    "console-server-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ console_server_port_type_choices }}
+        }
+      }
+    },
+    "power-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ power_port_type_choices }}
+        }
+      }
+    },
+    "power-outlet": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ power_outlet_type_choices }}
+        },
+        "feed-leg": {
+          "type": "string",
+          "enum": {{ power_outlet_feedleg_choices }}
+        }
+      }
+    },
+    "interface": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ interface_type_choices }}
+        },
+        "poe_mode": {
+          "type": "string",
+          "enum": {{ interface_poe_mode_choices }}
+        },
+        "poe_type": {
+          "type": "string",
+          "enum": {{ interface_poe_type_choices }}
+        }
+      }
+    },
+    "front-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ front_port_type_choices }}
+        }
+      }
+    },
+    "rear-port": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": {{ rear_port_type_choices}}
+        }
+      }
+    }
+  }
+}

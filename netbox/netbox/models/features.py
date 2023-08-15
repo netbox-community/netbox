@@ -442,6 +442,19 @@ class SyncedDataMixin(models.Model):
 
         return ret
 
+    def delete(self, *args, **kwargs):
+        from core.models import AutoSyncRecord
+
+        # Delete AutoSyncRecord
+        content_type = ContentType.objects.get_for_model(self)
+        AutoSyncRecord.objects.filter(
+            datafile=self.data_file,
+            object_type=content_type,
+            object_id=self.pk
+        ).delete()
+
+        return super().delete(*args, **kwargs)
+
     def resolve_data_file(self):
         """
         Determine the designated DataFile object identified by its parent DataSource and its path. Returns None if

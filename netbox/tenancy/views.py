@@ -41,11 +41,6 @@ class ObjectContactsView(generic.ObjectChildrenView):
 
         return table
 
-    def get_extra_context(self, request, instance):
-        return {
-            'base_template': f'{instance._meta.app_label}/{instance._meta.model_name}.html',
-        }
-
 #
 # Tenant groups
 #

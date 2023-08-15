@@ -5,8 +5,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from extras.plugins import PluginMenu, get_plugin_config
+from extras.plugins import PluginMenu
 from extras.tests.dummy_plugin import config as dummy_config
+from extras.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
 from netbox.registry import registry
 

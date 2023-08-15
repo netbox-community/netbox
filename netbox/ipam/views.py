@@ -216,7 +216,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     child_model = ASN
     table = tables.ASNTable
     filterset = filtersets.ASNFilterSet
-    template_name = 'ipam/asnrange/asns.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
@@ -816,7 +816,6 @@ class IPAddressAssignView(generic.ObjectView):
         table = None
 
         if form.is_valid():
-
             addresses = self.queryset.prefetch_related('vrf', 'tenant')
             # Limit to 100 results
             addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
@@ -866,7 +865,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
-    template_name = 'ipam/ipaddress/ip_addresses.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Related IPs'),
         badge=lambda x: x.get_related_ips().count(),
@@ -963,7 +962,6 @@ class FHRPGroupView(generic.ObjectView):
     queryset = FHRPGroup.objects.all()
 
     def get_extra_context(self, request, instance):
-
         # Get assigned interfaces
         members_table = tables.FHRPGroupAssignmentTable(
             data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
@@ -1077,7 +1075,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
-    template_name = 'ipam/vlan/interfaces.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Device Interfaces'),
         badge=lambda x: x.get_interfaces().count(),
@@ -1095,7 +1093,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
-    template_name = 'ipam/vlan/vminterfaces.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('VM Interfaces'),
         badge=lambda x: x.get_vminterfaces().count(),

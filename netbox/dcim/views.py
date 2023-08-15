@@ -1,4 +1,5 @@
 import traceback
+from collections import defaultdict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
@@ -45,6 +46,15 @@ CABLE_TERMINATION_TYPES = {
 
 
 class DeviceComponentsView(generic.ObjectChildrenView):
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename', 'bulk_disconnect')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+        'bulk_disconnect': {'change'},
+    })
     queryset = Device.objects.all()
 
     def get_children(self, request, parent):
@@ -1997,6 +2007,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
     template_name = 'dcim/device/modulebays.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
     tab = ViewTab(
         label=_('Module Bays'),
         badge=lambda obj: obj.modulebays.count(),
@@ -2012,6 +2023,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
     tab = ViewTab(
         label=_('Device Bays'),
         badge=lambda obj: obj.devicebays.count(),
@@ -2023,6 +2035,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
 
 @register_model_view(Device, 'inventory')
 class DeviceInventoryView(DeviceComponentsView):
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
