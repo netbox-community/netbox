@@ -1,4 +1,4 @@
-import { getElement, getElements, findFirstAdjacent } from '../util';
+import { getElements, findFirstAdjacent } from '../util';
 
 /**
  * If any PK checkbox is checked, uncheck the select all table checkbox and the select all
@@ -64,29 +64,6 @@ function handleSelectAllToggle(event: Event): void {
 }
 
 /**
- * Synchronize the select all confirmation checkbox state with the select all confirmation button
- * disabled state. If the select all confirmation checkbox is checked, the buttons should be
- * enabled. If not, the buttons should be disabled.
- *
- * @param event Change Event
- */
-function handleSelectAll(event: Event): void {
-  const target = event.currentTarget as HTMLInputElement;
-  const selectAllBox = getElement<HTMLDivElement>('select-all-box');
-  if (selectAllBox !== null) {
-    for (const button of selectAllBox.querySelectorAll<HTMLButtonElement>(
-      'button[type="submit"]',
-    )) {
-      if (target.checked) {
-        button.disabled = false;
-      } else {
-        button.disabled = true;
-      }
-    }
-  }
-}
-
-/**
  * Initialize table select all elements.
  */
 export function initSelectAll(): void {
@@ -97,10 +74,5 @@ export function initSelectAll(): void {
   }
   for (const element of getElements<HTMLInputElement>('input[type="checkbox"][name="pk"]')) {
     element.addEventListener('change', handlePkCheck);
-  }
-  const selectAll = getElement<HTMLInputElement>('select-all');
-
-  if (selectAll !== null) {
-    selectAll.addEventListener('change', handleSelectAll);
   }
 }
