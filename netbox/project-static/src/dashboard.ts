@@ -4,15 +4,27 @@ import { apiPatch, hasError } from './util';
 
 function lockDashboard(): void {
   const dashboard = document.getElementById('dashboard') as any;
+  const gridUnlockButton = document.getElementById('unlock_dashboard') as HTMLButtonElement;
+  const gridLockButton = document.getElementById('lock_dashboard') as HTMLButtonElement;
   if (dashboard) {
     dashboard.gridstack.disable();
+  }
+  if (gridUnlockButton && gridLockButton) {
+    gridUnlockButton.classList.remove('invisible');
+    gridLockButton.classList.add('invisible');
   }
 }
 
 function unlockDashboard(): void {
   const dashboard = document.getElementById('dashboard') as any;
+  const gridUnlockButton = document.getElementById('unlock_dashboard') as HTMLButtonElement;
+  const gridLockButton = document.getElementById('lock_dashboard') as HTMLButtonElement;
   if (dashboard) {
     dashboard.gridstack.enable();
+  }
+  if (gridUnlockButton && gridLockButton) {
+    gridUnlockButton.classList.add('invisible');
+    gridLockButton.classList.remove('invisible');
   }
 }
 
