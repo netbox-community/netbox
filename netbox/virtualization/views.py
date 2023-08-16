@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Prefetch, Sum
@@ -9,9 +11,10 @@ from dcim.filtersets import DeviceFilterSet
 from dcim.models import Device
 from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
-from ipam.models import IPAddress, Service
+from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
@@ -140,6 +143,11 @@ class ClusterGroupBulkDeleteView(generic.BulkDeleteView):
     table = tables.ClusterGroupTable
 
 
+@register_model_view(ClusterGroup, 'contacts')
+class ClusterGroupContactsView(ObjectContactsView):
+    queryset = ClusterGroup.objects.all()
+
+
 #
 # Clusters
 #
@@ -169,7 +177,7 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
-    template_name = 'virtualization/cluster/virtual_machines.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -188,6 +196,13 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     table = DeviceTable
     filterset = DeviceFilterSet
     template_name = 'virtualization/cluster/devices.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_remove_devices')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_remove_devices': {'change'},
+    })
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -312,6 +327,11 @@ class ClusterRemoveDevicesView(generic.ObjectEditView):
         })
 
 
+@register_model_view(Cluster, 'contacts')
+class ClusterContactsView(ObjectContactsView):
+    queryset = Cluster.objects.all()
+
+
 #
 # Virtual machines
 #
@@ -342,6 +362,14 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
         permission='virtualization.view_vminterface',
         weight=500
     )
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
     def get_children(self, request, parent):
         return parent.interfaces.restrict(request.user, 'view').prefetch_related(
@@ -390,6 +418,11 @@ class VirtualMachineBulkDeleteView(generic.BulkDeleteView):
     table = tables.VirtualMachineTable
 
 
+@register_model_view(VirtualMachine, 'contacts')
+class VirtualMachineContactsView(ObjectContactsView):
+    queryset = VirtualMachine.objects.all()
+
+
 #
 # VM interfaces
 #
@@ -399,7 +432,6 @@ class VMInterfaceListView(generic.ObjectListView):
     filterset = filtersets.VMInterfaceFilterSet
     filterset_form = forms.VMInterfaceFilterForm
     table = tables.VMInterfaceTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(VMInterface)

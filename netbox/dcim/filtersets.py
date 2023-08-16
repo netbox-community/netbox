@@ -1084,10 +1084,13 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(
-            Q(name__icontains=value) |
-            Q(identifier=value.strip())
-        ).distinct()
+
+        qs_filter = Q(name__icontains=value)
+        try:
+            qs_filter |= Q(identifier=int(value))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter).distinct()
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
@@ -1225,6 +1228,28 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         queryset=Device.objects.all(),
         to_field_name='name',
         label=_('Device (name)'),
+    )
+    device_type_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_type',
+        queryset=DeviceType.objects.all(),
+        label=_('Device type (ID)'),
+    )
+    device_type = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_type__model',
+        queryset=DeviceType.objects.all(),
+        to_field_name='model',
+        label=_('Device type (model)'),
+    )
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_role',
+        queryset=DeviceRole.objects.all(),
+        label=_('Device role (ID)'),
+    )
+    device_role = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__device_role__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label=_('Device role (slug)'),
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__virtual_chassis',

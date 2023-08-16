@@ -318,6 +318,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE4H = 'iec-60309-3p-n-e-4h'
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
+    # IEC 60906-1
+    TYPE_IEC_60906_1 = 'iec-60906-1'
+    TYPE_NBR_14136_10A = 'nbr-14136-10a'
+    TYPE_NBR_14136_20A = 'nbr-14136-20a'
     # NEMA non-locking
     TYPE_NEMA_115P = 'nema-1-15p'
     TYPE_NEMA_515P = 'nema-5-15p'
@@ -428,6 +432,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
             (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        )),
+        ('IEC 60906-1', (
+            (TYPE_IEC_60906_1, 'IEC 60906-1'),
+            (TYPE_NBR_14136_10A, '2P+T 10A (NBR 14136)'),
+            (TYPE_NBR_14136_20A, '2P+T 20A (NBR 14136)'),
         )),
         ('NEMA (Non-locking)', (
             (TYPE_NEMA_115P, 'NEMA 1-15P'),
@@ -553,6 +562,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_IEC_3PNE4H = 'iec-60309-3p-n-e-4h'
     TYPE_IEC_3PNE6H = 'iec-60309-3p-n-e-6h'
     TYPE_IEC_3PNE9H = 'iec-60309-3p-n-e-9h'
+    # IEC 60906-1
+    TYPE_IEC_60906_1 = 'iec-60906-1'
+    TYPE_NBR_14136_10A = 'nbr-14136-10a'
+    TYPE_NBR_14136_20A = 'nbr-14136-20a'
     # NEMA non-locking
     TYPE_NEMA_115R = 'nema-1-15r'
     TYPE_NEMA_515R = 'nema-5-15r'
@@ -656,6 +669,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_IEC_3PNE4H, '3P+N+E 4H'),
             (TYPE_IEC_3PNE6H, '3P+N+E 6H'),
             (TYPE_IEC_3PNE9H, '3P+N+E 9H'),
+        )),
+        ('IEC 60906-1', (
+            (TYPE_IEC_60906_1, 'IEC 60906-1'),
+            (TYPE_NBR_14136_10A, '2P+T 10A (NBR 14136)'),
+            (TYPE_NBR_14136_20A, '2P+T 20A (NBR 14136)'),
         )),
         ('NEMA (Non-locking)', (
             (TYPE_NEMA_115R, 'NEMA 1-15R'),
@@ -809,11 +827,18 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_100GE_CFP4 = '100gbase-x-cfp4'
     TYPE_100GE_CXP = '100gbase-x-cxp'
     TYPE_100GE_CPAK = '100gbase-x-cpak'
+    TYPE_100GE_DSFP = '100gbase-x-dsfp'
+    TYPE_100GE_SFP_DD = '100gbase-x-sfpdd'
     TYPE_100GE_QSFP28 = '100gbase-x-qsfp28'
+    TYPE_100GE_QSFP_DD = '100gbase-x-qsfpdd'
     TYPE_200GE_CFP2 = '200gbase-x-cfp2'
     TYPE_200GE_QSFP56 = '200gbase-x-qsfp56'
+    TYPE_200GE_QSFP_DD = '200gbase-x-qsfpdd'
+    TYPE_400GE_CFP2 = '400gbase-x-cfp2'
     TYPE_400GE_QSFP_DD = '400gbase-x-qsfpdd'
     TYPE_400GE_OSFP = '400gbase-x-osfp'
+    TYPE_400GE_CDFP = '400gbase-x-cdfp'
+    TYPE_400GE_CFP8 = '400gbase-x-cfp8'
     TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
     TYPE_800GE_OSFP = '800gbase-x-osfp'
 
@@ -952,13 +977,20 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_CFP, 'CFP (100GE)'),
                 (TYPE_100GE_CFP2, 'CFP2 (100GE)'),
                 (TYPE_200GE_CFP2, 'CFP2 (200GE)'),
+                (TYPE_400GE_CFP2, 'CFP2 (400GE)'),
                 (TYPE_100GE_CFP4, 'CFP4 (100GE)'),
                 (TYPE_100GE_CXP, 'CXP (100GE)'),
                 (TYPE_100GE_CPAK, 'Cisco CPAK (100GE)'),
+                (TYPE_100GE_DSFP, 'DSFP (100GE)'),
+                (TYPE_100GE_SFP_DD, 'SFP-DD (100GE)'),
                 (TYPE_100GE_QSFP28, 'QSFP28 (100GE)'),
+                (TYPE_100GE_QSFP_DD, 'QSFP-DD (100GE)'),
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
+                (TYPE_200GE_QSFP_DD, 'QSFP-DD (200GE)'),
                 (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
                 (TYPE_400GE_OSFP, 'OSFP (400GE)'),
+                (TYPE_400GE_CDFP, 'CDFP (400GE)'),
+                (TYPE_400GE_CFP8, 'CPF8 (400GE)'),
                 (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),
                 (TYPE_800GE_OSFP, 'OSFP (800GE)'),
             )
@@ -1109,6 +1141,8 @@ class InterfaceSpeedChoices(ChoiceSet):
         (25000000, '25 Gbps'),
         (40000000, '40 Gbps'),
         (100000000, '100 Gbps'),
+        (200000000, '200 Gbps'),
+        (400000000, '400 Gbps'),
     ]
 
 
@@ -1223,6 +1257,10 @@ class PortTypeChoices(ChoiceSet):
     TYPE_LSH_PC = 'lsh-pc'
     TYPE_LSH_UPC = 'lsh-upc'
     TYPE_LSH_APC = 'lsh-apc'
+    TYPE_LX5 = 'lx5'
+    TYPE_LX5_PC = 'lx5-pc'
+    TYPE_LX5_UPC = 'lx5-upc'
+    TYPE_LX5_APC = 'lx5-apc'
     TYPE_SPLICE = 'splice'
     TYPE_CS = 'cs'
     TYPE_SN = 'sn'
@@ -1269,6 +1307,10 @@ class PortTypeChoices(ChoiceSet):
                 (TYPE_LSH_PC, 'LSH/PC'),
                 (TYPE_LSH_UPC, 'LSH/UPC'),
                 (TYPE_LSH_APC, 'LSH/APC'),
+                (TYPE_LX5, 'LX.5'),
+                (TYPE_LX5_PC, 'LX.5/PC'),
+                (TYPE_LX5_UPC, 'LX.5/UPC'),
+                (TYPE_LX5_APC, 'LX.5/APC'),
                 (TYPE_MPO, 'MPO'),
                 (TYPE_MTRJ, 'MTRJ'),
                 (TYPE_SC, 'SC'),

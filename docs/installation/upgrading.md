@@ -48,36 +48,40 @@ Download the [latest stable release](https://github.com/netbox-community/netbox/
 Download and extract the latest version:
 
 ```no-highlight
-wget https://github.com/netbox-community/netbox/archive/vX.Y.Z.tar.gz
-sudo tar -xzf vX.Y.Z.tar.gz -C /opt
-sudo ln -sfn /opt/netbox-X.Y.Z/ /opt/netbox
+# Set $NEWVER to the NetBox version being installed
+NEWVER=3.5.0
+wget https://github.com/netbox-community/netbox/archive/v$NEWVER.tar.gz
+sudo tar -xzf v$NEWVER.tar.gz -C /opt
+sudo ln -sfn /opt/netbox-$NEWVER/ /opt/netbox
 ```
 
 Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if present) from the current installation to the new version:
 
 ```no-highlight
-sudo cp /opt/netbox-X.Y.Z/local_requirements.txt /opt/netbox/
-sudo cp /opt/netbox-X.Y.Z/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
-sudo cp /opt/netbox-X.Y.Z/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
+# Set $OLDVER to the NetBox version currently installed
+OLDVER=3.4.9
+sudo cp /opt/netbox-$OLDVER/local_requirements.txt /opt/netbox/
+sudo cp /opt/netbox-$OLDVER/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
+sudo cp /opt/netbox-$OLDVER/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
 ```
 
 Be sure to replicate your uploaded media as well. (The exact action necessary will depend on where you choose to store your media, but in general moving or copying the media directory will suffice.)
 
 ```no-highlight
-sudo cp -pr /opt/netbox-X.Y.Z/netbox/media/ /opt/netbox/netbox/
+sudo cp -pr /opt/netbox-$OLDVER/netbox/media/ /opt/netbox/netbox/
 ```
 
 Also make sure to copy or link any custom scripts and reports that you've made. Note that if these are stored outside the project root, you will not need to copy them. (Check the `SCRIPTS_ROOT` and `REPORTS_ROOT` parameters in the configuration file above if you're unsure.)
 
 ```no-highlight
-sudo cp -r /opt/netbox-X.Y.Z/netbox/scripts /opt/netbox/netbox/
-sudo cp -r /opt/netbox-X.Y.Z/netbox/reports /opt/netbox/netbox/
+sudo cp -r /opt/netbox-$OLDVER/netbox/scripts /opt/netbox/netbox/
+sudo cp -r /opt/netbox-$OLDVER/netbox/reports /opt/netbox/netbox/
 ```
 
 If you followed the original installation guide to set up gunicorn, be sure to copy its configuration as well:
 
 ```no-highlight
-sudo cp /opt/netbox-X.Y.Z/gunicorn.py /opt/netbox/
+sudo cp /opt/netbox-$OLDVER/gunicorn.py /opt/netbox/
 ```
 
 ### Option B: Clone the Git Repository

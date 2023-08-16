@@ -1,6 +1,7 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Prefetch
+from django.db.models import F, Prefetch
 from django.db.models.expressions import RawSQL
+from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -9,6 +10,7 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
@@ -197,7 +199,7 @@ class RIRBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ASNRangeListView(generic.ObjectListView):
-    queryset = ASNRange.objects.all()
+    queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
     filterset_form = forms.ASNRangeFilterForm
     table = tables.ASNRangeTable
@@ -214,7 +216,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     child_model = ASN
     table = tables.ASNTable
     filterset = filtersets.ASNFilterSet
-    template_name = 'ipam/asnrange/asns.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
@@ -246,18 +248,14 @@ class ASNRangeBulkImportView(generic.BulkImportView):
 
 
 class ASNRangeBulkEditView(generic.BulkEditView):
-    queryset = ASNRange.objects.annotate(
-        site_count=count_related(Site, 'asns')
-    )
+    queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
     table = tables.ASNRangeTable
     form = forms.ASNRangeBulkEditForm
 
 
 class ASNRangeBulkDeleteView(generic.BulkDeleteView):
-    queryset = ASNRange.objects.annotate(
-        site_count=count_related(Site, 'asns')
-    )
+    queryset = ASNRange.objects.annotate_asn_counts()
     filterset = filtersets.ASNRangeFilterSet
     table = tables.ASNRangeTable
 
@@ -818,7 +816,6 @@ class IPAddressAssignView(generic.ObjectView):
         table = None
 
         if form.is_valid():
-
             addresses = self.queryset.prefetch_related('vrf', 'tenant')
             # Limit to 100 results
             addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
@@ -868,7 +865,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
-    template_name = 'ipam/ipaddress/ip_addresses.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Related IPs'),
         badge=lambda x: x.get_related_ips().count(),
@@ -885,9 +882,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
 #
 
 class VLANGroupListView(generic.ObjectListView):
-    queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    )
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     filterset_form = forms.VLANGroupFilterForm
     table = tables.VLANGroupTable
@@ -895,7 +890,7 @@ class VLANGroupListView(generic.ObjectListView):
 
 @register_model_view(VLANGroup)
 class VLANGroupView(generic.ObjectView):
-    queryset = VLANGroup.objects.all()
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
 
     def get_extra_context(self, request, instance):
         related_models = (
@@ -937,18 +932,14 @@ class VLANGroupBulkImportView(generic.BulkImportView):
 
 
 class VLANGroupBulkEditView(generic.BulkEditView):
-    queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    )
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
     form = forms.VLANGroupBulkEditForm
 
 
 class VLANGroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    )
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
 
@@ -971,7 +962,6 @@ class FHRPGroupView(generic.ObjectView):
     queryset = FHRPGroup.objects.all()
 
     def get_extra_context(self, request, instance):
-
         # Get assigned interfaces
         members_table = tables.FHRPGroupAssignmentTable(
             data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
@@ -1085,7 +1075,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
-    template_name = 'ipam/vlan/interfaces.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Device Interfaces'),
         badge=lambda x: x.get_interfaces().count(),
@@ -1103,7 +1093,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
-    template_name = 'ipam/vlan/vminterfaces.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('VM Interfaces'),
         badge=lambda x: x.get_vminterfaces().count(),
@@ -1298,6 +1288,11 @@ class L2VPNBulkDeleteView(generic.BulkDeleteView):
     queryset = L2VPN.objects.all()
     filterset = filtersets.L2VPNFilterSet
     table = tables.L2VPNTable
+
+
+@register_model_view(L2VPN, 'contacts')
+class L2VPNContactsView(ObjectContactsView):
+    queryset = L2VPN.objects.all()
 
 
 #

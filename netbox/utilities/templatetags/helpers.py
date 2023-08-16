@@ -114,7 +114,7 @@ def annotated_date(date_value):
     if not date_value:
         return ''
 
-    if type(date_value) == datetime.date:
+    if type(date_value) is datetime.date:
         long_ts = date(date_value, 'DATE_FORMAT')
         short_ts = date(date_value, 'SHORT_DATE_FORMAT')
     else:

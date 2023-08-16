@@ -19,12 +19,20 @@ __all__ = (
 
 AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
 
+AGGREGATE_COPY_BUTTON = """
+{% copy_content record.pk prefix="aggregate_" %}
+"""
+
 PREFIX_LINK = """
 {% if record.pk %}
-  <a href="{{ record.get_absolute_url }}">{{ record.prefix }}</a>
+  <a href="{{ record.get_absolute_url }}" id="prefix_{{ record.pk }}">{{ record.prefix }}</a>
 {% else %}
   <a href="{% url 'ipam:prefix_add' %}?prefix={{ record }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.site %}&site={{ object.site.pk }}{% endif %}{% if object.tenant %}&tenant_group={{ object.tenant.group.pk }}&tenant={{ object.tenant.pk }}{% endif %}">{{ record.prefix }}</a>
 {% endif %}
+"""
+
+PREFIX_COPY_BUTTON = """
+{% copy_content record.pk prefix="prefix_" %}
 """
 
 PREFIX_LINK_WITH_DEPTH = """
@@ -40,12 +48,16 @@ PREFIX_LINK_WITH_DEPTH = """
 
 IPADDRESS_LINK = """
 {% if record.pk %}
-    <a href="{{ record.get_absolute_url }}">{{ record.address }}</a>
+    <a href="{{ record.get_absolute_url }}" id="ipaddress_{{ record.pk }}">{{ record.address }}</a>
 {% elif perms.ipam.add_ipaddress %}
     <a href="{% url 'ipam:ipaddress_add' %}?address={{ record.1 }}{% if object.vrf %}&vrf={{ object.vrf.pk }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}" class="btn btn-sm btn-success">{% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available</a>
 {% else %}
     {% if record.0 <= 65536 %}{{ record.0 }}{% else %}Many{% endif %} IP{{ record.0|pluralize }} available
 {% endif %}
+"""
+
+IPADDRESS_COPY_BUTTON = """
+{% copy_content record.pk prefix="ipaddress_" %}
 """
 
 IPADDRESS_ASSIGN_LINK = """
@@ -99,7 +111,11 @@ class RIRTable(NetBoxTable):
 class AggregateTable(TenancyColumnsMixin, NetBoxTable):
     prefix = tables.Column(
         linkify=True,
-        verbose_name='Aggregate'
+        verbose_name='Aggregate',
+        attrs={
+            # Allow the aggregate to be copied to the clipboard
+            'a': {'id': lambda record: f"aggregate_{record.pk}"}
+        }
     )
     date_added = tables.DateColumn(
         format="Y-m-d",
@@ -115,6 +131,9 @@ class AggregateTable(TenancyColumnsMixin, NetBoxTable):
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:aggregate_list'
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=AGGREGATE_COPY_BUTTON
     )
 
     class Meta(NetBoxTable.Meta):
@@ -242,6 +261,9 @@ class PrefixTable(TenancyColumnsMixin, NetBoxTable):
     tags = columns.TagColumn(
         url_name='ipam:prefix_list'
     )
+    actions = columns.ActionsColumn(
+        extra_buttons=PREFIX_COPY_BUTTON
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Prefix
@@ -347,6 +369,9 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
     comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='ipam:ipaddress_list'
+    )
+    actions = columns.ActionsColumn(
+        extra_buttons=IPADDRESS_COPY_BUTTON
     )
 
     class Meta(NetBoxTable.Meta):

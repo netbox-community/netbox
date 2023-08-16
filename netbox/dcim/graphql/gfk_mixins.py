@@ -53,23 +53,23 @@ class LinkPeerType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == CircuitTermination:
+        if type(instance) is CircuitTermination:
             return CircuitTerminationType
-        if type(instance) == ConsolePortType:
+        if type(instance) is ConsolePortType:
             return ConsolePortType
-        if type(instance) == ConsoleServerPort:
+        if type(instance) is ConsoleServerPort:
             return ConsoleServerPortType
-        if type(instance) == FrontPort:
+        if type(instance) is FrontPort:
             return FrontPortType
-        if type(instance) == Interface:
+        if type(instance) is Interface:
             return InterfaceType
-        if type(instance) == PowerFeed:
+        if type(instance) is PowerFeed:
             return PowerFeedType
-        if type(instance) == PowerOutlet:
+        if type(instance) is PowerOutlet:
             return PowerOutletType
-        if type(instance) == PowerPort:
+        if type(instance) is PowerPort:
             return PowerPortType
-        if type(instance) == RearPort:
+        if type(instance) is RearPort:
             return RearPortType
 
 
@@ -89,23 +89,23 @@ class CableTerminationTerminationType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == CircuitTermination:
+        if type(instance) is CircuitTermination:
             return CircuitTerminationType
-        if type(instance) == ConsolePortType:
+        if type(instance) is ConsolePortType:
             return ConsolePortType
-        if type(instance) == ConsoleServerPort:
+        if type(instance) is ConsoleServerPort:
             return ConsoleServerPortType
-        if type(instance) == FrontPort:
+        if type(instance) is FrontPort:
             return FrontPortType
-        if type(instance) == Interface:
+        if type(instance) is Interface:
             return InterfaceType
-        if type(instance) == PowerFeed:
+        if type(instance) is PowerFeed:
             return PowerFeedType
-        if type(instance) == PowerOutlet:
+        if type(instance) is PowerOutlet:
             return PowerOutletType
-        if type(instance) == PowerPort:
+        if type(instance) is PowerPort:
             return PowerPortType
-        if type(instance) == RearPort:
+        if type(instance) is RearPort:
             return RearPortType
 
 
@@ -123,19 +123,19 @@ class InventoryItemTemplateComponentType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == ConsolePortTemplate:
+        if type(instance) is ConsolePortTemplate:
             return ConsolePortTemplateType
-        if type(instance) == ConsoleServerPortTemplate:
+        if type(instance) is ConsoleServerPortTemplate:
             return ConsoleServerPortTemplateType
-        if type(instance) == FrontPortTemplate:
+        if type(instance) is FrontPortTemplate:
             return FrontPortTemplateType
-        if type(instance) == InterfaceTemplate:
+        if type(instance) is InterfaceTemplate:
             return InterfaceTemplateType
-        if type(instance) == PowerOutletTemplate:
+        if type(instance) is PowerOutletTemplate:
             return PowerOutletTemplateType
-        if type(instance) == PowerPortTemplate:
+        if type(instance) is PowerPortTemplate:
             return PowerPortTemplateType
-        if type(instance) == RearPortTemplate:
+        if type(instance) is RearPortTemplate:
             return RearPortTemplateType
 
 
@@ -153,17 +153,17 @@ class InventoryItemComponentType(graphene.Union):
 
     @classmethod
     def resolve_type(cls, instance, info):
-        if type(instance) == ConsolePort:
+        if type(instance) is ConsolePort:
             return ConsolePortType
-        if type(instance) == ConsoleServerPort:
+        if type(instance) is ConsoleServerPort:
             return ConsoleServerPortType
-        if type(instance) == FrontPort:
+        if type(instance) is FrontPort:
             return FrontPortType
-        if type(instance) == Interface:
+        if type(instance) is Interface:
             return InterfaceType
-        if type(instance) == PowerOutlet:
+        if type(instance) is PowerOutlet:
             return PowerOutletType
-        if type(instance) == PowerPort:
+        if type(instance) is PowerPort:
             return PowerPortType
-        if type(instance) == RearPort:
+        if type(instance) is RearPort:
             return RearPortType

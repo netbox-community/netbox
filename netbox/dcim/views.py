@@ -1,4 +1,5 @@
 import traceback
+from collections import defaultdict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
@@ -20,6 +21,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
@@ -44,6 +46,15 @@ CABLE_TERMINATION_TYPES = {
 
 
 class DeviceComponentsView(generic.ObjectChildrenView):
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename', 'bulk_disconnect')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+        'bulk_disconnect': {'change'},
+    })
     queryset = Device.objects.all()
 
     def get_children(self, request, parent):
@@ -267,6 +278,11 @@ class RegionBulkDeleteView(generic.BulkDeleteView):
     table = tables.RegionTable
 
 
+@register_model_view(Region, 'contacts')
+class RegionContactsView(ObjectContactsView):
+    queryset = Region.objects.all()
+
+
 #
 # Site groups
 #
@@ -342,6 +358,11 @@ class SiteGroupBulkDeleteView(generic.BulkDeleteView):
     table = tables.SiteGroupTable
 
 
+@register_model_view(SiteGroup, 'contacts')
+class SiteGroupContactsView(ObjectContactsView):
+    queryset = SiteGroup.objects.all()
+
+
 #
 # Sites
 #
@@ -409,6 +430,11 @@ class SiteBulkDeleteView(generic.BulkDeleteView):
     queryset = Site.objects.all()
     filterset = filtersets.SiteFilterSet
     table = tables.SiteTable
+
+
+@register_model_view(Site, 'contacts')
+class SiteContactsView(ObjectContactsView):
+    queryset = Site.objects.all()
 
 
 #
@@ -489,6 +515,11 @@ class LocationBulkDeleteView(generic.BulkDeleteView):
     ).prefetch_related('site')
     filterset = filtersets.LocationFilterSet
     table = tables.LocationTable
+
+
+@register_model_view(Location, 'contacts')
+class LocationContactsView(ObjectContactsView):
+    queryset = Location.objects.all()
 
 
 #
@@ -670,6 +701,26 @@ class RackRackReservationsView(generic.ObjectChildrenView):
         return parent.reservations.restrict(request.user, 'view')
 
 
+@register_model_view(Rack, 'nonracked_devices', 'nonracked-devices')
+class RackNonRackedView(generic.ObjectChildrenView):
+    queryset = Rack.objects.all()
+    child_model = Device
+    table = tables.DeviceTable
+    filterset = filtersets.DeviceFilterSet
+    template_name = 'dcim/rack/non_racked_devices.html'
+    tab = ViewTab(
+        label=_('Non-Racked Devices'),
+        badge=lambda obj: obj.devices.filter(rack=obj, position__isnull=True, parent_bay__isnull=True).count(),
+        weight=500,
+        permission='dcim.view_device',
+    )
+
+    def get_children(self, request, parent):
+        return parent.devices.restrict(request.user, 'view').filter(
+            rack=parent, position__isnull=True, parent_bay__isnull=True
+        )
+
+
 @register_model_view(Rack, 'edit')
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
@@ -698,6 +749,11 @@ class RackBulkDeleteView(generic.BulkDeleteView):
     queryset = Rack.objects.all()
     filterset = filtersets.RackFilterSet
     table = tables.RackTable
+
+
+@register_model_view(Rack, 'contacts')
+class RackContactsView(ObjectContactsView):
+    queryset = Rack.objects.all()
 
 
 #
@@ -832,6 +888,11 @@ class ManufacturerBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.ManufacturerFilterSet
     table = tables.ManufacturerTable
+
+
+@register_model_view(Manufacturer, 'contacts')
+class ManufacturerContactsView(ObjectContactsView):
+    queryset = Manufacturer.objects.all()
 
 
 #
@@ -1914,6 +1975,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     table = tables.DeviceModuleBayTable
     filterset = filtersets.ModuleBayFilterSet
     template_name = 'dcim/device/modulebays.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
     tab = ViewTab(
         label=_('Module Bays'),
         badge=lambda obj: obj.modulebays.count(),
@@ -1929,6 +1991,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     table = tables.DeviceDeviceBayTable
     filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
     tab = ViewTab(
         label=_('Device Bays'),
         badge=lambda obj: obj.devicebays.count(),
@@ -1940,6 +2003,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
 
 @register_model_view(Device, 'inventory')
 class DeviceInventoryView(DeviceComponentsView):
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
     child_model = InventoryItem
     table = tables.DeviceInventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
@@ -2048,6 +2112,11 @@ class DeviceBulkRenameView(generic.BulkRenameView):
     table = tables.DeviceTable
 
 
+@register_model_view(Device, 'contacts')
+class DeviceContactsView(ObjectContactsView):
+    queryset = Device.objects.all()
+
+
 #
 # Modules
 #
@@ -2117,7 +2186,6 @@ class ConsolePortListView(generic.ObjectListView):
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(ConsolePort)
@@ -2181,7 +2249,6 @@ class ConsoleServerPortListView(generic.ObjectListView):
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(ConsoleServerPort)
@@ -2245,7 +2312,6 @@ class PowerPortListView(generic.ObjectListView):
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(PowerPort)
@@ -2309,7 +2375,6 @@ class PowerOutletListView(generic.ObjectListView):
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(PowerOutlet)
@@ -2373,7 +2438,6 @@ class InterfaceListView(generic.ObjectListView):
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(Interface)
@@ -2483,7 +2547,6 @@ class FrontPortListView(generic.ObjectListView):
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(FrontPort)
@@ -2547,7 +2610,6 @@ class RearPortListView(generic.ObjectListView):
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(RearPort)
@@ -2611,7 +2673,6 @@ class ModuleBayListView(generic.ObjectListView):
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(ModuleBay)
@@ -2667,7 +2728,6 @@ class DeviceBayListView(generic.ObjectListView):
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(DeviceBay)
@@ -2792,7 +2852,6 @@ class InventoryItemListView(generic.ObjectListView):
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
 
 
 @register_model_view(InventoryItem)
@@ -3064,6 +3123,19 @@ class CableEditView(generic.ObjectEditView):
             self.form = forms.get_cable_form(a_type, b_type)
 
         return obj
+
+    def get_extra_addanother_params(self, request):
+
+        params = {
+            'a_terminations_type': request.GET.get('a_terminations_type'),
+            'b_terminations_type': request.GET.get('b_terminations_type')
+        }
+
+        for key in request.POST:
+            if 'device' in key or 'power_panel' in key or 'circuit' in key:
+                params.update({key: request.POST.get(key)})
+
+        return params
 
 
 @register_model_view(Cable, 'delete')
@@ -3427,6 +3499,11 @@ class PowerPanelBulkDeleteView(generic.BulkDeleteView):
     )
     filterset = filtersets.PowerPanelFilterSet
     table = tables.PowerPanelTable
+
+
+@register_model_view(PowerPanel, 'contacts')
+class PowerPanelContactsView(ObjectContactsView):
+    queryset = PowerPanel.objects.all()
 
 
 #

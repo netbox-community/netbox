@@ -14,12 +14,25 @@
 </div>
 <h3></h3>
 
-Some general tips for engaging here on GitHub:
+## :information_source: Welcome to the Stadium!
+
+In her book [Working in Public](https://www.amazon.com/Working-Public-Making-Maintenance-Software/dp/0578675862), Nadia Eghbal defines four production models for open source projects, categorized by contributor and user growth: federations, clubs, toys, and stadiums. The NetBox project fits her definition of a stadium very well:
+
+> Stadiums are projects with low contributor growth and high user growth. While they may receive casual contributions, their regular contributor base does not grow proportionately to their users. As a result, they tend to be powered by one or a few developers.
+
+The bulk of NetBox's development is carried out by a handful of core maintainers, with occasional contributions from collaborators in the community. We find the stadium analogy very useful in conveying the roles and obligations of both contributors and users.
+
+If you're a contributor, actively working on the center stage, you have an obligation to produce quality content that will benefit the project as a whole. Conversely, if you're in the audience consuming the work being produced, you have the option of making requests and suggestions, but must also recognize that contributors are under no obligation to act on them.
+
+NetBox users are welcome to participate in either role, on stage or in the crowd. We ask only that you acknowledge the role you've chosen and respect the roles of others.
+
+### General Tips for Working on GitHub
 
 * Register for a free [GitHub account](https://github.com/signup) if you haven't already.
 * You can use [GitHub Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) for formatting text and adding images.
 * To help mitigate notification spam, please avoid "bumping" issues with no activity. (To vote an issue up or down, use a :thumbsup: or :thumbsdown: reaction.)
 * Please avoid pinging members with `@` unless they've previously expressed interest or involvement with that particular issue.
+* Familiarize yourself with [this list of discussion anti-patterns](https://github.com/bradfitz/issue-tracker-behaviors) and make every effort to avoid them.
 
 ## :bug: Reporting Bugs
 

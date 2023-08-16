@@ -29,6 +29,17 @@ class CustomFieldTest(TestCase):
 
         cls.object_type = ContentType.objects.get_for_model(Site)
 
+    def test_invalid_name(self):
+        """
+        Try creating a CustomField with an invalid name.
+        """
+        with self.assertRaises(ValidationError):
+            # Invalid character
+            CustomField(name='?', type=CustomFieldTypeChoices.TYPE_TEXT).full_clean()
+        with self.assertRaises(ValidationError):
+            # Double underscores not permitted
+            CustomField(name='foo__bar', type=CustomFieldTypeChoices.TYPE_TEXT).full_clean()
+
     def test_text_field(self):
         value = 'Foobar!'
 

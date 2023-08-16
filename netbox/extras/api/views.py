@@ -6,7 +6,6 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -303,7 +302,7 @@ class ScriptViewSet(ViewSet):
 
         # Attach Job objects to each script (if any)
         for script in script_list:
-            script.result = results.get(script.name, None)
+            script.result = results.get(script.class_name, None)
 
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
@@ -314,7 +313,7 @@ class ScriptViewSet(ViewSet):
         object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
         script.result = Job.objects.filter(
             object_type=object_type,
-            name=script.name,
+            name=script.class_name,
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
@@ -368,7 +367,7 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
     Retrieve a list of recent changes.
     """
     metadata_class = ContentTypeMetadata
-    queryset = ObjectChange.objects.prefetch_related('user')
+    queryset = ObjectChange.objects.valid_models().prefetch_related('user')
     serializer_class = serializers.ObjectChangeSerializer
     filterset_class = filtersets.ObjectChangeFilterSet
 
@@ -381,7 +380,7 @@ class ContentTypeViewSet(ReadOnlyModelViewSet):
     """
     Read-only list of ContentTypes. Limit results to ContentTypes pertinent to NetBox objects.
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = ContentType.objects.order_by('app_label', 'model')
     serializer_class = serializers.ContentTypeSerializer
     filterset_class = filtersets.ContentTypeFilterSet

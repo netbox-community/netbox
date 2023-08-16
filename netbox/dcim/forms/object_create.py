@@ -52,7 +52,10 @@ class ComponentCreateForm(forms.Form):
         super().clean()
 
         # Validate that all replication fields generate an equal number of values
-        pattern_count = len(self.cleaned_data[self.replication_fields[0]])
+        if not (patterns := self.cleaned_data.get(self.replication_fields[0])):
+            return
+
+        pattern_count = len(patterns)
         for field_name in self.replication_fields:
             value_count = len(self.cleaned_data[field_name])
             if self.cleaned_data[field_name] and value_count != pattern_count:
@@ -101,6 +104,7 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
         choices=[],
         label=_('Rear ports'),
         help_text=_('Select one rear port assignment for each front port being created.'),
+        widget=forms.SelectMultiple(attrs={'size': 6})
     )
 
     # Override fieldsets from FrontPortTemplateForm to omit rear_port_position

@@ -4,6 +4,14 @@ The configuration parameters listed here control remote authentication for NetBo
 
 ---
 
+## REMOTE_AUTH_AUTO_CREATE_GROUPS
+
+Default: `False`
+
+If true, NetBox will automatically create groups specified in the `REMOTE_AUTH_GROUP_HEADER` header if they don't already exist. (Requires `REMOTE_AUTH_ENABLED`.)
+
+---
+
 ## REMOTE_AUTH_AUTO_CREATE_USER
 
 Default: `False`

@@ -3,19 +3,21 @@ import uuid
 from urllib import parse
 
 from django.conf import settings
-from django.contrib import auth
+from django.contrib import auth, messages
 from django.contrib.auth.middleware import RemoteUserMiddleware as RemoteUserMiddleware_
 from django.core.exceptions import ImproperlyConfigured
-from django.db import ProgrammingError
+from django.db import connection, ProgrammingError
+from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
 from extras.context_managers import change_logging
-from netbox.config import clear_config
+from netbox.config import clear_config, get_config
 from netbox.views import handler_500
 from utilities.api import is_api_request, rest_api_server_error
 
 __all__ = (
     'CoreMiddleware',
+    'MaintenanceModeMiddleware',
     'RemoteUserMiddleware',
 )
 
@@ -46,6 +48,9 @@ class CoreMiddleware:
 
         # Attach the unique request ID as an HTTP header.
         response['X-Request-ID'] = request.id
+
+        # Enable the Vary header to help with caching of HTMX responses
+        response['Vary'] = 'HX-Request'
 
         # If this is an API request, attach an HTTP header annotating the API version (e.g. '3.5').
         if is_api_request(request):
@@ -166,3 +171,47 @@ class RemoteUserMiddleware(RemoteUserMiddleware_):
             groups = []
         logger.debug(f"Groups are {groups}")
         return groups
+
+
+class MaintenanceModeMiddleware:
+    """
+    Middleware that checks if the application is in maintenance mode
+    and restricts write-related operations to the database.
+    """
+
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if get_config().MAINTENANCE_MODE:
+            self._set_session_type(
+                allow_write=request.path_info.startswith(settings.MAINTENANCE_EXEMPT_PATHS)
+            )
+
+        return self.get_response(request)
+
+    @staticmethod
+    def _set_session_type(allow_write):
+        """
+        Prevent any write-related database operations.
+
+        Args:
+            allow_write (bool): If True, write operations will be permitted.
+        """
+        with connection.cursor() as cursor:
+            mode = 'READ WRITE' if allow_write else 'READ ONLY'
+            cursor.execute(f'SET SESSION CHARACTERISTICS AS TRANSACTION {mode};')
+
+    def process_exception(self, request, exception):
+        """
+        Prevent any write-related database operations if an exception is raised.
+        """
+        if get_config().MAINTENANCE_MODE and isinstance(exception, InternalError):
+            error_message = 'NetBox is currently operating in maintenance mode and is unable to perform write ' \
+                            'operations. Please try again later.'
+
+            if is_api_request(request):
+                return rest_api_server_error(request, error=error_message)
+
+            messages.error(request, error_message)
+            return HttpResponseRedirect(request.path_info)

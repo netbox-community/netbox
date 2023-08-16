@@ -234,8 +234,12 @@ class ActionsColumn(tables.Column):
             return ''
 
         model = table.Meta.model
-        request = getattr(table, 'context', {}).get('request')
-        url_appendix = f'?return_url={quote(request.get_full_path())}' if request else ''
+        if request := getattr(table, 'context', {}).get('request'):
+            return_url = request.GET.get('return_url', request.get_full_path())
+            url_appendix = f'?return_url={quote(return_url)}'
+        else:
+            url_appendix = ''
+
         html = ''
 
         # Compile actions menu
@@ -500,9 +504,9 @@ class CustomLinkColumn(tables.Column):
     """
     def __init__(self, customlink, *args, **kwargs):
         self.customlink = customlink
-        kwargs['accessor'] = Accessor('pk')
-        if 'verbose_name' not in kwargs:
-            kwargs['verbose_name'] = customlink.name
+        kwargs.setdefault('accessor', Accessor('pk'))
+        kwargs.setdefault('orderable', False)
+        kwargs.setdefault('verbose_name', customlink.name)
 
         super().__init__(*args, **kwargs)
 

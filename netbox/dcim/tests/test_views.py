@@ -2907,6 +2907,7 @@ class CableTestCase(
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
         devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        vc = VirtualChassis.objects.create(name='Virtual Chassis')
 
         devices = (
             Device(name='Device 1', site=site, device_type=devicetype, device_role=devicerole),
@@ -2915,6 +2916,10 @@ class CableTestCase(
             Device(name='Device 4', site=site, device_type=devicetype, device_role=devicerole),
         )
         Device.objects.bulk_create(devices)
+
+        vc.members.set((devices[0], devices[1], devices[2]))
+        vc.master = devices[0]
+        vc.save()
 
         interfaces = (
             Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
@@ -2929,6 +2934,10 @@ class CableTestCase(
             Interface(device=devices[3], name='Interface 1', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[3], name='Interface 2', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[3], name='Interface 3', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[1], name='Device 2 Interface', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[2], name='Device 3 Interface', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 4', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[3], name='Interface 5', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -2961,6 +2970,8 @@ class CableTestCase(
             "Device 3,dcim.interface,Interface 1,Device 4,dcim.interface,Interface 1",
             "Device 3,dcim.interface,Interface 2,Device 4,dcim.interface,Interface 2",
             "Device 3,dcim.interface,Interface 3,Device 4,dcim.interface,Interface 3",
+            "Device 1,dcim.interface,Device 2 Interface,Device 4,dcim.interface,Interface 4",
+            "Device 1,dcim.interface,Device 3 Interface,Device 4,dcim.interface,Interface 5",
         )
 
         cls.csv_update_data = (

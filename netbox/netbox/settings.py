@@ -25,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.5.2-dev'
+VERSION = '3.5.9-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -122,6 +122,7 @@ PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
 REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
+REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_GROUPS', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
 REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
 REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', {})
@@ -139,6 +140,8 @@ REMOTE_AUTH_STAFF_USERS = getattr(configuration, 'REMOTE_AUTH_STAFF_USERS', [])
 REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
+RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
+RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
@@ -382,6 +385,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
+    'netbox.middleware.MaintenanceModeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
@@ -457,8 +461,6 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-TEST_RUNNER = "django_rich.test.RichRunner"
-
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
 EXEMPT_EXCLUDE_MODELS = (
@@ -474,6 +476,11 @@ AUTH_EXEMPT_PATHS = (
     f'/{BASE_PATH}login/',
     f'/{BASE_PATH}oauth/',
     f'/{BASE_PATH}metrics',
+)
+
+# All URLs starting with a string listed here are exempt from maintenance mode enforcement
+MAINTENANCE_EXEMPT_PATHS = (
+    f'/{BASE_PATH}admin/',
 )
 
 SERIALIZATION_MODULES = {

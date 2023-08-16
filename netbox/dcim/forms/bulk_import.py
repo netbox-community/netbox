@@ -306,7 +306,7 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         model = DeviceType
         fields = [
             'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments',
+            'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments', 'tags',
         ]
 
 
@@ -327,7 +327,7 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ModuleType
-        fields = ['manufacturer', 'model', 'part_number', 'description', 'weight', 'weight_unit', 'comments']
+        fields = ['manufacturer', 'model', 'part_number', 'description', 'weight', 'weight_unit', 'comments', 'tags']
 
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
@@ -1078,7 +1078,11 @@ class CableImportForm(NetBoxModelImportForm):
 
         model = content_type.model_class()
         try:
-            termination_object = model.objects.get(device=device, name=name)
+            if device.virtual_chassis and device.virtual_chassis.master == device and \
+                    model.objects.filter(device=device, name=name).count() == 0:
+                termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
+            else:
+                termination_object = model.objects.get(device=device, name=name)
             if termination_object.cable is not None:
                 raise forms.ValidationError(f"Side {side.upper()}: {device} {termination_object} is already connected")
         except ObjectDoesNotExist:

@@ -1,5 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
+from django.db.models import F
+from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_spectacular.utils import extend_schema
@@ -145,9 +147,7 @@ class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):
 
 
 class VLANGroupViewSet(NetBoxModelViewSet):
-    queryset = VLANGroup.objects.annotate(
-        vlan_count=count_related(VLAN, 'group')
-    ).prefetch_related('tags')
+    queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     serializer_class = serializers.VLANGroupSerializer
     filterset_class = filtersets.VLANGroupFilterSet
 
@@ -224,7 +224,10 @@ class AvailableASNsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.ASNSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.ASNSerializer(many=True)},
+                   request=serializers.ASNSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-asns'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -293,7 +296,10 @@ class AvailablePrefixesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.PrefixSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.PrefixSerializer(many=True)},
+                   request=serializers.PrefixSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-prefixes'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -388,7 +394,10 @@ class AvailableIPAddressesView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.IPAddressSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.IPAddressSerializer(many=True)},
+                   request=serializers.IPAddressSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-ips'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
@@ -468,7 +477,10 @@ class AvailableVLANsView(ObjectValidationMixin, APIView):
 
         return Response(serializer.data)
 
-    @extend_schema(methods=["post"], responses={201: serializers.VLANSerializer(many=True)})
+    @extend_schema(methods=["post"],
+                   responses={201: serializers.VLANSerializer(many=True)},
+                   request=serializers.VLANSerializer(many=True),
+                   )
     @advisory_lock(ADVISORY_LOCK_KEYS['available-vlans'])
     def post(self, request, pk):
         self.queryset = self.queryset.restrict(request.user, 'add')
