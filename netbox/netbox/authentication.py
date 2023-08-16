@@ -398,18 +398,24 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
     '''
     logger = logging.getLogger('netbox.auth.azuread_map_groups')
 
-    if not hasattr(settings, "REMOTE_AUTH_BACKEND_AZUREAD_USER_FLAGS_BY_GROUP"):
+    if not hasattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG"):
         raise ImproperlyConfigured(
-            "Azure group mapping has been configured, but REMOTE_AUTH_BACKEND_AZUREAD_USER_FLAGS_BY_GROUP is not defined."
+            "Azure group mapping has been configured, but SOCIAL_AUTH_PIPELINE_CONFIG is not defined."
         )
 
-    if not hasattr(settings, "REMOTE_AUTH_BACKEND_AZUREAD_GROUP_MAP"):
+    config = getattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG")
+    if "AZUREAD_USER_FLAGS_BY_GROUP" not in config:
         raise ImproperlyConfigured(
-            "Azure group mapping has been configured, but REMOTE_AUTH_BACKEND_AZUREAD_GROUP_MAP is not defined."
+            "Azure group mapping has been configured, but AZUREAD_USER_FLAGS_BY_GROUP is not defined."
         )
 
-    flags_by_group = getattr(settings, "REMOTE_AUTH_BACKEND_AZUREAD_USER_FLAGS_BY_GROUP")
-    group_mapping = getattr(settings, "REMOTE_AUTH_BACKEND_AZUREAD_GROUP_MAP")
+    if "AZUREAD_GROUP_MAP" not in config:
+        raise ImproperlyConfigured(
+            "Azure group mapping has been configured, but AZUREAD_GROUP_MAP is not defined."
+        )
+
+    flags_by_group = config["AZUREAD_USER_FLAGS_BY_GROUP"]
+    group_mapping = config["AZUREAD_GROUP_MAP"]
 
     access_token = response.get('access_token')
     headers = {
