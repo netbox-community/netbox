@@ -1,6 +1,6 @@
 # NetBox v3.6
 
-## v3.6-beta2 (FUTURE)
+## v3.6-beta2 (2023-08-16)
 
 ### Bug Fixes
 
