@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
+from django.core.paginator import EmptyPage
 from django.db.models import Count, Q
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -18,6 +19,7 @@ from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
+from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
@@ -88,6 +90,25 @@ class CustomFieldChoiceSetListView(generic.ObjectListView):
 @register_model_view(CustomFieldChoiceSet)
 class CustomFieldChoiceSetView(generic.ObjectView):
     queryset = CustomFieldChoiceSet.objects.all()
+
+    def get_extra_context(self, request, instance):
+
+        # Paginate choices list
+        per_page = get_paginate_count(request)
+        try:
+            page_number = request.GET.get('page', 1)
+        except ValueError:
+            page_number = 1
+        paginator = EnhancedPaginator(instance.choices, per_page)
+        try:
+            choices = paginator.page(page_number)
+        except EmptyPage:
+            choices = paginator.page(paginator.num_pages)
+
+        return {
+            'paginator': paginator,
+            'choices': choices,
+        }
 
 
 @register_model_view(CustomFieldChoiceSet, 'edit')
