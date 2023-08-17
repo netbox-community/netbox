@@ -84,16 +84,34 @@ SOCIAL_AUTH_PIPELINE = (
 # Define special user types using groups. Exercise great caution when assigning superuser status.
 SOCIAL_AUTH_PIPELINE_CONFIG = {
     'AZUREAD_USER_FLAGS_BY_GROUP': {
-        "is_staff": ['{AZURE_GROUP_ID}',],
-        "is_superuser": ['{AZURE_GROUP_ID}',]
+        "is_staff": ['{AZURE_GROUP_ID1}','{AZURE_GROUP_ID2}'],
+        "is_superuser": ['{AZURE_GROUP_ID1}','{AZURE_GROUP_ID2}']
     },
 
     'AZUREAD_GROUP_MAP': {
-        '{AZURE_GROUP_ID}': '{NETBOX_GROUP}',
+        '{AZURE_GROUP_ID1}': '{NETBOX_GROUP1}',
+        '{AZURE_GROUP_ID2}': '{NETBOX_GROUP2}',
     }
 
 }
 ```
+
+For example, here is a config that maps a single Azure AD group (the token '1a36bed9-3bdc-4970-ab66-faf9704e0af4' shown here is the ID of the group within the Azure dashboard) to be both is_staff and is_superuser status as well as assign it to the group 'tgroup' within NetBox:
+
+```
+SOCIAL_AUTH_PIPELINE_CONFIG = {
+    # Define special user types using groups. Exercise great caution when assigning superuser status.
+    'AZUREAD_USER_FLAGS_BY_GROUP': {
+        'is_staff': ['1a36bed9-3bdc-4970-ab66-faf9704e0af4',],
+        'is_superuser': ['1a36bed9-3bdc-4970-ab66-faf9704e0af4',]
+    },
+
+    'AZUREAD_GROUP_MAP': {
+        '1a36bed9-3bdc-4970-ab66-faf9704e0af4': 'tgroup',
+    }
+}
+```
+
 **AZUREAD_USER_FLAGS_BY_GROUP.is_staff**: users who are in any of the Azure AD group-ids in the array will have staff permission assigned to them.
 
 **AZUREAD_USER_FLAGS_BY_GROUP.is_superuser**: users who are in any of the Azure AD group-ids in the array will have superuser permission assigned to them.

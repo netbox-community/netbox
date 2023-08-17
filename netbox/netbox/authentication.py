@@ -403,18 +403,21 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
         )
 
     config = getattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG")
-    if "AZUREAD_USER_FLAGS_BY_GROUP" not in config:
+    if "AZUREAD_USER_FLAGS_BY_GROUP" not in config and "AZUREAD_GROUP_MAP" not in config:
         raise ImproperlyConfigured(
-            "Azure AD group mapping has been configured, but AZUREAD_USER_FLAGS_BY_GROUP is not defined."
+            "Azure AD group mapping has been configured, but AZUREAD_USER_FLAGS_BY_GROUP or AZUREAD_GROUP_MAP is not defined."
         )
 
-    if "AZUREAD_GROUP_MAP" not in config:
+    flags_by_group = config.get("AZUREAD_USER_FLAGS_BY_GROUP", {'is_superuser': [], 'is_staff': []})
+    group_mapping = config.get("AZUREAD_GROUP_MAP", {})
+
+    if 'is_staff' not in flags_by_group and 'is_superuser' not in flags_by_group:
         raise ImproperlyConfigured(
-            "Azure AD group mapping has been configured, but AZUREAD_GROUP_MAP is not defined."
+            "Azure AD group mapping AZUREAD_USER_FLAGS_BY_GROUP is defined but does not contain either is_staff or is_superuser."
         )
 
-    flags_by_group = config["AZUREAD_USER_FLAGS_BY_GROUP"]
-    group_mapping = config["AZUREAD_GROUP_MAP"]
+    superuser_map = flags_by_group.get('is_superuser', [])
+    staff_map = flags_by_group.get('is_staff', [])
 
     access_token = response.get('access_token')
     headers = {
@@ -455,11 +458,11 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
         if value.get('@odata.type', None) == '#microsoft.graph.group':
             group_id = value.get('id', None)
 
-            if group_id in flags_by_group['is_superuser']:
+            if group_id in superuser_map:
                 logger.info(f"Azure AD group mapping - setting superuser status for: {user}.")
                 is_superuser = True
 
-            if group_id in flags_by_group['is_staff']:
+            if group_id in staff_map:
                 logger.info(f"Azure AD group mapping - setting staff status for: {user}.")
                 is_staff = True
 
