@@ -458,7 +458,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     messages.success(request, msg)
 
                     view_name = get_viewname(model, action='list')
-                    results_url = f"{reverse(view_name)}?created_by_request={request.id}"
+                    results_url = f"{reverse(view_name)}?modified_by_request={request.id}"
                     return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
