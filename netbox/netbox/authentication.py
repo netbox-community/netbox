@@ -48,8 +48,6 @@ AUTH_BACKEND_ATTRS = {
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
 }
 
-BASE_MICROSOFT_GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
-
 
 def get_auth_backend_display(name):
     """
@@ -396,22 +394,23 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
     Map Azure AD group ID to Netbox group
     Also set is_superuser or is_staff based on config map
     '''
+    BASE_MICROSOFT_GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
     logger = logging.getLogger('netbox.auth.azuread_map_groups')
 
     if not hasattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG"):
         raise ImproperlyConfigured(
-            "Azure group mapping has been configured, but SOCIAL_AUTH_PIPELINE_CONFIG is not defined."
+            "Azure AD group mapping has been configured, but SOCIAL_AUTH_PIPELINE_CONFIG is not defined."
         )
 
     config = getattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG")
     if "AZUREAD_USER_FLAGS_BY_GROUP" not in config:
         raise ImproperlyConfigured(
-            "Azure group mapping has been configured, but AZUREAD_USER_FLAGS_BY_GROUP is not defined."
+            "Azure AD group mapping has been configured, but AZUREAD_USER_FLAGS_BY_GROUP is not defined."
         )
 
     if "AZUREAD_GROUP_MAP" not in config:
         raise ImproperlyConfigured(
-            "Azure group mapping has been configured, but AZUREAD_GROUP_MAP is not defined."
+            "Azure AD group mapping has been configured, but AZUREAD_GROUP_MAP is not defined."
         )
 
     flags_by_group = config["AZUREAD_USER_FLAGS_BY_GROUP"]
@@ -438,7 +437,7 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
             headers=headers,
         )
     except Exception as e:
-        logger.error(f"Azure group mapping error getting groups for user {user} from Microsoft Graph API: {e}")
+        logger.error(f"Azure AD group mapping error getting groups for user {user} from Microsoft Graph API: {e}")
         raise e
 
     # Set groups and permissions based on returned group list
@@ -453,25 +452,21 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
             group_id = value.get('id', None)
 
             if group_id in flags_by_group['is_superuser']:
-                logger.info(f"Azure group mapping - setting superuser status for: {user}.")
+                logger.info(f"Azure AD group mapping - setting superuser status for: {user}.")
                 is_superuser = True
 
             if group_id in flags_by_group['is_staff']:
-                logger.info(f"Azure group mapping - setting staff status for: {user}.")
+                logger.info(f"Azure AD group mapping - setting staff status for: {user}.")
                 is_staff = True
 
             if group_id in group_mapping:
                 group_name = group_mapping[group_id]
                 try:
                     group = Group.objects.get(name=group_name)
-                except Group.DoesNotExist:
-                    group = None
-
-                if group:
                     group.user_set.add(user)
-                    logger.info(f"Azure group mapping - adding group {group_name} to user: {user}.")
-                else:
-                    logger.info(f"Azure group mapping - group: {group_name} not found.")
+                    logger.info(f"Azure AD group mapping - adding group {group_name} to user: {user}.")
+                except Group.DoesNotExist:
+                    logger.info(f"Azure AD group mapping - group: {group_name} not found.")
 
     user.is_superuser = is_superuser
     user.is_staff = is_staff
