@@ -159,7 +159,8 @@ def content_type_id(model):
 def render_markdown(value, classes=""):
     """
     Render a string as Markdown. This filter is invoked as "markdown":
-    Args: optional coma separated list of classes to add to the generated div
+    Args:
+        optional: Comma separated list of classes to add to the generated div
     (stripped of leading and trailing whitespace)
 
         {{ md_source_text|markdown:"classa, classb,classc, classd " }}
