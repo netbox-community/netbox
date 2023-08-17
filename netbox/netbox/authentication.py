@@ -443,12 +443,16 @@ def azuread_map_groups(response, user, backend, *args, **kwargs):
     # Set groups and permissions based on returned group list
     is_superuser = False
     is_staff = False
-    values = response.json().get('value', [])
+    try:
+        values = response.json().get('value', [])
+    except Exception as e:
+        logger.error(f"Azure AD group mapping error getting groups json response for user {user} from Microsoft Graph API: {e}")
+        raise e
 
     user.groups.through.objects.filter(user=user).delete()
     for value in values:
         # AD response contains both directories and groups - we only want groups
-        if value.get('@odata.type') == '#microsoft.graph.group':
+        if value.get('@odata.type', None) == '#microsoft.graph.group':
             group_id = value.get('id', None)
 
             if group_id in flags_by_group['is_superuser']:
