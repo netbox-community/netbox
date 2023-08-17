@@ -965,11 +965,13 @@ class ChangeLoggedFilterSetTestCase(TestCase):
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
             Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
         )
         Site.objects.bulk_create(sites)
 
         # Simulate *creation* changelog records for two of the sites
         request_id = uuid.uuid4()
+        cls.create_request_id = request_id
         objectchanges = (
             ObjectChange(
                 changed_object_type=content_type,
@@ -988,6 +990,7 @@ class ChangeLoggedFilterSetTestCase(TestCase):
 
         # Simulate *update* changelog records for two of the sites
         request_id = uuid.uuid4()
+        cls.update_request_id = request_id
         objectchanges = (
             ObjectChange(
                 changed_object_type=content_type,
@@ -1004,14 +1007,36 @@ class ChangeLoggedFilterSetTestCase(TestCase):
         )
         ObjectChange.objects.bulk_create(objectchanges)
 
+        # Simulate *create* and *update* changelog records for two of the sites
+        request_id = uuid.uuid4()
+        cls.create_update_request_id = request_id
+        objectchanges = (
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[2].pk,
+                action=ObjectChangeActionChoices.ACTION_CREATE,
+                request_id=request_id
+            ),
+            ObjectChange(
+                changed_object_type=content_type,
+                changed_object_id=sites[3].pk,
+                action=ObjectChangeActionChoices.ACTION_UPDATE,
+                request_id=request_id
+            ),
+        )
+        ObjectChange.objects.bulk_create(objectchanges)
+
     def test_created_by_request(self):
-        request_id = ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_CREATE).first().request_id
-        params = {'created_by_request': request_id}
+        params = {'created_by_request': self.create_request_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        self.assertEqual(self.queryset.count(), 3)
+        self.assertEqual(self.queryset.count(), 4)
 
     def test_updated_by_request(self):
-        request_id = ObjectChange.objects.filter(action=ObjectChangeActionChoices.ACTION_UPDATE).first().request_id
-        params = {'updated_by_request': request_id}
+        params = {'updated_by_request': self.update_request_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        self.assertEqual(self.queryset.count(), 3)
+        self.assertEqual(self.queryset.count(), 4)
+
+    def test_modified_by_request(self):
+        params = {'modified_by_request': self.create_update_request_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.queryset.count(), 4)
