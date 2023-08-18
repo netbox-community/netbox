@@ -29,6 +29,8 @@
 <pre class="block"><strong>{{ exception }}</strong><br />
 {{ error }}
 
+file: {{ fname }} line: {{ lineno }}
+
 Python version: {{ python_version }}
 NetBox version: {{ netbox_version }}
 Plugins: {% for plugin, version in plugins.items %}

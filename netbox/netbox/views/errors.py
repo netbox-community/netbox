@@ -1,3 +1,4 @@
+import os
 import platform
 import sys
 
@@ -49,10 +50,13 @@ def handler_500(request, template_name=ERROR_500_TEMPLATE_NAME):
     except TemplateDoesNotExist:
         return HttpResponseServerError('<h1>Server Error (500)</h1>', content_type='text/html')
     type_, error, traceback = sys.exc_info()
-
+    fname = os.path.split(traceback.tb_frame.f_code.co_filename)[1]
+    lineno = traceback.tb_lineno
     return HttpResponseServerError(template.render({
         'error': error,
         'exception': str(type_),
+        'fname': fname,
+        'lineno': lineno,
         'netbox_version': settings.VERSION,
         'python_version': platform.python_version(),
         'plugins': get_installed_plugins(),
