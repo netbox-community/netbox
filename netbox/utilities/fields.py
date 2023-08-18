@@ -112,9 +112,15 @@ class RestrictedGenericForeignKey(GenericForeignKey):
         for ct_id, fkeys in fk_dict.items():
             instance = instance_dict[ct_id]
             ct = self.get_content_type(id=ct_id, using=instance._state.db)
+            model = ct.model_class()
+            # Skip this content type if the model class doesn't exist. This can happen if
+            # the search index contains data for content types that belong to a plugin
+            # that is no longer installed.
+            if model is None:
+                continue
             if restrict_params:
                 # Override the default behavior to call restrict() on each model's queryset
-                qs = ct.model_class().objects.filter(pk__in=fkeys).restrict(**restrict_params)
+                qs = model.objects.filter(pk__in=fkeys).restrict(**restrict_params)
                 ret_val.extend(qs)
             else:
                 # Default behavior
@@ -130,6 +136,8 @@ class RestrictedGenericForeignKey(GenericForeignKey):
                 model = self.get_content_type(
                     id=ct_id, using=obj._state.db
                 ).model_class()
+                if model is None:
+                    return None
                 return (
                     model._meta.pk.get_prep_value(getattr(obj, self.fk_field)),
                     model,
