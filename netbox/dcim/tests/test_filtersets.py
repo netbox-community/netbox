@@ -2822,11 +2822,44 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Rack.objects.bulk_create(racks)
 
+        # VirtualChassis assignment for filtering
+        virtual_chassis = VirtualChassis(name='Virtual Chassis')
+        virtual_chassis.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0], site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                virtual_chassis=virtual_chassis,
+                vc_position=1,
+                vc_priority=1
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1], site=sites[1],
+                location=locations[1],
+                rack=racks[1]
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2], site=sites[2],
+                location=locations[2],
+                rack=racks[2]
+            ),
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3],
+                virtual_chassis=virtual_chassis,
+                vc_position=2,
+                vc_priority=1
+            ),  # For cable connections
         )
         Device.objects.bulk_create(devices)
 
@@ -2857,11 +2890,6 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             VirtualDeviceContext(device=devices[3], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
-
-        # VirtualChassis assignment for filtering
-        virtual_chassis = VirtualChassis.objects.create(master=devices[0])
-        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis, vc_position=1, vc_priority=1)
-        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
 
         interfaces = (
             Interface(
@@ -3116,12 +3144,14 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_virtual_chassis_for_device(self):
+    def test_virtual_chassis_member(self):
+        # Device 1 & 3 have 1 management interface, Device "None" has 5 interfaces, 2 of which are management and
+        # will not be visible
         devices = Device.objects.filter(name__in=['Device 1', 'Device 3'])
-        params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'device': [devices[0].name, devices[1].name]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_chassis_member_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {'virtual_chassis_member': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_module(self):
         modules = Module.objects.all()[:2]

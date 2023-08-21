@@ -1462,15 +1462,14 @@ class InterfaceFilterSet(
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
 ):
-    virtual_chassis_for_device = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__virtual_chassis__members',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label=_('Virtual Chassis Interfaces for Device (ID)')
+    virtual_chassis_member = MultiValueCharFilter(
+        method='filter_virtual_chassis_member',
+        field_name='name',
+        label=_('Virtual Chassis Interfaces for Device')
     )
-    virtual_chassis_for_device_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__virtual_chassis__members',
-        queryset=Device.objects.all(),
+    virtual_chassis_member_id = MultiValueNumberFilter(
+        method='filter_virtual_chassis_member',
+        field_name='pk',
         label=_('Virtual Chassis Interfaces for Device (ID)')
     )
     kind = django_filters.CharFilter(
@@ -1538,6 +1537,16 @@ class InterfaceFilterSet(
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
         ]
+
+    def filter_virtual_chassis_member(self, queryset, name, value):
+        try:
+            vc_interface_ids = []
+            devices = Device.objects.filter(**{'{}__in'.format(name): value})
+            for device in devices:
+                vc_interface_ids.extend(device.vc_interfaces(if_master=False).values_list('id', flat=True))
+            return queryset.filter(pk__in=vc_interface_ids)
+        except Device.DoesNotExist:
+            return queryset.none()
 
     def filter_kind(self, queryset, name, value):
         value = value.strip().lower()
