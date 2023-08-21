@@ -2,6 +2,18 @@
 
 ## v3.5.9 (FUTURE)
 
+### Enhancements
+
+* [#11508](https://github.com/netbox-community/netbox/issues/11508) - Support automatic group mapping for Azure AD SSO
+
+### Bug Fixes
+
+* [#13358](https://github.com/netbox-community/netbox/issues/13358) - Git backend should send HTTP auth headers only if credentials have been defined
+* [#13477](https://github.com/netbox-community/netbox/issues/13477) - Fix filtering of modified objects after bulk import/update
+* [#13478](https://github.com/netbox-community/netbox/issues/13478) - Fix filtering of export templates by content type under web UI
+* [#13500](https://github.com/netbox-community/netbox/issues/13500) - Fix form validation for bulk update of L2VPN terminations via bulk import form
+* [#13503](https://github.com/netbox-community/netbox/issues/13503) - Fix utilization graph proportions when localization is enabled
+
 ---
 
 ## v3.5.8 (2023-08-15)
