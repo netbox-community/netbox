@@ -1,4 +1,5 @@
 import logging
+import requests
 from collections import defaultdict
 
 from django.conf import settings
@@ -386,3 +387,94 @@ def user_default_groups_handler(backend, user, response, *args, **kwargs):
             user.groups.add(*group_list)
         else:
             logger.info(f"No valid group assignments for {user} - REMOTE_AUTH_DEFAULT_GROUPS may be incorrectly set?")
+
+
+def azuread_map_groups(response, user, backend, *args, **kwargs):
+    '''
+    Map Azure AD group ID to Netbox group
+    Also set is_superuser or is_staff based on config map
+    '''
+    BASE_MICROSOFT_GRAPH_URL = 'https://graph.microsoft.com/v1.0/'
+    logger = logging.getLogger('netbox.auth.azuread_map_groups')
+
+    if not hasattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG"):
+        raise ImproperlyConfigured(
+            "Azure AD group mapping has been configured, but SOCIAL_AUTH_PIPELINE_CONFIG is not defined."
+        )
+
+    config = getattr(settings, "SOCIAL_AUTH_PIPELINE_CONFIG")
+    if "AZUREAD_USER_FLAGS_BY_GROUP" not in config and "AZUREAD_GROUP_MAP" not in config:
+        raise ImproperlyConfigured(
+            "Azure AD group mapping has been configured, but AZUREAD_USER_FLAGS_BY_GROUP or AZUREAD_GROUP_MAP is not defined."
+        )
+
+    flags_by_group = config.get("AZUREAD_USER_FLAGS_BY_GROUP", {'is_superuser': [], 'is_staff': []})
+    group_mapping = config.get("AZUREAD_GROUP_MAP", {})
+
+    if 'is_staff' not in flags_by_group and 'is_superuser' not in flags_by_group:
+        raise ImproperlyConfigured(
+            "Azure AD group mapping AZUREAD_USER_FLAGS_BY_GROUP is defined but does not contain either is_staff or is_superuser."
+        )
+
+    superuser_map = flags_by_group.get('is_superuser', [])
+    staff_map = flags_by_group.get('is_staff', [])
+
+    access_token = response.get('access_token')
+    headers = {
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Accept": "application/json",
+        'Authorization': f'Bearer {access_token}',
+    }
+
+    try:
+        # Query Microsoft Graph API to get user-id for following API
+        response = requests.get(
+            f'{BASE_MICROSOFT_GRAPH_URL}me',
+            headers=headers,
+        )
+        uid = response.json().get('id')
+
+        # Call Graph API to get groups for current user
+        response = requests.get(
+            f"{BASE_MICROSOFT_GRAPH_URL}users/{uid}/memberOf",
+            headers=headers,
+        )
+    except Exception as e:
+        logger.error(f"Azure AD group mapping error getting groups for user {user} from Microsoft Graph API: {e}")
+        raise e
+
+    # Set groups and permissions based on returned group list
+    is_superuser = False
+    is_staff = False
+    try:
+        values = response.json().get('value', [])
+    except Exception as e:
+        logger.error(f"Azure AD group mapping error getting groups json response for user {user} from Microsoft Graph API: {e}")
+        raise e
+
+    user.groups.through.objects.filter(user=user).delete()
+    for value in values:
+        # AD response contains both directories and groups - we only want groups
+        if value.get('@odata.type', None) == '#microsoft.graph.group':
+            group_id = value.get('id', None)
+
+            if group_id in superuser_map:
+                logger.info(f"Azure AD group mapping - setting superuser status for: {user}.")
+                is_superuser = True
+
+            if group_id in staff_map:
+                logger.info(f"Azure AD group mapping - setting staff status for: {user}.")
+                is_staff = True
+
+            if group_id in group_mapping:
+                group_name = group_mapping[group_id]
+                try:
+                    group = Group.objects.get(name=group_name)
+                    group.user_set.add(user)
+                    logger.info(f"Azure AD group mapping - adding group {group_name} to user: {user}.")
+                except Group.DoesNotExist:
+                    logger.info(f"Azure AD group mapping - group: {group_name} not found.")
+
+    user.is_superuser = is_superuser
+    user.is_staff = is_staff
+    user.save()
