@@ -346,13 +346,16 @@ class BookmarksWidget(DashboardWidget):
     def render(self, request):
         from extras.models import Bookmark
 
-        bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
-        if object_types := self.config.get('object_types'):
-            models = get_models_from_content_types(object_types)
-            conent_types = ContentType.objects.get_for_models(*models).values()
-            bookmarks = bookmarks.filter(object_type__in=conent_types)
-        if max_items := self.config.get('max_items'):
-            bookmarks = bookmarks[:max_items]
+        if request.user.is_anonymous:
+            bookmarks = list()
+        else:
+            bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
+            if object_types := self.config.get('object_types'):
+                models = get_models_from_content_types(object_types)
+                conent_types = ContentType.objects.get_for_models(*models).values()
+                bookmarks = bookmarks.filter(object_type__in=conent_types)
+            if max_items := self.config.get('max_items'):
+                bookmarks = bookmarks[:max_items]
 
         return render_to_string(self.template_name, {
             'bookmarks': bookmarks,
