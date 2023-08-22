@@ -3135,7 +3135,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_virtual_chassis_id(self):
         params = {'virtual_chassis_id': [VirtualChassis.objects.first().pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_device(self):
         devices = Device.objects.all()[:2]
