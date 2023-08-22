@@ -361,7 +361,7 @@ INSTALLED_APPS = [
     'django_filters',
     'django_tables2',
     'django_prometheus',
-    'graphene_django',
+    'strawberry_django',
     'mptt',
     'rest_framework',
     'social_django',
@@ -385,7 +385,7 @@ INSTALLED_APPS = [
 
 # Middleware
 MIDDLEWARE = [
-    'graphiql_debug_toolbar.middleware.DebugToolbarMiddleware',
+    "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
