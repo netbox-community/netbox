@@ -5,14 +5,18 @@
 ### Enhancements
 
 * [#11508](https://github.com/netbox-community/netbox/issues/11508) - Support automatic group mapping for Azure AD SSO
+* [#13536](https://github.com/netbox-community/netbox/issues/13536) - Move child VLANs list to a separate tab under VLAN group view
 
 ### Bug Fixes
 
+* [#11272](https://github.com/netbox-community/netbox/issues/11272) - Fix localization support for device position field
 * [#13358](https://github.com/netbox-community/netbox/issues/13358) - Git backend should send HTTP auth headers only if credentials have been defined
 * [#13477](https://github.com/netbox-community/netbox/issues/13477) - Fix filtering of modified objects after bulk import/update
 * [#13478](https://github.com/netbox-community/netbox/issues/13478) - Fix filtering of export templates by content type under web UI
 * [#13500](https://github.com/netbox-community/netbox/issues/13500) - Fix form validation for bulk update of L2VPN terminations via bulk import form
 * [#13503](https://github.com/netbox-community/netbox/issues/13503) - Fix utilization graph proportions when localization is enabled
+* [#13516](https://github.com/netbox-community/netbox/issues/13516) - Plugin utility functions should be importable from `extras.plugins`
+* [#13530](https://github.com/netbox-community/netbox/issues/13530) - Ensure script log messages can be serialized as JSON data
 
 ---
 
