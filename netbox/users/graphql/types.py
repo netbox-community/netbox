@@ -1,9 +1,10 @@
+import strawberry
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from graphene_django import DjangoObjectType
-
+from strawberry import auto
 from users import filtersets
 from utilities.querysets import RestrictedQuerySet
+from .filters import *
 
 __all__ = (
     'GroupType',
@@ -11,28 +12,26 @@ __all__ = (
 )
 
 
-class GroupType(DjangoObjectType):
-
-    class Meta:
-        model = Group
-        fields = ('id', 'name')
-        filterset_class = filtersets.GroupFilterSet
-
+@strawberry.django.type(
+    Group,
+    fields=['id', 'name'],
+    filters=GroupFilter
+)
+class GroupType:
     @classmethod
-    def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=Group).restrict(info.context.user, 'view')
+    def get_queryset(cls, queryset, info, **kwargs):
+        return RestrictedQuerySet(model=Group).restrict(info.context.request.user, 'view')
 
 
-class UserType(DjangoObjectType):
-
-    class Meta:
-        model = get_user_model()
-        fields = (
-            'id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined',
-            'groups',
-        )
-        filterset_class = filtersets.UserFilterSet
-
+@strawberry.django.type(
+    get_user_model(),
+    fields=[
+        'id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff',
+        'is_active', 'date_joined', 'groups',
+    ],
+    filters=UserFilter
+)
+class UserType:
     @classmethod
-    def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=get_user_model()).restrict(info.context.user, 'view')
+    def get_queryset(cls, queryset, info, **kwargs):
+        return RestrictedQuerySet(model=get_user_model()).restrict(info.context.request.user, 'view')

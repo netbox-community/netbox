@@ -1,18 +1,18 @@
 import strawberry
 from strawberry_django.optimizer import DjangoOptimizerExtension
+from strawberry.schema.config import StrawberryConfig
+from users.graphql.schema import UsersQuery
 
 
 @strawberry.type
-class User:
-    name: str
-    age: int
+class Query(UsersQuery):
+    pass
 
 
-@strawberry.type
-class Query:
-    @strawberry.field
-    def user(self) -> User:
-        return User(name="Patrick", age=100)
-
-
-schema = strawberry.Schema(query=Query)
+schema = strawberry.Schema(
+    query=Query,
+    config=StrawberryConfig(auto_camel_case=False),
+    extensions=[
+        DjangoOptimizerExtension,
+    ]
+)
