@@ -2055,7 +2055,6 @@ class DeviceConfigContextView(ObjectConfigContextView):
     base_template = 'dcim/device/base.html'
     tab = ViewTab(
         label=_('Config Context'),
-        permission='extras.view_configcontext',
         weight=2000
     )
 
