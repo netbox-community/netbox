@@ -4,7 +4,6 @@
 
 ### Enhancements
 
-* [#11508](https://github.com/netbox-community/netbox/issues/11508) - Support automatic group mapping for Azure AD SSO
 * [#13536](https://github.com/netbox-community/netbox/issues/13536) - Move child VLANs list to a separate tab under VLAN group view
 
 ### Bug Fixes
