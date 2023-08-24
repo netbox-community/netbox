@@ -18,6 +18,7 @@
 * The `device_role` field on the Device model has been renamed to `role`. The `device_role` field has been temporarily retained on the REST API serializer for devices for backward compatibility, but is read-only.
 * The `choices` array field has been removed from the CustomField model. Any defined choices are automatically migrated to CustomFieldChoiceSets, accessible via the new `choice_set` field on the CustomField model.
 * The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the Platform model.
+* The `device` and `device_id` filter for interfaces will now only filter the specific device.  Two new filters `virtual_chassis_member` and `virtual_chassis_member_id` have been added to allow for retrieval of Virtual Chassis interfaces from any Virtual Chassis member.
 
 ### New Features
 
