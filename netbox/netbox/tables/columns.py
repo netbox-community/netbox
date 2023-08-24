@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 import django_tables2 as tables
 from django.conf import settings
+from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
@@ -510,25 +511,32 @@ class CustomLinkColumn(tables.Column):
 
         super().__init__(*args, **kwargs)
 
-    def render(self, record):
-        try:
-            rendered = self.customlink.render({
-                'object': record,
-                'obj': record,  # TODO: Remove in NetBox v3.5
+    def _render_customlink(self, record, table):
+        context = {
+            'object': record,
+            'obj': record,  # TODO: Remove in NetBox v3.5
+            'debug': settings.DEBUG,
+        }
+        if request := getattr(table, 'context', {}).get('request'):
+            # If the request is available, include it as context
+            context.update({
+                'request': request,
+                **auth(request),
             })
-            if rendered:
+
+        return self.customlink.render(context)
+
+    def render(self, record, table, **kwargs):
+        try:
+            if rendered := self._render_customlink(record, table):
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
             return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> Error</span>')
         return ''
 
-    def value(self, record):
+    def value(self, record, table, **kwargs):
         try:
-            rendered = self.customlink.render({
-                'object': record,
-                'obj': record,  # TODO: Remove in NetBox v3.5
-            })
-            if rendered:
+            if rendered := self._render_customlink(record, table):
                 return rendered['link']
         except Exception:
             pass
