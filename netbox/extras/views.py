@@ -17,7 +17,6 @@ from extras.dashboard.utils import get_widget_class
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
-from utilities.permissions import get_permission_for_model
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
@@ -434,9 +433,6 @@ class ConfigContextBulkSyncDataView(generic.BulkSyncDataView):
 class ObjectConfigContextView(generic.ObjectView):
     base_template = None
     template_name = 'extras/object_configcontext.html'
-
-    def get_required_permission(self):
-        return get_permission_for_model(ConfigContext, 'view')
 
     def get_extra_context(self, request, instance):
         source_contexts = ConfigContext.objects.restrict(request.user, 'view').get_for_object(instance)
