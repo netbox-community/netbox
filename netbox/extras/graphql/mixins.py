@@ -1,3 +1,4 @@
+import strawberry
 import graphene
 from django.contrib.contenttypes.models import ContentType
 from graphene.types.generic import GenericScalar

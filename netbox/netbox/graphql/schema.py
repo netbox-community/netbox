@@ -1,11 +1,12 @@
 import strawberry
 from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.schema.config import StrawberryConfig
+from circuits.graphql.schema import CircuitsQuery
 from users.graphql.schema import UsersQuery
 
 
 @strawberry.type
-class Query(UsersQuery):
+class Query(CircuitsQuery, UsersQuery):
     pass
 
 

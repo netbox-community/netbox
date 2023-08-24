@@ -1,9 +1,10 @@
-import graphene
+import strawberry
 
 from circuits import filtersets, models
 from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
+from .filters import *
 
 __all__ = (
     'CircuitTerminationType',
@@ -15,48 +16,61 @@ __all__ = (
 )
 
 
-class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
+@strawberry.django.type(
+    models.CircuitTermination,
+    fields='__all__',
+    filters=CircuitTerminationFilter
+)
+class CircuitTerminationType:
+    # class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
+    pass
 
-    class Meta:
-        model = models.CircuitTermination
-        fields = '__all__'
-        filterset_class = filtersets.CircuitTerminationFilterSet
 
-
+@strawberry.django.type(
+    models.Circuit,
+    fields='__all__',
+    filters=CircuitFilter
+)
 class CircuitType(NetBoxObjectType, ContactsMixin):
-    class Meta:
-        model = models.Circuit
-        fields = '__all__'
-        filterset_class = filtersets.CircuitFilterSet
+    # class CircuitType(NetBoxObjectType, ContactsMixin):
+    pass
 
 
-class CircuitTypeType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.CircuitType
-        fields = '__all__'
-        filterset_class = filtersets.CircuitTypeFilterSet
-
-
-class ProviderType(NetBoxObjectType, ContactsMixin):
-
-    class Meta:
-        model = models.Provider
-        fields = '__all__'
-        filterset_class = filtersets.ProviderFilterSet
+@strawberry.django.type(
+    models.CircuitType,
+    fields='__all__',
+    filters=CircuitTypeFilter
+)
+class CircuitTypeType:
+    # class CircuitTypeType(OrganizationalObjectType):
+    pass
 
 
-class ProviderAccountType(NetBoxObjectType):
+@strawberry.django.type(
+    models.Provider,
+    fields='__all__',
+    filters=ProviderFilter
+)
+class ProviderType:
+    # class ProviderType(NetBoxObjectType, ContactsMixin):
+    pass
 
-    class Meta:
-        model = models.ProviderAccount
-        fields = '__all__'
-        filterset_class = filtersets.ProviderAccountFilterSet
+
+@strawberry.django.type(
+    models.ProviderAccount,
+    fields='__all__',
+    filters=ProviderAccountFilter
+)
+class ProviderAccountType:
+    # class ProviderAccountType(NetBoxObjectType):
+    pass
 
 
-class ProviderNetworkType(NetBoxObjectType):
-
-    class Meta:
-        model = models.ProviderNetwork
-        fields = '__all__'
-        filterset_class = filtersets.ProviderNetworkFilterSet
+@strawberry.django.type(
+    models.ProviderNetwork,
+    fields='__all__',
+    filters=ProviderNetworkFilter
+)
+class ProviderNetworkType:
+    # class ProviderNetworkType(NetBoxObjectType):
+    pass

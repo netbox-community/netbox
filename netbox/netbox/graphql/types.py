@@ -1,4 +1,5 @@
-import graphene
+import strawberry
+from strawberry import auto
 
 from django.contrib.contenttypes.models import ContentType
 from extras.graphql.mixins import (
@@ -7,7 +8,6 @@ from extras.graphql.mixins import (
     JournalEntriesMixin,
     TagsMixin,
 )
-from graphene_django import DjangoObjectType
 
 __all__ = (
     'BaseObjectType',
@@ -21,20 +21,17 @@ __all__ = (
 # Base types
 #
 
-class BaseObjectType(DjangoObjectType):
+class BaseObjectType:
     """
     Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
     """
-    display = graphene.String()
-    class_type = graphene.String()
-
-    class Meta:
-        abstract = True
+    display: auto
+    class_type: auto
 
     @classmethod
     def get_queryset(cls, queryset, info):
         # Enforce object permissions on the queryset
-        return queryset.restrict(info.context.user, 'view')
+        return queryset.restrict(info.context.request.user, 'view')
 
     def resolve_display(parent, info, **kwargs):
         return str(parent)
@@ -50,8 +47,7 @@ class ObjectType(
     """
     Base GraphQL object type for unclassified models which support change logging
     """
-    class Meta:
-        abstract = True
+    pass
 
 
 class OrganizationalObjectType(
@@ -63,8 +59,7 @@ class OrganizationalObjectType(
     """
     Base type for organizational models
     """
-    class Meta:
-        abstract = True
+    pass
 
 
 class NetBoxObjectType(
@@ -77,15 +72,14 @@ class NetBoxObjectType(
     """
     GraphQL type for most NetBox models. Includes support for custom fields, change logging, journaling, and tags.
     """
-    class Meta:
-        abstract = True
+    pass
 
 
 #
 # Miscellaneous types
 #
 
-class ContentTypeType(DjangoObjectType):
+class ContentTypeType:
 
     class Meta:
         model = ContentType

@@ -3,7 +3,6 @@ import strawberry
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from netbox.graphql.fields import ObjectField, ObjectListField
 from .types import *
 
 
