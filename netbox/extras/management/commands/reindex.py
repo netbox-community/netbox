@@ -69,10 +69,7 @@ class Command(BaseCommand):
         if not kwargs['lazy']:
             self.stdout.write('Clearing cached values... ', ending='')
             self.stdout.flush()
-            content_types = [
-                ContentType.objects.get_for_model(model) for model in indexers.keys()
-            ]
-            deleted_count = search_backend.clear(content_types)
+            deleted_count = search_backend.clear()
             self.stdout.write(f'{deleted_count} entries deleted.')
 
         # Index models
