@@ -504,7 +504,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
             return queryset.filter(**{f'{name}__net_in': value})
         except ValidationError:
             return queryset.none()
-        
+
     def search_by_parent(self, queryset, name, value):
         if not value:
             return queryset
