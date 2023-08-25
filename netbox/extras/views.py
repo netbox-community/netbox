@@ -44,9 +44,7 @@ class CustomFieldView(generic.ObjectView):
     queryset = CustomField.objects.all()
 
     def get_extra_context(self, request, instance):
-        related_models = (
-            # (DataFile.objects.restrict(request.user, 'view').filter(source=instance), 'source_id'),
-        )
+        related_models = ()
 
         for content_type in instance.content_types.all():
             related_models += (
