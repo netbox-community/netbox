@@ -331,3 +331,36 @@ class ImportFormTest(TestCase):
             form._detect_format('')
         with self.assertRaises(forms.ValidationError):
             form._detect_format('?')
+
+    def test_csv_delimiters(self):
+        form = BulkImportForm()
+
+        data = (
+            "a,b,c\n"
+            "1,2,3\n"
+            "4,5,6\n"
+        )
+        self.assertEqual(form._clean_csv(data), [
+            {'a': '1', 'b': '2', 'c': '3'},
+            {'a': '4', 'b': '5', 'c': '6'},
+        ])
+
+        data = (
+            "a;b;c\n"
+            "1;2;3\n"
+            "4;5;6\n"
+        )
+        self.assertEqual(form._clean_csv(data), [
+            {'a': '1', 'b': '2', 'c': '3'},
+            {'a': '4', 'b': '5', 'c': '6'},
+        ])
+
+        data = (
+            "a b c\n"
+            "1 2 3\n"
+            "4 5 6\n"
+        )
+        self.assertEqual(form._clean_csv(data), [
+            {'a': '1', 'b': '2', 'c': '3'},
+            {'a': '4', 'b': '5', 'c': '6'},
+        ])
