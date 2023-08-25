@@ -467,6 +467,10 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         choices=IPRangeStatusChoices,
         null_value=None
     )
+    parent = MultiValueCharFilter(
+        method='search_by_parent',
+        label=_('Parent prefix'),
+    )
 
     class Meta:
         model = IPRange
@@ -500,6 +504,18 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
             return queryset.filter(**{f'{name}__net_in': value})
         except ValidationError:
             return queryset.none()
+        
+    def search_by_parent(self, queryset, name, value):
+        if not value:
+            return queryset
+        q = Q()
+        for prefix in value:
+            try:
+                query = str(netaddr.IPNetwork(prefix.strip()).cidr)
+                q |= Q(start_address__net_host_contained=query)
+            except (AddrFormatError, ValueError):
+                return queryset.none()
+        return queryset.filter(q)
 
 
 class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
