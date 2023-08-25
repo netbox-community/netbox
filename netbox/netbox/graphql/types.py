@@ -21,23 +21,24 @@ __all__ = (
 # Base types
 #
 
+@strawberry.type
 class BaseObjectType:
     """
     Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
     """
-    display: auto
-    class_type: auto
 
     @classmethod
     def get_queryset(cls, queryset, info):
         # Enforce object permissions on the queryset
         return queryset.restrict(info.context.request.user, 'view')
 
-    def resolve_display(parent, info, **kwargs):
-        return str(parent)
+    @strawberry.django.field
+    def display(self) -> str:
+        return str(self)
 
-    def resolve_class_type(parent, info, **kwargs):
-        return parent.__class__.__name__
+    @strawberry.django.field
+    def class_type(self) -> str:
+        return self.__class__.__name__
 
 
 class ObjectType(
@@ -79,8 +80,9 @@ class NetBoxObjectType(
 # Miscellaneous types
 #
 
+@strawberry.django.type(
+    ContentType,
+    fields=['id', 'app_label', 'model'],
+)
 class ContentTypeType:
-
-    class Meta:
-        model = ContentType
-        fields = ('id', 'app_label', 'model')
+    pass

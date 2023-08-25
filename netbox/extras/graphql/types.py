@@ -1,6 +1,10 @@
+import strawberry
+from strawberry import auto
+
 from extras import filtersets, models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, ObjectType, OrganizationalObjectType
+from .filters import *
 
 __all__ = (
     'ConfigContextType',
@@ -18,97 +22,109 @@ __all__ = (
 )
 
 
+@strawberry.django.type(
+    models.ConfigContext,
+    fields='__all__',
+    filters=ConfigContextFilter
+)
 class ConfigContextType(ObjectType):
-
-    class Meta:
-        model = models.ConfigContext
-        fields = '__all__'
-        filterset_class = filtersets.ConfigContextFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.ConfigTemplate,
+    fields='__all__',
+    filters=ConfigTemplateFilter
+)
 class ConfigTemplateType(TagsMixin, ObjectType):
-
-    class Meta:
-        model = models.ConfigTemplate
-        fields = '__all__'
-        filterset_class = filtersets.ConfigTemplateFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.CustomField,
+    fields='__all__',
+    filters=CustomFieldFilter
+)
 class CustomFieldType(ObjectType):
-
-    class Meta:
-        model = models.CustomField
-        exclude = ('content_types', )
-        filterset_class = filtersets.CustomFieldFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.CustomFieldChoiceSet,
+    fields='__all__',
+    filters=CustomFieldChoiceSetFilter
+)
 class CustomFieldChoiceSetType(ObjectType):
-
-    class Meta:
-        model = models.CustomFieldChoiceSet
-        fields = '__all__'
-        filterset_class = filtersets.CustomFieldChoiceSetFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.CustomLink,
+    fields='__all__',
+    filters=CustomLinkFilter
+)
 class CustomLinkType(ObjectType):
-
-    class Meta:
-        model = models.CustomLink
-        exclude = ('content_types', )
-        filterset_class = filtersets.CustomLinkFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.ExportTemplate,
+    fields='__all__',
+    filters=ExportTemplateFilter
+)
 class ExportTemplateType(ObjectType):
-
-    class Meta:
-        model = models.ExportTemplate
-        exclude = ('content_types', )
-        filterset_class = filtersets.ExportTemplateFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.ImageAttachment,
+    fields='__all__',
+    filters=ImageAttachmentFilter
+)
 class ImageAttachmentType(BaseObjectType):
-
-    class Meta:
-        model = models.ImageAttachment
-        fields = '__all__'
-        filterset_class = filtersets.ImageAttachmentFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.JournalEntry,
+    fields='__all__',
+    filters=JournalEntryFilter
+)
 class JournalEntryType(CustomFieldsMixin, TagsMixin, ObjectType):
-
-    class Meta:
-        model = models.JournalEntry
-        fields = '__all__'
-        filterset_class = filtersets.JournalEntryFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.ObjectChange,
+    fields='__all__',
+    filters=ObjectChangeFilter
+)
 class ObjectChangeType(BaseObjectType):
-
-    class Meta:
-        model = models.ObjectChange
-        fields = '__all__'
-        filterset_class = filtersets.ObjectChangeFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.SavedFilter,
+    exclude=['content_types',],
+    filters=SavedFilterFilter
+)
 class SavedFilterType(ObjectType):
-
-    class Meta:
-        model = models.SavedFilter
-        exclude = ('content_types', )
-        filterset_class = filtersets.SavedFilterFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.Tag,
+    exclude=['extras_taggeditem_items', 'color'],  # bug - remove color from exclude
+    filters=TagFilter
+)
 class TagType(ObjectType):
-
-    class Meta:
-        model = models.Tag
-        exclude = ('extras_taggeditem_items',)
-        filterset_class = filtersets.TagFilterSet
+    pass
 
 
+@strawberry.django.type(
+    models.Webhook,
+    exclude=['content_types',],
+    filters=WebhookFilter
+)
 class WebhookType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.Webhook
-        exclude = ('content_types', )
-        filterset_class = filtersets.WebhookFilterSet
+    pass

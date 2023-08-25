@@ -1,7 +1,7 @@
 import strawberry
-import graphene
+from typing import TYPE_CHECKING, Annotated, List
+
 from django.contrib.contenttypes.models import ContentType
-from graphene.types.generic import GenericScalar
 
 from extras.models import ObjectChange
 
@@ -14,11 +14,16 @@ __all__ = (
     'TagsMixin',
 )
 
+if TYPE_CHECKING:
+    from .types import ImageAttachmentType, JournalEntryType, ObjectChangeType, TagType
+    from tenancy.graphql.types import ContactAssignmentType
 
+
+@strawberry.type
 class ChangelogMixin:
-    changelog = graphene.List('extras.graphql.types.ObjectChangeType')
 
-    def resolve_changelog(self, info):
+    @strawberry.django.field
+    def changelog(self) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
         content_type = ContentType.objects.get_for_model(self)
         object_changes = ObjectChange.objects.filter(
             changed_object_type=content_type,
@@ -27,43 +32,49 @@ class ChangelogMixin:
         return object_changes.restrict(info.context.user, 'view')
 
 
+@strawberry.type
 class ConfigContextMixin:
-    config_context = GenericScalar()
 
-    def resolve_config_context(self, info):
+    @strawberry.django.field
+    def config_context(self) -> strawberry.scalars.JSON:
         return self.get_config_context()
 
 
+@strawberry.type
 class CustomFieldsMixin:
-    custom_fields = GenericScalar()
 
-    def resolve_custom_fields(self, info):
+    @strawberry.django.field
+    def custom_fields(self) -> strawberry.scalars.JSON:
         return self.custom_field_data
 
 
+@strawberry.type
 class ImageAttachmentsMixin:
-    image_attachments = graphene.List('extras.graphql.types.ImageAttachmentType')
 
-    def resolve_image_attachments(self, info):
+    @strawberry.django.field
+    def image_attachments(self) -> List[Annotated["ImageAttachmentType", strawberry.lazy('.types')]]:
         return self.images.restrict(info.context.user, 'view')
 
 
+@strawberry.type
 class JournalEntriesMixin:
-    journal_entries = graphene.List('extras.graphql.types.JournalEntryType')
 
-    def resolve_journal_entries(self, info):
+    @strawberry.django.field
+    def journal_entries(self) -> List[Annotated["JournalEntryType", strawberry.lazy('.types')]]:
         return self.journal_entries.restrict(info.context.user, 'view')
 
 
+@strawberry.type
 class TagsMixin:
-    tags = graphene.List('extras.graphql.types.TagType')
 
-    def resolve_tags(self, info):
+    @strawberry.django.field
+    def tags(self) -> List[Annotated["TagType", strawberry.lazy('.types')]]:
         return self.tags.all()
 
 
+@strawberry.type
 class ContactsMixin:
-    contacts = graphene.List('tenancy.graphql.types.ContactAssignmentType')
 
-    def resolve_contacts(self, info):
+    @strawberry.django.field
+    def contacts(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
         return list(self.contacts.all())
