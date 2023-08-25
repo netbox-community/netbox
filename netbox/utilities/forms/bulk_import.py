@@ -95,7 +95,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         try:
             # This uses a rough heuristic to detect the CSV dialect. If the data is malformed, we'll fall back to
             # the default Excel dialect.
-            dialect = csv.Sniffer().sniff(data.strip())
+            dialect = csv.Sniffer().sniff(data.strip(), delimiters=',; ')
         except csv.Error:
             dialect = csv.excel
 
