@@ -90,8 +90,17 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         """
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
+
+        # Determine the CSV dialect
+        try:
+            # This uses a rough heuristic to detect the CSV dialect. If the data is malformed, we'll fall back to
+            # the default Excel dialect.
+            dialect = csv.Sniffer().sniff(data.strip())
+        except csv.Error:
+            dialect = csv.excel
+
         stream = StringIO(data.strip())
-        reader = csv.reader(stream)
+        reader = csv.reader(stream, dialect=dialect)
         headers, records = parse_csv(reader)
 
         # Set CSV headers for reference by the model form
