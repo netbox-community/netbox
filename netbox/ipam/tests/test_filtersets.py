@@ -740,8 +740,6 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Tenant.objects.bulk_create(tenants)
 
-        Prefix.objects.create(prefix='10.0.1.0/24')
-
         ip_ranges = (
             IPRange(start_address='10.0.1.100/24', end_address='10.0.1.199/24', size=100, vrf=None, tenant=None, role=None, status=IPRangeStatusChoices.STATUS_ACTIVE, description='foobar1'),
             IPRange(start_address='10.0.2.100/24', end_address='10.0.2.199/24', size=100, vrf=vrfs[0], tenant=tenants[0], role=roles[0], status=IPRangeStatusChoices.STATUS_ACTIVE, description='foobar2'),
@@ -809,9 +807,10 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
-        prefix = Prefix.objects.get(prefix='10.0.1.0/24')
-        params = {'parent': [prefix.prefix]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'parent': ['10.0.1.0/24', '10.0.2.0/24']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': ['10.0.1.0/25']}  # Range 10.0.1.100-199 is not fully contained by 10.0.1.0/25
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
 
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):

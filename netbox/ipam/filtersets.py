@@ -512,7 +512,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         for prefix in value:
             try:
                 query = str(netaddr.IPNetwork(prefix.strip()).cidr)
-                q |= Q(start_address__net_host_contained=query)
+                q |= Q(start_address__net_host_contained=query, end_address__net_host_contained=query)
             except (AddrFormatError, ValueError):
                 return queryset.none()
         return queryset.filter(q)
