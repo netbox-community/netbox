@@ -4,7 +4,11 @@
 
 ### Enhancements
 
+* [#12825](https://github.com/netbox-community/netbox/issues/12825) - Display assigned values count per obejct type under custom field view
+* [#13313](https://github.com/netbox-community/netbox/issues/13313) - Enable filtering IP ranges by containing prefix
+* [#13415](https://github.com/netbox-community/netbox/issues/13415) - Include request object in custom link renderer on tables
 * [#13536](https://github.com/netbox-community/netbox/issues/13536) - Move child VLANs list to a separate tab under VLAN group view
+* [#13542](https://github.com/netbox-community/netbox/issues/13542) - Pass additional HTTP headers through to custom script context
 
 ### Bug Fixes
 
@@ -14,8 +18,12 @@
 * [#13478](https://github.com/netbox-community/netbox/issues/13478) - Fix filtering of export templates by content type under web UI
 * [#13500](https://github.com/netbox-community/netbox/issues/13500) - Fix form validation for bulk update of L2VPN terminations via bulk import form
 * [#13503](https://github.com/netbox-community/netbox/issues/13503) - Fix utilization graph proportions when localization is enabled
+* [#13507](https://github.com/netbox-community/netbox/issues/13507) - Avoid raising exception for invalid content type during global search
 * [#13516](https://github.com/netbox-community/netbox/issues/13516) - Plugin utility functions should be importable from `extras.plugins`
 * [#13530](https://github.com/netbox-community/netbox/issues/13530) - Ensure script log messages can be serialized as JSON data
+* [#13543](https://github.com/netbox-community/netbox/issues/13543) - Config context tab under device/VM view should not require `extras.view_configcontext` permission
+* [#13544](https://github.com/netbox-community/netbox/issues/13544) - Ensure `reindex` command clears all cached values when not in lazy mode
+* [#13556](https://github.com/netbox-community/netbox/issues/13556) - Correct REST API representation of VDC status choice
 
 ---
 
