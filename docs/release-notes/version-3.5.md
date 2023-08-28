@@ -24,6 +24,7 @@
 * [#13543](https://github.com/netbox-community/netbox/issues/13543) - Config context tab under device/VM view should not require `extras.view_configcontext` permission
 * [#13544](https://github.com/netbox-community/netbox/issues/13544) - Ensure `reindex` command clears all cached values when not in lazy mode
 * [#13556](https://github.com/netbox-community/netbox/issues/13556) - Correct REST API representation of VDC status choice
+* [#13569](https://github.com/netbox-community/netbox/issues/13569) - Fix selection widgets for related interfaces when bulk editing interfaces under device view
 
 ---
 
