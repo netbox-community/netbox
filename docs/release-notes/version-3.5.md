@@ -1,14 +1,16 @@
 # NetBox v3.5
 
-## v3.5.9 (FUTURE)
+## v3.5.9 (2023-08-28)
 
 ### Enhancements
 
+* [#12489](https://github.com/netbox-community/netbox/issues/12489) - Dynamically render location and device lists under site and location views
 * [#12825](https://github.com/netbox-community/netbox/issues/12825) - Display assigned values count per obejct type under custom field view
 * [#13313](https://github.com/netbox-community/netbox/issues/13313) - Enable filtering IP ranges by containing prefix
 * [#13415](https://github.com/netbox-community/netbox/issues/13415) - Include request object in custom link renderer on tables
 * [#13536](https://github.com/netbox-community/netbox/issues/13536) - Move child VLANs list to a separate tab under VLAN group view
 * [#13542](https://github.com/netbox-community/netbox/issues/13542) - Pass additional HTTP headers through to custom script context
+* [#13585](https://github.com/netbox-community/netbox/issues/13585) - Introduce `empty` lookup for numeric value filters
 
 ### Bug Fixes
 
