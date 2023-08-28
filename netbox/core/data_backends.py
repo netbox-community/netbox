@@ -103,12 +103,13 @@ class GitBackend(DataBackend):
         }
 
         if self.url_scheme in ('http', 'https'):
-            clone_args.update(
-                {
-                    "username": self.params.get('username'),
-                    "password": self.params.get('password'),
-                }
-            )
+            if self.params.get('username'):
+                clone_args.update(
+                    {
+                        "username": self.params.get('username'),
+                        "password": self.params.get('password'),
+                    }
+                )
 
         if settings.HTTP_PROXIES and self.url_scheme in ('http', 'https'):
             if proxy := settings.HTTP_PROXIES.get(self.url_scheme):

@@ -2,7 +2,15 @@
 {% load helpers %}
 
 {% block bulk_edit_controls %}
-    {{ block.super }}
+    {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
+        {% if 'bulk_edit' in actions and bulk_edit_view %}
+            <button type="submit" name="_edit"
+                    formaction="{% url bulk_edit_view %}?device={{ object.pk }}&return_url={{ return_url }}"
+                    class="btn btn-warning btn-sm">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
+            </button>
+        {% endif %}
+    {% endwith %}
     {% with bulk_rename_view=child_model|validated_viewname:"bulk_rename" %}
         {% if 'bulk_rename' in actions and bulk_rename_view %}
             <button type="submit" name="_rename"

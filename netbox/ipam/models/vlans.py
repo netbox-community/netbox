@@ -116,6 +116,12 @@ class VLANGroup(OrganizationalModel):
             return available_vids[0]
         return None
 
+    def get_child_vlans(self):
+        """
+        Return all VLANs within this group.
+        """
+        return VLAN.objects.filter(group=self).order_by('vid')
+
 
 class VLAN(PrimaryModel):
     """

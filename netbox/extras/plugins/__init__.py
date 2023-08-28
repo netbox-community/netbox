@@ -11,6 +11,7 @@ from netbox.search import register_search
 from .navigation import *
 from .registration import *
 from .templates import *
+from .utils import *
 
 # Initialize plugin registry
 registry['plugins'].update({

@@ -59,7 +59,7 @@ Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if pres
 
 ```no-highlight
 # Set $OLDVER to the NetBox version currently installed
-NEWVER=3.4.9
+OLDVER=3.4.9
 sudo cp /opt/netbox-$OLDVER/local_requirements.txt /opt/netbox/
 sudo cp /opt/netbox-$OLDVER/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
 sudo cp /opt/netbox-$OLDVER/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/
