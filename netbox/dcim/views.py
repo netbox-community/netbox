@@ -398,32 +398,8 @@ class SiteView(generic.ObjectView):
             (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
         )
 
-        locations = Location.objects.add_related_count(
-            Location.objects.all(),
-            Rack,
-            'location',
-            'rack_count',
-            cumulative=True
-        )
-        locations = Location.objects.add_related_count(
-            locations,
-            Device,
-            'location',
-            'device_count',
-            cumulative=True
-        ).restrict(request.user, 'view').filter(site=instance)
-
-        nonracked_devices = Device.objects.filter(
-            site=instance,
-            rack__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         return {
             'related_models': related_models,
-            'locations': locations,
-            'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
-            'total_nonracked_devices_count': nonracked_devices.count(),
         }
 
 
@@ -495,16 +471,8 @@ class LocationView(generic.ObjectView):
             (Device.objects.restrict(request.user, 'view').filter(location__in=locations), 'location_id'),
         )
 
-        nonracked_devices = Device.objects.filter(
-            location=instance,
-            rack__isnull=True,
-            parent_bay__isnull=True
-        ).prefetch_related('device_type__manufacturer', 'parent_bay', 'device_role')
-
         return {
             'related_models': related_models,
-            'nonracked_devices': nonracked_devices.order_by('-pk')[:10],
-            'total_nonracked_devices_count': nonracked_devices.count(),
         }
 
 
