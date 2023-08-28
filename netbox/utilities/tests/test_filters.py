@@ -86,6 +86,10 @@ class DummyModel(models.Model):
     charfield = models.CharField(
         max_length=10
     )
+    numberfield = models.IntegerField(
+        blank=True,
+        null=True
+    )
     choicefield = models.IntegerField(
         choices=(('A', 1), ('B', 2), ('C', 3))
     )
@@ -108,6 +112,7 @@ class BaseFilterSetTest(TestCase):
     """
     class DummyFilterSet(BaseFilterSet):
         charfield = django_filters.CharFilter()
+        numberfield = django_filters.NumberFilter()
         macaddressfield = MACAddressFilter()
         modelchoicefield = django_filters.ModelChoiceFilter(
             field_name='integerfield',  # We're pretending this is a ForeignKey field
@@ -132,6 +137,7 @@ class BaseFilterSetTest(TestCase):
             model = DummyModel
             fields = (
                 'charfield',
+                'numberfield',
                 'choicefield',
                 'datefield',
                 'datetimefield',
@@ -171,6 +177,25 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['charfield__iew'].exclude, False)
         self.assertEqual(self.filters['charfield__niew'].lookup_expr, 'iendswith')
         self.assertEqual(self.filters['charfield__niew'].exclude, True)
+        self.assertEqual(self.filters['charfield__empty'].lookup_expr, 'empty')
+        self.assertEqual(self.filters['charfield__empty'].exclude, False)
+
+    def test_number_filter(self):
+        self.assertIsInstance(self.filters['numberfield'], django_filters.NumberFilter)
+        self.assertEqual(self.filters['numberfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['numberfield'].exclude, False)
+        self.assertEqual(self.filters['numberfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['numberfield__n'].exclude, True)
+        self.assertEqual(self.filters['numberfield__lt'].lookup_expr, 'lt')
+        self.assertEqual(self.filters['numberfield__lt'].exclude, False)
+        self.assertEqual(self.filters['numberfield__lte'].lookup_expr, 'lte')
+        self.assertEqual(self.filters['numberfield__lte'].exclude, False)
+        self.assertEqual(self.filters['numberfield__gt'].lookup_expr, 'gt')
+        self.assertEqual(self.filters['numberfield__gt'].exclude, False)
+        self.assertEqual(self.filters['numberfield__gte'].lookup_expr, 'gte')
+        self.assertEqual(self.filters['numberfield__gte'].exclude, False)
+        self.assertEqual(self.filters['numberfield__empty'].lookup_expr, 'isnull')
+        self.assertEqual(self.filters['numberfield__empty'].exclude, False)
 
     def test_mac_address_filter(self):
         self.assertIsInstance(self.filters['macaddressfield'], MACAddressFilter)
