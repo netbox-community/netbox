@@ -2,6 +2,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Device, DeviceRole, Platform, Site
+from extras.models import ConfigTemplate
 from ipam.models import VRF
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
@@ -123,12 +124,19 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned platform')
     )
+    config_template = CSVModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        to_field_name='name',
+        required=False,
+        label=_('Config template'),
+        help_text=_('Config template')
+    )
 
     class Meta:
         model = VirtualMachine
         fields = (
             'name', 'status', 'role', 'site', 'cluster', 'device', 'tenant', 'platform', 'vcpus', 'memory', 'disk',
-            'description', 'comments', 'tags',
+            'description', 'config_template', 'comments', 'tags',
         )
 
 

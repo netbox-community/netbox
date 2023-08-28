@@ -31,7 +31,10 @@
 {{ error }}
 
 {% trans "Python version" %}: {{ python_version }}
-{% trans "NetBox version" %}: {{ netbox_version }}</pre>
+{% trans "NetBox version" %}: {{ netbox_version }}
+{% trans "Plugins" %}: {% for plugin, version in plugins.items %}
+  {{ plugin }}: {{ version }}{% empty %}{% trans "None installed" %}{% endfor %}
+</pre>
                         <p>
                             {% trans "If further assistance is required, please post to the" %} <a href="https://github.com/netbox-community/netbox/discussions">{% trans "NetBox discussion forum" %}</a> {% trans "on GitHub" %}.
                         </p>

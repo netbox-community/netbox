@@ -31,8 +31,8 @@ class WebhookTest(APITestCase):
     def setUpTestData(cls):
 
         site_ct = ContentType.objects.get_for_model(Site)
-        DUMMY_URL = "http://localhost/"
-        DUMMY_SECRET = "LOOKATMEIMASECRETSTRING"
+        DUMMY_URL = 'http://localhost:9000/'
+        DUMMY_SECRET = 'LOOKATMEIMASECRETSTRING'
 
         webhooks = Webhook.objects.bulk_create((
             Webhook(name='Webhook 1', type_create=True, payload_url=DUMMY_URL, secret=DUMMY_SECRET, additional_headers='X-Foo: Bar'),
@@ -259,7 +259,7 @@ class WebhookTest(APITestCase):
             name='Conditional Webhook',
             type_create=True,
             type_update=True,
-            payload_url='http://localhost/',
+            payload_url='http://localhost:9000/',
             conditions={
                 'and': [
                     {

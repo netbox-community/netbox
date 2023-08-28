@@ -26,7 +26,9 @@ Every model includes by default a numeric primary key. This value is generated a
 
 Plugin models can leverage certain NetBox features by inheriting from NetBox's `NetBoxModel` class. This class extends the plugin model to enable features unique to NetBox, including:
 
+* Bookmarks
 * Change logging
+* Cloning
 * Custom fields
 * Custom links
 * Custom validation
@@ -104,6 +106,8 @@ For more information about database migrations, see the [Django documentation](h
 
 !!! warning
     Please note that only the classes which appear in this documentation are currently supported. Although other classes may be present within the `features` module, they are not yet supported for use by plugins.
+
+::: netbox.models.features.BookmarksMixin
 
 ::: netbox.models.features.ChangeLoggingMixin
 

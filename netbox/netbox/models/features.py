@@ -491,6 +491,19 @@ class SyncedDataMixin(models.Model):
 
         return ret
 
+    def delete(self, *args, **kwargs):
+        from core.models import AutoSyncRecord
+
+        # Delete AutoSyncRecord
+        content_type = ContentType.objects.get_for_model(self)
+        AutoSyncRecord.objects.filter(
+            datafile=self.data_file,
+            object_type=content_type,
+            object_id=self.pk
+        ).delete()
+
+        return super().delete(*args, **kwargs)
+
     def resolve_data_file(self):
         """
         Determine the designated DataFile object identified by its parent DataSource and its path. Returns None if
@@ -525,11 +538,20 @@ class SyncedDataMixin(models.Model):
         raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
 
 
+#
+# Feature registration
+#
+
 FEATURES_MAP = {
     'bookmarks': BookmarksMixin,
+    'change_logging': ChangeLoggingMixin,
+    'cloning': CloningMixin,
+    'contacts': ContactsMixin,
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
+    'custom_validation': CustomValidationMixin,
     'export_templates': ExportTemplatesMixin,
+    'image_attachments': ImageAttachmentsMixin,
     'jobs': JobsMixin,
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
@@ -544,12 +566,13 @@ registry['model_features'].update({
 
 @receiver(class_prepared)
 def _register_features(sender, **kwargs):
+    # Record each applicable feature for the model in the registry
     features = {
         feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
     }
     register_features(sender, features)
 
-    # Feature view registration
+    # Register applicable feature views for the model
     if issubclass(sender, JournalingMixin):
         register_model_view(
             sender,

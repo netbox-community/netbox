@@ -1,7 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
-from django.db.models import F
-from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404
 from django_pglocks import advisory_lock
 from drf_spectacular.utils import extend_schema
@@ -16,6 +14,7 @@ from circuits.models import Provider
 from dcim.models import Site
 from ipam import filtersets
 from ipam.models import *
+from ipam.models import L2VPN, L2VPNTermination
 from ipam.utils import get_next_available_prefix
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
@@ -24,7 +23,6 @@ from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
 from . import serializers
-from ipam.models import L2VPN, L2VPNTermination
 
 
 class IPAMRootView(APIRootView):
@@ -346,7 +344,11 @@ class AvailableASNsView(AvailableObjectsView):
     def get(self, request, pk):
         return super().get(request, pk)
 
-    @extend_schema(methods=["post"], responses={201: serializers.AvailableASNSerializer(many=True)})
+    @extend_schema(
+        methods=["post"],
+        responses={201: serializers.ASNSerializer(many=True)},
+        request=serializers.ASNSerializer(many=True),
+    )
     def post(self, request, pk):
         return super().post(request, pk)
 
@@ -395,7 +397,11 @@ class AvailablePrefixesView(AvailableObjectsView):
     def get(self, request, pk):
         return super().get(request, pk)
 
-    @extend_schema(methods=["post"], responses={201: serializers.PrefixSerializer(many=True)})
+    @extend_schema(
+        methods=["post"],
+        responses={201: serializers.PrefixSerializer(many=True)},
+        request=serializers.PrefixSerializer(many=True),
+    )
     def post(self, request, pk):
         return super().post(request, pk)
 
@@ -435,7 +441,11 @@ class AvailableIPAddressesView(AvailableObjectsView):
     def get(self, request, pk):
         return super().get(request, pk)
 
-    @extend_schema(methods=["post"], responses={201: serializers.IPAddressSerializer(many=True)})
+    @extend_schema(
+        methods=["post"],
+        responses={201: serializers.IPAddressSerializer(many=True)},
+        request=serializers.IPAddressSerializer(many=True),
+    )
     def post(self, request, pk):
         return super().post(request, pk)
 
@@ -482,6 +492,10 @@ class AvailableVLANsView(AvailableObjectsView):
     def get(self, request, pk):
         return super().get(request, pk)
 
-    @extend_schema(methods=["post"], responses={201: serializers.VLANSerializer(many=True)})
+    @extend_schema(
+        methods=["post"],
+        responses={201: serializers.VLANSerializer(many=True)},
+        request=serializers.VLANSerializer(many=True),
+    )
     def post(self, request, pk):
         return super().post(request, pk)

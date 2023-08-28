@@ -211,6 +211,7 @@ nav:
             - ConfigContext: 'models/extras/configcontext.md'
             - ConfigTemplate: 'models/extras/configtemplate.md'
             - CustomField: 'models/extras/customfield.md'
+            - CustomFieldChoiceSet: 'models/extras/customfieldchoiceset.md'
             - CustomLink: 'models/extras/customlink.md'
             - ExportTemplate: 'models/extras/exporttemplate.md'
             - ImageAttachment: 'models/extras/imageattachment.md'
@@ -270,6 +271,7 @@ nav:
         - Application Registry: 'development/application-registry.md'
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'
+        - Internationalization: 'development/internationalization.md'
         - Release Checklist: 'development/release-checklist.md'
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:

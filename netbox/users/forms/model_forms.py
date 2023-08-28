@@ -111,8 +111,10 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
 class UserTokenForm(BootstrapMixin, forms.ModelForm):
     key = forms.CharField(
         label=_('Key'),
-        required=False,
-        help_text=_("If no key is provided, one will be generated automatically.")
+        help_text=_(
+            'Keys must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
+            'submitting this form, as it may no longer be accessible once the token has been created.'
+        )
     )
     allowed_ips = SimpleArrayField(
         base_field=IPNetworkFormField(validators=[prefix_validator]),
@@ -140,13 +142,15 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
         if self.instance.pk and not settings.ALLOW_TOKEN_RETRIEVAL:
             del self.fields['key']
 
+        # Generate an initial random key if none has been specified
+        if not self.instance.pk and not self.initial.get('key'):
+            self.initial['key'] = Token.generate_key()
+
 
 class TokenForm(UserTokenForm):
     user = forms.ModelChoiceField(
-        queryset=get_user_model().objects.order_by(
-            'username'
-        ),
-        required=False
+        queryset=get_user_model().objects.order_by('username'),
+        label=_('User')
     )
 
     class Meta:

@@ -239,7 +239,7 @@ class BookmarkSerializer(ValidatedModelSerializer):
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
     object_types = ContentTypeField(
-        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
+        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
         many=True,
         required=False
     )

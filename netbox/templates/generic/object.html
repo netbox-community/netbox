@@ -60,7 +60,7 @@ Context:
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
-      {% if perms.extras.add_bookmark %}
+      {% if perms.extras.add_bookmark and object.bookmarks %}
         {% bookmark_button object %}
       {% endif %}
       {% if request.user|can_add:object %}

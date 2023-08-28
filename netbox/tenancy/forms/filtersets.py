@@ -88,7 +88,7 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     )
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        limit_choices_to=FeatureQuery('contacts'),
         required=False,
         label=_('Object type')
     )
