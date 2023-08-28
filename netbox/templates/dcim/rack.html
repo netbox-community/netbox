@@ -200,7 +200,7 @@
                 Non-Racked Devices
             </h5>
               <div class="card-body htmx-container table-responsive"
-                hx-get="{% url 'dcim:device_list' %}?rack_id={{ object.pk }}&has_position=False&parent_bay_id=null"
+                hx-get="{% url 'dcim:device_list' %}?rack_id={{ object.pk }}&position__empty=True&parent_bay_id=null"
                 hx-trigger="load"
               ></div>
 

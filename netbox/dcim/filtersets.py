@@ -909,10 +909,6 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         queryset=Rack.objects.all(),
         label=_('Rack (ID)'),
     )
-    has_position = django_filters.BooleanFilter(
-        label=_('Has a position'),
-        method='_has_position'
-    )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
         label=_('VM cluster (ID)'),
@@ -1053,9 +1049,6 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
 
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebays__isnull=value)
-
-    def _has_position(self, queryset, name, value):
-        return queryset.exclude(position__isnull=value)
 
 
 class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
