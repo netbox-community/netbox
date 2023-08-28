@@ -61,13 +61,14 @@ These lookup expressions can be applied by adding a suffix to the desired field'
 
 Numeric based fields (ASN, VLAN ID, etc) support these lookup expressions:
 
-| Filter | Description |
-|--------|-------------|
-| `n` | Not equal to |
-| `lt` | Less than |
-| `lte` | Less than or equal to |
-| `gt` | Greater than |
-| `gte` | Greater than or equal to |
+| Filter  | Description              |
+|---------|--------------------------|
+| `n`     | Not equal to             |
+| `lt`    | Less than                |
+| `lte`   | Less than or equal to    |
+| `gt`    | Greater than             |
+| `gte`   | Greater than or equal to |
+| `empty` | Is empty/null (boolean)  |
 
 Here is an example of a numeric field lookup expression that will return all VLANs with a VLAN ID greater than 900:
 
@@ -79,18 +80,18 @@ GET /api/ipam/vlans/?vid__gt=900
 
 String based (char) fields (Name, Address, etc) support these lookup expressions:
 
-| Filter | Description |
-|--------|-------------|
-| `n` | Not equal to |
-| `ic` | Contains (case-insensitive) |
-| `nic` | Does not contain (case-insensitive) |
-| `isw` | Starts with (case-insensitive) |
-| `nisw` | Does not start with (case-insensitive) |
-| `iew` | Ends with (case-insensitive) |
-| `niew` | Does not end with (case-insensitive) |
-| `ie` | Exact match (case-insensitive) |
-| `nie` | Inverse exact match (case-insensitive) |
-| `empty` | Is empty (boolean) |
+| Filter  | Description                            |
+|---------|----------------------------------------|
+| `n`     | Not equal to                           |
+| `ic`    | Contains (case-insensitive)            |
+| `nic`   | Does not contain (case-insensitive)    |
+| `isw`   | Starts with (case-insensitive)         |
+| `nisw`  | Does not start with (case-insensitive) |
+| `iew`   | Ends with (case-insensitive)           |
+| `niew`  | Does not end with (case-insensitive)   |
+| `ie`    | Exact match (case-insensitive)         |
+| `nie`   | Inverse exact match (case-insensitive) |
+| `empty` | Is empty/null (boolean)                |
 
 Here is an example of a lookup expression on a string field that will return all devices with `switch` in the name:
 
