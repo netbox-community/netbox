@@ -37,6 +37,14 @@ Configuration templates are written in the [Jinja2 templating language](https://
 
 When rendered for a specific NetBox device, the template's `device` variable will be populated with the device instance, and `ntp_servers` will be pulled from the device's available context data. The resulting output will be a valid configuration segment that can be applied directly to a compatible network device.
 
+### Context Data
+
+The objet for which the configuration is being rendered is made available as template context as `device` or `virtualmachine` for devices and virtual machines, respectively. Additionally, NetBox model classes can be accessed by the app or plugin in which they reside. For example:
+
+```
+There are {{ dcim.Site.objects.count() }} sites.
+```
+
 ## Rendering Templates
 
 ### Device Configurations
