@@ -421,12 +421,13 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Position'),
         required=False,
         help_text=_("The lowest-numbered unit occupied by the device"),
+        localize=True,
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
                 'disabled-indicator': 'device',
                 'data-dynamic-params': '[{"fieldName":"face","queryParam":"face"}]'
-            }
+            },
         )
     )
     device_type = DynamicModelChoiceField(

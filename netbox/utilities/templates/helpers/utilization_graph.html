@@ -1,3 +1,4 @@
+{% load l10n %}
 <div class="progress">
   <div
     role="progressbar"
@@ -5,7 +6,7 @@
     aria-valuemax="100"
     aria-valuenow="{{ utilization }}"
     class="progress-bar {{ bar_class }}"
-    style="width: {{ utilization }}%;"
+    style="width: {{ utilization|unlocalize }}%;"
   >
     {% if utilization >= 35 %}{{ utilization|floatformat:1 }}%{% endif %}
   </div>

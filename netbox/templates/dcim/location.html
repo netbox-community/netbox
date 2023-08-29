@@ -66,7 +66,6 @@
   </div>
 	<div class="col col-md-6">
     {% include 'inc/panels/related_objects.html' %}
-    {% include 'dcim/inc/nonracked_devices.html' %}
     {% include 'inc/panels/image_attachments.html' %}
     {% plugin_right_page object %}
 	</div>
@@ -79,6 +78,27 @@
         hx-get="{% url 'dcim:location_list' %}?parent_id={{ object.pk }}"
         hx-trigger="load"
       ></div>
+      {% if perms.dcim.add_location %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h5 class="card-header">Non-Racked Devices</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null&parent_bay_id=null"
+        hx-trigger="load"
+      ></div>
+      {% if perms.dcim.add_device %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
+          </a>
+        </div>
+      {% endif %}
     </div>
     {% plugin_full_width_page object %}
   </div>

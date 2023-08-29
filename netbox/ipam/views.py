@@ -897,21 +897,8 @@ class VLANGroupView(generic.ObjectView):
             (VLAN.objects.restrict(request.user, 'view').filter(group=instance), 'group_id'),
         )
 
-        # TODO: Replace with embedded table
-        vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
-            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user)),
-            'tenant', 'site', 'role',
-        ).order_by('vid')
-        vlans = add_available_vlans(vlans, vlan_group=instance)
-
-        vlans_table = tables.VLANTable(vlans, user=request.user, exclude=('group',))
-        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
-            vlans_table.columns.show('pk')
-        vlans_table.configure(request)
-
         return {
             'related_models': related_models,
-            'vlans_table': vlans_table,
         }
 
 
@@ -942,6 +929,30 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     queryset = VLANGroup.objects.annotate_utilization().prefetch_related('tags')
     filterset = filtersets.VLANGroupFilterSet
     table = tables.VLANGroupTable
+
+
+@register_model_view(VLANGroup, 'vlans')
+class VLANGroupVLANsView(generic.ObjectChildrenView):
+    queryset = VLANGroup.objects.all()
+    child_model = VLAN
+    table = tables.VLANTable
+    filterset = filtersets.VLANFilterSet
+    template_name = 'generic/object_children.html'
+    tab = ViewTab(
+        label=_('VLANs'),
+        badge=lambda x: x.get_child_vlans().count(),
+        permission='ipam.view_vlan',
+        weight=500
+    )
+
+    def get_children(self, request, parent):
+        return parent.get_child_vlans().restrict(request.user, 'view').prefetch_related(
+            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user)),
+            'tenant', 'site', 'role',
+        )
+
+    def prep_table_data(self, request, queryset, parent):
+        return add_available_vlans(parent.get_child_vlans(), parent)
 
 
 #

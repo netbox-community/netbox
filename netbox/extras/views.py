@@ -46,6 +46,21 @@ class CustomFieldListView(generic.ObjectListView):
 class CustomFieldView(generic.ObjectView):
     queryset = CustomField.objects.select_related('choice_set')
 
+    def get_extra_context(self, request, instance):
+        related_models = ()
+
+        for content_type in instance.content_types.all():
+            related_models += (
+                content_type.model_class().objects.restrict(request.user, 'view').exclude(
+                    Q(**{f'custom_field_data__{instance.name}': ''}) |
+                    Q(**{f'custom_field_data__{instance.name}': None})
+                ),
+            )
+
+        return {
+            'related_models': related_models
+        }
+
 
 @register_model_view(CustomField, 'edit')
 class CustomFieldEditView(generic.ObjectEditView):

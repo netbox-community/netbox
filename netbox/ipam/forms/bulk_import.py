@@ -592,9 +592,11 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
 
         if self.cleaned_data.get('device') and self.cleaned_data.get('virtual_machine'):
             raise ValidationError(_('Cannot import device and VM interface terminations simultaneously.'))
-        if not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
+        if not self.instance and not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
             raise ValidationError(_('Each termination must specify either an interface or a VLAN.'))
         if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
             raise ValidationError(_('Cannot assign both an interface and a VLAN.'))
 
-        self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')
+        # if this is an update we might not have interface or vlan in the form data
+        if self.cleaned_data.get('interface') or self.cleaned_data.get('vlan'):
+            self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')

@@ -105,6 +105,10 @@ class RestrictedGenericForeignKey(GenericForeignKey):
             # We avoid looking for values if either ct_id or fkey value is None
             ct_id = getattr(instance, ct_attname)
             if ct_id is not None:
+                # Check if the content type actually exists
+                if not self.get_content_type(id=ct_id, using=instance._state.db).model_class():
+                    continue
+
                 fk_val = getattr(instance, self.fk_field)
                 if fk_val is not None:
                     fk_dict[ct_id].add(fk_val)
@@ -129,13 +133,14 @@ class RestrictedGenericForeignKey(GenericForeignKey):
             if ct_id is None:
                 return None
             else:
-                model = self.get_content_type(
+                if model := self.get_content_type(
                     id=ct_id, using=obj._state.db
-                ).model_class()
-                return (
-                    model._meta.pk.get_prep_value(getattr(obj, self.fk_field)),
-                    model,
-                )
+                ).model_class():
+                    return (
+                        model._meta.pk.get_prep_value(getattr(obj, self.fk_field)),
+                        model,
+                    )
+                return None
 
         return (
             ret_val,

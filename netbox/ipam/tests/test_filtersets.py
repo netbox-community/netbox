@@ -10,7 +10,6 @@ from ipam.models import *
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
-from rest_framework import serializers
 
 
 class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -806,6 +805,12 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent(self):
+        params = {'parent': ['10.0.1.0/24', '10.0.2.0/24']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'parent': ['10.0.1.0/25']}  # Range 10.0.1.100-199 is not fully contained by 10.0.1.0/25
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 
 
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):

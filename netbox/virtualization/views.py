@@ -387,7 +387,6 @@ class VirtualMachineConfigContextView(ObjectConfigContextView):
     base_template = 'virtualization/virtualmachine.html'
     tab = ViewTab(
         label=_('Config Context'),
-        permission='extras.view_configcontext',
         weight=2000
     )
 

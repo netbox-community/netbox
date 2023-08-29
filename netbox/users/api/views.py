@@ -60,7 +60,13 @@ class TokenProvisionView(APIView):
     """
     permission_classes = []
 
-    # @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
+    @extend_schema(
+        request=serializers.TokenProvisionSerializer,
+        responses={
+            201: serializers.TokenSerializer,
+            401: OpenApiTypes.OBJECT,
+        }
+    )
     def post(self, request):
         serializer = serializers.TokenProvisionSerializer(data=request.data)
         serializer.is_valid()

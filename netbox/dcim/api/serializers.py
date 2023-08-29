@@ -758,6 +758,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=VirtualDeviceContextStatusChoices)
 
     # Related object counts
     interface_count = serializers.IntegerField(read_only=True)
