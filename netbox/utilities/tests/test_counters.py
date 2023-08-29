@@ -29,12 +29,16 @@ class CountersTest(TestCase):
         self.assertEqual(device1.interface_count, 2)
         self.assertEqual(device2.interface_count, 2)
 
-        Interface.objects.create(device=device1, name='Interface 5')
+        interface1 = Interface.objects.create(device=device1, name='Interface 5')
         Interface.objects.create(device=device2, name='Interface 6')
         device1.refresh_from_db()
         device2.refresh_from_db()
         self.assertEqual(device1.interface_count, 3)
         self.assertEqual(device2.interface_count, 3)
+
+        interface1.save()
+        device1.refresh_from_db()
+        self.assertEqual(device1.interface_count, 3)
 
     def test_interface_count_deletion(self):
         """
