@@ -227,3 +227,17 @@ class ImportFormatChoices(ChoiceSet):
         (JSON, 'JSON'),
         (YAML, 'YAML'),
     ]
+
+
+class CSVDelimiterChoices(ChoiceSet):
+    AUTO = 'auto'
+    COMMA = ','
+    SEMICOLON = ';'
+    TAB = '\t'
+
+    CHOICES = [
+        (AUTO, 'Auto-detect'),
+        (COMMA, 'Comma'),
+        (SEMICOLON, 'Semicolon'),
+        (TAB, 'Tab'),
+    ]

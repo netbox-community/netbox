@@ -7,7 +7,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from core.forms.mixins import SyncedDataMixin
-from utilities.choices import ImportFormatChoices
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.forms.utils import parse_csv
 from .mixins import BootstrapMixin
 from ..choices import ImportMethodChoices
@@ -30,6 +30,13 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
     format = forms.ChoiceField(
         choices=ImportFormatChoices,
         initial=ImportFormatChoices.AUTO
+    )
+    csv_delimiter = forms.ChoiceField(
+        choices=CSVDelimiterChoices,
+        initial=CSVDelimiterChoices.AUTO,
+        label="CSV Delimiter",
+        help_text=_("The character which delimits CSV fields. Applies only to CSV format."),
+        required=False
     )
 
     data_field = 'data'
@@ -91,13 +98,21 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
 
-        # Determine the CSV dialect
-        try:
-            # This uses a rough heuristic to detect the CSV dialect. If the data is malformed, we'll fall back to
-            # the default Excel dialect.
-            dialect = csv.Sniffer().sniff(data.strip(), delimiters=',; ')
-        except csv.Error:
+        if self.cleaned_data['csv_delimiter'] == CSVDelimiterChoices.AUTO:
+            # Determine the CSV dialect
+            try:
+                # This uses a rough heuristic to detect the CSV dialect. If the data is malformed, we'll fall back to
+                # the default Excel dialect.
+                dialect = csv.Sniffer().sniff(
+                    data.strip(), delimiters=''.join(
+                        [CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON, CSVDelimiterChoices.TAB]
+                    )
+                )
+            except csv.Error:
+                dialect = csv.excel
+        else:
             dialect = csv.excel
+            dialect.delimiter = self.cleaned_data['csv_delimiter']
 
         stream = StringIO(data.strip())
         reader = csv.reader(stream, dialect=dialect)
