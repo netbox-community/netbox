@@ -27,7 +27,7 @@ def update_counter(model, pk, counter_name, value):
 # Signal handlers
 #
 
-def post_save_receiver(sender, instance, **kwargs):
+def post_save_receiver(sender, instance, created, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is created or modified.
     """
@@ -39,7 +39,7 @@ def post_save_receiver(sender, instance, **kwargs):
         # Update the counters on the old and/or new parents as needed
         if old_pk is not None:
             update_counter(parent_model, old_pk, counter_name, -1)
-        if new_pk is not None:
+        if new_pk is not None and (old_pk or created):
             update_counter(parent_model, new_pk, counter_name, 1)
 
 
