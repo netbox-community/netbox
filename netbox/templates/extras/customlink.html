@@ -1,43 +1,44 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block content %}
 <div class="row mb-3">
 	<div class="col col-md-5">
     <div class="card">
-      <h5 class="card-header">Custom Link</h5>
+      <h5 class="card-header">{% trans "Custom Link" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Enabled</th>
+            <th scope="row">{% trans "Enabled" %}</th>
             <td>{% checkmark object.enabled %}</td>
           </tr>
           <tr>
-            <th scope="row">Group Name</th>
+            <th scope="row">{% trans "Group Name" %}</th>
             <td>{{ object.group_name|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Weight</th>
+            <th scope="row">{% trans "Weight" %}</th>
             <td>{{ object.weight }}</td>
           </tr>
           <tr>
-            <th scope="row">Button Class</th>
+            <th scope="row">{% trans "Button Class" %}</th>
             <td>{{ object.get_button_class_display }}</td>
           </tr>
           <tr>
-            <th scope="row">New Window</th>
+            <th scope="row">{% trans "New Window" %}</th>
             <td>{% checkmark object.new_window %}</td>
           </tr>
         </table>
       </div>
     </div>
     <div class="card">
-      <h5 class="card-header">Assigned Models</h5>
+      <h5 class="card-header">{% trans "Assigned Models" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           {% for ct in object.content_types.all %}
@@ -53,7 +54,7 @@
 	<div class="col col-md-7">
     <div class="card">
       <h5 class="card-header">
-        Link Text
+        {% trans "Link Text" %}
       </h5>
       <div class="card-body">
         <pre>{{ object.link_text }}</pre>
@@ -61,7 +62,7 @@
     </div>
     <div class="card">
       <h5 class="card-header">
-        Link URL
+        {% trans "Link URL" %}
       </h5>
       <div class="card-body">
         <pre>{{ object.link_url }}</pre>

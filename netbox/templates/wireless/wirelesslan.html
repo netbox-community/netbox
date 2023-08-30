@@ -2,36 +2,37 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block content %}
 <div class="row">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">Wireless LAN</h5>
+      <h5 class="card-header">{% trans "Wireless LAN" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">SSID</th>
+            <th scope="row">{% trans "SSID" %}</th>
             <td>{{ object.ssid }}</td>
           </tr>
           <tr>
-            <td>Group</td>
+            <td>{% trans "Group" %}</td>
             <td>{{ object.group|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <td>Status</td>
+            <td>{% trans "Status" %}</td>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">VLAN</th>
+            <th scope="row">{% trans "VLAN" %}</th>
             <td>{{ object.vlan|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Tenant</th>
+            <th scope="row">{% trans "Tenant" %}</th>
             <td>
               {% if object.tenant.group %}
                 {{ object.tenant.group|linkify }} /
@@ -55,7 +56,7 @@
 <div class="row">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Attached Interfaces</h5>
+      <h5 class="card-header">{% trans "Attached Interfaces" %}</h5>
       <div class="card-body table-responsive">
         {% render_table interfaces_table 'inc/table.html' %}
         {% include 'inc/paginator.html' with paginator=interfaces_table.paginator page=interfaces_table.page %}

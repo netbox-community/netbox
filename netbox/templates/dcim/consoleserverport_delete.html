@@ -1,8 +1,0 @@
-{% extends 'generic/confirmation_form.html' %}
-{% load form_helpers %}
-
-{% block title %}Delete console server port {{ consoleserverport }}?{% endblock %}
-
-{% block message %}
-    <p>Are you sure you want to delete this console server port from <strong>{{ consoleserverport.device }}</strong>?</p>
-{% endblock %}

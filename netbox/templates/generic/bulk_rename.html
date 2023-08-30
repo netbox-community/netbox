@@ -1,8 +1,11 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
-{% block title %}Renaming {{ selected_objects|length }} {{ obj_type_plural|bettertitle }}{% endblock %}
+{% block title %}
+  {% trans "Renaming" %} {{ selected_objects|length }} {{ obj_type_plural|bettertitle }}
+{% endblock %}
 
 {% block content %}
 <div class="row mb-3">
@@ -10,8 +13,8 @@
         <table class="table">
             <thead>
                 <tr>
-                    <th>Current Name</th>
-                    <th>New Name</th>
+                    <th>{% trans "Current Name" %}</th>
+                    <th>{% trans "New Name" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -28,17 +31,17 @@
         <form action="" method="post" class="form form-horizontal">
             {% csrf_token %}
             <div class="card">
-                <h5 class="card-header">Rename</h5>
+                <h5 class="card-header">{% trans "Rename" %}</h5>
                 <div class="card-body">
                     {% render_form form %}
                 </div>
             </div>
             <div class="col col-md-12 my-3 text-end">
-                <button type="submit" name="_preview" class="btn btn-primary">Preview</button>
+                <button type="submit" name="_preview" class="btn btn-primary">{% trans "Preview" %}</button>
                 {% if '_preview' in request.POST and not form.errors %}
-                    <button type="submit" name="_apply" class="btn btn-primary">Apply</button>
+                    <button type="submit" name="_apply" class="btn btn-primary">{% trans "Apply" %}</button>
                 {% endif %}
-                <a href="{{ return_url }}" class="btn btn-outline-danger">Cancel</a>
+                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
             </div>
         </form>
     </div>

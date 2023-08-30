@@ -4,6 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
@@ -22,10 +23,12 @@ class Branch(ChangeLoggedModel):
     A collection of related StagedChanges.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -38,6 +41,8 @@ class Branch(ChangeLoggedModel):
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('branch')
+        verbose_name_plural = _('branches')
 
     def __str__(self):
         return f'{self.name} ({self.pk})'
@@ -61,6 +66,7 @@ class StagedChange(ChangeLoggedModel):
         related_name='staged_changes'
     )
     action = models.CharField(
+        verbose_name=_('action'),
         max_length=20,
         choices=ChangeActionChoices
     )
@@ -78,12 +84,15 @@ class StagedChange(ChangeLoggedModel):
         fk_field='object_id'
     )
     data = models.JSONField(
+        verbose_name=_('data'),
         blank=True,
         null=True
     )
 
     class Meta:
         ordering = ('pk',)
+        verbose_name = _('staged change')
+        verbose_name_plural = _('staged changes')
 
     def __str__(self):
         action = self.get_action_display()
@@ -112,6 +121,7 @@ class StagedChange(ChangeLoggedModel):
             instance = self.model.objects.get(pk=self.object_id)
             logger.info(f'Deleting {self.model._meta.verbose_name} {instance}')
             instance.delete()
+    apply.alters_data = True
 
     def get_action_color(self):
         return ChangeActionChoices.colors.get(self.action)

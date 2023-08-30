@@ -2,15 +2,16 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:devicerole_list' %}">Device Roles</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:devicerole_list' %}">{% trans "Device Roles" %}</a></li>
 {% endblock %}
 
 {% block extra_controls %}
   {% if perms.dcim.add_device %}
-    <a href="{% url 'dcim:device_add' %}?device_role={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Device
+    <a href="{% url 'dcim:device_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Device" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -20,30 +21,30 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Device Role
+        {% trans "Device Role" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Color</th>
+            <th scope="row">{% trans "Color" %}</th>
             <td>
               <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
             </td>
           </tr>
           <tr>
-            <th scope="row">VM Role</th>
+            <th scope="row">{% trans "VM Role" %}</th>
             <td>{% checkmark object.vm_role %}</td>
           </tr>
           <tr>
-            <th scope="row">Config Template</th>
+            <th scope="row">{% trans "Config Template" %}</th>
             <td>{{ object.config_template|linkify|placeholder }}</td>
           </tr>
         </table>

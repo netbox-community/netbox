@@ -18,11 +18,10 @@ def get_permission_for_model(model, action):
     :param model: A model or instance
     :param action: View, add, change, or delete (string)
     """
-    return '{}.{}_{}'.format(
-        model._meta.app_label,
-        action,
-        model._meta.model_name
-    )
+    # Resolve to the "concrete" model (for proxy models)
+    model = model._meta.concrete_model
+
+    return f'{model._meta.app_label}.{action}_{model._meta.model_name}'
 
 
 def resolve_permission(name):

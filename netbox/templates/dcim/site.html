@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load tz %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -22,11 +23,11 @@
 <div class="row">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">Site</h5>
+      <h5 class="card-header">{% trans "Site" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Region</th>
+            <th scope="row">{% trans "Region" %}</th>
             <td>
               {% if object.region %}
                 {% for region in object.region.get_ancestors %}
@@ -39,7 +40,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Group</th>
+            <th scope="row">{% trans "Group" %}</th>
             <td>
               {% if object.group %}
                 {% for group in object.group.get_ancestors %}
@@ -52,11 +53,11 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Status</th>
+            <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
-            <th scope="row">Tenant</th>
+            <th scope="row">{% trans "Tenant" %}</th>
             <td>
               {% if object.tenant.group %}
                 {{ object.tenant.group|linkify }} /
@@ -65,32 +66,32 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Facility</th>
+            <th scope="row">{% trans "Facility" %}</th>
             <td>{{ object.facility|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Time Zone</th>
+            <th scope="row">{% trans "Time Zone" %}</th>
             <td>
               {% if object.time_zone %}
-                {{ object.time_zone }} (UTC {{ object.time_zone|tzoffset }})<br />
-                <small class="text-muted">Site time: {% timezone object.time_zone %}{% annotated_now %}{% endtimezone %}</small>
+                {{ object.time_zone }} ({% trans "UTC" %} {{ object.time_zone|tzoffset }})<br />
+                <small class="text-muted">{% trans "Site time" %}: {% timezone object.time_zone %}{% annotated_now %}{% endtimezone %}</small>
               {% else %}
                 {{ ''|placeholder }}
               {% endif %}
             </td>
           </tr>
           <tr>
-            <th scope="row">Physical Address</th>
+            <th scope="row">{% trans "Physical Address" %}</th>
             <td class="position-relative">
               {% if object.physical_address %}
                 {% if config.MAPS_URL %}
                   <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                     <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
-                      <i class="mdi mdi-map-marker"></i> Map
+                      <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
                     </a>
                   </div>
                 {% endif %}
@@ -101,17 +102,17 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Shipping Address</th>
+            <th scope="row">{% trans "Shipping Address" %}</th>
             <td>{{ object.shipping_address|linebreaksbr|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">GPS Coordinates</th>
+            <th scope="row">{% trans "GPS Coordinates" %}</th>
             <td class="position-relative">
               {% if object.latitude and object.longitude %}
                 {% if config.MAPS_URL %}
                   <div class="position-absolute top-50 end-0 translate-middle-y noprint">
                     <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
-                      <i class="mdi mdi-map-marker"></i> Map It
+                      <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
                     </a>
                   </div>
                   {% endif %}
@@ -146,7 +147,7 @@
       {% if perms.dcim.add_location %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'dcim:location_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add a Location
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
           </a>
         </div>
       {% endif %}
@@ -160,7 +161,7 @@
       {% if perms.dcim.add_device %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'dcim:device_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add a Device
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
           </a>
         </div>
       {% endif %}

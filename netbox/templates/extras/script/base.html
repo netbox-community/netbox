@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load form_helpers %}
 {% load log_levels %}
+{% load i18n %}
 
 {% block title %}{{ script }}{% endblock %}
 
@@ -10,7 +11,7 @@
 {% endblock object_identifier %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">Scripts</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module{{ module.pk }}">{{ module|bettertitle }}</a></li>
 {% endblock breadcrumbs %}
 
@@ -25,14 +26,14 @@
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:script' module=script.module name=script.class_name %}">Script</a>
+      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:script' module=script.module name=script.class_name %}">{% trans "Script" %}</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:script_source' module=script.module name=script.class_name %}">Source</a>
+      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:script_source' module=script.module name=script.class_name %}">{% trans "Source" %}</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:script_jobs' module=script.module name=script.class_name %}">
-        Jobs {% badge module.jobs.count %}
+        {% trans "Jobs" %} {% badge module.jobs.count %}
       </a>
     </li>
   </ul>

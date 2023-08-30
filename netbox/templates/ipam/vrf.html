@@ -2,24 +2,25 @@
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
-{% block title %}VRF {{ object }}{% endblock %}
+{% block title %}{% trans "VRF" %} {{ object }}{% endblock %}
 
 {% block content %}
 <div class="row">
 	<div class="col col-md-6">
       <div class="card">
           <h5 class="card-header">
-              VRF
+              {% trans "VRF" %}
           </h5>
           <div class="card-body">
               <table class="table table-hover attr-table">
                   <tr>
-                      <th scope="row">Route Distinguisher</th>
+                      <th scope="row">{% trans "Route Distinguisher" %}</th>
                       <td>{{ object.rd|placeholder }}</td>
                   </tr>
                   <tr>
-                      <th scope="row">Tenant</th>
+                      <th scope="row">{% trans "Tenant" %}</th>
                       <td>
                           {% if object.tenant.group %}
                               {{ object.tenant.group|linkify }} /
@@ -28,11 +29,11 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">Unique IP Space</th>
+                      <th scope="row">{% trans "Unique IP Space" %}</th>
                       <td>{% checkmark object.enforce_unique %}</td>
                   </tr>
                   <tr>
-                      <th scope="row">Description</th>
+                      <th scope="row">{% trans "Description" %}</th>
                       <td>{{ object.description|placeholder }}</td>
                   </tr>
               </table>

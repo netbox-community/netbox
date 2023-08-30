@@ -2,22 +2,23 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% if perms.dcim.add_devicetype or perms.dcim.add_moduletype %}
     <div class="dropdown">
       <button id="add-components" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add
+        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add" %}
       </button>
       <ul class="dropdown-menu" aria-labeled-by="add-components">
         {% if perms.dcim.add_devicetype %}
           <li><a class="dropdown-item" href="{% url 'dcim:devicetype_add' %}?manufacturer={{ object.pk }}">
-            Add Device Type
+            {% trans "Add Device Type" %}
           </a></li>
         {% endif %}
         {% if perms.dcim.add_moduletype %}
           <li><a class="dropdown-item" href="{% url 'dcim:moduletype_add' %}?manufacturer={{ object.pk }}">
-            Add Module Type
+            {% trans "Add Module Type" %}
           </a></li>
         {% endif %}
       </ul>
@@ -30,16 +31,16 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Manufacturer
+        {% trans "Manufacturer" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
         </table>

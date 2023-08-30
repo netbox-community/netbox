@@ -1,6 +1,8 @@
 from django import forms
 
 __all__ = (
+    'ArrayWidget',
+    'ChoicesWidget',
     'ClearableFileInput',
     'MarkdownWidget',
     'NumberWithOptions',
@@ -43,3 +45,25 @@ class SlugWidget(forms.TextInput):
     Subclass TextInput and add a slug regeneration button next to the form field.
     """
     template_name = 'widgets/sluginput.html'
+
+
+class ArrayWidget(forms.Textarea):
+    """
+    Render each item of an array on a new line within a textarea for easy editing/
+    """
+    def format_value(self, value):
+        if value is None or not len(value):
+            return None
+        return '\n'.join(value)
+
+
+class ChoicesWidget(forms.Textarea):
+    """
+    Render each key-value pair of a dictionary on a new line within a textarea for easy editing.
+    """
+    def format_value(self, value):
+        if not value:
+            return None
+        if type(value) is list:
+            return '\n'.join([f'{k},{v}' for k, v in value])
+        return value

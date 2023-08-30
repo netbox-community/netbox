@@ -1,5 +1,6 @@
 import graphene
 
+from extras.graphql.mixins import TagsMixin
 from tenancy import filtersets, models
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 
@@ -68,7 +69,7 @@ class ContactGroupType(OrganizationalObjectType):
         filterset_class = filtersets.ContactGroupFilterSet
 
 
-class ContactAssignmentType(BaseObjectType):
+class ContactAssignmentType(TagsMixin, BaseObjectType):
 
     class Meta:
         model = models.ContactAssignment

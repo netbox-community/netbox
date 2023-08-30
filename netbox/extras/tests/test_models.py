@@ -1,8 +1,10 @@
+from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, Tag
 from tenancy.models import Tenant, TenantGroup
+from utilities.exceptions import AbortRequest
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine
 
 
@@ -13,6 +15,22 @@ class TagTest(TestCase):
         tag.save()
 
         self.assertEqual(tag.slug, 'testing-unicode-台灣')
+
+    def test_object_type_validation(self):
+        region = Region.objects.create(name='Region 1', slug='region-1')
+        sitegroup = SiteGroup.objects.create(name='Site Group 1', slug='site-group-1')
+
+        # Create a Tag that can only be applied to Regions
+        tag = Tag.objects.create(name='Tag 1', slug='tag-1')
+        tag.object_types.add(ContentType.objects.get_by_natural_key('dcim', 'region'))
+
+        # Apply the Tag to a Region
+        region.tags.add(tag)
+        self.assertIn(tag, region.tags.all())
+
+        # Apply the Tag to a SiteGroup
+        with self.assertRaises(AbortRequest):
+            sitegroup.tags.add(tag)
 
 
 class ConfigContextTest(TestCase):
@@ -26,7 +44,7 @@ class ConfigContextTest(TestCase):
 
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         region = Region.objects.create(name='Region')
         sitegroup = SiteGroup.objects.create(name='Site Group')
         site = Site.objects.create(name='Site 1', slug='site-1', region=region, group=sitegroup)
@@ -40,7 +58,7 @@ class ConfigContextTest(TestCase):
         Device.objects.create(
             name='Device 1',
             device_type=devicetype,
-            device_role=devicerole,
+            role=role,
             site=site,
             location=location
         )
@@ -234,7 +252,7 @@ class ConfigContextTest(TestCase):
             location=location,
             tenant=tenant,
             platform=platform,
-            device_role=DeviceRole.objects.first(),
+            role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first()
         )
         device.tags.add(tag)
@@ -364,7 +382,7 @@ class ConfigContextTest(TestCase):
             site=site,
             tenant=tenant,
             platform=platform,
-            device_role=DeviceRole.objects.first(),
+            role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first()
         )
         device.tags.set(tags)
@@ -412,7 +430,7 @@ class ConfigContextTest(TestCase):
             site=site,
             tenant=tenant,
             platform=platform,
-            device_role=DeviceRole.objects.first(),
+            role=DeviceRole.objects.first(),
             device_type=DeviceType.objects.first()
         )
         device.tags.set([tag1, tag2])

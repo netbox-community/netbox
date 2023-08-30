@@ -180,11 +180,11 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        deviceroles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
         )
-        DeviceRole.objects.bulk_create(deviceroles)
+        DeviceRole.objects.bulk_create(roles)
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),
@@ -212,9 +212,9 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         virtual_machines = (
-            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
-            VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
-            VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], device=devices[0], role=deviceroles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=devices[0], role=roles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 2', site=sites[0], cluster=clusters[0], device=devices[0], role=roles[0], platform=platforms[0]),
+            VirtualMachine(name='Virtual Machine 3', site=sites[0], cluster=clusters[0], device=devices[0], role=roles[0], platform=platforms[0]),
         )
         VirtualMachine.objects.bulk_create(virtual_machines)
 
@@ -228,7 +228,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'platform': platforms[1].pk,
             'name': 'Virtual Machine X',
             'status': VirtualMachineStatusChoices.STATUS_STAGED,
-            'role': deviceroles[1].pk,
+            'role': roles[1].pk,
             'primary_ip4': None,
             'primary_ip6': None,
             'vcpus': 4,
@@ -260,7 +260,7 @@ class VirtualMachineTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'tenant': None,
             'platform': platforms[1].pk,
             'status': VirtualMachineStatusChoices.STATUS_STAGED,
-            'role': deviceroles[1].pk,
+            'role': roles[1].pk,
             'vcpus': 8,
             'memory': 65535,
             'disk': 8000,
@@ -289,12 +289,12 @@ class VMInterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
     def setUpTestData(cls):
 
         site = Site.objects.create(name='Site 1', slug='site-1')
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         cluster = Cluster.objects.create(name='Cluster 1', type=clustertype, site=site)
         virtualmachines = (
-            VirtualMachine(name='Virtual Machine 1', site=site, cluster=cluster, role=devicerole),
-            VirtualMachine(name='Virtual Machine 2', site=site, cluster=cluster, role=devicerole),
+            VirtualMachine(name='Virtual Machine 1', site=site, cluster=cluster, role=role),
+            VirtualMachine(name='Virtual Machine 2', site=site, cluster=cluster, role=role),
         )
         VirtualMachine.objects.bulk_create(virtualmachines)
 

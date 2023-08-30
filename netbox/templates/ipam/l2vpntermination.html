@@ -1,21 +1,22 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
+{% load i18n %}
 
 {% block content %}
 <div class="row">
 	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
-                L2VPN Attributes
+                {% trans "L2VPN Attributes" %}
             </h5>
             <div class="card-body">
                 <table class="table table-hover">
                     <tr>
-                        <th scope="row">L2VPN</th>
+                        <th scope="row">{% trans "L2VPN" %}</th>
                         <td>{{ object.l2vpn|linkify }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Assigned Object</th>
+                        <th scope="row">{% trans "Assigned Object" %}</th>
                         <td>{{ object.assigned_object|linkify }}</td>
                     </tr>
                 </table>

@@ -9,7 +9,7 @@ from django.db import models
 from django.db.models.signals import class_prepared
 from django.dispatch import receiver
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
@@ -22,12 +22,15 @@ from utilities.utils import serialize_object
 from utilities.views import register_model_view
 
 __all__ = (
+    'BookmarksMixin',
     'ChangeLoggingMixin',
     'CloningMixin',
+    'ContactsMixin',
     'CustomFieldsMixin',
     'CustomLinksMixin',
     'CustomValidationMixin',
     'ExportTemplatesMixin',
+    'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
     'SyncedDataMixin',
@@ -45,11 +48,13 @@ class ChangeLoggingMixin(models.Model):
     Provides change logging support for a model. Adds the `created` and `last_updated` fields.
     """
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True,
         blank=True,
         null=True
     )
     last_updated = models.DateTimeField(
+        verbose_name=_('last updated'),
         auto_now=True,
         blank=True,
         null=True
@@ -71,6 +76,7 @@ class ChangeLoggingMixin(models.Model):
         `_prechange_snapshot` on the instance.
         """
         self._prechange_snapshot = self.serialize_object()
+    snapshot.alters_data = True
 
     def to_objectchange(self, action):
         """
@@ -244,6 +250,7 @@ class CustomFieldsMixin(models.Model):
         """
         for cf in self.custom_fields:
             self.custom_field_data[cf.name] = cf.default
+    populate_custom_field_defaults.alters_data = True
 
     def clean(self):
         super().clean()
@@ -298,6 +305,44 @@ class ExportTemplatesMixin(models.Model):
     """
     Enables support for export templates.
     """
+    class Meta:
+        abstract = True
+
+
+class ImageAttachmentsMixin(models.Model):
+    """
+    Enables the assignments of ImageAttachments.
+    """
+    images = GenericRelation(
+        to='extras.ImageAttachment'
+    )
+
+    class Meta:
+        abstract = True
+
+
+class ContactsMixin(models.Model):
+    """
+    Enables the assignments of Contacts (via ContactAssignment).
+    """
+    contacts = GenericRelation(
+        to='tenancy.ContactAssignment'
+    )
+
+    class Meta:
+        abstract = True
+
+
+class BookmarksMixin(models.Model):
+    """
+    Enables support for user bookmarks.
+    """
+    bookmarks = GenericRelation(
+        to='extras.Bookmark',
+        content_type_field='object_type',
+        object_id_field='object_id'
+    )
+
     class Meta:
         abstract = True
 
@@ -384,16 +429,19 @@ class SyncedDataMixin(models.Model):
         related_name='+'
     )
     data_path = models.CharField(
+        verbose_name=_('data path'),
         max_length=1000,
         blank=True,
         editable=False,
         help_text=_("Path to remote file (relative to data source root)")
     )
     auto_sync_enabled = models.BooleanField(
+        verbose_name=_('auto sync enabled'),
         default=False,
         help_text=_("Enable automatic synchronization of data when the data file is updated")
     )
     data_synced = models.DateTimeField(
+        verbose_name=_('date synced'),
         blank=True,
         null=True,
         editable=False
@@ -419,6 +467,7 @@ class SyncedDataMixin(models.Model):
             self.data_synced = None
 
         super().clean()
+    clean.alters_data = True
 
     def save(self, *args, **kwargs):
         from core.models import AutoSyncRecord
@@ -479,6 +528,7 @@ class SyncedDataMixin(models.Model):
         self.data_synced = timezone.now()
         if save:
             self.save()
+    sync.alters_data = True
 
     def sync_data(self):
         """
@@ -488,10 +538,20 @@ class SyncedDataMixin(models.Model):
         raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
 
 
+#
+# Feature registration
+#
+
 FEATURES_MAP = {
+    'bookmarks': BookmarksMixin,
+    'change_logging': ChangeLoggingMixin,
+    'cloning': CloningMixin,
+    'contacts': ContactsMixin,
     'custom_fields': CustomFieldsMixin,
     'custom_links': CustomLinksMixin,
+    'custom_validation': CustomValidationMixin,
     'export_templates': ExportTemplatesMixin,
+    'image_attachments': ImageAttachmentsMixin,
     'jobs': JobsMixin,
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
@@ -506,12 +566,13 @@ registry['model_features'].update({
 
 @receiver(class_prepared)
 def _register_features(sender, **kwargs):
+    # Record each applicable feature for the model in the registry
     features = {
         feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
     }
     register_features(sender, features)
 
-    # Feature view registration
+    # Register applicable feature views for the model
     if issubclass(sender, JournalingMixin):
         register_model_view(
             sender,

@@ -102,7 +102,6 @@ PARAMS = (
         description=_("Default voltage for powerfeeds"),
         field=forms.IntegerField
     ),
-
     ConfigParam(
         name='POWERFEED_DEFAULT_AMPERAGE',
         label=_('Powerfeed amperage'),
@@ -110,7 +109,6 @@ PARAMS = (
         description=_("Default amperage for powerfeeds"),
         field=forms.IntegerField
     ),
-
     ConfigParam(
         name='POWERFEED_DEFAULT_MAX_UTILIZATION',
         label=_('Powerfeed max utilization'),

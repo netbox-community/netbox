@@ -1,4 +1,5 @@
 {% load helpers %}
+{% load i18n %}
 
 <div class="row">
   <div class="col col-md-6 mb-0">
@@ -34,7 +35,7 @@
     {% if page %}
       <div class="dropdown dropup">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-          Per Page
+          {% trans "Per Page" %}
         </button>
         <ul class="dropdown-menu">
           {% for n in page.paginator.get_page_lengths %}
@@ -45,7 +46,9 @@
         </ul>
       </div>
       <small class="text-end text-muted">
-        Showing {{ page.start_index }}-{{ page.end_index }} of {{ page.paginator.count }}
+        {% blocktrans with start=page.start_index end=page.end_index total=page.paginator.count %}
+          Showing {{ start }}-{{ end }} of {{ total }}
+        {% endblocktrans %}
       </small>
     {% endif %}
   </div>

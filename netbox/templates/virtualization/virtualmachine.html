@@ -3,38 +3,39 @@
 {% load static %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block content %}
 <div class="row my-3">
 	<div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
-                Virtual Machine
+                {% trans "Virtual Machine" %}
             </h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">Name</th>
+                        <th scope="row">{% trans "Name" %}</th>
                         <td>{{ object }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Status</th>
+                        <th scope="row">{% trans "Status" %}</th>
                         <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Role</th>
+                        <th scope="row">{% trans "Role" %}</th>
                         <td>{{ object.role|linkify|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Platform</th>
+                        <th scope="row">{% trans "Platform" %}</th>
                         <td>{{ object.platform|linkify|placeholder }}</td>
                     </tr>
                     <tr>
-                      <th scope="row">Description</th>
+                      <th scope="row">{% trans "Description" %}</th>
                       <td>{{ object.description|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Tenant</th>
+                        <th scope="row">{% trans "Tenant" %}</th>
                         <td>
                             {% if object.tenant.group %}
                                 {{ object.tenant.group|linkify }} /
@@ -43,14 +44,18 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Primary IPv4</th>
+                        <th scope="row">{% trans "Config Template" %}</th>
+                        <td>{{ object.config_template|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Primary IPv4" %}</th>
                         <td>
                           {% if object.primary_ip4 %}
                             <a href="{% url 'ipam:ipaddress' pk=object.primary_ip4.pk %}" id="primary_ip4">{{ object.primary_ip4.address.ip }}</a>
                             {% if object.primary_ip4.nat_inside %}
-                              (NAT for <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
+                              ({% trans "NAT for" %} <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
                             {% elif object.primary_ip4.nat_outside.exists %}
-                              (NAT: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                              ({% trans "NAT" %}: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                             {% copy_content "primary_ip4" %}
                           {% else %}
@@ -59,14 +64,14 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Primary IPv6</th>
+                        <th scope="row">{% trans "Primary IPv6" %}</th>
                         <td>
                           {% if object.primary_ip6 %}
                             <a href="{% url 'ipam:ipaddress' pk=object.primary_ip6.pk %}" id="primary_ip6">{{ object.primary_ip6.address.ip }}</a>
                             {% if object.primary_ip6.nat_inside %}
-                              (NAT for <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
+                              ({% trans "NAT for" %} <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
                             {% elif object.primary_ip6.nat_outside.exists %}
-                              (NAT: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                              ({% trans "NAT" %}: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
                             {% endif %}
                             {% copy_content "primary_ip6" %}
                           {% else %}
@@ -84,17 +89,17 @@
     </div>
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">Cluster</h5>
+            <h5 class="card-header">{% trans "Cluster" %}</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">Site</th>
+                        <th scope="row">{% trans "Site" %}</th>
                         <td>
                             {{ object.site|linkify|placeholder }}
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Cluster</th>
+                        <th scope="row">{% trans "Cluster" %}</th>
                         <td>
                             {% if object.cluster.group %}
                                 {{ object.cluster.group|linkify }} /
@@ -103,11 +108,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Cluster Type</th>
+                        <th scope="row">{% trans "Cluster Type" %}</th>
                         <td>{{ object.cluster.type }}</td>
                     </tr>
                     <tr>
-                        <th scope="row">Device</th>
+                        <th scope="row">{% trans "Device" %}</th>
                         <td>
                             {{ object.device|linkify|placeholder }}
                         </td>
@@ -116,15 +121,15 @@
             </div>
         </div>
         <div class="card">
-            <h5 class="card-header">Resources</h5>
+            <h5 class="card-header">{% trans "Resources" %}</h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row"><i class="mdi mdi-gauge"></i> Virtual CPUs</th>
+                        <th scope="row"><i class="mdi mdi-gauge"></i> {% trans "Virtual CPUs" %}</th>
                         <td>{{ object.vcpus|placeholder }}</td>
                     </tr>
                     <tr>
-                        <th scope="row"><i class="mdi mdi-chip"></i> Memory</th>
+                        <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
                         <td>
                             {% if object.memory %}
                                 {{ object.memory|humanize_megabytes }}
@@ -134,10 +139,10 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><i class="mdi mdi-harddisk"></i> Disk Space</th>
+                        <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}</th>
                         <td>
                             {% if object.disk %}
-                                {{ object.disk }} GB
+                                {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}
@@ -147,7 +152,7 @@
             </div>
         </div>
         <div class="card">
-          <h5 class="card-header">Services</h5>
+          <h5 class="card-header">{% trans "Services" %}</h5>
           <div class="card-body htmx-container table-responsive"
             hx-get="{% url 'ipam:service_list' %}?virtual_machine_id={{ object.pk }}"
             hx-trigger="load"
@@ -155,7 +160,7 @@
           {% if perms.ipam.add_service %}
             <div class="card-footer text-end noprint">
               <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-sm btn-primary">
-                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add a service
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
               </a>
             </div>
           {% endif %}

@@ -1,8 +1,9 @@
 {% extends 'base/layout.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load i18n %}
 
-{% block title %}Scripts{% endblock %}
+{% block title %}{% trans "Scripts" %}{% endblock %}
 
 {% block controls %}
   <div class="controls">
@@ -16,7 +17,7 @@
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
-      <a class="nav-link active" role="tab">Scripts</a>
+      <a class="nav-link active" role="tab">{% trans "Scripts" %}</a>
     </li>
   </ul>
 {% endblock tabs %}
@@ -29,7 +30,7 @@
           {% if perms.extras.delete_scriptmodule %}
             <div class="float-end">
               <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
               </a>
             </div>
           {% endif %}
@@ -39,16 +40,19 @@
           {% include 'inc/sync_warning.html' with object=module %}
           {% if not module.scripts %}
             <div class="alert alert-warning d-flex align-items-center" role="alert">
-              <i class="mdi mdi-alert"></i>&nbsp; Script file at: {{module.full_path}} could not be loaded.
+              <i class="mdi mdi-alert"></i>
+              {% blocktrans with file_path=module.full_path %}
+                Script file at <code>{{ file_path }}</code> could not be loaded.
+              {% endblocktrans %}
             </div>
           {% else %}
             <table class="table table-hover table-headings reports">
               <thead>
                 <tr>
-                  <th width="250">Name</th>
-                  <th>Description</th>
-                  <th>Last Run</th>
-                  <th class="text-end">Status</th>
+                  <th width="250">{% trans "Name" %}</th>
+                  <th>{% trans "Description" %}</th>
+                  <th>{% trans "Last Run" %}</th>
+                  <th class="text-end">{% trans "Status" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -70,7 +74,7 @@
                             {% badge last_result.get_status_display last_result.get_status_color %}
                           </td>
                         {% else %}
-                          <td class="text-muted">Never</td>
+                          <td class="text-muted">{% trans "Never" %}</td>
                           <td class="text-end">{{ ''|placeholder }}</td>
                         {% endif %}
                       {% endwith %}
@@ -84,9 +88,12 @@
       </div>
     {% empty %}
       <div class="alert alert-info">
-        <h4 class="alert-heading">No Scripts Found</h4>
+        <h4 class="alert-heading">{% trans "No Scripts Found" %}</h4>
         {% if perms.extras.add_scriptmodule %}
-          Get started by <a href="{% url 'extras:scriptmodule_add' %}">creating a script</a> from an uploaded file or data source.
+          {% url 'extras:scriptmodule_add' as create_script_url %}
+          {% blocktrans %}
+            Get started by <a href="{{ create_script_url }}">creating a script</a> from an uploaded file or data source.
+          {% endblocktrans %}
         {% endif %}
       </div>
     {% endfor %}

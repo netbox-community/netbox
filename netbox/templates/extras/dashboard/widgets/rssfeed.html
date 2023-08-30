@@ -1,3 +1,4 @@
+{% load i18n %}
 {% if feed and not feed.bozo %}
   <div class="list-group list-group-flush">
     {% for entry in feed.entries %}
@@ -8,16 +9,16 @@
         </div>
       </div>
     {% empty %}
-      <div class="list-group-item text-muted">No content found</div>
+      <div class="list-group-item text-muted">{% trans "No content found" %}</div>
     {% endfor %}
   </div>
 {% else %}
   {# There was an error retrieving/parsing the feed #}
   <span class="text-danger">
-    <i class="mdi mdi-alert"></i> There was a problem fetching the RSS feed:
+    <i class="mdi mdi-alert"></i> {% trans "There was a problem fetching the RSS feed" %}:
   </span>
   {% if feed %}
-    {{ feed.bozo_exception|escape }} (HTTP {{ feed.status }})
+    {{ feed.bozo_exception|escape }} ({% trans "HTTP" %} {{ feed.status }})
   {% else %}
     {{ error }}
   {% endif %}

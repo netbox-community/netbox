@@ -2,11 +2,11 @@ import inspect
 import json
 
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
-from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion
+from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion, String as GQLString, NonNull as GQLNonNull
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -24,6 +24,9 @@ __all__ = (
     'APITestCase',
     'APIViewTestCases',
 )
+
+
+User = get_user_model()
 
 
 #
@@ -80,7 +83,6 @@ class APIViewTestCases:
                 response = self.client.get(url, **self.header)
                 self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object_without_permission(self):
             """
             GET a single object as an authenticated user without the required permission.
@@ -91,7 +93,6 @@ class APIViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_get_object(self):
             """
             GET a single object as an authenticated user with permission to view the object.
@@ -145,7 +146,6 @@ class APIViewTestCases:
                 self.assertHttpStatus(response, status.HTTP_200_OK)
                 self.assertEqual(len(response.data['results']), self._get_queryset().count())
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_brief(self):
             """
             GET a list of objects using the "brief" parameter.
@@ -157,7 +157,6 @@ class APIViewTestCases:
             self.assertEqual(len(response.data['results']), self._get_queryset().count())
             self.assertEqual(sorted(response.data['results'][0]), self.brief_fields)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects_without_permission(self):
             """
             GET a list of objects as an authenticated user without the required permission.
@@ -168,7 +167,6 @@ class APIViewTestCases:
             with disable_warnings('django.request'):
                 self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_403_FORBIDDEN)
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=[])
         def test_list_objects(self):
             """
             GET a list of objects as an authenticated user with permission to view the objects.
@@ -449,16 +447,26 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
             for field_name, field in type_class._meta.fields.items():
+                is_string_array = False
+                if type(field.type) is GQLList:
+                    if field.type.of_type is GQLString:
+                        is_string_array = True
+                    elif type(field.type.of_type) is GQLNonNull and field.type.of_type.of_type is GQLString:
+                        is_string_array = True
+
                 if type(field) is GQLDynamic:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field_name} {{ id }}\n'
+                # TODO: Improve field detection logic to avoid nested ArrayFields
+                elif field_name == 'extra_choices':
+                    continue
                 elif inspect.isclass(field.type) and issubclass(field.type, GQLUnion):
                     # Union types dont' have an id or consistent values
                     continue
                 elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
                     # Union types dont' have an id or consistent values
                     continue
-                elif type(field.type) is GQLList and field_name != 'choices':
+                elif type(field.type) is GQLList and not is_string_array:
                     # TODO: Come up with something more elegant
                     # Temporary hack to support automated testing of reverse generic relations
                     fields_string += f'{field_name} {{ id }}\n'

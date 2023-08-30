@@ -2,11 +2,12 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block extra_controls %}
   {% if perms.ipam.add_aggregate %}
     <a href="{% url 'ipam:aggregate_add' %}?rir={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Aggregate
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Aggregate" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -16,20 +17,20 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        RIR
+        {% trans "RIR" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Private</th>
+            <th scope="row">{% trans "Private" %}</th>
             <td>{% checkmark object.is_private %}</td>
           </tr>
         </table>

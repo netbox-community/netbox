@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from netbox.tables import columns
@@ -47,7 +48,7 @@ class TenantGroupColumn(tables.TemplateColumn):
 
     def __init__(self, accessor=tables.A('tenant__group'), *args, **kwargs):
         if 'verbose_name' not in kwargs:
-            kwargs['verbose_name'] = 'Tenant Group'
+            kwargs['verbose_name'] = _('Tenant Group')
 
         super().__init__(template_code=self.template_code, accessor=accessor, *args, **kwargs)
 
@@ -56,12 +57,17 @@ class TenantGroupColumn(tables.TemplateColumn):
 
 
 class TenancyColumnsMixin(tables.Table):
-    tenant_group = TenantGroupColumn()
-    tenant = TenantColumn()
+    tenant_group = TenantGroupColumn(
+        verbose_name=_('Tenant Group'),
+    )
+    tenant = TenantColumn(
+        verbose_name=_('Tenant'),
+    )
 
 
 class ContactsColumnMixin(tables.Table):
     contacts = columns.ManyToManyColumn(
+        verbose_name=_('Contacts'),
         linkify_item=True,
         transform=lambda obj: obj.contact.name
     )

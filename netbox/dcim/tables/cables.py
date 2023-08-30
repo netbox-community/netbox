@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 from django_tables2.utils import Accessor
 from django.utils.safestring import mark_safe
@@ -50,60 +51,60 @@ class CableTable(TenancyColumnsMixin, NetBoxTable):
     a_terminations = CableTerminationsColumn(
         cable_end='A',
         orderable=False,
-        verbose_name='Termination A'
+        verbose_name=_('Termination A')
     )
     b_terminations = CableTerminationsColumn(
         cable_end='B',
         orderable=False,
-        verbose_name='Termination B'
+        verbose_name=_('Termination B')
     )
     device_a = CableTerminationsColumn(
         cable_end='A',
         attr='_device',
         orderable=False,
-        verbose_name='Device A'
+        verbose_name=_('Device A')
     )
     device_b = CableTerminationsColumn(
         cable_end='B',
         attr='_device',
         orderable=False,
-        verbose_name='Device B'
+        verbose_name=_('Device B')
     )
     location_a = CableTerminationsColumn(
         cable_end='A',
         attr='_location',
         orderable=False,
-        verbose_name='Location A'
+        verbose_name=_('Location A')
     )
     location_b = CableTerminationsColumn(
         cable_end='B',
         attr='_location',
         orderable=False,
-        verbose_name='Location B'
+        verbose_name=_('Location B')
     )
     rack_a = CableTerminationsColumn(
         cable_end='A',
         attr='_rack',
         orderable=False,
-        verbose_name='Rack A'
+        verbose_name=_('Rack A')
     )
     rack_b = CableTerminationsColumn(
         cable_end='B',
         attr='_rack',
         orderable=False,
-        verbose_name='Rack B'
+        verbose_name=_('Rack B')
     )
     site_a = CableTerminationsColumn(
         cable_end='A',
         attr='_site',
         orderable=False,
-        verbose_name='Site A'
+        verbose_name=_('Site A')
     )
     site_b = CableTerminationsColumn(
         cable_end='B',
         attr='_site',
         orderable=False,
-        verbose_name='Site B'
+        verbose_name=_('Site B')
     )
     status = columns.ChoiceFieldColumn()
     length = columns.TemplateColumn(

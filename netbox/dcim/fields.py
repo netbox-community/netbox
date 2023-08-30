@@ -6,7 +6,6 @@ from netaddr import AddrFormatError, EUI, eui64_unix_expanded, mac_unix_expanded
 from .lookups import PathContains
 
 __all__ = (
-    'ASNField',
     'MACAddressField',
     'PathField',
     'WWNField',

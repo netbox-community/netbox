@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -14,40 +15,40 @@
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Power Outlet
+                    {% trans "Power Outlet" %}
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">Device</th>
+                            <th scope="row">{% trans "Device" %}</th>
                             <td>{{ object.device|linkify }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Module</th>
+                            <th scope="row">{% trans "Module" %}</th>
                             <td>{{ object.module|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Name</th>
+                            <th scope="row">{% trans "Name" %}</th>
                             <td>{{ object.name }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Label</th>
+                            <th scope="row">{% trans "Label" %}</th>
                             <td>{{ object.label|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Type</th>
+                            <th scope="row">{% trans "Type" %}</th>
                             <td>{{ object.get_type_display }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Description</th>
+                            <th scope="row">{% trans "Description" %}</th>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Power Port</th>
+                            <th scope="row">{% trans "Power Port" %}</th>
                             <td>{{ object.power_port|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Feed Leg</th>
+                            <th scope="row">{% trans "Feed Leg" %}</th>
                             <td>{{ object.get_feed_leg_display|placeholder }}</td>
                         </tr>
                     </table>
@@ -59,20 +60,20 @@
         </div>
         <div class="col col-md-6">
           <div class="card">
-            <h5 class="card-header">Connection</h5>
+            <h5 class="card-header">{% trans "Connection" %}</h5>
             <div class="card-body">
               {% if object.mark_connected %}
                 <div class="text-muted">
-                  <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as Connected
+                  <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as Connected" %}
                 </div>
               {% elif object.cable %}
                 {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:poweroutlet_trace' %}
               {% else %}
                 <div class="text-muted">
-                  Not Connected
+                  {% trans "Not Connected" %}
                   {% if perms.dcim.add_cable %}
-                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="Connect" class="btn btn-primary btn-sm float-end">
-                      <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> Connect
+                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="{% trans "Connect" %}" class="btn btn-primary btn-sm float-end">
+                      <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
                     </a>
                   {% endif %}
                 </div>

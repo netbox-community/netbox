@@ -2,14 +2,15 @@
 {% load helpers %}
 {% load form_helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
-{% block title %}Search{% endblock %}
+{% block title %}{% trans "Search" %}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" type="button" role="tab">
-        Results
+        {% trans "Results" %}
       </button>
     </li>
   </ul>
@@ -22,7 +23,7 @@
         {% render_form form %}
         <div class="text-end">
           <button type="submit" class="btn btn-primary">
-            <span class="mdi mdi-magnify" aria-hidden="true"></span> Search
+            <span class="mdi mdi-magnify" aria-hidden="true"></span> {% trans "Search" %}
           </button>
         </div>
       </form>

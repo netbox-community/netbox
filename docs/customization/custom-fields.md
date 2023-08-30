@@ -60,7 +60,7 @@ NetBox supports limited custom validation for custom field values. Following are
 
 ### Custom Selection Fields
 
-Each custom selection field must have at least two choices. These are specified as a comma-separated list. Choices appear in forms in the order they are listed. Note that choice values are saved exactly as they appear, so it's best to avoid superfluous punctuation or symbols where possible.
+Each custom selection field must designate a [choice set](../models/extras/customfieldchoiceset.md) containing at least two choices. These are specified as a comma-separated list.
 
 If a default value is specified for a selection field, it must exactly match one of the provided choices. The value of a multiple selection field will always return a list, even if only one value is selected.
 

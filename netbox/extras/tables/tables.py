@@ -2,14 +2,18 @@ import json
 
 import django_tables2 as tables
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
+    'BookmarkTable',
     'ConfigContextTable',
+    'ConfigRevisionTable',
     'ConfigTemplateTable',
+    'CustomFieldChoiceSetTable',
     'CustomFieldTable',
     'CustomLinkTable',
     'ExportTemplateTable',
@@ -30,34 +34,118 @@ IMAGEATTACHMENT_IMAGE = '''
 {% endif %}
 '''
 
+REVISION_BUTTONS = """
+{% if not record.is_active %}
+<a href="{% url 'extras:configrevision_restore' pk=record.pk %}" class="btn btn-sm btn-primary" title="Restore config">
+    <i class="mdi mdi-file-restore"></i>
+</a>
+{% endif %}
+"""
+
+
+class ConfigRevisionTable(NetBoxTable):
+    is_active = columns.BooleanColumn(
+        verbose_name=_('Is Active'),
+    )
+    actions = columns.ActionsColumn(
+        actions=('delete',),
+        extra_buttons=REVISION_BUTTONS
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ConfigRevision
+        fields = (
+            'pk', 'id', 'is_active', 'created', 'comment',
+        )
+        default_columns = ('pk', 'id', 'is_active', 'created', 'comment')
+
 
 class CustomFieldTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn()
-    required = columns.BooleanColumn()
-    ui_visibility = columns.ChoiceFieldColumn(verbose_name="UI visibility")
-    description = columns.MarkdownColumn()
-    is_cloneable = columns.BooleanColumn()
+    content_types = columns.ContentTypesColumn(
+        verbose_name=_('Content Types')
+    )
+    required = columns.BooleanColumn(
+        verbose_name=_('Required')
+    )
+    ui_visibility = columns.ChoiceFieldColumn(
+        verbose_name=_('UI Visibility')
+    )
+    description = columns.MarkdownColumn(
+        verbose_name=_('Description')
+    )
+    choice_set = tables.Column(
+        linkify=True,
+        verbose_name=_('Choice Set')
+    )
+    choices = columns.ChoicesColumn(
+        max_items=10,
+        orderable=False,
+        verbose_name=_('Choices')
+    )
+    is_cloneable = columns.BooleanColumn(
+        verbose_name=_('Is Cloneable'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
-            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choices', 'created',
-            'last_updated',
+            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choice_set', 'choices',
+            'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
 
-class CustomLinkTable(NetBoxTable):
+class CustomFieldChoiceSetTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn()
-    enabled = columns.BooleanColumn()
-    new_window = columns.BooleanColumn()
+    base_choices = columns.ChoiceFieldColumn()
+    extra_choices = tables.TemplateColumn(
+        template_code="""{% for k, v in value.items %}{{ v }}{% if not forloop.last %}, {% endif %}{% endfor %}"""
+    )
+    choices = columns.ChoicesColumn(
+        max_items=10,
+        orderable=False
+    )
+    choice_count = tables.TemplateColumn(
+        accessor=tables.A('extra_choices'),
+        template_code='{{ value|length }}',
+        orderable=False,
+        verbose_name=_('Count')
+    )
+    order_alphabetically = columns.BooleanColumn(
+        verbose_name=_('Order Alphabetically'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = CustomFieldChoiceSet
+        fields = (
+            'pk', 'id', 'name', 'description', 'base_choices', 'extra_choices', 'choice_count', 'choices',
+            'order_alphabetically', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'name', 'base_choices', 'choice_count', 'description')
+
+
+class CustomLinkTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    content_types = columns.ContentTypesColumn(
+        verbose_name=_('Content Types'),
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    new_window = columns.BooleanColumn(
+        verbose_name=_('New Window'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = CustomLink
@@ -70,19 +158,26 @@ class CustomLinkTable(NetBoxTable):
 
 class ExportTemplateTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn()
-    as_attachment = columns.BooleanColumn()
+    content_types = columns.ContentTypesColumn(
+        verbose_name=_('Content Types'),
+    )
+    as_attachment = columns.BooleanColumn(
+        verbose_name=_('As Attachment'),
+    )
     data_source = tables.Column(
+        verbose_name=_('Data Source'),
         linkify=True
     )
     data_file = tables.Column(
+        verbose_name=_('Data File'),
         linkify=True
     )
     is_synced = columns.BooleanColumn(
         orderable=False,
-        verbose_name='Synced'
+        verbose_name=_('Synced')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -98,18 +193,23 @@ class ExportTemplateTable(NetBoxTable):
 
 class ImageAttachmentTable(NetBoxTable):
     id = tables.Column(
+        verbose_name=_('ID'),
         linkify=False
     )
-    content_type = columns.ContentTypeColumn()
+    content_type = columns.ContentTypeColumn(
+        verbose_name=_('Content Type'),
+    )
     parent = tables.Column(
+        verbose_name=_('Parent'),
         linkify=True
     )
     image = tables.TemplateColumn(
+        verbose_name=_('Image'),
         template_code=IMAGEATTACHMENT_IMAGE,
     )
     size = tables.Column(
         orderable=False,
-        verbose_name='Size (bytes)'
+        verbose_name=_('Size (Bytes)')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -123,11 +223,18 @@ class ImageAttachmentTable(NetBoxTable):
 
 class SavedFilterTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn()
-    enabled = columns.BooleanColumn()
-    shared = columns.BooleanColumn()
+    content_types = columns.ContentTypesColumn(
+        verbose_name=_('Content Types'),
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    shared = columns.BooleanColumn(
+        verbose_name=_('Shared'),
+    )
 
     def value_parameters(self, value):
         return json.dumps(value)
@@ -143,29 +250,55 @@ class SavedFilterTable(NetBoxTable):
         )
 
 
-class WebhookTable(NetBoxTable):
-    name = tables.Column(
+class BookmarkTable(NetBoxTable):
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Types'),
+    )
+    object = tables.Column(
+        verbose_name=_('Object'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn()
-    enabled = columns.BooleanColumn()
+    actions = columns.ActionsColumn(
+        actions=('delete',)
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Bookmark
+        fields = ('pk', 'object', 'object_type', 'created')
+        default_columns = ('object', 'object_type', 'created')
+
+
+class WebhookTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    content_types = columns.ContentTypesColumn(
+        verbose_name=_('Content Types'),
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     type_create = columns.BooleanColumn(
-        verbose_name='Create'
+        verbose_name=_('Create')
     )
     type_update = columns.BooleanColumn(
-        verbose_name='Update'
+        verbose_name=_('Update')
     )
     type_delete = columns.BooleanColumn(
-        verbose_name='Delete'
+        verbose_name=_('Delete')
     )
     type_job_start = columns.BooleanColumn(
-        verbose_name='Job start'
+        verbose_name=_('Job Start')
     )
     type_job_end = columns.BooleanColumn(
-        verbose_name='Job end'
+        verbose_name=_('Job End')
     )
     ssl_validation = columns.BooleanColumn(
-        verbose_name='SSL Validation'
+        verbose_name=_('SSL Validation')
+    )
+    tags = columns.TagColumn(
+        url_name='extras:webhook_list'
     )
 
     class Meta(NetBoxTable.Meta):
@@ -173,7 +306,7 @@ class WebhookTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
-            'created', 'last_updated',
+            'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
@@ -183,29 +316,38 @@ class WebhookTable(NetBoxTable):
 
 class TagTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
-    color = columns.ColorColumn()
+    color = columns.ColorColumn(
+        verbose_name=_('Color'),
+    )
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object Types'),
+    )
 
     class Meta(NetBoxTable.Meta):
         model = Tag
-        fields = ('pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'created', 'last_updated', 'actions')
+        fields = (
+            'pk', 'id', 'name', 'items', 'slug', 'color', 'description', 'object_types', 'created', 'last_updated',
+            'actions',
+        )
         default_columns = ('pk', 'name', 'items', 'slug', 'color', 'description')
 
 
 class TaggedItemTable(NetBoxTable):
     id = tables.Column(
-        verbose_name='ID',
+        verbose_name=_('ID'),
         linkify=lambda record: record.content_object.get_absolute_url(),
         accessor='content_object__id'
     )
     content_type = columns.ContentTypeColumn(
-        verbose_name='Type'
+        verbose_name=_('Type')
     )
     content_object = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='Object'
+        verbose_name=_('Object')
     )
     actions = columns.ActionsColumn(
         actions=()
@@ -218,20 +360,23 @@ class TaggedItemTable(NetBoxTable):
 
 class ConfigContextTable(NetBoxTable):
     data_source = tables.Column(
+        verbose_name=_('Data Source'),
         linkify=True
     )
     data_file = tables.Column(
+        verbose_name=_('Data File'),
         linkify=True
     )
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     is_active = columns.BooleanColumn(
-        verbose_name='Active'
+        verbose_name=_('Active')
     )
     is_synced = columns.BooleanColumn(
         orderable=False,
-        verbose_name='Synced'
+        verbose_name=_('Synced')
     )
 
     class Meta(NetBoxTable.Meta):
@@ -246,17 +391,20 @@ class ConfigContextTable(NetBoxTable):
 
 class ConfigTemplateTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     data_source = tables.Column(
+        verbose_name=_('Data Source'),
         linkify=True
     )
     data_file = tables.Column(
+        verbose_name=_('Data File'),
         linkify=True
     )
     is_synced = columns.BooleanColumn(
         orderable=False,
-        verbose_name='Synced'
+        verbose_name=_('Synced')
     )
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'
@@ -275,31 +423,34 @@ class ConfigTemplateTable(NetBoxTable):
 
 class ObjectChangeTable(NetBoxTable):
     time = tables.DateTimeColumn(
+        verbose_name=_('Time'),
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
     user_name = tables.Column(
-        verbose_name='Username'
+        verbose_name=_('Username')
     )
     full_name = tables.TemplateColumn(
         accessor=tables.A('user'),
         template_code=OBJECTCHANGE_FULL_NAME,
-        verbose_name='Full Name',
+        verbose_name=_('Full Name'),
         orderable=False
     )
-    action = columns.ChoiceFieldColumn()
+    action = columns.ChoiceFieldColumn(
+        verbose_name=_('Action'),
+    )
     changed_object_type = columns.ContentTypeColumn(
-        verbose_name='Type'
+        verbose_name=_('Type')
     )
     object_repr = tables.TemplateColumn(
         accessor=tables.A('changed_object'),
         template_code=OBJECTCHANGE_OBJECT,
-        verbose_name='Object',
+        verbose_name=_('Object'),
         orderable=False
     )
     request_id = tables.TemplateColumn(
         template_code=OBJECTCHANGE_REQUEST_ID,
-        verbose_name='Request ID'
+        verbose_name=_('Request ID')
     )
     actions = columns.ActionsColumn(
         actions=()
@@ -315,23 +466,28 @@ class ObjectChangeTable(NetBoxTable):
 
 class JournalEntryTable(NetBoxTable):
     created = tables.DateTimeColumn(
+        verbose_name=_('Created'),
         linkify=True,
         format=settings.SHORT_DATETIME_FORMAT
     )
     assigned_object_type = columns.ContentTypeColumn(
-        verbose_name='Object type'
+        verbose_name=_('Object Type')
     )
     assigned_object = tables.Column(
         linkify=True,
         orderable=False,
-        verbose_name='Object'
+        verbose_name=_('Object')
     )
-    kind = columns.ChoiceFieldColumn()
-    comments = columns.MarkdownColumn()
+    kind = columns.ChoiceFieldColumn(
+        verbose_name=_('Kind'),
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     comments_short = tables.TemplateColumn(
         accessor=tables.A('comments'),
         template_code='{{ value|markdown|truncatewords_html:50 }}',
-        verbose_name='Comments (Short)'
+        verbose_name=_('Comments (Short)')
     )
     tags = columns.TagColumn(
         url_name='extras:journalentry_list'

@@ -4,8 +4,10 @@ from extras import models
 from netbox.api.serializers import NestedTagSerializer, WritableNestedSerializer
 
 __all__ = [
+    'NestedBookmarkSerializer',
     'NestedConfigContextSerializer',
     'NestedConfigTemplateSerializer',
+    'NestedCustomFieldChoiceSetSerializer',
     'NestedCustomFieldSerializer',
     'NestedCustomLinkSerializer',
     'NestedExportTemplateSerializer',
@@ -31,6 +33,14 @@ class NestedCustomFieldSerializer(WritableNestedSerializer):
     class Meta:
         model = models.CustomField
         fields = ['id', 'url', 'display', 'name']
+
+
+class NestedCustomFieldChoiceSetSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+
+    class Meta:
+        model = models.CustomFieldChoiceSet
+        fields = ['id', 'url', 'display', 'name', 'choices_count']
 
 
 class NestedCustomLinkSerializer(WritableNestedSerializer):
@@ -71,6 +81,14 @@ class NestedSavedFilterSerializer(WritableNestedSerializer):
     class Meta:
         model = models.SavedFilter
         fields = ['id', 'url', 'display', 'name', 'slug']
+
+
+class NestedBookmarkSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
+
+    class Meta:
+        model = models.Bookmark
+        fields = ['id', 'url', 'display', 'object_id', 'object_type']
 
 
 class NestedImageAttachmentSerializer(WritableNestedSerializer):
