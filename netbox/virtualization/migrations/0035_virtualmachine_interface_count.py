@@ -7,12 +7,12 @@ import utilities.fields
 def populate_virtualmachine_counts(apps, schema_editor):
     VirtualMachine = apps.get_model('virtualization', 'VirtualMachine')
 
-    vms = list(VirtualMachine.objects.annotate(_interface_count=Count('interfaces', distinct=True)))
+    vms = VirtualMachine.objects.annotate(_interface_count=Count('interfaces', distinct=True))
 
     for vm in vms:
         vm.interface_count = vm._interface_count
 
-    VirtualMachine.objects.bulk_update(vms, ['interface_count'])
+    VirtualMachine.objects.bulk_update(vms, ['interface_count'], batch_size=100)
 
 
 class Migration(migrations.Migration):

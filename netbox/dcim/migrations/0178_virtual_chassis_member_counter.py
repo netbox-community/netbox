@@ -7,12 +7,12 @@ import utilities.fields
 def populate_virtualchassis_members(apps, schema_editor):
     VirtualChassis = apps.get_model('dcim', 'VirtualChassis')
 
-    vcs = list(VirtualChassis.objects.annotate(_member_count=Count('members', distinct=True)))
+    vcs = VirtualChassis.objects.annotate(_member_count=Count('members', distinct=True))
 
     for vc in vcs:
         vc.member_count = vc._member_count
 
-    VirtualChassis.objects.bulk_update(vcs, ['member_count'])
+    VirtualChassis.objects.bulk_update(vcs, ['member_count'], batch_size=100)
 
 
 class Migration(migrations.Migration):
