@@ -1541,8 +1541,7 @@ class InterfaceFilterSet(
     def filter_virtual_chassis_member(self, queryset, name, value):
         try:
             vc_interface_ids = []
-            devices = Device.objects.filter(**{'{}__in'.format(name): value})
-            for device in devices:
+            for device in Device.objects.filter(**{f'{name}__in': value}):
                 vc_interface_ids.extend(device.vc_interfaces(if_master=False).values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:

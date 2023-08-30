@@ -23,7 +23,7 @@
 * The `device_role` field on the Device model has been renamed to `role`. The `device_role` field has been temporarily retained on the REST API serializer for devices for backward compatibility, but is read-only.
 * The `choices` array field has been removed from the CustomField model. Any defined choices are automatically migrated to CustomFieldChoiceSets, accessible via the new `choice_set` field on the CustomField model.
 * The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the Platform model.
-* The `device` and `device_id` filter for interfaces will now only filter the specific device.  Two new filters `virtual_chassis_member` and `virtual_chassis_member_id` have been added to allow for retrieval of Virtual Chassis interfaces from any Virtual Chassis member.
+* The `device` and `device_id` filter for interfaces will no longer include interfaces from virtual chassis peers. Two new filters, `virtual_chassis_member` and `virtual_chassis_member_id`, have been introduced to match all interfaces belonging to the specified device's virtual chassis (if any).
 * Reports and scripts are now returned within a `results` list when fetched via the REST API, consistent with other models.
 * Superusers can no longer retrieve API token keys via the web UI if [`ALLOW_TOKEN_RETRIEVAL`](https://docs.netbox.dev/en/stable/configuration/security/#allow_token_retrieval) is disabled. (The admin view has been removed per [#13044](https://github.com/netbox-community/netbox/issues/13044).)
 
