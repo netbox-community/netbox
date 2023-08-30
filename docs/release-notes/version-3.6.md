@@ -1,5 +1,9 @@
 # NetBox v3.6
 
+## v3.6.1 (FUTURE)
+
+---
+
 ## v3.6.0 (2023-08-30)
 
 ### Breaking Changes
