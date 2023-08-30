@@ -1462,17 +1462,15 @@ class InterfaceFilterSet(
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
 ):
-    # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
-    # members
-    device = MultiValueCharFilter(
-        method='filter_device',
+    virtual_chassis_member = MultiValueCharFilter(
+        method='filter_virtual_chassis_member',
         field_name='name',
-        label=_('Device'),
+        label=_('Virtual Chassis Interfaces for Device')
     )
-    device_id = MultiValueNumberFilter(
-        method='filter_device_id',
+    virtual_chassis_member_id = MultiValueNumberFilter(
+        method='filter_virtual_chassis_member',
         field_name='pk',
-        label=_('Device (ID)'),
+        label=_('Virtual Chassis Interfaces for Device (ID)')
     )
     kind = django_filters.CharFilter(
         method='filter_kind',
@@ -1540,23 +1538,11 @@ class InterfaceFilterSet(
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
         ]
 
-    def filter_device(self, queryset, name, value):
+    def filter_virtual_chassis_member(self, queryset, name, value):
         try:
-            devices = Device.objects.filter(**{'{}__in'.format(name): value})
             vc_interface_ids = []
-            for device in devices:
-                vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-            return queryset.filter(pk__in=vc_interface_ids)
-        except Device.DoesNotExist:
-            return queryset.none()
-
-    def filter_device_id(self, queryset, name, id_list):
-        # Include interfaces belonging to peer virtual chassis members
-        vc_interface_ids = []
-        try:
-            devices = Device.objects.filter(pk__in=id_list)
-            for device in devices:
-                vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
+            for device in Device.objects.filter(**{f'{name}__in': value}):
+                vc_interface_ids.extend(device.vc_interfaces(if_master=False).values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()

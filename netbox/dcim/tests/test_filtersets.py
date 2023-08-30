@@ -2822,11 +2822,56 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         )
         Rack.objects.bulk_create(racks)
 
+        # VirtualChassis assignment for filtering
+        virtual_chassis = VirtualChassis(name='Virtual Chassis')
+        virtual_chassis.save()
+
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], site=sites[0], location=locations[0], rack=racks[0]),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], site=sites[1], location=locations[1], rack=racks[1]),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], site=sites[2], location=locations[2], rack=racks[2]),
-            Device(name=None, device_type=device_types[2], role=roles[2], site=sites[3]),  # For cable connections
+            Device(
+                name='Device 1A',
+                device_type=device_types[0],
+                role=roles[0],
+                site=sites[0],
+                location=locations[0],
+                rack=racks[0],
+                virtual_chassis=virtual_chassis,
+                vc_position=1,
+                vc_priority=1
+            ),
+            Device(
+                name='Device 1B',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2],
+                virtual_chassis=virtual_chassis,
+                vc_position=2,
+                vc_priority=1
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                site=sites[1],
+                location=locations[1],
+                rack=racks[1]
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[2],
+                location=locations[2],
+                rack=racks[2]
+            ),
+            # For cable connections
+            Device(
+                name=None,
+                device_type=device_types[2],
+                role=roles[2],
+                site=sites[3]
+            ),
         )
         Device.objects.bulk_create(devices)
 
@@ -2834,6 +2879,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             ModuleBay(device=devices[0], name='Module Bay 1'),
             ModuleBay(device=devices[1], name='Module Bay 2'),
             ModuleBay(device=devices[2], name='Module Bay 3'),
+            ModuleBay(device=devices[3], name='Module Bay 4'),
         )
         ModuleBay.objects.bulk_create(module_bays)
 
@@ -2841,6 +2887,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             Module(device=devices[0], module_bay=module_bays[0], module_type=module_type),
             Module(device=devices[1], module_bay=module_bays[1], module_type=module_type),
             Module(device=devices[2], module_bay=module_bays[2], module_type=module_type),
+            Module(device=devices[3], module_bay=module_bays[3], module_type=module_type),
         )
         Module.objects.bulk_create(modules)
 
@@ -2853,15 +2900,10 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
         # Virtual Device Context Creation
         vdcs = (
-            VirtualDeviceContext(device=devices[3], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
-            VirtualDeviceContext(device=devices[3], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
+            VirtualDeviceContext(device=devices[4], name='VDC 1', identifier=1, status=VirtualDeviceContextStatusChoices.STATUS_ACTIVE),
+            VirtualDeviceContext(device=devices[4], name='VDC 2', identifier=2, status=VirtualDeviceContextStatusChoices.STATUS_PLANNED),
         )
         VirtualDeviceContext.objects.bulk_create(vdcs)
-
-        # VirtualChassis assignment for filtering
-        virtual_chassis = VirtualChassis.objects.create(master=devices[0])
-        Device.objects.filter(pk=devices[0].pk).update(virtual_chassis=virtual_chassis, vc_position=1, vc_priority=1)
-        Device.objects.filter(pk=devices[1].pk).update(virtual_chassis=virtual_chassis, vc_position=2, vc_priority=2)
 
         interfaces = (
             Interface(
@@ -2885,6 +2927,13 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
             Interface(
                 device=devices[1],
                 module=modules[1],
+                name='VC Chassis Interface',
+                type=InterfaceTypeChoices.TYPE_1GE_SFP,
+                enabled=True
+            ),
+            Interface(
+                device=devices[2],
+                module=modules[2],
                 name='Interface 2',
                 label='B',
                 type=InterfaceTypeChoices.TYPE_1GE_GBIC,
@@ -2901,8 +2950,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 poe_type=InterfacePoETypeChoices.TYPE_1_8023AF
             ),
             Interface(
-                device=devices[2],
-                module=modules[2],
+                device=devices[3],
+                module=modules[3],
                 name='Interface 3',
                 label='C',
                 type=InterfaceTypeChoices.TYPE_1GE_FIXED,
@@ -2919,7 +2968,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
             ),
             Interface(
-                device=devices[3],
+                device=devices[4],
                 name='Interface 4',
                 label='D',
                 type=InterfaceTypeChoices.TYPE_OTHER,
@@ -2932,7 +2981,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 poe_type=InterfacePoETypeChoices.TYPE_2_8023AT
             ),
             Interface(
-                device=devices[3],
+                device=devices[4],
                 name='Interface 5',
                 label='E',
                 type=InterfaceTypeChoices.TYPE_OTHER,
@@ -2941,7 +2990,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 tx_power=40
             ),
             Interface(
-                device=devices[3],
+                device=devices[4],
                 name='Interface 6',
                 label='F',
                 type=InterfaceTypeChoices.TYPE_OTHER,
@@ -2950,7 +2999,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 tx_power=40
             ),
             Interface(
-                device=devices[3],
+                device=devices[4],
                 name='Interface 7',
                 type=InterfaceTypeChoices.TYPE_80211AC,
                 rf_role=WirelessRoleChoices.ROLE_AP,
@@ -2959,7 +3008,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
                 rf_channel_width=22
             ),
             Interface(
-                device=devices[3],
+                device=devices[4],
                 name='Interface 8',
                 type=InterfaceTypeChoices.TYPE_80211AC,
                 rf_role=WirelessRoleChoices.ROLE_STATION,
@@ -2977,8 +3026,8 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         interfaces[7].vdcs.set([vdcs[1]])
 
         # Cables
-        Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[3]]).save()
-        Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[4]]).save()
+        Cable(a_terminations=[interfaces[0]], b_terminations=[interfaces[5]]).save()
+        Cable(a_terminations=[interfaces[1]], b_terminations=[interfaces[6]]).save()
         # Third pair is not connected
 
     def test_name(self):
@@ -2991,7 +3040,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
 
     def test_enabled(self):
         params = {'enabled': 'true'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
         params = {'enabled': 'false'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
@@ -3011,7 +3060,7 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'mgmt_only': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'mgmt_only': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_poe_mode(self):
         params = {'poe_mode': [InterfacePoEModeChoices.MODE_PD, InterfacePoEModeChoices.MODE_PSE]}
@@ -3116,6 +3165,14 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_virtual_chassis_member(self):
+        # Device 1A & 3 have 1 management interface, Device 1B has 1 interfaces
+        devices = Device.objects.filter(name__in=['Device 1A', 'Device 3'])
+        params = {'virtual_chassis_member_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'virtual_chassis_member': [devices[0].name, devices[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
     def test_module(self):
         modules = Module.objects.all()[:2]
         params = {'module_id': [modules[0].pk, modules[1].pk]}
@@ -3125,23 +3182,23 @@ class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFil
         params = {'cabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'cabled': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_occupied(self):
         params = {'occupied': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'occupied': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_connected(self):
         params = {'connected': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'connected': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_kind(self):
         params = {'kind': 'physical'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
         params = {'kind': 'virtual'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
 

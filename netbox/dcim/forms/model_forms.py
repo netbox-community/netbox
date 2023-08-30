@@ -1111,7 +1111,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('Parent interface'),
         query_params={
-            'device_id': '$device',
+            'virtual_chassis_member_id': '$device',
         }
     )
     bridge = DynamicModelChoiceField(
@@ -1119,7 +1119,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('Bridged interface'),
         query_params={
-            'device_id': '$device',
+            'virtual_chassis_member_id': '$device',
         }
     )
     lag = DynamicModelChoiceField(
@@ -1127,7 +1127,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('LAG interface'),
         query_params={
-            'device_id': '$device',
+            'virtual_chassis_member_id': '$device',
             'type': 'lag',
         }
     )
