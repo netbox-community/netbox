@@ -1,5 +1,15 @@
 # NetBox v3.6
 
+## v3.6.0 (FUTURE)
+
+### Bug Fixes
+
+* [#13513](https://github.com/netbox-community/netbox/issues/13513) - Prevent exception when rendering bookmarks widget for anonymous user
+* [#13599](https://github.com/netbox-community/netbox/issues/13599) - Fix errant counter increments when editing device/VM components
+* [#13605](https://github.com/netbox-community/netbox/issues/13605) - Optimize cached counter migrations to avoid excessive memory consumption
+
+---
+
 ## v3.6-beta2 (2023-08-16)
 
 ### Bug Fixes
@@ -73,6 +83,7 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#8137](https://github.com/netbox-community/netbox/issues/8137) - Add a field for designating the out-of-band (OOB) IP address for devices
 * [#10197](https://github.com/netbox-community/netbox/issues/10197) - Cache the number of member devices on each virtual chassis
 * [#11305](https://github.com/netbox-community/netbox/issues/11305) - Add GPS coordinate fields to the device model
+* [#11478](https://github.com/netbox-community/netbox/issues/11478) - Introduce `virtual_chassis_member` filter for interfaces & restore default behavior for `device` filter
 * [#11519](https://github.com/netbox-community/netbox/issues/11519) - Add a SQL index for IP address host values to optimize queries
 * [#11732](https://github.com/netbox-community/netbox/issues/11732) - Prevent inadvertent overwriting of object attributes by competing users
 * [#11936](https://github.com/netbox-community/netbox/issues/11936) - Introduce support for tags and custom fields on webhooks
