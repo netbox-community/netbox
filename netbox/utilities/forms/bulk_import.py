@@ -93,7 +93,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
             'format': _('Unable to detect data format. Please specify.')
         })
 
-    def _clean_csv(self, data, delimiter=None):
+    def _clean_csv(self, data, delimiter=CSVDelimiterChoices.AUTO):
         """
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
