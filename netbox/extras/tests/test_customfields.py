@@ -1058,7 +1058,7 @@ class CustomFieldImportTest(TestCase):
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {'data': csv_data, 'format': ImportFormatChoices.CSV, 'csv_delimiter': CSVDelimiterChoices.AUTO,})
+        response = self.client.post(reverse('dcim:site_import'), {'data': csv_data, 'format': ImportFormatChoices.CSV, 'csv_delimiter': CSVDelimiterChoices.AUTO})
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Site.objects.count(), 3)
 
