@@ -1,31 +1,6 @@
 # NetBox v3.6
 
-## v3.6.0 (FUTURE)
-
-### Bug Fixes
-
-* [#13513](https://github.com/netbox-community/netbox/issues/13513) - Prevent exception when rendering bookmarks widget for anonymous user
-* [#13599](https://github.com/netbox-community/netbox/issues/13599) - Fix errant counter increments when editing device/VM components
-* [#13605](https://github.com/netbox-community/netbox/issues/13605) - Optimize cached counter migrations to avoid excessive memory consumption
-
----
-
-## v3.6-beta2 (2023-08-16)
-
-### Bug Fixes
-
-* [#13351](https://github.com/netbox-community/netbox/issues/13351) - Fix missing text due to incorrectly applied translation tags
-* [#13361](https://github.com/netbox-community/netbox/issues/13361) - Extra choices field on custom field choice set form should not be required
-* [#13363](https://github.com/netbox-community/netbox/issues/13363) - Fix API endpoint for custom field choice selector in forms
-* [#13376](https://github.com/netbox-community/netbox/issues/13376) - Restrict add/remove tag fields by model on bulk edit forms
-* [#13410](https://github.com/netbox-community/netbox/issues/13410) - Fix rendering of custom choice fields with large number of choices
-* [#13433](https://github.com/netbox-community/netbox/issues/13433) - User field on API token form should be required
-* [#13434](https://github.com/netbox-community/netbox/issues/13434) - Randomly generate initial keys prior to the creation of new tokens
-* [#13437](https://github.com/netbox-community/netbox/issues/13437) - Display bookmark button only for relevant objects
-
----
-
-## v3.6-beta1 (2023-08-02)
+## v3.6.0 (2023-08-30)
 
 ### Breaking Changes
 
@@ -39,7 +14,7 @@
 
 ### New Features
 
-#### Relocated Admin Views ([#12589](https://github.com/netbox-community/netbox/issues/12589), [#12590](https://github.com/netbox-community/netbox/issues/12590), [#12591](https://github.com/netbox-community/netbox/issues/12591), [#13044](https://github.com/netbox-community/netbox/issues/13044))
+#### Relocated Admin UI Views ([#12589](https://github.com/netbox-community/netbox/issues/12589), [#12590](https://github.com/netbox-community/netbox/issues/12590), [#12591](https://github.com/netbox-community/netbox/issues/12591), [#13044](https://github.com/netbox-community/netbox/issues/13044))
 
 Management views for the following object types, previously available only under the backend admin interface, have been relocated to the primary user interface:
 
@@ -95,6 +70,12 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#13037](https://github.com/netbox-community/netbox/issues/13037) - Return reports & scripts within a `results` list when fetched via the REST API
 * [#13170](https://github.com/netbox-community/netbox/issues/13170) - Add `rf_role` to InterfaceTemplate
 * [#13269](https://github.com/netbox-community/netbox/issues/13269) - Cache the number of assigned component templates for device types
+
+### Bug Fixes
+
+* [#13513](https://github.com/netbox-community/netbox/issues/13513) - Prevent exception when rendering bookmarks widget for anonymous user
+* [#13599](https://github.com/netbox-community/netbox/issues/13599) - Fix errant counter increments when editing device/VM components
+* [#13605](https://github.com/netbox-community/netbox/issues/13605) - Optimize cached counter migrations to avoid excessive memory consumption
 
 ### Other Changes
 
