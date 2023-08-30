@@ -6,7 +6,7 @@ import utilities.fields
 
 def recalculate_device_counts(apps, schema_editor):
     Device = apps.get_model("dcim", "Device")
-    devices = list(Device.objects.all().annotate(
+    devices = Device.objects.annotate(
         _console_port_count=Count('consoleports', distinct=True),
         _console_server_port_count=Count('consoleserverports', distinct=True),
         _power_port_count=Count('powerports', distinct=True),
@@ -17,7 +17,7 @@ def recalculate_device_counts(apps, schema_editor):
         _device_bay_count=Count('devicebays', distinct=True),
         _module_bay_count=Count('modulebays', distinct=True),
         _inventory_item_count=Count('inventoryitems', distinct=True),
-    ))
+    )
 
     for device in devices:
         device.console_port_count = device._console_port_count
@@ -42,7 +42,7 @@ def recalculate_device_counts(apps, schema_editor):
         'device_bay_count',
         'module_bay_count',
         'inventory_item_count',
-    ])
+    ], batch_size=100)
 
 
 class Migration(migrations.Migration):
