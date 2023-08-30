@@ -67,7 +67,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
 
         # Process data according to the selected format
         if format == ImportFormatChoices.CSV:
-            self.cleaned_data['data'] = self._clean_csv(data)
+            self.cleaned_data['data'] = self._clean_csv(data, delimiter=self.cleaned_data['csv_delimiter'])
         elif format == ImportFormatChoices.JSON:
             self.cleaned_data['data'] = self._clean_json(data)
         elif format == ImportFormatChoices.YAML:
@@ -93,26 +93,30 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
             'format': _('Unable to detect data format. Please specify.')
         })
 
-    def _clean_csv(self, data):
+    def _clean_csv(self, data, delimiter=None):
         """
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
 
-        if self.cleaned_data['csv_delimiter'] == CSVDelimiterChoices.AUTO:
+        if delimiter == CSVDelimiterChoices.AUTO:
             # Determine the CSV dialect
             try:
                 # This uses a rough heuristic to detect the CSV dialect. If the data is malformed, we'll fall back to
-                # the default Excel dialect.
+                # the default Excel dialect. Note that delimiter can only be one character.
                 dialect = csv.Sniffer().sniff(
-                    data.strip(), delimiters=''.join(
-                        [CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON, CSVDelimiterChoices.TAB]
-                    )
+                    data.strip(), delimiters=''.join([CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON])
                 )
             except csv.Error:
                 dialect = csv.excel
-        else:
+        elif delimiter in [CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON]:
             dialect = csv.excel
-            dialect.delimiter = self.cleaned_data['csv_delimiter']
+            dialect.delimiter = delimiter
+        elif delimiter == CSVDelimiterChoices.TAB:
+            dialect = csv.excel_tab
+        else:
+            raise forms.ValidationError({
+                'csv_delimiter': _('Invalid CSV delimiter'),
+            })
 
         stream = StringIO(data.strip())
         reader = csv.reader(stream, dialect=dialect)

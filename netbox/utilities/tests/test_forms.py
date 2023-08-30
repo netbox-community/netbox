@@ -340,7 +340,7 @@ class ImportFormTest(TestCase):
             "1,2,3\n"
             "4,5,6\n"
         )
-        self.assertEqual(form._clean_csv(data), [
+        self.assertEqual(form._clean_csv(data, delimiter=','), [
             {'a': '1', 'b': '2', 'c': '3'},
             {'a': '4', 'b': '5', 'c': '6'},
         ])
@@ -350,17 +350,17 @@ class ImportFormTest(TestCase):
             "1;2;3\n"
             "4;5;6\n"
         )
-        self.assertEqual(form._clean_csv(data), [
+        self.assertEqual(form._clean_csv(data, delimiter=';'), [
             {'a': '1', 'b': '2', 'c': '3'},
             {'a': '4', 'b': '5', 'c': '6'},
         ])
 
         data = (
-            "a b c\n"
-            "1 2 3\n"
-            "4 5 6\n"
+            "a\tb\tc\n"
+            "1\t2\t3\n"
+            "4\t5\t6\n"
         )
-        self.assertEqual(form._clean_csv(data), [
+        self.assertEqual(form._clean_csv(data, delimiter='\t'), [
             {'a': '1', 'b': '2', 'c': '3'},
             {'a': '4', 'b': '5', 'c': '6'},
         ])
