@@ -1,7 +1,6 @@
 import json
 import urllib.parse
 
-from django.contrib import admin
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
@@ -12,7 +11,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
 from extras.choices import *
@@ -724,7 +723,9 @@ class ConfigRevision(models.Model):
         verbose_name_plural = _('config revisions')
 
     def __str__(self):
-        return f'Config revision #{self.pk} ({self.created})'
+        if self.is_active:
+            return gettext('Current configuration')
+        return gettext('Config revision #{id}').format(id=self.pk)
 
     def __getattr__(self, item):
         if item in self.data:
@@ -742,6 +743,6 @@ class ConfigRevision(models.Model):
         cache.set('config_version', self.pk, None)
     activate.alters_data = True
 
-    @admin.display(boolean=True)
+    @property
     def is_active(self):
         return cache.get('config_version') == self.pk

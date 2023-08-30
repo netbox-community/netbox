@@ -490,7 +490,9 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMe
         (_('Pagination'), ('PAGINATE_COUNT', 'MAX_PAGE_SIZE')),
         (_('Validation'), ('CUSTOM_VALIDATORS',)),
         (_('User Preferences'), ('DEFAULT_USER_PREFERENCES',)),
-        (_('Miscellaneous'), ('MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL')),
+        (_('Miscellaneous'), (
+            'MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL',
+        )),
         (_('Config Revision'), ('comment',))
     )
 
@@ -524,6 +526,8 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMe
                 elif value == param.default:
                     help_text += _(' (default)')
                 self.fields[param.name].help_text = help_text
+                if type(value) in (tuple, list):
+                    value = ', '.join(value)
                 self.fields[param.name].initial = value
             if is_static:
                 self.fields[param.name].disabled = True

@@ -25,4 +25,7 @@ urlpatterns = (
     path('jobs/<int:pk>/', views.JobView.as_view(), name='job'),
     path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
+    # Configuration
+    path('config/', views.ConfigView.as_view(), name='config'),
+
 )
