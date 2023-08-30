@@ -1,0 +1,14 @@
+{% extends 'generic/object_list.html' %}
+{% load helpers %}
+
+{% block bulk_buttons %}
+    {% if 'bulk_rename' in actions %}
+        <button type="submit" name="_rename"
+                formaction="{% url 'dcim:consoleserverport_bulk_rename' %}"
+                class="btn btn-primary btn-sm">
+            <i class="mdi mdi-pencil-box" aria-hidden="true"></i> Rename Selected
+        </button>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}
