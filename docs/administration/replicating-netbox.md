@@ -54,7 +54,7 @@ pg_dump --username netbox --password --host localhost -s netbox > netbox_schema.
 By default, NetBox stores uploaded files (such as image attachments) in its media directory. To fully replicate an instance of NetBox, you'll need to copy both the database and the media files.
 
 !!! note
-    These operations are not necessary if your installation is utilizing a [remote storage backend](../../configuration/optional-settings/#storage_backend).
+    These operations are not necessary if your installation is utilizing a [remote storage backend](../configuration/system.md#storage_backend).
 
 ### Archive the Media Directory
 
