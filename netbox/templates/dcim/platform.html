@@ -44,17 +44,6 @@
             <th scope="row">{% trans "Config Template" %}</th>
             <td>{{ object.config_template|linkify|placeholder }}</td>
           </tr>
-          <tr>
-            <th scope="row">
-              {% trans "NAPALM Driver" %}
-              <i
-                class="mdi mdi-alert-box text-warning"
-                data-bs-toggle="tooltip"
-                data-bs-placement="right"
-                title="{% trans "This field has been deprecated, and will be removed in NetBox v3.6" %}."
-              ></i>
-            </th>
-          </tr>
         </table>
       </div>
     </div>
