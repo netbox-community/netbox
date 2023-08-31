@@ -723,6 +723,8 @@ class ConfigRevision(models.Model):
         verbose_name_plural = _('config revisions')
 
     def __str__(self):
+        if not self.pk:
+            return gettext('Default configuration')
         if self.is_active:
             return gettext('Current configuration')
         return gettext('Config revision #{id}').format(id=self.pk)
@@ -733,6 +735,8 @@ class ConfigRevision(models.Model):
         return super().__getattribute__(item)
 
     def get_absolute_url(self):
+        if not self.pk:
+            return reverse('core:config')  # Default config view
         return reverse('extras:configrevision', args=[self.pk])
 
     def activate(self):

@@ -14,11 +14,11 @@
   <div class="controls">
     <div class="control-group">
       {% plugin_buttons object %}
-      {% if object.is_active and perms.extras.add_configrevision %}
+      {% if not object.pk or object.is_active and perms.extras.add_configrevision %}
         {% url 'extras:configrevision_add' as edit_url %}
         {% include "buttons/edit.html" with url=edit_url %}
       {% endif %}
-      {% if not object.is_active and perms.extras.delete_configrevision %}
+      {% if object.pk and not object.is_active and perms.extras.delete_configrevision %}
         {% delete_button object %}
       {% endif %}
     </div>
@@ -27,6 +27,14 @@
     </div>
   </div>
 {% endblock controls %}
+
+{% block subtitle %}
+  {% if object.created %}
+    <div class="object-subtitle">
+      <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
+    </div>
+  {% endif %}
+{% endblock subtitle %}
 
 {% block content %}
   <div class="row">
