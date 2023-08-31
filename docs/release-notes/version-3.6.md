@@ -2,10 +2,19 @@
 
 ## v3.6.1 (FUTURE)
 
+### Enhancements
+
+* [#13638](https://github.com/netbox-community/netbox/issues/13638) - Add optional `staff_only` attribute to MenuItem
+
 ### Bug Fixes
 
+* [#13619](https://github.com/netbox-community/netbox/issues/13619) - Fix exception when viewing IP address assigned to a virtual machine
+* [#13620](https://github.com/netbox-community/netbox/issues/13620) - Show admin menu items only for staff users
+* [#13622](https://github.com/netbox-community/netbox/issues/13622) - Fix exception when viewing current config and no revisions have been created
 * [#13626](https://github.com/netbox-community/netbox/issues/13626) - Correct filtering of recent activity list under user view
+* [#13628](https://github.com/netbox-community/netbox/issues/13628) - Remove stale references to obsolete NAPALM integration
 * [#13630](https://github.com/netbox-community/netbox/issues/13630) - Fix display of active status under user view
+* [#13632](https://github.com/netbox-community/netbox/issues/13632) - Avoid raising exception when checking if FHRP group IP address is primary
 
 ---
 
