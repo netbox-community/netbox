@@ -892,7 +892,7 @@ class IPAddress(PrimaryModel):
     def is_oob_ip(self):
         if self.assigned_object:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            if parent.oob_ip_id == self.pk:
+            if hasattr(parent, "oob_ip_id") and parent.oob_ip_id == self.pk:
                 return True
         return False
 
