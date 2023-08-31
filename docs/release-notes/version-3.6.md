@@ -2,6 +2,10 @@
 
 ## v3.6.1 (FUTURE)
 
+### Bug Fixes
+
+* [#13630](https://github.com/netbox-community/netbox/issues/13630) - Fix display of active status under user view
+
 ---
 
 ## v3.6.0 (2023-08-30)
