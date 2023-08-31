@@ -397,7 +397,6 @@ class VirtualMachineRenderConfigView(generic.ObjectView):
     template_name = 'virtualization/virtualmachine/render_config.html'
     tab = ViewTab(
         label=_('Render Config'),
-        permission='extras.view_configtemplate',
         weight=2100
     )
 

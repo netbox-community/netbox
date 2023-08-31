@@ -2033,7 +2033,6 @@ class DeviceRenderConfigView(generic.ObjectView):
     template_name = 'dcim/device/render_config.html'
     tab = ViewTab(
         label=_('Render Config'),
-        permission='extras.view_configtemplate',
         weight=2100
     )
 
