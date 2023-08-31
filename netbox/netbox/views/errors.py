@@ -11,6 +11,8 @@ from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
 from sentry_sdk import capture_message
 
+from extras.plugins.utils import get_installed_plugins
+
 __all__ = (
     'handler_404',
     'handler_500',
@@ -53,4 +55,5 @@ def handler_500(request, template_name=ERROR_500_TEMPLATE_NAME):
         'exception': str(type_),
         'netbox_version': settings.VERSION,
         'python_version': platform.python_version(),
+        'plugins': get_installed_plugins(),
     }))

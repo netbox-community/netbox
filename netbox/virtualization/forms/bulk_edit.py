@@ -1,9 +1,10 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfaceModeChoices
 from dcim.constants import INTERFACE_MTU_MAX, INTERFACE_MTU_MIN
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from extras.models import ConfigTemplate
 from ipam.models import VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
@@ -25,6 +26,7 @@ __all__ = (
 
 class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -38,6 +40,7 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -51,31 +54,38 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 class ClusterBulkEditForm(NetBoxModelBulkEditForm):
     type = DynamicModelChoiceField(
+        label=_('Type'),
         queryset=ClusterType.objects.all(),
         required=False
     )
     group = DynamicModelChoiceField(
+        label=_('Group'),
         queryset=ClusterGroup.objects.all(),
         required=False
     )
     status = forms.ChoiceField(
+        label=_('Status'),
         choices=add_blank_choice(ClusterStatusChoices),
         required=False,
         initial=''
     )
     tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False
     )
     region = DynamicModelChoiceField(
+        label=_('Region'),
         queryset=Region.objects.all(),
         required=False,
     )
     site_group = DynamicModelChoiceField(
+        label=_('Site group'),
         queryset=SiteGroup.objects.all(),
         required=False,
     )
     site = DynamicModelChoiceField(
+        label=_('Site'),
         queryset=Site.objects.all(),
         required=False,
         query_params={
@@ -84,17 +94,16 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     description = forms.CharField(
+        label=_('Site'),
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Cluster
     fieldsets = (
         (None, ('type', 'group', 'status', 'tenant', 'description')),
-        ('Site', ('region', 'site_group', 'site')),
+        (_('Site'), ('region', 'site_group', 'site')),
     )
     nullable_fields = (
         'group', 'site', 'tenant', 'description', 'comments',
@@ -103,15 +112,18 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
 
 class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
+        label=_('Status'),
         choices=add_blank_choice(VirtualMachineStatusChoices),
         required=False,
         initial='',
     )
     site = DynamicModelChoiceField(
+        label=_('Site'),
         queryset=Site.objects.all(),
         required=False
     )
     cluster = DynamicModelChoiceField(
+        label=_('Cluster'),
         queryset=Cluster.objects.all(),
         required=False,
         query_params={
@@ -119,6 +131,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     device = DynamicModelChoiceField(
+        label=_('Device'),
         queryset=Device.objects.all(),
         required=False,
         query_params={
@@ -126,6 +139,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     role = DynamicModelChoiceField(
+        label=_('Role'),
         queryset=DeviceRole.objects.filter(
             vm_role=True
         ),
@@ -135,10 +149,12 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False
     )
     platform = DynamicModelChoiceField(
+        label=_('Platform'),
         queryset=Platform.objects.all(),
         required=False
     )
@@ -155,17 +171,21 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Disk (GB)')
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
+    config_template = DynamicModelChoiceField(
+        queryset=ConfigTemplate.objects.all(),
+        required=False
     )
+    comments = CommentField()
 
     model = VirtualMachine
     fieldsets = (
         (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform', 'description')),
-        ('Resources', ('vcpus', 'memory', 'disk'))
+        (_('Resources'), ('vcpus', 'memory', 'disk')),
+        ('Configuration', ('config_template',)),
     )
     nullable_fields = (
         'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'description', 'comments',
@@ -174,20 +194,24 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
 class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
+        label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         disabled=True,
         widget=forms.HiddenInput()
     )
     parent = DynamicModelChoiceField(
+        label=_('Parent'),
         queryset=VMInterface.objects.all(),
         required=False
     )
     bridge = DynamicModelChoiceField(
+        label=_('Bridge'),
         queryset=VMInterface.objects.all(),
         required=False
     )
     enabled = forms.NullBooleanField(
+        label=_('Enabled'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -198,10 +222,12 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
         label=_('MTU')
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=100,
         required=False
     )
     mode = forms.ChoiceField(
+        label=_('Mode'),
         choices=add_blank_choice(InterfaceModeChoices),
         required=False
     )
@@ -235,8 +261,8 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     model = VMInterface
     fieldsets = (
         (None, ('mtu', 'enabled', 'vrf', 'description')),
-        ('Related Interfaces', ('parent', 'bridge')),
-        ('802.1Q Switching', ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+        (_('Related Interfaces'), ('parent', 'bridge')),
+        (_('802.1Q Switching'), ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
     )
     nullable_fields = (
         'parent', 'bridge', 'mtu', 'vrf', 'description',

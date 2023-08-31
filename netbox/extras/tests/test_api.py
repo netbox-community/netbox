@@ -1,6 +1,6 @@
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware
@@ -12,6 +12,9 @@ from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
+
+
+User = get_user_model()
 
 
 class AppTest(APITestCase):
@@ -95,8 +98,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         {
             'content_types': ['dcim.site'],
             'name': 'cf6',
-            'type': 'select',
-            'choices': ['A', 'B', 'C']
+            'type': 'text',
         },
     ]
     bulk_update_data = {
@@ -129,6 +131,58 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         CustomField.objects.bulk_create(custom_fields)
         for cf in custom_fields:
             cf.content_types.add(site_ct)
+
+
+class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
+    model = CustomFieldChoiceSet
+    brief_fields = ['choices_count', 'display', 'id', 'name', 'url']
+    create_data = [
+        {
+            'name': 'Choice Set 4',
+            'extra_choices': [
+                ['4A', 'Choice 1'],
+                ['4B', 'Choice 2'],
+                ['4C', 'Choice 3'],
+            ],
+        },
+        {
+            'name': 'Choice Set 5',
+            'extra_choices': [
+                ['5A', 'Choice 1'],
+                ['5B', 'Choice 2'],
+                ['5C', 'Choice 3'],
+            ],
+        },
+        {
+            'name': 'Choice Set 6',
+            'extra_choices': [
+                ['6A', 'Choice 1'],
+                ['6B', 'Choice 2'],
+                ['6C', 'Choice 3'],
+            ],
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+    update_data = {
+        'name': 'Choice Set X',
+        'extra_choices': [
+            ['X1', 'Choice 1'],
+            ['X2', 'Choice 2'],
+            ['X3', 'Choice 3'],
+        ],
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        choice_sets = (
+            CustomFieldChoiceSet(name='Choice Set 1', extra_choices=['1A', '1B', '1C', '1D', '1E']),
+            CustomFieldChoiceSet(name='Choice Set 2', extra_choices=['2A', '2B', '2C', '2D', '2E']),
+            CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
+        )
+        CustomFieldChoiceSet.objects.bulk_create(choice_sets)
 
 
 class CustomLinkTest(APIViewTestCases.APIViewTestCase):
@@ -262,6 +316,58 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
             savedfilter.content_types.set([site_ct])
+
+
+class BookmarkTest(
+    APIViewTestCases.GetObjectViewTestCase,
+    APIViewTestCases.ListObjectsViewTestCase,
+    APIViewTestCases.CreateObjectViewTestCase,
+    APIViewTestCases.DeleteObjectViewTestCase
+):
+    model = Bookmark
+    brief_fields = ['display', 'id', 'object_id', 'object_type', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3'),
+            Site(name='Site 4', slug='site-4'),
+            Site(name='Site 5', slug='site-5'),
+            Site(name='Site 6', slug='site-6'),
+        )
+        Site.objects.bulk_create(sites)
+
+    def setUp(self):
+        super().setUp()
+
+        sites = Site.objects.all()
+
+        bookmarks = (
+            Bookmark(object=sites[0], user=self.user),
+            Bookmark(object=sites[1], user=self.user),
+            Bookmark(object=sites[2], user=self.user),
+        )
+        Bookmark.objects.bulk_create(bookmarks)
+
+        self.create_data = [
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[3].pk,
+                'user': self.user.pk,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[4].pk,
+                'user': self.user.pk,
+            },
+            {
+                'object_type': 'dcim.site',
+                'object_id': sites[5].pk,
+                'user': self.user.pk,
+            },
+        ]
 
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
@@ -473,9 +579,9 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
         """
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
-        devicerole = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         site = Site.objects.create(name='Site-1', slug='site-1')
-        device = Device.objects.create(name='Device 1', device_type=devicetype, device_role=devicerole, site=site)
+        device = Device.objects.create(name='Device 1', device_type=devicetype, role=role, site=site)
 
         # Test default config contexts (created at test setup)
         rendered_context = device.get_config_context()

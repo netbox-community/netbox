@@ -10,6 +10,15 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 3.6](./version-3.6.md) (August 2023)
+
+* Relocated Admin UI Views ([#12589](https://github.com/netbox-community/netbox/issues/12589), [#12590](https://github.com/netbox-community/netbox/issues/12590), [#12591](https://github.com/netbox-community/netbox/issues/12591), [#13044](https://github.com/netbox-community/netbox/issues/13044))
+* Configurable Default Permissions ([#13038](https://github.com/netbox-community/netbox/issues/13038))
+* User Bookmarks ([#8248](https://github.com/netbox-community/netbox/issues/8248))
+* Custom Field Choice Sets ([#12988](https://github.com/netbox-community/netbox/issues/12988))
+* Pre-Defined Location Choices for Custom Fields ([#12194](https://github.com/netbox-community/netbox/issues/12194))
+* Restrict Tag Usage by Object Type ([#11541](https://github.com/netbox-community/netbox/issues/11541))
+
 #### [Version 3.5](./version-3.5.md) (April 2023)
 
 * Customizable Dashboard ([#9416](https://github.com/netbox-community/netbox/issues/9416))

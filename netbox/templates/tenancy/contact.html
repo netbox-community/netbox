@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -14,23 +15,23 @@
   <div class="row">
     <div class="col col-md-7">
       <div class="card">
-        <h5 class="card-header">Contact</h5>
+        <h5 class="card-header">{% trans "Contact" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>Group</td>
+              <td>{% trans "Group" %}</td>
               <td>{{ object.group|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <td>Name</td>
+              <td>{% trans "Name" %}</td>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <td>Title</td>
+              <td>{% trans "Title" %}</td>
               <td>{{ object.title|placeholder }}</td>
             </tr>
             <tr>
-              <td>Phone</td>
+              <td>{% trans "Phone" %}</td>
               <td>
                 {% if object.phone %}
                   <a href="tel:{{ object.phone }}">{{ object.phone }}</a>
@@ -40,7 +41,7 @@
               </td>
             </tr>
             <tr>
-              <td>Email</td>
+              <td>{% trans "Email" %}</td>
               <td>
                 {% if object.email %}
                   <a href="mailto:{{ object.email }}">{{ object.email }}</a>
@@ -50,11 +51,11 @@
               </td>
             </tr>
             <tr>
-              <td>Address</td>
+              <td>{% trans "Address" %}</td>
               <td>{{ object.address|linebreaksbr|placeholder }}</td>
             </tr>
             <tr>
-              <td>Link</td>
+              <td>{% trans "Link" %}</td>
               <td>
                 {% if object.link %}
                   <a href="{{ object.link }}">{{ object.link }}</a>
@@ -64,7 +65,7 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Description</th>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>
@@ -82,7 +83,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">Assignments</h5>
+        <h5 class="card-header">{% trans "Assignments" %}</h5>
         <div class="card-body htmx-container table-responsive"
           hx-get="{% url 'tenancy:contactassignment_list' %}?contact_id={{ object.pk }}"
           hx-trigger="load"

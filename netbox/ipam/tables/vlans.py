@@ -1,5 +1,6 @@
 import django_tables2 as tables
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
 from dcim.models import Interface
@@ -59,20 +60,26 @@ VLAN_MEMBER_TAGGED = """
 #
 
 class VLANGroupTable(NetBoxTable):
-    name = tables.Column(linkify=True)
-    scope_type = columns.ContentTypeColumn()
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    scope_type = columns.ContentTypeColumn(
+        verbose_name=_('Scope Type'),
+    )
     scope = tables.Column(
+        verbose_name=_('Scope'),
         linkify=True,
         orderable=False
     )
     vlan_count = columns.LinkedCountColumn(
         viewname='ipam:vlan_list',
         url_params={'group_id': 'pk'},
-        verbose_name='VLANs'
+        verbose_name=_('VLANs')
     )
     utilization = columns.UtilizationColumn(
         orderable=False,
-        verbose_name='Utilization'
+        verbose_name=_('Utilization')
     )
     tags = columns.TagColumn(
         url_name='ipam:vlangroup_list'
@@ -97,35 +104,42 @@ class VLANGroupTable(NetBoxTable):
 class VLANTable(TenancyColumnsMixin, NetBoxTable):
     vid = tables.TemplateColumn(
         template_code=VLAN_LINK,
-        verbose_name='VID'
+        verbose_name=_('VID')
     )
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
     group = tables.Column(
+        verbose_name=_('Group'),
         linkify=True
     )
     status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
         default=AVAILABLE_LABEL
     )
     role = tables.Column(
+        verbose_name=_('Role'),
         linkify=True
     )
     l2vpn = tables.Column(
         accessor=tables.A('l2vpn_termination__l2vpn'),
         linkify=True,
         orderable=False,
-        verbose_name='L2VPN'
+        verbose_name=_('L2VPN')
     )
     prefixes = columns.TemplateColumn(
         template_code=VLAN_PREFIXES,
         orderable=False,
-        verbose_name='Prefixes'
+        verbose_name=_('Prefixes')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='ipam:vlan_list'
     )
@@ -148,9 +162,10 @@ class VLANMembersTable(NetBoxTable):
     """
     name = tables.Column(
         linkify=True,
-        verbose_name='Interface'
+        verbose_name=_('Interface')
     )
     tagged = tables.TemplateColumn(
+        verbose_name=_('Tagged'),
         template_code=VLAN_MEMBER_TAGGED,
         orderable=False
     )
@@ -158,6 +173,7 @@ class VLANMembersTable(NetBoxTable):
 
 class VLANDevicesTable(VLANMembersTable):
     device = tables.Column(
+        verbose_name=_('Device'),
         linkify=True
     )
     actions = columns.ActionsColumn(
@@ -172,6 +188,7 @@ class VLANDevicesTable(VLANMembersTable):
 
 class VLANVirtualMachinesTable(VLANMembersTable):
     virtual_machine = tables.Column(
+        verbose_name=_('Virtual Machine'),
         linkify=True
     )
     actions = columns.ActionsColumn(
@@ -190,19 +207,27 @@ class InterfaceVLANTable(NetBoxTable):
     """
     vid = tables.Column(
         linkify=True,
-        verbose_name='ID'
+        verbose_name=_('VID')
     )
-    tagged = columns.BooleanColumn()
+    tagged = columns.BooleanColumn(
+        verbose_name=_('Tagged'),
+    )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
     group = tables.Column(
         accessor=Accessor('group__name'),
-        verbose_name='Group'
+        verbose_name=_('Group')
     )
-    tenant = TenantColumn()
-    status = columns.ChoiceFieldColumn()
+    tenant = TenantColumn(
+        verbose_name=_('Tenant'),
+    )
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     role = tables.Column(
+        verbose_name=_('Role'),
         linkify=True
     )
 

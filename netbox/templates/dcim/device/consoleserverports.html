@@ -1,57 +1,28 @@
-{% extends 'dcim/device/base.html' %}
-{% load render_table from django_tables2 %}
+{% extends 'dcim/device/components_base.html' %}
 {% load helpers %}
-{% load static %}
+{% load i18n %}
 
-{% block content %}
-  {% include 'inc/table_controls_htmx.html' with table_modal="DeviceConsoleServerPortTable_config" %}
-  
-  <form method="post">
-    {% csrf_token %}
-
-    <div class="card">
-      <div class="card-body htmx-container table-responsive" id="object_list">
-        {% include 'htmx/table.html' %}
-      </div>
-    </div>
-
-    <div class="noprint bulk-buttons">
-      <div class="bulk-button-group">
-        {% if 'bulk_edit' in actions %}
-          <div class="btn-group" role="group">
-            <button type="submit" name="_edit" formaction="{% url 'dcim:consoleserverport_bulk_edit' %}?device={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-warning btn-sm">
-              <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit
+{% block bulk_delete_controls %}
+    {{ block.super }}
+    {% with bulk_disconnect_view=child_model|validated_viewname:"bulk_disconnect" %}
+        {% if 'bulk_disconnect' in actions and bulk_disconnect_view %}
+            <button type="submit" name="_disconnect"
+                    formaction="{% url bulk_disconnect_view %}?return_url={{ return_url }}"
+                    class="btn btn-outline-danger btn-sm">
+                <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> {% trans "Disconnect" %}
             </button>
-            <button type="submit" name="_rename" formaction="{% url 'dcim:consoleserverport_bulk_rename' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-outline-warning btn-sm">
-              <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
-            </button>
-          </div>
         {% endif %}
-        <div class="btn-group" role="group">
-          {% if 'bulk_delete' in actions %}
-            <button type="submit" formaction="{% url 'dcim:consoleserverport_bulk_delete' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-danger btn-sm">
-              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
-            </button>
-          {% endif %}
-          {% if 'bulk_edit' in actions %}
-            <button type="submit" name="_disconnect" formaction="{% url 'dcim:consoleserverport_bulk_disconnect' %}?return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-outline-danger btn-sm">
-              <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> Disconnect
-            </button>
-          {% endif %}
-        </div>
-      </div>
-      {% if perms.dcim.add_consoleserverport %}
-        <div class="bulk-button-group">
-          <a href="{% url 'dcim:consoleserverport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Console Server Ports
-          </a>
-        </div>
-      {% endif %}
-    </div>
-  </form>
-{% endblock %}
+    {% endwith %}
+{% endblock bulk_delete_controls %}
 
-{% block modals %}
-  {{ block.super }}
-  {% table_config_form table %}
-{% endblock modals %}
+{% block bulk_extra_controls %}
+    {{ block.super }}
+    {% if perms.dcim.add_consoleserverport %}
+        <div class="bulk-button-group">
+            <a href="{% url 'dcim:consoleserverport_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_consoleserverports' pk=object.pk %}"
+               class="btn btn-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Console Server Ports" %}
+            </a>
+        </div>
+    {% endif %}
+{% endblock bulk_extra_controls %}

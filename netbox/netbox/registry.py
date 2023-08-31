@@ -21,6 +21,7 @@ class Registry(dict):
 
 # Initialize the global registry
 registry = Registry({
+    'counter_fields': collections.defaultdict(dict),
     'data_backends': dict(),
     'denormalized_fields': collections.defaultdict(list),
     'model_features': dict(),

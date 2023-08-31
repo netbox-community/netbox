@@ -2,49 +2,50 @@
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block content %}
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Chassis
+                    {% trans "Chassis" %}
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <td>Manufacturer</td>
+                            <td>{% trans "Manufacturer" %}</td>
                             <td>{{ object.manufacturer|linkify }}</td>
                         </tr>
                         <tr>
-                            <td>Model Name</td>
+                            <td>{% trans "Model Name" %}</td>
                             <td>
                                 {{ object.model }}<br/>
                                 <small class="text-muted">{{ object.slug }}</small>
                             </td>
                         </tr>
                         <tr>
-                            <td>Part Number</td>
+                            <td>{% trans "Part Number" %}</td>
                             <td>{{ object.part_number|placeholder }}</td>
                         </tr>
                         <tr>
-                            <td>Default Platform</td>
+                            <td>{% trans "Default Platform" %}</td>
                             <td>{{ object.default_platform|linkify }}</td>
                         </tr>
                         <tr>
-                            <td>Description</td>
+                            <td>{% trans "Description" %}</td>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
                         <tr>
-                            <td>Height (U)</td>
+                            <td>{% trans "Height (U" %})</td>
                             <td>{{ object.u_height|floatformat }}</td>
                         </tr>
                         <tr>
-                            <td>Full Depth</td>
+                            <td>{% trans "Full Depth" %}</td>
                             <td>{% checkmark object.is_full_depth %}</td>
                         </tr>
                         <tr>
-                            <td>Weight</td>
+                            <td>{% trans "Weight" %}</td>
                             <td>
                             {% if object.weight %}
                               {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
@@ -54,19 +55,19 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Parent/Child</td>
+                            <td>{% trans "Parent/Child" %}</td>
                             <td>
                                 {{ object.get_subdevice_role_display|placeholder }}
                             </td>
                         </tr>
                         <tr>
-                            <td>Airflow</td>
+                            <td>{% trans "Airflow" %}</td>
                             <td>
                                 {{ object.get_airflow_display|placeholder }}
                             </td>
                         </tr>
                         <tr>
-                            <td>Front Image</td>
+                            <td>{% trans "Front Image" %}</td>
                             <td>
                                 {% if object.front_image %}
                                     <a href="{{ object.front_image.url }}">
@@ -78,7 +79,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>Rear Image</td>
+                            <td>{% trans "Rear Image" %}</td>
                             <td>
                                 {% if object.rear_image %}
                                     <a href="{{ object.rear_image.url }}">

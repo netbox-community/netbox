@@ -1,5 +1,6 @@
 {% load form_helpers %}
 {% load helpers %}
+{% load i18n %}
 
 <div class="row mb-3{% if field.errors %} has-errors{% endif %}">
 
@@ -16,7 +17,7 @@
     {% if field|widget_type == 'slugwidget' %}
       <div class="input-group">
         {{ field }}
-        <button id="reslug" type="button" title="Regenerate Slug" class="btn btn-outline-dark border-input">
+        <button id="reslug" type="button" title="{% trans "Regenerate Slug" %}" class="btn btn-outline-dark border-input">
           <i class="mdi mdi-reload"></i>
         </button>
       </div>
@@ -40,7 +41,7 @@
       </div>
     {% elif field.field.required %}
       <div class="invalid-feedback">
-        This field is required.
+        {% trans "This field is required" %}.
       </div>
     {% endif %}
 
@@ -53,7 +54,7 @@
     {% if bulk_nullable %}
       <div class="form-check my-1">
         <input type="checkbox" class="form-check-input" name="_nullify" value="{{ field.name }}" id="nullify_{{ field.id_for_label }}" />
-        <label for="nullify_{{ field.id_for_label }}" class="form-check-label">Set Null</label>
+        <label for="nullify_{{ field.id_for_label }}" class="form-check-label">{% trans "Set Null" %}</label>
       </div>
     {% endif %}
 

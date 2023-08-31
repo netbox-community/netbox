@@ -46,14 +46,14 @@ def get_device_description(device):
     Return a description for a device to be rendered in the rack elevation in the following format
 
     Name: <name>
-    Role: <device_role>
+    Role: <role>
     Device Type: <manufacturer> <model> (<u_height>)
     Asset tag: <asset_tag> (if defined)
     Serial: <serial> (if defined)
     Description: <description> (if defined)
     """
     description = f'Name: {device.name}'
-    description += f'\nRole: {device.device_role}'
+    description += f'\nRole: {device.role}'
     u_height = f'{floatformat(device.device_type.u_height)}U'
     description += f'\nDevice Type: {device.device_type.manufacturer.name} {device.device_type.model} ({u_height})'
     if device.asset_tag:
@@ -150,9 +150,9 @@ class RackElevationSVG:
         x = self.legend_width + RACK_ELEVATION_BORDER_WIDTH
         y = RACK_ELEVATION_BORDER_WIDTH
         if self.rack.desc_units:
-            y += int((position - 1) * self.unit_height)
+            y += int((position - self.rack.starting_unit) * self.unit_height)
         else:
-            y += int((self.rack.u_height - position + 1) * self.unit_height) - int(height * self.unit_height)
+            y += int((self.rack.u_height - position + self.rack.starting_unit) * self.unit_height) - int(height * self.unit_height)
 
         return x, y
 
@@ -205,7 +205,7 @@ class RackElevationSVG:
         """
         Draw the front (mounted) face of a device.
         """
-        color = device.device_role.color
+        color = device.role.color
         image = device.device_type.front_image
         self._draw_device(device, coords, size, color=color, image=image)
 
@@ -237,6 +237,7 @@ class RackElevationSVG:
             start_y = ru * self.unit_height + RACK_ELEVATION_BORDER_WIDTH
             position_coordinates = (self.legend_width / 2, start_y + self.unit_height / 2 + RACK_ELEVATION_BORDER_WIDTH)
             unit = ru + 1 if self.rack.desc_units else self.rack.u_height - ru
+            unit = unit + self.rack.starting_unit - 1
             self.drawing.add(
                 Text(str(unit), position_coordinates, class_='unit')
             )
@@ -278,6 +279,7 @@ class RackElevationSVG:
 
         for ru in range(0, self.rack.u_height):
             unit = ru + 1 if self.rack.desc_units else self.rack.u_height - ru
+            unit = unit + self.rack.starting_unit - 1
             y_offset = RACK_ELEVATION_BORDER_WIDTH + ru * self.unit_height
             text_coords = (
                 x_offset + self.unit_width / 2,

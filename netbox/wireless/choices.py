@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from utilities.choices import ChoiceSet
 
@@ -8,8 +8,8 @@ class WirelessRoleChoices(ChoiceSet):
     ROLE_STATION = 'station'
 
     CHOICES = (
-        (ROLE_AP, 'Access point'),
-        (ROLE_STATION, 'Station'),
+        (ROLE_AP, _('Access point')),
+        (ROLE_STATION, _('Station')),
     )
 
 
@@ -464,10 +464,10 @@ class WirelessAuthTypeChoices(ChoiceSet):
     TYPE_WPA_ENTERPRISE = 'wpa-enterprise'
 
     CHOICES = (
-        (TYPE_OPEN, 'Open'),
+        (TYPE_OPEN, _('Open')),
         (TYPE_WEP, 'WEP'),
-        (TYPE_WPA_PERSONAL, 'WPA Personal (PSK)'),
-        (TYPE_WPA_ENTERPRISE, 'WPA Enterprise'),
+        (TYPE_WPA_PERSONAL, _('WPA Personal (PSK)')),
+        (TYPE_WPA_ENTERPRISE, _('WPA Enterprise')),
     )
 
 
@@ -477,7 +477,7 @@ class WirelessAuthCipherChoices(ChoiceSet):
     CIPHER_AES = 'aes'
 
     CHOICES = (
-        (CIPHER_AUTO, 'Auto'),
+        (CIPHER_AUTO, _('Auto')),
         (CIPHER_TKIP, 'TKIP'),
         (CIPHER_AES, 'AES'),
     )

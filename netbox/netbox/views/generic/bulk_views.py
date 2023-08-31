@@ -8,7 +8,7 @@ from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, Valida
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError
 from django.db.models.fields.reverse_related import ManyToManyRel
-from django.forms import ModelMultipleChoiceField, MultipleHiddenInput
+from django.forms import HiddenInput, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -313,6 +313,13 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         """
         return data
 
+    def _get_form_fields(self):
+        # Exclude any fields which use a HiddenInput widget
+        return {
+            name: field for name, field in self.model_form().fields.items()
+            if type(field.widget) is not HiddenInput
+        }
+
     def _save_object(self, model_form, request):
 
         # Save the primary object
@@ -430,7 +437,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         return render(request, self.template_name, {
             'model': self.model_form._meta.model,
             'form': form,
-            'fields': self.model_form().fields,
+            'fields': self._get_form_fields(),
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })
@@ -458,7 +465,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     messages.success(request, msg)
 
                     view_name = get_viewname(model, action='list')
-                    results_url = f"{reverse(view_name)}?created_by_request={request.id}"
+                    results_url = f"{reverse(view_name)}?modified_by_request={request.id}"
                     return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
@@ -475,7 +482,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         return render(request, self.template_name, {
             'model': model,
             'form': form,
-            'fields': self.model_form().fields,
+            'fields': self._get_form_fields(),
             'return_url': self.get_return_url(request),
             **self.get_extra_context(request),
         })

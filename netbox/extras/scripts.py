@@ -401,23 +401,23 @@ class BaseScript:
 
     def log_debug(self, message):
         self.logger.log(logging.DEBUG, message)
-        self.log.append((LogLevelChoices.LOG_DEFAULT, message))
+        self.log.append((LogLevelChoices.LOG_DEFAULT, str(message)))
 
     def log_success(self, message):
         self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LogLevelChoices.LOG_SUCCESS, message))
+        self.log.append((LogLevelChoices.LOG_SUCCESS, str(message)))
 
     def log_info(self, message):
         self.logger.log(logging.INFO, message)
-        self.log.append((LogLevelChoices.LOG_INFO, message))
+        self.log.append((LogLevelChoices.LOG_INFO, str(message)))
 
     def log_warning(self, message):
         self.logger.log(logging.WARNING, message)
-        self.log.append((LogLevelChoices.LOG_WARNING, message))
+        self.log.append((LogLevelChoices.LOG_WARNING, str(message)))
 
     def log_failure(self, message):
         self.logger.log(logging.ERROR, message)
-        self.log.append((LogLevelChoices.LOG_FAILURE, message))
+        self.log.append((LogLevelChoices.LOG_FAILURE, str(message)))
 
     # Convenience functions
 

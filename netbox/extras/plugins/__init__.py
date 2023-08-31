@@ -2,7 +2,6 @@ import collections
 from importlib import import_module
 
 from django.apps import AppConfig
-from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 from packaging import version
@@ -12,6 +11,7 @@ from netbox.search import register_search
 from .navigation import *
 from .registration import *
 from .templates import *
+from .utils import *
 
 # Initialize plugin registry
 registry['plugins'].update({
@@ -146,23 +146,3 @@ class PluginConfig(AppConfig):
         for setting, value in cls.default_settings.items():
             if setting not in user_config:
                 user_config[setting] = value
-
-
-#
-# Utilities
-#
-
-def get_plugin_config(plugin_name, parameter, default=None):
-    """
-    Return the value of the specified plugin configuration parameter.
-
-    Args:
-        plugin_name: The name of the plugin
-        parameter: The name of the configuration parameter
-        default: The value to return if the parameter is not defined (default: None)
-    """
-    try:
-        plugin_config = settings.PLUGINS_CONFIG[plugin_name]
-        return plugin_config.get(parameter, default)
-    except KeyError:
-        raise ImproperlyConfigured(f"Plugin {plugin_name} is not registered.")

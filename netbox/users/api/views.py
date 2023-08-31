@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema
 from drf_spectacular.types import OpenApiTypes
@@ -32,7 +33,7 @@ class UsersRootView(APIRootView):
 #
 
 class UserViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=User).prefetch_related('groups').order_by('username')
+    queryset = RestrictedQuerySet(model=get_user_model()).prefetch_related('groups').order_by('username')
     serializer_class = serializers.UserSerializer
     filterset_class = filtersets.UserFilterSet
 
@@ -48,20 +49,9 @@ class GroupViewSet(NetBoxModelViewSet):
 #
 
 class TokenViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=Token).prefetch_related('user')
+    queryset = Token.objects.prefetch_related('user')
     serializer_class = serializers.TokenSerializer
     filterset_class = filtersets.TokenFilterSet
-
-    def get_queryset(self):
-        """
-        Limit the non-superusers to their own Tokens.
-        """
-        queryset = super().get_queryset()
-        if not self.request.user.is_authenticated:
-            return queryset.none()
-        if self.request.user.is_superuser:
-            return queryset
-        return queryset.filter(user=self.request.user)
 
 
 class TokenProvisionView(APIView):
@@ -70,7 +60,13 @@ class TokenProvisionView(APIView):
     """
     permission_classes = []
 
-    # @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
+    @extend_schema(
+        request=serializers.TokenProvisionSerializer,
+        responses={
+            201: serializers.TokenSerializer,
+            401: OpenApiTypes.OBJECT,
+        }
+    )
     def post(self, request):
         serializer = serializers.TokenProvisionSerializer(data=request.data)
         serializer.is_valid()

@@ -15,12 +15,12 @@ Prior to upgrading your NetBox instance, be sure to carefully review all [releas
 
 ## 2. Update Dependencies to Required Versions
 
-NetBox v3.0 and later require the following:
+NetBox requires the following dependencies:
 
 | Dependency | Minimum Version |
 |------------|-----------------|
 | Python     | 3.8             |
-| PostgreSQL | 11              |
+| PostgreSQL | 12              |
 | Redis      | 4.0             |
 
 ## 3. Install the Latest Release
@@ -59,7 +59,7 @@ Copy `local_requirements.txt`, `configuration.py`, and `ldap_config.py` (if pres
 
 ```no-highlight
 # Set $OLDVER to the NetBox version currently installed
-NEWVER=3.4.9
+OLDVER=3.4.9
 sudo cp /opt/netbox-$OLDVER/local_requirements.txt /opt/netbox/
 sudo cp /opt/netbox-$OLDVER/netbox/netbox/configuration.py /opt/netbox/netbox/netbox/
 sudo cp /opt/netbox-$OLDVER/netbox/netbox/ldap_config.py /opt/netbox/netbox/netbox/

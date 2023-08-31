@@ -32,36 +32,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='AdminGroup',
-            fields=[
-            ],
-            options={
-                'verbose_name': 'Group',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
-            },
-            bases=('auth.group',),
-            managers=[
-                ('objects', django.contrib.auth.models.GroupManager()),
-            ],
-        ),
-        migrations.CreateModel(
-            name='AdminUser',
-            fields=[
-            ],
-            options={
-                'verbose_name': 'User',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
-            },
-            bases=('auth.user',),
-            managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
-            ],
-        ),
-        migrations.CreateModel(
             name='UserConfig',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False)),
@@ -96,7 +66,7 @@ class Migration(migrations.Migration):
                 ('actions', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30), size=None)),
                 ('constraints', models.JSONField(blank=True, null=True)),
                 ('groups', models.ManyToManyField(blank=True, related_name='object_permissions', to='auth.Group')),
-                ('object_types', models.ManyToManyField(limit_choices_to=models.Q(models.Q(models.Q(('app_label__in', ['admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']), _negated=True), models.Q(('app_label', 'auth'), ('model__in', ['group', 'user'])), models.Q(('app_label', 'users'), ('model__in', ['objectpermission', 'token'])), _connector='OR')), related_name='object_permissions', to='contenttypes.ContentType')),
+                ('object_types', models.ManyToManyField(limit_choices_to=models.Q(models.Q(models.Q(('app_label__in', ['account', 'admin', 'auth', 'contenttypes', 'sessions', 'taggit', 'users']), _negated=True), models.Q(('app_label', 'auth'), ('model__in', ['group', 'user'])), models.Q(('app_label', 'users'), ('model__in', ['objectpermission', 'token'])), _connector='OR')), related_name='object_permissions', to='contenttypes.ContentType')),
                 ('users', models.ManyToManyField(blank=True, related_name='object_permissions', to=settings.AUTH_USER_MODEL)),
             ],
             options={

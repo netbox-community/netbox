@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -14,7 +15,7 @@
 {% block extra_controls %}
   {% if perms.ipam.add_vlan %}
     <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add VLAN
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add VLAN" %}
     </a>
   {% endif %}
 {% endblock %}
@@ -23,23 +24,23 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">VLAN Group</h5>
+      <h5 class="card-header">{% trans "VLAN Group" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Scope</th>
+            <th scope="row">{% trans "Scope" %}</th>
             <td>{{ object.scope|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Permitted VIDs</th>
+            <th scope="row">{% trans "Permitted VIDs" %}</th>
             <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
           </tr>
           <tr>
@@ -56,17 +57,6 @@
     {% include 'inc/panels/related_objects.html' %}
     {% include 'inc/panels/custom_fields.html' %}
     {% plugin_right_page object %}
-  </div>
-</div>
-<div class="row mb-3">
-	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">VLANs</h5>
-      <div class="card-body table-responsive">
-        {% render_table vlans_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=vlans_table.paginator page=vlans_table.page %}
-      </div>
-    </div>
   </div>
 </div>
 {% endblock %}

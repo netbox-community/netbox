@@ -25,8 +25,8 @@ class CablePathTestCase(TestCase):
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
         module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module')
-        device_role = DeviceRole.objects.create(name='Device Role', slug='device-role')
-        cls.device = Device.objects.create(site=cls.site, device_type=device_type, device_role=device_role, name='Test Device')
+        role = DeviceRole.objects.create(name='Device Role', slug='device-role')
+        cls.device = Device.objects.create(site=cls.site, device_type=device_type, role=role, name='Test Device')
 
         cls.powerpanel = PowerPanel.objects.create(site=cls.site, name='Power Panel')
 

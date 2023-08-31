@@ -246,18 +246,22 @@ class ChangeLoggedModelFilterSet(BaseFilterSet):
     updated_by_request = django_filters.UUIDFilter(
         method='filter_by_request'
     )
+    modified_by_request = django_filters.UUIDFilter(
+        method='filter_by_request'
+    )
 
     def filter_by_request(self, queryset, name, value):
         content_type = ContentType.objects.get_for_model(self.Meta.model)
         action = {
-            'created_by_request': ObjectChangeActionChoices.ACTION_CREATE,
-            'updated_by_request': ObjectChangeActionChoices.ACTION_UPDATE,
+            'created_by_request': Q(action=ObjectChangeActionChoices.ACTION_CREATE),
+            'updated_by_request': Q(action=ObjectChangeActionChoices.ACTION_UPDATE),
+            'modified_by_request': Q(action__in=[ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE]),
         }.get(name)
         request_id = value
         pks = ObjectChange.objects.filter(
+            action,
             changed_object_type=content_type,
-            action=action,
-            request_id=request_id
+            request_id=request_id,
         ).values_list('changed_object_id', flat=True)
         return queryset.filter(pk__in=pks)
 

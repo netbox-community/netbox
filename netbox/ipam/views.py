@@ -216,7 +216,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     child_model = ASN
     table = tables.ASNTable
     filterset = filtersets.ASNFilterSet
-    template_name = 'ipam/asnrange/asns.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
@@ -816,7 +816,6 @@ class IPAddressAssignView(generic.ObjectView):
         table = None
 
         if form.is_valid():
-
             addresses = self.queryset.prefetch_related('vrf', 'tenant')
             # Limit to 100 results
             addresses = filtersets.IPAddressFilterSet(request.POST, addresses).qs[:100]
@@ -866,7 +865,7 @@ class IPAddressRelatedIPsView(generic.ObjectChildrenView):
     child_model = IPAddress
     table = tables.IPAddressTable
     filterset = filtersets.IPAddressFilterSet
-    template_name = 'ipam/ipaddress/ip_addresses.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Related IPs'),
         badge=lambda x: x.get_related_ips().count(),
@@ -898,21 +897,8 @@ class VLANGroupView(generic.ObjectView):
             (VLAN.objects.restrict(request.user, 'view').filter(group=instance), 'group_id'),
         )
 
-        # TODO: Replace with embedded table
-        vlans = VLAN.objects.restrict(request.user, 'view').filter(group=instance).prefetch_related(
-            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user)),
-            'tenant', 'site', 'role',
-        ).order_by('vid')
-        vlans = add_available_vlans(vlans, vlan_group=instance)
-
-        vlans_table = tables.VLANTable(vlans, user=request.user, exclude=('group',))
-        if request.user.has_perm('ipam.change_vlan') or request.user.has_perm('ipam.delete_vlan'):
-            vlans_table.columns.show('pk')
-        vlans_table.configure(request)
-
         return {
             'related_models': related_models,
-            'vlans_table': vlans_table,
         }
 
 
@@ -945,6 +931,30 @@ class VLANGroupBulkDeleteView(generic.BulkDeleteView):
     table = tables.VLANGroupTable
 
 
+@register_model_view(VLANGroup, 'vlans')
+class VLANGroupVLANsView(generic.ObjectChildrenView):
+    queryset = VLANGroup.objects.all()
+    child_model = VLAN
+    table = tables.VLANTable
+    filterset = filtersets.VLANFilterSet
+    template_name = 'generic/object_children.html'
+    tab = ViewTab(
+        label=_('VLANs'),
+        badge=lambda x: x.get_child_vlans().count(),
+        permission='ipam.view_vlan',
+        weight=500
+    )
+
+    def get_children(self, request, parent):
+        return parent.get_child_vlans().restrict(request.user, 'view').prefetch_related(
+            Prefetch('prefixes', queryset=Prefix.objects.restrict(request.user)),
+            'tenant', 'site', 'role',
+        )
+
+    def prep_table_data(self, request, queryset, parent):
+        return add_available_vlans(parent.get_child_vlans(), parent)
+
+
 #
 # FHRP groups
 #
@@ -963,7 +973,6 @@ class FHRPGroupView(generic.ObjectView):
     queryset = FHRPGroup.objects.all()
 
     def get_extra_context(self, request, instance):
-
         # Get assigned interfaces
         members_table = tables.FHRPGroupAssignmentTable(
             data=FHRPGroupAssignment.objects.restrict(request.user, 'view').filter(group=instance),
@@ -1077,7 +1086,7 @@ class VLANInterfacesView(generic.ObjectChildrenView):
     child_model = Interface
     table = tables.VLANDevicesTable
     filterset = InterfaceFilterSet
-    template_name = 'ipam/vlan/interfaces.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Device Interfaces'),
         badge=lambda x: x.get_interfaces().count(),
@@ -1095,7 +1104,7 @@ class VLANVMInterfacesView(generic.ObjectChildrenView):
     child_model = VMInterface
     table = tables.VLANVirtualMachinesTable
     filterset = VMInterfaceFilterSet
-    template_name = 'ipam/vlan/vminterfaces.html'
+    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('VM Interfaces'),
         badge=lambda x: x.get_vminterfaces().count(),

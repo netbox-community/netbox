@@ -1,6 +1,7 @@
 import datetime
 
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import make_aware
@@ -8,6 +9,8 @@ from django.utils.timezone import make_aware
 from users import filtersets
 from users.models import ObjectPermission, Token
 from utilities.testing import BaseFilterSetTests
+
+User = get_user_model()
 
 
 class UserTestCase(TestCase, BaseFilterSetTests):
@@ -30,7 +33,8 @@ class UserTestCase(TestCase, BaseFilterSetTests):
                 first_name='Hank',
                 last_name='Hill',
                 email='hank@stricklandpropane.com',
-                is_staff=True
+                is_staff=True,
+                is_superuser=True
             ),
             User(
                 username='User2',
@@ -79,13 +83,17 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         params = {'email': ['hank@stricklandpropane.com', 'dale@dalesdeadbug.com']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_is_active(self):
+        params = {'is_active': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_is_staff(self):
         params = {'is_staff': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_is_active(self):
-        params = {'is_active': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+    def test_is_superuser(self):
+        params = {'is_superuser': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_group(self):
         groups = Group.objects.all()[:2]
@@ -186,6 +194,22 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_can_view(self):
+        params = {'can_view': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_can_add(self):
+        params = {'can_add': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_can_change(self):
+        params = {'can_change': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_can_delete(self):
+        params = {'can_delete': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class TokenTestCase(TestCase, BaseFilterSetTests):

@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 from circuits.models import *
 from django_tables2.utils import Accessor
 from tenancy.tables import ContactsColumnMixin
@@ -14,35 +15,38 @@ __all__ = (
 
 class ProviderTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     accounts = columns.ManyToManyColumn(
         linkify_item=True,
-        verbose_name='Accounts'
+        verbose_name=_('Accounts')
     )
     account_count = columns.LinkedCountColumn(
         accessor=tables.A('accounts__count'),
         viewname='circuits:provideraccount_list',
         url_params={'account_id': 'pk'},
-        verbose_name='Account Count'
+        verbose_name=_('Account Count')
     )
     asns = columns.ManyToManyColumn(
         linkify_item=True,
-        verbose_name='ASNs'
+        verbose_name=_('ASNs')
     )
     asn_count = columns.LinkedCountColumn(
         accessor=tables.A('asns__count'),
         viewname='ipam:asn_list',
         url_params={'provider_id': 'pk'},
-        verbose_name='ASN Count'
+        verbose_name=_('ASN Count')
     )
     circuit_count = columns.LinkedCountColumn(
         accessor=Accessor('count_circuits'),
         viewname='circuits:circuit_list',
         url_params={'provider_id': 'pk'},
-        verbose_name='Circuits'
+        verbose_name=_('Circuits')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='circuits:provider_list'
     )
@@ -58,19 +62,25 @@ class ProviderTable(ContactsColumnMixin, NetBoxTable):
 
 class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
     account = tables.Column(
-        linkify=True
+        linkify=True,
+        verbose_name=_('Account'),
     )
-    name = tables.Column()
+    name = tables.Column(
+        verbose_name=_('Name'),
+    )
     provider = tables.Column(
+        verbose_name=_('Provider'),
         linkify=True
     )
     circuit_count = columns.LinkedCountColumn(
         accessor=Accessor('count_circuits'),
         viewname='circuits:circuit_list',
         url_params={'provider_account_id': 'pk'},
-        verbose_name='Circuits'
+        verbose_name=_('Circuits')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='circuits:provideraccount_list'
     )
@@ -86,12 +96,16 @@ class ProviderAccountTable(ContactsColumnMixin, NetBoxTable):
 
 class ProviderNetworkTable(NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     provider = tables.Column(
+        verbose_name=_('Provider'),
         linkify=True
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='circuits:providernetwork_list'
     )

@@ -86,6 +86,10 @@ class DummyModel(models.Model):
     charfield = models.CharField(
         max_length=10
     )
+    numberfield = models.IntegerField(
+        blank=True,
+        null=True
+    )
     choicefield = models.IntegerField(
         choices=(('A', 1), ('B', 2), ('C', 3))
     )
@@ -108,6 +112,7 @@ class BaseFilterSetTest(TestCase):
     """
     class DummyFilterSet(BaseFilterSet):
         charfield = django_filters.CharFilter()
+        numberfield = django_filters.NumberFilter()
         macaddressfield = MACAddressFilter()
         modelchoicefield = django_filters.ModelChoiceFilter(
             field_name='integerfield',  # We're pretending this is a ForeignKey field
@@ -132,6 +137,7 @@ class BaseFilterSetTest(TestCase):
             model = DummyModel
             fields = (
                 'charfield',
+                'numberfield',
                 'choicefield',
                 'datefield',
                 'datetimefield',
@@ -171,6 +177,25 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['charfield__iew'].exclude, False)
         self.assertEqual(self.filters['charfield__niew'].lookup_expr, 'iendswith')
         self.assertEqual(self.filters['charfield__niew'].exclude, True)
+        self.assertEqual(self.filters['charfield__empty'].lookup_expr, 'empty')
+        self.assertEqual(self.filters['charfield__empty'].exclude, False)
+
+    def test_number_filter(self):
+        self.assertIsInstance(self.filters['numberfield'], django_filters.NumberFilter)
+        self.assertEqual(self.filters['numberfield'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['numberfield'].exclude, False)
+        self.assertEqual(self.filters['numberfield__n'].lookup_expr, 'exact')
+        self.assertEqual(self.filters['numberfield__n'].exclude, True)
+        self.assertEqual(self.filters['numberfield__lt'].lookup_expr, 'lt')
+        self.assertEqual(self.filters['numberfield__lt'].exclude, False)
+        self.assertEqual(self.filters['numberfield__lte'].lookup_expr, 'lte')
+        self.assertEqual(self.filters['numberfield__lte'].exclude, False)
+        self.assertEqual(self.filters['numberfield__gt'].lookup_expr, 'gt')
+        self.assertEqual(self.filters['numberfield__gt'].exclude, False)
+        self.assertEqual(self.filters['numberfield__gte'].lookup_expr, 'gte')
+        self.assertEqual(self.filters['numberfield__gte'].exclude, False)
+        self.assertEqual(self.filters['numberfield__empty'].lookup_expr, 'isnull')
+        self.assertEqual(self.filters['numberfield__empty'].exclude, False)
 
     def test_mac_address_filter(self):
         self.assertIsInstance(self.filters['macaddressfield'], MACAddressFilter)
@@ -360,12 +385,12 @@ class DynamicFilterLookupExpressionTest(TestCase):
         )
         DeviceType.objects.bulk_create(device_types)
 
-        device_roles = (
+        roles = (
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
         )
-        DeviceRole.objects.bulk_create(device_roles)
+        DeviceRole.objects.bulk_create(roles)
 
         platforms = (
             Platform(name='Platform 1', slug='platform-1'),
@@ -401,9 +426,9 @@ class DynamicFilterLookupExpressionTest(TestCase):
         Rack.objects.bulk_create(racks)
 
         devices = (
-            Device(name='Device 1', device_type=device_types[0], device_role=device_roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], device_role=device_roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED),
-            Device(name='Device 3', device_type=device_types[2], device_role=device_roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED),
+            Device(name='Device 1', device_type=device_types[0], role=roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, local_context_data={"foo": 123}),
+            Device(name='Device 2', device_type=device_types[1], role=roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED),
+            Device(name='Device 3', device_type=device_types[2], role=roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED),
         )
         Device.objects.bulk_create(devices)
 

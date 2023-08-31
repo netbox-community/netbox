@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 
+from extras.models import ConfigRevision
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from utilities.utils import count_related
@@ -141,3 +142,14 @@ class JobBulkDeleteView(generic.BulkDeleteView):
     queryset = Job.objects.all()
     filterset = filtersets.JobFilterSet
     table = tables.JobTable
+
+
+#
+# Config Revisions
+#
+
+class ConfigView(generic.ObjectView):
+    queryset = ConfigRevision.objects.all()
+
+    def get_object(self, **kwargs):
+        return self.queryset.first()

@@ -1,22 +1,23 @@
 {% load humanize %}
 {% load helpers %}
+{% load i18n %}
 
 <p>
   {% if job.started %}
-    Started: <strong>{{ job.started|annotated_date }}</strong>
+    {% trans "Started" %}: <strong>{{ job.started|annotated_date }}</strong>
   {% elif job.scheduled %}
-    Scheduled for: <strong>{{ job.scheduled|annotated_date }}</strong> ({{ job.scheduled|naturaltime }})
+    {% trans "Scheduled for" %}: <strong>{{ job.scheduled|annotated_date }}</strong> ({{ job.scheduled|naturaltime }})
   {% else %}
-    Created: <strong>{{ job.created|annotated_date }}</strong>
+    {% trans "Created" %}: <strong>{{ job.created|annotated_date }}</strong>
   {% endif %}
   {% if job.completed %}
-    Duration: <strong>{{ job.duration }}</strong>
+    {% trans "Duration" %}: <strong>{{ job.duration }}</strong>
   {% endif %}
   <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
 </p>
 {% if job.completed %}
   <div class="card">
-    <h5 class="card-header">Report Methods</h5>
+    <h5 class="card-header">{% trans "Report Methods" %}</h5>
     <div class="card-body">
       <table class="table table-hover">
         {% for method, data in job.data.items %}
@@ -34,15 +35,15 @@
     </div>
   </div>
   <div class="card">
-    <h5 class="card-header">Report Results</h5>
+    <h5 class="card-header">{% trans "Report Results" %}</h5>
     <div class="card-body">
       <table class="table table-hover report">
         <thead>
           <tr class="table-headings">
-            <th>Time</th>
-            <th>Level</th>
-            <th>Object</th>
-            <th>Message</th>
+            <th>{% trans "Time" %}</th>
+            <th>{% trans "Level" %}</th>
+            <th>{% trans "Object" %}</th>
+            <th>{% trans "Message" %}</th>
           </tr>
         </thead>
         <tbody>

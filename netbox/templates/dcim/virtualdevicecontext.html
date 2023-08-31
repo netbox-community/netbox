@@ -2,9 +2,10 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'dcim:virtualdevicecontext_list' %}">Virtual Device Contexts</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'dcim:virtualdevicecontext_list' %}">{% trans "Virtual Device Contexts" %}</a></li>
 {% endblock %}
 
 {% block content %}
@@ -12,24 +13,24 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Virtual Device Context
+        {% trans "Virtual Device Context" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Device</th>
+            <th scope="row">{% trans "Device" %}</th>
             <td>{{ object.device|linkify }}</td>
           </tr>
           <tr>
-            <th scope="row">Identifier</th>
+            <th scope="row">{% trans "Identifier" %}</th>
             <td>{{ object.identifier|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Primary IPv4</th>
+            <th scope="row">{% trans "Primary IPv4" %}</th>
             <td>
               {% if object.primary_ip4 %}
                 <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4 }}</a>
@@ -40,7 +41,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Primary IPv6</th>
+            <th scope="row">{% trans "Primary IPv6" %}</th>
             <td>
               {% if object.primary_ip6 %}
                 <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6 }}</a>
@@ -51,7 +52,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Tenant</th>
+            <th scope="row">{% trans "Tenant" %}</th>
             <td>
               {% if object.tenant.group %}
                 {{ object.tenant.group|linkify }} /
@@ -60,7 +61,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Interfaces</th>
+            <th scope="row">{% trans "Interfaces" %}</th>
             <td>
               <a href="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}">{{ object.interfaces.count }}</a>
             </td>
@@ -81,7 +82,7 @@
 <div class="row mb-3">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Interfaces</h5>
+      <h5 class="card-header">{% trans "Interfaces" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}"
         hx-trigger="load"

@@ -4,6 +4,7 @@ from functools import cached_property
 
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
@@ -42,6 +43,8 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     class Meta:
         proxy = True
+        verbose_name = _('report module')
+        verbose_name_plural = _('report modules')
 
     def get_absolute_url(self):
         return reverse('extras:report_list')

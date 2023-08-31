@@ -58,6 +58,7 @@ class AvailableASNSerializer(serializers.Serializer):
     Representation of an ASN which does not exist in the database.
     """
     asn = serializers.IntegerField(read_only=True)
+    description = serializers.CharField(required=False)
 
     def to_representation(self, asn):
         rir = NestedRIRSerializer(self.context['range'].rir, context={
@@ -433,6 +434,7 @@ class AvailableIPSerializer(serializers.Serializer):
     family = serializers.IntegerField(read_only=True)
     address = serializers.CharField(read_only=True)
     vrf = NestedVRFSerializer(read_only=True)
+    description = serializers.CharField(required=False)
 
     def to_representation(self, instance):
         if self.context.get('vrf'):

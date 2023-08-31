@@ -1,50 +1,124 @@
-from .models import Token
+import django_tables2 as tables
+from django.utils.translation import gettext as _
+
+from account.tables import UserTokenTable
 from netbox.tables import NetBoxTable, columns
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
 
 __all__ = (
+    'GroupTable',
+    'ObjectPermissionTable',
     'TokenTable',
+    'UserTable',
 )
 
 
-TOKEN = """<samp><span id="token_{{ record.pk }}">{{ record }}</span></samp>"""
-
-ALLOWED_IPS = """{{ value|join:", " }}"""
-
-COPY_BUTTON = """
-{% if settings.ALLOW_TOKEN_RETRIEVAL %}
-  {% copy_content record.pk prefix="token_" color="success" %}
-{% endif %}
-"""
-
-
-class TokenActionsColumn(columns.ActionsColumn):
-    # Subclass ActionsColumn to disregard permissions for edit & delete buttons
-    actions = {
-        'edit': columns.ActionsItem('Edit', 'pencil', None, 'warning'),
-        'delete': columns.ActionsItem('Delete', 'trash-can-outline', None, 'danger'),
-    }
-
-
-class TokenTable(NetBoxTable):
-    key = columns.TemplateColumn(
-        template_code=TOKEN
-    )
-    write_enabled = columns.BooleanColumn(
-        verbose_name='Write'
-    )
-    created = columns.DateColumn()
-    expired = columns.DateColumn()
-    last_used = columns.DateTimeColumn()
-    allowed_ips = columns.TemplateColumn(
-        template_code=ALLOWED_IPS
-    )
-    actions = TokenActionsColumn(
-        actions=('edit', 'delete'),
-        extra_buttons=COPY_BUTTON
+class TokenTable(UserTokenTable):
+    user = tables.Column(
+        linkify=True,
+        verbose_name=_('User')
     )
 
     class Meta(NetBoxTable.Meta):
         model = Token
         fields = (
-            'pk', 'description', 'key', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+            'pk', 'id', 'key', 'user', 'description', 'write_enabled', 'created', 'expires', 'last_used', 'allowed_ips',
+        )
+
+
+class UserTable(NetBoxTable):
+    username = tables.Column(
+        verbose_name=_('Username'),
+        linkify=True
+    )
+    groups = columns.ManyToManyColumn(
+        verbose_name=_('Groups'),
+        linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
+    )
+    is_active = columns.BooleanColumn(
+        verbose_name=_('Is Active'),
+    )
+    is_staff = columns.BooleanColumn(
+        verbose_name=_('Is Staff'),
+    )
+    is_superuser = columns.BooleanColumn(
+        verbose_name=_('Is Superuser'),
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = NetBoxUser
+        fields = (
+            'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'groups', 'is_active', 'is_staff',
+            'is_superuser',
+        )
+        default_columns = ('pk', 'username', 'first_name', 'last_name', 'email', 'is_active')
+
+
+class GroupTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = NetBoxGroup
+        fields = (
+            'pk', 'id', 'name', 'users_count',
+        )
+        default_columns = ('pk', 'name', 'users_count', )
+
+
+class ObjectPermissionTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object Types'),
+    )
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
+    can_view = columns.BooleanColumn(
+        verbose_name=_('Can View'),
+    )
+    can_add = columns.BooleanColumn(
+        verbose_name=_('Can Add'),
+    )
+    can_change = columns.BooleanColumn(
+        verbose_name=_('Can Change'),
+    )
+    can_delete = columns.BooleanColumn(
+        verbose_name=_('Can Delete'),
+    )
+    custom_actions = columns.ArrayColumn(
+        verbose_name=_('Custom Actions'),
+        accessor=tables.A('actions')
+    )
+    users = columns.ManyToManyColumn(
+        verbose_name=_('Users'),
+        linkify_item=('users:netboxuser', {'pk': tables.A('pk')})
+    )
+    groups = columns.ManyToManyColumn(
+        verbose_name=_('Groups'),
+        linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
+    )
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = ObjectPermission
+        fields = (
+            'pk', 'id', 'name', 'enabled', 'object_types', 'can_view', 'can_add', 'can_change', 'can_delete',
+            'custom_actions', 'users', 'groups', 'constraints', 'description',
+        )
+        default_columns = (
+            'pk', 'name', 'enabled', 'object_types', 'can_view', 'can_add', 'can_change', 'can_delete', 'description',
         )

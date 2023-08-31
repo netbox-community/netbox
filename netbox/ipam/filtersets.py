@@ -467,6 +467,10 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         choices=IPRangeStatusChoices,
         null_value=None
     )
+    parent = MultiValueCharFilter(
+        method='search_by_parent',
+        label=_('Parent prefix'),
+    )
 
     class Meta:
         model = IPRange
@@ -500,6 +504,18 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
             return queryset.filter(**{f'{name}__net_in': value})
         except ValidationError:
             return queryset.none()
+
+    def search_by_parent(self, queryset, name, value):
+        if not value:
+            return queryset
+        q = Q()
+        for prefix in value:
+            try:
+                query = str(netaddr.IPNetwork(prefix.strip()).cidr)
+                q |= Q(start_address__net_host_contained=query, end_address__net_host_contained=query)
+            except (AddrFormatError, ValueError):
+                return queryset.none()
+        return queryset.filter(q)
 
 
 class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -590,6 +606,10 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     assigned_to_interface = django_filters.BooleanFilter(
         method='_assigned_to_interface',
         label=_('Is assigned to an interface'),
+    )
+    assigned = django_filters.BooleanFilter(
+        method='_assigned',
+        label=_('Is assigned'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=IPAddressStatusChoices,
@@ -704,6 +724,18 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             return queryset.exclude(
                 assigned_object_type__in=content_types,
                 assigned_object_id__isnull=False
+            )
+
+    def _assigned(self, queryset, name, value):
+        if value:
+            return queryset.exclude(
+                assigned_object_type__isnull=True,
+                assigned_object_id__isnull=True
+            )
+        else:
+            return queryset.filter(
+                assigned_object_type__isnull=True,
+                assigned_object_id__isnull=True
             )
 
 

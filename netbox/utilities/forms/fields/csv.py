@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
@@ -40,7 +41,7 @@ class CSVMultipleChoiceField(CSVChoicesMixin, forms.MultipleChoiceField):
         if not value:
             return []
         if not isinstance(value, str):
-            raise forms.ValidationError(f"Invalid value for a multiple choice field: {value}")
+            raise forms.ValidationError(_("Invalid value for a multiple choice field: {value}").format(value=value))
         return value.split(',')
 
 
@@ -53,7 +54,7 @@ class CSVModelChoiceField(forms.ModelChoiceField):
     Extends Django's `ModelChoiceField` to provide additional validation for CSV values.
     """
     default_error_messages = {
-        'invalid_choice': 'Object not found: %(value)s',
+        'invalid_choice': _('Object not found: %(value)s'),
     }
 
     def to_python(self, value):
@@ -61,7 +62,7 @@ class CSVModelChoiceField(forms.ModelChoiceField):
             return super().to_python(value)
         except MultipleObjectsReturned:
             raise forms.ValidationError(
-                f'"{value}" is not a unique value for this field; multiple objects were found'
+                _('"{value}" is not a unique value for this field; multiple objects were found').format(value=value)
             )
 
 
@@ -70,7 +71,7 @@ class CSVModelMultipleChoiceField(forms.ModelMultipleChoiceField):
     Extends Django's `ModelMultipleChoiceField` to support comma-separated values.
     """
     default_error_messages = {
-        'invalid_choice': 'Object not found: %(value)s',
+        'invalid_choice': _('Object not found: %(value)s'),
     }
 
     def clean(self, value):
@@ -93,11 +94,11 @@ class CSVContentTypeField(CSVModelChoiceField):
         try:
             app_label, model = value.split('.')
         except ValueError:
-            raise forms.ValidationError(f'Object type must be specified as "<app>.<model>"')
+            raise forms.ValidationError(_('Object type must be specified as "<app>.<model>"'))
         try:
             return self.queryset.get(app_label=app_label, model=model)
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f'Invalid object type')
+            raise forms.ValidationError(_('Invalid object type'))
 
 
 class CSVMultipleContentTypeField(forms.ModelMultipleChoiceField):

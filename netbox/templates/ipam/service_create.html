@@ -1,10 +1,11 @@
 {% extends 'generic/object_edit.html' %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block form %}
   <div class="field-group my-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Service</h5>
+      <h5 class="offset-sm-3">{% trans "Service" %}</h5>
     </div>
 
     {# Device/VM selection #}
@@ -13,12 +14,12 @@
         <ul class="nav nav-pills" role="tablist">
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="device_tab" data-bs-toggle="tab" aria-controls="device" data-bs-target="#device" class="nav-link {% if not form.initial.virtual_machine %}active{% endif %}">
-              Device
+              {% trans "Device" %}
             </button>
           </li>
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="vm_tab" data-bs-toggle="tab" aria-controls="vm" data-bs-target="#vm" class="nav-link {% if form.initial.virtual_machine %}active{% endif %}">
-              Virtual Machine
+              {% trans "Virtual Machine" %}
             </button>
           </li>
         </ul>
@@ -39,12 +40,12 @@
         <ul class="nav nav-pills" role="tablist">
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="template_tab" data-bs-toggle="tab" data-bs-target="#template" class="nav-link active">
-              From Template
+              {% trans "From Template" %}
             </button>
           </li>
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="custom_tab" data-bs-toggle="tab" data-bs-target="#custom" class="nav-link">
-              Custom
+              {% trans "Custom" %}
             </button>
           </li>
         </ul>
@@ -71,7 +72,7 @@
 
   {% if form.custom_fields %}
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Custom Fields</h5>
+      <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
     </div>
     {% render_custom_fields form %}
   {% endif %}

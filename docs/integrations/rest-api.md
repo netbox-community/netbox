@@ -570,17 +570,18 @@ The NetBox REST API primarily employs token-based authentication. For convenienc
 
 A token is a unique identifier mapped to a NetBox user account. Each user may have one or more tokens which he or she can use for authentication when making REST API requests. To create a token, navigate to the API tokens page under your user profile.
 
-!!! note
-    All users can create and manage REST API tokens under the user control panel in the UI. The ability to view, add, change, or delete tokens via the REST API itself is controlled by the relevant model permissions, assigned to users and/or groups in the admin UI. These permissions should be used with great care to avoid accidentally permitting a user to create tokens for other user accounts.
+By default, all users can create and manage their own REST API tokens under the user control panel in the UI or via the REST API. This ability can be disabled by overriding the [`DEFAULT_PERMISSIONS`](../configuration/security.md#default_permissions) configuration parameter.
 
 Each token contains a 160-bit key represented as 40 hexadecimal characters. When creating a token, you'll typically leave the key field blank so that a random key will be automatically generated. However, NetBox allows you to specify a key in case you need to restore a previously deleted token to operation.
 
-By default, a token can be used to perform all actions via the API that a user would be permitted to do via the web UI. Deselecting the "write enabled" option will restrict API requests made with the token to read operations (e.g. GET) only.
-
 Additionally, a token can be set to expire at a specific time. This can be useful if an external client needs to be granted temporary access to NetBox.
 
-!!! warning "Restricting Token Retrieval"
+!!! info "Restricting Token Retrieval"
     The ability to retrieve the key value of a previously-created API token can be restricted by disabling the [`ALLOW_TOKEN_RETRIEVAL`](../configuration/security.md#allow_token_retrieval) configuration parameter.
+
+### Restricting Write Operations
+
+By default, a token can be used to perform all actions via the API that a user would be permitted to do via the web UI. Deselecting the "write enabled" option will restrict API requests made with the token to read operations (e.g. GET) only.
 
 #### Client IP Restriction
 
@@ -588,9 +589,7 @@ Each API token can optionally be restricted by client IP address. If one or more
 
 #### Creating Tokens for Other Users
 
-It is possible to provision authentication tokens for other users via the REST API. To do, so the requesting user must have the `users.grant_token` permission assigned. While all users have inherent permission to create their own tokens, this permission is required to enable the creation of tokens for other users.
-
-![Adding the grant action to a permission](../media/admin_ui_grant_permission.png)
+It is possible to provision authentication tokens for other users via the REST API. To do, so the requesting user must have the `users.grant_token` permission assigned. While all users have inherent permission by default to create their own tokens, this permission is required to enable the creation of tokens for other users.
 
 !!! warning "Exercise Caution"
     The ability to create tokens on behalf of other users enables the requestor to access the created token. This ability is intended e.g. for the provisioning of tokens by automated services, and should be used with extreme caution to avoid a security compromise.
@@ -627,7 +626,7 @@ When a token is used to authenticate a request, its `last_updated` time updated 
 
 ### Initial Token Provisioning
 
-Ideally, each user should provision his or her own REST API token(s) via the web UI. However, you may encounter where a token must be created by a user via the REST API itself. NetBox provides a special endpoint to provision tokens using a valid username and password combination.
+Ideally, each user should provision his or her own API token(s) via the web UI. However, you may encounter a scenario where a token must be created by a user via the REST API itself. NetBox provides a special endpoint to provision tokens using a valid username and password combination. (Note that the user must have permission to create API tokens regardless of the interface used.)
 
 To provision a token via the REST API, make a `POST` request to the `/api/users/tokens/provision/` endpoint:
 
@@ -670,8 +669,6 @@ Note that we are _not_ passing an existing REST API token with this request. If 
 This header specifies the API version in use. This will always match the version of NetBox installed. For example, NetBox v3.4.2 will report an API version of `3.4`.
 
 ### `X-Request-ID`
-
-!!! info "This feature was introduced in NetBox v3.5."
 
 This header specifies the unique ID assigned to the received API request. It can be very handy for correlating a request with change records. For example, after creating several new objects, you can filter against the object changes API endpoint to retrieve the resulting change records:
 

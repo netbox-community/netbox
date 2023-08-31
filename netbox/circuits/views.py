@@ -163,7 +163,7 @@ class ProviderNetworkView(generic.ObjectView):
         related_models = (
             (
                 Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
-                'providernetwork_id',
+                'provider_network_id',
             ),
         )
 

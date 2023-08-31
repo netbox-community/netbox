@@ -39,10 +39,12 @@ class DataSource(JobsMixin, PrimaryModel):
     A remote source, such as a git repository, from which DataFiles are synchronized.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=DataSourceTypeChoices,
         default=DataSourceTypeChoices.LOCAL
@@ -52,23 +54,28 @@ class DataSource(JobsMixin, PrimaryModel):
         verbose_name=_('URL')
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=DataSourceStatusChoices,
         default=DataSourceStatusChoices.NEW,
         editable=False
     )
     enabled = models.BooleanField(
+        verbose_name=_('enabled'),
         default=True
     )
     ignore_rules = models.TextField(
+        verbose_name=_('ignore rules'),
         blank=True,
         help_text=_("Patterns (one per line) matching files to ignore when syncing")
     )
     parameters = models.JSONField(
+        verbose_name=_('parameters'),
         blank=True,
         null=True
     )
     last_synced = models.DateTimeField(
+        verbose_name=_('last synced'),
         blank=True,
         null=True,
         editable=False
@@ -76,6 +83,8 @@ class DataSource(JobsMixin, PrimaryModel):
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('data source')
+        verbose_name_plural = _('data sources')
 
     def __str__(self):
         return f'{self.name}'
@@ -96,6 +105,10 @@ class DataSource(JobsMixin, PrimaryModel):
     @property
     def url_scheme(self):
         return urlparse(self.source_url).scheme.lower()
+
+    @property
+    def backend_class(self):
+        return registry['data_backends'].get(self.type)
 
     @property
     def is_local(self):
@@ -132,17 +145,15 @@ class DataSource(JobsMixin, PrimaryModel):
         )
 
     def get_backend(self):
-        backend_cls = registry['data_backends'].get(self.type)
         backend_params = self.parameters or {}
-
-        return backend_cls(self.source_url, **backend_params)
+        return self.backend_class(self.source_url, **backend_params)
 
     def sync(self):
         """
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
         if self.status == DataSourceStatusChoices.SYNCING:
-            raise SyncError(f"Cannot initiate sync; syncing already in progress.")
+            raise SyncError("Cannot initiate sync; syncing already in progress.")
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
@@ -151,7 +162,12 @@ class DataSource(JobsMixin, PrimaryModel):
         DataSource.objects.filter(pk=self.pk).update(status=self.status)
 
         # Replicate source data locally
-        backend = self.get_backend()
+        try:
+            backend = self.get_backend()
+        except ModuleNotFoundError as e:
+            raise SyncError(
+                f"There was an error initializing the backend. A dependency needs to be installed: {e}"
+            )
         with backend.fetch() as local_path:
 
             logger.debug(f'Syncing files from source root {local_path}')
@@ -200,6 +216,7 @@ class DataSource(JobsMixin, PrimaryModel):
 
         # Emit the post_sync signal
         post_sync.send(sender=self.__class__, instance=self)
+    sync.alters_data = True
 
     def _walk(self, root):
         """
@@ -238,9 +255,11 @@ class DataFile(models.Model):
     updated, or deleted only by calling DataSource.sync().
     """
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     last_updated = models.DateTimeField(
+        verbose_name=_('last updated'),
         editable=False
     )
     source = models.ForeignKey(
@@ -250,20 +269,23 @@ class DataFile(models.Model):
         editable=False
     )
     path = models.CharField(
+        verbose_name=_('path'),
         max_length=1000,
         editable=False,
         help_text=_("File path relative to the data source's root")
     )
     size = models.PositiveIntegerField(
-        editable=False
+        editable=False,
+        verbose_name=_('size')
     )
     hash = models.CharField(
+        verbose_name=_('hash'),
         max_length=64,
         editable=False,
         validators=[
             RegexValidator(regex='^[0-9a-f]{64}$', message=_("Length must be 64 hexadecimal characters."))
         ],
-        help_text=_("SHA256 hash of the file data")
+        help_text=_('SHA256 hash of the file data')
     )
     data = models.BinaryField()
 
@@ -280,6 +302,8 @@ class DataFile(models.Model):
         indexes = [
             models.Index(fields=('source', 'path'), name='core_datafile_source_path'),
         ]
+        verbose_name = _('data file')
+        verbose_name_plural = _('data files')
 
     def __str__(self):
         return self.path
@@ -289,8 +313,10 @@ class DataFile(models.Model):
 
     @property
     def data_as_string(self):
+        if not self.data:
+            return None
         try:
-            return self.data.tobytes().decode('utf-8')
+            return bytes(self.data, 'utf-8')
         except UnicodeDecodeError:
             return None
 
@@ -361,3 +387,5 @@ class AutoSyncRecord(models.Model):
         indexes = (
             models.Index(fields=('object_type', 'object_id')),
         )
+        verbose_name = _('auto sync record')
+        verbose_name_plural = _('auto sync records')
