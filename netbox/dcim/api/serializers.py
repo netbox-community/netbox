@@ -787,10 +787,6 @@ class ModuleSerializer(NetBoxModelSerializer):
         ]
 
 
-class DeviceNAPALMSerializer(serializers.Serializer):
-    method = serializers.JSONField()
-
-
 #
 # Device components
 #
