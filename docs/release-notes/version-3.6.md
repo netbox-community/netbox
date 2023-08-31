@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#13626](https://github.com/netbox-community/netbox/issues/13626) - Correct filtering of recent activity list under user view
 * [#13630](https://github.com/netbox-community/netbox/issues/13630) - Fix display of active status under user view
 
 ---
