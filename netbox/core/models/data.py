@@ -316,7 +316,7 @@ class DataFile(models.Model):
         if not self.data:
             return None
         try:
-            return bytes(self.data, 'utf-8')
+            return self.data.decode('utf-8')
         except UnicodeDecodeError:
             return None
 
