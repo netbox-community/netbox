@@ -1,4 +1,5 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from graphene_django import DjangoObjectType
 
 from users import filtersets
@@ -25,7 +26,7 @@ class GroupType(DjangoObjectType):
 class UserType(DjangoObjectType):
 
     class Meta:
-        model = User
+        model = get_user_model()
         fields = (
             'id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'date_joined',
             'groups',
@@ -34,4 +35,4 @@ class UserType(DjangoObjectType):
 
     @classmethod
     def get_queryset(cls, queryset, info):
-        return RestrictedQuerySet(model=User).restrict(info.context.user, 'view')
+        return RestrictedQuerySet(model=get_user_model()).restrict(info.context.user, 'view')

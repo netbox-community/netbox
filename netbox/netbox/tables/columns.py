@@ -4,25 +4,30 @@ from urllib.parse import quote
 
 import django_tables2 as tables
 from django.conf import settings
+from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.html import escape
 from django.utils.formats import date_format
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
+from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, get_viewname
 
 __all__ = (
     'ActionsColumn',
+    'ArrayColumn',
     'BooleanColumn',
     'ChoiceFieldColumn',
+    'ChoicesColumn',
     'ColorColumn',
     'ColoredLabelColumn',
     'ContentTypeColumn',
@@ -167,7 +172,8 @@ class ToggleColumn(tables.CheckBoxColumn):
 
     @property
     def header(self):
-        return mark_safe('<input type="checkbox" class="toggle form-check-input" title="Toggle All" />')
+        title_text = _('Toggle all')
+        return mark_safe(f'<input type="checkbox" class="toggle form-check-input" title="{title_text}" />')
 
 
 class BooleanColumn(tables.Column):
@@ -248,7 +254,7 @@ class ActionsColumn(tables.Column):
         dropdown_links = []
         user = getattr(request, 'user', AnonymousUser())
         for idx, (action, attrs) in enumerate(self.actions.items()):
-            permission = f'{model._meta.app_label}.{attrs.permission}_{model._meta.model_name}'
+            permission = get_permission_for_model(model, attrs.permission)
             if attrs.permission is None or user.has_perm(permission):
                 url = reverse(get_viewname(model, action), kwargs={'pk': record.pk})
 
@@ -268,12 +274,13 @@ class ActionsColumn(tables.Column):
                     )
 
         # Create the actions dropdown menu
+        toggle_text = _('Toggle Dropdown')
         if button and dropdown_links:
             html += (
                 f'<span class="btn-group dropdown">'
                 f'  {button}'
                 f'  <a class="btn btn-sm btn-{dropdown_class} dropdown-toggle" type="button" data-bs-toggle="dropdown" style="padding-left: 2px">'
-                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <span class="visually-hidden">{toggle_text}</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f'</span>'
             )
@@ -283,7 +290,7 @@ class ActionsColumn(tables.Column):
             html += (
                 f'<span class="btn-group dropdown">'
                 f'  <a class="btn btn-sm btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">'
-                f'  <span class="visually-hidden">Toggle Dropdown</span></a>'
+                f'  <span class="visually-hidden">{toggle_text}</span></a>'
                 f'  <ul class="dropdown-menu">{"".join(dropdown_links)}</ul>'
                 f'</span>'
             )
@@ -437,7 +444,8 @@ class TagColumn(tables.TemplateColumn):
         super().__init__(
             orderable=False,
             template_code=self.template_code,
-            extra_context={'url_name': url_name}
+            extra_context={'url_name': url_name},
+            verbose_name=_('Tags'),
         )
 
     def value(self, value):
@@ -510,25 +518,32 @@ class CustomLinkColumn(tables.Column):
 
         super().__init__(*args, **kwargs)
 
-    def render(self, record):
-        try:
-            rendered = self.customlink.render({
-                'object': record,
-                'obj': record,  # TODO: Remove in NetBox v3.5
+    def _render_customlink(self, record, table):
+        context = {
+            'object': record,
+            'debug': settings.DEBUG,
+        }
+        if request := getattr(table, 'context', {}).get('request'):
+            # If the request is available, include it as context
+            context.update({
+                'request': request,
+                **auth(request),
             })
-            if rendered:
+
+        return self.customlink.render(context)
+
+    def render(self, record, table, **kwargs):
+        try:
+            if rendered := self._render_customlink(record, table):
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
-            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> Error</span>')
+            error_text = _('Error')
+            return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> {error_text}</span>')
         return ''
 
-    def value(self, record):
+    def value(self, record, table, **kwargs):
         try:
-            rendered = self.customlink.render({
-                'object': record,
-                'obj': record,  # TODO: Remove in NetBox v3.5
-            })
-            if rendered:
+            if rendered := self._render_customlink(record, table):
                 return rendered['link']
         except Exception:
             pass
@@ -584,10 +599,63 @@ class MarkdownColumn(tables.TemplateColumn):
     {% endif %}
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(
-            template_code=self.template_code
+            template_code=self.template_code,
+            **kwargs,
         )
 
     def value(self, value):
         return value
+
+
+class ArrayColumn(tables.Column):
+    """
+    List array items as a comma-separated list.
+    """
+    def __init__(self, *args, max_items=None, func=str, **kwargs):
+        self.max_items = max_items
+        self.func = func
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        omitted_count = 0
+
+        # Limit the returned items to the specified maximum number (if any)
+        if self.max_items:
+            omitted_count = len(value) - self.max_items
+            value = value[:self.max_items - 1]
+
+        # Apply custom processing function (if any) per item
+        if self.func:
+            value = [self.func(v) for v in value]
+
+        # Annotate omitted items (if applicable)
+        if omitted_count > 0:
+            value.append(f'({omitted_count} more)')
+
+        return ', '.join(value)
+
+
+class ChoicesColumn(tables.Column):
+    """
+    Display the human-friendly labels of a set of choices.
+    """
+    def __init__(self, *args, max_items=None, **kwargs):
+        self.max_items = max_items
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        omitted_count = 0
+        value = [v[1] for v in value]
+
+        # Limit the returned items to the specified maximum number (if any)
+        if self.max_items:
+            omitted_count = len(value) - self.max_items
+            value = value[:self.max_items - 1]
+
+        # Annotate omitted items (if applicable)
+        if omitted_count > 0:
+            value.append(f'({omitted_count} more)')
+
+        return ', '.join(value)

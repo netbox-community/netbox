@@ -1,7 +1,7 @@
 import uuid
 
 import django_rq
-from django.contrib.auth.models import User
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
@@ -43,48 +43,57 @@ class Job(models.Model):
         for_concrete_model=False
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=200
     )
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     scheduled = models.DateTimeField(
+        verbose_name=_('scheduled'),
         null=True,
         blank=True
     )
     interval = models.PositiveIntegerField(
+        verbose_name=_('interval'),
         blank=True,
         null=True,
         validators=(
             MinValueValidator(1),
         ),
-        help_text=_("Recurrence interval (in minutes)")
+        help_text=_('Recurrence interval (in minutes)')
     )
     started = models.DateTimeField(
+        verbose_name=_('started'),
         null=True,
         blank=True
     )
     completed = models.DateTimeField(
+        verbose_name=_('completed'),
         null=True,
         blank=True
     )
     user = models.ForeignKey(
-        to=User,
+        to=settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
         related_name='+',
         blank=True,
         null=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=30,
         choices=JobStatusChoices,
         default=JobStatusChoices.STATUS_PENDING
     )
     data = models.JSONField(
+        verbose_name=_('data'),
         null=True,
         blank=True
     )
     job_id = models.UUIDField(
+        verbose_name=_('job ID'),
         unique=True
     )
 
@@ -92,6 +101,8 @@ class Job(models.Model):
 
     class Meta:
         ordering = ['-created']
+        verbose_name = _('job')
+        verbose_name_plural = _('jobs')
 
     def __str__(self):
         return str(self.job_id)

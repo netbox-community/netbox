@@ -26,11 +26,14 @@ def nav(context: Context) -> Dict:
         for group in menu.groups:
             items = []
             for item in group.items:
-                if user.has_perms(item.permissions):
-                    buttons = [
-                        button for button in item.buttons if user.has_perms(button.permissions)
-                    ]
-                    items.append((item, buttons))
+                if not user.has_perms(item.permissions):
+                    continue
+                if item.staff_only and not user.is_staff:
+                    continue
+                buttons = [
+                    button for button in item.buttons if user.has_perms(button.permissions)
+                ]
+                items.append((item, buttons))
             if items:
                 groups.append((group, items))
         if groups:

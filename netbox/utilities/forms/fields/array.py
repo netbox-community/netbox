@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
+from django.utils.translation import gettext_lazy as _
 
 from ..utils import parse_numeric_range
 
@@ -12,8 +13,9 @@ class NumericArrayField(SimpleArrayField):
 
     def clean(self, value):
         if value and not self.to_python(value):
-            raise forms.ValidationError(f'Invalid list ({value}). '
-                                        f'Must be numeric and ranges must be in ascending order')
+            raise forms.ValidationError(
+                _("Invalid list ({value}). Must be numeric and ranges must be in ascending order.").format(value=value)
+            )
         return super().clean(value)
 
     def to_python(self, value):

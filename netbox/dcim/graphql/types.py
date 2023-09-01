@@ -277,6 +277,9 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
     def resolve_poe_type(self, info):
         return self.poe_type or None
 
+    def resolve_rf_role(self, info):
+        return self.rf_role or None
+
 
 class InventoryItemType(ComponentObjectType):
     component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')

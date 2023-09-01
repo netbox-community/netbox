@@ -20,6 +20,13 @@ WEBHOOK_EVENT_TYPES = {
 # Dashboard
 DEFAULT_DASHBOARD = [
     {
+        'widget': 'extras.BookmarksWidget',
+        'width': 4,
+        'height': 5,
+        'title': 'Bookmarks',
+        'color': 'orange',
+    },
+    {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 2,
@@ -29,22 +36,6 @@ DEFAULT_DASHBOARD = [
                 'dcim.site',
                 'tenancy.tenant',
                 'tenancy.contact',
-            ]
-        }
-    },
-    {
-        'widget': 'extras.ObjectCountsWidget',
-        'width': 4,
-        'height': 3,
-        'title': 'IPAM',
-        'config': {
-            'models': [
-                'ipam.vrf',
-                'ipam.aggregate',
-                'ipam.prefix',
-                'ipam.iprange',
-                'ipam.ipaddress',
-                'ipam.vlan',
             ]
         }
     },
@@ -65,13 +56,16 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 2,
-        'title': 'Circuits',
+        'height': 3,
+        'title': 'IPAM',
         'config': {
             'models': [
-                'circuits.provider',
-                'circuits.circuit',
-                'circuits.providernetwork',
+                'ipam.vrf',
+                'ipam.aggregate',
+                'ipam.prefix',
+                'ipam.iprange',
+                'ipam.ipaddress',
+                'ipam.vlan',
             ]
         }
     },
@@ -84,6 +78,20 @@ DEFAULT_DASHBOARD = [
             'feed_url': 'http://netbox.dev/rss/',
             'max_entries': 10,
             'cache_timeout': 14400,
+        }
+    },
+    {
+        'widget': 'extras.ObjectCountsWidget',
+        'width': 4,
+        'height': 3,
+        'title': 'Circuits',
+        'config': {
+            'models': [
+                'circuits.provider',
+                'circuits.circuit',
+                'circuits.providernetwork',
+                'circuits.provideraccount',
+            ]
         }
     },
     {

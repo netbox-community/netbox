@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from netbox.tables import NetBoxTable, columns
@@ -12,21 +13,27 @@ __all__ = (
 class WirelessLinkTable(TenancyColumnsMixin, NetBoxTable):
     id = tables.Column(
         linkify=True,
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
-    status = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     device_a = tables.Column(
+        verbose_name=_('Device A'),
         accessor=tables.A('interface_a__device'),
         linkify=True
     )
     interface_a = tables.Column(
+        verbose_name=_('Interface A'),
         linkify=True
     )
     device_b = tables.Column(
+        verbose_name=_('Device B'),
         accessor=tables.A('interface_b__device'),
         linkify=True
     )
     interface_b = tables.Column(
+        verbose_name=_('Interface B'),
         linkify=True
     )
     tags = columns.TagColumn(

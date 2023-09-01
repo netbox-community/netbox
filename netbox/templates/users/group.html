@@ -1,0 +1,48 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block title %}{% trans "Group" %} {{ object.name }}{% endblock %}
+
+{% block subtitle %}{% endblock %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Group" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ object.name }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Users" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for user in object.user_set.all %}
+            <a href="{% url 'users:netboxuser' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "Assigned Permissions" %}</h5>
+        <div class="list-group list-group-flush">
+          {% for perm in object.object_permissions.all %}
+            <a href="{% url 'users:objectpermission' pk=perm.pk %}" class="list-group-item list-group-item-action">{{ perm }}</a>
+          {% empty %}
+            <div class="list-group-item text-muted">{% trans "None" %}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

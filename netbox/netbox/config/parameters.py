@@ -102,7 +102,6 @@ PARAMS = (
         description=_("Default voltage for powerfeeds"),
         field=forms.IntegerField
     ),
-
     ConfigParam(
         name='POWERFEED_DEFAULT_AMPERAGE',
         label=_('Powerfeed amperage'),
@@ -110,7 +109,6 @@ PARAMS = (
         description=_("Default amperage for powerfeeds"),
         field=forms.IntegerField
     ),
-
     ConfigParam(
         name='POWERFEED_DEFAULT_MAX_UTILIZATION',
         label=_('Powerfeed max utilization'),
@@ -152,39 +150,6 @@ PARAMS = (
         label=_('Custom validators'),
         default={},
         description=_("Custom validation rules (JSON)"),
-        field=forms.JSONField,
-        field_kwargs={
-            'widget': forms.Textarea(
-                attrs={'class': 'vLargeTextField'}
-            ),
-        },
-    ),
-
-    # NAPALM
-    ConfigParam(
-        name='NAPALM_USERNAME',
-        label=_('NAPALM username'),
-        default='',
-        description=_("Username to use when connecting to devices via NAPALM")
-    ),
-    ConfigParam(
-        name='NAPALM_PASSWORD',
-        label=_('NAPALM password'),
-        default='',
-        description=_("Password to use when connecting to devices via NAPALM")
-    ),
-    ConfigParam(
-        name='NAPALM_TIMEOUT',
-        label=_('NAPALM timeout'),
-        default=30,
-        description=_("NAPALM connection timeout (in seconds)"),
-        field=forms.IntegerField
-    ),
-    ConfigParam(
-        name='NAPALM_ARGS',
-        label=_('NAPALM arguments'),
-        default={},
-        description=_("Additional arguments to pass when invoking a NAPALM driver (as JSON data)"),
         field=forms.JSONField,
         field_kwargs={
             'widget': forms.Textarea(

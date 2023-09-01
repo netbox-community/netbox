@@ -2,11 +2,13 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.validators import ValidationError
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from netbox.models.features import *
 from utilities.mptt import TreeManager
 from utilities.querysets import RestrictedQuerySet
+
 
 __all__ = (
     'ChangeLoggedModel',
@@ -18,7 +20,9 @@ __all__ = (
 
 
 class NetBoxFeatureSet(
+    BookmarksMixin,
     ChangeLoggingMixin,
+    CloningMixin,
     CustomFieldsMixin,
     CustomLinksMixin,
     CustomValidationMixin,
@@ -50,7 +54,7 @@ class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, WebhooksMixin
         abstract = True
 
 
-class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
+class NetBoxModel(NetBoxFeatureSet, models.Model):
     """
     Base model for most object types. Suitable for use by plugins.
     """
@@ -87,15 +91,21 @@ class NetBoxModel(CloningMixin, NetBoxFeatureSet, models.Model):
                         })
 
 
+#
+# NetBox internal base models
+#
+
 class PrimaryModel(NetBoxModel):
     """
     Primary models represent real objects within the infrastructure being modeled.
     """
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     comments = models.TextField(
+        verbose_name=_('comments'),
         blank=True
     )
 
@@ -103,7 +113,7 @@ class PrimaryModel(NetBoxModel):
         abstract = True
 
 
-class NestedGroupModel(CloningMixin, NetBoxFeatureSet, MPTTModel):
+class NestedGroupModel(NetBoxFeatureSet, MPTTModel):
     """
     Base model for objects which are used to form a hierarchy (regions, locations, etc.). These models nest
     recursively using MPTT. Within each parent, each child instance must have a unique name.
@@ -117,12 +127,15 @@ class NestedGroupModel(CloningMixin, NetBoxFeatureSet, MPTTModel):
         db_index=True
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -144,7 +157,7 @@ class NestedGroupModel(CloningMixin, NetBoxFeatureSet, MPTTModel):
         # An MPTT model cannot be its own parent
         if self.pk and self.parent and self.parent in self.get_descendants(include_self=True):
             raise ValidationError({
-                "parent": f"Cannot assign self or child {self._meta.verbose_name} as parent."
+                "parent": "Cannot assign self or child {type} as parent.".format(type=self._meta.verbose_name)
             })
 
 
@@ -158,14 +171,17 @@ class OrganizationalModel(NetBoxFeatureSet, models.Model):
     - Optional description
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100,
         unique=True
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )

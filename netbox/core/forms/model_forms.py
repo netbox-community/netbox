@@ -1,6 +1,7 @@
 import copy
 
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
 from core.models import *
@@ -38,11 +39,11 @@ class DataSourceForm(NetBoxModelForm):
     @property
     def fieldsets(self):
         fieldsets = [
-            ('Source', ('name', 'type', 'source_url', 'enabled', 'description', 'tags', 'ignore_rules')),
+            (_('Source'), ('name', 'type', 'source_url', 'enabled', 'description', 'tags', 'ignore_rules')),
         ]
         if self.backend_fields:
             fieldsets.append(
-                ('Backend Parameters', self.backend_fields)
+                (_('Backend Parameters'), self.backend_fields)
             )
 
         return fieldsets
@@ -79,8 +80,8 @@ class ManagedFileForm(SyncedDataMixin, NetBoxModelForm):
     )
 
     fieldsets = (
-        ('File Upload', ('upload_file',)),
-        ('Data Source', ('data_source', 'data_file', 'auto_sync_enabled')),
+        (_('File Upload'), ('upload_file',)),
+        (_('Data Source'), ('data_source', 'data_file', 'auto_sync_enabled')),
     )
 
     class Meta:

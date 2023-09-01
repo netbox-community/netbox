@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitTerminationPortSpeedChoices
 from circuits.models import *
@@ -29,7 +29,7 @@ class ProviderForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Provider', ('name', 'slug', 'asns', 'description', 'tags')),
+        (_('Provider'), ('name', 'slug', 'asns', 'description', 'tags')),
     )
 
     class Meta:
@@ -41,6 +41,7 @@ class ProviderForm(NetBoxModelForm):
 
 class ProviderAccountForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
+        label=_('Provider'),
         queryset=Provider.objects.all()
     )
     comments = CommentField()
@@ -54,12 +55,13 @@ class ProviderAccountForm(NetBoxModelForm):
 
 class ProviderNetworkForm(NetBoxModelForm):
     provider = DynamicModelChoiceField(
+        label=_('Provider'),
         queryset=Provider.objects.all()
     )
     comments = CommentField()
 
     fieldsets = (
-        ('Provider Network', ('provider', 'name', 'service_id', 'description', 'tags')),
+        (_('Provider Network'), ('provider', 'name', 'service_id', 'description', 'tags')),
     )
 
     class Meta:
@@ -73,7 +75,7 @@ class CircuitTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        ('Circuit Type', (
+        (_('Circuit Type'), (
             'name', 'slug', 'description', 'tags',
         )),
     )
@@ -87,10 +89,12 @@ class CircuitTypeForm(NetBoxModelForm):
 
 class CircuitForm(TenancyForm, NetBoxModelForm):
     provider = DynamicModelChoiceField(
+        label=_('Provider'),
         queryset=Provider.objects.all(),
         selector=True
     )
     provider_account = DynamicModelChoiceField(
+        label=_('Provider account'),
         queryset=ProviderAccount.objects.all(),
         required=False,
         query_params={
@@ -103,9 +107,9 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Circuit', ('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags')),
-        ('Service Parameters', ('install_date', 'termination_date', 'commit_rate')),
-        ('Tenancy', ('tenant_group', 'tenant')),
+        (_('Circuit'), ('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags')),
+        (_('Service Parameters'), ('install_date', 'termination_date', 'commit_rate')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
     )
 
     class Meta:
@@ -125,15 +129,18 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
 
 class CircuitTerminationForm(NetBoxModelForm):
     circuit = DynamicModelChoiceField(
+        label=_('Circuit'),
         queryset=Circuit.objects.all(),
         selector=True
     )
     site = DynamicModelChoiceField(
+        label=_('Site'),
         queryset=Site.objects.all(),
         required=False,
         selector=True
     )
     provider_network = DynamicModelChoiceField(
+        label=_('Provider network'),
         queryset=ProviderNetwork.objects.all(),
         required=False,
         selector=True

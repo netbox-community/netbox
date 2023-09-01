@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 from extras.dashboard.utils import get_widget_class
 
@@ -15,14 +16,17 @@ class Dashboard(models.Model):
         related_name='dashboard'
     )
     layout = models.JSONField(
+        verbose_name=_('layout'),
         default=list
     )
     config = models.JSONField(
+        verbose_name=_('config'),
         default=dict
     )
 
     class Meta:
-        pass
+        verbose_name = _('dashboard')
+        verbose_name_plural = _('dashboards')
 
     def get_widget(self, id):
         """

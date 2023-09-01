@@ -61,6 +61,10 @@ The canonical distance between the two vertical rails on a face. (This is typica
 
 The height of the rack, measured in units.
 
+### Starting Unit
+
+The number of the numerically lowest unit in the rack. This value defaults to one, but may be higher in certain situations. For example, you may want to model only a select range of units within a shared physical rack (e.g. U13 through U24).
+
 ### Outer Dimensions
 
 The external width and depth of the rack can be tracked to aid in floorplan calculations. These measurements must be designated in either millimeters or inches.

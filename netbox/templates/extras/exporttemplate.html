@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block title %}{{ object.name }}{% endblock %}
 
@@ -13,31 +14,31 @@
   <div class="row mb-3">
     <div class="col col-md-5">
       <div class="card">
-        <h5 class="card-header">Export Template</h5>
+        <h5 class="card-header">{% trans "Export Template" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Name</th>
+              <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">Description</th>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">MIME Type</th>
+              <th scope="row">{% trans "MIME Type" %}</th>
               <td>{{ object.mime_type|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">File Extension</th>
+              <th scope="row">{% trans "File Extension" %}</th>
               <td>{{ object.file_extension|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Attachment</th>
+              <th scope="row">{% trans "Attachment" %}</th>
               <td>{% checkmark object.as_attachment %}</td>
             </tr>
               <tr>
-                <th scope="row">Data Source</th>
+                <th scope="row">{% trans "Data Source" %}</th>
                 <td>
                   {% if object.data_source %}
                     <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
@@ -47,13 +48,13 @@
                 </td>
               </tr>
               <tr>
-                <th scope="row">Data File</th>
+                <th scope="row">{% trans "Data File" %}</th>
                 <td>
                   {% if object.data_file %}
                     <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
                   {% elif object.data_path %}
                     <div class="float-end text-warning">
-                      <i class="mdi mdi-alert" title="The data file associated with this object has been deleted."></i>
+                      <i class="mdi mdi-alert" title="{% trans "The data file associated with this object has been deleted" %}."></i>
                     </div>
                     {{ object.data_path }}
                   {% else %}
@@ -62,14 +63,14 @@
                 </td>
               </tr>
               <tr>
-                <th scope="row">Data Synced</th>
+                <th scope="row">{% trans "Data Synced" %}</th>
                 <td>{{ object.data_synced|placeholder }}</td>
               </tr>
           </table>
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">Assigned Models</h5>
+        <h5 class="card-header">{% trans "Assigned Models" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             {% for ct in object.content_types.all %}
@@ -84,7 +85,7 @@
     </div>
     <div class="col col-md-7">
       <div class="card">
-        <h5 class="card-header">Template</h5>
+        <h5 class="card-header">{% trans "Template" %}</h5>
         <div class="card-body">
           {% include 'inc/sync_warning.html' %}
           <pre>{{ object.template_code }}</pre>

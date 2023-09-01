@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 from dcim.filtersets import CommonInterfaceFilterSet
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
+from extras.models import ConfigTemplate
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
@@ -227,6 +228,10 @@ class VirtualMachineFilterSet(
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
         label=_('Has a primary IP'),
+    )
+    config_template_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ConfigTemplate.objects.all(),
+        label=_('Config template (ID)'),
     )
 
     class Meta:

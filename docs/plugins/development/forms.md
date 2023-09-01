@@ -165,19 +165,6 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
     options:
       members: false
 
-## Choice Fields
-
-!!! warning "Obsolete Fields"
-    NetBox's custom `ChoiceField` and `MultipleChoiceField` classes are no longer necessary thanks to improvements made to the user interface. Django's native form fields can be used instead. These custom field classes will be removed in NetBox v3.6.
-
-::: utilities.forms.fields.ChoiceField
-    options:
-      members: false
-
-::: utilities.forms.fields.MultipleChoiceField
-    options:
-      members: false
-
 ## Dynamic Object Fields
 
 ::: utilities.forms.fields.DynamicModelChoiceField

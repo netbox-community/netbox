@@ -1,10 +1,11 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
+{% load i18n %}
 
 {% block title %}{{ object }}{% endblock %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">Change Log</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:objectchange_list' %}">{% trans "Change Log" %}</a></li>
   {% if object.related_object and object.related_object.get_absolute_url %}
     <li class="breadcrumb-item"><a href="{{ object.related_object.get_absolute_url }}changelog/">{{ object.related_object }}</a></li>
   {% elif object.changed_object and object.changed_object.get_absolute_url %}
@@ -25,18 +26,18 @@
     <div class="col col-md-5">
         <div class="card">
             <h5 class="card-header">
-                Change
+                {% trans "Change" %}
             </h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">Time</th>
+                        <th scope="row">{% trans "Time" %}</th>
                         <td>
                             {{ object.time|annotated_date }}
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">User</th>
+                        <th scope="row">{% trans "User" %}</th>
                         <td>
                             {% if object.user.get_full_name %}
                               {{ object.user.get_full_name }} ({{ object.user_name }})
@@ -46,19 +47,19 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Action</th>
+                        <th scope="row">{% trans "Action" %}</th>
                         <td>
                             {{ object.get_action_display }}
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Object Type</th>
+                        <th scope="row">{% trans "Object Type" %}</th>
                         <td>
                             {{ object.changed_object_type }}
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Object</th>
+                        <th scope="row">{% trans "Object" %}</th>
                         <td>
                             {% if object.changed_object and object.changed_object.get_absolute_url %}
                                 {{ object.changed_object|linkify }}
@@ -68,7 +69,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row">Request ID</th>
+                        <th scope="row">{% trans "Request ID" %}</th>
                         <td>
                             {{ object.request_id }}
                         </td>
@@ -80,13 +81,13 @@
     <div class="col col-md-7">
         <div class="card">
             <div class="card-header">
-                <h5 class="d-inline">Difference</h5>
+                <h5 class="d-inline">{% trans "Difference" %}</h5>
                 <div class="btn-group btn-group-sm float-end noprint">
                     <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
-                        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> Previous
+                        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
                     </a>
                     <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
-                        Next <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                        {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
                     </a>
                 </div>
             </div>
@@ -94,11 +95,11 @@
                 {% if diff_added == diff_removed %}
                     <span class="text-muted" style="margin-left: 10px;">
                         {% if object.action == 'create' %}
-                            Object Created
+                            {% trans "Object Created" %}
                         {% elif object.action == 'delete' %}
-                            Object Deleted
+                            {% trans "Object Deleted" %}
                         {% else %}
-                            No Changes
+                            {% trans "No Changes" %}
                         {% endif %}
                     </span>
                 {% else %}
@@ -113,7 +114,7 @@
     <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
-                Pre-Change Data
+                {% trans "Pre-Change Data" %}
             </h5>
             <div class="card-body">
             {% if object.prechange_data %}
@@ -122,9 +123,9 @@
                 {% endspaceless %}{% endfor %}
                 </pre>
             {% elif non_atomic_change %}
-                Warning: Comparing non-atomic change to previous change record (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
+                {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
             {% else %}
-                <span class="text-muted">None</span>
+                <span class="text-muted">{% trans "None" %}</span>
             {% endif %}
             </div>
         </div>
@@ -132,7 +133,7 @@
     <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
-                Post-Change Data
+                {% trans "Post-Change Data" %}
             </h5>
             <div class="card-body">
                 {% if object.postchange_data %}
@@ -141,7 +142,7 @@
                         {% endspaceless %}{% endfor %}
                     </pre>
                 {% else %}
-                    <span class="text-muted">None</span>
+                    <span class="text-muted">{% trans "None" %}</span>
                 {% endif %}
             </div>
         </div>
@@ -152,7 +153,7 @@
         {% include 'inc/panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='default' %}
         {% if related_changes_count > related_changes_table.rows|length %}
             <div class="float-end">
-                <a href="{% url 'extras:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">See All {{ related_changes_count|add:"1" }} Changes</a>
+                <a href="{% url 'extras:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">{% blocktrans with count=related_changes_count|add:"1" %}See All {{ count }} Changes{% endblocktrans %}</a>
             </div>
         {% endif %}
     </div>

@@ -1,14 +1,12 @@
-from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import *
 from dcim.models import CabledObjectModel
-from netbox.models import (
-    ChangeLoggedModel, CustomFieldsMixin, CustomLinksMixin, OrganizationalModel, PrimaryModel, TagsMixin,
-)
+from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
+from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ImageAttachmentsMixin, TagsMixin
 
 __all__ = (
     'Circuit',
@@ -25,8 +23,13 @@ class CircuitType(OrganizationalModel):
     def get_absolute_url(self):
         return reverse('circuits:circuittype', args=[self.pk])
 
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('circuit type')
+        verbose_name_plural = _('circuit types')
 
-class Circuit(PrimaryModel):
+
+class Circuit(ContactsMixin, ImageAttachmentsMixin, PrimaryModel):
     """
     A communications circuit connects two points. Each Circuit belongs to a Provider; Providers may have multiple
     circuits. Each circuit is also assigned a CircuitType and a Site, and may optionally be assigned to a particular
@@ -34,8 +37,8 @@ class Circuit(PrimaryModel):
     """
     cid = models.CharField(
         max_length=100,
-        verbose_name='Circuit ID',
-        help_text=_("Unique circuit ID")
+        verbose_name=_('circuit ID'),
+        help_text=_('Unique circuit ID')
     )
     provider = models.ForeignKey(
         to='circuits.Provider',
@@ -55,6 +58,7 @@ class Circuit(PrimaryModel):
         related_name='circuits'
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=CircuitStatusChoices,
         default=CircuitStatusChoices.STATUS_ACTIVE
@@ -69,26 +73,18 @@ class Circuit(PrimaryModel):
     install_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name='Installed'
+        verbose_name=_('installed')
     )
     termination_date = models.DateField(
         blank=True,
         null=True,
-        verbose_name='Terminates'
+        verbose_name=_('terminates')
     )
     commit_rate = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Commit rate (Kbps)',
+        verbose_name=_('commit rate (Kbps)'),
         help_text=_("Committed rate")
-    )
-
-    # Generic relations
-    contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
-    )
-    images = GenericRelation(
-        to='extras.ImageAttachment'
     )
 
     # Cache associated CircuitTerminations
@@ -130,6 +126,8 @@ class Circuit(PrimaryModel):
                 name='%(app_label)s_%(class)s_unique_provideraccount_cid'
             ),
         )
+        verbose_name = _('circuit')
+        verbose_name_plural = _('circuits')
 
     def __str__(self):
         return self.cid
@@ -162,7 +160,7 @@ class CircuitTermination(
     term_side = models.CharField(
         max_length=1,
         choices=CircuitTerminationSideChoices,
-        verbose_name='Termination'
+        verbose_name=_('termination')
     )
     site = models.ForeignKey(
         to='dcim.Site',
@@ -179,30 +177,31 @@ class CircuitTermination(
         null=True
     )
     port_speed = models.PositiveIntegerField(
-        verbose_name='Port speed (Kbps)',
+        verbose_name=_('port speed (Kbps)'),
         blank=True,
         null=True,
-        help_text=_("Physical circuit speed")
+        help_text=_('Physical circuit speed')
     )
     upstream_speed = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name='Upstream speed (Kbps)',
+        verbose_name=_('upstream speed (Kbps)'),
         help_text=_('Upstream speed, if different from port speed')
     )
     xconnect_id = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name='Cross-connect ID',
-        help_text=_("ID of the local cross-connect")
+        verbose_name=_('cross-connect ID'),
+        help_text=_('ID of the local cross-connect')
     )
     pp_info = models.CharField(
         max_length=100,
         blank=True,
-        verbose_name='Patch panel/port(s)',
-        help_text=_("Patch panel ID and port number(s)")
+        verbose_name=_('patch panel/port(s)'),
+        help_text=_('Patch panel ID and port number(s)')
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -215,6 +214,8 @@ class CircuitTermination(
                 name='%(app_label)s_%(class)s_unique_circuit_term_side'
             ),
         )
+        verbose_name = _('circuit termination')
+        verbose_name_plural = _('circuit terminations')
 
     def __str__(self):
         return f'{self.circuit}: Termination {self.term_side}'

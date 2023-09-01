@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -14,32 +15,32 @@
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Front Port
+                    {% trans "Front Port" %}
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">Device</th>
+                            <th scope="row">{% trans "Device" %}</th>
                             <td>{{ object.device|linkify }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Module</th>
+                            <th scope="row">{% trans "Module" %}</th>
                             <td>{{ object.module|linkify|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Name</th>
+                            <th scope="row">{% trans "Name" %}</th>
                             <td>{{ object.name }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Label</th>
+                            <th scope="row">{% trans "Label" %}</th>
                             <td>{{ object.label|placeholder }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Type</th>
+                            <th scope="row">{% trans "Type" %}</th>
                             <td>{{ object.get_type_display }}</td>
                         </tr>
                         <tr>
-                          <th scope="row">Color</th>
+                          <th scope="row">{% trans "Color" %}</th>
                           <td>
                             {% if object.color %}
                               <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
@@ -49,15 +50,15 @@
                           </td>
                         </tr>
                         <tr>
-                            <th scope="row">Rear Port</th>
+                            <th scope="row">{% trans "Rear Port" %}</th>
                             <td>{{ object.rear_port|linkify }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Rear Port Position</th>
+                            <th scope="row">{% trans "Rear Port Position" %}</th>
                             <td>{{ object.rear_port_position }}</td>
                         </tr>
                         <tr>
-                            <th scope="row">Description</th>
+                            <th scope="row">{% trans "Description" %}</th>
                             <td>{{ object.description|placeholder }}</td>
                         </tr>
                     </table>
@@ -70,26 +71,26 @@
         <div class="col col-md-6">
             <div class="card">
                 <h5 class="card-header">
-                    Connection
+                    {% trans "Connection" %}
                 </h5>
                 <div class="card-body">
                 {% if object.mark_connected %}
                     <div class="text-muted">
-                      <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as Connected
+                      <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as Connected" %}
                     </div>
                 {% elif object.cable %}
                     <table class="table table-hover attr-table">
                         <tr>
-                            <th scope="row">Cable</th>
+                            <th scope="row">{% trans "Cable" %}</th>
                             <td>
                                 {{ object.cable|linkify }}
-                                <a href="{% url 'dcim:frontport_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+                                <a href="{% url 'dcim:frontport_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="{% trans "Trace" %}">
                                     <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                                 </a>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Connection Status</th>
+                            <th scope="row">{% trans "Connection Status" %}</th>
                             <td>
                                 {% if object.cable.status %}
                                     <span class="badge bg-success">{{ object.cable.get_status_display }}</span>
@@ -101,30 +102,30 @@
                     </table>
                 {% else %}
                     <div class="text-muted">
-                        Not Connected
+                        {% trans "Not Connected" %}
                         {% if perms.dcim.add_cable %}
                             <div class="dropdown float-end">
                                 <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                    <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
+                                    <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.interface&return_url={{ object.get_absolute_url }}">Interface</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.interface&return_url={{ object.get_absolute_url }}">{% trans "Interface" %}</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleserverport&return_url={{ object.get_absolute_url }}">Console Server Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleserverport&return_url={{ object.get_absolute_url }}">{% trans "Console Server Port" %}</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleport&return_url={{ object.get_absolute_url }}">Console Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleport&return_url={{ object.get_absolute_url }}">{% trans "Console Port" %}</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}">Front Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}">{% trans "Front Port" %}</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}">Rear Port</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}">{% trans "Rear Port" %}</a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">Circuit Termination</a>
+                                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.frontport&a_terminations={{ object.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">{% trans "Circuit Termination" %}</a>
                                     </li>
                                 </ul>
                             </div>

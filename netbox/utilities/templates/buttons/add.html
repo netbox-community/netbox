@@ -1,5 +1,6 @@
 {% if url %}
+{% load i18n %}
   <a href="{{ url }}" type="button" class="btn btn-sm btn-success">
-    <i class="mdi mdi-plus-thick"></i> Add
+    <i class="mdi mdi-plus-thick"></i> {% trans "Add" %}
   </a>
 {% endif %}

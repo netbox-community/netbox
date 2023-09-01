@@ -1,4 +1,5 @@
 {% extends 'base/layout.html' %}
+{% load i18n %}
 
 {% comment %}
 Blocks:
@@ -12,14 +13,20 @@ Context:
 {% endcomment %}
 
 {% block title %}
-  {% if object.pk %}Editing {{ object|meta:"verbose_name" }} {{ object }}{% else %}Add a new {{ object|meta:"verbose_name" }}{% endif %}
+  {% if object.pk %}
+    {% trans "Editing" %} {{ object|meta:"verbose_name" }} {{ object }}
+  {% else %}
+    {% blocktrans with object_type=object|meta:"verbose_name" %}
+      Add a new {{ object_type }}
+    {% endblocktrans %}
+  {% endif %}
 {% endblock title %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="edit-form-tab" data-bs-toggle="tab" data-bs-target="#edit-form" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        {% if object.pk %}Edit{% else %}Create{% endif %}
+        {% if object.pk %}{% trans "Edit" %}{% else %}{% trans "Create" %}{% endif %}
       </button>
     </li>
   </ul>
@@ -37,8 +44,8 @@ Context:
       {# Link to model documentation #}
       {% if settings.DOCS_ROOT and object.docs_url %}
         <div class="float-end">
-          <a href="{{ object.docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="View model documentation">
-            <i class="mdi mdi-help-circle"></i> Help
+          <a href="{{ object.docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="{% trans "View model documentation" %}">
+            <i class="mdi mdi-help-circle"></i> {% trans "Help" %}
           </a>
         </div>
       {% endif %}
@@ -56,17 +63,17 @@ Context:
           {% block buttons %}
             {% if object.pk %}
               <button type="submit" name="_update" class="btn btn-primary">
-                Save
+                {% trans "Save" %}
               </button>
             {% else %}
               <button type="submit" name="_create" class="btn btn-primary">
-                Create
+                {% trans "Create" %}
               </button>
               <button type="submit" name="_addanother" class="btn btn-outline-primary">
-                Create & Add Another
+                {% trans "Create & Add Another" %}
               </button>
             {% endif %}
-            <a class="btn btn-outline-danger" href="{{ return_url }}">Cancel</a>
+            <a class="btn btn-outline-danger" href="{{ return_url }}">{% trans "Cancel" %}</a>
           {% endblock buttons %}
         </div>
       </form>

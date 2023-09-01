@@ -1,63 +1,64 @@
 {% extends 'ipam/iprange/base.html' %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block content %}
 <div class="row">
     <div class="col col-md-6">
         <div class="card">
             <h5 class="card-header">
-              IP Range
+              {% trans "IP Range" %}
             </h5>
             <div class="card-body">
               <table class="table table-hover attr-table">
                 <tr>
-                    <th scope="row">Family</th>
+                    <th scope="row">{% trans "Family" %}</th>
                     <td>IPv{{ object.family }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Starting Address</th>
+                    <th scope="row">{% trans "Starting Address" %}</th>
                     <td>{{ object.start_address }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Ending Address</th>
+                    <th scope="row">{% trans "Ending Address" %}</th>
                     <td>{{ object.end_address }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Size</th>
+                    <th scope="row">{% trans "Size" %}</th>
                     <td>{{ object.size }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Utilization</th>
+                    <th scope="row">{% trans "Utilization" %}</th>
                     <td>
                       {% if object.mark_utilized %}
                         {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
-                        <small>(Marked fully utilized)</small>
+                        <small>({% trans "Marked fully utilized" %})</small>
                       {% else %}
                         {% utilization_graph object.utilization %}
                       {% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">VRF</th>
+                    <th scope="row">{% trans "VRF" %}</th>
                     <td>
                         {% if object.vrf %}
                             {{ object.vrf|linkify }} ({{ object.vrf.rd }})
                         {% else %}
-                            <span>Global</span>
+                            <span>{% trans "Global" %}</span>
                         {% endif %}
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">Role</th>
+                    <th scope="row">{% trans "Role" %}</th>
                     <td>{{ object.role|linkify|placeholder }}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Status</th>
+                    <th scope="row">{% trans "Status" %}</th>
                     <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                 </tr>
                 <tr>
-                    <th scope="row">Tenant</th>
+                    <th scope="row">{% trans "Tenant" %}</th>
                     <td>
                         {% if object.tenant.group %}
                             {{ object.tenant.group|linkify }} /
@@ -66,7 +67,7 @@
                     </td>
                 </tr>
                 <tr>
-                    <th scope="row">Description</th>
+                    <th scope="row">{% trans "Description" %}</th>
                     <td>{{ object.description|placeholder }}</td>
                 </tr>
               </table>

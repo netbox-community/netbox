@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from ipam.choices import *
 from ipam.constants import *
@@ -19,6 +19,7 @@ __all__ = (
 
 class ServiceBase(models.Model):
     protocol = models.CharField(
+        verbose_name=_('protocol'),
         max_length=50,
         choices=ServiceProtocolChoices
     )
@@ -29,7 +30,7 @@ class ServiceBase(models.Model):
                 MaxValueValidator(SERVICE_PORT_MAX)
             ]
         ),
-        verbose_name='Port numbers'
+        verbose_name=_('port numbers')
     )
 
     class Meta:
@@ -48,12 +49,15 @@ class ServiceTemplate(ServiceBase, PrimaryModel):
     A template for a Service to be applied to a device or virtual machine.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('service template')
+        verbose_name_plural = _('service templates')
 
     def get_absolute_url(self):
         return reverse('ipam:servicetemplate', args=[self.pk])
@@ -68,7 +72,7 @@ class Service(ServiceBase, PrimaryModel):
         to='dcim.Device',
         on_delete=models.CASCADE,
         related_name='services',
-        verbose_name='device',
+        verbose_name=_('device'),
         null=True,
         blank=True
     )
@@ -80,13 +84,14 @@ class Service(ServiceBase, PrimaryModel):
         blank=True
     )
     name = models.CharField(
-        max_length=100
+        max_length=100,
+        verbose_name=_('name')
     )
     ipaddresses = models.ManyToManyField(
         to='ipam.IPAddress',
         related_name='services',
         blank=True,
-        verbose_name='IP addresses',
+        verbose_name=_('IP addresses'),
         help_text=_("The specific IP addresses (if any) to which this service is bound")
     )
 
@@ -94,6 +99,8 @@ class Service(ServiceBase, PrimaryModel):
 
     class Meta:
         ordering = ('protocol', 'ports', 'pk')  # (protocol, port) may be non-unique
+        verbose_name = _('service')
+        verbose_name_plural = _('services')
 
     def get_absolute_url(self):
         return reverse('ipam:service', args=[self.pk])
@@ -107,6 +114,6 @@ class Service(ServiceBase, PrimaryModel):
 
         # A Service must belong to a Device *or* to a VirtualMachine
         if self.device and self.virtual_machine:
-            raise ValidationError("A service cannot be associated with both a device and a virtual machine.")
+            raise ValidationError(_("A service cannot be associated with both a device and a virtual machine."))
         if not self.device and not self.virtual_machine:
-            raise ValidationError("A service must be associated with either a device or a virtual machine.")
+            raise ValidationError(_("A service must be associated with either a device or a virtual machine."))

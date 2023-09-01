@@ -1,4 +1,6 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext as _
 
 from dcim import models
 from netbox.tables import NetBoxTable, columns
@@ -27,27 +29,28 @@ __all__ = (
 
 class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     devicetype_count = columns.LinkedCountColumn(
         viewname='dcim:devicetype_list',
         url_params={'manufacturer_id': 'pk'},
-        verbose_name='Device Types'
+        verbose_name=_('Device Types')
     )
     moduletype_count = columns.LinkedCountColumn(
         viewname='dcim:moduletype_list',
         url_params={'manufacturer_id': 'pk'},
-        verbose_name='Module Types'
+        verbose_name=_('Module Types')
     )
     inventoryitem_count = columns.LinkedCountColumn(
         viewname='dcim:inventoryitem_list',
         url_params={'manufacturer_id': 'pk'},
-        verbose_name='Inventory Items'
+        verbose_name=_('Inventory Items')
     )
     platform_count = columns.LinkedCountColumn(
         viewname='dcim:platform_list',
         url_params={'manufacturer_id': 'pk'},
-        verbose_name='Platforms'
+        verbose_name=_('Platforms')
     )
     tags = columns.TagColumn(
         url_name='dcim:manufacturer_list'
@@ -72,39 +75,76 @@ class ManufacturerTable(ContactsColumnMixin, NetBoxTable):
 class DeviceTypeTable(NetBoxTable):
     model = tables.Column(
         linkify=True,
-        verbose_name='Device Type'
+        verbose_name=_('Device Type')
     )
     manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
         linkify=True
     )
     default_platform = tables.Column(
+        verbose_name=_('Default Platform'),
         linkify=True
     )
     is_full_depth = columns.BooleanColumn(
-        verbose_name='Full Depth'
+        verbose_name=_('Full Depth')
     )
-    instance_count = columns.LinkedCountColumn(
-        viewname='dcim:device_list',
-        url_params={'device_type_id': 'pk'},
-        verbose_name='Instances'
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
     )
-    comments = columns.MarkdownColumn()
     tags = columns.TagColumn(
         url_name='dcim:devicetype_list'
     )
     u_height = columns.TemplateColumn(
+        verbose_name=_('U Height'),
         template_code='{{ value|floatformat }}'
     )
     weight = columns.TemplateColumn(
+        verbose_name=_('Weight'),
         template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
+    )
+    instance_count = columns.LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'device_type_id': 'pk'},
+        verbose_name=_('Instances')
+    )
+    console_port_template_count = tables.Column(
+        verbose_name=_('Console Ports')
+    )
+    console_server_port_template_count = tables.Column(
+        verbose_name=_('Console Server Ports')
+    )
+    power_port_template_count = tables.Column(
+        verbose_name=_('Power Ports')
+    )
+    power_outlet_template_count = tables.Column(
+        verbose_name=_('Power Outlets')
+    )
+    interface_template_count = tables.Column(
+        verbose_name=_('Interfaces')
+    )
+    front_port_template_count = tables.Column(
+        verbose_name=_('Front Ports')
+    )
+    rear_port_template_count = tables.Column(
+        verbose_name=_('Rear Ports')
+    )
+    device_bay_template_count = tables.Column(
+        verbose_name=_('Device Bays')
+    )
+    module_bay_template_count = tables.Column(
+        verbose_name=_('Module Bays')
+    )
+    inventory_item_template_count = tables.Column(
+        verbose_name=_('Inventory Items')
     )
 
     class Meta(NetBoxTable.Meta):
         model = models.DeviceType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role',
-            'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth',
+            'subdevice_role', 'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',
@@ -117,7 +157,7 @@ class DeviceTypeTable(NetBoxTable):
 
 class ComponentTemplateTable(NetBoxTable):
     id = tables.Column(
-        verbose_name='ID'
+        verbose_name=_('ID')
     )
     name = tables.Column(
         order_by=('_name',)
@@ -176,9 +216,11 @@ class PowerOutletTemplateTable(ComponentTemplateTable):
 
 
 class InterfaceTemplateTable(ComponentTemplateTable):
-    enabled = columns.BooleanColumn()
+    enabled = columns.BooleanColumn(
+        verbose_name=_('Enabled'),
+    )
     mgmt_only = columns.BooleanColumn(
-        verbose_name='Management Only'
+        verbose_name=_('Management Only')
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
@@ -187,15 +229,20 @@ class InterfaceTemplateTable(ComponentTemplateTable):
 
     class Meta(ComponentTemplateTable.Meta):
         model = models.InterfaceTemplate
-        fields = ('pk', 'name', 'label', 'enabled', 'mgmt_only', 'type', 'description', 'bridge', 'poe_mode', 'poe_type', 'actions')
+        fields = (
+            'pk', 'name', 'label', 'enabled', 'mgmt_only', 'type', 'description', 'bridge', 'poe_mode', 'poe_type',
+            'rf_role', 'actions',
+        )
         empty_text = "None"
 
 
 class FrontPortTemplateTable(ComponentTemplateTable):
     rear_port_position = tables.Column(
-        verbose_name='Position'
+        verbose_name=_('Position')
     )
-    color = columns.ColorColumn()
+    color = columns.ColorColumn(
+        verbose_name=_('Color'),
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
@@ -208,7 +255,9 @@ class FrontPortTemplateTable(ComponentTemplateTable):
 
 
 class RearPortTemplateTable(ComponentTemplateTable):
-    color = columns.ColorColumn()
+    color = columns.ColorColumn(
+        verbose_name=_('Color'),
+    )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),
         extra_buttons=MODULAR_COMPONENT_TEMPLATE_BUTTONS
@@ -247,12 +296,15 @@ class InventoryItemTemplateTable(ComponentTemplateTable):
         actions=('edit', 'delete')
     )
     role = tables.Column(
+        verbose_name=_('Role'),
         linkify=True
     )
     manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
         linkify=True
     )
     component = tables.Column(
+        verbose_name=_('Component'),
         orderable=False
     )
 

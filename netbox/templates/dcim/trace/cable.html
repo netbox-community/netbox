@@ -1,9 +1,10 @@
 {% load helpers %}
+{% load i18n %}
 
 <div class="cable" style="border-left-color: #{% if cable.color == 'ffffff' %}909090; border-left-style: double; border-left-width: 0.4rem;{% else %}{{ cable.color|default:'606060' }};{% endif %} {% if cable.status != 'connected' %} border-left-style: dashed{% endif %}">
     <strong>
         <a href="{% url 'dcim:cable' pk=cable.pk %}">
-            {% if cable.label %}<code>{{ cable.label }}</code>{% else %}Cable #{{ cable.pk }}{% endif %}
+            {% if cable.label %}<code>{{ cable.label }}</code>{% else %}{% trans "Cable" %} #{{ cable.pk }}{% endif %}
         </a>
     </strong><br />
     {% if cable.type %}

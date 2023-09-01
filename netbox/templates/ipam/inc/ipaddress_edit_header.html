@@ -1,4 +1,5 @@
 {% load helpers %}
+{% load i18n %}
 
 <ul class="nav nav-tabs px-3">
   <li class="nav-item">
@@ -6,7 +7,7 @@
           class="nav-link {% if active_tab == 'add' %}active{% endif %}"
           href="{% url 'ipam:ipaddress_add' %}{% querystring request %}"
       >
-          {% if obj.pk %}Edit{% else %}Create{% endif %}
+          {% if obj.pk %}{% trans "Edit" %}{% else %}{% trans "Create" %}{% endif %}
       </a>
   </li>
   {% if 'interface' in request.GET or 'vminterface' in request.GET %}
@@ -15,7 +16,7 @@
           class="nav-link {% if active_tab == 'assign' %}active{% endif %}"
           href="{% url 'ipam:ipaddress_assign' %}{% querystring request %}"
       >
-          Assign IP
+          {% trans "Assign IP" %}
       </a>
   </li>
   {% else %}
@@ -24,7 +25,7 @@
           class="nav-link {% if active_tab == 'bulk_add' %}active{% endif %}"
           href="{% url 'ipam:ipaddress_bulk_add' %}{% querystring request %}"
       >
-          Bulk Create
+          {% trans "Bulk Create" %}
       </a>
   </li>
   {% endif %}

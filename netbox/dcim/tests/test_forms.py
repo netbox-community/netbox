@@ -22,12 +22,12 @@ class DeviceTestCase(TestCase):
         device_type = DeviceType.objects.create(
             manufacturer=manufacturer, model='Device Type 1', slug='device-type-1', u_height=1
         )
-        device_role = DeviceRole.objects.create(
+        role = DeviceRole.objects.create(
             name='Device Role 1', slug='device-role-1', color='ff0000'
         )
         Platform.objects.create(name='Platform 1', slug='platform-1')
         Device.objects.create(
-            name='Device 1', device_type=device_type, device_role=device_role, site=site, rack=rack, position=1
+            name='Device 1', device_type=device_type, role=role, site=site, rack=rack, position=1
         )
         cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
         cluster_group = ClusterGroup.objects.create(name='Cluster Group 1', slug='cluster-group-1')
@@ -36,7 +36,7 @@ class DeviceTestCase(TestCase):
     def test_racked_device(self):
         form = DeviceForm(data={
             'name': 'New Device',
-            'device_role': DeviceRole.objects.first().pk,
+            'role': DeviceRole.objects.first().pk,
             'tenant': None,
             'manufacturer': Manufacturer.objects.first().pk,
             'device_type': DeviceType.objects.first().pk,
@@ -53,7 +53,7 @@ class DeviceTestCase(TestCase):
     def test_racked_device_occupied(self):
         form = DeviceForm(data={
             'name': 'test',
-            'device_role': DeviceRole.objects.first().pk,
+            'role': DeviceRole.objects.first().pk,
             'tenant': None,
             'manufacturer': Manufacturer.objects.first().pk,
             'device_type': DeviceType.objects.first().pk,
@@ -70,7 +70,7 @@ class DeviceTestCase(TestCase):
     def test_non_racked_device(self):
         form = DeviceForm(data={
             'name': 'New Device',
-            'device_role': DeviceRole.objects.first().pk,
+            'role': DeviceRole.objects.first().pk,
             'tenant': None,
             'manufacturer': Manufacturer.objects.first().pk,
             'device_type': DeviceType.objects.first().pk,
@@ -87,7 +87,7 @@ class DeviceTestCase(TestCase):
     def test_non_racked_device_with_face(self):
         form = DeviceForm(data={
             'name': 'New Device',
-            'device_role': DeviceRole.objects.first().pk,
+            'role': DeviceRole.objects.first().pk,
             'tenant': None,
             'manufacturer': Manufacturer.objects.first().pk,
             'device_type': DeviceType.objects.first().pk,
@@ -103,7 +103,7 @@ class DeviceTestCase(TestCase):
     def test_non_racked_device_with_position(self):
         form = DeviceForm(data={
             'name': 'New Device',
-            'device_role': DeviceRole.objects.first().pk,
+            'role': DeviceRole.objects.first().pk,
             'tenant': None,
             'manufacturer': Manufacturer.objects.first().pk,
             'device_type': DeviceType.objects.first().pk,

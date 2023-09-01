@@ -1,7 +1,5 @@
 # Provider Accounts
 
-!!! info "This model was introduced in NetBox v3.5."
-
 This model can be used to represent individual accounts associated with a provider.
 
 ## Fields

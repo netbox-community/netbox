@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
 from circuits.models import *
@@ -26,12 +26,11 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Provider
     fieldsets = (
@@ -44,16 +43,16 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
 class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
     provider = DynamicModelChoiceField(
+        label=_('Provider'),
         queryset=Provider.objects.all(),
         required=False
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ProviderAccount
     fieldsets = (
@@ -66,6 +65,7 @@ class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
 
 class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
     provider = DynamicModelChoiceField(
+        label=_('Provider'),
         queryset=Provider.objects.all(),
         required=False
     )
@@ -75,12 +75,11 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Service ID')
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = ProviderNetwork
     fieldsets = (
@@ -93,6 +92,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
 
 class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
+        label=_('Description'),
         max_length=200,
         required=False
     )
@@ -106,14 +106,17 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
 
 class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     type = DynamicModelChoiceField(
+        label=_('Type'),
         queryset=CircuitType.objects.all(),
         required=False
     )
     provider = DynamicModelChoiceField(
+        label=_('Provider'),
         queryset=Provider.objects.all(),
         required=False
     )
     provider_account = DynamicModelChoiceField(
+        label=_('Provider account'),
         queryset=ProviderAccount.objects.all(),
         required=False,
         query_params={
@@ -121,19 +124,23 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     status = forms.ChoiceField(
+        label=_('Status'),
         choices=add_blank_choice(CircuitStatusChoices),
         required=False,
         initial=''
     )
     tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False
     )
     install_date = forms.DateField(
+        label=_('Install date'),
         required=False,
         widget=DatePicker()
     )
     termination_date = forms.DateField(
+        label=_('Termination date'),
         required=False,
         widget=DatePicker()
     )
@@ -145,18 +152,17 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         )
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=100,
         required=False
     )
-    comments = CommentField(
-        label=_('Comments')
-    )
+    comments = CommentField()
 
     model = Circuit
     fieldsets = (
-        ('Circuit', ('provider', 'type', 'status', 'description')),
-        ('Service Parameters', ('provider_account', 'install_date', 'termination_date', 'commit_rate')),
-        ('Tenancy', ('tenant',)),
+        (_('Circuit'), ('provider', 'type', 'status', 'description')),
+        (_('Service Parameters'), ('provider_account', 'install_date', 'termination_date', 'commit_rate')),
+        (_('Tenancy'), ('tenant',)),
     )
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',

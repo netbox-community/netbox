@@ -1,9 +1,10 @@
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
+
 from dcim.tables.devices import BaseInterfaceTable
+from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from virtualization.models import VirtualMachine, VMInterface
-
-from netbox.tables import NetBoxTable, columns
 
 __all__ = (
     'VirtualMachineTable',
@@ -39,36 +40,53 @@ VMINTERFACE_BUTTONS = """
 
 class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     name = tables.Column(
+        verbose_name=_('Name'),
         order_by=('_name',),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
     site = tables.Column(
+        verbose_name=_('Site'),
         linkify=True
     )
     cluster = tables.Column(
+        verbose_name=_('Cluster'),
         linkify=True
     )
     device = tables.Column(
+        verbose_name=_('Device'),
         linkify=True
     )
-    role = columns.ColoredLabelColumn()
-    comments = columns.MarkdownColumn()
+    role = columns.ColoredLabelColumn(
+        verbose_name=_('Role'),
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     primary_ip4 = tables.Column(
         linkify=True,
-        verbose_name='IPv4 Address'
+        verbose_name=_('IPv4 Address')
     )
     primary_ip6 = tables.Column(
         linkify=True,
-        verbose_name='IPv6 Address'
+        verbose_name=_('IPv6 Address')
     )
     primary_ip = tables.Column(
         linkify=True,
         order_by=('primary_ip4', 'primary_ip6'),
-        verbose_name='IP Address'
+        verbose_name=_('IP Address')
     )
     tags = columns.TagColumn(
         url_name='virtualization:virtualmachine_list'
+    )
+    interface_count = tables.Column(
+        verbose_name=_('Interfaces')
+    )
+    config_template = tables.Column(
+        verbose_name=_('Config Template'),
+        linkify=True
     )
 
     class Meta(NetBoxTable.Meta):
@@ -76,7 +94,7 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         fields = (
             'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'platform',
             'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments',
-            'contacts', 'tags', 'created', 'last_updated',
+            'config_template', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
@@ -89,12 +107,15 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
 
 class VMInterfaceTable(BaseInterfaceTable):
     virtual_machine = tables.Column(
+        verbose_name=_('Virtual Machine'),
         linkify=True
     )
     name = tables.Column(
+        verbose_name=_('Name'),
         linkify=True
     )
     vrf = tables.Column(
+        verbose_name=_('VRF'),
         linkify=True
     )
     tags = columns.TagColumn(
@@ -112,9 +133,11 @@ class VMInterfaceTable(BaseInterfaceTable):
 
 class VirtualMachineVMInterfaceTable(VMInterfaceTable):
     parent = tables.Column(
+        verbose_name=_('Parent'),
         linkify=True
     )
     bridge = tables.Column(
+        verbose_name=_('Bridge'),
         linkify=True
     )
     actions = columns.ActionsColumn(

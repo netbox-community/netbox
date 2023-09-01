@@ -22,6 +22,7 @@ class ActionsMixin:
         Return a tuple of actions for which the given user is permitted to do.
         """
         model = model or self.queryset.model
+
         return [
             action for action in self.actions if user.has_perms([
                 get_permission_for_model(model, name) for name in self.action_perms[action]

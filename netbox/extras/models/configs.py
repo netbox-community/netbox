@@ -1,13 +1,15 @@
+from django.apps import apps
 from django.conf import settings
 from django.core.validators import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
+from netbox.registry import registry
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from utilities.jinja2 import ConfigTemplateLoader
@@ -31,17 +33,21 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
     will be available to a Device in site A assigned to tenant B. Data is stored in JSON format.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     weight = models.PositiveSmallIntegerField(
+        verbose_name=_('weight'),
         default=1000
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     is_active = models.BooleanField(
+        verbose_name=_('is active'),
         default=True,
     )
     regions = models.ManyToManyField(
@@ -121,6 +127,8 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
 
     class Meta:
         ordering = ['weight', 'name']
+        verbose_name = _('config context')
+        verbose_name_plural = _('config contexts')
 
     def __str__(self):
         return self.name
@@ -138,7 +146,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
         # Verify that JSON data is provided as an object
         if type(self.data) is not dict:
             raise ValidationError(
-                {'data': 'JSON data must be in object form. Example: {"foo": 123}'}
+                {'data': _('JSON data must be in object form. Example: {"foo": 123}')}
             )
 
     def sync_data(self):
@@ -146,6 +154,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
         Synchronize context data from the designated DataFile (if any).
         """
         self.data = self.data_file.get_data()
+    sync_data.alters_data = True
 
 
 class ConfigContextModel(models.Model):
@@ -193,7 +202,7 @@ class ConfigContextModel(models.Model):
         # Verify that JSON data is provided as an object
         if self.local_context_data and type(self.local_context_data) is not dict:
             raise ValidationError(
-                {'local_context_data': 'JSON data must be in object form. Example: {"foo": 123}'}
+                {'local_context_data': _('JSON data must be in object form. Example: {"foo": 123}')}
             )
 
 
@@ -203,16 +212,20 @@ class ConfigContextModel(models.Model):
 
 class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     template_code = models.TextField(
+        verbose_name=_('template code'),
         help_text=_('Jinja2 template code.')
     )
     environment_params = models.JSONField(
+        verbose_name=_('environment parameters'),
         blank=True,
         null=True,
         default=dict,
@@ -224,6 +237,8 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
 
     class Meta:
         ordering = ('name',)
+        verbose_name = _('config template')
+        verbose_name_plural = _('config templates')
 
     def __str__(self):
         return self.name
@@ -236,12 +251,25 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         Synchronize template content from the designated DataFile (if any).
         """
         self.template_code = self.data_file.data_as_string
+    sync_data.alters_data = True
 
     def render(self, context=None):
         """
         Render the contents of the template.
         """
-        context = context or {}
+        _context = dict()
+
+        # Populate the default template context with NetBox model classes, namespaced by app
+        # TODO: Devise a canonical mechanism for identifying the models to include (see #13427)
+        for app, model_names in registry['model_features']['custom_fields'].items():
+            _context.setdefault(app, {})
+            for model_name in model_names:
+                model = apps.get_registered_model(app, model_name)
+                _context[app][model.__name__] = model
+
+        # Add the provided context data, if any
+        if context is not None:
+            _context.update(context)
 
         # Initialize the Jinja2 environment and instantiate the Template
         environment = self._get_environment()
@@ -249,7 +277,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
             template = environment.get_template(self.data_file.path)
         else:
             template = environment.from_string(self.template_code)
-        output = template.render(**context)
+        output = template.render(**_context)
 
         # Replace CRLF-style line terminators
         return output.replace('\r\n', '\n')

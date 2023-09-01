@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
 from dcim.models import Module, ModuleType
@@ -13,21 +14,25 @@ __all__ = (
 class ModuleTypeTable(NetBoxTable):
     model = tables.Column(
         linkify=True,
-        verbose_name='Module Type'
+        verbose_name=_('Module Type')
     )
     manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
         linkify=True
     )
     instance_count = columns.LinkedCountColumn(
         viewname='dcim:module_list',
         url_params={'module_type_id': 'pk'},
-        verbose_name='Instances'
+        verbose_name=_('Instances')
     )
-    comments = columns.MarkdownColumn()
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:moduletype_list'
     )
     weight = columns.TemplateColumn(
+        verbose_name=_('Weight'),
         template_code=WEIGHT,
         order_by=('_abs_weight', 'weight_unit')
     )
@@ -44,20 +49,28 @@ class ModuleTypeTable(NetBoxTable):
 
 class ModuleTable(NetBoxTable):
     device = tables.Column(
+        verbose_name=_('Device'),
         linkify=True
     )
     module_bay = tables.Column(
+        verbose_name=_('Module Bay'),
         linkify=True
     )
     manufacturer = tables.Column(
+        verbose_name=_('Manufacturer'),
         accessor=tables.A('module_type__manufacturer'),
         linkify=True
     )
     module_type = tables.Column(
+        verbose_name=_('Module Type'),
         linkify=True
     )
-    status = columns.ChoiceFieldColumn()
-    comments = columns.MarkdownColumn()
+    status = columns.ChoiceFieldColumn(
+        verbose_name=_('Status'),
+    )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:module_list'
     )

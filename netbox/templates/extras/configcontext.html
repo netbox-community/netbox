@@ -1,32 +1,33 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
   <div class="row">
     <div class="col col-md-5">
       <div class="card">
-        <h5 class="card-header">Config Context</h5>
+        <h5 class="card-header">{% trans "Config Context" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <th scope="row">Name</th>
+              <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">Weight</th>
+              <th scope="row">{% trans "Weight" %}</th>
               <td>{{ object.weight }}</td>
             </tr>
             <tr>
-              <th scope="row">Description</th>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Active</th>
+              <th scope="row">{% trans "Active" %}</th>
               <td>{% checkmark object.is_active %}</td>
             </tr>
             <tr>
-              <th scope="row">Data Source</th>
+              <th scope="row">{% trans "Data Source" %}</th>
               <td>
                 {% if object.data_source %}
                   <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
@@ -36,13 +37,13 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Data File</th>
+              <th scope="row">{% trans "Data File" %}</th>
               <td>
                 {% if object.data_file %}
                   <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
                 {% elif object.data_path %}
                   <div class="float-end text-warning">
-                    <i class="mdi mdi-alert" title="The data file associated with this object has been deleted."></i>
+                    <i class="mdi mdi-alert" title="{% trans "The data file associated with this object has been deleted" %}."></i>
                   </div>
                   {{ object.data_path }}
                 {% else %}
@@ -51,14 +52,14 @@
               </td>
             </tr>
             <tr>
-              <th scope="row">Data Synced</th>
+              <th scope="row">{% trans "Data Synced" %}</th>
               <td>{{ object.data_synced|placeholder }}</td>
             </tr>
           </table>
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">Assignment</h5>
+        <h5 class="card-header">{% trans "Assignment" %}</h5>
         <div class="card-body">
           <table class="table table-hover attr-table">
             {% for title, objects in assigned_objects %}
@@ -69,7 +70,7 @@
                     {% for object in objects %}
                       <li>{{ object|linkify }}</li>
                     {% empty %}
-                      <li class="text-muted">None</li>
+                      <li class="text-muted">{% trans "None" %}</li>
                     {% endfor %}
                   </ul>
                 </td>
@@ -82,7 +83,7 @@
     <div class="col col-md-7">
       <div class="card">
         <div class="card-header">
-          <h5>Data</h5>
+          <h5>{% trans "Data" %}</h5>
           {% include 'extras/inc/configcontext_format.html' %}
         </div>
         <div class="card-body">

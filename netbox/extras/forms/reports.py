@@ -1,5 +1,5 @@
 from django import forms
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from extras.choices import DurationChoices
 from utilities.forms import BootstrapMixin
@@ -33,7 +33,7 @@ class ReportForm(BootstrapMixin, forms.Form):
 
         # Annotate the current system time for reference
         now = local_now().strftime('%Y-%m-%d %H:%M:%S')
-        self.fields['schedule_at'].help_text += f' (current time: <strong>{now}</strong>)'
+        self.fields['schedule_at'].help_text += _(' (current time: <strong>{now}</strong>)').format(now=now)
 
         # Remove scheduling fields if scheduling is disabled
         if not scheduling_enabled:

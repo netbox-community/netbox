@@ -1,15 +1,16 @@
 {% extends "admin/base_site.html" %}
+{% load i18n %}
 
-{% block title %}Installed Plugins {{ block.super }}{% endblock %}
+{% block title %}{% trans "Installed Plugins" %} {{ block.super }}{% endblock %}
 
 {% block breadcrumbs %}
     <div class="breadcrumbs">
-        <a href="{% url 'admin:index' %}">Home</a> &rsaquo;
-        <a href="{% url 'plugins_list' %}">Installed Plugins</a>
+        <a href="{% url 'admin:index' %}">{% trans "Home" %}</a> &rsaquo;
+        <a href="{% url 'plugins_list' %}">{% trans "Installed Plugins" %}</a>
     </div>
 {% endblock %}
 
-{% block content_title %}<h1>Installed Plugins{{ queue.name }}</h1>{% endblock %}
+{% block content_title %}<h1>{% trans "Installed Plugins" %}{{ queue.name }}</h1>{% endblock %}
 
 {% block content %}
 <div id="content-main">
@@ -18,12 +19,12 @@
             <table id="result_list">
                 <thead>
                     <tr>
-                        <th><div class="text"><span>Name</span></div></th>
-                        <th><div class="text"><span>Package Name</span></div></th>
-                        <th><div class="text"><span>Author</span></div></th>
-                        <th><div class="text"><span>Author Email</span></div></th>
-                        <th><div class="text"><span>Description</span></div></th>
-                        <th><div class="text"><span>Version</span></div></th>
+                        <th><div class="text"><span>{% trans "Name" %}</span></div></th>
+                        <th><div class="text"><span>{% trans "Package Name" %}</span></div></th>
+                        <th><div class="text"><span>{% trans "Author" %}</span></div></th>
+                        <th><div class="text"><span>{% trans "Author Email" %}</span></div></th>
+                        <th><div class="text"><span>{% trans "Description" %}</span></div></th>
+                        <th><div class="text"><span>{% trans "Version" %}</span></div></th>
                     </tr>
                 </thead>
                 <tbody>

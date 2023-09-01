@@ -5,6 +5,7 @@ from dcim.api.nested_serializers import (
     NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer,
 )
 from dcim.choices import InterfaceModeChoices
+from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import (
     NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer, NestedVRFSerializer,
 )
@@ -79,13 +80,18 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
+
+    # Counter fields
+    interface_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = VirtualMachine
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'interface_count',
         ]
         validators = []
 
@@ -98,6 +104,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
             'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
+            'interface_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

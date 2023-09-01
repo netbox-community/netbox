@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -13,7 +14,7 @@
 {% block extra_controls %}
   {% if perms.tenancy.add_tenant %}
     <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Tenant
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant" %}
     </a>
   {% endif %}
 {% endblock extra_controls %}
@@ -23,20 +24,20 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">
-        Tenant Group
+        {% trans "Tenant Group" %}
       </h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Name</th>
+            <th scope="row">{% trans "Name" %}</th>
             <td>{{ object.name }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Parent</th>
+            <th scope="row">{% trans "Parent" %}</th>
             <td>{{ object.parent|linkify|placeholder }}</td>
           </tr>
         </table>
@@ -54,7 +55,7 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">Child Groups</h5>
+      <h5 class="card-header">{% trans "Child Groups" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'tenancy:tenantgroup_list' %}?parent_id={{ object.pk }}"
         hx-trigger="load"
@@ -62,7 +63,7 @@
       {% if perms.tenancy.add_tenantgroup %}
         <div class="card-footer text-end noprint">
           <a href="{% url 'tenancy:tenantgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Tenant Group
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant Group" %}
           </a>
         </div>
       {% endif %}
