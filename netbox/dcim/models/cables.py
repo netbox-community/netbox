@@ -537,10 +537,10 @@ class CablePath(models.Model):
 
             # Step 2: Determine the attached links (Cable or WirelessLink), if any
             links = [termination.link for termination in terminations if termination.link is not None]
-            if len(links) == 0 and len(path) == 1:
-                # If this is the start of the path and no link exists, return None
-                return None
-            elif len(links) == 0:
+            if len(links) == 0:
+                if len(path) == 1:
+                    # If this is the start of the path and no link exists, return None
+                    return None
                 # Otherwise, halt the trace if no link exists
                 break
             assert all(type(link) in (Cable, WirelessLink) for link in links)
@@ -559,7 +559,7 @@ class CablePath(models.Model):
                 link.status for link in links if hasattr(link, 'status') and
                 link.status != LinkStatusChoices.STATUS_CONNECTED
             ]
-            if len(links_status) > 0 and len(links) != len(links_status):
+            if len(links_status) and len(links) != len(links_status):
                 is_active = False
 
             # Step 5: Determine the far-end terminations
@@ -614,15 +614,21 @@ class CablePath(models.Model):
                         rear_port_id__in=[rp.pk for rp in remote_terminations],
                         rear_port_position=1
                     )
+                # Obtain the individual front ports based on the termination and all positions
                 elif len(remote_terminations) > 1 and position_stack:
                     positions = position_stack.pop()
+
+                    # Ensure we have a number of positions equal to the amount of remote terminations
                     assert len(remote_terminations) == len(positions)
+
+                    # Get our front ports
                     q_filter = Q()
                     for rt in remote_terminations:
                         position = positions.pop()
                         q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
                     assert q_filter is not Q()
                     front_ports = FrontPort.objects.filter(q_filter)
+                # Obtain the individual front ports based on the termination and position
                 elif position_stack:
                     front_ports = FrontPort.objects.filter(
                         rear_port_id=remote_terminations[0].pk,
@@ -674,14 +680,12 @@ class CablePath(models.Model):
                     is_split = True
                 break
 
-        cablepath = cls(
+        return cls(
             path=path,
             is_complete=is_complete,
             is_active=is_active,
             is_split=is_split
         )
-
-        return cablepath
 
     def retrace(self):
         """
