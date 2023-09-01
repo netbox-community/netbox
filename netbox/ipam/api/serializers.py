@@ -13,7 +13,7 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
 from .nested_serializers import *
-from .field_serializers import IPAddressField
+from .field_serializers import IPAddressField, IPNetworkField
 
 
 #
@@ -138,7 +138,7 @@ class AggregateSerializer(NetBoxModelSerializer):
     family = ChoiceField(choices=IPAddressFamilyChoices, read_only=True)
     rir = NestedRIRSerializer()
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    prefix = IPAddressField()
+    prefix = IPNetworkField()
 
     class Meta:
         model = Aggregate
@@ -146,7 +146,6 @@ class AggregateSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        read_only_fields = ['family']
 
 
 #
@@ -306,7 +305,7 @@ class PrefixSerializer(NetBoxModelSerializer):
     role = NestedRoleSerializer(required=False, allow_null=True)
     children = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(read_only=True)
-    prefix = IPAddressField()
+    prefix = IPNetworkField()
 
     class Meta:
         model = Prefix
@@ -315,7 +314,6 @@ class PrefixSerializer(NetBoxModelSerializer):
             'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
             '_depth',
         ]
-        read_only_fields = ['family']
 
 
 class PrefixLengthSerializer(serializers.Serializer):
@@ -386,7 +384,6 @@ class IPRangeSerializer(NetBoxModelSerializer):
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        read_only_fields = ['family']
 
 
 #
