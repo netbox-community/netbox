@@ -17,18 +17,9 @@ class CSVImportTestCase(ModelViewTestCase):
     def _get_csv_data(self, csv_data):
         return '\n'.join(csv_data)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
-    def test_valid_tags(self):
-        csv_data = (
-            'name,slug,tags',
-            'Region 1,region-1,"alpha,bravo"',
-            'Region 2,region-2,"charlie,delta"',
-            'Region 3,region-3,echo',
-            'Region 4,region-4,',
-        )
-
+    def _test_valid_tags(self, csv_data, importformat):
         data = {
-            'format': ImportFormatChoices.CSV,
+            'format': importformat,
             'data': self._get_csv_data(csv_data),
         }
 
@@ -59,6 +50,17 @@ class CSVImportTestCase(ModelViewTestCase):
             ['Echo']
         )
         self.assertEqual(regions[3].tags.count(), 0)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_valid_tags_csv(self):
+        csv_data = (
+            'name,slug,tags',
+            'Region 1,region-1,"alpha,bravo"',
+            'Region 2,region-2,"charlie,delta"',
+            'Region 3,region-3,echo',
+            'Region 4,region-4,',
+        )
+        return self._test_valid_tags(csv_data, ImportFormatChoices.CSV)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_invalid_tags(self):
