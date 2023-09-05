@@ -239,8 +239,8 @@ class CSVDelimiterChoices(ChoiceSet):
     TAB = '\t'
 
     CHOICES = [
-        (AUTO, 'Auto-detect'),
-        (COMMA, 'Comma'),
-        (SEMICOLON, 'Semicolon'),
-        (TAB, 'Tab'),
+        (AUTO, _('Auto-detect')),
+        (COMMA, _('Comma')),
+        (SEMICOLON, _('Semicolon')),
+        (TAB, _('Tab')),
     ]

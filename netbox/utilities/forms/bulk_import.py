@@ -24,7 +24,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         help_text=_("Enter object data in CSV, JSON or YAML format.")
     )
     upload_file = forms.FileField(
-        label="Data file",
+        label=_("Data file"),
         required=False
     )
     format = forms.ChoiceField(
@@ -34,7 +34,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
     csv_delimiter = forms.ChoiceField(
         choices=CSVDelimiterChoices,
         initial=CSVDelimiterChoices.AUTO,
-        label="CSV Delimiter",
+        label=_("CSV delimiter"),
         help_text=_("The character which delimits CSV fields. Applies only to CSV format."),
         required=False
     )
