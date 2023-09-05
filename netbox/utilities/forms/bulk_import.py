@@ -21,7 +21,11 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
     data = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={'class': 'font-monospace'}),
-        help_text=_("Enter object data in CSV, JSON or YAML format.")
+        help_text=_("Enter object data in CSV, JSON or YAML format."),
+        # Do not let Django strip data, because this can mess with TSV files.
+        # When the last column of the last row is empty, the TSV will end with
+        # a '\t' and that should not be stripped out!
+        strip=False,
     )
     upload_file = forms.FileField(
         label="Data file",
@@ -61,6 +65,10 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         # Process data according to the selected format
         if format == ImportFormatChoices.CSV:
             self.cleaned_data['data'] = self._clean_csv(data)
+        elif format == ImportFormatChoices.CSV_SEMICOLON:
+            self.cleaned_data['data'] = self._clean_csv(data, delimiter=';')
+        elif format == ImportFormatChoices.TSV:
+            self.cleaned_data['data'] = self._clean_tsv(data, dialect='excel-tab')
         elif format == ImportFormatChoices.JSON:
             self.cleaned_data['data'] = self._clean_json(data)
         elif format == ImportFormatChoices.YAML:
@@ -78,20 +86,26 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
                 return ImportFormatChoices.JSON
             if data.startswith('---') or data.startswith('- '):
                 return ImportFormatChoices.YAML
-            if ',' in data.split('\n', 1)[0]:
+            first_line = data.split('\n', 1)[0]
+            if ',' in first_line:
                 return ImportFormatChoices.CSV
+            if ';' in first_line:
+                return ImportFormatChoices.CSV_SEMICOLON
+            if '\t' in first_line:
+                return ImportFormatChoices.TSV
         except IndexError:
             pass
         raise forms.ValidationError({
             'format': _('Unable to detect data format. Please specify.')
         })
 
-    def _clean_csv(self, data):
+    def _clean_csv(self, data, **csv_reader_kwargs):
         """
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
-        stream = StringIO(data.strip())
-        reader = csv.reader(stream)
+        # Strip spaces and newlines only, leave tabs alone because they are significant in TSV mode
+        stream = StringIO(data(' \n'))
+        reader = csv.reader(stream, **csv_reader_kwargs)
         headers, records = parse_csv(reader)
 
         # Set CSV headers for reference by the model form
