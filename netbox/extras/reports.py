@@ -85,9 +85,9 @@ class Report(object):
     description = None
     scheduling_enabled = True
     job_timeout = None
+    test_methods = []
 
     def __init__(self):
-
         self._results = {}
         self.active_test = None
         self.failed = False
