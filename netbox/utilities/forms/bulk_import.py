@@ -104,7 +104,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
         # Strip spaces and newlines only, leave tabs alone because they are significant in TSV mode
-        stream = StringIO(data(' \n'))
+        stream = StringIO(data.strip(' \n'))
         reader = csv.reader(stream, **csv_reader_kwargs)
         headers, records = parse_csv(reader)
 
