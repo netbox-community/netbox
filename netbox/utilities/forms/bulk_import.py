@@ -61,13 +61,18 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
 
         # Determine the data format
         if self.cleaned_data['format'] == ImportFormatChoices.AUTO:
-            format = self._detect_format(data)
+            if self.cleaned_data['csv_delimiter'] != CSVDelimiterChoices.AUTO:
+                # Specifying the CSV delimiter implies CSV format
+                format = ImportFormatChoices.CSV
+            else:
+                format = self._detect_format(data)
         else:
             format = self.cleaned_data['format']
 
         # Process data according to the selected format
         if format == ImportFormatChoices.CSV:
-            self.cleaned_data['data'] = self._clean_csv(data, delimiter=self.cleaned_data['csv_delimiter'])
+            delimiter = self.cleaned_data.get('csv_delimiter', CSVDelimiterChoices.AUTO)
+            self.cleaned_data['data'] = self._clean_csv(data, delimiter=delimiter)
         elif format == ImportFormatChoices.JSON:
             self.cleaned_data['data'] = self._clean_json(data)
         elif format == ImportFormatChoices.YAML:
@@ -85,7 +90,10 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
                 return ImportFormatChoices.JSON
             if data.startswith('---') or data.startswith('- '):
                 return ImportFormatChoices.YAML
-            if ',' in data.split('\n', 1)[0]:
+            # Look for any of the CSV delimiters in the first line (ignoring the default 'auto' choice)
+            first_line = data.split('\n', 1)[0]
+            csv_delimiters = CSVDelimiterChoices.values()[1:]
+            if any(x in first_line for x in csv_delimiters):
                 return ImportFormatChoices.CSV
         except IndexError:
             pass
