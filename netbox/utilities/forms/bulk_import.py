@@ -105,18 +105,16 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         """
         Clean CSV-formatted data. The first row will be treated as column headers.
         """
-
+        # Determine the CSV dialect
         if delimiter == CSVDelimiterChoices.AUTO:
-            # Determine the CSV dialect
+            # This uses a rough heuristic to detect the CSV dialect based on the presence of supported delimiting
+            # characters. If the data is malformed, we'll fall back to the default Excel dialect.
+            delimiters = ''.join(CSVDelimiterChoices.values()[1:])  # Skip "auto"
             try:
-                # This uses a rough heuristic to detect the CSV dialect. If the data is malformed, we'll fall back to
-                # the default Excel dialect. Note that delimiter can only be one character.
-                dialect = csv.Sniffer().sniff(
-                    data.strip(), delimiters=''.join([CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON])
-                )
+                dialect = csv.Sniffer().sniff(data.strip(), delimiters=delimiters)
             except csv.Error:
                 dialect = csv.excel
-        elif delimiter in [CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON]:
+        elif delimiter in (CSVDelimiterChoices.COMMA, CSVDelimiterChoices.SEMICOLON):
             dialect = csv.excel
             dialect.delimiter = delimiter
         elif delimiter == CSVDelimiterChoices.TAB:
