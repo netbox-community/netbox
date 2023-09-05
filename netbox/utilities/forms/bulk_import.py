@@ -21,7 +21,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
     data = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={'class': 'font-monospace'}),
-        help_text=_("Enter object data in CSV, JSON or YAML format."),
+        help_text=_("Enter object data in CSV, TSV, JSON or YAML format."),
         # Do not let Django strip data, because this can mess with TSV files.
         # When the last column of the last row is empty, the TSV will end with
         # a '\t' and that should not be stripped out!
