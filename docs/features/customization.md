@@ -18,6 +18,12 @@ The `tag` filter can be specified multiple times to match only objects which hav
 GET /api/dcim/devices/?tag=monitored&tag=deprecated
 ```
 
+## Bookmarks
+
+!!! info "This feature was introduced in NetBox v3.6."
+
+Users can bookmark their most commonly visited objects for convenient access. Bookmarks are listed under a user's profile, and can be displayed with custom filtering and ordering on the user's personal dashboard.
+
 ## Custom Fields
 
 While NetBox provides a rather extensive data model out of the box, the need may arise to store certain additional data associated with NetBox objects. For example, you might need to record the invoice ID alongside an installed device, or record an approving authority when creating a new IP prefix. NetBox administrators can create custom fields on built-in objects to meet these needs.

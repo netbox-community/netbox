@@ -1,6 +1,7 @@
 {% extends 'generic/object.html' %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block title %}{{ report.name }}{% endblock %}
 
@@ -9,7 +10,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">Reports</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}">{% trans "Reports" %}</a></li>
   <li class="breadcrumb-item"><a href="{% url 'extras:report_list' %}#module{{ module.pk }}">{{ report.module|bettertitle }}</a></li>
 {% endblock breadcrumbs %}
 
@@ -26,14 +27,14 @@
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:report' module=report.module name=report.class_name %}">Report</a>
+      <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:report' module=report.module name=report.class_name %}">{% trans "Report" %}</a>
     </li>
     <li class="nav-item" role="presentation">
-      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:report_source' module=report.module name=report.class_name %}">Source</a>
+      <a class="nav-link{% if tab == 'source' %} active{% endif %}" href="{% url 'extras:report_source' module=report.module name=report.class_name %}">{% trans "Source" %}</a>
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:report_jobs' module=report.module name=report.class_name %}">
-        Jobs {% badge module.jobs.count %}
+        {% trans "Jobs" %} {% badge module.jobs.count %}
       </a>
     </li>
   </ul>

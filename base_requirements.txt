@@ -2,13 +2,9 @@
 # https://github.com/mozilla/bleach/blob/main/CHANGES
 bleach
 
-# Python client for Amazon AWS API
-# https://github.com/boto/boto3/blob/develop/CHANGELOG.rst
-boto3
-
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django<4.2
+Django<5.0
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
@@ -74,10 +70,6 @@ drf-spectacular
 # https://github.com/tfranzel/drf-spectacular-sidecar
 drf-spectacular-sidecar
 
-# Git client for file sync
-# https://github.com/jelmer/dulwich/releases
-dulwich
-
 # RSS feed parser
 # https://github.com/kurtmckee/feedparser/blob/develop/CHANGELOG.rst
 feedparser
@@ -121,8 +113,8 @@ netaddr
 Pillow
 
 # PostgreSQL database adapter for Python
-# https://www.psycopg.org/docs/news.html
-psycopg2-binary
+# https://github.com/psycopg/psycopg/blob/master/docs/news.rst
+psycopg[binary,pool]
 
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES

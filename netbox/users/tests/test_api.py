@@ -1,10 +1,14 @@
-from django.contrib.auth.models import Group, User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
 from users.models import ObjectPermission, Token
-from utilities.testing import APIViewTestCases, APITestCase
+from utilities.testing import APIViewTestCases, APITestCase, create_test_user
 from utilities.utils import deepmerge
+
+
+User = get_user_model()
 
 
 class AppTest(APITestCase):
@@ -101,24 +105,35 @@ class TokenTest(
     def setUp(self):
         super().setUp()
 
+        # Apply grant_token permission to enable the creation of Tokens for other Users
+        self.add_permissions('users.grant_token')
+
+    @classmethod
+    def setUpTestData(cls):
+        users = (
+            create_test_user('User 1'),
+            create_test_user('User 2'),
+            create_test_user('User 3'),
+        )
+
         tokens = (
-            # We already start with one Token, created by the test class
-            Token(user=self.user),
-            Token(user=self.user),
+            Token(user=users[0]),
+            Token(user=users[1]),
+            Token(user=users[2]),
         )
         # Use save() instead of bulk_create() to ensure keys get automatically generated
         for token in tokens:
             token.save()
 
-        self.create_data = [
+        cls.create_data = [
             {
-                'user': self.user.pk,
+                'user': users[0].pk,
             },
             {
-                'user': self.user.pk,
+                'user': users[1].pk,
             },
             {
-                'user': self.user.pk,
+                'user': users[2].pk,
             },
         ]
 
@@ -126,17 +141,25 @@ class TokenTest(
         """
         Test the provisioning of a new REST API token given a valid username and password.
         """
-        data = {
+        user_credentials = {
             'username': 'user1',
             'password': 'abc123',
         }
-        user = User.objects.create_user(**data)
+        user = User.objects.create_user(**user_credentials)
+
+        data = {
+            **user_credentials,
+            'description': 'My API token',
+            'expires': '2099-12-31T23:59:59Z',
+        }
         url = reverse('users-api:token_provision')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
         self.assertIn('key', response.data)
         self.assertEqual(len(response.data['key']), 40)
+        self.assertEqual(response.data['description'], data['description'])
+        self.assertEqual(response.data['expires'], data['expires'])
         token = Token.objects.get(user=user)
         self.assertEqual(token.key, response.data['key'])
 
@@ -157,6 +180,9 @@ class TokenTest(
         """
         Test provisioning a Token for a different User with & without the grant_token permission.
         """
+        # Clear grant_token permission assigned by setUpTestData
+        ObjectPermission.objects.filter(users=self.user).delete()
+
         self.add_permissions('users.add_token')
         user2 = User.objects.create_user(username='testuser2')
         data = {

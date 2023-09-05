@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 
 class ChoiceSetMeta(type):
@@ -9,7 +10,9 @@ class ChoiceSetMeta(type):
 
         # Extend static choices with any configured choices
         if key := attrs.get('key'):
-            assert type(attrs['CHOICES']) is list, f"{name} has a key defined but CHOICES is not a list"
+            assert type(attrs['CHOICES']) is list, _(
+                "{name} has a key defined but CHOICES is not a list"
+            ).format(name=name)
             app = attrs['__module__'].split('.', 1)[0]
             replace_key = f'{app}.{key}'
             extend_key = f'{replace_key}+' if replace_key else None
@@ -127,33 +130,33 @@ class ColorChoices(ChoiceSet):
     COLOR_WHITE = 'ffffff'
 
     CHOICES = (
-        (COLOR_DARK_RED, 'Dark Red'),
-        (COLOR_RED, 'Red'),
-        (COLOR_PINK, 'Pink'),
-        (COLOR_ROSE, 'Rose'),
-        (COLOR_FUCHSIA, 'Fuchsia'),
-        (COLOR_PURPLE, 'Purple'),
-        (COLOR_DARK_PURPLE, 'Dark Purple'),
-        (COLOR_INDIGO, 'Indigo'),
-        (COLOR_BLUE, 'Blue'),
-        (COLOR_LIGHT_BLUE, 'Light Blue'),
-        (COLOR_CYAN, 'Cyan'),
-        (COLOR_TEAL, 'Teal'),
-        (COLOR_AQUA, 'Aqua'),
-        (COLOR_DARK_GREEN, 'Dark Green'),
-        (COLOR_GREEN, 'Green'),
-        (COLOR_LIGHT_GREEN, 'Light Green'),
-        (COLOR_LIME, 'Lime'),
-        (COLOR_YELLOW, 'Yellow'),
-        (COLOR_AMBER, 'Amber'),
-        (COLOR_ORANGE, 'Orange'),
-        (COLOR_DARK_ORANGE, 'Dark Orange'),
-        (COLOR_BROWN, 'Brown'),
-        (COLOR_LIGHT_GREY, 'Light Grey'),
-        (COLOR_GREY, 'Grey'),
-        (COLOR_DARK_GREY, 'Dark Grey'),
-        (COLOR_BLACK, 'Black'),
-        (COLOR_WHITE, 'White'),
+        (COLOR_DARK_RED, _('Dark Red')),
+        (COLOR_RED, _('Red')),
+        (COLOR_PINK, _('Pink')),
+        (COLOR_ROSE, _('Rose')),
+        (COLOR_FUCHSIA, _('Fuchsia')),
+        (COLOR_PURPLE, _('Purple')),
+        (COLOR_DARK_PURPLE, _('Dark Purple')),
+        (COLOR_INDIGO, _('Indigo')),
+        (COLOR_BLUE, _('Blue')),
+        (COLOR_LIGHT_BLUE, _('Light Blue')),
+        (COLOR_CYAN, _('Cyan')),
+        (COLOR_TEAL, _('Teal')),
+        (COLOR_AQUA, _('Aqua')),
+        (COLOR_DARK_GREEN, _('Dark Green')),
+        (COLOR_GREEN, _('Green')),
+        (COLOR_LIGHT_GREEN, _('Light Green')),
+        (COLOR_LIME, _('Lime')),
+        (COLOR_YELLOW, _('Yellow')),
+        (COLOR_AMBER, _('Amber')),
+        (COLOR_ORANGE, _('Orange')),
+        (COLOR_DARK_ORANGE, _('Dark Orange')),
+        (COLOR_BROWN, _('Brown')),
+        (COLOR_LIGHT_GREY, _('Light Grey')),
+        (COLOR_GREY, _('Grey')),
+        (COLOR_DARK_GREY, _('Dark Grey')),
+        (COLOR_BLACK, _('Black')),
+        (COLOR_WHITE, _('White')),
     )
 
 
@@ -182,20 +185,20 @@ class ButtonColorChoices(ChoiceSet):
     WHITE = 'white'
 
     CHOICES = (
-        (DEFAULT, 'Default'),
-        (BLUE, 'Blue'),
-        (INDIGO, 'Indigo'),
-        (PURPLE, 'Purple'),
-        (PINK, 'Pink'),
-        (RED, 'Red'),
-        (ORANGE, 'Orange'),
-        (YELLOW, 'Yellow'),
-        (GREEN, 'Green'),
-        (TEAL, 'Teal'),
-        (CYAN, 'Cyan'),
-        (GRAY, 'Gray'),
-        (BLACK, 'Black'),
-        (WHITE, 'White'),
+        (DEFAULT, _('Default')),
+        (BLUE, _('Blue')),
+        (INDIGO, _('Indigo')),
+        (PURPLE, _('Purple')),
+        (PINK, _('Pink')),
+        (RED, _('Red')),
+        (ORANGE, _('Orange')),
+        (YELLOW, _('Yellow')),
+        (GREEN, _('Green')),
+        (TEAL, _('Teal')),
+        (CYAN, _('Cyan')),
+        (GRAY, _('Gray')),
+        (BLACK, _('Black')),
+        (WHITE, _('White')),
     )
 
 
@@ -209,9 +212,9 @@ class ImportMethodChoices(ChoiceSet):
     DATA_FILE = 'datafile'
 
     CHOICES = [
-        (DIRECT, 'Direct'),
-        (UPLOAD, 'Upload'),
-        (DATA_FILE, 'Data file'),
+        (DIRECT, _('Direct')),
+        (UPLOAD, _('Upload')),
+        (DATA_FILE, _('Data file')),
     ]
 
 
@@ -222,7 +225,7 @@ class ImportFormatChoices(ChoiceSet):
     YAML = 'yaml'
 
     CHOICES = [
-        (AUTO, 'Auto-detect'),
+        (AUTO, _('Auto-detect')),
         (CSV, 'CSV'),
         (JSON, 'JSON'),
         (YAML, 'YAML'),

@@ -1,7 +1,7 @@
 from django import forms
 
 from dcim.models import *
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from extras.forms import CustomFieldsMixin
 from extras.models import Tag
 from utilities.forms import BootstrapMixin, form_from_model
@@ -32,10 +32,12 @@ class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentCre
         widget=forms.MultipleHiddenInput()
     )
     description = forms.CharField(
+        label=_('Description'),
         max_length=100,
         required=False
     )
     tags = DynamicModelMultipleChoiceField(
+        label=_('Tags'),
         queryset=Tag.objects.all(),
         required=False
     )
@@ -76,14 +78,14 @@ class PowerOutletBulkCreateForm(
 
 class InterfaceBulkCreateForm(
     form_from_model(Interface, [
-        'type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected', 'poe_mode', 'poe_type',
+        'type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'mark_connected', 'poe_mode', 'poe_type', 'rf_role'
     ]),
     DeviceBulkAddComponentForm
 ):
     model = Interface
     field_order = (
         'name', 'label', 'type', 'enabled', 'speed', 'duplex', 'mtu', 'mgmt_only', 'poe_mode',
-        'poe_type', 'mark_connected', 'description', 'tags',
+        'poe_type', 'mark_connected', 'rf_role', 'description', 'tags',
     )
 
 

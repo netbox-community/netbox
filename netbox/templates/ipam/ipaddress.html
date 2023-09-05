@@ -2,32 +2,33 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block content %}
 <div class="row">
 	<div class="col col-md-4">
       <div class="card">
           <h5 class="card-header">
-              IP Address
+              {% trans "IP Address" %}
           </h5>
           <div class="card-body">
               <table class="table table-hover attr-table">
                   <tr>
-                      <th scope="row">Family</th>
+                      <th scope="row">{% trans "Family" %}</th>
                       <td>IPv{{ object.family }}</td>
                   </tr>
                   <tr>
-                      <th scope="row">VRF</th>
+                      <th scope="row">{% trans "VRF" %}</th>
                       <td>
                           {% if object.vrf %}
                               <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
                           {% else %}
-                              <span>Global</span>
+                              <span>{% trans "Global" %}</span>
                           {% endif %}
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">Tenant</th>
+                      <th scope="row">{% trans "Tenant" %}</th>
                       <td>
                           {% if object.tenant.group %}
                               {{ object.tenant.group|linkify }} /
@@ -36,11 +37,11 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">Status</th>
+                      <th scope="row">{% trans "Status" %}</th>
                       <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
                   </tr>
                   <tr>
-                      <th scope="row">Role</th>
+                      <th scope="row">{% trans "Role" %}</th>
                       <td>
                           {% if object.role %}
                               <a href="{% url 'ipam:ipaddress_list' %}?role={{ object.role }}">{{ object.get_role_display }}</a>
@@ -50,15 +51,15 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">DNS Name</th>
+                      <th scope="row">{% trans "DNS Name" %}</th>
                       <td>{{ object.dns_name|placeholder }}</td>
                   </tr>
                   <tr>
-                      <th scope="row">Description</th>
+                      <th scope="row">{% trans "Description" %}</th>
                       <td>{{ object.description|placeholder }}</td>
                   </tr>
                   <tr>
-                      <th scope="row">Assignment</th>
+                      <th scope="row">{% trans "Assignment" %}</th>
                       <td>
                         {% if object.assigned_object %}
                           {% if object.assigned_object.parent_object %}
@@ -71,7 +72,7 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">NAT (inside)</th>
+                      <th scope="row">{% trans "NAT (inside)" %}</th>
                       <td>
                           {% if object.nat_inside %}
                               {{ object.nat_inside|linkify }}
@@ -84,7 +85,7 @@
                       </td>
                   </tr>
                   <tr>
-                      <th scope="row">NAT (Outside)</th>
+                      <th scope="row">{% trans "NAT (outside)" %}</th>
                       <td>
                         {% for ip in object.nat_outside.all %}
                           {{ ip|linkify }}
@@ -95,6 +96,14 @@
                           {{ ''|placeholder }}
                         {% endfor %}
                       </td>
+                  </tr>
+                  <tr>
+                    <td>Primary IP</td>
+                    <td>{% checkmark object.is_primary_ip %}</td>
+                  </tr>
+                  <tr>
+                    <td>OOB IP</td>
+                    <td>{% checkmark object.is_oob_ip %}</td>
                   </tr>
               </table>
           </div>
@@ -110,7 +119,7 @@
       {% include 'inc/panel_table.html' with table=duplicate_ips_table heading='Duplicate IPs' panel_class='danger' %}
     {% endif %}
     <div class="card">
-      <h5 class="card-header">Services</h5>
+      <h5 class="card-header">{% trans "Services" %}</h5>
       <div class="card-body htmx-container table-responsive"
         hx-get="{% url 'ipam:service_list' %}?ipaddress_id={{ object.pk }}"
         hx-trigger="load"

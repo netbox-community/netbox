@@ -1,5 +1,5 @@
 import django_filters
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
@@ -323,8 +323,8 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
     class Meta:
         model = Rack
         fields = [
-            'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit'
+            'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit'
         ]
 
     def search(self, queryset, name, value):
@@ -395,12 +395,12 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         label=_('Location (slug)'),
     )
     user_id = django_filters.ModelMultipleChoiceFilter(
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
     )
     user = django_filters.ModelMultipleChoiceFilter(
         field_name='user__username',
-        queryset=User.objects.all(),
+        queryset=get_user_model().objects.all(),
         to_field_name='username',
         label=_('User (name)'),
     )
@@ -696,6 +696,9 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
     poe_type = django_filters.MultipleChoiceFilter(
         choices=InterfacePoETypeChoices
     )
+    rf_role = django_filters.MultipleChoiceFilter(
+        choices=WirelessRoleChoices
+    )
 
     class Meta:
         model = InterfaceTemplate
@@ -811,7 +814,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'napalm_driver', 'description']
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet, LocalConfigContextFilterSet):
@@ -837,12 +840,12 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         label=_('Device type (ID)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device_role_id',
+        field_name='role_id',
         queryset=DeviceRole.objects.all(),
         label=_('Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
-        field_name='device_role__slug',
+        field_name='role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label=_('Role (slug)'),
@@ -941,6 +944,10 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         method='_has_primary_ip',
         label=_('Has a primary IP'),
     )
+    has_oob_ip = django_filters.BooleanFilter(
+        method='_has_oob_ip',
+        label=_('Has an out-of-band IP'),
+    )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_chassis',
         queryset=VirtualChassis.objects.all(),
@@ -996,10 +1003,15 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         queryset=IPAddress.objects.all(),
         label=_('Primary IPv6 (ID)'),
     )
+    oob_ip_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='oob_ip',
+        queryset=IPAddress.objects.all(),
+        label=_('OOB IP (ID)'),
+    )
 
     class Meta:
         model = Device
-        fields = ['id', 'asset_tag', 'face', 'position', 'airflow', 'vc_position', 'vc_priority']
+        fields = ['id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'vc_position', 'vc_priority']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1016,6 +1028,12 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
 
     def _has_primary_ip(self, queryset, name, value):
         params = Q(primary_ip4__isnull=False) | Q(primary_ip6__isnull=False)
+        if value:
+            return queryset.filter(params)
+        return queryset.exclude(params)
+
+    def _has_oob_ip(self, queryset, name, value):
+        params = Q(oob_ip__isnull=False)
         if value:
             return queryset.filter(params)
         return queryset.exclude(params)
@@ -1233,13 +1251,13 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='model',
         label=_('Device type (model)'),
     )
-    device_role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__device_role',
+    role_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role',
         queryset=DeviceRole.objects.all(),
         label=_('Device role (ID)'),
     )
-    device_role = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__device_role__slug',
+    role = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
         label=_('Device role (slug)'),
@@ -1254,6 +1272,18 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         queryset=VirtualChassis.objects.all(),
         to_field_name='name',
         label=_('Virtual Chassis'),
+    )
+    # TODO: Remove in v4.0
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role',
+        queryset=DeviceRole.objects.all(),
+        label=_('Device role (ID)'),
+    )
+    device_role = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__role__slug',
+        queryset=DeviceRole.objects.all(),
+        to_field_name='slug',
+        label=_('Device role (slug)'),
     )
 
     def search(self, queryset, name, value):
@@ -1432,17 +1462,15 @@ class InterfaceFilterSet(
     PathEndpointFilterSet,
     CommonInterfaceFilterSet
 ):
-    # Override device and device_id filters from DeviceComponentFilterSet to match against any peer virtual chassis
-    # members
-    device = MultiValueCharFilter(
-        method='filter_device',
+    virtual_chassis_member = MultiValueCharFilter(
+        method='filter_virtual_chassis_member',
         field_name='name',
-        label=_('Device'),
+        label=_('Virtual Chassis Interfaces for Device')
     )
-    device_id = MultiValueNumberFilter(
-        method='filter_device_id',
+    virtual_chassis_member_id = MultiValueNumberFilter(
+        method='filter_virtual_chassis_member',
         field_name='pk',
-        label=_('Device (ID)'),
+        label=_('Virtual Chassis Interfaces for Device (ID)')
     )
     kind = django_filters.CharFilter(
         method='filter_kind',
@@ -1510,23 +1538,11 @@ class InterfaceFilterSet(
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'cable_end',
         ]
 
-    def filter_device(self, queryset, name, value):
+    def filter_virtual_chassis_member(self, queryset, name, value):
         try:
-            devices = Device.objects.filter(**{'{}__in'.format(name): value})
             vc_interface_ids = []
-            for device in devices:
-                vc_interface_ids.extend(device.vc_interfaces().values_list('id', flat=True))
-            return queryset.filter(pk__in=vc_interface_ids)
-        except Device.DoesNotExist:
-            return queryset.none()
-
-    def filter_device_id(self, queryset, name, id_list):
-        # Include interfaces belonging to peer virtual chassis members
-        vc_interface_ids = []
-        try:
-            devices = Device.objects.filter(pk__in=id_list)
-            for device in devices:
-                vc_interface_ids += device.vc_interfaces(if_master=False).values_list('id', flat=True)
+            for device in Device.objects.filter(**{f'{name}__in': value}):
+                vc_interface_ids.extend(device.vc_interfaces(if_master=False).values_list('id', flat=True))
             return queryset.filter(pk__in=vc_interface_ids)
         except Device.DoesNotExist:
             return queryset.none()
@@ -1862,7 +1878,7 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         return queryset.filter(qs_filter)
 
 
-class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet):
+class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpointFilterSet, TenancyFilterSet):
     region_id = TreeNodeMultipleChoiceFilter(
         queryset=Region.objects.all(),
         field_name='power_panel__site__region',

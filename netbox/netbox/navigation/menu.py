@@ -1,6 +1,7 @@
 from django.utils.translation import gettext as _
 
 from netbox.registry import registry
+from utilities.choices import ButtonColorChoices
 from . import *
 
 #
@@ -288,6 +289,7 @@ CUSTOMIZATION_MENU = Menu(
             label=_('Customization'),
             items=(
                 get_model_item('extras', 'customfield', _('Custom Fields')),
+                get_model_item('extras', 'customfieldchoiceset', _('Custom Field Choices')),
                 get_model_item('extras', 'customlink', _('Custom Links')),
                 get_model_item('extras', 'exporttemplate', _('Export Templates')),
                 get_model_item('extras', 'savedfilter', _('Saved Filters')),
@@ -346,6 +348,94 @@ OPERATIONS_MENU = Menu(
     ),
 )
 
+ADMIN_MENU = Menu(
+    label=_('Admin'),
+    icon_class='mdi mdi-account-multiple',
+    groups=(
+        MenuGroup(
+            label=_('Authentication'),
+            items=(
+                # Proxy model for auth.User
+                MenuItem(
+                    link=f'users:netboxuser_list',
+                    link_text=_('Users'),
+                    permissions=[f'auth.view_user'],
+                    staff_only=True,
+                    buttons=(
+                        MenuItemButton(
+                            link=f'users:netboxuser_add',
+                            title='Add',
+                            icon_class='mdi mdi-plus-thick',
+                            permissions=[f'auth.add_user'],
+                            color=ButtonColorChoices.GREEN
+                        ),
+                        MenuItemButton(
+                            link=f'users:netboxuser_import',
+                            title='Import',
+                            icon_class='mdi mdi-upload',
+                            permissions=[f'auth.add_user'],
+                            color=ButtonColorChoices.CYAN
+                        )
+                    )
+                ),
+                # Proxy model for auth.Group
+                MenuItem(
+                    link=f'users:netboxgroup_list',
+                    link_text=_('Groups'),
+                    permissions=[f'auth.view_group'],
+                    staff_only=True,
+                    buttons=(
+                        MenuItemButton(
+                            link=f'users:netboxgroup_add',
+                            title='Add',
+                            icon_class='mdi mdi-plus-thick',
+                            permissions=[f'auth.add_group'],
+                            color=ButtonColorChoices.GREEN
+                        ),
+                        MenuItemButton(
+                            link=f'users:netboxgroup_import',
+                            title='Import',
+                            icon_class='mdi mdi-upload',
+                            permissions=[f'auth.add_group'],
+                            color=ButtonColorChoices.CYAN
+                        )
+                    )
+                ),
+                MenuItem(
+                    link=f'users:token_list',
+                    link_text=_('API Tokens'),
+                    permissions=[f'users.view_token'],
+                    staff_only=True,
+                    buttons=get_model_buttons('users', 'token')
+                ),
+                MenuItem(
+                    link=f'users:objectpermission_list',
+                    link_text=_('Permissions'),
+                    permissions=[f'users.view_objectpermission'],
+                    staff_only=True,
+                    buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
+                ),
+            ),
+        ),
+        MenuGroup(
+            label=_('Configuration'),
+            items=(
+                MenuItem(
+                    link='core:config',
+                    link_text=_('Current Config'),
+                    permissions=['extras.view_configrevision'],
+                    staff_only=True
+                ),
+                MenuItem(
+                    link='extras:configrevision_list',
+                    link_text=_('Config Revisions'),
+                    permissions=['extras.view_configrevision'],
+                    staff_only=True
+                ),
+            ),
+        ),
+    ),
+)
 
 MENUS = [
     ORGANIZATION_MENU,
@@ -360,6 +450,7 @@ MENUS = [
     PROVISIONING_MENU,
     CUSTOMIZATION_MENU,
     OPERATIONS_MENU,
+    ADMIN_MENU,
 ]
 
 #

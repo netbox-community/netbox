@@ -52,13 +52,19 @@ def handle_prefix_deleted(instance, **kwargs):
 @receiver(pre_delete, sender=IPAddress)
 def clear_primary_ip(instance, **kwargs):
     """
-    When an IPAddress is deleted, trigger save() on any Devices/VirtualMachines for which it
-    was a primary IP.
+    When an IPAddress is deleted, trigger save() on any Devices/VirtualMachines for which it was a primary IP.
     """
     field_name = f'primary_ip{instance.family}'
-    device = Device.objects.filter(**{field_name: instance}).first()
-    if device:
+    if device := Device.objects.filter(**{field_name: instance}).first():
         device.save()
-    virtualmachine = VirtualMachine.objects.filter(**{field_name: instance}).first()
-    if virtualmachine:
+    if virtualmachine := VirtualMachine.objects.filter(**{field_name: instance}).first():
         virtualmachine.save()
+
+
+@receiver(pre_delete, sender=IPAddress)
+def clear_oob_ip(instance, **kwargs):
+    """
+    When an IPAddress is deleted, trigger save() on any Devices for which it was a OOB IP.
+    """
+    if device := Device.objects.filter(oob_ip=instance).first():
+        device.save()

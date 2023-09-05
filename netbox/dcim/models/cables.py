@@ -8,6 +8,7 @@ from django.db import models
 from django.db.models import Sum
 from django.dispatch import Signal
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
@@ -40,11 +41,13 @@ class Cable(PrimaryModel):
     A physical connection between two endpoints.
     """
     type = models.CharField(
+        verbose_name=_('type'),
         max_length=50,
         choices=CableTypeChoices,
         blank=True
     )
     status = models.CharField(
+        verbose_name=_('status'),
         max_length=50,
         choices=LinkStatusChoices,
         default=LinkStatusChoices.STATUS_CONNECTED
@@ -57,19 +60,23 @@ class Cable(PrimaryModel):
         null=True
     )
     label = models.CharField(
+        verbose_name=_('label'),
         max_length=100,
         blank=True
     )
     color = ColorField(
+        verbose_name=_('color'),
         blank=True
     )
     length = models.DecimalField(
+        verbose_name=_('length'),
         max_digits=8,
         decimal_places=2,
         blank=True,
         null=True
     )
     length_unit = models.CharField(
+        verbose_name=_('length unit'),
         max_length=50,
         choices=CableLengthUnitChoices,
         blank=True,
@@ -84,6 +91,8 @@ class Cable(PrimaryModel):
 
     class Meta:
         ordering = ('pk',)
+        verbose_name = _('cable')
+        verbose_name_plural = _('cables')
 
     def __init__(self, *args, a_terminations=None, b_terminations=None, **kwargs):
         super().__init__(*args, **kwargs)
@@ -235,7 +244,7 @@ class CableTermination(ChangeLoggedModel):
     cable_end = models.CharField(
         max_length=1,
         choices=CableEndChoices,
-        verbose_name='End'
+        verbose_name=_('end')
     )
     termination_type = models.ForeignKey(
         to=ContentType,
@@ -285,6 +294,8 @@ class CableTermination(ChangeLoggedModel):
                 name='%(app_label)s_%(class)s_unique_termination'
             ),
         )
+        verbose_name = _('cable termination')
+        verbose_name_plural = _('cable terminations')
 
     def __str__(self):
         return f'Cable {self.cable} to {self.termination}'
@@ -359,6 +370,7 @@ class CableTermination(ChangeLoggedModel):
         # Circuit terminations
         elif getattr(self.termination, 'site', None):
             self._site = self.termination.site
+    cache_related_objects.alters_data = True
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
@@ -402,18 +414,26 @@ class CablePath(models.Model):
     `_nodes` retains a flattened list of all nodes within the path to enable simple filtering.
     """
     path = models.JSONField(
+        verbose_name=_('path'),
         default=list
     )
     is_active = models.BooleanField(
+        verbose_name=_('is active'),
         default=False
     )
     is_complete = models.BooleanField(
+        verbose_name=_('is complete'),
         default=False
     )
     is_split = models.BooleanField(
+        verbose_name=_('is split'),
         default=False
     )
     _nodes = PathField()
+
+    class Meta:
+        verbose_name = _('cable path')
+        verbose_name_plural = _('cable paths')
 
     def __str__(self):
         return f"Path #{self.pk}: {len(self.path)} hops"
@@ -637,6 +657,7 @@ class CablePath(models.Model):
             self.save()
         else:
             self.delete()
+    retrace.alters_data = True
 
     def _get_path(self):
         """

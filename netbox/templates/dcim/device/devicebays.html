@@ -1,4 +1,5 @@
 {% extends 'dcim/device/components_base.html' %}
+{% load i18n %}
 
 {% block bulk_extra_controls %}
     {{ block.super }}
@@ -6,7 +7,7 @@
         <div class="bulk-button-group">
             <a href="{% url 'dcim:devicebay_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_devicebays' pk=object.pk %}"
                class="btn btn-primary btn-sm">
-                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> Add Device Bays
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Device Bays" %}
             </a>
         </div>
     {% endif %}

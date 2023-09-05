@@ -1,6 +1,7 @@
 {% extends 'base/layout.html' %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% comment %}
 Blocks:
@@ -13,15 +14,20 @@ Context:
   return_url: The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
-{% block title %}Delete {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?{% endblock %}
+{% block title %}
+  {% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?
+{% endblock %}
 
 {% block content %}
   <div class="container-md px-0">
     <div class="alert alert-danger mb-3" role="alert">
-      <h4 class="alert-heading">Confirm Bulk Deletion</h4>
+      <h4 class="alert-heading">{% trans "Confirm Bulk Deletion" %}</h4>
       <hr />
-      <strong>Warning:</strong> The following operation will delete <strong>{{ table.rows|length }}</strong>
-      {{ model|meta:"verbose_name_plural" }}. Please carefully review the objects to be deleted and confirm below.
+      <strong>{% trans "Warning" context "Noun" %}:</strong>
+      {% blocktrans with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
+        The following operation will delete <strong>{{ count }}</strong> {{ type_plural }}. Please
+        carefully review the objects to be deleted and confirm below.
+      {% endblocktrans %}
       {% block message_extra %}{% endblock %}
     </div>
   </div>
@@ -36,8 +42,8 @@ Context:
           {{ field }}
         {% endfor %}
         <div class="text-end">
-          <button type="submit" name="_confirm" class="btn btn-danger">Delete {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
-          <a href="{{ return_url }}" class="btn btn-outline-dark">Cancel</a>
+          <button type="submit" name="_confirm" class="btn btn-danger">{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
+          <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>

@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 
 from netbox.models import ChangeLoggedModel, PrimaryModel
 from ipam.choices import *
@@ -19,13 +20,15 @@ class FHRPGroup(PrimaryModel):
     A grouping of next hope resolution protocol (FHRP) peers. (For instance, VRRP or HSRP.)
     """
     group_id = models.PositiveSmallIntegerField(
-        verbose_name='Group ID'
+        verbose_name=_('group ID')
     )
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         blank=True
     )
     protocol = models.CharField(
+        verbose_name=_('protocol'),
         max_length=50,
         choices=FHRPGroupProtocolChoices
     )
@@ -33,12 +36,12 @@ class FHRPGroup(PrimaryModel):
         max_length=50,
         choices=FHRPGroupAuthTypeChoices,
         blank=True,
-        verbose_name='Authentication type'
+        verbose_name=_('authentication type')
     )
     auth_key = models.CharField(
         max_length=255,
         blank=True,
-        verbose_name='Authentication key'
+        verbose_name=_('authentication key')
     )
     ip_addresses = GenericRelation(
         to='ipam.IPAddress',
@@ -51,7 +54,8 @@ class FHRPGroup(PrimaryModel):
 
     class Meta:
         ordering = ['protocol', 'group_id', 'pk']
-        verbose_name = 'FHRP group'
+        verbose_name = _('FHRP group')
+        verbose_name_plural = _('FHRP groups')
 
     def __str__(self):
         name = ''
@@ -87,6 +91,7 @@ class FHRPGroupAssignment(ChangeLoggedModel):
         on_delete=models.CASCADE
     )
     priority = models.PositiveSmallIntegerField(
+        verbose_name=_('priority'),
         validators=(
             MinValueValidator(FHRPGROUPASSIGNMENT_PRIORITY_MIN),
             MaxValueValidator(FHRPGROUPASSIGNMENT_PRIORITY_MAX)
@@ -103,7 +108,8 @@ class FHRPGroupAssignment(ChangeLoggedModel):
                 name='%(app_label)s_%(class)s_unique_interface_group'
             ),
         )
-        verbose_name = 'FHRP group assignment'
+        verbose_name = _('FHRP group assignment')
+        verbose_name_plural = _('FHRP group assignments')
 
     def __str__(self):
         return f'{self.interface}: {self.group} ({self.priority})'

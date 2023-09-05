@@ -54,9 +54,35 @@ class WebhookViewSet(NetBoxModelViewSet):
 
 class CustomFieldViewSet(NetBoxModelViewSet):
     metadata_class = ContentTypeMetadata
-    queryset = CustomField.objects.all()
+    queryset = CustomField.objects.select_related('choice_set')
     serializer_class = serializers.CustomFieldSerializer
     filterset_class = filtersets.CustomFieldFilterSet
+
+
+class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
+    queryset = CustomFieldChoiceSet.objects.all()
+    serializer_class = serializers.CustomFieldChoiceSetSerializer
+    filterset_class = filtersets.CustomFieldChoiceSetFilterSet
+
+    @action(detail=True)
+    def choices(self, request, pk):
+        """
+        Provides an endpoint to iterate through each choice in a set.
+        """
+        choiceset = get_object_or_404(self.queryset, pk=pk)
+        choices = choiceset.choices
+
+        # Enable filtering
+        if q := request.GET.get('q'):
+            q = q.lower()
+            choices = [c for c in choices if q in c[0].lower() or q in c[1].lower()]
+
+        # Paginate data
+        if page := self.paginate_queryset(choices):
+            data = [
+                {'id': c[0], 'display': c[1]} for c in page
+            ]
+            return self.get_paginated_response(data)
 
 
 #
@@ -90,6 +116,17 @@ class SavedFilterViewSet(NetBoxModelViewSet):
     queryset = SavedFilter.objects.all()
     serializer_class = serializers.SavedFilterSerializer
     filterset_class = filtersets.SavedFilterFilterSet
+
+
+#
+# Bookmarks
+#
+
+class BookmarkViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = Bookmark.objects.all()
+    serializer_class = serializers.BookmarkSerializer
+    filterset_class = filtersets.BookmarkFilterSet
 
 
 #
@@ -206,7 +243,7 @@ class ReportViewSet(ViewSet):
             'request': request,
         })
 
-        return Response(serializer.data)
+        return Response({'count': len(report_list), 'results': serializer.data})
 
     def retrieve(self, request, pk):
         """
@@ -306,7 +343,7 @@ class ScriptViewSet(ViewSet):
 
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
-        return Response(serializer.data)
+        return Response({'count': len(script_list), 'results': serializer.data})
 
     def retrieve(self, request, pk):
         module, script = self._get_script(pk)

@@ -549,12 +549,12 @@ class TestL2VPNTermination(TestCase):
         site = Site.objects.create(name='Site 1')
         manufacturer = Manufacturer.objects.create(name='Manufacturer 1')
         device_type = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
-        device_role = DeviceRole.objects.create(name='Switch')
+        role = DeviceRole.objects.create(name='Switch')
         device = Device.objects.create(
             name='Device 1',
             site=site,
             device_type=device_type,
-            device_role=device_role,
+            role=role,
             status='active'
         )
 

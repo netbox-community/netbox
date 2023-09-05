@@ -1,7 +1,5 @@
 # ASN Ranges
 
-!!! info "This model was introduced in NetBox v3.5."
-
 Ranges can be defined to group [AS numbers](./asn.md) numerically and to facilitate their automatic provisioning. Each range must be assigned to a [RIR](./rir.md).
 
 ## Fields

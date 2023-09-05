@@ -2,15 +2,17 @@ import binascii
 import os
 
 from django.conf import settings
-from django.contrib.auth.models import Group, User
+from django.contrib.auth.models import Group, GroupManager, User, UserManager
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.urls import reverse
 from django.utils import timezone
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from netaddr import IPNetwork
 
 from ipam.fields import IPNetworkField
@@ -20,6 +22,8 @@ from utilities.utils import flatten_dict
 from .constants import *
 
 __all__ = (
+    'NetBoxGroup',
+    'NetBoxUser',
     'ObjectPermission',
     'Token',
     'UserConfig',
@@ -27,25 +31,55 @@ __all__ = (
 
 
 #
-# Proxy models for admin
+# Proxies for Django's User and Group models
 #
 
-class AdminGroup(Group):
-    """
-    Proxy contrib.auth.models.Group for the admin UI
-    """
-    class Meta:
-        verbose_name = 'Group'
-        proxy = True
+class NetBoxUserManager(UserManager.from_queryset(RestrictedQuerySet)):
+    pass
 
 
-class AdminUser(User):
+class NetBoxGroupManager(GroupManager.from_queryset(RestrictedQuerySet)):
+    pass
+
+
+class NetBoxUser(User):
     """
-    Proxy contrib.auth.models.User for the admin UI
+    Proxy contrib.auth.models.User for the UI
     """
+    objects = NetBoxUserManager()
+
     class Meta:
-        verbose_name = 'User'
         proxy = True
+        ordering = ('username',)
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
+
+    def get_absolute_url(self):
+        return reverse('users:netboxuser', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Check for any existing Users with names that differ only in case
+        model = self._meta.model
+        if model.objects.exclude(pk=self.pk).filter(username__iexact=self.username).exists():
+            raise ValidationError(_("A user with this username already exists."))
+
+
+class NetBoxGroup(Group):
+    """
+    Proxy contrib.auth.models.User for the UI
+    """
+    objects = NetBoxGroupManager()
+
+    class Meta:
+        proxy = True
+        ordering = ('name',)
+        verbose_name = _('group')
+        verbose_name_plural = _('groups')
+
+    def get_absolute_url(self):
+        return reverse('users:netboxgroup', args=[self.pk])
 
 
 #
@@ -67,7 +101,8 @@ class UserConfig(models.Model):
 
     class Meta:
         ordering = ['user']
-        verbose_name = verbose_name_plural = 'User Preferences'
+        verbose_name = _('user preferences')
+        verbose_name_plural = _('user preferences')
 
     def get(self, path, default=None):
         """
@@ -133,7 +168,9 @@ class UserConfig(models.Model):
                 d = d[key]
             elif key in d:
                 err_path = '.'.join(path.split('.')[:i + 1])
-                raise TypeError(f"Key '{err_path}' is a leaf node; cannot assign new keys")
+                raise TypeError(
+                    _("Key '{err_path}' is a leaf node; cannot assign new keys").format(err_path=err_path)
+                )
             else:
                 d = d.setdefault(key, {})
 
@@ -143,7 +180,9 @@ class UserConfig(models.Model):
             if type(value) is dict:
                 d[key].update(value)
             else:
-                raise TypeError(f"Key '{path}' is a dictionary; cannot assign a non-dictionary value")
+                raise TypeError(
+                    _("Key '{path}' is a dictionary; cannot assign a non-dictionary value").format(path=path)
+                )
         else:
             d[key] = value
 
@@ -203,26 +242,32 @@ class Token(models.Model):
         related_name='tokens'
     )
     created = models.DateTimeField(
+        verbose_name=_('created'),
         auto_now_add=True
     )
     expires = models.DateTimeField(
+        verbose_name=_('expires'),
         blank=True,
         null=True
     )
     last_used = models.DateTimeField(
+        verbose_name=_('last used'),
         blank=True,
         null=True
     )
     key = models.CharField(
+        verbose_name=_('key'),
         max_length=40,
         unique=True,
         validators=[MinLengthValidator(40)]
     )
     write_enabled = models.BooleanField(
+        verbose_name=_('write enabled'),
         default=True,
         help_text=_('Permit create/update/delete operations using this key')
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
@@ -230,13 +275,24 @@ class Token(models.Model):
         base_field=IPNetworkField(),
         blank=True,
         null=True,
-        verbose_name='Allowed IPs',
-        help_text=_('Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
-                    'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"'),
+        verbose_name=_('allowed IPs'),
+        help_text=_(
+            'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
+            'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"'
+        ),
     )
+
+    objects = RestrictedQuerySet.as_manager()
+
+    class Meta:
+        verbose_name = _('token')
+        verbose_name_plural = _('tokens')
 
     def __str__(self):
         return self.key if settings.ALLOW_TOKEN_RETRIEVAL else self.partial
+
+    def get_absolute_url(self):
+        return reverse('users:token', args=[self.pk])
 
     @property
     def partial(self):
@@ -282,13 +338,16 @@ class ObjectPermission(models.Model):
     identified by ORM query parameters.
     """
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100
     )
     description = models.CharField(
+        verbose_name=_('description'),
         max_length=200,
         blank=True
     )
     enabled = models.BooleanField(
+        verbose_name=_('enabled'),
         default=True
     )
     object_types = models.ManyToManyField(
@@ -313,6 +372,7 @@ class ObjectPermission(models.Model):
     constraints = models.JSONField(
         blank=True,
         null=True,
+        verbose_name=_('constraints'),
         help_text=_("Queryset filter matching the applicable objects of the selected type(s)")
     )
 
@@ -320,10 +380,27 @@ class ObjectPermission(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = "permission"
+        verbose_name = _('permission')
+        verbose_name_plural = _('permissions')
 
     def __str__(self):
         return self.name
+
+    @property
+    def can_view(self):
+        return 'view' in self.actions
+
+    @property
+    def can_add(self):
+        return 'add' in self.actions
+
+    @property
+    def can_change(self):
+        return 'change' in self.actions
+
+    @property
+    def can_delete(self):
+        return 'delete' in self.actions
 
     def list_constraints(self):
         """
@@ -332,3 +409,6 @@ class ObjectPermission(models.Model):
         if type(self.constraints) is not list:
             return [self.constraints]
         return self.constraints
+
+    def get_absolute_url(self):
+        return reverse('users:objectpermission', args=[self.pk])

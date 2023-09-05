@@ -20,7 +20,8 @@ FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(
     lte='lte',
     lt='lt',
     gte='gte',
-    gt='gt'
+    gt='gt',
+    empty='isnull',
 )
 
 FILTER_NEGATION_LOOKUP_MAP = dict(

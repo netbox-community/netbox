@@ -9,7 +9,8 @@ class DCIMConfig(AppConfig):
 
     def ready(self):
         from . import signals, search
-        from .models import CableTermination
+        from .models import CableTermination, Device, DeviceType, VirtualChassis
+        from utilities.counters import connect_counters
 
         # Register denormalized fields
         denormalized.register(CableTermination, '_device', {
@@ -24,3 +25,6 @@ class DCIMConfig(AppConfig):
         denormalized.register(CableTermination, '_location', {
             '_site': 'site',
         })
+
+        # Register counters
+        connect_counters(Device, DeviceType, VirtualChassis)

@@ -1,3 +1,4 @@
+{% load i18n %}
 {% if counts %}
   <div class="list-group list-group-flush">
     {% for model, count, url in counts %}
@@ -11,7 +12,7 @@
       {% else %}
         <div class="list-group-item list-group-item-action d-flex w-100 justify-content-between align-items-center">
           {{ model|meta:"verbose_name_plural"|bettertitle }}
-          <h6 class="mb-1" title="No permission"><i class="mdi mdi-lock-outline"></i></h6>
+          <h6 class="mb-1" title="{% trans "No permission" %}"><i class="mdi mdi-lock-outline"></i></h6>
         </div>
       {% endif %}
     {% endfor %}

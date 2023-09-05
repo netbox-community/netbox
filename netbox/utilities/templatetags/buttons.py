@@ -2,11 +2,12 @@ from django import template
 from django.contrib.contenttypes.models import ContentType
 from django.urls import NoReverseMatch, reverse
 
-from extras.models import ExportTemplate
+from extras.models import Bookmark, ExportTemplate
 from utilities.utils import get_viewname, prepare_cloned_fields
 
 __all__ = (
     'add_button',
+    'bookmark_button',
     'bulk_delete_button',
     'bulk_edit_button',
     'clone_button',
@@ -23,6 +24,37 @@ register = template.Library()
 #
 # Instance buttons
 #
+
+@register.inclusion_tag('buttons/bookmark.html', takes_context=True)
+def bookmark_button(context, instance):
+    # Check if this user has already bookmarked the object
+    content_type = ContentType.objects.get_for_model(instance)
+    bookmark = Bookmark.objects.filter(
+        object_type=content_type,
+        object_id=instance.pk,
+        user=context['request'].user
+    ).first()
+
+    # Compile form URL & data
+    if bookmark:
+        form_url = reverse('extras:bookmark_delete', kwargs={'pk': bookmark.pk})
+        form_data = {
+            'confirm': 'true',
+        }
+    else:
+        form_url = reverse('extras:bookmark_add')
+        form_data = {
+            'object_type': content_type.pk,
+            'object_id': instance.pk,
+        }
+
+    return {
+        'bookmark': bookmark,
+        'form_url': form_url,
+        'form_data': form_data,
+        'return_url': instance.get_absolute_url(),
+    }
+
 
 @register.inclusion_tag('buttons/clone.html')
 def clone_button(instance):

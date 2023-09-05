@@ -2,13 +2,14 @@
 {% load static %}
 {% load helpers %}
 {% load form_helpers %}
+{% load i18n %}
 
 {% block form %}
 
   {# A side termination #}
   <div class="field-group mb-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">A Side</h5>
+      <h5 class="offset-sm-3">{% trans "A Side" %}</h5>
     </div>
     {% if 'termination_a_device' in form.fields %}
       {% render_field form.termination_a_device %}
@@ -25,7 +26,7 @@
   {# B side termination #}
   <div class="field-group mb-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">B Side</h5>
+      <h5 class="offset-sm-3">{% trans "B Side" %}</h5>
     </div>
     {% if 'termination_b_device' in form.fields %}
       {% render_field form.termination_b_device %}
@@ -42,7 +43,7 @@
   {# Cable attributes #}
   <div class="field-group mb-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Cable</h5>
+      <h5 class="offset-sm-3">{% trans "Cable" %}</h5>
     </div>
     {% render_field form.status %}
     {% render_field form.type %}
@@ -64,7 +65,7 @@
 
   <div class="field-group mb-5">
     <div class="row mb-2">
-      <h5 class="offset-sm-3">Tenancy</h5>
+      <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
     </div>
     {% render_field form.tenant_group %}
     {% render_field form.tenant %}
@@ -73,7 +74,7 @@
   {% if form.custom_fields %}
     <div class="field-group mb-5">
       <div class="row mb-2">
-        <h5 class="offset-sm-3">Custom Fields</h5>
+        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>
@@ -81,7 +82,7 @@
 
   {% if form.comments %}
     <div class="field-group mb-5">
-      <h5 class="text-center">Comments</h5>
+      <h5 class="text-center">{% trans "Comments" %}</h5>
       {% render_field form.comments %}
     </div>
   {% endif %}

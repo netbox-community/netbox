@@ -1,9 +1,10 @@
 {% load helpers %}
+{% load i18n %}
 
 <div class="row mb-3">
   <div class="col-auto table-controls noprint">
     <div class="input-group input-group-sm me-2 quicksearch hide-last-child">
-      <input type="search" results=5 name="q" id="quicksearch" class="form-control" placeholder="Quick search"
+      <input type="search" results="5" name="q" id="quicksearch" class="form-control" placeholder="Quick search"
         hx-get="{{ request.full_path }}" hx-target="#object_list" hx-trigger="keyup changed delay:500ms, search" />
       <button class="btn bg-transparent" type="button" id="quicksearch_clear"><i class="mdi mdi-close-circle"></i></button>
     </div>
@@ -12,9 +13,9 @@
   <div class="col-auto ms-auto table-controls noprint">
     {% if request.user.is_authenticated and table_modal %}
       <div class="table-configure input-group input-group-sm">
-        <button type="button" data-bs-toggle="modal" title="Configure Table" data-bs-target="#{{ table_modal }}"
+        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}"
           class="btn btn-sm btn-outline-dark">
-          <i class="mdi mdi-cog"></i> Configure Table
+          <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
         </button>
       </div>
     {% endif %}

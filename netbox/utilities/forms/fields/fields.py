@@ -4,20 +4,18 @@ from django import forms
 from django.db.models import Count
 from django.forms.fields import JSONField as _JSONField, InvalidJSONInput
 from django.templatetags.static import static
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, EUI
 
 from utilities.forms import widgets
 from utilities.validators import EnhancedURLValidator
 
 __all__ = (
-    'ChoiceField',
     'ColorField',
     'CommentField',
     'JSONField',
     'LaxURLField',
     'MACAddressField',
-    'MultipleChoiceField',
     'SlugField',
     'TagFilterField',
 )
@@ -28,14 +26,14 @@ class CommentField(forms.CharField):
     A textarea with support for Markdown rendering. Exists mostly just to add a standard `help_text`.
     """
     widget = widgets.MarkdownWidget
-    help_text = f"""
-        <i class="mdi mdi-information-outline"></i>
-        <a href="{static('docs/reference/markdown/')}" target="_blank" tabindex="-1">
-        Markdown</a> syntax is supported
-    """
+    label = _('Comments')
+    help_text = _(
+        '<i class="mdi mdi-information-outline"></i> '
+        '<a href="{url}" target="_blank" tabindex="-1">Markdown</a> syntax is supported'
+    ).format(url=static('docs/reference/markdown/'))
 
-    def __init__(self, *, help_text=help_text, required=False, **kwargs):
-        super().__init__(help_text=help_text, required=required, **kwargs)
+    def __init__(self, *, label=label, help_text=help_text, required=False, **kwargs):
+        super().__init__(label=label, help_text=help_text, required=required, **kwargs)
 
 
 class SlugField(forms.SlugField):
@@ -46,10 +44,11 @@ class SlugField(forms.SlugField):
         slug_source: Name of the form field from which the slug value will be derived
     """
     widget = widgets.SlugWidget
+    label = _('Slug')
     help_text = _("URL-friendly unique shorthand")
 
-    def __init__(self, *, slug_source='name', help_text=help_text, **kwargs):
-        super().__init__(help_text=help_text, **kwargs)
+    def __init__(self, *, slug_source='name', label=label, help_text=help_text, **kwargs):
+        super().__init__(label=label, help_text=help_text, **kwargs)
 
         self.widget.attrs['slug-source'] = slug_source
 
@@ -79,7 +78,7 @@ class TagFilterField(forms.MultipleChoiceField):
             ]
 
         # Choices are fetched each time the form is initialized
-        super().__init__(label='Tags', choices=get_choices, required=False, *args, **kwargs)
+        super().__init__(label=_('Tags'), choices=get_choices, required=False, *args, **kwargs)
 
 
 class LaxURLField(forms.URLField):
@@ -115,7 +114,7 @@ class MACAddressField(forms.Field):
     """
     widget = forms.CharField
     default_error_messages = {
-        'invalid': 'MAC address must be in EUI-48 format',
+        'invalid': _('MAC address must be in EUI-48 format'),
     }
 
     def to_python(self, value):
@@ -128,24 +127,3 @@ class MACAddressField(forms.Field):
             raise forms.ValidationError(self.error_messages['invalid'], code='invalid')
 
         return value
-
-
-#
-# Choice fields
-#
-
-class ChoiceField(forms.ChoiceField):
-    """
-    Previously used to override Django's built-in `ChoiceField` to use NetBox's now-obsolete `StaticSelect` widget.
-    """
-    # TODO: Remove in v3.6
-    pass
-
-
-class MultipleChoiceField(forms.MultipleChoiceField):
-    """
-    Previously used to override Django's built-in `MultipleChoiceField` to use NetBox's now-obsolete
-    `StaticSelectMultiple` widget.
-    """
-    # TODO: Remove in v3.6
-    pass

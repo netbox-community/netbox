@@ -2,30 +2,31 @@
 {% load humanize %}
 {% load helpers %}
 {% load plugins %}
+{% load i18n %}
 
 {% block content %}
 <div class="row">
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">Prefix</h5>
+      <h5 class="card-header">{% trans "Prefix" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Family</th>
+            <th scope="row">{% trans "Family" %}</th>
             <td>IPv{{ object.family }}</td>
           </tr>
           <tr>
-            <th scope="row">VRF</th>
+            <th scope="row">{% trans "VRF" %}</th>
             <td>
               {% if object.vrf %}
                 <a href="{% url 'ipam:vrf' pk=object.vrf.pk %}">{{ object.vrf }}</a>
               {% else %}
-                <span>Global</span>
+                <span>{% trans "Global" %}</span>
               {% endif %}
             </td>
           </tr>
           <tr>
-            <th scope="row">Tenant</th>
+            <th scope="row">{% trans "Tenant" %}</th>
               <td>
                 {% if object.tenant.group %}
                   {{ object.tenant.group|linkify }} /
@@ -34,7 +35,7 @@
               </td>
           </tr>
           <tr>
-            <th scope="row">Aggregate</th>
+            <th scope="row">{% trans "Aggregate" %}</th>
             <td>
               {% if aggregate %}
                 <a href="{% url 'ipam:aggregate' pk=aggregate.pk %}">{{ aggregate.prefix }}</a> ({{ aggregate.rir }})
@@ -44,7 +45,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Site</th>
+            <th scope="row">{% trans "Site" %}</th>
             <td>
               {% if object.site %}
                 {% if object.site.region %}
@@ -57,7 +58,7 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">VLAN</th>
+            <th scope="row">{% trans "VLAN" %}</th>
             <td>
               {% if object.vlan %}
                 {% if object.vlan.group %}
@@ -70,19 +71,19 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">Status</th>
+            <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>
-            <th scope="row">Role</th>
+            <th scope="row">{% trans "Role" %}</th>
             <td>{{ object.role|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Description</th>
+            <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">Is a pool</th>
+            <th scope="row">{% trans "Is a pool" %}</th>
             <td>{% checkmark object.is_pool %}</td>
           </tr>
         </table>
@@ -92,15 +93,15 @@
   </div>
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">Addressing</h5>
+      <h5 class="card-header">{% trans "Addressing" %}</h5>
       <div class="card-body">
         <table class="table table-hover attr-table">
           <tr>
-            <th scope="row">Utilization</th>
+            <th scope="row">{% trans "Utilization" %}</th>
             <td>
               {% if object.mark_utilized %}
                 {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
-                <small>(Marked fully utilized)</small>
+                <small>({% trans "Marked fully utilized" %})</small>
               {% else %}
                 {% utilization_graph object.get_utilization %}
               {% endif %}
@@ -108,7 +109,7 @@
           </tr>
           {% with child_ip_count=object.get_child_ips.count %}
             <tr>
-              <th scope="row">Child IPs</th>
+              <th scope="row">{% trans "Child IPs" %}</th>
               <td>
                 <a href="{% url 'ipam:prefix_ipaddresses' pk=object.pk %}">{{ child_ip_count }}</a>
               </td>
@@ -116,7 +117,7 @@
           {% endwith %}
           {% with available_count=object.get_available_ips.size %}
             <tr>
-              <th scope="row">Available IPs</th>
+              <th scope="row">{% trans "Available IPs" %}</th>
               <td>
                 {# Use human-friendly words for counts greater than one million #}
                 {% if available_count > 1000000 %}
@@ -128,7 +129,7 @@
             </tr>
           {% endwith %}
           <tr>
-            <td>First available IP</td>
+            <td>{% trans "First available IP" %}</td>
             <td>
               {% with first_available_ip=object.get_first_available_ip %}
                 {% if first_available_ip %}
@@ -147,7 +148,7 @@
         {% if object.prefix.version == 4 %}
           <div class="float-end">
             <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
-              <i class="mdi mdi-information-outline" aria-hidden="true"></i> Addressing Details
+              <i class="mdi mdi-information-outline" aria-hidden="true"></i> {% trans "Addressing Details" %}
             </a>
           </div>
         {% endif %}
@@ -177,25 +178,25 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Prefix Details</h5>
+            <h5 class="modal-title">{% trans "Prefix Details" %}</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
             <table class="table table-hover attr-table">
               <tr>
-                <td>Network Address</td>
+                <td>{% trans "Network Address" %}</td>
                 <td>{{ object.prefix.network }}</td>
               </tr>
               <tr>
-                <td>Network Mask</td>
+                <td>{% trans "Network Mask" %}</td>
                 <td>{{ object.prefix.netmask }}</td>
               </tr>
               <tr>
-                <td>Wildcard Mask</td>
+                <td>{% trans "Wildcard Mask" %}</td>
                 <td>{{ object.prefix.hostmask }}</td>
               </tr>
               <tr>
-                <td>Broadcast Address</td>
+                <td>{% trans "Broadcast Address" %}</td>
                 <td>{{ object.prefix.broadcast }}</td>
               </tr>
             </table>

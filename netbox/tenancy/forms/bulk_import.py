@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
+
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import *
 from utilities.forms.fields import CSVContentTypeField, CSVModelChoiceField, SlugField
@@ -20,6 +21,7 @@ __all__ = (
 
 class TenantGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
+        label=_('Parent'),
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -35,6 +37,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
 class TenantImportForm(NetBoxModelImportForm):
     slug = SlugField()
     group = CSVModelChoiceField(
+        label=_('Group'),
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -52,6 +55,7 @@ class TenantImportForm(NetBoxModelImportForm):
 
 class ContactGroupImportForm(NetBoxModelImportForm):
     parent = CSVModelChoiceField(
+        label=_('Parent'),
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -74,6 +78,7 @@ class ContactRoleImportForm(NetBoxModelImportForm):
 
 class ContactImportForm(NetBoxModelImportForm):
     group = CSVModelChoiceField(
+        label=_('Group'),
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -100,9 +105,6 @@ class ContactAssignmentImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Assigned role')
     )
-
-    # Remove the tags field added by NetBoxModelImportForm (unsupported by ContactAssignment)
-    tags = None
 
     class Meta:
         model = ContactAssignment

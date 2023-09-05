@@ -1,6 +1,7 @@
 {% extends 'dcim/moduletype/base.html' %}
 {% load render_table from django_tables2 %}
 {% load helpers %}
+{% load i18n %}
 
 {% block content %}
   {% if perms.dcim.change_moduletype %}
@@ -14,19 +15,19 @@
             <div class="card-footer noprint">
                 {% if table.rows %}
                     <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-sm btn-warning">
-                        <span class="mdi mdi-pencil-outline" aria-hidden="true"></span> Rename
+                        <span class="mdi mdi-pencil-outline" aria-hidden="true"></span> {% trans "Rename" %}
                     </button>
                     <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_edit" %}?return_url={{ return_url }}" class="btn btn-sm btn-warning">
-                        <span class="mdi mdi-pencil" aria-hidden="true"></span> Edit
+                        <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
                     </button>
                     <button type="submit" name="_delete" formaction="{% url table.Meta.model|viewname:"bulk_delete" %}?return_url={{ return_url }}" class="btn btn-sm btn-danger">
-                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> Delete
+                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
                     </button>
                 {% endif %}
                 <div class="float-end">
                     <a href="{% url table.Meta.model|viewname:"add" %}?module_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary btn-sm">
                         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                        Add {{ title }}
+                        {% blocktrans %}Add {{ title }}{% endblocktrans %}
                     </a>
                 </div>
                 <div class="clearfix"></div>

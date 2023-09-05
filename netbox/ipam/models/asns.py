@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from ipam.fields import ASNField
 from ipam.querysets import ASNRangeQuerySet
@@ -15,10 +15,12 @@ __all__ = (
 
 class ASNRange(OrganizationalModel):
     name = models.CharField(
+        verbose_name=_('name'),
         max_length=100,
         unique=True
     )
     slug = models.SlugField(
+        verbose_name=_('slug'),
         max_length=100,
         unique=True
     )
@@ -26,10 +28,14 @@ class ASNRange(OrganizationalModel):
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='asn_ranges',
-        verbose_name='RIR'
+        verbose_name=_('RIR')
     )
-    start = ASNField()
-    end = ASNField()
+    start = ASNField(
+        verbose_name=_('start'),
+    )
+    end = ASNField(
+        verbose_name=_('end'),
+    )
     tenant = models.ForeignKey(
         to='tenancy.Tenant',
         on_delete=models.PROTECT,
@@ -42,8 +48,8 @@ class ASNRange(OrganizationalModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = 'ASN range'
-        verbose_name_plural = 'ASN ranges'
+        verbose_name = _('ASN range')
+        verbose_name_plural = _('ASN ranges')
 
     def __str__(self):
         return f'{self.name} ({self.range_as_string()})'
@@ -62,7 +68,11 @@ class ASNRange(OrganizationalModel):
         super().clean()
 
         if self.end <= self.start:
-            raise ValidationError(f"Starting ASN ({self.start}) must be lower than ending ASN ({self.end}).")
+            raise ValidationError(
+                _("Starting ASN ({start}) must be lower than ending ASN ({end}).").format(
+                    start=self.start, end=self.end
+                )
+            )
 
     def get_child_asns(self):
         return ASN.objects.filter(
@@ -90,12 +100,12 @@ class ASN(PrimaryModel):
         to='ipam.RIR',
         on_delete=models.PROTECT,
         related_name='asns',
-        verbose_name='RIR',
+        verbose_name=_('RIR'),
         help_text=_("Regional Internet Registry responsible for this AS number space")
     )
     asn = ASNField(
         unique=True,
-        verbose_name='ASN',
+        verbose_name=_('ASN'),
         help_text=_('16- or 32-bit autonomous system number')
     )
     tenant = models.ForeignKey(
@@ -112,8 +122,8 @@ class ASN(PrimaryModel):
 
     class Meta:
         ordering = ['asn']
-        verbose_name = 'ASN'
-        verbose_name_plural = 'ASNs'
+        verbose_name = _('ASN')
+        verbose_name_plural = _('ASNs')
 
     def __str__(self):
         return f'AS{self.asn_with_asdot}'

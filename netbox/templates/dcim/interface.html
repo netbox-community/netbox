@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -13,7 +14,7 @@
 {% block extra_controls %}
   {% if perms.dcim.add_interface and not object.is_virtual %}
     <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success">
-      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add Child Interface
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Child Interface" %}
     </a>
   {% endif %}
   {{ block.super }}
@@ -23,89 +24,89 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">Interface</h5>
+        <h5 class="card-header">{% trans "Interface" %}</h5>
         <div class="card-body">
           <table class="table table-hover">
             <tr>
-              <th scope="row">Device</th>
+              <th scope="row">{% trans "Device" %}</th>
               <td>{{ object.device|linkify }}</td>
             </tr>
             <tr>
-              <th scope="row">Module</th>
+              <th scope="row">{% trans "Module" %}</th>
               <td>{{ object.module|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Name</th>
+              <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">Label</th>
+              <th scope="row">{% trans "Label" %}</th>
               <td>{{ object.label|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Type</th>
+              <th scope="row">{% trans "Type" %}</th>
               <td>{{ object.get_type_display }}</td>
             </tr>
             <tr>
-              <th scope="row">Speed/Duplex</th>
+              <th scope="row">{% trans "Speed/Duplex" %}</th>
               <td>
                 {{ object.speed|humanize_speed|placeholder }} /
                 {{ object.get_duplex_display|placeholder }}
               </td>
             </tr>
             <tr>
-              <th scope="row">MTU</th>
+              <th scope="row">{% trans "MTU" %}</th>
               <td>{{ object.mtu|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Enabled</th>
+              <th scope="row">{% trans "Enabled" %}</th>
               <td>{% checkmark object.enabled %}</td>
             </tr>
             <tr>
-              <th scope="row">Management Only</th>
+              <th scope="row">{% trans "Management Only" %}</th>
               <td>{% checkmark object.mgmt_only %}</td>
             </tr>
             <tr>
-              <th scope="row">Description</th>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }} </td>
             </tr>
             <tr>
-              <th scope="row">PoE Mode</th>
+              <th scope="row">{% trans "PoE Mode" %}</th>
               <td>{{ object.get_poe_mode_display|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">PoE Type</th>
+              <th scope="row">{% trans "PoE Type" %}</th>
               <td>{{ object.get_poe_type_display|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">802.1Q Mode</th>
+              <th scope="row">{% trans "802.1Q Mode" %}</th>
               <td>{{ object.get_mode_display|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Transmit power (dBm)</th>
+              <th scope="row">{% trans "Transmit power (dBm)" %}</th>
               <td>{{ object.tx_power|placeholder }}</td>
             </tr>
           </table>
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">Related Interfaces</h5>
+        <h5 class="card-header">{% trans "Related Interfaces" %}</h5>
         <div class="card-body">
           <table class="table table-hover">
             <tr>
-              <th scope="row">Parent</th>
+              <th scope="row">{% trans "Parent" %}</th>
               <td>{{ object.parent|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">Bridge</th>
+              <th scope="row">{% trans "Bridge" %}</th>
               <td>{{ object.bridge|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">LAG</th>
+              <th scope="row">{% trans "LAG" %}</th>
               <td>{{ object.lag|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">L2VPN</th>
+              <th scope="row">{% trans "L2VPN" %}</th>
               <td>{{ object.l2vpn_termination.l2vpn|linkify|placeholder }}</td>
             </tr>
           </table>
@@ -118,19 +119,19 @@
     <div class="col col-md-6">
       {% include 'inc/panel_table.html' with table=vdc_table heading="Virtual Device Contexts" %}
       <div class="card">
-        <h5 class="card-header">Addressing</h5>
+        <h5 class="card-header">{% trans "Addressing" %}</h5>
         <div class="card-body">
           <table class="table table-hover">
             <tr>
-              <th scope="row">MAC Address</th>
+              <th scope="row">{% trans "MAC Address" %}</th>
               <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
             </tr>
             <tr>
-              <th scope="row">WWN</th>
+              <th scope="row">{% trans "WWN" %}</th>
               <td><span class="font-monospace">{{ object.wwn|placeholder }}</span></td>
             </tr>
             <tr>
-              <th scope="row">VRF</th>
+              <th scope="row">{% trans "VRF" %}</th>
               <td>{{ object.vrf|linkify|placeholder }}</td>
             </tr>
           </table>
@@ -138,67 +139,67 @@
       </div>
       {% if not object.is_virtual %}
         <div class="card">
-          <h5 class="card-header">Connection</h5>
+          <h5 class="card-header">{% trans "Connection" %}</h5>
           <div class="card-body">
             {% if object.mark_connected %}
               <div class="text-muted">
-                <span class="text-success"><i class="mdi mdi-check-bold"></i></span> Marked as Connected
+                <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as Connected" %}
               </div>
             {% elif object.cable %}
               {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:interface_trace' %}
             {% elif object.wireless_link %}
               <table class="table table-hover">
                 <tr>
-                  <th scope="row">Wireless Link</th>
+                  <th scope="row">{% trans "Wireless Link" %}</th>
                   <td>
                     {{ object.wireless_link|linkify }}
-                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="Trace">
+                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="{% trans "Trace" %}">
                       <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                     </a>
                   </td>
                 </tr>
                 {% with peer_interface=object.link_peers.0 %}
                   <tr>
-                    <th scope="row">Device</th>
+                    <th scope="row">{% trans "Device" %}</th>
                     <td>{{ peer_interface.device|linkify }}</td>
                   </tr>
                   <tr>
-                    <th scope="row">Name</th>
+                    <th scope="row">{% trans "Name" %}</th>
                     <td>{{ peer_interface|linkify }}</td>
                   </tr>
                   <tr>
-                    <th scope="row">Type</th>
+                    <th scope="row">{% trans "Type" %}</th>
                     <td>{{ peer_interface.get_type_display }}</td>
                   </tr>
                 {% endwith %}
               </table>
             {% else %}
               <div class="text-muted">
-                Not Connected
+                {% trans "Not Connected" %}
                 {% if object.is_wired and perms.dcim.add_cable %}
                   <div class="dropdown float-end">
                     <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> Connect
+                      <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
                       <li>
-                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=dcim.interface&return_url={{ object.get_absolute_url }}">Interface</a>
+                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=dcim.interface&return_url={{ object.get_absolute_url }}">{% trans "Interface" %}</a>
                       </li>
                       <li>
-                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}">Front Port</a>
+                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}">{% trans "Front Port" %}</a>
                       </li>
                       <li>
-                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}">Rear Port</a>
+                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}">{% trans "Rear Port" %}</a>
                       </li>
                       <li>
-                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">Circuit Termination</a>
+                        <a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.interface&a_terminations={{ object.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">{% trans "Circuit Termination" %}</a>
                       </li>
                     </ul>
                   </div>
                 {% elif object.is_wireless and perms.wireless.add_wirelesslink %}
                   <div class="dropdown float-end">
                     <a href="{% url 'wireless:wirelesslink_add' %}?interface_a={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-                      <span class="mdi mdi-wifi-plus" aria-hidden="true"></span> Connect
+                      <span class="mdi mdi-wifi-plus" aria-hidden="true"></span> {% trans "Connect" %}
                     </a>
                   </div>
                 {% endif %}
@@ -209,28 +210,28 @@
       {% endif %}
       {% if object.is_wireless %}
         <div class="card">
-          <h5 class="card-header">Wireless</h5>
+          <h5 class="card-header">{% trans "Wireless" %}</h5>
           <div class="card-body">
             {% with peer=object.connected_endpoints.0 %}
               <table class="table table-hover">
                 <thead>
                   <tr>
                     <th></th>
-                    <th>Local</th>
+                    <th>{% trans "Local" %}</th>
                     {% if peer %}
-                      <th>Peer</th>
+                      <th>{% trans "Peer" %}</th>
                     {% endif %}
                   </tr>
                 </thead>
                 <tr>
-                  <th scope="row">Role</th>
+                  <th scope="row">{% trans "Role" %}</th>
                   <td>{{ object.get_rf_role_display|placeholder }}</td>
                   {% if peer %}
                     <td>{{ peer.get_rf_role_display|placeholder }}</td>
                   {% endif %}
                 </tr>
                 <tr>
-                  <th scope="row">Channel</th>
+                  <th scope="row">{% trans "Channel" %}</th>
                   <td>{{ object.get_rf_channel_display|placeholder }}</td>
                   {% if peer %}
                     <td{% if peer.rf_channel != object.rf_channel %} class="text-danger"{% endif %}>
@@ -239,10 +240,10 @@
                   {% endif %}
                 </tr>
                 <tr>
-                  <th scope="row">Channel Frequency</th>
+                  <th scope="row">{% trans "Channel Frequency" %}</th>
                   <td>
                     {% if object.rf_channel_frequency %}
-                      {{ object.rf_channel_frequency|floatformat:"-2" }} MHz
+                      {{ object.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" %}
                     {% else %}
                       {{ ''|placeholder }}
                     {% endif %}
@@ -250,7 +251,7 @@
                   {% if peer %}
                     <td{% if peer.rf_channel_frequency != object.rf_channel_frequency %} class="text-danger"{% endif %}>
                       {% if peer.rf_channel_frequency %}
-                        {{ peer.rf_channel_frequency|floatformat:"-2" }} MHz
+                        {{ peer.rf_channel_frequency|floatformat:"-2" }} {% trans "MHz" %}
                       {% else %}
                         {{ ''|placeholder }}
                       {% endif %}
@@ -258,10 +259,10 @@
                   {% endif %}
                 </tr>
                 <tr>
-                  <th scope="row">Channel Width</th>
+                  <th scope="row">{% trans "Channel Width" %}</th>
                   <td>
                     {% if object.rf_channel_width %}
-                      {{ object.rf_channel_width|floatformat:"-3" }} MHz
+                      {{ object.rf_channel_width|floatformat:"-3" }} {% trans "MHz" %}
                     {% else %}
                       {{ ''|placeholder }}
                     {% endif %}
@@ -269,7 +270,7 @@
                   {% if peer %}
                     <td{% if peer.rf_channel_width != object.rf_channel_width %} class="text-danger"{% endif %}>
                       {% if peer.rf_channel_width %}
-                        {{ peer.rf_channel_width|floatformat:"-3" }} MHz
+                        {{ peer.rf_channel_width|floatformat:"-3" }} {% trans "MHz" %}
                       {% else %}
                         {{ ''|placeholder }}
                       {% endif %}
@@ -281,13 +282,13 @@
           </div>
         </div>
         <div class="card">
-          <h5 class="card-header">Wireless LANs</h5>
+          <h5 class="card-header">{% trans "Wireless LANs" %}</h5>
           <div class="card-body">
             <table class="table table-hover table-headings">
               <thead>
                 <tr>
-                  <th>Group</th>
-                  <th>SSID</th>
+                  <th>{% trans "Group" %}</th>
+                  <th>{% trans "SSID" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -298,7 +299,7 @@
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="3" class="text-muted">None</td>
+                    <td colspan="3" class="text-muted">{% trans "None" %}</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -308,14 +309,14 @@
       {% endif %}
       {% if object.is_lag %}
         <div class="card">
-          <h5 class="card-header">LAG Members</h5>
+          <h5 class="card-header">{% trans "LAG Members" %}</h5>
           <div class="card-body">
             <table class="table table-hover table-headings">
               <thead>
                 <tr>
-                  <th>Parent</th>
-                  <th>Interface</th>
-                  <th>Type</th>
+                  <th>{% trans "Parent" %}</th>
+                  <th>{% trans "Interface" %}</th>
+                  <th>{% trans "Type" %}</th>
                 </tr>
               </thead>
               <tbody>
@@ -327,7 +328,7 @@
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="3" class="text-muted">No member interfaces</td>
+                    <td colspan="3" class="text-muted">{% trans "No member interfaces" %}</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -343,7 +344,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">IP Addresses</h5>
+        <h5 class="card-header">{% trans "IP Addresses" %}</h5>
         <div class="card-body htmx-container table-responsive"
           hx-get="{% url 'ipam:ipaddress_list' %}?interface_id={{ object.pk }}"
           hx-trigger="load"
@@ -351,7 +352,7 @@
         {% if perms.ipam.add_ipaddress %}
           <div class="card-footer text-end noprint">
             <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
-              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> Add IP Address
+              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add IP Address" %}
             </a>
           </div>
         {% endif %}
