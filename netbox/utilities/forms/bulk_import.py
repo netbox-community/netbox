@@ -68,7 +68,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         elif format == ImportFormatChoices.CSV_SEMICOLON:
             self.cleaned_data['data'] = self._clean_csv(data, delimiter=';')
         elif format == ImportFormatChoices.TSV:
-            self.cleaned_data['data'] = self._clean_tsv(data, dialect='excel-tab')
+            self.cleaned_data['data'] = self._clean_csv(data, dialect='excel-tab')
         elif format == ImportFormatChoices.JSON:
             self.cleaned_data['data'] = self._clean_json(data)
         elif format == ImportFormatChoices.YAML:
