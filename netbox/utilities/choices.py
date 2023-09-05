@@ -221,12 +221,16 @@ class ImportMethodChoices(ChoiceSet):
 class ImportFormatChoices(ChoiceSet):
     AUTO = 'auto'
     CSV = 'csv'
+    CSV_SEMICOLON = "csv-semicolon"
+    TSV = "tsv"
     JSON = 'json'
     YAML = 'yaml'
 
     CHOICES = [
         (AUTO, _('Auto-detect')),
         (CSV, 'CSV'),
+        (CSV_SEMICOLON, 'CSV with semicolon seperators'),
+        (TSV, 'TSV'),
         (JSON, 'JSON'),
         (YAML, 'YAML'),
     ]
