@@ -275,8 +275,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             try:
                 if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
                     default_value = str(self.default)
-                elif self.type in (CustomFieldTypeChoices.TYPE_MULTISELECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
-                    default_value = [self.default]
                 else:
                     default_value = self.default
                 self.validate(default_value)
@@ -655,8 +653,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
                 if value not in [c[0] for c in self.choices]:
                     raise ValidationError(
-                        _("Invalid choice ({value}). Available choices are: {choices}").format(
-                            value=value, choices=', '.join([c[0] for c in self.choices])
+                        _("Invalid choice ({value}). Available choices are: {choices} ({count})")
+                        .format(
+                            value=value,
+                            choices=', '.join([c[0] for c in self.choices[0:2]]),
+                            count=f'({len(self.choices)} choices)' if len(self.choices) > 2 else '',
                         )
                     )
 
@@ -664,8 +665,12 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
                 if not set(value).issubset([c[0] for c in self.choices]):
                     raise ValidationError(
-                        _("Invalid choice(s) ({invalid_choices}). Available choices are: {available_choices}").format(
-                            invalid_choices=', '.join(value), available_choices=', '.join([c[0] for c in self.choices]))
+                        _("Invalid choice(s) ({invalid_choices}). Available choices are: {available_choices}")
+                        .format(
+                            invalid_choices=', '.join(value),
+                            available_choices=', '.join([c[0] for c in self.choices[0:2]]),
+                            count=f'({len(self.choices)} choices)' if len(self.choices) > 2 else '',
+                        )
                     )
 
             # Validate selected object
