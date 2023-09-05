@@ -81,12 +81,12 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         Attempt to automatically detect the format (CSV, JSON, or YAML) of the given data, or raise
         a ValidationError.
         """
+        first_line = data.strip().split('\n', 1)[0]
         try:
-            if data[0] in ('{', '['):
+            if first_line[0] in ('{', '['):
                 return ImportFormatChoices.JSON
-            if data.startswith('---') or data.startswith('- '):
+            if first_line.startswith('---') or first_line.startswith('- '):
                 return ImportFormatChoices.YAML
-            first_line = data.split('\n', 1)[0]
             if ',' in first_line:
                 return ImportFormatChoices.CSV
             if ';' in first_line:
