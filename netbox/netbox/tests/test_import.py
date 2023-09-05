@@ -63,6 +63,61 @@ class CSVImportTestCase(ModelViewTestCase):
         return self._test_valid_tags(csv_data, ImportFormatChoices.CSV)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_valid_tags_csv_autodetect(self):
+        csv_data = (
+            'name,slug,tags',
+            'Region 1,region-1,"alpha,bravo"',
+            'Region 2,region-2,"charlie,delta"',
+            'Region 3,region-3,echo',
+            'Region 4,region-4,',
+        )
+        return self._test_valid_tags(csv_data, ImportFormatChoices.AUTO)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_valid_tags_csv_semicolon(self):
+        csv_data = (
+            'name;slug;tags',
+            'Region 1;region-1;"alpha,bravo"',
+            'Region 2;region-2;charlie,delta',
+            'Region 3;region-3;echo',
+            'Region 4;region-4;',
+        )
+        return self._test_valid_tags(csv_data, ImportFormatChoices.CSV_SEMICOLON)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_valid_tags_csv_semicolon_autodetect(self):
+        csv_data = (
+            'name;slug;tags',
+            'Region 1;region-1;"alpha,bravo"',
+            'Region 2;region-2;charlie,delta',
+            'Region 3;region-3;echo',
+            'Region 4;region-4;',
+        )
+        return self._test_valid_tags(csv_data, ImportFormatChoices.AUTO)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_valid_tags_tsv(self):
+        csv_data = (
+            'name\tslug\ttags',
+            'Region 1\tregion-1\t"alpha,bravo"',
+            'Region 2\tregion-2\tcharlie,delta',
+            'Region 3\tregion-3\techo',
+            'Region 4\tregion-4\t',
+        )
+        return self._test_valid_tags(csv_data, ImportFormatChoices.TSV)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_valid_tags_tsv_autodetect(self):
+        csv_data = (
+            'name\tslug\ttags',
+            'Region 1\tregion-1\t"alpha,bravo"',
+            'Region 2\tregion-2\tcharlie,delta',
+            'Region 3\tregion-3\techo',
+            'Region 4\tregion-4\t',
+        )
+        return self._test_valid_tags(csv_data, ImportFormatChoices.AUTO)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_invalid_tags(self):
         csv_data = (
             'name,slug,tags',
