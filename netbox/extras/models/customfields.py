@@ -275,6 +275,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             try:
                 if self.type in (CustomFieldTypeChoices.TYPE_TEXT, CustomFieldTypeChoices.TYPE_LONGTEXT):
                     default_value = str(self.default)
+                elif self.type in (CustomFieldTypeChoices.TYPE_MULTISELECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
+                    default_value = [self.default]
                 else:
                     default_value = self.default
                 self.validate(default_value)
@@ -282,7 +284,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 raise ValidationError({
                     'default': _(
                         'Invalid default value "{default}": {message}'
-                    ).format(default=self.default, message=self.message)
+                    ).format(default=self.default, message=err.message)
                 })
 
         # Minimum/maximum values can be set only for numeric fields
@@ -318,7 +320,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             })
 
         # A selection field's default (if any) must be present in its available choices
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and self.default not in self.choices:
+        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and \
+                self.default not in [c[0] for c in self.choices]:
             raise ValidationError({
                 'default': _(
                     "The specified default value ({default}) is not listed as an available choice."
@@ -653,7 +656,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 if value not in [c[0] for c in self.choices]:
                     raise ValidationError(
                         _("Invalid choice ({value}). Available choices are: {choices}").format(
-                            value=value, choices=', '.join(self.choices)
+                            value=value, choices=', '.join([c[0] for c in self.choices])
                         )
                     )
 
@@ -662,7 +665,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 if not set(value).issubset([c[0] for c in self.choices]):
                     raise ValidationError(
                         _("Invalid choice(s) ({invalid_choices}). Available choices are: {available_choices}").format(
-                            invalid_choices=', '.join(value), available_choices=', '.join(self.choices))
+                            invalid_choices=', '.join(value), available_choices=', '.join([c[0] for c in self.choices]))
                     )
 
             # Validate selected object
