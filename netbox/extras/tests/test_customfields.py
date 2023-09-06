@@ -428,120 +428,95 @@ class CustomFieldTest(TestCase):
         self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
 
     def test_default_value_validation(self):
-        choiceset = CustomFieldChoiceSet.objects.create(name="Test Choice Set", extra_choices=(('choice1', 'Choice 1'), ('choice2', 'Choice 2')))
-        site = Site.objects.create(
-            name='Site 1',
-            slug='site-1'
+        choiceset = CustomFieldChoiceSet.objects.create(
+            name="Test Choice Set",
+            extra_choices=(
+                ('choice1', 'Choice 1'),
+                ('choice2', 'Choice 2'),
+            )
         )
+        site = Site.objects.create(name='Site 1', slug='site-1')
         object_type = ContentType.objects.get_for_model(Site)
 
-        cfs = (
-            # Test Text
-            (
-                # Should Pass
-                CustomField(name='test', type='text', required=True, default="Test Text"),
-            ),
-            # Test Integer
-            (
-                # Should Pass
-                CustomField(name='test', type='integer', required=True, default=1),
-                # Should Fail
-                CustomField(name='test', type='integer', required=True, default="Not a  Integer"),
-            ),
+        # Text
+        CustomField(name='test', type='text', required=True, default="Default text").full_clean()
 
-            # Test Boolean
-            (
-                # Should Pass
-                CustomField(name='test', type='boolean', required=True, default=True),
-                # Should Fail
-                CustomField(name='test', type='boolean', required=True, default="Not a  Boolean"),
-            ),
-            # Test Date
-            (
-                # Should Pass
-                CustomField(name='test', type='date', required=True, default="2023-02-25"),
-                # Should Fail
-                CustomField(name='test', type='date', required=True, default="Not a  Date"),
-            ),
-            # Test Date + Time
-            (
-                # Should Pass
-                CustomField(name='test', type='datetime', required=True, default="2023-02-25 02:02:02"),
-                # Should Fail
-                CustomField(name='test', type='datetime', required=True, default="Not a DateTime"),
-            ),
-            # Test URL
-            (
-                # Should Pass
-                CustomField(name='test', type='url', required=True, default="https://www.netbox.dev"),
-            ),
-            # Test JSON
-            (
-                # Should Pass
-                CustomField(name='test', type='json', required=True, default='{"test": "object"}'),
-            ),
-            # Test Selection
-            (
-                # Should Pass
-                CustomField(name='test', type='select', required=True, choice_set=choiceset, default='choice1'),
-                # Should Fail
-                CustomField(
-                    name='test',
-                    type='select',
-                    required=True,
-                    choice_set=choiceset,
-                    default="Not a Selection option"
-                ),
-            ),
-            # Test Multiple Selection
-            (
-                # Should Pass
-                CustomField(
-                    name='test',
-                    type='multiselect',
-                    required=True,
-                    choice_set=choiceset,
-                    default=['choice1', ]
-                ),
-                # Should Fail
-                CustomField(
-                    name='test',
-                    type='multiselect',
-                    required=True,
-                    choice_set=choiceset,
-                    default="Not a Selection option"
-                ),
-            ),
-            # Test Object
-            (
-                # Should Pass
-                CustomField(name='test', type='object', required=True, object_type=object_type, default=1),
-                # Should Fail
-                CustomField(name='test', type='object', required=True, object_type=object_type, default="Site 1"),
-            ),
-            # Test Multiple Object
-            (
-                # Should Pass
-                CustomField(
-                    name='test',
-                    type='multiobject',
-                    required=True,
-                    object_type=object_type,
-                    default=[site.pk, ]
-                ),
-                # Should Fail
-                CustomField(name='test', type='multiobject', required=True, object_type=object_type, default="Site 1"),
-            ),
-        )
+        # Integer
+        CustomField(name='test', type='integer', required=True, default=1).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='integer', required=True, default='xxx').full_clean()
 
-        for cftest in cfs:
-            # Check for valid default data
-            self.assertIsNone(cftest[0].full_clean())
+        # Boolean
+        CustomField(name='test', type='boolean', required=True, default=True).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='boolean', required=True, default='xxx').full_clean()
 
-            # Check for invalid data
-            if len(cftest) > 1:
-                with self.assertRaises(ValidationError):
-                    cftest[1].full_clean()
+        # Date
+        CustomField(name='test', type='date', required=True, default="2023-02-25").full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='date', required=True, default='xxx').full_clean()
+
+        # Datetime
+        CustomField(name='test', type='datetime', required=True, default="2023-02-25 02:02:02").full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='datetime', required=True, default='xxx').full_clean()
+
+        # URL
+        CustomField(name='test', type='url', required=True, default="https://www.netbox.dev").full_clean()
+
+        # JSON
+        CustomField(name='test', type='json', required=True, default='{"test": "object"}').full_clean()
+
+        # Selection
+        CustomField(name='test', type='select', required=True, choice_set=choiceset, default='choice1').full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='select', required=True, choice_set=choiceset, default='xxx').full_clean()
+
+        # Multi-select
+        CustomField(
+            name='test',
+            type='multiselect',
+            required=True,
+            choice_set=choiceset,
+            default=['choice1']  # Single default choice
+        ).full_clean()
+        CustomField(
+            name='test',
+            type='multiselect',
+            required=True,
+            choice_set=choiceset,
+            default=['choice1', 'choice2']  # Multiple default choices
+        ).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(
+                name='test',
+                type='multiselect',
+                required=True,
+                choice_set=choiceset,
+                default=['xxx']
+            ).full_clean()
+
+        # Object
+        CustomField(name='test', type='object', required=True, object_type=object_type, default=site.pk).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='object', required=True, object_type=object_type, default="xxx").full_clean()
+
+        # Multi-object
+        CustomField(
+            name='test',
+            type='multiobject',
+            required=True,
+            object_type=object_type,
+            default=[site.pk]
+        ).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(
+                name='test',
+                type='multiobject',
+                required=True,
+                object_type=object_type,
+                default=["xxx"]
+            ).full_clean()
 
 
 class CustomFieldManagerTest(TestCase):
