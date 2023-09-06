@@ -1,6 +1,6 @@
 # NetBox v3.6
 
-## v3.6.1 (FUTURE)
+## v3.6.1 (2023-09-06)
 
 ### Enhancements
 
@@ -10,6 +10,7 @@
 
 ### Bug Fixes
 
+* [#12553](https://github.com/netbox-community/netbox/issues/12552) - Ensure `family` attribute is always returned when creating aggregates and prefixes via REST API
 * [#13619](https://github.com/netbox-community/netbox/issues/13619) - Fix exception when viewing IP address assigned to a virtual machine
 * [#13596](https://github.com/netbox-community/netbox/issues/13596) - Always display "render config" tab for devices and virtual machines
 * [#13620](https://github.com/netbox-community/netbox/issues/13620) - Show admin menu items only for staff users
@@ -20,6 +21,9 @@
 * [#13632](https://github.com/netbox-community/netbox/issues/13632) - Avoid raising exception when checking if FHRP group IP address is primary
 * [#13642](https://github.com/netbox-community/netbox/issues/13642) - Suppress warning about unreflected model changes when applying migrations
 * [#13657](https://github.com/netbox-community/netbox/issues/13657) - Fix decoding of data file content
+* [#13674](https://github.com/netbox-community/netbox/issues/13674) - Fix retrieving individual report via REST API
+* [#13682](https://github.com/netbox-community/netbox/issues/13682) - Fix error message returned when validation of custom field default value fails
+* [#13684](https://github.com/netbox-community/netbox/issues/13684) - Enable modying the configuration when maintenance mode is enabled
 
 ---
 
