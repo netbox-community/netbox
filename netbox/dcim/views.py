@@ -2033,7 +2033,6 @@ class DeviceRenderConfigView(generic.ObjectView):
     template_name = 'dcim/device/render_config.html'
     tab = ViewTab(
         label=_('Render Config'),
-        permission='extras.view_configtemplate',
         weight=2100
     )
 
@@ -2185,6 +2184,15 @@ class ConsolePortListView(generic.ObjectListView):
     filterset = filtersets.ConsolePortFilterSet
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(ConsolePort)
@@ -2248,6 +2256,15 @@ class ConsoleServerPortListView(generic.ObjectListView):
     filterset = filtersets.ConsoleServerPortFilterSet
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(ConsoleServerPort)
@@ -2311,6 +2328,15 @@ class PowerPortListView(generic.ObjectListView):
     filterset = filtersets.PowerPortFilterSet
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(PowerPort)
@@ -2374,6 +2400,15 @@ class PowerOutletListView(generic.ObjectListView):
     filterset = filtersets.PowerOutletFilterSet
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(PowerOutlet)
@@ -2437,6 +2472,15 @@ class InterfaceListView(generic.ObjectListView):
     filterset = filtersets.InterfaceFilterSet
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(Interface)
@@ -2548,6 +2592,15 @@ class FrontPortListView(generic.ObjectListView):
     filterset = filtersets.FrontPortFilterSet
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(FrontPort)
@@ -2611,6 +2664,15 @@ class RearPortListView(generic.ObjectListView):
     filterset = filtersets.RearPortFilterSet
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(RearPort)
@@ -2674,6 +2736,15 @@ class ModuleBayListView(generic.ObjectListView):
     filterset = filtersets.ModuleBayFilterSet
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(ModuleBay)
@@ -2729,6 +2800,15 @@ class DeviceBayListView(generic.ObjectListView):
     filterset = filtersets.DeviceBayFilterSet
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(DeviceBay)
@@ -2853,6 +2933,15 @@ class InventoryItemListView(generic.ObjectListView):
     filterset = filtersets.InventoryItemFilterSet
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
+    template_name = 'dcim/component_list.html'
+    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
+    action_perms = defaultdict(set, **{
+        'add': {'add'},
+        'import': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_rename': {'change'},
+    })
 
 
 @register_model_view(InventoryItem)

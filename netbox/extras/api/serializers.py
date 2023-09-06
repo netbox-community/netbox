@@ -479,7 +479,7 @@ class ReportSerializer(serializers.Serializer):
     module = serializers.CharField(max_length=255)
     name = serializers.CharField(max_length=255)
     description = serializers.CharField(max_length=255, required=False)
-    test_methods = serializers.ListField(child=serializers.CharField(max_length=255))
+    test_methods = serializers.ListField(child=serializers.CharField(max_length=255), read_only=True)
     result = NestedJobSerializer()
     display = serializers.SerializerMethodField(read_only=True)
 

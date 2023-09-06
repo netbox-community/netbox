@@ -34,6 +34,7 @@ class MenuItem:
     link: str
     link_text: str
     permissions: Optional[Sequence[str]] = ()
+    staff_only: Optional[bool] = False
     buttons: Optional[Sequence[MenuItemButton]] = ()
 
 

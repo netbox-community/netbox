@@ -1,10 +1,38 @@
 # NetBox v3.6
 
+## v3.6.1 (2023-09-06)
+
+### Enhancements
+
+* [#12870](https://github.com/netbox-community/netbox/issues/12870) - Support setting token expiration time using the provisioning API endpoint
+* [#13444](https://github.com/netbox-community/netbox/issues/13444) - Add bulk rename functionality to the global device component lists
+* [#13638](https://github.com/netbox-community/netbox/issues/13638) - Add optional `staff_only` attribute to MenuItem
+
+### Bug Fixes
+
+* [#12553](https://github.com/netbox-community/netbox/issues/12552) - Ensure `family` attribute is always returned when creating aggregates and prefixes via REST API
+* [#13619](https://github.com/netbox-community/netbox/issues/13619) - Fix exception when viewing IP address assigned to a virtual machine
+* [#13596](https://github.com/netbox-community/netbox/issues/13596) - Always display "render config" tab for devices and virtual machines
+* [#13620](https://github.com/netbox-community/netbox/issues/13620) - Show admin menu items only for staff users
+* [#13622](https://github.com/netbox-community/netbox/issues/13622) - Fix exception when viewing current config and no revisions have been created
+* [#13626](https://github.com/netbox-community/netbox/issues/13626) - Correct filtering of recent activity list under user view
+* [#13628](https://github.com/netbox-community/netbox/issues/13628) - Remove stale references to obsolete NAPALM integration
+* [#13630](https://github.com/netbox-community/netbox/issues/13630) - Fix display of active status under user view
+* [#13632](https://github.com/netbox-community/netbox/issues/13632) - Avoid raising exception when checking if FHRP group IP address is primary
+* [#13642](https://github.com/netbox-community/netbox/issues/13642) - Suppress warning about unreflected model changes when applying migrations
+* [#13657](https://github.com/netbox-community/netbox/issues/13657) - Fix decoding of data file content
+* [#13674](https://github.com/netbox-community/netbox/issues/13674) - Fix retrieving individual report via REST API
+* [#13682](https://github.com/netbox-community/netbox/issues/13682) - Fix error message returned when validation of custom field default value fails
+* [#13684](https://github.com/netbox-community/netbox/issues/13684) - Enable modying the configuration when maintenance mode is enabled
+
+---
+
 ## v3.6.0 (2023-08-30)
 
 ### Breaking Changes
 
 * PostgreSQL 11 is no longer supported (dropped in Django 4.2). NetBox v3.6 requires PostgreSQL 12 or later.
+* The `boto3` and `dulwich` packages are no longer installed automatically. If needed for S3/git remote data backend support, add them to `local_requirements.txt` to ensure their installation.
 * The `device_role` field on the Device model has been renamed to `role`. The `device_role` field has been temporarily retained on the REST API serializer for devices for backward compatibility, but is read-only.
 * The `choices` array field has been removed from the CustomField model. Any defined choices are automatically migrated to CustomFieldChoiceSets, accessible via the new `choice_set` field on the CustomField model.
 * The `napalm_driver` and `napalm_args` fields (which were deprecated in v3.5) have been removed from the Platform model.
@@ -85,8 +113,9 @@ Tags may now be restricted to use with designated object types. Tags that have n
 * [#11766](https://github.com/netbox-community/netbox/issues/11766) - Remove obsolete custom `ChoiceField` and `MultipleChoiceField` classes
 * [#12180](https://github.com/netbox-community/netbox/issues/12180) - All API endpoints for available objects (e.g. IP addresses) now inherit from a common parent view
 * [#12237](https://github.com/netbox-community/netbox/issues/12237) - Upgrade Django to v4.2
-* [#12794](https://github.com/netbox-community/netbox/issues/12794) - Avoid direct imports of Django's stock user model
 * [#12320](https://github.com/netbox-community/netbox/issues/12320) - Remove obsolete fields `napalm_driver` and `napalm_args` from Platform
+* [#12794](https://github.com/netbox-community/netbox/issues/12794) - Avoid direct imports of Django's stock user model
+* [#12906](https://github.com/netbox-community/netbox/issues/12906) - The `boto3` (AWS) and `dulwich` (git) packages for remote data sources are now optional requirements
 * [#12964](https://github.com/netbox-community/netbox/issues/12964) - Drop support for PostgreSQL 11
 * [#13309](https://github.com/netbox-community/netbox/issues/13309) - User account-specific resources have been moved to a new `account` app for better organization
 

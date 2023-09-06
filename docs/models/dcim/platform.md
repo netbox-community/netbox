@@ -23,17 +23,3 @@ If designated, this platform will be available for use only to devices assigned 
 ### Configuration Template
 
 The default [configuration template](../extras/configtemplate.md) for devices assigned to this platform.
-
-### NAPALM Driver
-
-!!! warning "Deprecated Field"
-    NAPALM integration was removed from NetBox core in v3.5 and is now available as a [plugin](https://github.com/netbox-community/netbox-napalm). This field will be removed in NetBox v3.6.
-
-The [NAPALM driver](https://napalm.readthedocs.io/en/latest/support/index.html) associated with this platform.
-
-### NAPALM Arguments
-
-!!! warning "Deprecated Field"
-    NAPALM integration was removed from NetBox core in v3.5 and is now available as a [plugin](https://github.com/netbox-community/netbox-napalm). This field will be removed in NetBox v3.6.
-
-Any additional arguments to send when invoking the NAPALM driver assigned to this platform.

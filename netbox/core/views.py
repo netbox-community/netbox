@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect
 
 from extras.models import ConfigRevision
+from netbox.config import get_config
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from utilities.utils import count_related
@@ -152,4 +153,9 @@ class ConfigView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
     def get_object(self, **kwargs):
-        return self.queryset.first()
+        if config := self.queryset.first():
+            return config
+        # Instantiate a dummy default config if none has been created yet
+        return ConfigRevision(
+            data=get_config().defaults
+        )

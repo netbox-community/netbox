@@ -141,17 +141,25 @@ class TokenTest(
         """
         Test the provisioning of a new REST API token given a valid username and password.
         """
-        data = {
+        user_credentials = {
             'username': 'user1',
             'password': 'abc123',
         }
-        user = User.objects.create_user(**data)
+        user = User.objects.create_user(**user_credentials)
+
+        data = {
+            **user_credentials,
+            'description': 'My API token',
+            'expires': '2099-12-31T23:59:59Z',
+        }
         url = reverse('users-api:token_provision')
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertEqual(response.status_code, 201)
         self.assertIn('key', response.data)
         self.assertEqual(len(response.data['key']), 40)
+        self.assertEqual(response.data['description'], data['description'])
+        self.assertEqual(response.data['expires'], data['expires'])
         token = Token.objects.get(user=user)
         self.assertEqual(token.key, response.data['key'])
 
