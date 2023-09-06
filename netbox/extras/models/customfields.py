@@ -317,15 +317,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'choice_set': _("Choices may be set only on selection fields.")
             })
 
-        # A selection field's default (if any) must be present in its available choices
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and \
-                self.default not in [c[0] for c in self.choices]:
-            raise ValidationError({
-                'default': _(
-                    "The specified default value ({default}) is not listed as an available choice."
-                ).format(default=self.default)
-            })
-
         # Object fields must define an object_type; other fields must not
         if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
             if not self.object_type:
@@ -651,25 +642,21 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
             # Validate selected choice
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
-                if value not in [c[0] for c in self.choices]:
+                if value not in self.choice_set.values:
                     raise ValidationError(
-                        _("Invalid choice ({value}). Available choices are: {choices} ({count})")
-                        .format(
+                        _("Invalid choice ({value}) for choice set {choiceset}.").format(
                             value=value,
-                            choices=', '.join([c[0] for c in self.choices[0:2]]),
-                            count=f'({len(self.choices)} choices)' if len(self.choices) > 2 else '',
+                            choiceset=self.choice_set
                         )
                     )
 
             # Validate all selected choices
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-                if not set(value).issubset([c[0] for c in self.choices]):
+                if not set(value).issubset(self.choice_set.values):
                     raise ValidationError(
-                        _("Invalid choice(s) ({invalid_choices}). Available choices are: {available_choices}")
-                        .format(
-                            invalid_choices=', '.join(value),
-                            available_choices=', '.join([c[0] for c in self.choices[0:2]]),
-                            count=f'({len(self.choices)} choices)' if len(self.choices) > 2 else '',
+                        _("Invalid choice(s) ({value}) for choice set {choiceset}.").format(
+                            value=value,
+                            choiceset=self.choice_set
                         )
                     )
 
@@ -754,6 +741,13 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     @property
     def choices_count(self):
         return len(self.choices)
+
+    @property
+    def values(self):
+        """
+        Returns an iterator of the valid choice values.
+        """
+        return (x[0] for x in self.choices)
 
     def clean(self):
         if not self.base_choices and not self.extra_choices:
