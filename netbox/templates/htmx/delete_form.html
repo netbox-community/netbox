@@ -15,8 +15,8 @@
     {% if nested_objs %}
     <p>
       This will cause deltion of the following related items: <br>
-      {% for nested_obj in nested_objs %}
-        {{ nested_obj }} <br>
+      {% for nested_obj in nested_objs %} 
+        - {{ nested_obj }} <br>
       {% endfor %}
     </p>
     {% endif %}
