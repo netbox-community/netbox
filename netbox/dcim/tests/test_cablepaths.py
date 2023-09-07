@@ -1948,9 +1948,6 @@ class CablePathTestCase(TestCase):
             b_terminations=[interface2]
         )
         cable3.save()
-        print(CablePath.objects.all().count())
-        for cp in CablePath.objects.all():
-            print(f'{cp}::{cp.path}')
         self.assertPathExists(
             (
                 interface2, cable3, (frontport2, frontport4), (rearport2, rearport4), (cable2, cable4),
