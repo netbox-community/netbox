@@ -177,3 +177,36 @@ LOGGING = {
 ```
 
 Ensure the file and path specified in logfile exist and are writable and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.
+
+
+## Autneticating with Active Directory (with or without the @fqdn.tld suffix)
+
+Interfacing with Active Directory for authentication can be a bit of a headache. One edge case you can easily solve is handling different login formats. The two main formats we are supporting is allowing the user to login with either the full UPN or just the username. To do so we need to filter the DN based on either the `sAMAccountName` or the `userPrincipalName`. Below we will define some basic configuration options which will allow your users to enter their usernames in the format `username` or `username@domain.tld`.
+
+These configuration options are definited within `ldap_config.py`. First, modify the `AUTH_LDAP_USER_SEARCH` option to match the following:
+
+```python
+AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=Users,dc=example,dc=com",
+                                    ldap.SCOPE_SUBTREE,
+                                    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))",
+                                  )
+```
+
+Also, ensure that `AUTH_LDAP_USER_DN_TEMPLATE` is set to `None` as described above. Next, modify `AUTH_LDAP_USER_ATTR_MAP` to match the following:
+
+```python
+AUTH_LDAP_USER_ATTR_MAP = {
+    "username": "sAMAccountName",
+    "email": "mail",
+    "first_name": "givenName",
+    "last_name": "sn",
+}
+```
+
+Lastly, we need to add one aditional configuration option; `AUTH_LDAP_USER_QUERY_FIELD`. Add the following to your LDAP configuration file:
+
+```python
+AUTH_LDAP_USER_QUERY_FIELD = "username"
+```
+
+These configuration options will allow your users to login with either the UPN suffix or without it.
