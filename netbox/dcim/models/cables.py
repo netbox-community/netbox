@@ -572,7 +572,8 @@ class CablePath(models.Model):
 
                 q_filter = Q()
                 for lct in local_cable_terminations:
-                    q_filter |= Q(cable=lct.cable, cable_end='A' if lct.cable_end == 'B' else 'B')
+                    cable_end = 'A' if lct.cable_end == 'B' else 'B'
+                    q_filter |= Q(cable=lct.cable, cable_end=cable_end)
 
                 assert q_filter is not Q()
                 remote_cable_terminations = CableTermination.objects.filter(q_filter)
