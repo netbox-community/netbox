@@ -2,7 +2,8 @@ import logging
 from copy import deepcopy
 
 from django.contrib import messages
-from django.db import transaction
+from django.contrib.admin.utils import NestedObjects
+from django.db import transaction, router
 from django.db.models import ProtectedError
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -334,6 +335,14 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
 
+        using = router.db_for_write(obj._meta.model)
+        collector = NestedObjects(using=using)
+        collector.collect([obj])
+        if collector.nested():
+            nested_objs = collector.nested()[1]
+        else:
+            nested_objs = []
+
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
             viewname = get_viewname(self.queryset.model, action='delete')
@@ -343,6 +352,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 'object_type': self.queryset.model._meta.verbose_name,
                 'form': form,
                 'form_url': form_url,
+                'nested_objs': nested_objs,
                 **self.get_extra_context(request, obj),
             })
 
@@ -350,6 +360,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            'nested_objs': nested_objs,
             **self.get_extra_context(request, obj),
         })
 
