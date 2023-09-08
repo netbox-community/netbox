@@ -99,8 +99,7 @@ def expand_alphanumeric_pattern(pattern):
     # our option_matrix.
     listerator = cycle([lambda part: [part], parse_alphanumeric_range])
     try:
-        option_matrix = [to_options(part) for to_options, part in zip(listerator, pattern_parts)
-]
+        option_matrix = [to_options(part) for to_options, part in zip(listerator, pattern_parts)]
     except ValueError as e:
         # Another wart for legacy compatibility. A previous implementation of this function throws ValueError
         # in some cases, but forms.ValidationError in others, even though a generic utility function has no
