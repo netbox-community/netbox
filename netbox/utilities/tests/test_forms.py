@@ -245,6 +245,15 @@ class ExpandAlphanumeric(TestCase):
 
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
+    def test_numeric_set(self):
+        input = "vlan[123,456]"
+        output = sorted([
+            'vlan123',
+            'vlan456'
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
     def test_invalid_non_pattern(self):
         with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r9a'))
