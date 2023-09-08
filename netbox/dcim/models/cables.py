@@ -545,21 +545,12 @@ class CablePath(models.Model):
                 break
             assert all(type(link) in (Cable, WirelessLink) for link in links)
 
-            # Create set of links in path.  Cannot use list(set()) as it does this in a non-deterministic manner
-            links_path = []
-            for link in links:
-                if object_to_path_node(link) not in links_path:
-                    links_path.append(object_to_path_node(link))
-
             # Step 3: Record the links
-            path.append(links_path)
+            path.append([object_to_path_node(link) for link in links])
 
             # Step 4: Update the path status if a link is not connected
-            links_status = [
-                link.status for link in links if hasattr(link, 'status') and
-                link.status != LinkStatusChoices.STATUS_CONNECTED
-            ]
-            if len(links_status) and len(links) != len(links_status):
+            links_status = [link.status for link in links if link.status != LinkStatusChoices.STATUS_CONNECTED]
+            if any([status != LinkStatusChoices.STATUS_CONNECTED for status in links_status]):
                 is_active = False
 
             # Step 5: Determine the far-end terminations
@@ -575,7 +566,6 @@ class CablePath(models.Model):
                     cable_end = 'A' if lct.cable_end == 'B' else 'B'
                     q_filter |= Q(cable=lct.cable, cable_end=cable_end)
 
-                assert q_filter is not Q()
                 remote_cable_terminations = CableTermination.objects.filter(q_filter)
                 remote_terminations = [ct.termination for ct in remote_cable_terminations]
             else:
