@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.forms.models import fields_for_model
+from itertools import product, cycle
 
 from utilities.choices import unpack_grouped_choices
 from utilities.querysets import RestrictedQuerySet
@@ -48,54 +49,77 @@ def parse_alphanumeric_range(string):
     Expand an alphanumeric range (continuous or not) into a list.
     'a-d,f' => [a, b, c, d, f]
     '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
+    '9-11' => [9, 10, 11]
     """
     values = []
     for dash_range in string.split(','):
-        try:
-            begin, end = dash_range.split('-')
-            vals = begin + end
-            # Break out of loop if there's an invalid pattern to return an error
-            if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
-                return []
-        except ValueError:
-            begin, end = dash_range, dash_range
-        if begin.isdigit() and end.isdigit():
-            if int(begin) >= int(end):
-                raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
+        range_split = dash_range.split('-')
 
-            for n in list(range(int(begin), int(end) + 1)):
-                values.append(n)
+        if re.fullmatch(ALPHABETIC_RANGE_PATTERN, dash_range):
+            begin, end = map(ord, dash_range.split('-'))
+            if begin > end:
+                raise ValueError(f'Range "{dash_range}" is invalid, because {begin} comes after {end}')
+            values.extend(map(chr, range(begin, end+1)))
+        elif re.fullmatch(NUMERIC_RANGE_PATTERN, dash_range):
+            begin, end = map(int, dash_range.split('-'))
+            if begin > end:
+                raise ValueError(f'Range "{dash_range}" is invalid, because {begin} comes after {end}')
+            values.extend(map(str, range(begin, end+1)))
+        elif re.fullmatch(ALPHANUMERIC_SINGLETON_PATTERN, dash_range):
+            values.append(dash_range)
         else:
-            # Value-based
-            if begin == end:
-                values.append(begin)
-            # Range-based
-            else:
-                # Not a valid range (more than a single character)
-                if not len(begin) == len(end) == 1:
-                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
+            raise ValueError(f'Range "{dash_range}" is invalid, must be a range of numbers (e.g. 7-11) or a range of letters (e.g. f-h or F-H)')
 
-                if ord(begin) >= ord(end):
-                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-
-                for n in list(range(ord(begin), ord(end) + 1)):
-                    values.append(chr(n))
     return values
 
 
-def expand_alphanumeric_pattern(string):
+def expand_alphanumeric_pattern(pattern):
     """
     Expand an alphabetic pattern into a list of strings.
     """
-    lead, pattern, remnant = re.split(ALPHANUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
-    parsed_range = parse_alphanumeric_range(pattern)
-    for i in parsed_range:
-        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, remnant):
-            for string in expand_alphanumeric_pattern(remnant):
-                yield "{}{}{}".format(lead, i, string)
-        else:
-            yield "{}{}{}".format(lead, i, remnant)
+    # Assume we get string like = "[Gi,Te]/0/[1-8]"
+    pattern_parts = re.split(ALPHANUMERIC_EXPANSION_PATTERN, pattern)
+    # Then parts will be split into:
+    # parts = ['', 'Gi,Te', '/0/', '1-8', '']
+    # I.e. it'll be a constant followed by pattern, constant, pattern, constant, etc...
+    
+    # This check seems a little useless, after all if someone passed in a string with no patterns in it,
+    # shouldn't it just return back that same string? But for unknown legacy reasons this is how a
+    # previous implementation of this function worked, and we're trying to staying compatible.
+    if len(pattern_parts) == 1:
+        raise ValueError("String {repr(string)} contains no valid alphanumeric patterns")
 
+    # For first, third, fifth elements, etc of the parts list, turn those elements into one-element lists
+    # containing the constant part itself.
+    #
+    # And for the second, fourth and sixth elements, parse the range expression and get a list of all possible
+    # values for that range expression.
+    #
+    # So we need to cycle between these two functions and then apply them to the elements of the list to make
+    # our option_matrix.
+    listerator = cycle([lambda part: [part], parse_alphanumeric_range])
+    try:
+        option_matrix = [to_options(part) for to_options, part in zip(listerator, pattern_parts)
+]
+    except ValueError as e:
+        # Another wart for legacy compatibility. A previous implementation of this function throws ValueError
+        # in some cases, but forms.ValidationError in others, even though a generic utility function has no
+        # business throwing django form-specific exceptions. Cleaning this up would require changing the unit
+        # tests though and validating all calling code, so for now we just stay compatible even if it's ugly.
+        raise forms.ValidationError(*e.args)
+
+    # Now we have a option_matrix that looks a little like this:
+    # [
+    #   [''],
+    #   ['Gi', 'Te'],
+    #   ['/0'],
+    #   ['1', '2', '3', '4', '5', '6', '7', '8'],
+    #   ['']
+    # ]
+    # So we find all products of these lists and join them together into single strings as our result!
+
+    for parts in product(*option_matrix):
+        yield ''.join(parts)
 
 def expand_ipaddress_pattern(string, family):
     """
