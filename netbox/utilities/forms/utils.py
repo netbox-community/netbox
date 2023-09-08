@@ -53,8 +53,6 @@ def parse_alphanumeric_range(string):
     """
     values = []
     for dash_range in string.split(','):
-        range_split = dash_range.split('-')
-
         if re.fullmatch(ALPHABETIC_RANGE_PATTERN, dash_range):
             begin, end = map(ord, dash_range.split('-'))
             if begin > end:
