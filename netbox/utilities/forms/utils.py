@@ -71,52 +71,37 @@ def parse_alphanumeric_range(string):
     return values
 
 
+def expand_alphanumeric_pattern_impl(pattern):
+    """
+    Expand an alphabetic pattern into a list of strings. (Clean implementation)
+    """
+    try:
+        beginning, middle_pattern, end = re.split(ALPHANUMERIC_EXPANSION_PATTERN, pattern, maxsplit=1)
+    except ValueError:
+        # Split failed, i.e. there's no pattern in here, i.e. nothing to do, just yield the string unmodified.
+        yield pattern
+        return
+
+    for middle in parse_alphanumeric_range(middle_pattern):
+        yield from expand_alphanumeric_pattern_impl(f"{beginning}{middle}{end}")
+
+
 def expand_alphanumeric_pattern(pattern):
     """
-    Expand an alphabetic pattern into a list of strings.
+    Expand an alphabetic pattern into a list of strings. (Wrapper around clean implementation to preserve warts)
     """
-    # Assume we get string like = "[Gi,Te]/0/[1-8]"
-    pattern_parts = re.split(ALPHANUMERIC_EXPANSION_PATTERN, pattern)
-    # Then parts will be split into:
-    # parts = ['', 'Gi,Te', '/0/', '1-8', '']
-    # I.e. it'll be a constant followed by pattern, constant, pattern, constant, etc...
 
-    # This check seems a little useless, after all if someone passed in a string with no patterns in it,
-    # shouldn't it just return back that same string? But for unknown legacy reasons this is how a
-    # previous implementation of this function worked, and we're trying to staying compatible.
-    if len(pattern_parts) == 1:
-        raise ValueError("String {repr(string)} contains no valid alphanumeric patterns")
+    # Unit tests expect expand_alphanumeric_pattern to fail with a ValueError if no "valid" patterns (at a first
+    # glance, according to ALPHANUMERIC_EXPANSION_PATTERN) are present
+    if not re.search(ALPHANUMERIC_EXPANSION_PATTERN, pattern):
+        raise ValueError(f"String {repr(pattern)} contains no valid alphanumeric patterns")
 
-    # For first, third, fifth elements, etc of the parts list, turn those elements into one-element lists
-    # containing the constant part itself.
-    #
-    # And for the second, fourth and sixth elements, parse the range expression and get a list of all possible
-    # values for that range expression.
-    #
-    # So we need to cycle between these two functions and then apply them to the elements of the list to make
-    # our option_matrix.
-    listerator = cycle([lambda part: [part], parse_alphanumeric_range])
     try:
-        option_matrix = [to_options(part) for to_options, part in zip(listerator, pattern_parts)]
+        yield from expand_alphanumeric_pattern_impl(pattern)
     except ValueError as e:
-        # Another wart for legacy compatibility. A previous implementation of this function throws ValueError
-        # in some cases, but forms.ValidationError in others, even though a generic utility function has no
-        # business throwing django form-specific exceptions. Cleaning this up would require changing the unit
-        # tests though and validating all calling code, so for now we just stay compatible even if it's ugly.
+        # Unit tests expect forms.ValidationError to be thrown if patterns were "valid" at a first glance,
+        # but then turned out to be invalid when looking closer. So we preserve this behaviour here.
         raise forms.ValidationError(*e.args)
-
-    # Now we have a option_matrix that looks a little like this:
-    # [
-    #   [''],
-    #   ['Gi', 'Te'],
-    #   ['/0'],
-    #   ['1', '2', '3', '4', '5', '6', '7', '8'],
-    #   ['']
-    # ]
-    # So we find all products of these lists and join them together into single strings as our result!
-
-    for parts in product(*option_matrix):
-        yield ''.join(parts)
 
 
 def expand_ipaddress_pattern(string, family):
