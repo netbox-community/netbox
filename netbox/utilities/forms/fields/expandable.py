@@ -29,9 +29,7 @@ class ExpandableNameField(forms.CharField):
     def to_python(self, value):
         if not value:
             return ''
-        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
-            return list(expand_alphanumeric_pattern(value))
-        return [value]
+        return list(expand_alphanumeric_pattern(value))
 
 
 class ExpandableIPAddressField(forms.CharField):

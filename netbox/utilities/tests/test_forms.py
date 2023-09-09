@@ -246,18 +246,22 @@ class ExpandAlphanumeric(TestCase):
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
     def test_invalid_non_pattern(self):
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r9a'))
+        input = 'r9a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
     def test_invalid_range(self):
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[8-]a'))
+        input = 'r[8-]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[-8]a'))
+        input = 'r[-8]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[8--9]a'))
+        input = 'r[8--9]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
     def test_invalid_range_alphanumeric(self):
         self.assertEqual(sorted(expand_alphanumeric_pattern('r[9-a]a')), [])
@@ -273,17 +277,21 @@ class ExpandAlphanumeric(TestCase):
             sorted(expand_alphanumeric_pattern('r[a-bb]a'))
 
     def test_invalid_set(self):
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[a]a'))
+        input = 'r[a]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[a,]a'))
+        input = 'r[a,]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[,a]a'))
+        input = 'r[,a]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-        with self.assertRaises(ValueError):
-            sorted(expand_alphanumeric_pattern('r[a,,b]a'))
+        input = 'r[a,,b]a'
+        output = sorted([input])
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
 
 class ImportFormTest(TestCase):

@@ -87,7 +87,11 @@ def expand_alphanumeric_pattern(string):
     """
     Expand an alphabetic pattern into a list of strings.
     """
-    lead, pattern, remnant = re.split(ALPHANUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
+    try:
+        lead, pattern, remnant = re.split(ALPHANUMERIC_EXPANSION_PATTERN, string, maxsplit=1)
+    except ValueError:
+        yield string
+        return
     parsed_range = parse_alphanumeric_range(pattern)
     for i in parsed_range:
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, remnant):
