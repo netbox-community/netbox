@@ -275,8 +275,10 @@ class ExpandAlphanumeric(TestCase):
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
     def test_invalid_range_alphanumeric(self):
-        self.assertEqual(sorted(expand_alphanumeric_pattern('r[9-a]a')), [])
-        self.assertEqual(sorted(expand_alphanumeric_pattern('r[a-9]a')), [])
+        with self.assertRaises(forms.ValidationError):
+            sorted(expand_alphanumeric_pattern('r[9-a]a'))
+        with self.assertRaises(forms.ValidationError):
+            sorted(expand_alphanumeric_pattern('r[a-9]a'))
 
     def test_invalid_range_bounds(self):
         with self.assertRaises(forms.ValidationError):
