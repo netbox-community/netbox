@@ -269,19 +269,19 @@ class ExpandAlphanumeric(TestCase):
             sorted(expand_alphanumeric_pattern('r[8--9]a'))
 
     def test_invalid_range_alphanumeric(self):
-        with self.assertRaises(forms.ValidationError):
+        with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r[9-a]a'))
 
-        with self.assertRaises(forms.ValidationError):
+        with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r[a-9]a'))
 
     def test_invalid_range_bounds(self):
-        with self.assertRaises(forms.ValidationError):
+        with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r[9-8]a'))
             sorted(expand_alphanumeric_pattern('r[b-a]a'))
 
     def test_invalid_range_len(self):
-        with self.assertRaises(forms.ValidationError):
+        with self.assertRaises(ValueError):
             sorted(expand_alphanumeric_pattern('r[a-bb]a'))
 
     def test_invalid_set(self):

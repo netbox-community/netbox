@@ -96,12 +96,7 @@ def expand_alphanumeric_pattern(pattern):
     if not re.search(ALPHANUMERIC_EXPANSION_PATTERN, pattern):
         raise ValueError(f"String {repr(pattern)} contains no valid alphanumeric patterns")
 
-    try:
-        yield from expand_alphanumeric_pattern_impl(pattern)
-    except ValueError as e:
-        # Unit tests expect forms.ValidationError to be thrown if patterns were "valid" at a first glance,
-        # but then turned out to be invalid when looking closer. So we preserve this behaviour here.
-        raise forms.ValidationError(*e.args)
+    yield from expand_alphanumeric_pattern_impl(pattern)
 
 
 def expand_ipaddress_pattern(string, family):

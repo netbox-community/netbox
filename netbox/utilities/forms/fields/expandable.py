@@ -30,7 +30,10 @@ class ExpandableNameField(forms.CharField):
         if not value:
             return ''
         if re.search(ALPHANUMERIC_EXPANSION_PATTERN, value):
-            return list(expand_alphanumeric_pattern(value))
+            try:
+                return list(expand_alphanumeric_pattern(value))
+            except ValueError as e:
+                raise forms.ValidationError(*e.args)
         return [value]
 
 
