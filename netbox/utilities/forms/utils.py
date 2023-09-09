@@ -57,12 +57,12 @@ def parse_alphanumeric_range(string):
             begin, end = map(ord, dash_range.split('-'))
             if begin > end:
                 raise ValueError(f'Range "{dash_range}" is invalid, because {begin} comes after {end}')
-            values.extend(map(chr, range(begin, end+1)))
+            values.extend(map(chr, range(begin, end + 1)))
         elif re.fullmatch(NUMERIC_RANGE_PATTERN, dash_range):
             begin, end = map(int, dash_range.split('-'))
             if begin > end:
                 raise ValueError(f'Range "{dash_range}" is invalid, because {begin} comes after {end}')
-            values.extend(map(str, range(begin, end+1)))
+            values.extend(map(str, range(begin, end + 1)))
         elif re.fullmatch(ALPHANUMERIC_SINGLETON_PATTERN, dash_range):
             values.append(dash_range)
         else:
@@ -80,7 +80,7 @@ def expand_alphanumeric_pattern(pattern):
     # Then parts will be split into:
     # parts = ['', 'Gi,Te', '/0/', '1-8', '']
     # I.e. it'll be a constant followed by pattern, constant, pattern, constant, etc...
-    
+
     # This check seems a little useless, after all if someone passed in a string with no patterns in it,
     # shouldn't it just return back that same string? But for unknown legacy reasons this is how a
     # previous implementation of this function worked, and we're trying to staying compatible.
@@ -117,6 +117,7 @@ def expand_alphanumeric_pattern(pattern):
 
     for parts in product(*option_matrix):
         yield ''.join(parts)
+
 
 def expand_ipaddress_pattern(string, family):
     """
