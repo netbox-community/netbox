@@ -65,7 +65,7 @@ def parse_alphanumeric_range(string):
         elif re.fullmatch(ALPHANUMERIC_SINGLETON_PATTERN, dash_range):
             values.append(dash_range)
         else:
-            raise forms.ValidationError(f'Range "{dash_range}" is invalid, must be a range of numbers (e.g. 7-11) or a range of letters (e.g. f-h or F-H)')
+            raise forms.ValidationError(f'Range "{dash_range}" is invalid, must be a range of numbers (e.g. 7-11), a range of letters (e.g. f-h or F-H), or a single alphanumeric string (e.g. abc1234)')
 
     return values
 
