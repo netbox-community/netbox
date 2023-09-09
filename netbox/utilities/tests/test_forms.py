@@ -255,7 +255,6 @@ class ExpandAlphanumeric(TestCase):
 
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-
     def test_invalid_non_pattern(self):
         input = 'r9a'
         output = sorted([input])
