@@ -48,38 +48,25 @@ def parse_alphanumeric_range(string):
     Expand an alphanumeric range (continuous or not) into a list.
     'a-d,f' => [a, b, c, d, f]
     '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
+    '9-11' => [9, 10, 11]
     """
     values = []
     for dash_range in string.split(','):
-        try:
-            begin, end = dash_range.split('-')
-            vals = begin + end
-            # Break out of loop if there's an invalid pattern to return an error
-            if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
-                return []
-        except ValueError:
-            begin, end = dash_range, dash_range
-        if begin.isdigit() and end.isdigit():
-            if int(begin) >= int(end):
-                raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-
-            for n in list(range(int(begin), int(end) + 1)):
-                values.append(n)
+        if re.fullmatch(ALPHABETIC_RANGE_PATTERN, dash_range):
+            begin, end = map(ord, dash_range.split('-'))
+            if begin > end:
+                raise forms.ValidationError(f'Range "{dash_range}" is invalid, because {begin} comes after {end}')
+            values.extend(map(chr, range(begin, end + 1)))
+        elif re.fullmatch(NUMERIC_RANGE_PATTERN, dash_range):
+            begin, end = map(int, dash_range.split('-'))
+            if begin > end:
+                raise forms.ValidationError(f'Range "{dash_range}" is invalid, because {begin} comes after {end}')
+            values.extend(map(str, range(begin, end + 1)))
+        elif re.fullmatch(ALPHANUMERIC_SINGLETON_PATTERN, dash_range):
+            values.append(dash_range)
         else:
-            # Value-based
-            if begin == end:
-                values.append(begin)
-            # Range-based
-            else:
-                # Not a valid range (more than a single character)
-                if not len(begin) == len(end) == 1:
-                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
+            raise forms.ValidationError(f'Range "{dash_range}" is invalid, must be a range of numbers (e.g. 7-11) or a range of letters (e.g. f-h or F-H)')
 
-                if ord(begin) >= ord(end):
-                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-
-                for n in list(range(ord(begin), ord(end) + 1)):
-                    values.append(chr(n))
     return values
 
 
