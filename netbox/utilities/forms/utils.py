@@ -94,11 +94,8 @@ def expand_alphanumeric_pattern(string):
         return
     parsed_range = parse_alphanumeric_range(pattern)
     for i in parsed_range:
-        if re.search(ALPHANUMERIC_EXPANSION_PATTERN, remnant):
-            for string in expand_alphanumeric_pattern(remnant):
-                yield "{}{}{}".format(lead, i, string)
-        else:
-            yield "{}{}{}".format(lead, i, remnant)
+        for string in expand_alphanumeric_pattern(remnant):
+            yield f"{lead}{i}{string}"
 
 
 def expand_ipaddress_pattern(string, family):
