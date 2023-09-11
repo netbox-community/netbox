@@ -2,6 +2,10 @@
 {% load helpers %}
 {% load i18n %}
 
+{% block table_controls %}
+    {% include 'dcim/device/inc/interface_table_controls.html' with table_modal="DeviceInterfaceTable_config" %}
+{% endblock table_controls %}
+
 {% block bulk_delete_controls %}
     {{ block.super }}
     {% with bulk_disconnect_view=child_model|validated_viewname:"bulk_disconnect" %}
