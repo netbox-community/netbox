@@ -14,8 +14,8 @@ class DataSourceTypeChoices(ChoiceSet):
 
     CHOICES = (
         (LOCAL, _('Local'), 'gray'),
-        (GIT, _('Git'), 'blue'),
-        (AMAZON_S3, _('Amazon S3'), 'blue'),
+        (GIT, 'Git', 'blue'),
+        (AMAZON_S3, 'Amazon S3', 'blue'),
     )
 
 

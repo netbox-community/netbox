@@ -51,10 +51,10 @@
                         <th scope="row">{% trans "Total length" %}</th>
                         <td>
                             {% if total_length %}
-                            {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} {% trans "Meters" %} /
-                            {{ total_length|meters_to_feet|floatformat:"-2" }} {% trans "Feet" %}
+                              {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} {% trans "Meters" %} /
+                              {{ total_length|meters_to_feet|floatformat:"-2" }} {% trans "Feet" %}
                             {% else %}
-                            <span class="text-muted">{% trans "N/A" %}</span>
+                              {{ ''|placeholder }}
                             {% endif %}
                         </td>
                         </tr>

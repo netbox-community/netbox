@@ -4,6 +4,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
@@ -81,7 +82,8 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Disable changing the type of a CustomField as it almost universally causes errors if custom field data is already present.
+        # Disable changing the type of a CustomField as it almost universally causes errors if custom field data
+        # is already present.
         if self.instance.pk:
             self.fields['type'].disabled = True
 
@@ -90,10 +92,10 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
         required=False,
-        help_text=_(
+        help_text=mark_safe(_(
             'Enter one choice per line. An optional label may be specified for each choice by appending it with a '
-            'comma (for example, "choice1,First Choice").'
-        )
+            'comma. Example:'
+        ) + ' <code>choice1,First Choice</code>')
     )
 
     class Meta:
