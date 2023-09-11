@@ -2,7 +2,11 @@
 {% load form_helpers %}
 {% load i18n %}
 
-{% block title %}{% blocktrans %}Add New Member to Virtual Chassis {{ virtual_chassis }}{% endblocktrans %}{% endblock %}
+{% block title %}
+  {% blocktrans trimmed %}
+    Add New Member to Virtual Chassis {{ virtual_chassis }}
+  {% endblocktrans %}
+{% endblock %}
 
 {% block content %}
     <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">

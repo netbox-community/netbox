@@ -189,11 +189,15 @@ Context:
     </div>
     <p class="small text-muted">
       <i class="mdi mdi-check-bold text-success"></i>
-      {% blocktrans %}Required fields <strong>must</strong> be specified for all objects.{% endblocktrans %}
+      {% blocktrans trimmed %}
+        Required fields <strong>must</strong> be specified for all objects.
+      {% endblocktrans %}
     </p>
     <p class="small text-muted">
       <i class="mdi mdi-information-outline"></i>
-      {% blocktrans with example="vrf.rd" %}Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.{% endblocktrans %}
+      {% blocktrans trimmed with example="vrf.rd" %}
+        Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.
+      {% endblocktrans %}
     </p>
     {% endif %}
 

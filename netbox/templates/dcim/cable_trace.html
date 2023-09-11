@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block title %}
-  {% blocktrans with object_type=object|meta:"verbose_name"|bettertitle %}
+  {% blocktrans trimmed with object_type=object|meta:"verbose_name"|bettertitle %}
     Cable Trace for {{ object_type }} {{ object }}
   {% endblocktrans %}
 {% endblock %}

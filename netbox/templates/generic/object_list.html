@@ -91,7 +91,7 @@ Context:
                 <div class="form-check">
                   <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
                   <label for="select-all" class="form-check-label">
-                    {% blocktrans with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
+                    {% blocktrans trimmed with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
                       Select <strong>all {{ count }} {{ object_type_plural }}</strong> matching query
                     {% endblocktrans %}
                   </label>

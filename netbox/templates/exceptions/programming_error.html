@@ -8,7 +8,7 @@
   <p>
     <i class="mdi mdi-alert"></i>
     <strong>{% trans "Database migrations missing" %}.</strong>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       When upgrading to a new NetBox release, the upgrade script must be run to apply any new database migrations. You
       can run migrations manually by executing <code>python3 manage.py migrate</code> from the command line.
     {% endblocktrans %}
@@ -16,7 +16,7 @@
   <p>
     <i class="mdi mdi-alert"></i>
     <strong>{% trans "Unsupported PostgreSQL version" %}.</strong>
-    {% blocktrans %}
+    {% blocktrans trimmed %}
       Ensure that PostgreSQL version 12 or later is in use. You can check this by connecting to the database using
       NetBox's credentials and issuing a query for <code>SELECT VERSION()</code>.
     {% endblocktrans %}

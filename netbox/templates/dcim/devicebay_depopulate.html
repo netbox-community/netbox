@@ -3,14 +3,14 @@
 {% load i18n %}
 
 {% block title %}
-  {% blocktrans with device=device_bay.installed_device %}
+  {% blocktrans trimmed with device=device_bay.installed_device %}
     Remove {{ device }} from {{ device_bay }}?
   {% endblocktrans %}
 {% endblock %}
 
 {% block message %}
   <p>
-    {% blocktrans with device=device_bay.installed_device %}
+    {% blocktrans trimmed with device=device_bay.installed_device %}
       Are you sure you want to remove <strong>{{ device }}</strong> from <strong>{{ device_bay }}</strong>?
     {% endblocktrans %}
   </p>
