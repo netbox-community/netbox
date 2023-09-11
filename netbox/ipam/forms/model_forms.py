@@ -215,6 +215,9 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         selector=True,
+        query_params={
+            'site_id': '$site',
+        },
         label=_('VLAN'),
     )
     role = DynamicModelChoiceField(

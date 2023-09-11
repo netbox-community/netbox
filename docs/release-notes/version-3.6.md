@@ -2,6 +2,10 @@
 
 ## v3.6.2 (FUTURE)
 
+### Bug Fixes
+
+* [#13721](https://github.com/netbox-community/netbox/issues/13721) - Filter VLAN choices by selected site (if any) when creating a prefix
+
 ---
 
 ## v3.6.1 (2023-09-06)
