@@ -545,15 +545,21 @@ class CablePath(models.Model):
                 break
             assert all(type(link) in (Cable, WirelessLink) for link in links)
 
-            # Step 3: Record the links
+            # Step 3: Record asymmetric paths as split
+            not_connected_terminations = [termination.link for termination in terminations if termination.link is None]
+            if len(not_connected_terminations) > 0:
+                is_complete = False
+                is_split = True
+
+            # Step 4: Record the links
             path.append([object_to_path_node(link) for link in links])
 
-            # Step 4: Update the path status if a link is not connected
+            # Step 5: Update the path status if a link is not connected
             links_status = [link.status for link in links if link.status != LinkStatusChoices.STATUS_CONNECTED]
             if any([status != LinkStatusChoices.STATUS_CONNECTED for status in links_status]):
                 is_active = False
 
-            # Step 5: Determine the far-end terminations
+            # Step 6: Determine the far-end terminations
             if isinstance(links[0], Cable):
                 termination_type = ContentType.objects.get_for_model(terminations[0])
                 local_cable_terminations = CableTermination.objects.filter(
@@ -580,12 +586,12 @@ class CablePath(models.Model):
                 is_split = True
                 break
 
-            # Step 6: Record the far-end termination object(s)
+            # Step 7: Record the far-end termination object(s)
             path.append([
                 object_to_path_node(t) for t in remote_terminations if t is not None
             ])
 
-            # Step 7: Determine the "next hop" terminations, if applicable
+            # Step 8: Determine the "next hop" terminations, if applicable
             if not remote_terminations:
                 break
 
@@ -665,6 +671,8 @@ class CablePath(models.Model):
                 # Check for non-symmetric path
                 if all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
                     is_complete = True
+                elif len(remote_terminations) == 0:
+                    is_complete = False
                 else:
                     # Unsupported topology, mark as split and exit
                     is_complete = False
