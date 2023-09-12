@@ -6,7 +6,7 @@ import utilities.fields
 
 def recalculate_devicetype_template_counts(apps, schema_editor):
     DeviceType = apps.get_model("dcim", "DeviceType")
-    device_types = list(DeviceType.objects.all().annotate(
+    device_types = DeviceType.objects.all().annotate(
         _console_port_template_count=Count('consoleporttemplates', distinct=True),
         _console_server_port_template_count=Count('consoleserverporttemplates', distinct=True),
         _power_port_template_count=Count('powerporttemplates', distinct=True),
@@ -17,7 +17,7 @@ def recalculate_devicetype_template_counts(apps, schema_editor):
         _device_bay_template_count=Count('devicebaytemplates', distinct=True),
         _module_bay_template_count=Count('modulebaytemplates', distinct=True),
         _inventory_item_template_count=Count('inventoryitemtemplates', distinct=True),
-    ))
+    )
 
     for devicetype in device_types:
         devicetype.console_port_template_count = devicetype._console_port_template_count
@@ -42,7 +42,7 @@ def recalculate_devicetype_template_counts(apps, schema_editor):
         'device_bay_template_count',
         'module_bay_template_count',
         'inventory_item_template_count',
-    ])
+    ], batch_size=100)
 
 
 class Migration(migrations.Migration):
