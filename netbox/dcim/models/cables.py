@@ -544,6 +544,7 @@ class CablePath(models.Model):
                 # Otherwise, halt the trace if no link exists
                 break
             assert all(type(link) in (Cable, WirelessLink) for link in links)
+            assert all(isinstance(link, type(links[0])) for link in links)
 
             # Step 3: Record asymmetric paths as split
             not_connected_terminations = [termination.link for termination in terminations if termination.link is None]
