@@ -11,7 +11,7 @@ from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
-from utilities.choices import ImportFormatChoices
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from .base import ModelTestCase
 from .utils import disable_warnings, post_data
 
@@ -580,7 +580,8 @@ class ViewTestCases:
         def test_bulk_import_objects_without_permission(self):
             data = {
                 'data': self._get_csv_data(),
-                'format': 'csv',
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
 
             # Test GET without permission
@@ -597,7 +598,8 @@ class ViewTestCases:
             initial_count = self._get_queryset().count()
             data = {
                 'data': self._get_csv_data(),
-                'format': 'csv',
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
 
             # Assign model-level permission
@@ -626,6 +628,7 @@ class ViewTestCases:
             data = {
                 'format': ImportFormatChoices.CSV,
                 'data': csv_data,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
 
             # Assign model-level permission
@@ -658,7 +661,8 @@ class ViewTestCases:
             initial_count = self._get_queryset().count()
             data = {
                 'data': self._get_csv_data(),
-                'format': 'csv',
+                'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
 
             # Assign constrained permission

@@ -12,6 +12,7 @@ from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
@@ -1176,7 +1177,11 @@ class CustomFieldImportTest(TestCase):
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {'data': csv_data, 'format': 'csv'})
+        response = self.client.post(reverse('dcim:site_import'), {
+            'data': csv_data,
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Site.objects.count(), 3)
 

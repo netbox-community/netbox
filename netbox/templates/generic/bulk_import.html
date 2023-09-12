@@ -45,6 +45,7 @@ Context:
             <input type="hidden" name="import_method" value="direct" />
             {% render_field form.data %}
             {% render_field form.format %}
+            {% render_field form.csv_delimiter %}
             <div class="form-group">
               <div class="col col-md-12 text-end">
                 <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
