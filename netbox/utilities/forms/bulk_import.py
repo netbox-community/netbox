@@ -7,10 +7,10 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from core.forms.mixins import SyncedDataMixin
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
+from utilities.constants import CSV_DELIMITERS
 from utilities.forms.utils import parse_csv
 from .mixins import BootstrapMixin
-from ..choices import ImportMethodChoices
 
 
 class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
@@ -92,7 +92,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
                 return ImportFormatChoices.YAML
             # Look for any of the CSV delimiters in the first line (ignoring the default 'auto' choice)
             first_line = data.split('\n', 1)[0]
-            csv_delimiters = CSVDelimiterChoices.values()[1:]
+            csv_delimiters = CSV_DELIMITERS.values()
             if any(x in first_line for x in csv_delimiters):
                 return ImportFormatChoices.CSV
         except IndexError:
@@ -109,7 +109,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         if delimiter == CSVDelimiterChoices.AUTO:
             # This uses a rough heuristic to detect the CSV dialect based on the presence of supported delimiting
             # characters. If the data is malformed, we'll fall back to the default Excel dialect.
-            delimiters = ''.join(CSVDelimiterChoices.values()[1:])  # Skip "auto"
+            delimiters = ''.join(CSV_DELIMITERS.values())
             try:
                 dialect = csv.Sniffer().sniff(data.strip(), delimiters=delimiters)
             except csv.Error:
