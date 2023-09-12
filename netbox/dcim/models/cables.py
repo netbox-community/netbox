@@ -551,8 +551,12 @@ class CablePath(models.Model):
                 is_complete = False
                 is_split = True
 
-            # Step 4: Record the links
-            path.append([object_to_path_node(link) for link in links])
+            # Step 4: Record the links, keeping cables in order to allow for SVG rendering
+            cables = []
+            for link in links:
+                if object_to_path_node(link) not in cables:
+                    cables.append(object_to_path_node(link))
+            path.append(cables)
 
             # Step 5: Update the path status if a link is not connected
             links_status = [link.status for link in links if link.status != LinkStatusChoices.STATUS_CONNECTED]
@@ -782,3 +786,15 @@ class CablePath(models.Model):
             return [
                 ct.get_peer_termination() for ct in nodes
             ]
+
+    def get_asymmetric_nodes(self):
+        """
+        Return all available next segments in a split cable path.
+        """
+        from circuits.models import CircuitTermination
+        asymmetric_nodes = []
+        for nodes in self.path_objects:
+            if type(nodes[0]) in [RearPort, FrontPort, CircuitTermination]:
+                asymmetric_nodes.extend([node for node in nodes if node.link is None])
+
+        return asymmetric_nodes

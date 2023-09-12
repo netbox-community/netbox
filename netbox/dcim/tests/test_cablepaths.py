@@ -50,9 +50,7 @@ class CablePathTestCase(TestCase):
                 path.append([object_to_path_node(node) for node in step])
             else:
                 path.append([object_to_path_node(step)])
-
-        cablepath = CablePath.objects.filter(path=path, **kwargs).first()
-        return cablepath
+        return CablePath.objects.filter(path=path, **kwargs).first()
 
     def assertPathExists(self, nodes, **kwargs):
         """
@@ -333,7 +331,7 @@ class CablePathTestCase(TestCase):
             is_active=True
         )
         path2 = self.assertPathExists(
-            ((interface3, interface4), (cable1, cable1), (interface1, interface2)),
+            ((interface3, interface4), cable1, (interface1, interface2)),
             is_complete=True,
             is_active=True
         )
