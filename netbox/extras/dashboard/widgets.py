@@ -122,11 +122,12 @@ class DashboardWidget:
         Return the appropriate foreground (text) color for the widget's color.
         """
         if self.color in (
-            ButtonColorChoices.WHITE,
+            ButtonColorChoices.CYAN,
             ButtonColorChoices.GRAY,
             ButtonColorChoices.GREY,
+            ButtonColorChoices.TEAL,
+            ButtonColorChoices.WHITE,
             ButtonColorChoices.YELLOW,
-            ButtonColorChoices.CYAN,
         ):
             return ButtonColorChoices.BLACK
         return ButtonColorChoices.WHITE
