@@ -16,6 +16,7 @@ from django.utils.translation import gettext as _
 
 from extras.choices import BookmarkOrderingChoices
 from extras.utils import FeatureQuery
+from utilities.choices import ButtonColorChoices
 from utilities.forms import BootstrapMixin
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
@@ -114,6 +115,22 @@ class DashboardWidget:
     @property
     def name(self):
         return f'{self.__class__.__module__.split(".")[0]}.{self.__class__.__name__}'
+
+    @property
+    def fg_color(self):
+        """
+        Return the appropriate foreground (text) color for the widget's color.
+        """
+        if self.color in (
+            ButtonColorChoices.CYAN,
+            ButtonColorChoices.GRAY,
+            ButtonColorChoices.GREY,
+            ButtonColorChoices.TEAL,
+            ButtonColorChoices.WHITE,
+            ButtonColorChoices.YELLOW,
+        ):
+            return ButtonColorChoices.BLACK
+        return ButtonColorChoices.WHITE
 
     @property
     def form_data(self):
