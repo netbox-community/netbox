@@ -148,49 +148,18 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 !!! warning
     Authentication will fail if the groups (the distinguished names) do not exist in the LDAP directory.
 
-## Troubleshooting LDAP
-
-`systemctl restart netbox` restarts the NetBox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
-
-For troubleshooting LDAP user/group queries, add or merge the following [logging](../configuration/system.md#logging) configuration to `configuration.py`:
-
-```python
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'handlers': {
-        'netbox_auth_log': {
-            'level': 'DEBUG',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': '/opt/netbox/local/logs/django-ldap-debug.log',
-            'maxBytes': 1024 * 500,
-            'backupCount': 5,
-        },
-    },
-    'loggers': {
-        'django_auth_ldap': {
-            'handlers': ['netbox_auth_log'],
-            'level': 'DEBUG',
-        },
-    },
-}
-```
-
-Ensure the file and path specified in logfile exist and are writable and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.
-
-
 ## Authenticating with Active Directory
-### Authentication with or without UPN suffix (@fqdn.tld)
 
-Integrating Active Directory for authentication can be a bit challenging. Handling different login formats is an edge case you can easily resolve. This solution will allow users to log in either using their full UPN or their username alone. Therefore, we need to filter the DN according to either the `sAMAccountName` or the `userPrincipalName`. The following configuration options will allow your users to enter their usernames in the format `username` or `username@domain.tld`.
+Integrating Active Directory for authentication can be a bit challenging as it may require handling different login formats. This solution will allow users to log in either using their full User Principal Name (UPN) or their username alone, by filtering the DN according to either the `sAMAccountName` or the `userPrincipalName`. The following configuration options will allow your users to enter their usernames in the format `username` or `username@domain.tld`.
 
 Just as before, the configuration options are defined in the file ldap_config.py. First, modify the `AUTH_LDAP_USER_SEARCH` option to match the following:
 
 ```python
-AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=Users,dc=example,dc=com",
-                                    ldap.SCOPE_SUBTREE,
-                                    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))",
-                                  )
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=Users,dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))"
+)
 ```
 
 In addition, `AUTH_LDAP_USER_DN_TEMPLATE` should be set to `None` as described in the previous sections. Next, modify `AUTH_LDAP_USER_ATTR_MAP` to match the following:
@@ -210,9 +179,9 @@ Finally, we need to add one more configuration option, `AUTH_LDAP_USER_QUERY_FIE
 AUTH_LDAP_USER_QUERY_FIELD = "username"
 ```
 
-With these configuration options, your users will be able to login either with or without the UPN suffix.
+With these configuration options, your users will be able to log in either with or without the UPN suffix.
 
-### Sample `ldap_config.py` for Active Directory with LDAP Server Verification
+### Example Configuration
 
 !!! info
     This configuration is intended to serve as a template, but may need to be modified in accordance with your environment.
@@ -250,10 +219,11 @@ LDAP_CA_CERT_FILE = '/path/to/example-CA.crt'
 
 # This search matches users with the sAMAccountName equal to the provided username. This is required if the user's
 # username is not in their DN (Active Directory).
-AUTH_LDAP_USER_SEARCH = LDAPSearch("ou=Users,dc=example,dc=com",
-                                    ldap.SCOPE_SUBTREE,
-                                    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))",
-                                  )
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=Users,dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(|(userPrincipalName=%(user)s)(sAMAccountName=%(user)s))"
+)
 
 # If a user's DN is producible from their username, we don't need to search.
 AUTH_LDAP_USER_DN_TEMPLATE = None
@@ -270,8 +240,11 @@ AUTH_LDAP_USER_QUERY_FIELD = "username"
 
 # This search ought to return all groups to which the user belongs. django_auth_ldap uses this to determine group
 # hierarchy.
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("dc=example,dc=com", ldap.SCOPE_SUBTREE,
-                                    "(objectClass=group)")
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=group)"
+)
 AUTH_LDAP_GROUP_TYPE = NestedGroupOfNamesType()
 
 # Define a group required to login.
@@ -294,3 +267,33 @@ AUTH_LDAP_FIND_GROUP_PERMS = True
 AUTH_LDAP_CACHE_TIMEOUT = 3600
 AUTH_LDAP_ALWAYS_UPDATE_USER = True
 ```
+
+## Troubleshooting LDAP
+
+`systemctl restart netbox` restarts the NetBox service, and initiates any changes made to `ldap_config.py`. If there are syntax errors present, the NetBox process will not spawn an instance, and errors should be logged to `/var/log/messages`.
+
+For troubleshooting LDAP user/group queries, add or merge the following [logging](../configuration/system.md#logging) configuration to `configuration.py`:
+
+```python
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'netbox_auth_log': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '/opt/netbox/local/logs/django-ldap-debug.log',
+            'maxBytes': 1024 * 500,
+            'backupCount': 5,
+        },
+    },
+    'loggers': {
+        'django_auth_ldap': {
+            'handlers': ['netbox_auth_log'],
+            'level': 'DEBUG',
+        },
+    },
+}
+```
+
+Ensure the file and path specified in logfile exist and are writable and executable by the application service account. Restart the netbox service and attempt to log into the site to trigger log entries to this file.
