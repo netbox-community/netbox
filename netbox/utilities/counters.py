@@ -1,5 +1,5 @@
 from django.apps import apps
-from django.db.models import F
+from django.db.models import F, Count, OuterRef, Subquery
 from django.db.models.signals import post_delete, post_save
 
 from netbox.registry import registry
@@ -21,6 +21,24 @@ def update_counter(model, pk, counter_name, value):
     model.objects.filter(pk=pk).update(
         **{counter_name: F(counter_name) + value}
     )
+
+
+def update_counts(model, field_name, related_query):
+    """
+    Perform a bulk update for the given model and counter field. For example,
+
+        update_counts(Device, '_interface_count', 'interfaces')
+
+    will effectively set
+
+        Device.objects.update(_interface_count=Count('interfaces'))
+    """
+    subquery = Subquery(
+        model.objects.filter(pk=OuterRef('pk')).annotate(_count=Count(related_query)).values('_count')
+    )
+    return model.objects.update(**{
+        field_name: subquery
+    })
 
 
 #

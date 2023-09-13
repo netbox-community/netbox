@@ -1,26 +1,8 @@
 from django.db import migrations
 from django.db.models import Count
-from django.db.models import Count, OuterRef, Subquery
 
 import utilities.fields
-
-
-def update_counts(model, field_name, related_query):
-    """
-    Perform a bulk update for the given model and counter field. For example,
-
-        update_counts(Device, '_interface_count', 'interfaces')
-
-    will effectively set
-
-        Device.objects.update(_interface_count=Count('interfaces'))
-    """
-    subquery = Subquery(
-        model.objects.filter(pk=OuterRef('pk')).annotate(_count=Count(related_query)).values('_count')
-    )
-    return model.objects.update(**{
-        field_name: subquery
-    })
+from utilities.counters import update_counts
 
 
 def recalculate_devicetype_template_counts(apps, schema_editor):
