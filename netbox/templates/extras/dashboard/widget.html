@@ -9,14 +9,16 @@
     gs-id="{{ widget.id }}"
 >
   <div class="card grid-stack-item-content">
-    <div class="card-header text-center text-light bg-{% if widget.color %}{{ widget.color }}{% else %}secondary{% endif %} p-1">
+    <div class="card-header text-center text-{{ widget.fg_color }} bg-{{ widget.color|default:"secondary" }} p-1">
       <div class="float-start ps-1">
         <a href="#"
           hx-get="{% url 'extras:dashboardwidget_config' id=widget.id %}"
           hx-target="#htmx-modal-content"
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
-        ><i class="mdi mdi-cog text-gray"></i></a>
+        >
+          <i class="mdi mdi-cog text-{{ widget.fg_color }}"></i>
+        </a>
       </div>
       <div class="float-end pe-1">
         <a href="#"
@@ -24,7 +26,9 @@
           hx-target="#htmx-modal-content"
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
-        ><i class="mdi mdi-close text-gray"></i></a>
+        >
+          <i class="mdi mdi-close text-{{ widget.fg_color }}"></i>
+        </a>
       </div>
       {% if widget.title %}
         <strong>{{ widget.title }}</strong>
