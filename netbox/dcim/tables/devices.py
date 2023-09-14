@@ -872,7 +872,8 @@ class ModuleBayTable(DeviceComponentTable):
     )
     module_status = columns.TemplateColumn(
         verbose_name=_('Module Status'),
-        template_code=MODULEBAY_STATUS
+        template_code=MODULEBAY_STATUS,
+        orderable=False
     )
 
     class Meta(DeviceComponentTable.Meta):
