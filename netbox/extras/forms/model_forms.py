@@ -327,7 +327,7 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
         required=False
     )
     tenant_groups = DynamicModelMultipleChoiceField(
-        label=_('Tenat groups'),
+        label=_('Tenant groups'),
         queryset=TenantGroup.objects.all(),
         required=False
     )
