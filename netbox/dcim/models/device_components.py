@@ -1246,6 +1246,11 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
                 fields=('device', 'parent', 'name'),
                 name='%(app_label)s_%(class)s_unique_device_parent_name'
             ),
+            models.UniqueConstraint(
+                fields=('device', 'name'),
+                name='%(app_label)s_%(class)s_unique_device_name',
+                condition=Q(parent__isnull=True)
+            ),
         )
         verbose_name = _('inventory item')
         verbose_name_plural = _('inventory items')
