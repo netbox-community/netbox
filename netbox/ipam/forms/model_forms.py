@@ -731,7 +731,7 @@ class ServiceCreateForm(ServiceForm):
     class Meta(ServiceForm.Meta):
         fields = [
             'device', 'virtual_machine', 'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
-            'tags',
+            'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):
