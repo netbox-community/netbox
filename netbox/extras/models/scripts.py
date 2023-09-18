@@ -67,11 +67,12 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
         scripts = {}
         ordered = getattr(module, 'script_order', [])
+        hide = getattr(module, 'script_hide', [])
 
         for cls in ordered:
             scripts[_get_name(cls)] = cls
         for name, cls in inspect.getmembers(module, is_script):
-            if cls not in ordered:
+            if cls not in ordered and cls not in hide:
                 scripts[_get_name(cls)] = cls
 
         return scripts
