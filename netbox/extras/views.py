@@ -467,11 +467,7 @@ class TagBulkDeleteView(generic.BulkDeleteView):
 #
 
 class ConfigContextListView(generic.ObjectListView):
-    queryset = ConfigContext.objects.all().prefetch_related(
-        'regions', 'site_groups', 'sites', 'locations', 'device_types',
-        'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-        'tenant_groups', 'tenants', 'tags',
-    )
+    queryset = ConfigContext.objects.all()
     filterset = filtersets.ConfigContextFilterSet
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
@@ -519,20 +515,12 @@ class ConfigContextView(generic.ObjectView):
 
 @register_model_view(ConfigContext, 'edit')
 class ConfigContextEditView(generic.ObjectEditView):
-    queryset = ConfigContext.objects.all().prefetch_related(
-        'regions', 'site_groups', 'sites', 'locations', 'device_types',
-        'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-        'tenant_groups', 'tenants', 'tags',
-    )
+    queryset = ConfigContext.objects.all()
     form = forms.ConfigContextForm
 
 
 class ConfigContextBulkEditView(generic.BulkEditView):
-    queryset = ConfigContext.objects.all().prefetch_related(
-        'regions', 'site_groups', 'sites', 'locations', 'device_types',
-        'roles', 'platforms', 'cluster_types', 'cluster_groups', 'clusters',
-        'tenant_groups', 'tenants', 'tags',
-    )
+    queryset = ConfigContext.objects.all()
     filterset = filtersets.ConfigContextFilterSet
     table = tables.ConfigContextTable
     form = forms.ConfigContextBulkEditForm

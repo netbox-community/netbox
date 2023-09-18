@@ -89,7 +89,7 @@ class ComponentTemplateModel(ChangeLoggedModel, TrackingModelMixin):
         super().__init__(*args, **kwargs)
 
         # Cache the original DeviceType ID for reference under clean()
-        self._original_device_type = self.device_type_id
+        self._original_device_type = self.__dict__.get('device_type_id')
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
