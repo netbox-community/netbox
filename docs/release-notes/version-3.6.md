@@ -14,7 +14,11 @@
 * [#13706](https://github.com/netbox-community/netbox/issues/13706) - Restore extra filters dropdown on device interfaces list
 * [#13721](https://github.com/netbox-community/netbox/issues/13721) - Filter VLAN choices by selected site (if any) when creating a prefix
 * [#13727](https://github.com/netbox-community/netbox/issues/13727) - Fix exception when viewing rendered config for VM without a role assigned
+* [#13741](https://github.com/netbox-community/netbox/issues/13741) - Enforce unique names for inventory items with no parent item
+* [#13745](https://github.com/netbox-community/netbox/issues/13745) - Optimize counter field migrations for large databases
+* [#13756](https://github.com/netbox-community/netbox/issues/13756) - Fix exception when sorting module bay list by installed module status
 * [#13767](https://github.com/netbox-community/netbox/issues/13767) - Fix support for comments when creating a new service via web UI
+* [#13782](https://github.com/netbox-community/netbox/issues/13782) - Fix tag exclusion support for contact assignments
 * [#13791](https://github.com/netbox-community/netbox/issues/13791) - Preserve whitespace in values when performing bulk rename of objects via web UI
 
 ---
