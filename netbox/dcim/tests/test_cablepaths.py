@@ -25,7 +25,6 @@ class CablePathTestCase(TestCase):
 
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module')
         role = DeviceRole.objects.create(name='Device Role', slug='device-role')
         cls.device = Device.objects.create(site=cls.site, device_type=device_type, role=role, name='Test Device')
 
@@ -1790,11 +1789,6 @@ class CablePathTestCase(TestCase):
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]
         [IF2] --C5-- [FP3] [RP3] --C4-- [RP4] [FP4]
         """
-        module_type = ModuleType.objects.get(model='Test Module')
-        module_bay1 = ModuleBay.objects.create(device=self.device, name='Module Bay 1', position='1')
-        module_bay2 = ModuleBay.objects.create(device=self.device, name='Module Bay 2', position='2')
-        module_bay3 = ModuleBay.objects.create(device=self.device, name='Module Bay 3', position='3')
-        module_bay4 = ModuleBay.objects.create(device=self.device, name='Module Bay 4', position='4')
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
