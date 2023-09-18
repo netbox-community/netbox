@@ -2,11 +2,20 @@
 
 ## v3.6.2 (FUTURE)
 
+### Enhancements
+
+* [#13563](https://github.com/netbox-community/netbox/issues/13563) - Add support for other delimiting characters when using CSV import
+
 ### Bug Fixes
 
+* [#11209](https://github.com/netbox-community/netbox/issues/11209) - Hide available IP/VLAN listing when sorting under a parent prefix or VLAN range
+* [#12219](https://github.com/netbox-community/netbox/issues/12219) - Fix dashboard widget heading contrast under dark mode
 * [#13701](https://github.com/netbox-community/netbox/issues/13701) - Correct display of power feed legs under device view
 * [#13706](https://github.com/netbox-community/netbox/issues/13706) - Restore extra filters dropdown on device interfaces list
 * [#13721](https://github.com/netbox-community/netbox/issues/13721) - Filter VLAN choices by selected site (if any) when creating a prefix
+* [#13727](https://github.com/netbox-community/netbox/issues/13727) - Fix exception when viewing rendered config for VM without a role assigned
+* [#13767](https://github.com/netbox-community/netbox/issues/13767) - Fix support for comments when creating a new service via web UI
+* [#13791](https://github.com/netbox-community/netbox/issues/13791) - Preserve whitespace in values when performing bulk rename of objects via web UI
 
 ---
 
@@ -33,7 +42,7 @@
 * [#13657](https://github.com/netbox-community/netbox/issues/13657) - Fix decoding of data file content
 * [#13674](https://github.com/netbox-community/netbox/issues/13674) - Fix retrieving individual report via REST API
 * [#13682](https://github.com/netbox-community/netbox/issues/13682) - Fix error message returned when validation of custom field default value fails
-* [#13684](https://github.com/netbox-community/netbox/issues/13684) - Enable modying the configuration when maintenance mode is enabled
+* [#13684](https://github.com/netbox-community/netbox/issues/13684) - Enable modifying the configuration when maintenance mode is enabled
 
 ---
 
