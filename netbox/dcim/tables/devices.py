@@ -871,9 +871,9 @@ class ModuleBayTable(DeviceComponentTable):
         url_name='dcim:modulebay_list'
     )
     module_status = columns.TemplateColumn(
-        verbose_name=_('Module Status'),
+        accessor=tables.A('installed_module__status'),
         template_code=MODULEBAY_STATUS,
-        orderable=False
+        verbose_name=_('Module Status')
     )
 
     class Meta(DeviceComponentTable.Meta):
