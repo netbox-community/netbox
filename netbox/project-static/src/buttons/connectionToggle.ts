@@ -19,26 +19,50 @@ function toggleConnection(element: HTMLButtonElement): void {
         createToast('danger', 'Error', res.error).show();
         return;
       } else {
-        // Get the button's row to change its styles.
-        const row = element.parentElement?.parentElement as HTMLTableRowElement;
         // Get the button's icon to change its CSS class.
         const icon = element.querySelector('i.mdi, span.mdi') as HTMLSpanElement;
         if (connected) {
-          row.classList.remove('success');
-          row.classList.add('info');
           element.classList.remove('connected', 'btn-warning');
           element.classList.add('btn-info');
           element.title = 'Mark Installed';
           icon.classList.remove('mdi-lan-disconnect');
           icon.classList.add('mdi-lan-connect');
         } else {
-          row.classList.remove('info');
-          row.classList.add('success');
           element.classList.remove('btn-success');
           element.classList.add('connected', 'btn-warning');
-          element.title = 'Mark Installed';
+          element.title = 'Mark Planned';
           icon.classList.remove('mdi-lan-connect');
           icon.classList.add('mdi-lan-disconnect');
+        }
+
+        // Get the button's row to change its styles.
+        const row = element.parentElement?.parentElement as HTMLTableRowElement;
+
+        // Get the previous state of the cable so we know what CSS class was there before
+        const wasConnected = row.classList.contains('green');
+        const wasPlanned = row.classList.contains('blue');
+        const wasDecommissioning = row.classList.contains('yellow');
+
+        // Remove the appropriate CSS classes
+        if (wasConnected) {
+          row.classList.remove('green');
+        }
+        if (wasPlanned) {
+          row.classList.remove('blue');
+        }
+        if (wasDecommissioning) {
+          row.classList.remove('yellow');
+        }
+
+        // Only add a new CSS class if we removed an old one! Not removing an old CSS class
+        // can happen if the interface is disabled. In that case the row colour should be
+        // red no matter what, so don't touch it to add a new one.
+        if (wasConnected || wasPlanned || wasDecommissioning) {
+          if (status == 'connected') {
+            row.classList.add('green'); // connected
+          } else {
+            row.classList.add('blue'); // planned
+          }
         }
       }
     });
