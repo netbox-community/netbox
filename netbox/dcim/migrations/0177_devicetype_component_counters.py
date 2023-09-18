@@ -2,47 +2,22 @@ from django.db import migrations
 from django.db.models import Count
 
 import utilities.fields
+from utilities.counters import update_counts
 
 
 def recalculate_devicetype_template_counts(apps, schema_editor):
     DeviceType = apps.get_model("dcim", "DeviceType")
-    device_types = list(DeviceType.objects.all().annotate(
-        _console_port_template_count=Count('consoleporttemplates', distinct=True),
-        _console_server_port_template_count=Count('consoleserverporttemplates', distinct=True),
-        _power_port_template_count=Count('powerporttemplates', distinct=True),
-        _power_outlet_template_count=Count('poweroutlettemplates', distinct=True),
-        _interface_template_count=Count('interfacetemplates', distinct=True),
-        _front_port_template_count=Count('frontporttemplates', distinct=True),
-        _rear_port_template_count=Count('rearporttemplates', distinct=True),
-        _device_bay_template_count=Count('devicebaytemplates', distinct=True),
-        _module_bay_template_count=Count('modulebaytemplates', distinct=True),
-        _inventory_item_template_count=Count('inventoryitemtemplates', distinct=True),
-    ))
 
-    for devicetype in device_types:
-        devicetype.console_port_template_count = devicetype._console_port_template_count
-        devicetype.console_server_port_template_count = devicetype._console_server_port_template_count
-        devicetype.power_port_template_count = devicetype._power_port_template_count
-        devicetype.power_outlet_template_count = devicetype._power_outlet_template_count
-        devicetype.interface_template_count = devicetype._interface_template_count
-        devicetype.front_port_template_count = devicetype._front_port_template_count
-        devicetype.rear_port_template_count = devicetype._rear_port_template_count
-        devicetype.device_bay_template_count = devicetype._device_bay_template_count
-        devicetype.module_bay_template_count = devicetype._module_bay_template_count
-        devicetype.inventory_item_template_count = devicetype._inventory_item_template_count
-
-    DeviceType.objects.bulk_update(device_types, [
-        'console_port_template_count',
-        'console_server_port_template_count',
-        'power_port_template_count',
-        'power_outlet_template_count',
-        'interface_template_count',
-        'front_port_template_count',
-        'rear_port_template_count',
-        'device_bay_template_count',
-        'module_bay_template_count',
-        'inventory_item_template_count',
-    ])
+    update_counts(DeviceType, 'console_port_template_count', 'consoleporttemplates')
+    update_counts(DeviceType, 'console_server_port_template_count', 'consoleserverporttemplates')
+    update_counts(DeviceType, 'power_port_template_count', 'powerporttemplates')
+    update_counts(DeviceType, 'power_outlet_template_count', 'poweroutlettemplates')
+    update_counts(DeviceType, 'interface_template_count', 'interfacetemplates')
+    update_counts(DeviceType, 'front_port_template_count', 'frontporttemplates')
+    update_counts(DeviceType, 'rear_port_template_count', 'rearporttemplates')
+    update_counts(DeviceType, 'device_bay_template_count', 'devicebaytemplates')
+    update_counts(DeviceType, 'module_bay_template_count', 'modulebaytemplates')
+    update_counts(DeviceType, 'inventory_item_template_count', 'inventoryitemtemplates')
 
 
 class Migration(migrations.Migration):
