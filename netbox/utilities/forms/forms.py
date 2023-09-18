@@ -40,8 +40,11 @@ class BulkRenameForm(BootstrapMixin, forms.Form):
     """
     An extendable form to be used for renaming objects in bulk.
     """
-    find = forms.CharField()
+    find = forms.CharField(
+        strip=False
+    )
     replace = forms.CharField(
+        strip=False,
         required=False
     )
     use_regex = forms.BooleanField(
