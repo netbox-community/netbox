@@ -1,4 +1,5 @@
 import decimal
+import markdown
 import re
 from datetime import datetime, date
 
@@ -498,7 +499,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         field.model = self
         field.label = str(self)
         if self.description:
-            field.help_text = escape(self.description)
+            field.help_text = markdown.markdown(escape(self.description))
 
         # Annotate read-only fields
         if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
