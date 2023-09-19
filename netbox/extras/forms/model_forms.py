@@ -531,6 +531,15 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMe
                 if type(value) in (tuple, list):
                     value = ', '.join(value)
                 self.fields[param.name].initial = value
+
+                if param.name == 'CUSTOM_VALIDATORS':
+                    # custom validators can be either dict or functions
+                    try:
+                        json.dumps(value)
+                    except TypeError:
+                        self.fields[param.name].initial = None
+                        self.fields[param.name].disabled = True
+
             if is_static:
                 self.fields[param.name].disabled = True
 
