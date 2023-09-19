@@ -520,7 +520,7 @@ class CablePath(models.Model):
 
             # All mid-span terminations must all be attached to the same device
             if not isinstance(terminations[0], PathEndpoint):
-                assert all(t.device == terminations[0].device for t in terminations[1:])
+                assert all(t.parent == terminations[0].parent for t in terminations[1:])
 
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)

@@ -32,6 +32,8 @@ class Node(Hyperlink):
         color: Box fill color (RRGGBB format)
         labels: An iterable of text strings. Each label will render on a new line within the box.
         radius: Box corner radius, for rounded corners (default: 10)
+        object: A copy of the object to allow reference when drawing cables to determine which cables are connected to
+                which terminations.
     """
 
     object = None
@@ -39,6 +41,7 @@ class Node(Hyperlink):
     def __init__(self, position, width, url, color, labels, radius=10, object=object, **extra):
         super(Node, self).__init__(href=url, target='_parent', **extra)
 
+        # Save object for reference by cable systems
         self.object = object
 
         x, y = position
@@ -246,15 +249,31 @@ class CableTraceSVG:
         ))
 
     def draw_cable(self, cable, terminations, cable_count=0):
+        """
+        Draw a single cable.  Terminations and cable count are passed for determining position and padding
+
+        :param cable: The cable to draw
+        :param terminations: List of terminations to build positioning data off of
+        :param cable_count: Count of all cables on this layer for determining whether to collapse description into a
+                            tooltip.
+        """
+
+        # If the cable count is higher than 2, collapse the description into a tooltip
         if cable_count > 2:
+            # Use the cable __str__ function to denote the cable
             labels = [f'{cable}']
+
+            # Include the label and the status description in the tooltip
             description = [
                 f'Cable {cable}',
                 cable.get_status_display()
             ]
+
             if cable.type:
+                # Include the cable type in the tooltip
                 description.append(cable.get_type_display())
             if cable.length and cable.length_unit:
+                # Include the cable length in the tooltip
                 description.append(f'{cable.length} {cable.get_length_unit_display()}')
         else:
             labels = [
@@ -265,13 +284,20 @@ class CableTraceSVG:
             if cable.type:
                 labels.append(cable.get_type_display())
             if cable.length and cable.length_unit:
+                # Include the cable length in the tooltip
                 labels.append(f'{cable.length} {cable.get_length_unit_display()}')
 
+        # If there is only one termination, center on that termination
+        # Otherwise average the center across the terminations
         if len(terminations) == 1:
             center = terminations[0].bottom_center[0]
         else:
+            # Get a list of termination centers
             termination_centers = [term.bottom_center[0] for term in terminations]
+            # Average the centers
             center = sum(termination_centers) / len(termination_centers)
+
+        # Create the connector
         connector = Connector(
             start=(center, self.cursor),
             color=cable.color or '000000',
@@ -280,6 +306,7 @@ class CableTraceSVG:
             description=description
         )
 
+        # Set the cursor position
         self.cursor += connector.height
 
         return connector
@@ -374,10 +401,15 @@ class CableTraceSVG:
                 for link in links:
                     # Cable
                     if type(link) is Cable and not link_cables.get(link.pk):
+                        # Reset cursor
                         self.cursor = cursor
+                        # Generate a list of terminations connected to this cable
                         near_end_link_terminations = [term for term in terminations if term.object.cable == link]
+                        # Draw the cable
                         cable = self.draw_cable(link, near_end_link_terminations, cable_count=len(links))
+                        # Add cable to the list of cables
                         link_cables.update({link.pk: cable})
+                        # Add cable to drawing
                         self.connectors.append(cable)
 
                         # Draw fan-ins
