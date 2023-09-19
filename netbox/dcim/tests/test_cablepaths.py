@@ -25,7 +25,6 @@ class CablePathTestCase(TestCase):
 
         manufacturer = Manufacturer.objects.create(name='Generic', slug='generic')
         device_type = DeviceType.objects.create(manufacturer=manufacturer, model='Test Device')
-        module_type = ModuleType.objects.create(manufacturer=manufacturer, model='Test Module')
         role = DeviceRole.objects.create(name='Device Role', slug='device-role')
         cls.device = Device.objects.create(site=cls.site, device_type=device_type, role=role, name='Test Device')
 
@@ -40,7 +39,6 @@ class CablePathTestCase(TestCase):
         Return a given cable path
 
         :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
-        :param is_active: Boolean indicating whether the end-to-end path is complete and active (optional)
 
         :return: The matching CablePath (if any)
         """
@@ -54,31 +52,24 @@ class CablePathTestCase(TestCase):
 
     def assertPathExists(self, nodes, **kwargs):
         """
-        Assert that a CablePath from origin to destination with a specific intermediate path exists.
+        Assert that a CablePath from origin to destination with a specific intermediate path exists. Returns the
+        first matching CablePath, if found.
 
         :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
-        :param is_active: Boolean indicating whether the end-to-end path is complete and active (optional)
-
-        :return: The matching CablePath (if any)
         """
         cablepath = self._get_cablepath(nodes, **kwargs)
         self.assertIsNotNone(cablepath, msg='CablePath not found')
 
         return cablepath
 
-    def assertPathNotExists(self, nodes, **kwargs):
+    def assertPathDoesNotExist(self, nodes, **kwargs):
         """
-        Assert that a CablePath from origin to destination with a specific intermediate path exists.
+        Assert that a specific CablePath does *not* exist.
 
         :param nodes: Iterable of steps, with each step being either a single node or a list of nodes
-        :param is_active: Boolean indicating whether the end-to-end path is complete and active (optional)
-
-        :return: The matching CablePath (if any)
         """
         cablepath = self._get_cablepath(nodes, **kwargs)
-        self.assertIsNone(cablepath, msg='CablePath not found')
-
-        return cablepath
+        self.assertIsNone(cablepath, msg='Unexpected CablePath found')
 
     def assertPathIsSet(self, origin, cablepath, msg=None):
         """
@@ -1798,11 +1789,6 @@ class CablePathTestCase(TestCase):
         [IF1] --C1-- [FP1] [RP1] --C2-- [RP2] [FP2] --C3-- [IF2]
         [IF2] --C5-- [FP3] [RP3] --C4-- [RP4] [FP4]
         """
-        module_type = ModuleType.objects.get(model='Test Module')
-        module_bay1 = ModuleBay.objects.create(device=self.device, name='Module Bay 1', position='1')
-        module_bay2 = ModuleBay.objects.create(device=self.device, name='Module Bay 2', position='2')
-        module_bay3 = ModuleBay.objects.create(device=self.device, name='Module Bay 3', position='3')
-        module_bay4 = ModuleBay.objects.create(device=self.device, name='Module Bay 4', position='4')
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')
         interface2 = Interface.objects.create(device=self.device, name='Interface 2')
         interface3 = Interface.objects.create(device=self.device, name='Interface 3')
@@ -2215,7 +2201,7 @@ class CablePathTestCase(TestCase):
         with self.assertRaises(AssertionError):
             cable1.save()
 
-        self.assertPathNotExists(
+        self.assertPathDoesNotExist(
             (
                 interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4),
                 (rearport2, rearport4), (frontport2, frontport4)
@@ -2234,7 +2220,7 @@ class CablePathTestCase(TestCase):
         with self.assertRaises(AssertionError):
             cable3.save()
 
-        self.assertPathNotExists(
+        self.assertPathDoesNotExist(
             (
                 interface2, cable3, (frontport2, frontport4), (rearport2, rearport4), (cable2, cable4),
                 (rearport1, rearport3), (frontport1, frontport2), cable1, interface1
@@ -2242,7 +2228,7 @@ class CablePathTestCase(TestCase):
             is_complete=True,
             is_active=True
         )
-        self.assertPathNotExists(
+        self.assertPathDoesNotExist(
             (
                 interface1, cable1, (frontport1, frontport3), (rearport1, rearport3), (cable2, cable4),
                 (rearport2, rearport4), (frontport2, frontport4), cable3, interface2
