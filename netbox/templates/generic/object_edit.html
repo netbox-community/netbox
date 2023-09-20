@@ -16,7 +16,7 @@ Context:
   {% if object.pk %}
     {% trans "Editing" %} {{ object|meta:"verbose_name" }} {{ object }}
   {% else %}
-    {% blocktrans with object_type=object|meta:"verbose_name" %}
+    {% blocktrans trimmed with object_type=object|meta:"verbose_name" %}
       Add a new {{ object_type }}
     {% endblocktrans %}
   {% endif %}

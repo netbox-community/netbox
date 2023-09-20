@@ -24,7 +24,7 @@ Context:
       <h4 class="alert-heading">{% trans "Confirm Bulk Deletion" %}</h4>
       <hr />
       <strong>{% trans "Warning" context "Noun" %}:</strong>
-      {% blocktrans with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
+      {% blocktrans trimmed with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
         The following operation will delete <strong>{{ count }}</strong> {{ type_plural }}. Please
         carefully review the objects to be deleted and confirm below.
       {% endblocktrans %}

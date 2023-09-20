@@ -290,8 +290,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original prefix and VRF so we can check if they have changed on post_save
-        self._prefix = self.prefix
-        self._vrf_id = self.vrf_id
+        self._prefix = self.__dict__.get('prefix')
+        self._vrf_id = self.__dict__.get('vrf_id')
 
     def __str__(self):
         return str(self.prefix)
@@ -554,25 +554,13 @@ class IPRange(PrimaryModel):
             # Check that start & end IP versions match
             if self.start_address.version != self.end_address.version:
                 raise ValidationError({
-                    'end_address': _(
-                        "Ending address version (IPv{end_address_version}) does not match starting address "
-                        "(IPv{start_address_version})"
-                    ).format(
-                        end_address_version=self.end_address.version,
-                        start_address_version=self.start_address.version
-                    )
+                    'end_address': _("Starting and ending IP address versions must match")
                 })
 
             # Check that the start & end IP prefix lengths match
             if self.start_address.prefixlen != self.end_address.prefixlen:
                 raise ValidationError({
-                    'end_address': _(
-                        "Ending address mask (/{end_address_prefixlen}) does not match starting address mask "
-                        "(/{start_address_prefixlen})"
-                    ).format(
-                        end_address_prefixlen=self.end_address.prefixlen,
-                        start_address_prefixlen=self.start_address.prefixlen
-                    )
+                    'end_address': _("Starting and ending IP address masks must match")
                 })
 
             # Check that the ending address is greater than the starting address

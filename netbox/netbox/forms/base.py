@@ -4,10 +4,11 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
-from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin
+from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 from extras.models import CustomField, Tag
-from utilities.forms import BootstrapMixin, CSVModelForm, CheckLastUpdatedMixin
+from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.mixins import BootstrapMixin, CheckLastUpdatedMixin
 
 __all__ = (
     'NetBoxModelForm',
@@ -17,7 +18,7 @@ __all__ = (
 )
 
 
-class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, forms.ModelForm):
+class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms.ModelForm):
     """
     Base form for creating & editing NetBox models. Extends Django's ModelForm to add support for custom fields.
 
@@ -26,18 +27,6 @@ class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, 
             the rendered form (optional). If not defined, the all fields will be rendered as a single section.
     """
     fieldsets = ()
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False,
-        label=_('Tags'),
-    )
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Limit tags to those applicable to the object type
-        if (ct := self._get_content_type()) and hasattr(self.fields['tags'].widget, 'add_query_param'):
-            self.fields['tags'].widget.add_query_param('for_object_type_id', ct.pk)
 
     def _get_content_type(self):
         return ContentType.objects.get_for_model(self._meta.model)

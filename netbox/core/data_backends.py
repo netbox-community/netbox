@@ -81,13 +81,13 @@ class GitBackend(DataBackend):
             required=False,
             label=_('Username'),
             widget=forms.TextInput(attrs={'class': 'form-control'}),
-            help_text=_("Only used for cloning with HTTP / HTTPS"),
+            help_text=_("Only used for cloning with HTTP(S)"),
         ),
         'password': forms.CharField(
             required=False,
             label=_('Password'),
             widget=forms.TextInput(attrs={'class': 'form-control'}),
-            help_text=_("Only used for cloning with HTTP / HTTPS"),
+            help_text=_("Only used for cloning with HTTP(S)"),
         ),
         'branch': forms.CharField(
             required=False,

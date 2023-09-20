@@ -17,7 +17,7 @@ from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
 from tenancy.models import Tenant
-from utilities.choices import ImportFormatChoices
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
 
@@ -2014,6 +2014,7 @@ class ModuleTestCase(
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
         }
 
@@ -2030,6 +2031,7 @@ class ModuleTestCase(
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
         }
 
@@ -2106,6 +2108,7 @@ class ModuleTestCase(
             'data': {
                 'data': '\n'.join(csv_data),
                 'format': ImportFormatChoices.CSV,
+                'csv_delimiter': CSVDelimiterChoices.AUTO,
             }
         }
 

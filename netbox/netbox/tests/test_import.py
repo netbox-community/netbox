@@ -3,7 +3,7 @@ from django.test import override_settings
 
 from dcim.models import *
 from users.models import ObjectPermission
-from utilities.choices import ImportFormatChoices
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import ModelViewTestCase, create_tags
 
 
@@ -16,6 +16,36 @@ class CSVImportTestCase(ModelViewTestCase):
 
     def _get_csv_data(self, csv_data):
         return '\n'.join(csv_data)
+
+    def test_invalid_headers(self):
+        """
+        Test that import form validation fails when an unknown CSV header is present.
+        """
+        self.add_permissions('dcim.add_region')
+
+        csv_data = [
+            'name,slug,INVALIDHEADER',
+            'Region 1,region-1,abc',
+            'Region 2,region-2,def',
+            'Region 3,region-3,ghi',
+        ]
+        data = {
+            'format': ImportFormatChoices.CSV,
+            'data': self._get_csv_data(csv_data),
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        }
+
+        # Form validation should fail with invalid header present
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 200)
+        self.assertEqual(Region.objects.count(), 0)
+
+        # Correct the CSV header name
+        csv_data[0] = 'name,slug,description'
+        data['data'] = self._get_csv_data(csv_data)
+
+        # Validation should succeed
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertEqual(Region.objects.count(), 3)
 
     @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
     def test_valid_tags(self):
@@ -30,6 +60,7 @@ class CSVImportTestCase(ModelViewTestCase):
         data = {
             'format': ImportFormatChoices.CSV,
             'data': self._get_csv_data(csv_data),
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
         }
 
         # Assign model-level permission

@@ -153,7 +153,11 @@
         {% include 'inc/panel_table.html' with table=related_changes_table heading='Related Changes' panel_class='default' %}
         {% if related_changes_count > related_changes_table.rows|length %}
             <div class="float-end">
-                <a href="{% url 'extras:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">{% blocktrans with count=related_changes_count|add:"1" %}See All {{ count }} Changes{% endblocktrans %}</a>
+                <a href="{% url 'extras:objectchange_list' %}?request_id={{ object.request_id }}" class="btn btn-primary">
+                  {% blocktrans trimmed with count=related_changes_count|add:"1" %}
+                    See All {{ count }} Changes
+                  {% endblocktrans %}
+                </a>
             </div>
         {% endif %}
     </div>

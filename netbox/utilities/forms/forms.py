@@ -40,8 +40,11 @@ class BulkRenameForm(BootstrapMixin, forms.Form):
     """
     An extendable form to be used for renaming objects in bulk.
     """
-    find = forms.CharField()
+    find = forms.CharField(
+        strip=False
+    )
     replace = forms.CharField(
+        strip=False,
         required=False
     )
     use_regex = forms.BooleanField(
@@ -67,22 +70,24 @@ class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.
     """
-    def __init__(self, *args, headers=None, fields=None, **kwargs):
-        headers = headers or {}
-        fields = fields or []
+    def __init__(self, *args, headers=None, **kwargs):
+        self.headers = headers or {}
         super().__init__(*args, **kwargs)
 
         # Modify the model form to accommodate any customized to_field_name properties
-        for field, to_field in headers.items():
+        for field, to_field in self.headers.items():
             if to_field is not None:
                 self.fields[field].to_field_name = to_field
 
-        # Omit any fields not specified (e.g. because the form is being used to
-        # updated rather than create objects)
-        if fields:
-            for field in list(self.fields.keys()):
-                if field not in fields:
-                    del self.fields[field]
+    def clean(self):
+        # Flag any invalid CSV headers
+        for header in self.headers:
+            if header not in self.fields:
+                raise forms.ValidationError(
+                    _("Unrecognized header: {name}").format(name=header)
+                )
+
+        return super().clean()
 
 
 class FilterForm(BootstrapMixin, forms.Form):

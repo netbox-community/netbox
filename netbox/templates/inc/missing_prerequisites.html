@@ -4,7 +4,7 @@
 <div class="alert alert-warning text-end" role="alert">
   <div class="float-start">
     <i class="mdi mdi-alert"></i>
-    {% blocktrans with model=model|meta:"verbose_name" prerequisite_model=prerequisite_model|meta:"verbose_name" %}
+    {% blocktrans trimmed with model=model|meta:"verbose_name" prerequisite_model=prerequisite_model|meta:"verbose_name" %}
       Before you can add a {{ model }} you must first create a <strong>{{ prerequisite_model }}</strong>.
     {% endblocktrans %}
   </div>

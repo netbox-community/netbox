@@ -36,9 +36,17 @@ class CountersTest(TestCase):
         self.assertEqual(device1.interface_count, 3)
         self.assertEqual(device2.interface_count, 3)
 
+        # test saving an existing object - counter should not change
         interface1.save()
         device1.refresh_from_db()
         self.assertEqual(device1.interface_count, 3)
+
+        # test save where tracked object FK back pointer is None
+        vc = VirtualChassis.objects.create(name='Virtual Chassis 1')
+        device1.virtual_chassis = vc
+        device1.save()
+        vc.refresh_from_db()
+        self.assertEqual(vc.member_count, 1)
 
     def test_interface_count_deletion(self):
         """

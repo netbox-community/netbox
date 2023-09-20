@@ -97,7 +97,7 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
 
 1. Ensure translation support is enabled by including `{% load i18n %}` at the top of the template.
 2. Use the [`{% trans %}`](https://docs.djangoproject.com/en/stable/topics/i18n/translation/#translate-template-tag) tag (short for "translate") to wrap short strings.
-3. Longer strings may be enclosed between [`{% blocktrans %}`](https://docs.djangoproject.com/en/stable/topics/i18n/translation/#blocktranslate-template-tag) and `{% endblocktrans %}` tags to improve readability and to enable variable replacement.
+3. Longer strings may be enclosed between [`{% blocktrans %}`](https://docs.djangoproject.com/en/stable/topics/i18n/translation/#blocktranslate-template-tag) and `{% endblocktrans %}` tags to improve readability and to enable variable replacement. (Remember to include the `trimmed` argument to trim whitespace between the tags.)
 4. Avoid passing HTML within translated strings where possible, as this can complicate the work needed of human translators to develop message maps.
 
 ```
@@ -107,7 +107,7 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
 <h5 class="card-header">{% trans "Circuit List" %}</h5>
 
 {# A longer string with a context variable #}
-{% blocktrans with count=object.circuits.count %}
+{% blocktrans trimmed with count=object.circuits.count %}
   There are {count} circuits. Would you like to continue?
 {% endblocktrans %}
 ```

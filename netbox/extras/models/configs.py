@@ -146,7 +146,7 @@ class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
         # Verify that JSON data is provided as an object
         if type(self.data) is not dict:
             raise ValidationError(
-                {'data': _('JSON data must be in object form. Example: {"foo": 123}')}
+                {'data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
             )
 
     def sync_data(self):
@@ -202,7 +202,7 @@ class ConfigContextModel(models.Model):
         # Verify that JSON data is provided as an object
         if self.local_context_data and type(self.local_context_data) is not dict:
             raise ValidationError(
-                {'local_context_data': _('JSON data must be in object form. Example: {"foo": 123}')}
+                {'local_context_data': _('JSON data must be in object form. Example:') + ' {"foo": 123}'}
             )
 
 

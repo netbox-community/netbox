@@ -6,7 +6,7 @@
 
 {% block message %}
     <p>
-      {% blocktrans with count=selected_objects|length %}
+      {% blocktrans trimmed with count=selected_objects|length %}
         Are you sure you want to disconnect these {{ count }} {{ obj_type_plural }}?
       {% endblocktrans %}
     </p>

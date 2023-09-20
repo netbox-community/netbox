@@ -837,8 +837,10 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_200GE_QSFP56 = '200gbase-x-qsfp56'
     TYPE_200GE_QSFP_DD = '200gbase-x-qsfpdd'
     TYPE_400GE_CFP2 = '400gbase-x-cfp2'
+    TYPE_400GE_QSFP112 = '400gbase-x-qsfp112'
     TYPE_400GE_QSFP_DD = '400gbase-x-qsfpdd'
     TYPE_400GE_OSFP = '400gbase-x-osfp'
+    TYPE_400GE_OSFP_RHS = '400gbase-x-osfp-rhs'
     TYPE_400GE_CDFP = '400gbase-x-cdfp'
     TYPE_400GE_CFP8 = '400gbase-x-cfp8'
     TYPE_800GE_QSFP_DD = '800gbase-x-qsfpdd'
@@ -989,8 +991,10 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_100GE_QSFP_DD, 'QSFP-DD (100GE)'),
                 (TYPE_200GE_QSFP56, 'QSFP56 (200GE)'),
                 (TYPE_200GE_QSFP_DD, 'QSFP-DD (200GE)'),
+                (TYPE_400GE_QSFP112, 'QSFP112 (400GE)'),
                 (TYPE_400GE_QSFP_DD, 'QSFP-DD (400GE)'),
                 (TYPE_400GE_OSFP, 'OSFP (400GE)'),
+                (TYPE_400GE_OSFP_RHS, 'OSFP-RHS (400GE)'),
                 (TYPE_400GE_CDFP, 'CDFP (400GE)'),
                 (TYPE_400GE_CFP8, 'CPF8 (400GE)'),
                 (TYPE_800GE_QSFP_DD, 'QSFP-DD (800GE)'),

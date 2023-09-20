@@ -118,7 +118,9 @@ class SiteImportForm(NetBoxModelImportForm):
         )
         help_texts = {
             'time_zone': mark_safe(
-                _('Time zone (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">available options</a>)')
+                '{} (<a href="https://en.wikipedia.org/wiki/List_of_tz_database_time_zones">{}</a>)'.format(
+                    _('Time zone'), _('available options')
+                )
             )
         }
 
@@ -165,7 +167,7 @@ class RackRoleImportForm(NetBoxModelImportForm):
         model = RackRole
         fields = ('name', 'slug', 'color', 'description', 'tags')
         help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
+            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
         }
 
 
@@ -375,7 +377,7 @@ class DeviceRoleImportForm(NetBoxModelImportForm):
         model = DeviceRole
         fields = ('name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags')
         help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
+            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
         }
 
 
@@ -790,7 +792,9 @@ class InterfaceImportForm(NetBoxModelImportForm):
         queryset=VirtualDeviceContext.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('VDC names separated by commas, encased with double quotes (e.g. "vdc1, vdc2, vdc3")')
+        help_text=mark_safe(
+            _('VDC names separated by commas, encased with double quotes. Example:') + ' <code>vdc1,vdc2,vdc3</code>'
+        )
     )
     type = CSVChoiceField(
         label=_('Type'),
@@ -1085,7 +1089,7 @@ class InventoryItemRoleImportForm(NetBoxModelImportForm):
         model = InventoryItemRole
         fields = ('name', 'slug', 'color', 'description')
         help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
+            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
         }
 
 
@@ -1096,38 +1100,38 @@ class InventoryItemRoleImportForm(NetBoxModelImportForm):
 class CableImportForm(NetBoxModelImportForm):
     # Termination A
     side_a_device = CSVModelChoiceField(
-        label=_('Side a device'),
+        label=_('Side A device'),
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text=_('Side A device')
+        help_text=_('Device name')
     )
     side_a_type = CSVContentTypeField(
-        label=_('Side a type'),
+        label=_('Side A type'),
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        help_text=_('Side A type')
+        help_text=_('Termination type')
     )
     side_a_name = forms.CharField(
-        label=_('Side a name'),
-        help_text=_('Side A component name')
+        label=_('Side A name'),
+        help_text=_('Termination name')
     )
 
     # Termination B
     side_b_device = CSVModelChoiceField(
-        label=_('Side b device'),
+        label=_('Side B device'),
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text=_('Side B device')
+        help_text=_('Device name')
     )
     side_b_type = CSVContentTypeField(
-        label=_('Side b type'),
+        label=_('Side B type'),
         queryset=ContentType.objects.all(),
         limit_choices_to=CABLE_TERMINATION_MODELS,
-        help_text=_('Side B type')
+        help_text=_('Termination type')
     )
     side_b_name = forms.CharField(
-        label=_('Side b name'),
-        help_text=_('Side B component name')
+        label=_('Side B name'),
+        help_text=_('Termination name')
     )
 
     # Cable attributes
@@ -1164,7 +1168,7 @@ class CableImportForm(NetBoxModelImportForm):
             'status', 'tenant', 'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags',
         ]
         help_texts = {
-            'color': mark_safe(_('RGB color in hexadecimal (e.g. <code>00ff00</code>)')),
+            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
         }
 
     def _clean_side(self, side):

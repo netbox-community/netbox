@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from utilities.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 
@@ -331,3 +332,49 @@ class ImportFormTest(TestCase):
             form._detect_format('')
         with self.assertRaises(forms.ValidationError):
             form._detect_format('?')
+
+    def test_csv_delimiters(self):
+        form = BulkImportForm()
+
+        data = (
+            "a,b,c\n"
+            "1,2,3\n"
+            "4,5,6\n"
+        )
+        self.assertEqual(form._clean_csv(data, delimiter=','), [
+            {'a': '1', 'b': '2', 'c': '3'},
+            {'a': '4', 'b': '5', 'c': '6'},
+        ])
+
+        data = (
+            "a;b;c\n"
+            "1;2;3\n"
+            "4;5;6\n"
+        )
+        self.assertEqual(form._clean_csv(data, delimiter=';'), [
+            {'a': '1', 'b': '2', 'c': '3'},
+            {'a': '4', 'b': '5', 'c': '6'},
+        ])
+
+        data = (
+            "a\tb\tc\n"
+            "1\t2\t3\n"
+            "4\t5\t6\n"
+        )
+        self.assertEqual(form._clean_csv(data, delimiter='\t'), [
+            {'a': '1', 'b': '2', 'c': '3'},
+            {'a': '4', 'b': '5', 'c': '6'},
+        ])
+
+
+class BulkRenameFormTest(TestCase):
+    def test_no_strip_whitespace(self):
+        # Tests to make sure Bulk Rename Form isn't stripping whitespaces
+        # See: https://github.com/netbox-community/netbox/issues/13791
+        form = BulkRenameForm(data={
+            "find": " hello ",
+            "replace": " world "
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["find"], " hello ")
+        self.assertEqual(form.cleaned_data["replace"], " world ")

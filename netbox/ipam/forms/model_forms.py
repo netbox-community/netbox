@@ -215,6 +215,9 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         queryset=VLAN.objects.all(),
         required=False,
         selector=True,
+        query_params={
+            'site_id': '$site',
+        },
         label=_('VLAN'),
     )
     role = DynamicModelChoiceField(
@@ -728,7 +731,7 @@ class ServiceCreateForm(ServiceForm):
     class Meta(ServiceForm.Meta):
         fields = [
             'device', 'virtual_machine', 'service_template', 'name', 'protocol', 'ports', 'ipaddresses', 'description',
-            'tags',
+            'comments', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

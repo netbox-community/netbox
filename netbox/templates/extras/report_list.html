@@ -117,7 +117,7 @@
         <h4 class="alert-heading">{% trans "No Reports Found" %}</h4>
         {% if perms.extras.add_reportmodule %}
           {% url 'extras:reportmodule_add' as create_report_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
             Get started by <a href="{{ create_report_url }}">creating a report</a> from an uploaded file or data source.
           {% endblocktrans %}
         {% endif %}

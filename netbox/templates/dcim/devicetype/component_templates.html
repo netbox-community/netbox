@@ -27,7 +27,7 @@
                 <div class="float-end">
                     <a href="{% url table.Meta.model|viewname:"add" %}?device_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary btn-sm">
                         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
-                        {% blocktrans %}Add {{ title }}{% endblocktrans %}
+                        {% trans "Add" %} {{ title }}
                     </a>
                 </div>
                 <div class="clearfix"></div>
