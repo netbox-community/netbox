@@ -1,6 +1,6 @@
 ![NetBox](netbox_logo.svg "NetBox logo"){style="height: 100px; margin-bottom: 3em"}
 
-# The Premiere Network Source of Truth
+# The Premier Network Source of Truth
 
 NetBox is the leading solution for modeling and documenting modern networks. By combining the traditional disciplines of IP address management (IPAM) and datacenter infrastructure management (DCIM) with powerful APIs and extensions, NetBox provides the ideal "source of truth" to power network automation. Read on to discover why thousands of organizations worldwide put NetBox at the heart of their infrastructure.
 
