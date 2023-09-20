@@ -86,7 +86,7 @@ class ComponentModel(NetBoxModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original Device ID for reference under clean()
-        self._original_device = self.device_id
+        self._original_device = self.__dict__.get('device_id')
 
     def __str__(self):
         if self.label:

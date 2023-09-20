@@ -219,7 +219,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         super().__init__(*args, **kwargs)
 
         # Cache instance's original name so we can check later whether it has changed
-        self._name = self.name
+        self._name = self.__dict__.get('name')
 
     @property
     def search_type(self):

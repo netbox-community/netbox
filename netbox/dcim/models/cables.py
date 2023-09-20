@@ -98,10 +98,10 @@ class Cable(PrimaryModel):
         super().__init__(*args, **kwargs)
 
         # A copy of the PK to be used by __str__ in case the object is deleted
-        self._pk = self.pk
+        self._pk = self.__dict__.get('id')
 
         # Cache the original status so we can check later if it's been changed
-        self._orig_status = self.status
+        self._orig_status = self.__dict__.get('status')
 
         self._terminations_modified = False
 

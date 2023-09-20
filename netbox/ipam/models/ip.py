@@ -290,8 +290,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original prefix and VRF so we can check if they have changed on post_save
-        self._prefix = self.prefix
-        self._vrf_id = self.vrf_id
+        self._prefix = self.__dict__.get('prefix')
+        self._vrf_id = self.__dict__.get('vrf_id')
 
     def __str__(self):
         return str(self.prefix)

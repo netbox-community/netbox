@@ -205,11 +205,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         super().__init__(*args, **kwargs)
 
         # Save a copy of u_height for validation in clean()
-        self._original_u_height = self.u_height
+        self._original_u_height = self.__dict__.get('u_height')
 
         # Save references to the original front/rear images
-        self._original_front_image = self.front_image
-        self._original_rear_image = self.rear_image
+        self._original_front_image = self.__dict__.get('front_image')
+        self._original_rear_image = self.__dict__.get('rear_image')
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
