@@ -518,22 +518,34 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMe
         config = get_config()
         for param in PARAMS:
             value = getattr(config, param.name)
-            is_static = hasattr(settings, param.name)
-            if value:
-                help_text = self.fields[param.name].help_text
-                if help_text:
-                    help_text += '<br />'  # Line break
-                help_text += _('Current value: <strong>{value}</strong>').format(value=value)
-                if is_static:
-                    help_text += _(' (defined statically)')
-                elif value == param.default:
-                    help_text += _(' (default)')
-                self.fields[param.name].help_text = help_text
+
+            # Set the field's initial value, if it can be serialized. (This may not be the case e.g. for
+            # CUSTOM_VALIDATORS, which may reference Python objects.)
+            try:
+                json.dumps(value)
                 if type(value) in (tuple, list):
-                    value = ', '.join(value)
-                self.fields[param.name].initial = value
-            if is_static:
+                    self.fields[param.name].initial = ', '.join(value)
+                else:
+                    self.fields[param.name].initial = value
+            except TypeError:
+                pass
+
+            # Check whether this parameter is statically configured (e.g. in configuration.py)
+            if hasattr(settings, param.name):
                 self.fields[param.name].disabled = True
+                self.fields[param.name].help_text = _(
+                    'This parameter has been defined statically and cannot be modified.'
+                )
+                continue
+
+            # Set the field's help text
+            help_text = self.fields[param.name].help_text
+            if help_text:
+                help_text += '<br />'  # Line break
+            help_text += _('Current value: <strong>{value}</strong>').format(value=value or '&mdash;')
+            if value == param.default:
+                help_text += _(' (default)')
+            self.fields[param.name].help_text = help_text
 
     def save(self, commit=True):
         instance = super().save(commit=False)
