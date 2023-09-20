@@ -28,6 +28,7 @@ from utilities.forms.fields import (
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
 from utilities.querysets import RestrictedQuerySet
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import validate_regex
 
 __all__ = (
@@ -498,7 +499,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         field.model = self
         field.label = str(self)
         if self.description:
-            field.help_text = escape(self.description)
+            field.help_text = render_markdown(self.description)
 
         # Annotate read-only fields
         if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:

@@ -76,7 +76,8 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
             'type': _(
                 "The type of data stored in this field. For object/multi-object fields, select the related object "
                 "type below."
-            )
+            ),
+            'description': _("This will be displayed as help text for the form field. Markdown is supported.")
         }
 
     def __init__(self, *args, **kwargs):
