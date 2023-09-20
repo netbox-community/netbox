@@ -52,12 +52,13 @@ def post_save_receiver(sender, instance, created, **kwargs):
     for field_name, counter_name in get_counters_for_model(sender):
         parent_model = sender._meta.get_field(field_name).related_model
         new_pk = getattr(instance, field_name, None)
-        old_pk = instance.tracker.get(field_name) if field_name in instance.tracker else None
+        has_old_field = field_name in instance.tracker
+        old_pk = instance.tracker.get(field_name) if has_old_field else None
 
         # Update the counters on the old and/or new parents as needed
         if old_pk is not None:
             update_counter(parent_model, old_pk, counter_name, -1)
-        if new_pk is not None and (old_pk or created):
+        if new_pk is not None and (has_old_field or created):
             update_counter(parent_model, new_pk, counter_name, 1)
 
 
