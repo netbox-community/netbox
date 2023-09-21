@@ -332,9 +332,9 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         ret = super().save(*args, **kwargs)
 
         # Delete any previously uploaded image files that are no longer in use
-        if self.front_image != self._original_front_image:
+        if self._original_front_image and self.front_image != self._original_front_image:
             self._original_front_image.delete(save=False)
-        if self.rear_image != self._original_rear_image:
+        if self._original_rear_image and self.rear_image != self._original_rear_image:
             self._original_rear_image.delete(save=False)
 
         return ret
