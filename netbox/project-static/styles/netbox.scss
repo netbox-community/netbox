@@ -167,6 +167,13 @@ table td > .progress {
   }
 }
 
+.alert {
+  code {
+    color: $gray-600;
+    margin: 0 1em 0 1em;
+  }
+}
+
 span.profile-button .dropdown-menu {
   right: 0;
   left: auto;
