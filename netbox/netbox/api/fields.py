@@ -46,12 +46,14 @@ class ChoiceField(serializers.Field):
         return super().validate_empty_values(data)
 
     def to_representation(self, obj):
-        if obj == '':
-            return None
-        return {
-            'value': obj,
-            'label': self._choices[obj],
-        }
+        if obj != '':
+            # Use an empty string in place of the choice label if it cannot be resolved (i.e. because a previously
+            # configured choice has been removed from FIELD_CHOICES).
+            label = self._choices.get(obj, '')
+            return {
+                'value': obj,
+                'label': label,
+            }
 
     def to_internal_value(self, data):
         if data == '':
