@@ -6,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from dcim.models import Site
+from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
@@ -434,7 +434,8 @@ class ConfigContextTestCase(
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         # Create three ConfigContexts
         for i in range(1, 4):
@@ -443,7 +444,7 @@ class ConfigContextTestCase(
                 data={'foo': i}
             )
             configcontext.save()
-            configcontext.sites.add(site)
+            configcontext.device_types.add(devicetype)
 
         cls.form_data = {
             'name': 'Config Context X',
@@ -451,11 +452,12 @@ class ConfigContextTestCase(
             'description': 'A new config context',
             'is_active': True,
             'regions': [],
-            'sites': [site.pk],
+            'sites': [],
             'roles': [],
             'platforms': [],
             'tenant_groups': [],
             'tenants': [],
+            'device_types': [devicetype.id,],
             'tags': [],
             'data': '{"foo": 123}',
         }

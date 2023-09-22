@@ -1,6 +1,6 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
-  <p>The premiere source of truth powering network automation</p>
+  <p>The premier source of truth powering network automation</p>
   <img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" />
   <p></p>
 </div>

@@ -1,12 +1,36 @@
 # NetBox v3.6
 
-## v3.6.2 (FUTURE)
+## v3.6.3 (FUTURE)
+
+---
+
+## v3.6.2 (2023-09-20)
+
+### Enhancements
+
+* [#13245](https://github.com/netbox-community/netbox/issues/13245) - Add interface types for QSFP112 and OSFP-RHS
+* [#13563](https://github.com/netbox-community/netbox/issues/13563) - Add support for other delimiting characters when using CSV import
 
 ### Bug Fixes
 
+* [#11209](https://github.com/netbox-community/netbox/issues/11209) - Hide available IP/VLAN listing when sorting under a parent prefix or VLAN range
+* [#11617](https://github.com/netbox-community/netbox/issues/11617) - Raise validation error on the presence of an unknown CSV header during bulk import
+* [#12219](https://github.com/netbox-community/netbox/issues/12219) - Fix dashboard widget heading contrast under dark mode
+* [#12685](https://github.com/netbox-community/netbox/issues/12685) - Render Markdown in custom field help text on object edit forms
+* [#13653](https://github.com/netbox-community/netbox/issues/13653) - Tweak color of error text to improve legibility
 * [#13701](https://github.com/netbox-community/netbox/issues/13701) - Correct display of power feed legs under device view
 * [#13706](https://github.com/netbox-community/netbox/issues/13706) - Restore extra filters dropdown on device interfaces list
 * [#13721](https://github.com/netbox-community/netbox/issues/13721) - Filter VLAN choices by selected site (if any) when creating a prefix
+* [#13727](https://github.com/netbox-community/netbox/issues/13727) - Fix exception when viewing rendered config for VM without a role assigned
+* [#13745](https://github.com/netbox-community/netbox/issues/13745) - Optimize counter field migrations for large databases
+* [#13756](https://github.com/netbox-community/netbox/issues/13756) - Fix exception when sorting module bay list by installed module status
+* [#13757](https://github.com/netbox-community/netbox/issues/13757) - Fix RecursionError exception when assigning config context to a device type
+* [#13767](https://github.com/netbox-community/netbox/issues/13767) - Fix support for comments when creating a new service via web UI
+* [#13782](https://github.com/netbox-community/netbox/issues/13782) - Fix tag exclusion support for contact assignments
+* [#13791](https://github.com/netbox-community/netbox/issues/13791) - Preserve whitespace in values when performing bulk rename of objects via web UI
+* [#13809](https://github.com/netbox-community/netbox/issues/13809) - Avoid TypeError exception when editing active configuration with statically defined `CUSTOM_VALIDATORS`
+* [#13813](https://github.com/netbox-community/netbox/issues/13813) - Fix member count for newly created virtual chassis
+* [#13818](https://github.com/netbox-community/netbox/issues/13818) - Restore missing tags field on L2VPN termination edit form
 
 ---
 
@@ -33,7 +57,7 @@
 * [#13657](https://github.com/netbox-community/netbox/issues/13657) - Fix decoding of data file content
 * [#13674](https://github.com/netbox-community/netbox/issues/13674) - Fix retrieving individual report via REST API
 * [#13682](https://github.com/netbox-community/netbox/issues/13682) - Fix error message returned when validation of custom field default value fails
-* [#13684](https://github.com/netbox-community/netbox/issues/13684) - Enable modying the configuration when maintenance mode is enabled
+* [#13684](https://github.com/netbox-community/netbox/issues/13684) - Enable modifying the configuration when maintenance mode is enabled
 
 ---
 

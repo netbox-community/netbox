@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from django.db.models import Count, OuterRef, Subquery
 
 from netbox.registry import registry
+from utilities.counters import update_counts
 
 
 class Command(BaseCommand):
@@ -26,27 +27,9 @@ class Command(BaseCommand):
 
         return models
 
-    def update_counts(self, model, field_name, related_query):
-        """
-        Perform a bulk update for the given model and counter field. For example,
-
-            update_counts(Device, '_interface_count', 'interfaces')
-
-        will effectively set
-
-            Device.objects.update(_interface_count=Count('interfaces'))
-        """
-        self.stdout.write(f'Updating {model.__name__} {field_name}...')
-        subquery = Subquery(
-            model.objects.filter(pk=OuterRef('pk')).annotate(_count=Count(related_query)).values('_count')
-        )
-        return model.objects.update(**{
-            field_name: subquery
-        })
-
     def handle(self, *model_names, **options):
         for model, mappings in self.collect_models().items():
             for field_name, related_query in mappings.items():
-                self.update_counts(model, field_name, related_query)
+                update_counts(model, field_name, related_query)
 
         self.stdout.write(self.style.SUCCESS('Finished.'))
