@@ -244,3 +244,39 @@ class ChangeActionChoices(ChoiceSet):
         (ACTION_UPDATE, _('Update'), 'blue'),
         (ACTION_DELETE, _('Delete'), 'red'),
     )
+
+
+#
+# Dashboard widgets
+#
+
+class DashboardWidgetColorChoices(ChoiceSet):
+    BLUE = 'blue'
+    INDIGO = 'indigo'
+    PURPLE = 'purple'
+    PINK = 'pink'
+    RED = 'red'
+    ORANGE = 'orange'
+    YELLOW = 'yellow'
+    GREEN = 'green'
+    TEAL = 'teal'
+    CYAN = 'cyan'
+    GRAY = 'gray'
+    BLACK = 'black'
+    WHITE = 'white'
+
+    CHOICES = (
+        (BLUE, _('Blue')),
+        (INDIGO, _('Indigo')),
+        (PURPLE, _('Purple')),
+        (PINK, _('Pink')),
+        (RED, _('Red')),
+        (ORANGE, _('Orange')),
+        (YELLOW, _('Yellow')),
+        (GREEN, _('Green')),
+        (TEAL, _('Teal')),
+        (CYAN, _('Cyan')),
+        (GRAY, _('Gray')),
+        (BLACK, _('Black')),
+        (WHITE, _('White')),
+    )
