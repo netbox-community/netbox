@@ -454,7 +454,7 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
         required=False
     )
     data_file = NestedDataFileSerializer(
-        read_only=False
+        required=False
     )
 
     class Meta:
