@@ -35,9 +35,9 @@
     {{ block.super }}
     <style>
         {% for status, color in table.Meta.cable_status_styles %}
-        tr[data-cable-status={{ status }}] {
-            background-color: var(--nbx-color-{{ color }}-a15);
-        }
+            tr[data-cable-status={{ status }}] {
+                background-color: var(--nbx-color-{{ color }}-a15);
+            }
         {% endfor %}
         tr[data-mark-connected=true] {
             background-color: var(--nbx-color-success-a15);
@@ -54,6 +54,5 @@
         tr:not([data-cable-status=connected]) button.mark-planned {
             display: none;
         }
-
-</style>
+    </style>
 {% endblock %} 
