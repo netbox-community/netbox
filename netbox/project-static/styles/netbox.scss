@@ -836,9 +836,11 @@ table tbody {
 }
 
 // Expose theme colors as variables. (Useful for dynamic styling of choices etc.)
+// Both as opaque colour and translucent (alpha 15%)
 :root {
   @each $color, $value in $theme-colors {
     --nbx-color-#{$color}: #{$value};
+    --nbx-color-#{$color}-a15: #{rgba($value, 0.15)};
   }
 }
 
