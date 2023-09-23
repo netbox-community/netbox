@@ -835,6 +835,13 @@ table tbody {
   }
 }
 
+// Expose theme colors as variables. (Useful for dynamic styling of choices etc.)
+:root {
+  @each $color, $value in $theme-colors {
+    --nbx-color-#{$color}: #{$value};
+  }
+}
+
 // Style objects with statuses/roles within a table. As of implementation, used for IP addresses
 // assigned to interfaces.
 table .table-badge-group {
