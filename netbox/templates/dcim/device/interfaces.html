@@ -30,3 +30,23 @@
         </div>
     {% endif %}
 {% endblock bulk_extra_controls %}
+
+{% block head %}
+    {{ block.super }}
+    <style>
+        {% for status, color in table.Meta.cable_status_styles %}
+        tr[data-cable-status={{ status }}] {
+            background-color: var(--nbx-color-{{ color }}-a15);
+        }
+        {% endfor %}
+        tr[data-mark-connected=true] {
+            background-color: var(--nbx-color-success-a15);
+        }
+        tr[data-virtual=true] {
+            background-color: var(--nbx-color-primary-a15);
+        }
+        tr[data-enabled=disabled] {
+            background-color: var(--nbx-color-danger-a15);
+        }
+    </style>
+{% endblock %} 

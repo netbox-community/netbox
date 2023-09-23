@@ -6,6 +6,7 @@ from dcim import models
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import *
+from dcim.choices import LinkStatusChoices
 
 __all__ = (
     'BaseInterfaceTable',
@@ -49,14 +50,6 @@ def get_cabletermination_row_class(record):
     elif record.cable:
         return record.cable.get_status_color()
     return ''
-
-
-def get_interface_row_class(record):
-    if not record.enabled:
-        return 'danger'
-    elif record.is_virtual:
-        return 'primary'
-    return get_cabletermination_row_class(record)
 
 
 def get_interface_state_attribute(record):
@@ -700,7 +693,6 @@ class DeviceInterfaceTable(InterfaceTable):
             'cable', 'connection',
         )
         row_attrs = {
-            'class': get_interface_row_class,
             'data-name': lambda record: record.name,
             'data-enabled': get_interface_state_attribute,
             'data-virtual': get_interface_virtual_attribute,
@@ -708,6 +700,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-cable-status': get_interface_cable_status_attribute,
             'data-type': lambda record: record.type,
         }
+        cable_status_styles = [(slug, color) for slug, _, color in LinkStatusChoices.CHOICES]
 
 
 class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
