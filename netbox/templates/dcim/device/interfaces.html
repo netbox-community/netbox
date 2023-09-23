@@ -48,5 +48,12 @@
         tr[data-enabled=disabled] {
             background-color: var(--nbx-color-danger-a15);
         }
-    </style>
+        tr[data-cable-status=connected] button.mark-installed {
+            display: none;
+        }
+        tr:not([data-cable-status=connected]) button.mark-planned {
+            display: none;
+        }
+
+</style>
 {% endblock %} 

@@ -7,10 +7,10 @@ import { isTruthy, apiPatch, hasError, getElements } from '../util';
  *
  * @param element Connection Toggle Button Element
  */
-function toggleConnection(element: HTMLButtonElement): void {
+function setConnectionStatus(element: HTMLButtonElement, status: string): void {
+  // Get the button's row to change its data-cable-status attribute
+  const row = element.parentElement?.parentElement as HTMLTableRowElement;
   const url = element.getAttribute('data-url');
-  const connected = element.classList.contains('connected');
-  const status = connected ? 'planned' : 'connected';
 
   if (isTruthy(url)) {
     apiPatch(url, { status }).then(res => {
@@ -19,34 +19,18 @@ function toggleConnection(element: HTMLButtonElement): void {
         createToast('danger', 'Error', res.error).show();
         return;
       } else {
-        // Get the button's row to change its styles.
-        const row = element.parentElement?.parentElement as HTMLTableRowElement;
-        // Get the button's icon to change its CSS class.
-        const icon = element.querySelector('i.mdi, span.mdi') as HTMLSpanElement;
-        if (connected) {
-          row.classList.remove('success');
-          row.classList.add('info');
-          element.classList.remove('connected', 'btn-warning');
-          element.classList.add('btn-info');
-          element.title = 'Mark Installed';
-          icon.classList.remove('mdi-lan-disconnect');
-          icon.classList.add('mdi-lan-connect');
-        } else {
-          row.classList.remove('info');
-          row.classList.add('success');
-          element.classList.remove('btn-success');
-          element.classList.add('connected', 'btn-warning');
-          element.title = 'Mark Installed';
-          icon.classList.remove('mdi-lan-connect');
-          icon.classList.add('mdi-lan-disconnect');
-        }
+        // Update cable status in DOM
+        row.setAttribute('data-cable-status', status);
       }
     });
   }
 }
 
 export function initConnectionToggle(): void {
-  for (const element of getElements<HTMLButtonElement>('button.cable-toggle')) {
-    element.addEventListener('click', () => toggleConnection(element));
+  for (const element of getElements<HTMLButtonElement>('button.mark-planned')) {
+    element.addEventListener('click', () => setConnectionStatus(element, 'planned'));
+  }
+  for (const element of getElements<HTMLButtonElement>('button.mark-installed')) {
+    element.addEventListener('click', () => setConnectionStatus(element, 'connected'));
   }
 }
