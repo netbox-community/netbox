@@ -42,7 +42,7 @@
             <div class="alert alert-warning d-flex align-items-center" role="alert">
               <i class="mdi mdi-alert"></i>
               {% blocktrans trimmed with file_path=module.full_path %}
-                Script file at <code>{{ file_path }}</code> could not be loaded.
+                Script file at <code class="mx-1">{{ file_path }}</code> could not be loaded.
               {% endblocktrans %}
             </div>
           {% else %}
