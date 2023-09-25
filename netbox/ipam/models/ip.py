@@ -1,6 +1,7 @@
 import netaddr
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
@@ -782,6 +783,13 @@ class IPAddress(PrimaryModel):
     def __str__(self):
         return str(self.address)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Save a copy of u_height for validation in clean()
+        self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
+        self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
+
     def get_absolute_url(self):
         return reverse('ipam:ipaddress', args=[self.pk])
 
@@ -842,6 +850,17 @@ class IPAddress(PrimaryModel):
                             duplicate_ips.first(),
                         )
                     })
+
+        if self.is_primary_ip and self._original_assigned_object_id and self._original_assigned_object_type_id:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
+            original_parent = getattr(original_assigned_object, 'parent_object', None)
+
+            if parent != original_parent:
+                raise ValidationError({
+                    'assigned_object': _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
+                })
 
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
