@@ -4,6 +4,7 @@ import yaml
 from functools import cached_property
 
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
@@ -332,10 +333,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         ret = super().save(*args, **kwargs)
 
         # Delete any previously uploaded image files that are no longer in use
-        if self.front_image != self._original_front_image:
-            self._original_front_image.delete(save=False)
-        if self.rear_image != self._original_rear_image:
-            self._original_rear_image.delete(save=False)
+        if self._original_front_image and self.front_image != self._original_front_image:
+            default_storage.delete(self._original_front_image)
+        if self._original_rear_image and self.rear_image != self._original_rear_image:
+            default_storage.delete(self._original_rear_image)
 
         return ret
 
