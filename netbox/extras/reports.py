@@ -106,8 +106,6 @@ class Report(object):
                     'failure': 0,
                     'log': [],
                 }
-        if not test_methods:
-            raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods
 
     @classproperty
