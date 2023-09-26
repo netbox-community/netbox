@@ -3,6 +3,7 @@ import re
 from copy import deepcopy
 
 from django.contrib import messages
+from django.contrib.contenttypes.fields import GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
@@ -519,9 +520,11 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 model_field = self.queryset.model._meta.get_field(name)
                 if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
                     m2m_fields[name] = model_field
+                elif isinstance(model_field, GenericRel):
+                    # Ignore generic relations (these may be used for other purposes in the form)
+                    continue
                 else:
                     model_fields[name] = model_field
-
             except FieldDoesNotExist:
                 # This form field is used to modify a field rather than set its value directly
                 model_fields[name] = None

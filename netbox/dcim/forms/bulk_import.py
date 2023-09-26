@@ -549,9 +549,9 @@ class DeviceImportForm(BaseDeviceImportForm):
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
             }
-            if 'location' in data:
+            if location := data.get('location'):
                 params.update({
-                    f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                    f"location__{self.fields['location'].to_field_name}": location,
                 })
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 

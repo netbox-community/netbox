@@ -141,9 +141,10 @@ class TableState {
   private virtualButton: ButtonState;
 
   /**
-   * Underlying DOM Table Caption Element.
+   * Instance of ButtonState for the 'show/hide virtual rows' button.
    */
-  private caption: Nullable<HTMLTableCaptionElement> = null;
+  // @ts-expect-error null handling is performed in the constructor
+  private disconnectedButton: ButtonState;
 
   /**
    * All table rows in table
@@ -166,9 +167,10 @@ class TableState {
         this.table,
         'button.toggle-virtual',
       );
-
-      const caption = this.table.querySelector('caption');
-      this.caption = caption;
+      const toggleDisconnectedButton = findFirstAdjacent<HTMLButtonElement>(
+        this.table,
+        'button.toggle-disconnected',
+      );
 
       if (toggleEnabledButton === null) {
         throw new TableStateError("Table is missing a 'toggle-enabled' button.", table);
@@ -182,10 +184,15 @@ class TableState {
         throw new TableStateError("Table is missing a 'toggle-virtual' button.", table);
       }
 
+      if (toggleDisconnectedButton === null) {
+        throw new TableStateError("Table is missing a 'toggle-disconnected' button.", table);
+      }
+
       // Attach event listeners to the buttons elements.
       toggleEnabledButton.addEventListener('click', event => this.handleClick(event, this));
       toggleDisabledButton.addEventListener('click', event => this.handleClick(event, this));
       toggleVirtualButton.addEventListener('click', event => this.handleClick(event, this));
+      toggleDisconnectedButton.addEventListener('click', event => this.handleClick(event, this));
 
       // Instantiate ButtonState for each button for state management.
       this.enabledButton = new ButtonState(
@@ -200,6 +207,10 @@ class TableState {
         toggleVirtualButton,
         table.querySelectorAll<HTMLTableRowElement>('tr[data-type="virtual"]'),
       );
+      this.disconnectedButton = new ButtonState(
+        toggleDisconnectedButton,
+        table.querySelectorAll<HTMLTableRowElement>('tr[data-connected="disconnected"]'),
+      );
     } catch (err) {
       if (err instanceof TableStateError) {
         // This class is useless for tables that don't have toggle buttons.
@@ -208,52 +219,6 @@ class TableState {
       } else {
         throw err;
       }
-    }
-  }
-
-  /**
-   * Get the table caption's text.
-   */
-  private get captionText(): string {
-    if (this.caption !== null) {
-      return this.caption.innerText;
-    }
-    return '';
-  }
-
-  /**
-   * Set the table caption's text.
-   */
-  private set captionText(value: string) {
-    if (this.caption !== null) {
-      this.caption.innerText = value;
-    }
-  }
-
-  /**
-   * Update the table caption's text based on the state of each toggle button.
-   */
-  private toggleCaption(): void {
-    const showEnabled = this.enabledButton.buttonState === 'show';
-    const showDisabled = this.disabledButton.buttonState === 'show';
-    const showVirtual = this.virtualButton.buttonState === 'show';
-
-    if (showEnabled && !showDisabled && !showVirtual) {
-      this.captionText = 'Showing Enabled Interfaces';
-    } else if (showEnabled && showDisabled && !showVirtual) {
-      this.captionText = 'Showing Enabled & Disabled Interfaces';
-    } else if (!showEnabled && showDisabled && !showVirtual) {
-      this.captionText = 'Showing Disabled Interfaces';
-    } else if (!showEnabled && !showDisabled && !showVirtual) {
-      this.captionText = 'Hiding Enabled, Disabled & Virtual Interfaces';
-    } else if (!showEnabled && !showDisabled && showVirtual) {
-      this.captionText = 'Showing Virtual Interfaces';
-    } else if (showEnabled && !showDisabled && showVirtual) {
-      this.captionText = 'Showing Enabled & Virtual Interfaces';
-    } else if (showEnabled && showDisabled && showVirtual) {
-      this.captionText = 'Showing Enabled, Disabled & Virtual Interfaces';
-    } else {
-      this.captionText = '';
     }
   }
 
@@ -272,7 +237,7 @@ class TableState {
     instance.enabledButton.handleClick(event);
     instance.disabledButton.handleClick(event);
     instance.virtualButton.handleClick(event);
-    instance.toggleCaption();
+    instance.disconnectedButton.handleClick(event);
   }
 }
 

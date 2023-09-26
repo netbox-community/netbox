@@ -20,7 +20,7 @@ from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
 from wireless.models import WirelessLink
-from .device_components import FrontPort, RearPort
+from .device_components import FrontPort, RearPort, PathEndpoint
 
 __all__ = (
     'Cable',
@@ -518,9 +518,16 @@ class CablePath(models.Model):
             # Terminations must all be of the same type
             assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
 
+            # All mid-span terminations must all be attached to the same device
+            if not isinstance(terminations[0], PathEndpoint):
+                assert all(isinstance(t, type(terminations[0])) for t in terminations[1:])
+                assert all(t.parent_object == terminations[0].parent_object for t in terminations[1:])
+
             # Check for a split path (e.g. rear port fanning out to multiple front ports with
             # different cables attached)
-            if len(set(t.link for t in terminations)) > 1:
+            if len(set(t.link for t in terminations)) > 1 and (
+                    position_stack and len(terminations) != len(position_stack[-1])
+            ):
                 is_split = True
                 break
 
@@ -529,46 +536,68 @@ class CablePath(models.Model):
                 object_to_path_node(t) for t in terminations
             ])
 
-            # Step 2: Determine the attached link (Cable or WirelessLink), if any
-            link = terminations[0].link
-            if link is None and len(path) == 1:
-                # If this is the start of the path and no link exists, return None
-                return None
-            elif link is None:
+            # Step 2: Determine the attached links (Cable or WirelessLink), if any
+            links = [termination.link for termination in terminations if termination.link is not None]
+            if len(links) == 0:
+                if len(path) == 1:
+                    # If this is the start of the path and no link exists, return None
+                    return None
                 # Otherwise, halt the trace if no link exists
                 break
-            assert type(link) in (Cable, WirelessLink)
+            assert all(type(link) in (Cable, WirelessLink) for link in links)
+            assert all(isinstance(link, type(links[0])) for link in links)
 
-            # Step 3: Record the link and update path status if not "connected"
-            path.append([object_to_path_node(link)])
-            if hasattr(link, 'status') and link.status != LinkStatusChoices.STATUS_CONNECTED:
+            # Step 3: Record asymmetric paths as split
+            not_connected_terminations = [termination.link for termination in terminations if termination.link is None]
+            if len(not_connected_terminations) > 0:
+                is_complete = False
+                is_split = True
+
+            # Step 4: Record the links, keeping cables in order to allow for SVG rendering
+            cables = []
+            for link in links:
+                if object_to_path_node(link) not in cables:
+                    cables.append(object_to_path_node(link))
+            path.append(cables)
+
+            # Step 5: Update the path status if a link is not connected
+            links_status = [link.status for link in links if link.status != LinkStatusChoices.STATUS_CONNECTED]
+            if any([status != LinkStatusChoices.STATUS_CONNECTED for status in links_status]):
                 is_active = False
 
-            # Step 4: Determine the far-end terminations
-            if isinstance(link, Cable):
+            # Step 6: Determine the far-end terminations
+            if isinstance(links[0], Cable):
                 termination_type = ContentType.objects.get_for_model(terminations[0])
                 local_cable_terminations = CableTermination.objects.filter(
                     termination_type=termination_type,
                     termination_id__in=[t.pk for t in terminations]
                 )
-                # Terminations must all belong to same end of Cable
-                local_cable_end = local_cable_terminations[0].cable_end
-                assert all(ct.cable_end == local_cable_end for ct in local_cable_terminations[1:])
-                remote_cable_terminations = CableTermination.objects.filter(
-                    cable=link,
-                    cable_end='A' if local_cable_end == 'B' else 'B'
-                )
+
+                q_filter = Q()
+                for lct in local_cable_terminations:
+                    cable_end = 'A' if lct.cable_end == 'B' else 'B'
+                    q_filter |= Q(cable=lct.cable, cable_end=cable_end)
+
+                remote_cable_terminations = CableTermination.objects.filter(q_filter)
                 remote_terminations = [ct.termination for ct in remote_cable_terminations]
             else:
                 # WirelessLink
-                remote_terminations = [link.interface_b] if link.interface_a is terminations[0] else [link.interface_a]
+                remote_terminations = [
+                    link.interface_b if link.interface_a is terminations[0] else link.interface_a for link in links
+                ]
 
-            # Step 5: Record the far-end termination object(s)
+            # Remote Terminations must all be of the same type, otherwise return a split path
+            if not all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                is_complete = False
+                is_split = True
+                break
+
+            # Step 7: Record the far-end termination object(s)
             path.append([
                 object_to_path_node(t) for t in remote_terminations if t is not None
             ])
 
-            # Step 6: Determine the "next hop" terminations, if applicable
+            # Step 8: Determine the "next hop" terminations, if applicable
             if not remote_terminations:
                 break
 
@@ -577,20 +606,32 @@ class CablePath(models.Model):
                 rear_ports = RearPort.objects.filter(
                     pk__in=[t.rear_port_id for t in remote_terminations]
                 )
-                if len(rear_ports) > 1:
-                    assert all(rp.positions == 1 for rp in rear_ports)
-                elif rear_ports[0].positions > 1:
+                if len(rear_ports) > 1 or rear_ports[0].positions > 1:
                     position_stack.append([fp.rear_port_position for fp in remote_terminations])
 
                 terminations = rear_ports
 
             elif isinstance(remote_terminations[0], RearPort):
-
-                if len(remote_terminations) > 1 or remote_terminations[0].positions == 1:
+                if len(remote_terminations) == 1 and remote_terminations[0].positions == 1:
                     front_ports = FrontPort.objects.filter(
                         rear_port_id__in=[rp.pk for rp in remote_terminations],
                         rear_port_position=1
                     )
+                # Obtain the individual front ports based on the termination and all positions
+                elif len(remote_terminations) > 1 and position_stack:
+                    positions = position_stack.pop()
+
+                    # Ensure we have a number of positions equal to the amount of remote terminations
+                    assert len(remote_terminations) == len(positions)
+
+                    # Get our front ports
+                    q_filter = Q()
+                    for rt in remote_terminations:
+                        position = positions.pop()
+                        q_filter |= Q(rear_port_id=rt.pk, rear_port_position=position)
+                    assert q_filter is not Q()
+                    front_ports = FrontPort.objects.filter(q_filter)
+                # Obtain the individual front ports based on the termination and position
                 elif position_stack:
                     front_ports = FrontPort.objects.filter(
                         rear_port_id=remote_terminations[0].pk,
@@ -632,9 +673,16 @@ class CablePath(models.Model):
 
                 terminations = [circuit_termination]
 
-            # Anything else marks the end of the path
             else:
-                is_complete = True
+                # Check for non-symmetric path
+                if all(isinstance(t, type(remote_terminations[0])) for t in remote_terminations[1:]):
+                    is_complete = True
+                elif len(remote_terminations) == 0:
+                    is_complete = False
+                else:
+                    # Unsupported topology, mark as split and exit
+                    is_complete = False
+                    is_split = True
                 break
 
         return cls(
@@ -740,3 +788,15 @@ class CablePath(models.Model):
             return [
                 ct.get_peer_termination() for ct in nodes
             ]
+
+    def get_asymmetric_nodes(self):
+        """
+        Return all available next segments in a split cable path.
+        """
+        from circuits.models import CircuitTermination
+        asymmetric_nodes = []
+        for nodes in self.path_objects:
+            if type(nodes[0]) in [RearPort, FrontPort, CircuitTermination]:
+                asymmetric_nodes.extend([node for node in nodes if node.link is None])
+
+        return asymmetric_nodes

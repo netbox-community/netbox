@@ -106,8 +106,6 @@ class Report(object):
                     'failure': 0,
                     'log': [],
                 }
-        if not test_methods:
-            raise Exception("A report must contain at least one test method.")
         self.test_methods = test_methods
 
     @classproperty
@@ -136,6 +134,13 @@ class Report(object):
     @property
     def source(self):
         return inspect.getsource(self.__class__)
+
+    @property
+    def is_valid(self):
+        """
+        Indicates whether the report can be run.
+        """
+        return bool(self.test_methods)
 
     #
     # Logging methods
