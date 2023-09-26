@@ -135,6 +135,13 @@ class Report(object):
     def source(self):
         return inspect.getsource(self.__class__)
 
+    @property
+    def is_valid(self):
+        """
+        Indicates whether the report can be run.
+        """
+        return bool(self.test_methods)
+
     #
     # Logging methods
     #
