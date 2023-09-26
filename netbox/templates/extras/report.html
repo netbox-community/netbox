@@ -12,7 +12,11 @@
             {% csrf_token %}
             {% render_form form %}
             <div class="float-end">
-              <button type="submit" name="_run" class="btn btn-primary">
+              <button type="submit" name="_run" class="btn btn-primary"
+              {% if not report.test_methods|length %}
+                disabled
+              {% endif %}
+              >
                 {% if report.result %}
                   <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
                 {% else %}
