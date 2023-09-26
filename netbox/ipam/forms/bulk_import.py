@@ -9,8 +9,7 @@ from ipam.constants import *
 from ipam.models import *
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField, \
-    CSVModelMultipleChoiceField
+from utilities.forms import CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, SlugField
 from virtualization.models import VirtualMachine, VMInterface
 
 __all__ = (
@@ -425,17 +424,10 @@ class ServiceImportForm(NetBoxModelImportForm):
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
     )
-    ipaddresses = CSVModelMultipleChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        to_field_name='address',
-        help_text=_('IP Address'),
-    )
 
     class Meta:
         model = Service
-        fields = (
-        'device', 'virtual_machine', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
+        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
 
 
 class L2VPNImportForm(NetBoxModelImportForm):
