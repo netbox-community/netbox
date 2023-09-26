@@ -49,10 +49,9 @@ class ChoiceField(serializers.Field):
         if obj != '':
             # Use an empty string in place of the choice label if it cannot be resolved (i.e. because a previously
             # configured choice has been removed from FIELD_CHOICES).
-            label = self._choices.get(obj, '')
             return {
                 'value': obj,
-                'label': label,
+                'label': self._choices.get(obj, ''),
             }
 
     def to_internal_value(self, data):
