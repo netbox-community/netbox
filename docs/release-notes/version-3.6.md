@@ -8,10 +8,16 @@
 
 ### Bug Fixes
 
+* [#11079](https://github.com/netbox-community/netbox/issues/11079) - Enable tracing cable paths across multiple cables in parallel
+* [#11901](https://github.com/netbox-community/netbox/issues/11901) - Fix `IndexError` exception when manipulating terminations for existing cables via REST API
 * [#13506](https://github.com/netbox-community/netbox/issues/13506) - Enable creating a config template which references a data file via the REST API
 * [#13666](https://github.com/netbox-community/netbox/issues/13666) - Cleanly handle reports without any test methods defined
 * [#13839](https://github.com/netbox-community/netbox/issues/13839) - Restore original text color for HTML code elements
+* [#13843](https://github.com/netbox-community/netbox/issues/13843) - Fix assignment of VLAN group scope during bulk edit
 * [#13845](https://github.com/netbox-community/netbox/issues/13845) - Fix `AttributeError` exception when attaching front/rear images to a device type
+* [#13849](https://github.com/netbox-community/netbox/issues/13849) - Fix `KeyError` exception when deleting an object which references a configured choice value that has been removed
+* [#13859](https://github.com/netbox-community/netbox/issues/13859) - Fix invalid response when searching for custom choice field values returns no matches
+* [#13864](https://github.com/netbox-community/netbox/issues/13864) - Correct default background color for dashboard widget headers
 * [#13871](https://github.com/netbox-community/netbox/issues/13871) - Fix rack filtering for empty location during device bulk import
 * [#13891](https://github.com/netbox-community/netbox/issues/13891) - Allow designating an IP address as primary for device/VM while assigning it to an interface
 
