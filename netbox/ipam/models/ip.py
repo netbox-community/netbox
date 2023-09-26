@@ -1,7 +1,6 @@
 import netaddr
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
-
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
@@ -786,7 +785,7 @@ class IPAddress(PrimaryModel):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # Save a copy of u_height for validation in clean()
+        # Denote the original assigned object (if any) for validation in clean()
         self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
         self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
 
@@ -866,7 +865,9 @@ class IPAddress(PrimaryModel):
 
             if is_primary and (parent != original_parent):
                 raise ValidationError({
-                    'assigned_object': _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
+                    'assigned_object': _(
+                        "Cannot reassign IP address while it is designated as the primary IP for the parent object"
+                    )
                 })
 
         # Validate IP status selection
