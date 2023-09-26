@@ -64,9 +64,19 @@ def get_interface_state_attribute(record):
     Get interface enabled state as string to attach to <tr/> DOM element.
     """
     if record.enabled:
-        return "enabled"
+        return 'enabled'
     else:
-        return "disabled"
+        return 'disabled'
+
+
+def get_interface_connected_attribute(record):
+    """
+    Get interface disconnected state as string to attach to <tr/> DOM element.
+    """
+    if record.mark_connected or record.cable:
+        return 'connected'
+    else:
+        return 'disconnected'
 
 
 #
@@ -674,6 +684,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-name': lambda record: record.name,
             'data-enabled': get_interface_state_attribute,
             'data-type': lambda record: record.type,
+            'data-connected': get_interface_connected_attribute
         }
 
 
