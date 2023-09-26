@@ -2,6 +2,19 @@
 
 ## v3.6.3 (FUTURE)
 
+### Enhancements
+
+* [#12732](https://github.com/netbox-community/netbox/issues/12732) - Add toggle to hide disconnected interfaces under device view
+
+### Bug Fixes
+
+* [#13506](https://github.com/netbox-community/netbox/issues/13506) - Enable creating a config template which references a data file via the REST API
+* [#13666](https://github.com/netbox-community/netbox/issues/13666) - Cleanly handle reports without any test methods defined
+* [#13839](https://github.com/netbox-community/netbox/issues/13839) - Restore original text color for HTML code elements
+* [#13845](https://github.com/netbox-community/netbox/issues/13845) - Fix `AttributeError` exception when attaching front/rear images to a device type
+* [#13871](https://github.com/netbox-community/netbox/issues/13871) - Fix rack filtering for empty location during device bulk import
+* [#13891](https://github.com/netbox-community/netbox/issues/13891) - Allow designating an IP address as primary for device/VM while assigning it to an interface
+
 ---
 
 ## v3.6.2 (2023-09-20)
