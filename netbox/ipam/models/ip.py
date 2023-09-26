@@ -851,13 +851,20 @@ class IPAddress(PrimaryModel):
                         )
                     })
 
-        if self.is_primary_ip and self._original_assigned_object_id and self._original_assigned_object_type_id:
+        if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)
             ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
             original_parent = getattr(original_assigned_object, 'parent_object', None)
 
-            if parent != original_parent:
+            # can't use is_primary_ip as self.assigned_object might be changed
+            is_primary = False
+            if self.family == 4 and hasattr(original_parent, 'primary_ip4') and original_parent.primary_ip4_id == self.pk:
+                is_primary = True
+            if self.family == 6 and hasattr(original_parent, 'primary_ip6') and original_parent.primary_ip6_id == self.pk:
+                is_primary = True
+
+            if is_primary and (parent != original_parent):
                 raise ValidationError({
                     'assigned_object': _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
                 })
