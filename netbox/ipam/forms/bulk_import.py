@@ -507,10 +507,16 @@ class ServiceImportForm(NetBoxModelImportForm):
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
     )
+    ipaddresses = CSVModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        to_field_name='address',
+        help_text=_('IP Address'),
+    )
 
     class Meta:
         model = Service
-        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
+        fields = ('device', 'virtual_machine', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
 
 
 class L2VPNImportForm(NetBoxModelImportForm):
