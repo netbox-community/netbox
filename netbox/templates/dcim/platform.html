@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_device %}
-    <a href="{% url 'dcim:device_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:device_add' %}?platform={{ object.pk }}" class="btn btn-sm btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Device" %}
     </a>
   {% endif %}
