@@ -341,8 +341,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         nested_objs = []
         if collector.instances_with_model():
             for model, instance in collector.instances_with_model():
-                if not instance == obj:
-                    nested_objs.append(f"{model.__name__} - {instance}")
+                nested_objs.append(f"{model.__name__} - {instance}")
             
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
