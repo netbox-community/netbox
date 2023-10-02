@@ -120,7 +120,7 @@ class Report(object):
     def full_name(self):
         return f'{self.module}.{self.class_name}'
 
-    @property
+    @classproperty
     def name(self):
         """
         Override this attribute to set a custom display name.
