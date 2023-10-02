@@ -67,6 +67,7 @@ Context:
           <input type="hidden" name="import_method" value="upload" />
           {% render_field form.upload_file %}
           {% render_field form.format %}
+          {% render_field form.csv_delimiter %}
           <div class="form-group">
             <div class="col col-md-12 text-end">
               <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
@@ -88,6 +89,7 @@ Context:
           {% render_field form.data_source %}
           {% render_field form.data_file %}
           {% render_field form.format %}
+          {% render_field form.csv_delimiter %}
           <div class="form-group">
             <div class="col col-md-12 text-end">
               <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
