@@ -296,6 +296,9 @@ An IPv4 or IPv6 network with a mask. Returns a `netaddr.IPNetwork` object. Two a
 
 Custom scripts can be run via the web UI by navigating to the script, completing any required form data, and clicking the "run script" button. It is possible to schedule a script to be executed at specified time in the future. A scheduled script can be canceled by deleting the associated job result object.
 
+!!! note
+    To be able to view and run a custom script, a user must have the following view permissions:  `Extras > Script`, `Extras > ScriptModule`, `Core > ManagedFile`. As well as be assigned the extras.run_script permission as shown above.
+
 ### Via the API
 
 To run a script via the REST API, issue a POST request to the script's endpoint specifying the form data and commitment. For example, to run a script named `example.MyReport`, we would make a request such as the following:
