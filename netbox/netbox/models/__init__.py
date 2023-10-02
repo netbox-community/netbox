@@ -85,10 +85,15 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
 
                 if ct_value and fk_value:
                     klass = getattr(self, field.ct_field).model_class()
-                    if not klass.objects.filter(pk=fk_value).exists():
+                    try:
+                        obj = klass.objects.get(pk=fk_value)
+                    except ObjectDoesNotExist:
                         raise ValidationError({
                             field.fk_field: f"Related object not found using the provided value: {fk_value}."
                         })
+
+                    # update the GFK field value
+                    setattr(self, field.name, obj)
 
 
 #
