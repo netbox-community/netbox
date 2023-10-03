@@ -355,6 +355,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.forms',
     'corsheaders',
     'debug_toolbar',
     'graphiql_debug_toolbar',
@@ -429,6 +430,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# This allows us to override Django's stock form widget templates
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 # Set up authentication backends
 if type(REMOTE_AUTH_BACKEND) not in (list, tuple):
