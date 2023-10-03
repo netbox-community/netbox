@@ -320,7 +320,7 @@ class RSSFeedWidget(DashboardWidget):
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             return {
-                'error': e,
+                'error': 'NetBox is unable to connect to feed server...',
             }
 
         # Parse feed content
