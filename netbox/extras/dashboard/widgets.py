@@ -318,7 +318,7 @@ class RSSFeedWidget(DashboardWidget):
                 timeout=3
             )
             response.raise_for_status()
-        except requests.exceptions.RequestException as e:
+        except requests.exceptions.RequestException:
             feed_error = 'NetBox is unable to connect to feed server...'
             return {
                 'error': feed_error,
