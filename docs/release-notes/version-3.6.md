@@ -4,6 +4,11 @@
 
 ### Bug Fixes
 
+* [#12328](https://github.com/netbox-community/netbox/issues/12328) - Ensure generic foreign key relationships are populated in REST API serializations of objects
+* [#13064](https://github.com/netbox-community/netbox/issues/13064) - Fix resetting of checkbox fields triggered by HTMX form re-rendering
+* [#13872](https://github.com/netbox-community/netbox/issues/13872) - Add CSV delimiter field to file upload tab under bulk object upload views
+* [#13910](https://github.com/netbox-community/netbox/issues/13910) - Correct "add device" button link under platform view
+* [#13944](https://github.com/netbox-community/netbox/issues/13944) - Correct serialization of several report attributes in the REST API
 * [#13966](https://github.com/netbox-community/netbox/issues/13966) - Restore "last login" column on users table
 
 ---
