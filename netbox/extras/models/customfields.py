@@ -232,6 +232,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             return self.choice_set.choices
         return []
 
+    def get_choice_label(self, value):
+        if not hasattr(self, '_choice_map'):
+            self._choice_map = dict(self.choices)
+        return self._choice_map.get(value, value)
+
     def populate_initial_data(self, content_types):
         """
         Populate initial custom field data upon either a) the creation of a new CustomField, or
