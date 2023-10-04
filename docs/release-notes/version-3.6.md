@@ -2,6 +2,10 @@
 
 ## v3.6.4 (FUTURE)
 
+### Bug Fixes
+
+* [#13966](https://github.com/netbox-community/netbox/issues/13966) - Restore "last login" column on users table
+
 ---
 
 ## v3.6.3 (2023-09-26)
