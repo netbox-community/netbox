@@ -289,7 +289,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
                 )
 
             # Prepare object data for deserialization
-            requested_objects = self.prep_object_data(serializer.validated_data, available_objects, parent)
+            requested_objects = self.prep_object_data(requested_objects, available_objects, parent)
 
             # Initialize the serializer with a list or a single object depending on what was requested
             serializer_class = get_serializer_for_model(self.queryset.model)
