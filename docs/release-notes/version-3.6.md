@@ -2,11 +2,19 @@
 
 ## v3.6.4 (FUTURE)
 
+### Enhancements
+
+* [#13950](https://github.com/netbox-community/netbox/issues/13950) - Display custom choice field labels rather than values in UI
+
 ### Bug Fixes
 
+* [#11987](https://github.com/netbox-community/netbox/issues/11987) - Fix validation of bulk cable updates via bulk import form
 * [#12328](https://github.com/netbox-community/netbox/issues/12328) - Ensure generic foreign key relationships are populated in REST API serializations of objects
 * [#13064](https://github.com/netbox-community/netbox/issues/13064) - Fix resetting of checkbox fields triggered by HTMX form re-rendering
+* [#13440](https://github.com/netbox-community/netbox/issues/13440) - Fix support for assigning a tenant when creating "next available" VLANs via the REST API
+* [#13746](https://github.com/netbox-community/netbox/issues/13746) - Fix support for setting custom field values when creating "next available" IP addresses via the REST API
 * [#13872](https://github.com/netbox-community/netbox/issues/13872) - Add CSV delimiter field to file upload tab under bulk object upload views
+* [#13876](https://github.com/netbox-community/netbox/issues/13876) - Fix support for assigning an interface when creating "next available" IP addresses via the REST API
 * [#13910](https://github.com/netbox-community/netbox/issues/13910) - Correct "add device" button link under platform view
 * [#13944](https://github.com/netbox-community/netbox/issues/13944) - Correct serialization of several report attributes in the REST API
 * [#13966](https://github.com/netbox-community/netbox/issues/13966) - Restore "last login" column on users table
