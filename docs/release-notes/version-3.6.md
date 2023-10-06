@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#12831](https://github.com/netbox-community/netbox/issues/12831) - Include circuit description in cable trace SVG image
 * [#13950](https://github.com/netbox-community/netbox/issues/13950) - Display custom choice field labels rather than values in UI
 
 ### Bug Fixes
