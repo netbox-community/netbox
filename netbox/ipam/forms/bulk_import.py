@@ -526,9 +526,9 @@ class ServiceImportForm(NetBoxModelImportForm):
 
         for ip_address in self.cleaned_data.get('ipaddresses'):
             if device and ip_address != device.primary_ip4:
-                raise forms.ValidationError("Device needs to be assign an IPAddress")
+                raise forms.ValidationError(f"Device is not assigned to this {ip_address}")
             if virtual_machine and ip_address != virtual_machine.primary_ip4:
-                raise forms.ValidationError("Virtual Machine needs to be assign an IPAddress")
+                raise forms.ValidationError(f"Virtual Machine is not assigned to this {ip_address}")
 
         return self.cleaned_data
 
