@@ -122,15 +122,17 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
             if form.is_valid():
 
                 with transaction.atomic():
-                    cable_ids = {
-                        obj.cable.pk for obj in self.queryset.filter(pk__in=form.cleaned_data['pk'])
-                        if obj.cable is not None
-                    }
+                    count = 0
+                    cable_ids = set()
+                    for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
+                        if obj.cable:
+                            cable_ids.add(obj.cable.pk)
+                            count += 1
                     for cable in Cable.objects.filter(pk__in=cable_ids):
                         cable.delete()
 
                 messages.success(request, _("Disconnected {count} {type}").format(
-                    count=len(cable_ids),
+                    count=count,
                     type=self.queryset.model._meta.verbose_name_plural
                 ))
 
