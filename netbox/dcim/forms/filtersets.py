@@ -908,7 +908,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cable
     fieldsets = (
-        (None, ('q', 'filter_id', 'has_a_terminations', 'has_b_terminations', 'tag')),
+        (None, ('q', 'filter_id', 'unterminated', 'tag')),
         (_('Location'), ('site_id', 'location_id', 'rack_id', 'device_id')),
         (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
@@ -979,15 +979,8 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False
     )
-    has_a_terminations = forms.NullBooleanField(
-        label=_('Has a terminations'),
-        required=False,
-        widget=forms.Select(
-            choices=BOOLEAN_WITH_BLANK_CHOICES
-        )
-    )
-    has_b_terminations = forms.NullBooleanField(
-        label=_('Has b terminations'),
+    unterminated = forms.NullBooleanField(
+        label=_('Unterminated'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES

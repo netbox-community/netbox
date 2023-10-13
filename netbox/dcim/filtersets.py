@@ -1,5 +1,6 @@
 import django_filters
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
@@ -1745,13 +1746,9 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         method='filter_by_cable_end_b',
         field_name='terminations__termination_id'
     )
-    has_a_terminations = django_filters.BooleanFilter(
-        method='_has_a_terminations',
-        label=_('Has a terminations'),
-    )
-    has_b_terminations = django_filters.BooleanFilter(
-        method='_has_b_terminations',
-        label=_('Has b terminations'),
+    unterminated = django_filters.BooleanFilter(
+        method='_unterminated',
+        label=_('Unterminated'),
     )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
@@ -1820,17 +1817,12 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         # Filter by termination id and cable_end type
         return self.filter_by_cable_end(queryset, name, value, CableEndChoices.SIDE_B)
 
-    def _has_a_terminations(self, queryset, name, value):
+    def _unterminated(self, queryset, name, value):
         if value:
-            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A)
+            terminated_ids = queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(terminations__cable_end=CableEndChoices.SIDE_B).values("id")
+            return queryset.exclude(id__in=terminated_ids)
         else:
-            return queryset.exclude(terminations__cable_end=CableEndChoices.SIDE_A)
-
-    def _has_b_terminations(self, queryset, name, value):
-        if value:
-            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_B)
-        else:
-            return queryset.exclude(terminations__cable_end=CableEndChoices.SIDE_B)
+            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(terminations__cable_end=CableEndChoices.SIDE_B)
 
 
 class CableTerminationFilterSet(BaseFilterSet):
