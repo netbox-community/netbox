@@ -120,6 +120,10 @@ psycopg[binary,pool]
 # https://github.com/yaml/pyyaml/blob/master/CHANGES
 PyYAML
 
+# Requests
+# https://github.com/psf/requests/blob/main/HISTORY.md
+requests
+
 # Sentry SDK
 # https://github.com/getsentry/sentry-python/blob/master/CHANGELOG.md
 sentry-sdk

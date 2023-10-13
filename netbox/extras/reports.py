@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 def get_module_and_report(module_name, report_name):
     module = ReportModule.objects.get(file_path=f'{module_name}.py')
-    report = module.reports.get(report_name)
+    report = module.reports.get(report_name)()
     return module, report
 
 

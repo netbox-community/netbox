@@ -266,6 +266,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
         # Normalize request data to a list of objects
         requested_objects = request.data if isinstance(request.data, list) else [request.data]
+        limit = len(requested_objects)
 
         # Serialize and validate the request data
         serializer = self.write_serializer_class(data=requested_objects, many=True, context={
@@ -279,7 +280,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
             )
 
         with advisory_lock(ADVISORY_LOCK_KEYS[self.advisory_lock_key]):
-            available_objects = self.get_available_objects(parent)
+            available_objects = self.get_available_objects(parent, limit)
 
             # Determine if the requested number of objects is available
             if not self.check_sufficient_available(serializer.validated_data, available_objects):
@@ -289,7 +290,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
                 )
 
             # Prepare object data for deserialization
-            requested_objects = self.prep_object_data(serializer.validated_data, available_objects, parent)
+            requested_objects = self.prep_object_data(requested_objects, available_objects, parent)
 
             # Initialize the serializer with a list or a single object depending on what was requested
             serializer_class = get_serializer_for_model(self.queryset.model)
