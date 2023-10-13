@@ -4275,6 +4275,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
             Interface(device=devices[4], name='Interface 10', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[5], name='Interface 11', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[5], name='Interface 12', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 13', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -4289,6 +4290,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         Cable(a_terminations=[interfaces[9]], b_terminations=[interfaces[10]], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(a_terminations=[interfaces[11]], b_terminations=[interfaces[0]], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(a_terminations=[console_port], b_terminations=[console_server_port], label='Cable 7').save()
+        Cable(a_terminations=[interfaces[12]], label='Cable 8', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_DECOMMISSIONING, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
 
     def test_label(self):
         params = {'label': ['Cable 1', 'Cable 2']}
@@ -4296,7 +4298,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_length(self):
         params = {'length': [10, 20]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_length_unit(self):
         params = {'length_unit': CableLengthUnitChoices.UNIT_FOOT}
@@ -4367,6 +4369,12 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
             'termination_a_id': list(interface_ids),
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_unterminated(self):
+        params = {'unterminated': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'unterminated': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
 
 class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):
