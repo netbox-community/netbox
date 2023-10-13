@@ -122,7 +122,7 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
             if form.is_valid():
 
                 with transaction.atomic():
-                    cables = []
+                    cables = set()
                     count = 0
                     for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
                         if obj.cable is None:
