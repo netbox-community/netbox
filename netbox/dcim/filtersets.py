@@ -1,6 +1,5 @@
 import django_filters
 from django.contrib.auth import get_user_model
-from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
@@ -1819,10 +1818,16 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     def _unterminated(self, queryset, name, value):
         if value:
-            terminated_ids = queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(terminations__cable_end=CableEndChoices.SIDE_B).values("id")
+            terminated_ids = (
+                queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A)
+                .filter(terminations__cable_end=CableEndChoices.SIDE_B)
+                .values("id")
+            )
             return queryset.exclude(id__in=terminated_ids)
         else:
-            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(terminations__cable_end=CableEndChoices.SIDE_B)
+            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
+                terminations__cable_end=CableEndChoices.SIDE_B
+            )
 
 
 class CableTerminationFilterSet(BaseFilterSet):

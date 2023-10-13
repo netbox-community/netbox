@@ -908,9 +908,9 @@ class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Cable
     fieldsets = (
-        (None, ('q', 'filter_id', 'unterminated', 'tag')),
+        (None, ('q', 'filter_id', 'tag')),
         (_('Location'), ('site_id', 'location_id', 'rack_id', 'device_id')),
-        (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit')),
+        (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit', 'unterminated')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(

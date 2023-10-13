@@ -4290,7 +4290,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         Cable(a_terminations=[interfaces[9]], b_terminations=[interfaces[10]], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(a_terminations=[interfaces[11]], b_terminations=[interfaces[0]], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(a_terminations=[console_port], b_terminations=[console_server_port], label='Cable 7').save()
-        Cable(a_terminations=[interfaces[12]], label='Cable 8', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_DECOMMISSIONING, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
+
+        # Cable for unterminated test
+        Cable(a_terminations=[interfaces[12]], label='Cable 8', type=CableTypeChoices.TYPE_CAT6, status=LinkStatusChoices.STATUS_DECOMMISSIONING).save()
 
     def test_label(self):
         params = {'label': ['Cable 1', 'Cable 2']}
@@ -4298,7 +4300,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_length(self):
         params = {'length': [10, 20]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_length_unit(self):
         params = {'length_unit': CableLengthUnitChoices.UNIT_FOOT}
