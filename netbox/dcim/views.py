@@ -130,8 +130,8 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
                         cables.add(obj.cable.pk)
                         count += 1
 
-                    if len(cables) > 0:
-                        Cable.objects.filter(pk__in=cables).delete()
+                    for cable in Cable.objects.filter(pk__in=cables):
+                        cable.delete()
 
                 messages.success(request, "Disconnected {} {}".format(
                     count, self.queryset.model._meta.verbose_name_plural
