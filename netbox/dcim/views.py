@@ -127,8 +127,7 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
                     for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
                         if obj.cable is None:
                             continue
-                        if obj.cable.pk not in cables:
-                            cables.append(obj.cable.pk)
+                        cables.add(obj.cable.pk)
                         count += 1
 
                     if len(cables) > 0:
