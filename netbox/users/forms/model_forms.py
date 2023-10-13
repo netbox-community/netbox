@@ -114,6 +114,9 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
         help_text=_(
             'Keys must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
             'submitting this form, as it may no longer be accessible once the token has been created.'
+        ),
+        widget=forms.TextInput(
+            attrs={'data-clipboard': 'true'}
         )
     )
     allowed_ips = SimpleArrayField(
