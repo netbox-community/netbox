@@ -5,6 +5,7 @@
 ### Enhancements
 
 * [#12831](https://github.com/netbox-community/netbox/issues/12831) - Include circuit description in cable trace SVG image
+* [#12872](https://github.com/netbox-community/netbox/issues/12872) - Introduce the `DATA_UPLOAD_MAX_MEMORY_SIZE` configuration parameter
 * [#13950](https://github.com/netbox-community/netbox/issues/13950) - Display custom choice field labels rather than values in UI
 
 ### Bug Fixes
@@ -19,6 +20,9 @@
 * [#13910](https://github.com/netbox-community/netbox/issues/13910) - Correct "add device" button link under platform view
 * [#13944](https://github.com/netbox-community/netbox/issues/13944) - Correct serialization of several report attributes in the REST API
 * [#13966](https://github.com/netbox-community/netbox/issues/13966) - Restore "last login" column on users table
+* [#14013](https://github.com/netbox-community/netbox/issues/14013) - Fix device role filter choices under inventory items list filters
+* [#14023](https://github.com/netbox-community/netbox/issues/14023) - Fix exception when bulk disconnecting interfaces connected to the same cable
+* [#14026](https://github.com/netbox-community/netbox/issues/14026) - Optimize the automatic creation of available IP addresses for large prefixes
 
 ---
 
