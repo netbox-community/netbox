@@ -318,8 +318,23 @@ class RSSFeedWidget(DashboardWidget):
                 timeout=3
             )
             response.raise_for_status()
-        except requests.exceptions.RequestException:
-            feed_error = 'NetBox is unable to connect to feed server...'
+
+        except requests.exceptions.RequestException as e:
+            if 'response' in locals():
+                feed_error = f'HTTP {response.reason}'
+            else:
+                if isinstance(e, requests.exceptions.Timeout):
+                    feed_error = 'Timeout'
+                elif isinstance(e, requests.exceptions.URLRequired):
+                    feed_error = 'URL Required'
+                elif isinstance(e, requests.exceptions.TooManyRedirects):
+                    feed_error = 'Too Many Redirects'
+                else:
+                    if 'NameResolutionError' in str(e):
+                        feed_error = 'Failed to Resolve'
+                    else:
+                        feed_error = 'Connection Error'
+
             return {
                 'error': feed_error,
             }
