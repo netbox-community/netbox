@@ -103,4 +103,10 @@ def get_cable_form(a_type, b_type):
             self.instance.a_terminations = self.cleaned_data['a_terminations']
             self.instance.b_terminations = self.cleaned_data['b_terminations']
 
+            if a_type == b_type and self.instance.a_terminations and self.instance.b_terminations:
+                if self.instance.a_terminations.intersection(self.instance.b_terminations):
+                    raise forms.ValidationError(
+                        _("A and B terminations cannot connect to the same object.")
+                    )
+
     return _CableForm
