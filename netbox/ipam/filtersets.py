@@ -618,10 +618,14 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=IPAddressRoleChoices
     )
+    dns_name = MultiValueCharFilter(
+        method='search_by_dns',
+        label=_('DNS Name'),
+    )
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'dns_name', 'description']
+        fields = ['id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -737,6 +741,17 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
                 assigned_object_type__isnull=True,
                 assigned_object_id__isnull=True
             )
+
+    def search_by_dns(self, queryset, name, value):
+        if not value:
+            return queryset
+
+        normalized_value = str(value[0]).lower()
+
+        if normalized_value in ('none', 'null'):
+            return queryset.filter(dns_name='')
+
+        return queryset.filter(dns_name__in=value)
 
 
 class FHRPGroupFilterSet(NetBoxModelFilterSet):
