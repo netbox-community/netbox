@@ -72,7 +72,10 @@ def post_delete_receiver(sender, instance, **kwargs):
 
         # Decrement the parent's counter by one
         if parent_pk is not None:
-            update_counter(parent_model, parent_pk, counter_name, -1)
+            # MPTT sends two delete signals if child element so guard against multiple decrements
+            origin = kwargs.get('origin')
+            if not origin or origin == instance:
+                update_counter(parent_model, parent_pk, counter_name, -1)
 
 
 #
