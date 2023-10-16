@@ -643,7 +643,7 @@ class DeviceFilterForm(
         (None, ('q', 'filter_id', 'tag')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
         (_('Operation'), ('status', 'role_id', 'airflow', 'serial', 'asset_tag', 'mac_address')),
-        (_('Hardware'), ('manufacturer_id', 'device_type_id', 'platform_id')),
+        (_('Hardware'), ('manufacturer_id', 'platform_id', 'device_type_id')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
         (_('Components'), (
@@ -713,7 +713,10 @@ class DeviceFilterForm(
         queryset=Platform.objects.all(),
         required=False,
         null_option='None',
-        label=_('Platform')
+        label=_('Platform'),
+        query_params={
+            "manufacturer_id": '$manufacturer_id'
+        }
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),

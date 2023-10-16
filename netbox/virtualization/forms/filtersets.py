@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Manufacturer, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
 from ipam.models import L2VPN, VRF
@@ -94,7 +94,7 @@ class VirtualMachineFilterForm(
         (None, ('q', 'filter_id', 'tag')),
         (_('Cluster'), ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('Attributes'), ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id', 'local_context_data')),
+        (_('Attributes'), ('status', 'role_id', 'manufacturer_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id', 'local_context_data')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
@@ -154,11 +154,19 @@ class VirtualMachineFilterForm(
         choices=VirtualMachineStatusChoices,
         required=False
     )
+    manufacturer_id = DynamicModelMultipleChoiceField(
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        label=_('Manufacturer'),
+    )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         required=False,
         null_option='None',
-        label=_('Platform')
+        label=_('Platform'),
+        query_params = {
+            "manufacturer_id": '$manufacturer_id'
+        }
     )
     mac_address = forms.CharField(
         required=False,

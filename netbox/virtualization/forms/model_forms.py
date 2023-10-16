@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.forms.common import InterfaceCommonForm
-from dcim.models import Device, DeviceRole, Platform, Rack, Region, Site, SiteGroup
+from dcim.models import Device, DeviceRole, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from extras.models import ConfigTemplate
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
@@ -197,10 +197,21 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             "vm_role": "True"
         }
     )
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        initial_params={
+            'platforms': '$platform'
+        }
+    )
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            "manufacturer_id": '$manufacturer'
+        }
     )
     local_context_data = JSONField(
         required=False,
@@ -217,7 +228,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
         (_('Virtual Machine'), ('name', 'role', 'status', 'description', 'tags')),
         (_('Site/Cluster'), ('site', 'cluster', 'device')),
         (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Management'), ('platform', 'primary_ip4', 'primary_ip6', 'config_template')),
+        (_('Management'), ('manufacturer', 'platform', 'primary_ip4', 'primary_ip6', 'config_template')),
         (_('Resources'), ('vcpus', 'memory', 'disk')),
         (_('Config Context'), ('local_context_data',)),
     )

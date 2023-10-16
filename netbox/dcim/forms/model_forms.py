@@ -439,10 +439,21 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Device role'),
         queryset=DeviceRole.objects.all()
     )
+    manufacturer = DynamicModelChoiceField(
+        label=_('Manufacturer'),
+        queryset=Manufacturer.objects.all(),
+        required=False,
+        initial_params={
+            'platforms': '$platform'
+        }
+    )
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        query_params={
+            "manufacturer_id": '$manufacturer'
+        }
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),
