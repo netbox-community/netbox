@@ -87,26 +87,18 @@ class CountersTest(TestCase):
     def test_mptt_child_delete(self):
         device1, device2 = Device.objects.all()
         inventory_item1 = InventoryItem.objects.create(device=device1, name='Inventory Item 1')
-        inventory_item2 = InventoryItem.objects.create(device=device1, name='Inventory Item 1', parent=inventory_item1)
+        inventory_item2 = InventoryItem.objects.create(device=device1, name='Inventory Item 2', parent=inventory_item1)
         device1.refresh_from_db()
         self.assertEqual(device1.inventory_item_count, 2)
 
         # Setup bulk_delete for the inventory items
+        self.add_permissions('dcim.delete_inventoryitem')
         pk_list = device1.inventoryitems.values_list('pk', flat=True)
         data = {
             'pk': pk_list,
             'confirm': True,
             '_confirm': True,  # Form button
         }
-
-        # Assign unconstrained permission
-        obj_perm = ObjectPermission(
-            name='Test permission',
-            actions=['delete']
-        )
-        obj_perm.save()
-        obj_perm.users.add(self.user.pk)
-        obj_perm.object_types.add(ContentType.objects.get_for_model(InventoryItem))
 
         # Try POST with model-level permission
         self.client.post(reverse("dcim:inventoryitem_bulk_delete"), data)
