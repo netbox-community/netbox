@@ -359,12 +359,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     dns_name = forms.CharField(
         required=False,
-        widget=forms.TextInput(
-            attrs={
-                'placeholder': 'DNS Name',
-            }
-        ),
-        label='DNS Name'
+        label=_('DNS Name')
     )
     tag = TagFilterField(model)
 
