@@ -181,7 +181,12 @@ class Cable(PrimaryModel):
                     raise ValidationError(f"Incompatible termination types: {a_type} and {b_type}")
 
                 if a_type == b_type:
-                    if (set(self.a_terminations) & set(self.b_terminations)):
+                    # can't directly use self.a_terminations here as possible they
+                    # don't have pk yet
+                    a_pks = set(obj.pk for obj in self.a_terminations if obj.pk)
+                    b_pks = set(obj.pk for obj in self.b_terminations if obj.pk)
+
+                    if (a_pks & b_pks):
                         raise ValidationError(
                             _("A and B terminations cannot connect to the same object.")
                         )
