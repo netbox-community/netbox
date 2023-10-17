@@ -910,7 +910,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Location'), ('site_id', 'location_id', 'rack_id', 'device_id')),
-        (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit')),
+        (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit', 'unterminated')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -978,6 +978,13 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Length unit'),
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False
+    )
+    unterminated = forms.NullBooleanField(
+        label=_('Unterminated'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     tag = TagFilterField(model)
 

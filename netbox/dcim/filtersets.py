@@ -1745,6 +1745,10 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         method='filter_by_cable_end_b',
         field_name='terminations__termination_id'
     )
+    unterminated = django_filters.BooleanFilter(
+        method='_unterminated',
+        label=_('Unterminated'),
+    )
     type = django_filters.MultipleChoiceFilter(
         choices=CableTypeChoices
     )
@@ -1811,6 +1815,19 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
     def filter_by_cable_end_b(self, queryset, name, value):
         # Filter by termination id and cable_end type
         return self.filter_by_cable_end(queryset, name, value, CableEndChoices.SIDE_B)
+
+    def _unterminated(self, queryset, name, value):
+        if value:
+            terminated_ids = (
+                queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A)
+                .filter(terminations__cable_end=CableEndChoices.SIDE_B)
+                .values("id")
+            )
+            return queryset.exclude(id__in=terminated_ids)
+        else:
+            return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
+                terminations__cable_end=CableEndChoices.SIDE_B
+            )
 
 
 class CableTerminationFilterSet(BaseFilterSet):
