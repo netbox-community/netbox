@@ -131,7 +131,7 @@ class JobListView(generic.ObjectListView):
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
     actions = {
-        'export': set(),
+        'export': {'view'},
         'bulk_delete': {'delete'},
     }
 

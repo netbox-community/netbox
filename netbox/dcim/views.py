@@ -49,7 +49,7 @@ class DeviceComponentsView(generic.ObjectChildrenView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -1980,7 +1980,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2003,7 +2003,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2026,7 +2026,7 @@ class DeviceInventoryView(DeviceComponentsView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2211,7 +2211,7 @@ class ConsolePortListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2283,7 +2283,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2355,7 +2355,7 @@ class PowerPortListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2427,7 +2427,7 @@ class PowerOutletListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2499,7 +2499,7 @@ class InterfaceListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2619,7 +2619,7 @@ class FrontPortListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2691,7 +2691,7 @@ class RearPortListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2763,7 +2763,7 @@ class ModuleBayListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2827,7 +2827,7 @@ class DeviceBayListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -2960,7 +2960,7 @@ class InventoryItemListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
@@ -3198,7 +3198,7 @@ class CableListView(generic.ObjectListView):
     table = tables.CableTable
     actions = {
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
     }
@@ -3296,7 +3296,7 @@ class ConsoleConnectionsListView(generic.ObjectListView):
     table = tables.ConsoleConnectionTable
     template_name = 'dcim/connections_list.html'
     actions = {
-        'export': set(),
+        'export': {'view'},
     }
 
     def get_extra_context(self, request):
@@ -3312,7 +3312,7 @@ class PowerConnectionsListView(generic.ObjectListView):
     table = tables.PowerConnectionTable
     template_name = 'dcim/connections_list.html'
     actions = {
-        'export': set(),
+        'export': {'view'},
     }
 
     def get_extra_context(self, request):
@@ -3328,7 +3328,7 @@ class InterfaceConnectionsListView(generic.ObjectListView):
     table = tables.InterfaceConnectionTable
     template_name = 'dcim/connections_list.html'
     actions = {
-        'export': set(),
+        'export': {'view'},
     }
 
     def get_extra_context(self, request):

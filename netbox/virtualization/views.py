@@ -202,7 +202,7 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_remove_devices': {'change'},
     }
@@ -362,7 +362,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},

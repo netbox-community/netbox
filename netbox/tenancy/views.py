@@ -387,7 +387,7 @@ class ContactAssignmentListView(generic.ObjectListView):
     filterset_form = forms.ContactAssignmentFilterForm
     table = tables.ContactAssignmentTable
     actions = {
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
     }

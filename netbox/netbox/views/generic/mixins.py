@@ -12,7 +12,7 @@ class ActionsMixin:
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
     }

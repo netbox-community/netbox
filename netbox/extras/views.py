@@ -213,10 +213,10 @@ class ExportTemplateListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
-        'bulk_sync': set(),
+        'bulk_sync': {'sync'},
     }
 
 
@@ -483,7 +483,7 @@ class ConfigContextListView(generic.ObjectListView):
         'add': {'add'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
-        'bulk_sync': set(),
+        'bulk_sync': {'sync'},
     }
 
 
@@ -591,10 +591,10 @@ class ConfigTemplateListView(generic.ObjectListView):
     actions = {
         'add': {'add'},
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
-        'bulk_sync': set(),
+        'bulk_sync': {'sync'},
     }
 
 
@@ -647,7 +647,7 @@ class ObjectChangeListView(generic.ObjectListView):
     table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
     actions = {
-        'export': set(),
+        'export': {'view'},
     }
 
 
@@ -715,7 +715,7 @@ class ImageAttachmentListView(generic.ObjectListView):
     filterset_form = forms.ImageAttachmentFilterForm
     table = tables.ImageAttachmentTable
     actions = {
-        'export': set(),
+        'export': {'view'},
     }
 
 
@@ -761,7 +761,7 @@ class JournalEntryListView(generic.ObjectListView):
     table = tables.JournalEntryTable
     actions = {
         'import': {'add'},
-        'export': set(),
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
     }
