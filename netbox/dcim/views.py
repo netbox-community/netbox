@@ -46,15 +46,15 @@ CABLE_TERMINATION_TYPES = {
 
 
 class DeviceComponentsView(generic.ObjectChildrenView):
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename', 'bulk_disconnect')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
         'bulk_disconnect': {'change'},
-    })
+    }
     queryset = Device.objects.all()
 
     def get_children(self, request, parent):
@@ -2187,14 +2187,14 @@ class ConsolePortListView(generic.ObjectListView):
     filterset_form = forms.ConsolePortFilterForm
     table = tables.ConsolePortTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(ConsolePort)
@@ -2259,14 +2259,14 @@ class ConsoleServerPortListView(generic.ObjectListView):
     filterset_form = forms.ConsoleServerPortFilterForm
     table = tables.ConsoleServerPortTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(ConsoleServerPort)
@@ -2331,14 +2331,14 @@ class PowerPortListView(generic.ObjectListView):
     filterset_form = forms.PowerPortFilterForm
     table = tables.PowerPortTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(PowerPort)
@@ -2403,14 +2403,14 @@ class PowerOutletListView(generic.ObjectListView):
     filterset_form = forms.PowerOutletFilterForm
     table = tables.PowerOutletTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(PowerOutlet)
@@ -2475,14 +2475,14 @@ class InterfaceListView(generic.ObjectListView):
     filterset_form = forms.InterfaceFilterForm
     table = tables.InterfaceTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(Interface)
@@ -2595,14 +2595,14 @@ class FrontPortListView(generic.ObjectListView):
     filterset_form = forms.FrontPortFilterForm
     table = tables.FrontPortTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(FrontPort)
@@ -2667,14 +2667,14 @@ class RearPortListView(generic.ObjectListView):
     filterset_form = forms.RearPortFilterForm
     table = tables.RearPortTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(RearPort)
@@ -2739,14 +2739,14 @@ class ModuleBayListView(generic.ObjectListView):
     filterset_form = forms.ModuleBayFilterForm
     table = tables.ModuleBayTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(ModuleBay)
@@ -2803,14 +2803,14 @@ class DeviceBayListView(generic.ObjectListView):
     filterset_form = forms.DeviceBayFilterForm
     table = tables.DeviceBayTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(DeviceBay)
@@ -2936,14 +2936,14 @@ class InventoryItemListView(generic.ObjectListView):
     filterset_form = forms.InventoryItemFilterForm
     table = tables.InventoryItemTable
     template_name = 'dcim/component_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': set(),
         'bulk_edit': {'change'},
         'bulk_delete': {'delete'},
         'bulk_rename': {'change'},
-    })
+    }
 
 
 @register_model_view(InventoryItem)
