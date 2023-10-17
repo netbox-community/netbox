@@ -62,7 +62,7 @@ def post_save_receiver(sender, instance, created, **kwargs):
             update_counter(parent_model, new_pk, counter_name, 1)
 
 
-def post_delete_receiver(sender, instance, **kwargs):
+def post_delete_receiver(sender, instance, origin, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is deleted.
     """
@@ -72,7 +72,9 @@ def post_delete_receiver(sender, instance, **kwargs):
 
         # Decrement the parent's counter by one
         if parent_pk is not None:
-            update_counter(parent_model, parent_pk, counter_name, -1)
+            # MPTT sends two delete signals for child elements so guard against multiple decrements
+            if not origin or origin == instance:
+                update_counter(parent_model, parent_pk, counter_name, -1)
 
 
 #
