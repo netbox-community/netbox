@@ -7,11 +7,15 @@
 * [#12831](https://github.com/netbox-community/netbox/issues/12831) - Include circuit description in cable trace SVG image
 * [#12872](https://github.com/netbox-community/netbox/issues/12872) - Introduce the `DATA_UPLOAD_MAX_MEMORY_SIZE` configuration parameter
 * [#13950](https://github.com/netbox-community/netbox/issues/13950) - Display custom choice field labels rather than values in UI
+* [#13957](https://github.com/netbox-community/netbox/issues/13957) - Add DNS name filter on IP addresses list
+* [#13962](https://github.com/netbox-community/netbox/issues/13962) - Add a copy-to-clipboard button for API tokens
+* [#13972](https://github.com/netbox-community/netbox/issues/13972) - Introduce a filter to find unterminated cables
 
 ### Bug Fixes
 
 * [#11987](https://github.com/netbox-community/netbox/issues/11987) - Fix validation of bulk cable updates via bulk import form
 * [#12328](https://github.com/netbox-community/netbox/issues/12328) - Ensure generic foreign key relationships are populated in REST API serializations of objects
+* [#12336](https://github.com/netbox-community/netbox/issues/12336) - Employ PostgreSQL advisory locks to avoid duplicate MPTT tree IDs when bulk creating objects
 * [#13064](https://github.com/netbox-community/netbox/issues/13064) - Fix resetting of checkbox fields triggered by HTMX form re-rendering
 * [#13440](https://github.com/netbox-community/netbox/issues/13440) - Fix support for assigning a tenant when creating "next available" VLANs via the REST API
 * [#13746](https://github.com/netbox-community/netbox/issues/13746) - Fix support for setting custom field values when creating "next available" IP addresses via the REST API
@@ -22,7 +26,9 @@
 * [#13966](https://github.com/netbox-community/netbox/issues/13966) - Restore "last login" column on users table
 * [#14013](https://github.com/netbox-community/netbox/issues/14013) - Fix device role filter choices under inventory items list filters
 * [#14023](https://github.com/netbox-community/netbox/issues/14023) - Fix exception when bulk disconnecting interfaces connected to the same cable
+* [#14025](https://github.com/netbox-community/netbox/issues/14025) - Fix exception when viewing a script that begins with the same name as another
 * [#14026](https://github.com/netbox-community/netbox/issues/14026) - Optimize the automatic creation of available IP addresses for large prefixes
+* [#14042](https://github.com/netbox-community/netbox/issues/14042) - Fix duplicated child object count decrements when removing objects in bulk
 
 ---
 
