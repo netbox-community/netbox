@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
@@ -9,6 +7,7 @@ __all__ = (
 
 
 class ActionsMixin:
+    # Map action names to the set of required permissions for each
     actions = {
         'add': {'add'},
         'import': {'add'},
