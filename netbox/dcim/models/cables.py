@@ -180,6 +180,12 @@ class Cable(PrimaryModel):
                 if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
                     raise ValidationError(f"Incompatible termination types: {a_type} and {b_type}")
 
+                if a_type == b_type:
+                    if (set(self.a_terminations) & set(self.b_terminations)):
+                        raise ValidationError(
+                            _("A and B terminations cannot connect to the same object.")
+                        )
+
             # Run clean() on any new CableTerminations
             for termination in self.a_terminations:
                 CableTermination(cable=self, cable_end='A', termination=termination).clean()
