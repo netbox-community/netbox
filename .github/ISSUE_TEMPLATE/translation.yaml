@@ -27,8 +27,8 @@ body:
       label: Volunteer
       description: Are you a native speaker of this language and willing to contribute a translation map?
       options:
-        - Yes
-        - No
+        - "Yes"
+        - "No"
     validations:
       required: true
   - type: textarea
