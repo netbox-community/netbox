@@ -94,7 +94,7 @@ class VirtualMachineFilterForm(
         (None, ('q', 'filter_id', 'tag')),
         (_('Cluster'), ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('Attributes'), ('status', 'role_id', 'manufacturer_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id', 'local_context_data')),
+        (_('Attributes'), ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id', 'local_context_data')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
@@ -153,11 +153,6 @@ class VirtualMachineFilterForm(
         label=_('Status'),
         choices=VirtualMachineStatusChoices,
         required=False
-    )
-    manufacturer_id = DynamicModelMultipleChoiceField(
-        queryset=Manufacturer.objects.all(),
-        required=False,
-        label=_('Manufacturer'),
     )
     platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
