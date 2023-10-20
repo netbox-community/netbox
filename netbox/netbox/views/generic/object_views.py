@@ -2,9 +2,9 @@ import logging
 from copy import deepcopy
 
 from django.contrib import messages
-from django.contrib.admin.utils import NestedObjects
 from django.db import transaction, router
 from django.db.models import ProtectedError
+from django.db.models.deletion import Collector
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -336,13 +336,16 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         form = ConfirmationForm(initial=request.GET)
 
         using = router.db_for_write(obj._meta.model)
-        collector = NestedObjects(using=using)
+        collector = Collector(using=using)
         collector.collect([obj])
-        nested_objs = []
+        deletion_objects = []
         if collector.instances_with_model():
             for model, instance in collector.instances_with_model():
-                nested_objs.append(f"{model.__name__} - {instance}")
-            
+                # we could ignore the instance == obj so that the list doesnt contain itself...
+                deletion_objects.append({
+                    "modelname":f"{model.__name__}", 
+                    "object": instance,
+                })
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
@@ -353,7 +356,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 'object_type': self.queryset.model._meta.verbose_name,
                 'form': form,
                 'form_url': form_url,
-                'nested_objs': nested_objs,
+                'deletion_objects': deletion_objects,
                 **self.get_extra_context(request, obj),
             })
 
@@ -361,7 +364,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
-            'nested_objs': nested_objs,
+            'deletion_objects': deletion_objects,
             **self.get_extra_context(request, obj),
         })
 
