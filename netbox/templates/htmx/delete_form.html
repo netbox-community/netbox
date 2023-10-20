@@ -12,11 +12,15 @@
         Are you sure you want to <strong class="text-danger">delete</strong> {{ object_type }} <strong>{{ object }}</strong>?
       {% endblocktrans %}
     </p>
-    {% if deletion_objects %}
+    {% if related_objects %}
     <p>
-      This will cause deltion of the following items: <br>
-      {% for deletion_object in deletion_objects %} 
-        - {{ deletion_object.modelname }} - {{ deletion_object.object | linkify }} <br>
+      This will cause deletion of the following items: <br>
+      {% for model,objects in related_objects.items %} 
+        - {{ model }}:
+        {% for object in objects %}
+          {{ object | linkify }},
+        {% endfor %}
+        <br>
       {% endfor %}
     </p>
     {% endif %}

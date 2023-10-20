@@ -338,14 +338,12 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         using = router.db_for_write(obj._meta.model)
         collector = Collector(using=using)
         collector.collect([obj])
-        deletion_objects = []
-        if collector.instances_with_model():
-            for model, instance in collector.instances_with_model():
-                # we could ignore the instance == obj so that the list doesnt contain itself...
-                deletion_objects.append({
-                    "modelname":f"{model.__name__}", 
-                    "object": instance,
-                })
+        related_objects = {}
+        for model, instance in collector.instances_with_model():
+            # we could ignore the instance == obj so that the list doesnt contain itself...
+            if not model.__name__ in related_objects:
+                related_objects[model.__name__] = []
+            related_objects[model.__name__].append(instance)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
@@ -356,7 +354,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 'object_type': self.queryset.model._meta.verbose_name,
                 'form': form,
                 'form_url': form_url,
-                'deletion_objects': deletion_objects,
+                'related_objects': related_objects,
                 **self.get_extra_context(request, obj),
             })
 
@@ -364,7 +362,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
-            'deletion_objects': deletion_objects,
+            'related_objects': related_objects,
             **self.get_extra_context(request, obj),
         })
 
