@@ -152,9 +152,17 @@ PARAMS = (
         description=_("Custom validation rules (JSON)"),
         field=forms.JSONField,
         field_kwargs={
-            'widget': forms.Textarea(
-                attrs={'class': 'vLargeTextField'}
-            ),
+            'widget': forms.Textarea(),
+        },
+    ),
+    ConfigParam(
+        name='PROTECTION_RULES',
+        label=_('Protection rules'),
+        default={},
+        description=_("Deletion protection rules (JSON)"),
+        field=forms.JSONField,
+        field_kwargs={
+            'widget': forms.Textarea(),
         },
     ),
 

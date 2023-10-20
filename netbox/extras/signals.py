@@ -2,8 +2,10 @@ import importlib
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
 from extras.validators import CustomValidator
@@ -178,11 +180,7 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_type
 # Custom validation
 #
 
-@receiver(post_clean)
-def run_custom_validators(sender, instance, **kwargs):
-    config = get_config()
-    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = config.CUSTOM_VALIDATORS.get(model_name, [])
+def run_validators(instance, validators):
 
     for validator in validators:
 
@@ -196,6 +194,29 @@ def run_custom_validators(sender, instance, **kwargs):
             validator = CustomValidator(validator)
 
         validator(instance)
+
+
+@receiver(post_clean)
+def run_save_validators(sender, instance, **kwargs):
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
+
+    run_validators(instance, validators)
+
+
+@receiver(pre_delete)
+def run_delete_validators(sender, instance, **kwargs):
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = get_config().PROTECTION_RULES.get(model_name, [])
+
+    try:
+        run_validators(instance, validators)
+    except ValidationError as e:
+        raise AbortRequest(
+            _("Deletion is prevented by a protection rule: {message}").format(
+                message=e
+            )
+        )
 
 
 #
