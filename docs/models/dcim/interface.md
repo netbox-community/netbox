@@ -77,6 +77,9 @@ If selected, this component will be treated as if a cable has been connected.
 
 Virtual interfaces can be bound to a physical parent interface. This is helpful for modeling virtual interfaces which employ encapsulation on a physical interface, such as an 802.1Q VLAN-tagged subinterface.
 
+!!! note
+    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned.
+
 ### Bridged Interface
 
 Interfaces can be bridged to other interfaces on a device in two manners: symmetric or grouped.
