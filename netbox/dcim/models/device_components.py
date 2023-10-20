@@ -537,7 +537,7 @@ class BaseInterface(models.Model):
     )
     parent = models.ForeignKey(
         to='self',
-        on_delete=models.PROTECT,
+        on_delete=models.RESTRICT,
         related_name='child_interfaces',
         null=True,
         blank=True,
