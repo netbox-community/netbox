@@ -29,6 +29,12 @@
             <th scope="row">{% trans "Description" %}</th>
             <td>{{ object.description|placeholder }}</td>
           </tr>
+          <tr>
+            <th scope="row">{% trans "Color" %}</th>
+            <td>
+              <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+            </td>
+          </tr>
         </table>
       </div>
     </div>

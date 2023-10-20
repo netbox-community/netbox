@@ -159,6 +159,7 @@ class CableTraceSVG:
             labels.append(location_label)
         elif instance._meta.model_name == 'circuit':
             labels[0] = f'Circuit {instance}'
+            labels.append(instance.type)
             labels.append(instance.provider)
             if instance.description:
                 labels.append(instance.description)
