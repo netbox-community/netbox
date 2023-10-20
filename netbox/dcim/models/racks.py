@@ -357,7 +357,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
         return [u for u in elevation.values()]
 
-    def get_available_units(self, u_height=1, rack_face=None, exclude=None):
+    def get_available_units(self, u_height=1, rack_face=None, exclude=None, exclude_from_utilization=False):
         """
         Return a list of units within the rack available to accommodate a device of a given U height (default 1).
         Optionally exclude one or more devices when calculating empty units (needed when moving a device from one
@@ -369,6 +369,9 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         """
         # Gather all devices which consume U space within the rack
         devices = self.devices.prefetch_related('device_type').filter(position__gte=1)
+        if exclude_from_utilization:
+            devices = devices.exclude(device_type__exclude_from_utilization=True)
+
         if exclude is not None:
             devices = devices.exclude(pk__in=exclude)
 
@@ -453,7 +456,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         """
         # Determine unoccupied units
         total_units = len(list(self.units))
-        available_units = self.get_available_units(u_height=0.5)
+        available_units = self.get_available_units(u_height=0.5, exclude_from_utilization=True)
 
         # Remove reserved units
         for ru in self.get_reserved_units():
