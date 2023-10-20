@@ -5,22 +5,22 @@ from django.core.exceptions import ImproperlyConfigured
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from extras.plugins import PluginMenu
-from extras.tests.dummy_plugin import config as dummy_config
-from extras.plugins.utils import get_plugin_config
+from netbox.tests.dummy_plugin import config as dummy_config
+from netbox.plugins.navigation import PluginMenu
+from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
 from netbox.registry import registry
 
 
-@skipIf('extras.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
+@skipIf('netbox.tests.dummy_plugin' not in settings.PLUGINS, "dummy_plugin not in settings.PLUGINS")
 class PluginTest(TestCase):
 
     def test_config(self):
 
-        self.assertIn('extras.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
+        self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
     def test_models(self):
-        from extras.tests.dummy_plugin.models import DummyModel
+        from netbox.tests.dummy_plugin.models import DummyModel
 
         # Test saving an instance
         instance = DummyModel(name='Instance 1', number=100)
@@ -92,7 +92,7 @@ class PluginTest(TestCase):
         """
         Check that plugin TemplateExtensions are registered.
         """
-        from extras.tests.dummy_plugin.template_content import SiteContent
+        from netbox.tests.dummy_plugin.template_content import SiteContent
 
         self.assertIn(SiteContent, registry['plugins']['template_extensions']['dcim.site'])
 
@@ -109,15 +109,15 @@ class PluginTest(TestCase):
         """
         Check that plugin middleware is registered.
         """
-        self.assertIn('extras.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
+        self.assertIn('netbox.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
 
     def test_queues(self):
         """
         Check that plugin queues are registered with the accurate name.
         """
-        self.assertIn('extras.tests.dummy_plugin.testing-low', settings.RQ_QUEUES)
-        self.assertIn('extras.tests.dummy_plugin.testing-medium', settings.RQ_QUEUES)
-        self.assertIn('extras.tests.dummy_plugin.testing-high', settings.RQ_QUEUES)
+        self.assertIn('netbox.tests.dummy_plugin.testing-low', settings.RQ_QUEUES)
+        self.assertIn('netbox.tests.dummy_plugin.testing-medium', settings.RQ_QUEUES)
+        self.assertIn('netbox.tests.dummy_plugin.testing-high', settings.RQ_QUEUES)
 
     def test_min_version(self):
         """
@@ -170,17 +170,17 @@ class PluginTest(TestCase):
         """
         Validate the registration and operation of plugin-provided GraphQL schemas.
         """
-        from extras.tests.dummy_plugin.graphql import DummyQuery
+        from netbox.tests.dummy_plugin.graphql import DummyQuery
 
         self.assertIn(DummyQuery, registry['plugins']['graphql_schemas'])
         self.assertTrue(issubclass(Query, DummyQuery))
 
-    @override_settings(PLUGINS_CONFIG={'extras.tests.dummy_plugin': {'foo': 123}})
+    @override_settings(PLUGINS_CONFIG={'netbox.tests.dummy_plugin': {'foo': 123}})
     def test_get_plugin_config(self):
         """
         Validate that get_plugin_config() returns config parameters correctly.
         """
-        plugin = 'extras.tests.dummy_plugin'
+        plugin = 'netbox.tests.dummy_plugin'
         self.assertEqual(get_plugin_config(plugin, 'foo'), 123)
         self.assertEqual(get_plugin_config(plugin, 'bar'), None)
         self.assertEqual(get_plugin_config(plugin, 'bar', default=456), 456)
