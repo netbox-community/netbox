@@ -20,6 +20,7 @@ from circuits.models import Circuit, CircuitTermination
 from extras.views import ObjectConfigContextView
 from ipam.models import ASN, IPAddress, Prefix, VLAN, VLANGroup
 from ipam.tables import InterfaceVLANTable
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
@@ -47,11 +48,7 @@ CABLE_TERMINATION_TYPES = {
 
 class DeviceComponentsView(generic.ObjectChildrenView):
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
         'bulk_disconnect': {'change'},
     }
@@ -1978,11 +1975,7 @@ class DeviceModuleBaysView(DeviceComponentsView):
     filterset = filtersets.ModuleBayFilterSet
     template_name = 'dcim/device/modulebays.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
     tab = ViewTab(
@@ -2001,11 +1994,7 @@ class DeviceDeviceBaysView(DeviceComponentsView):
     filterset = filtersets.DeviceBayFilterSet
     template_name = 'dcim/device/devicebays.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
     tab = ViewTab(
@@ -2024,11 +2013,7 @@ class DeviceInventoryView(DeviceComponentsView):
     filterset = filtersets.InventoryItemFilterSet
     template_name = 'dcim/device/inventory.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
     tab = ViewTab(
@@ -2209,11 +2194,7 @@ class ConsolePortListView(generic.ObjectListView):
     table = tables.ConsolePortTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2281,11 +2262,7 @@ class ConsoleServerPortListView(generic.ObjectListView):
     table = tables.ConsoleServerPortTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2353,11 +2330,7 @@ class PowerPortListView(generic.ObjectListView):
     table = tables.PowerPortTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2425,11 +2398,7 @@ class PowerOutletListView(generic.ObjectListView):
     table = tables.PowerOutletTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2497,11 +2466,7 @@ class InterfaceListView(generic.ObjectListView):
     table = tables.InterfaceTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2617,11 +2582,7 @@ class FrontPortListView(generic.ObjectListView):
     table = tables.FrontPortTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2689,11 +2650,7 @@ class RearPortListView(generic.ObjectListView):
     table = tables.RearPortTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2761,11 +2718,7 @@ class ModuleBayListView(generic.ObjectListView):
     table = tables.ModuleBayTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2825,11 +2778,7 @@ class DeviceBayListView(generic.ObjectListView):
     table = tables.DeviceBayTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 
@@ -2958,11 +2907,7 @@ class InventoryItemListView(generic.ObjectListView):
     table = tables.InventoryItemTable
     template_name = 'dcim/component_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
 

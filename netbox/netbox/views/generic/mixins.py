@@ -1,5 +1,6 @@
 import warnings
 
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from utilities.permissions import get_permission_for_model
 
 __all__ = (
@@ -9,14 +10,15 @@ __all__ = (
 
 
 class ActionsMixin:
-    # Map action names to the set of required permissions for each
-    actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    }
+    """
+    Maps action names to the set of required permissions for each. Object list views reference this mapping to
+    determine whether to render the applicable button for each action: The button will be rendered only if the user
+    possesses the specified permission(s).
+
+    Standard actions include: add, import, export, bulk_edit, and bulk_delete. Some views extend this default map
+    with custom actions, such as bulk_sync.
+    """
+    actions = DEFAULT_ACTION_PERMISSIONS
 
     def get_permitted_actions(self, user, model=None):
         """

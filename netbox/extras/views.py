@@ -16,6 +16,7 @@ from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.config import get_config, PARAMS
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
@@ -211,11 +212,7 @@ class ExportTemplateListView(generic.ObjectListView):
     table = tables.ExportTemplateTable
     template_name = 'extras/exporttemplate_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_sync': {'sync'},
     }
 
@@ -589,11 +586,7 @@ class ConfigTemplateListView(generic.ObjectListView):
     table = tables.ConfigTemplateTable
     template_name = 'extras/configtemplate_list.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_sync': {'sync'},
     }
 

@@ -16,6 +16,7 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
@@ -360,11 +361,7 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     filterset = filtersets.VMInterfaceFilterSet
     template_name = 'virtualization/virtualmachine/interfaces.html'
     actions = {
-        'add': {'add'},
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
+        **DEFAULT_ACTION_PERMISSIONS,
         'bulk_rename': {'change'},
     }
     tab = ViewTab(
