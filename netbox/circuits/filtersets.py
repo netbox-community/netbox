@@ -137,7 +137,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug', 'color', 'description']
 
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):

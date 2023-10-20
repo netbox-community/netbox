@@ -7,7 +7,7 @@ from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -97,7 +97,16 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
 
 class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Attributes'), ('color',)),
+    )
     tag = TagFilterField(model)
+
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
 
 
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
