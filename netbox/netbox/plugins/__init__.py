@@ -6,6 +6,7 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 from packaging import version
 
+from core.utils import register_data_backend
 from netbox.registry import registry
 from netbox.search import register_search
 from .navigation import *
@@ -24,6 +25,7 @@ registry['plugins'].update({
 
 DEFAULT_RESOURCE_PATHS = {
     'search_indexes': 'search.indexes',
+    'data_backends': 'data_backends.backends',
     'graphql_schema': 'graphql.schema',
     'menu': 'navigation.menu',
     'menu_items': 'navigation.menu_items',
@@ -70,6 +72,7 @@ class PluginConfig(AppConfig):
 
     # Optional plugin resources
     search_indexes = None
+    data_backends = None
     graphql_schema = None
     menu = None
     menu_items = None
@@ -97,6 +100,11 @@ class PluginConfig(AppConfig):
         search_indexes = self._load_resource('search_indexes') or []
         for idx in search_indexes:
             register_search(idx)
+
+        # Register data backends (if defined)
+        data_backends = self._load_resource('data_backends') or []
+        for backend in data_backends:
+            register_data_backend()(backend)
 
         # Register template content (if defined)
         if template_extensions := self._load_resource('template_extensions'):

@@ -45,9 +45,7 @@ class DataSource(JobsMixin, PrimaryModel):
     )
     type = models.CharField(
         verbose_name=_('type'),
-        max_length=50,
-        choices=DataSourceTypeChoices,
-        default=DataSourceTypeChoices.LOCAL
+        max_length=50
     )
     source_url = models.CharField(
         max_length=200,
@@ -96,8 +94,9 @@ class DataSource(JobsMixin, PrimaryModel):
     def docs_url(self):
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
-    def get_type_color(self):
-        return DataSourceTypeChoices.colors.get(self.type)
+    def get_type_display(self):
+        if backend := registry['data_backends'].get(self.type):
+            return backend.label
 
     def get_status_color(self):
         return DataSourceStatusChoices.colors.get(self.status)
@@ -111,10 +110,6 @@ class DataSource(JobsMixin, PrimaryModel):
         return registry['data_backends'].get(self.type)
 
     @property
-    def is_local(self):
-        return self.type == DataSourceTypeChoices.LOCAL
-
-    @property
     def ready_for_sync(self):
         return self.enabled and self.status not in (
             DataSourceStatusChoices.QUEUED,
@@ -124,7 +119,7 @@ class DataSource(JobsMixin, PrimaryModel):
     def clean(self):
 
         # Ensure URL scheme matches selected type
-        if self.type == DataSourceTypeChoices.LOCAL and self.url_scheme not in ('file', ''):
+        if self.backend_class.is_local and self.url_scheme not in ('file', ''):
             raise ValidationError({
                 'source_url': f"URLs for local sources must start with file:// (or specify no scheme)"
             })

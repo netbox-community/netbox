@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
 from core.models import *
+from core.utils import get_data_backend_choices
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
 from utilities.forms import get_field_value
@@ -18,6 +19,10 @@ __all__ = (
 
 
 class DataSourceForm(NetBoxModelForm):
+    type = forms.ChoiceField(
+        choices=get_data_backend_choices,
+        widget=HTMXSelect()
+    )
     comments = CommentField()
 
     class Meta:
@@ -26,7 +31,6 @@ class DataSourceForm(NetBoxModelForm):
             'name', 'type', 'source_url', 'enabled', 'description', 'comments', 'ignore_rules', 'tags',
         ]
         widgets = {
-            'type': HTMXSelect(),
             'ignore_rules': forms.Textarea(
                 attrs={
                     'rows': 5,
@@ -56,12 +60,13 @@ class DataSourceForm(NetBoxModelForm):
 
         # Add backend-specific form fields
         self.backend_fields = []
-        for name, form_field in backend.parameters.items():
-            field_name = f'backend_{name}'
-            self.backend_fields.append(field_name)
-            self.fields[field_name] = copy.copy(form_field)
-            if self.instance and self.instance.parameters:
-                self.fields[field_name].initial = self.instance.parameters.get(name)
+        if backend:
+            for name, form_field in backend.parameters.items():
+                field_name = f'backend_{name}'
+                self.backend_fields.append(field_name)
+                self.fields[field_name] = copy.copy(form_field)
+                if self.instance and self.instance.parameters:
+                    self.fields[field_name].initial = self.instance.parameters.get(name)
 
     def save(self, *args, **kwargs):
 

@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
 from core.models import *
+from core.utils import get_data_backend_choices
 from extras.forms.mixins import SavedFiltersMixin
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelFilterSetForm
@@ -27,7 +28,7 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
-        choices=DataSourceTypeChoices,
+        choices=get_data_backend_choices,
         required=False
     )
     status = forms.MultipleChoiceField(

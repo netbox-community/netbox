@@ -6,6 +6,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from netbox.tests.dummy_plugin import config as dummy_config
+from netbox.tests.dummy_plugin.data_backends import DummyBackend
 from netbox.plugins.navigation import PluginMenu
 from netbox.plugins.utils import get_plugin_config
 from netbox.graphql.schema import Query
@@ -110,6 +111,13 @@ class PluginTest(TestCase):
         Check that plugin middleware is registered.
         """
         self.assertIn('netbox.tests.dummy_plugin.middleware.DummyMiddleware', settings.MIDDLEWARE)
+
+    def test_data_backends(self):
+        """
+        Check registered data backends.
+        """
+        self.assertIn('dummy', registry['data_backends'])
+        self.assertIs(registry['data_backends']['dummy'], DummyBackend)
 
     def test_queues(self):
         """

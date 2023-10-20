@@ -109,6 +109,7 @@ NetBox looks for the `config` variable within a plugin's `__init__.py` to load i
 | `middleware`          | A list of middleware classes to append after NetBox's build-in middleware                                                |
 | `queues`              | A list of custom background task queues to create                                                                        |
 | `search_extensions`   | The dotted path to the list of search index classes (default: `search.indexes`)                                          |
+| `data_backends`       | The dotted path to the list of data source backend classes (default: `data_backends.backends`)                           |
 | `template_extensions` | The dotted path to the list of template extension classes (default: `template_content.template_extensions`)              |
 | `menu_items`          | The dotted path to the list of menu items provided by the plugin (default: `navigation.menu_items`)                      |
 | `graphql_schema`      | The dotted path to the plugin's GraphQL schema class, if any (default: `graphql.schema`)                                 |
