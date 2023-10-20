@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import ProtectedError
+from django.db.models import ProtectedError, RestrictedError
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -374,8 +374,8 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             try:
                 obj.delete()
 
-            except ProtectedError as e:
-                logger.info("Caught ProtectedError while attempting to delete object")
+            except (ProtectedError, RestrictedError) as e:
+                logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
 
