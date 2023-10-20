@@ -16,6 +16,7 @@ from dcim.tables import DeviceTable
 from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
@@ -199,13 +200,13 @@ class ClusterDevicesView(generic.ObjectChildrenView):
     table = DeviceTable
     filterset = DeviceFilterSet
     template_name = 'virtualization/cluster/devices.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_remove_devices')
-    action_perms = defaultdict(set, **{
+    actions = {
         'add': {'add'},
         'import': {'add'},
+        'export': {'view'},
         'bulk_edit': {'change'},
         'bulk_remove_devices': {'change'},
-    })
+    }
     tab = ViewTab(
         label=_('Devices'),
         badge=lambda obj: obj.devices.count(),
@@ -359,20 +360,16 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
     table = tables.VirtualMachineVMInterfaceTable
     filterset = filtersets.VMInterfaceFilterSet
     template_name = 'virtualization/virtualmachine/interfaces.html'
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_rename': {'change'},
+    }
     tab = ViewTab(
         label=_('Interfaces'),
         badge=lambda obj: obj.interface_count,
         permission='virtualization.view_vminterface',
         weight=500
     )
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_rename')
-    action_perms = defaultdict(set, **{
-        'add': {'add'},
-        'import': {'add'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-        'bulk_rename': {'change'},
-    })
 
     def get_children(self, request, parent):
         return parent.interfaces.restrict(request.user, 'view').prefetch_related(

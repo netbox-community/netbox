@@ -16,6 +16,7 @@ from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.config import get_config, PARAMS
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
@@ -210,7 +211,10 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
     template_name = 'extras/exporttemplate_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_sync': {'sync'},
+    }
 
 
 @register_model_view(ExportTemplate)
@@ -472,7 +476,12 @@ class ConfigContextListView(generic.ObjectListView):
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
     template_name = 'extras/configcontext_list.html'
-    actions = ('add', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+    actions = {
+        'add': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_sync': {'sync'},
+    }
 
 
 @register_model_view(ConfigContext)
@@ -576,7 +585,10 @@ class ConfigTemplateListView(generic.ObjectListView):
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
     template_name = 'extras/configtemplate_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_sync': {'sync'},
+    }
 
 
 @register_model_view(ConfigTemplate)
@@ -627,7 +639,9 @@ class ObjectChangeListView(generic.ObjectListView):
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
-    actions = ('export',)
+    actions = {
+        'export': {'view'},
+    }
 
 
 @register_model_view(ObjectChange)
@@ -693,7 +707,9 @@ class ImageAttachmentListView(generic.ObjectListView):
     filterset = filtersets.ImageAttachmentFilterSet
     filterset_form = forms.ImageAttachmentFilterForm
     table = tables.ImageAttachmentTable
-    actions = ('export',)
+    actions = {
+        'export': {'view'},
+    }
 
 
 @register_model_view(ImageAttachment, 'edit')
@@ -736,7 +752,12 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
+    actions = {
+        'import': {'add'},
+        'export': {'view'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+    }
 
 
 @register_model_view(JournalEntry)
