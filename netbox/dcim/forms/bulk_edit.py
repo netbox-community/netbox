@@ -291,11 +291,6 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Height (U)')
     )
-    exclude_from_utilization = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect,
-        label=_('Descending units')
-    )
     desc_units = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect,
@@ -349,8 +344,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         (_('Rack'), ('status', 'role', 'tenant', 'serial', 'asset_tag', 'description')),
         (_('Location'), ('region', 'site_group', 'site', 'location')),
         (_('Hardware'), (
-            'type', 'width', 'u_height', 'exclude_from_utilization', 'desc_units', 'outer_width', 'outer_depth',
-            'outer_unit', 'mounting_depth',
+            'type', 'width', 'u_height', 'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth',
         )),
         (_('Weight'), ('weight', 'max_weight', 'weight_unit')),
     )
