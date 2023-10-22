@@ -18,7 +18,7 @@
       {% for model,objects in related_objects.items %} 
         - {{ model }}:
         {% for object in objects %}
-          {{ object | linkify }},
+          {{ object | linkify }}{% if not forloop.last %}, {% endif %}
         {% endfor %}
         <br>
       {% endfor %}
