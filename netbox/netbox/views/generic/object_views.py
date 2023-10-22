@@ -341,7 +341,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         related_objects = {}
         for model, instance in collector.instances_with_model():
             # we could ignore the instance == obj so that the list doesnt contain itself...
-            if not model.__name__ in related_objects:
+            if model.__name__ not in related_objects:
                 related_objects[model.__name__] = []
             related_objects[model.__name__].append(instance)
 
