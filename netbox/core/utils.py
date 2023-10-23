@@ -8,7 +8,10 @@ __all__ = (
 
 def get_data_backend_choices():
     return [
-        (name, cls.label) for name, cls in registry['data_backends'].items()
+        (None, '---------'),
+        *[
+            (name, cls.label) for name, cls in registry['data_backends'].items()
+        ]
     ]
 
 

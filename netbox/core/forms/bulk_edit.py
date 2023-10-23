@@ -15,10 +15,8 @@ __all__ = (
 class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
     type = forms.ChoiceField(
         label=_('Type'),
-        # TODO: Field value should be empty on init (needs add_blank_choice())
         choices=get_data_backend_choices,
-        required=False,
-        initial=''
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,
