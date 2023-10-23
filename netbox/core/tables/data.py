@@ -3,6 +3,7 @@ import django_tables2 as tables
 
 from core.models import *
 from netbox.tables import NetBoxTable, columns
+from .columns import BackendTypeColumn
 
 __all__ = (
     'DataFileTable',
@@ -14,6 +15,9 @@ class DataSourceTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
+    )
+    type = BackendTypeColumn(
+        verbose_name=_('Type')
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
