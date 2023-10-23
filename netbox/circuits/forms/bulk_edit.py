@@ -103,9 +103,9 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = CircuitType
     fieldsets = (
-        (None, ('color', 'description',)),
+        (None, ('color', 'description')),
     )
-    nullable_fields = ('color', 'description',)
+    nullable_fields = ('color', 'description')
 
 
 class CircuitBulkEditForm(NetBoxModelBulkEditForm):

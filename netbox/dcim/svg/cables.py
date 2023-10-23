@@ -182,7 +182,7 @@ class CableTraceSVG:
         if hasattr(instance, 'role'):
             # Device
             return instance.role.color
-        elif instance._meta.model_name == 'circuit':
+        elif instance._meta.model_name == 'circuit' and instance.type.color:
             return instance.type.color
         else:
             # Other parent object
