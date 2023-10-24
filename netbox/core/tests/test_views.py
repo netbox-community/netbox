@@ -28,10 +28,10 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            f"name,type,source_url,enabled",
-            f"Data Source 4,{'local'},file:///var/tmp/source4/,true",
-            f"Data Source 5,{'local'},file:///var/tmp/source4/,true",
-            f"Data Source 6,git,http:///exmaple/com/foo/bar/,false",
+            "name,type,source_url,enabled",
+            "Data Source 4,local,file:///var/tmp/source4/,true",
+            "Data Source 5,local,file:///var/tmp/source4/,true",
+            "Data Source 6,git,http:///exmaple/com/foo/bar/,false",
         )
 
         cls.csv_update_data = (
