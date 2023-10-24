@@ -41,6 +41,10 @@
                             <td>{{ object.u_height|floatformat }}</td>
                         </tr>
                         <tr>
+                            <td>{% trans "Exclude From Utilization" %})</td>
+                            <td>{% checkmark object.exclude_from_utilization %}</td>
+                        </tr>
+                        <tr>
                             <td>{% trans "Full Depth" %}</td>
                             <td>{% checkmark object.is_full_depth %}</td>
                         </tr>

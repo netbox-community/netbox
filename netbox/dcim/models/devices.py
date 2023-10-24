@@ -106,6 +106,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         default=1.0,
         verbose_name=_('height (U)')
     )
+    exclude_from_utilization = models.BooleanField(
+        default=False,
+        verbose_name=_('exclude from utilization'),
+        help_text=_('Exclude from rack utilization calculations.')
+    )
     is_full_depth = models.BooleanField(
         default=True,
         verbose_name=_('is full depth'),

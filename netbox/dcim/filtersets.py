@@ -496,7 +496,8 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization', 'is_full_depth', 'subdevice_role',
+            'airflow', 'weight', 'weight_unit',
         ]
 
     def search(self, queryset, name, value):
