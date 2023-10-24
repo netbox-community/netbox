@@ -5,10 +5,10 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
 from core.models import *
-from core.utils import get_data_backend_choices
 from extras.forms.mixins import SavedFiltersMixin
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelFilterSetForm
+from netbox.utils import get_data_backend_choices
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker

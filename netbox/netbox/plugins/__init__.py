@@ -6,9 +6,9 @@ from django.core.exceptions import ImproperlyConfigured
 from django.utils.module_loading import import_string
 from packaging import version
 
-from core.utils import register_data_backend
 from netbox.registry import registry
 from netbox.search import register_search
+from netbox.utils import register_data_backend
 from .navigation import *
 from .registration import *
 from .templates import *

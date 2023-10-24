@@ -2,8 +2,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from core.models import *
-from core.utils import get_data_backend_choices
 from netbox.forms import NetBoxModelBulkEditForm
+from netbox.utils import get_data_backend_choices
 from utilities.forms.fields import CommentField
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 

@@ -5,9 +5,9 @@ from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
 from core.models import *
-from core.utils import get_data_backend_choices
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
+from netbox.utils import get_data_backend_choices
 from utilities.forms import get_field_value
 from utilities.forms.fields import CommentField
 from utilities.forms.widgets import HTMXSelect

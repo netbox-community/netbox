@@ -4,9 +4,9 @@ from rest_framework import serializers
 
 from core.choices import *
 from core.models import *
-from core.utils import get_data_backend_choices
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer
+from netbox.utils import get_data_backend_choices
 from users.api.nested_serializers import NestedUserSerializer
 from .nested_serializers import *
 

@@ -10,8 +10,8 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from core.utils import register_data_backend
 from netbox.data_backends import DataBackend
+from netbox.utils import register_data_backend
 from .exceptions import SyncError
 
 __all__ = (
