@@ -118,6 +118,12 @@ class DataSource(JobsMixin, PrimaryModel):
 
     def clean(self):
 
+        # Validate data backend type
+        if self.type and self.type not in registry['data_backends']:
+            raise ValidationError({
+                'type': _("Unknown backend type: {type}".format(type=self.type))
+            })
+
         # Ensure URL scheme matches selected type
         if self.backend_class.is_local and self.url_scheme not in ('file', ''):
             raise ValidationError({

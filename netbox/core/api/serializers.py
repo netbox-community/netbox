@@ -1,5 +1,3 @@
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
 from core.choices import *
@@ -40,13 +38,6 @@ class DataSourceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description', 'comments',
             'parameters', 'ignore_rules', 'created', 'last_updated', 'file_count',
         ]
-
-    def clean(self):
-
-        if self.type and self.type not in get_data_backend_choices():
-            raise ValidationError({
-                'type': _("Unknown backend type: {type}".format(type=self.type))
-            })
 
 
 class DataFileSerializer(NetBoxModelSerializer):
