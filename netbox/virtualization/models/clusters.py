@@ -138,7 +138,10 @@ class Cluster(ContactsMixin, PrimaryModel):
             nonsite_devices = Device.objects.filter(cluster=self).exclude(site=self.site).count()
             if nonsite_devices:
                 raise ValidationError({
-                    'site': _("{} devices are assigned as hosts for this cluster but are not in site {}").format(
-                        nonsite_devices, self.site
+                    'site': _(
+                        "{count} devices are assigned as hosts for this cluster but are not in site {site}"
+                    ).format(
+                        count=nonsite_devices,
+                        site=self.site
                     )
                 })

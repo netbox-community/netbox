@@ -302,8 +302,13 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 )
                 if d.position not in u_available:
                     raise ValidationError({
-                        'u_height': _("Device {} in rack {} does not have sufficient space to accommodate a height of "
-                                      "{}U").format(d, d.rack, self.u_height)
+                        'u_height': _(
+                            "Device {device} in rack {rack} does not have sufficient space to accommodate a "
+                            "height of {height}U"
+                        ).format(
+                            device=d,
+                            rack=d.rack,
+                            height=self.u_height)
                     })
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
