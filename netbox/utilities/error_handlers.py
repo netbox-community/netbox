@@ -17,11 +17,9 @@ def handle_protectederror(obj_list, request, e):
         raise e
 
     # Formulate the error message
-    err_message = _(
-        "Unable to delete <strong>{objects}</strong>. {count} dependent objects were found: ".format(
-            objects=', '.join(str(obj) for obj in obj_list),
-            count=len(protected_objects) if len(protected_objects) <= 50 else _('More than 50')
-        )
+    err_message = _("Unable to delete <strong>{objects}</strong>. {count} dependent objects were found: ").format(
+        objects=', '.join(str(obj) for obj in obj_list),
+        count=len(protected_objects) if len(protected_objects) <= 50 else _('More than 50')
     )
 
     # Append dependent objects to error message
