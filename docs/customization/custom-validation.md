@@ -26,6 +26,8 @@ The `CustomValidator` class supports several validation types:
 * `regex`: Application of a [regular expression](https://en.wikipedia.org/wiki/Regular_expression)
 * `required`: A value must be specified
 * `prohibited`: A value must _not_ be specified
+* `eq`: A value must be equal to the specified value
+* `neq`: A value must _not_ be equal to the specified value
 
 The `min` and `max` types should be defined for numeric values, whereas `min_length`, `max_length`, and `regex` are suitable for character strings (text values). The `required` and `prohibited` validators may be used for any field, and should be passed a value of `True`.
 
