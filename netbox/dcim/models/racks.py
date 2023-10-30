@@ -562,9 +562,9 @@ class RackReservation(PrimaryModel):
             invalid_units = [u for u in self.units if u not in self.rack.units]
             if invalid_units:
                 raise ValidationError({
-                    'units': _("Invalid unit(s) for {}U rack: {}").format(
-                        self.rack.u_height,
-                        ', '.join([str(u) for u in invalid_units]),
+                    'units': _("Invalid unit(s) for {height}U rack: {unit_list}").format(
+                        height=self.rack.u_height,
+                        unit_list=', '.join([str(u) for u in invalid_units])
                     ),
                 })
 
@@ -575,8 +575,8 @@ class RackReservation(PrimaryModel):
             conflicting_units = [u for u in self.units if u in reserved_units]
             if conflicting_units:
                 raise ValidationError({
-                    'units': _('The following units have already been reserved: {}').format(
-                        ', '.join([str(u) for u in conflicting_units]),
+                    'units': _('The following units have already been reserved: {unit_list}').format(
+                        unit_list=', '.join([str(u) for u in conflicting_units])
                     )
                 })
 

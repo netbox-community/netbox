@@ -169,7 +169,7 @@ class UserConfig(models.Model):
             elif key in d:
                 err_path = '.'.join(path.split('.')[:i + 1])
                 raise TypeError(
-                    _("Key '{err_path}' is a leaf node; cannot assign new keys").format(err_path=err_path)
+                    _("Key '{path}' is a leaf node; cannot assign new keys").format(path=err_path)
                 )
             else:
                 d = d.setdefault(key, {})

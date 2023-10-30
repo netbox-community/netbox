@@ -88,7 +88,7 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
         label=_('Provider')
     )
     service_id = forms.CharField(
-        label=_('Service id'),
+        label=_('Service ID'),
         max_length=100,
         required=False
     )

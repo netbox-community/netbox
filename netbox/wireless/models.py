@@ -213,14 +213,14 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         if self.interface_a.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
                 'interface_a': _(
-                    "{type_display} is not a wireless interface."
-                ).format(type_display=self.interface_a.get_type_display())
+                    "{type} is not a wireless interface."
+                ).format(type=self.interface_a.get_type_display())
             })
         if self.interface_b.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
                 'interface_a': _(
-                    "{type_display} is not a wireless interface."
-                ).format(type_display=self.interface_b.get_type_display())
+                    "{type} is not a wireless interface."
+                ).format(type=self.interface_b.get_type_display())
             })
 
     def save(self, *args, **kwargs):

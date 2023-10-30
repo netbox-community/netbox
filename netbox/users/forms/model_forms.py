@@ -386,5 +386,5 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
                     model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
                 except FieldError as e:
                     raise forms.ValidationError({
-                        'constraints': _('Invalid filter for {model}: {e}').format(model=model, e=e)
+                        'constraints': _('Invalid filter for {model}: {error}').format(model=model, error=e)
                     })
