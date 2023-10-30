@@ -287,8 +287,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             except ValidationError as err:
                 raise ValidationError({
                     'default': _(
-                        'Invalid default value "{default}": {message}'
-                    ).format(default=self.default, message=err.message)
+                        'Invalid default value "{value}": {message}'
+                    ).format(value=self.default, message=err.message)
                 })
 
         # Minimum/maximum values can be set only for numeric fields
@@ -332,8 +332,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         elif self.object_type:
             raise ValidationError({
                 'object_type': _(
-                    "{type_display} fields may not define an object type.")
-                .format(type_display=self.get_type_display())
+                    "{type} fields may not define an object type.")
+                .format(type=self.get_type_display())
             })
 
     def serialize(self, value):

@@ -850,7 +850,7 @@ class IPAddress(PrimaryModel):
                         self.role not in IPADDRESS_ROLES_NONUNIQUE or
                         any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
                 ):
-                    table = _("VRF {}").format(self.vrf) if self.vrf else _("global table")
+                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
                     raise ValidationError({
                         'address': _("Duplicate IP address found in {table}: {ipaddress}").format(
                             table=table,

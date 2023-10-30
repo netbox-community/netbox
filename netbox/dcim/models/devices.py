@@ -925,7 +925,7 @@ class Device(
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
                 raise ValidationError({
-                    'primary_ip4': _("{primary_ip4} is not an IPv4 address.").format(primary_ip4=self.primary_ip4)
+                    'primary_ip4': _("{ip} is not an IPv4 address.").format(ip=self.primary_ip4)
                 })
             if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
@@ -934,13 +934,13 @@ class Device(
             else:
                 raise ValidationError({
                     'primary_ip4': _(
-                        "The specified IP address ({primary_ip4}) is not assigned to this device."
-                    ).format(primary_ip4=self.primary_ip4)
+                        "The specified IP address ({ip}) is not assigned to this device."
+                    ).format(ip=self.primary_ip4)
                 })
         if self.primary_ip6:
             if self.primary_ip6.family != 6:
                 raise ValidationError({
-                    'primary_ip6': _("{primary_ip6} is not an IPv6 address.").format(primary_ip6=self.primary_ip6m)
+                    'primary_ip6': _("{ip} is not an IPv6 address.").format(ip=self.primary_ip6)
                 })
             if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
@@ -949,8 +949,8 @@ class Device(
             else:
                 raise ValidationError({
                     'primary_ip6': _(
-                        "The specified IP address ({primary_ip6}) is not assigned to this device."
-                    ).format(primary_ip6=self.primary_ip6)
+                        "The specified IP address ({ip}) is not assigned to this device."
+                    ).format(ip=self.primary_ip6)
                 })
         if self.oob_ip:
             if self.oob_ip.assigned_object in vc_interfaces:
@@ -968,17 +968,19 @@ class Device(
                 raise ValidationError({
                     'platform': _(
                         "The assigned platform is limited to {platform_manufacturer} device types, but this device's "
-                        "type belongs to {device_type_manufacturer}."
+                        "type belongs to {devicetype_manufacturer}."
                     ).format(
                         platform_manufacturer=self.platform.manufacturer,
-                        device_type_manufacturer=self.device_type.manufacturer
+                        devicetype_manufacturer=self.device_type.manufacturer
                     )
                 })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
-                'cluster': _("The assigned cluster belongs to a different site ({})").format(self.cluster.site)
+                'cluster': _("The assigned cluster belongs to a different site ({site})").format(
+                    site=self.cluster.site
+                )
             })
 
         # Validate virtual chassis assignment
@@ -1450,8 +1452,8 @@ class VirtualDeviceContext(PrimaryModel):
             if primary_ip.family != family:
                 raise ValidationError({
                     f'primary_ip{family}': _(
-                        "{primary_ip} is not an IPv{family} address."
-                    ).format(family=family, primary_ip=primary_ip)
+                        "{ip} is not an IPv{family} address."
+                    ).format(family=family, ip=primary_ip)
                 })
             device_interfaces = self.device.vc_interfaces(if_master=False)
             if primary_ip.assigned_object not in device_interfaces:
