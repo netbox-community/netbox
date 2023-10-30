@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-30 14:35+0000\n"
+"POT-Creation-Date: 2023-10-30 17:19+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -197,11 +197,11 @@ msgid "Provider (slug)"
 msgstr ""
 
 #: circuits/filtersets.py:157
-msgid "ProviderAccount (ID)"
+msgid "Provider account (ID)"
 msgstr ""
 
-#: circuits/filtersets.py:162 circuits/filtersets.py:254
-msgid "ProviderNetwork (ID)"
+#: circuits/filtersets.py:162
+msgid "Provider network (ID)"
 msgstr ""
 
 #: circuits/filtersets.py:166
@@ -243,6 +243,10 @@ msgstr ""
 #: templates/dcim/inc/cable_termination.html:55
 #: templates/dcim/trace/circuit.html:4
 msgid "Circuit"
+msgstr ""
+
+#: circuits/filtersets.py:254
+msgid "ProviderNetwork (ID)"
 msgstr ""
 
 #: circuits/forms/bulk_edit.py:25 circuits/forms/filtersets.py:56
@@ -355,7 +359,8 @@ msgstr ""
 msgid "Provider"
 msgstr ""
 
-#: circuits/forms/bulk_edit.py:75 templates/circuits/providernetwork.html:31
+#: circuits/forms/bulk_edit.py:75 circuits/forms/filtersets.py:91
+#: templates/circuits/providernetwork.html:31
 msgid "Service ID"
 msgstr ""
 
@@ -736,10 +741,6 @@ msgstr ""
 msgid "Account"
 msgstr ""
 
-#: circuits/forms/filtersets.py:91
-msgid "Service id"
-msgstr ""
-
 #: circuits/forms/model_forms.py:64
 #: templates/circuits/circuittermination_edit.html:23
 #: templates/circuits/inc/circuit_termination.html:89
@@ -755,7 +756,7 @@ msgstr ""
 #: dcim/models/device_component_templates.py:492
 #: dcim/models/device_component_templates.py:592
 #: dcim/models/device_components.py:967 dcim/models/device_components.py:1041
-#: dcim/models/device_components.py:1157 dcim/models/devices.py:470
+#: dcim/models/device_components.py:1157 dcim/models/devices.py:467
 #: dcim/models/racks.py:43 extras/models/tags.py:31
 msgid "color"
 msgstr ""
@@ -777,8 +778,8 @@ msgid "Unique circuit ID"
 msgstr ""
 
 #: circuits/models/circuits.py:67 core/models/data.py:55 core/models/jobs.py:85
-#: dcim/models/cables.py:50 dcim/models/devices.py:644
-#: dcim/models/devices.py:1161 dcim/models/devices.py:1370
+#: dcim/models/cables.py:50 dcim/models/devices.py:641
+#: dcim/models/devices.py:1160 dcim/models/devices.py:1369
 #: dcim/models/power.py:95 dcim/models/racks.py:97 dcim/models/sites.py:154
 #: dcim/models/sites.py:266 ipam/models/ip.py:252 ipam/models/ip.py:521
 #: ipam/models/ip.py:729 ipam/models/vlans.py:173
@@ -871,8 +872,8 @@ msgstr ""
 #: circuits/models/providers.py:22 circuits/models/providers.py:66
 #: circuits/models/providers.py:104 core/models/data.py:42
 #: core/models/jobs.py:46 dcim/models/device_component_templates.py:44
-#: dcim/models/device_components.py:55 dcim/models/devices.py:584
-#: dcim/models/devices.py:1301 dcim/models/devices.py:1366
+#: dcim/models/device_components.py:55 dcim/models/devices.py:581
+#: dcim/models/devices.py:1300 dcim/models/devices.py:1365
 #: dcim/models/power.py:39 dcim/models/power.py:91 dcim/models/racks.py:62
 #: dcim/models/sites.py:138 extras/models/configs.py:36
 #: extras/models/configs.py:215 extras/models/customfields.py:83
@@ -2511,7 +2512,7 @@ msgstr ""
 msgid "Module Type"
 msgstr ""
 
-#: dcim/forms/bulk_edit.py:506 dcim/models/devices.py:475
+#: dcim/forms/bulk_edit.py:506 dcim/models/devices.py:472
 msgid "VM role"
 msgstr ""
 
@@ -3279,12 +3280,12 @@ msgstr ""
 
 #: dcim/forms/common.py:119
 #, python-brace-format
-msgid "Cannot adopt {name} '{resolved_name}' as it already belongs to a module"
+msgid "Cannot adopt {model} {name} as it already belongs to a module"
 msgstr ""
 
 #: dcim/forms/common.py:128
 #, python-brace-format
-msgid "{name} - {resolved_name} already exists"
+msgid "A {model} named {name} already exists"
 msgstr ""
 
 #: dcim/forms/connections.py:45 dcim/tables/power.py:66
@@ -3454,7 +3455,7 @@ msgstr ""
 msgid "Device Role"
 msgstr ""
 
-#: dcim/forms/model_forms.py:424 dcim/models/devices.py:635
+#: dcim/forms/model_forms.py:424 dcim/models/devices.py:632
 msgid "The lowest-numbered unit occupied by the device"
 msgstr ""
 
@@ -4239,13 +4240,13 @@ msgstr ""
 msgid "inventory item roles"
 msgstr ""
 
-#: dcim/models/device_components.py:1221 dcim/models/devices.py:598
-#: dcim/models/devices.py:1169 dcim/models/racks.py:113
+#: dcim/models/device_components.py:1221 dcim/models/devices.py:595
+#: dcim/models/devices.py:1168 dcim/models/racks.py:113
 msgid "serial number"
 msgstr ""
 
-#: dcim/models/device_components.py:1229 dcim/models/devices.py:606
-#: dcim/models/devices.py:1176 dcim/models/racks.py:120
+#: dcim/models/device_components.py:1229 dcim/models/devices.py:603
+#: dcim/models/devices.py:1175 dcim/models/racks.py:120
 msgid "asset tag"
 msgstr ""
 
@@ -4293,7 +4294,7 @@ msgstr ""
 msgid "manufacturers"
 msgstr ""
 
-#: dcim/models/devices.py:82 dcim/models/devices.py:384
+#: dcim/models/devices.py:82 dcim/models/devices.py:381
 msgid "model"
 msgstr ""
 
@@ -4301,11 +4302,11 @@ msgstr ""
 msgid "default platform"
 msgstr ""
 
-#: dcim/models/devices.py:98 dcim/models/devices.py:388
+#: dcim/models/devices.py:98 dcim/models/devices.py:385
 msgid "part number"
 msgstr ""
 
-#: dcim/models/devices.py:101 dcim/models/devices.py:391
+#: dcim/models/devices.py:101 dcim/models/devices.py:388
 msgid "Discrete part number (optional)"
 msgstr ""
 
@@ -4339,7 +4340,7 @@ msgid ""
 "device type is neither a parent nor a child."
 msgstr ""
 
-#: dcim/models/devices.py:128 dcim/models/devices.py:650
+#: dcim/models/devices.py:128 dcim/models/devices.py:647
 msgid "airflow"
 msgstr ""
 
@@ -4362,284 +4363,278 @@ msgid ""
 "a height of {height}U"
 msgstr ""
 
-#: dcim/models/devices.py:324
+#: dcim/models/devices.py:321
 #, python-brace-format
 msgid ""
 "Unable to set 0U height: Found <a href=\"{url}\">{racked_instance_count} "
 "instances</a> already mounted within racks."
 msgstr ""
 
-#: dcim/models/devices.py:333
+#: dcim/models/devices.py:330
 msgid ""
 "Must delete all device bay templates associated with this device before "
 "declassifying it as a parent device."
 msgstr ""
 
-#: dcim/models/devices.py:339
+#: dcim/models/devices.py:336
 msgid "Child device types must be 0U."
 msgstr ""
 
-#: dcim/models/devices.py:407
+#: dcim/models/devices.py:404
 msgid "module type"
 msgstr ""
 
-#: dcim/models/devices.py:408
+#: dcim/models/devices.py:405
 msgid "module types"
 msgstr ""
 
-#: dcim/models/devices.py:476
+#: dcim/models/devices.py:473
 msgid "Virtual machines may be assigned to this role"
 msgstr ""
 
-#: dcim/models/devices.py:488
+#: dcim/models/devices.py:485
 msgid "device role"
 msgstr ""
 
-#: dcim/models/devices.py:489
+#: dcim/models/devices.py:486
 msgid "device roles"
 msgstr ""
 
-#: dcim/models/devices.py:506
+#: dcim/models/devices.py:503
 msgid "Optionally limit this platform to devices of a certain manufacturer"
 msgstr ""
 
-#: dcim/models/devices.py:518
+#: dcim/models/devices.py:515
 msgid "platform"
 msgstr ""
 
-#: dcim/models/devices.py:519
+#: dcim/models/devices.py:516
 msgid "platforms"
 msgstr ""
 
-#: dcim/models/devices.py:567
+#: dcim/models/devices.py:564
 msgid "The function this device serves"
 msgstr ""
 
-#: dcim/models/devices.py:599
+#: dcim/models/devices.py:596
 msgid "Chassis serial number, assigned by the manufacturer"
 msgstr ""
 
-#: dcim/models/devices.py:607 dcim/models/devices.py:1177
+#: dcim/models/devices.py:604 dcim/models/devices.py:1176
 msgid "A unique tag used to identify this device"
 msgstr ""
 
-#: dcim/models/devices.py:634
+#: dcim/models/devices.py:631
 msgid "position (U)"
 msgstr ""
 
-#: dcim/models/devices.py:641
+#: dcim/models/devices.py:638
 msgid "rack face"
 msgstr ""
 
-#: dcim/models/devices.py:661 dcim/models/devices.py:1386
+#: dcim/models/devices.py:658 dcim/models/devices.py:1385
 #: virtualization/models/virtualmachines.py:97
 msgid "primary IPv4"
 msgstr ""
 
-#: dcim/models/devices.py:669 dcim/models/devices.py:1394
+#: dcim/models/devices.py:666 dcim/models/devices.py:1393
 #: virtualization/models/virtualmachines.py:105
 msgid "primary IPv6"
 msgstr ""
 
-#: dcim/models/devices.py:677
+#: dcim/models/devices.py:674
 msgid "out-of-band IP"
 msgstr ""
 
-#: dcim/models/devices.py:694
+#: dcim/models/devices.py:691
 msgid "VC position"
 msgstr ""
 
-#: dcim/models/devices.py:698
+#: dcim/models/devices.py:695
 msgid "Virtual chassis position"
 msgstr ""
 
-#: dcim/models/devices.py:701
+#: dcim/models/devices.py:698
 msgid "VC priority"
 msgstr ""
 
-#: dcim/models/devices.py:705
+#: dcim/models/devices.py:702
 msgid "Virtual chassis master election priority"
 msgstr ""
 
-#: dcim/models/devices.py:708 dcim/models/sites.py:207
+#: dcim/models/devices.py:705 dcim/models/sites.py:207
 msgid "latitude"
 msgstr ""
 
-#: dcim/models/devices.py:713 dcim/models/devices.py:721
+#: dcim/models/devices.py:710 dcim/models/devices.py:718
 #: dcim/models/sites.py:212 dcim/models/sites.py:220
 msgid "GPS coordinate in decimal format (xx.yyyyyy)"
 msgstr ""
 
-#: dcim/models/devices.py:716 dcim/models/sites.py:215
+#: dcim/models/devices.py:713 dcim/models/sites.py:215
 msgid "longitude"
 msgstr ""
 
-#: dcim/models/devices.py:789
+#: dcim/models/devices.py:786
 msgid "Device name must be unique per site."
 msgstr ""
 
-#: dcim/models/devices.py:800 ipam/models/services.py:75
+#: dcim/models/devices.py:797 ipam/models/services.py:75
 msgid "device"
 msgstr ""
 
-#: dcim/models/devices.py:801
+#: dcim/models/devices.py:798
 msgid "devices"
 msgstr ""
 
-#: dcim/models/devices.py:841
+#: dcim/models/devices.py:838
 #, python-brace-format
 msgid "Rack {rack} does not belong to site {site}."
 msgstr ""
 
-#: dcim/models/devices.py:846
+#: dcim/models/devices.py:843
 #, python-brace-format
 msgid "Location {location} does not belong to site {site}."
 msgstr ""
 
-#: dcim/models/devices.py:852
+#: dcim/models/devices.py:849
 #, python-brace-format
 msgid "Rack {rack} does not belong to location {location}."
 msgstr ""
 
-#: dcim/models/devices.py:859
+#: dcim/models/devices.py:856
 msgid "Cannot select a rack face without assigning a rack."
 msgstr ""
 
-#: dcim/models/devices.py:863
+#: dcim/models/devices.py:860
 msgid "Cannot select a rack position without assigning a rack."
 msgstr ""
 
-#: dcim/models/devices.py:869
+#: dcim/models/devices.py:866
 msgid "Position must be in increments of 0.5 rack units."
 msgstr ""
 
-#: dcim/models/devices.py:873
+#: dcim/models/devices.py:870
 msgid "Must specify rack face when defining rack position."
 msgstr ""
 
-#: dcim/models/devices.py:881
+#: dcim/models/devices.py:878
 #, python-brace-format
 msgid "A U0 device type ({device_type}) cannot be assigned to a rack position."
 msgstr ""
 
-#: dcim/models/devices.py:892
+#: dcim/models/devices.py:889
 msgid ""
 "Child device types cannot be assigned to a rack face. This is an attribute "
 "of the parent device."
 msgstr ""
 
-#: dcim/models/devices.py:899
+#: dcim/models/devices.py:896
 msgid ""
 "Child device types cannot be assigned to a rack position. This is an "
 "attribute of the parent device."
 msgstr ""
 
-#: dcim/models/devices.py:913
+#: dcim/models/devices.py:910
 #, python-brace-format
 msgid ""
 "U{position} is already occupied or does not have sufficient space to "
 "accommodate this device type: {device_type} ({u_height}U)"
 msgstr ""
 
-#: dcim/models/devices.py:928
+#: dcim/models/devices.py:925
 #, python-brace-format
-msgid "{primary_ip4} is not an IPv4 address."
+msgid "{ip} is not an IPv4 address."
 msgstr ""
 
-#: dcim/models/devices.py:937
+#: dcim/models/devices.py:934 dcim/models/devices.py:949
 #, python-brace-format
-msgid ""
-"The specified IP address ({primary_ip4}) is not assigned to this device."
+msgid "The specified IP address ({ip}) is not assigned to this device."
 msgstr ""
 
-#: dcim/models/devices.py:943
+#: dcim/models/devices.py:940
 #, python-brace-format
-msgid "{primary_ip6} is not an IPv6 address."
+msgid "{ip} is not an IPv6 address."
 msgstr ""
 
-#: dcim/models/devices.py:952
-#, python-brace-format
-msgid ""
-"The specified IP address ({primary_ip6}) is not assigned to this device."
-msgstr ""
-
-#: dcim/models/devices.py:970
+#: dcim/models/devices.py:967
 #, python-brace-format
 msgid ""
 "The assigned platform is limited to {platform_manufacturer} device types, "
-"but this device's type belongs to {device_type_manufacturer}."
+"but this device's type belongs to {devicetype_manufacturer}."
 msgstr ""
 
-#: dcim/models/devices.py:981
-msgid "The assigned cluster belongs to a different site ({})"
+#: dcim/models/devices.py:978
+#, python-brace-format
+msgid "The assigned cluster belongs to a different site ({site})"
 msgstr ""
 
-#: dcim/models/devices.py:987
+#: dcim/models/devices.py:986
 msgid "A device assigned to a virtual chassis must have its position defined."
 msgstr ""
 
-#: dcim/models/devices.py:1184
+#: dcim/models/devices.py:1183
 msgid "module"
 msgstr ""
 
-#: dcim/models/devices.py:1185
+#: dcim/models/devices.py:1184
 msgid "modules"
 msgstr ""
 
-#: dcim/models/devices.py:1201
+#: dcim/models/devices.py:1200
 #, python-brace-format
 msgid ""
 "Module must be installed within a module bay belonging to the assigned "
 "device ({device})."
 msgstr ""
 
-#: dcim/models/devices.py:1305
+#: dcim/models/devices.py:1304
 msgid "domain"
 msgstr ""
 
-#: dcim/models/devices.py:1318 dcim/models/devices.py:1319
+#: dcim/models/devices.py:1317 dcim/models/devices.py:1318
 msgid "virtual chassis"
 msgstr ""
 
-#: dcim/models/devices.py:1334
+#: dcim/models/devices.py:1333
 #, python-brace-format
 msgid "The selected master ({master}) is not assigned to this virtual chassis."
 msgstr ""
 
-#: dcim/models/devices.py:1350
+#: dcim/models/devices.py:1349
 #, python-brace-format
 msgid ""
 "Unable to delete virtual chassis {self}. There are member interfaces which "
 "form a cross-chassis LAG interfaces."
 msgstr ""
 
-#: dcim/models/devices.py:1375 ipam/models/l2vpn.py:37
+#: dcim/models/devices.py:1374 ipam/models/l2vpn.py:37
 msgid "identifier"
 msgstr ""
 
-#: dcim/models/devices.py:1376
+#: dcim/models/devices.py:1375
 msgid "Numeric identifier unique to the parent device"
 msgstr ""
 
-#: dcim/models/devices.py:1404 extras/models/models.py:629
+#: dcim/models/devices.py:1403 extras/models/models.py:629
 #: netbox/models/__init__.py:114
 msgid "comments"
 msgstr ""
 
-#: dcim/models/devices.py:1420
+#: dcim/models/devices.py:1419
 msgid "virtual device context"
 msgstr ""
 
-#: dcim/models/devices.py:1421
+#: dcim/models/devices.py:1420
 msgid "virtual device contexts"
 msgstr ""
 
-#: dcim/models/devices.py:1453
+#: dcim/models/devices.py:1452
 #, python-brace-format
-msgid "{primary_ip} is not an IPv{family} address."
+msgid "{ip} is not an IPv{family} address."
 msgstr ""
 
-#: dcim/models/devices.py:1459
+#: dcim/models/devices.py:1458
 msgid "Primary IP address must belong to an interface on the assigned device."
 msgstr ""
 
@@ -6414,7 +6409,7 @@ msgstr ""
 
 #: extras/models/customfields.py:290
 #, python-brace-format
-msgid "Invalid default value \"{default}\": {message}"
+msgid "Invalid default value \"{value}\": {error}"
 msgstr ""
 
 #: extras/models/customfields.py:297
@@ -6443,7 +6438,7 @@ msgstr ""
 
 #: extras/models/customfields.py:335
 #, python-brace-format
-msgid "{type_display} fields may not define an object type."
+msgid "{type} fields may not define an object type."
 msgstr ""
 
 #: extras/models/customfields.py:415
@@ -7657,13 +7652,12 @@ msgstr ""
 
 #: ipam/forms/model_forms.py:375
 #, python-brace-format
-msgid "{address} is a network ID, which may not be assigned to an interface."
+msgid "{ip} is a network ID, which may not be assigned to an interface."
 msgstr ""
 
 #: ipam/forms/model_forms.py:381
 #, python-brace-format
-msgid ""
-"{address} is a broadcast address, which may not be assigned to an interface."
+msgid "{ip} is a broadcast address, which may not be assigned to an interface."
 msgstr ""
 
 #: ipam/forms/model_forms.py:458
@@ -7858,7 +7852,7 @@ msgstr ""
 msgid "Cannot create prefix with /0 mask."
 msgstr ""
 
-#: ipam/models/ip.py:323
+#: ipam/models/ip.py:323 ipam/models/ip.py:853
 #, python-brace-format
 msgid "VRF {vrf}"
 msgstr ""
@@ -7954,10 +7948,6 @@ msgstr ""
 
 #: ipam/models/ip.py:843
 msgid "Cannot create IP address with /0 mask."
-msgstr ""
-
-#: ipam/models/ip.py:853
-msgid "VRF {}"
 msgstr ""
 
 #: ipam/models/ip.py:855
@@ -8093,7 +8083,7 @@ msgstr ""
 
 #: ipam/models/vlans.py:237
 #, python-brace-format
-msgid "VID must be between {min_vid} and {max_vid} for VLANs in group {group}"
+msgid "VID must be between {minimum} and {maximum} for VLANs in group {group}"
 msgstr ""
 
 #: ipam/models/vrfs.py:30
@@ -11683,7 +11673,7 @@ msgstr ""
 
 #: users/forms/model_forms.py:389
 #, python-brace-format
-msgid "Invalid filter for {model}: {e}"
+msgid "Invalid filter for {model}: {error}"
 msgstr ""
 
 #: users/models.py:54
@@ -11712,7 +11702,7 @@ msgstr ""
 
 #: users/models.py:172
 #, python-brace-format
-msgid "Key '{err_path}' is a leaf node; cannot assign new keys"
+msgid "Key '{path}' is a leaf node; cannot assign new keys"
 msgstr ""
 
 #: users/models.py:184
@@ -12129,7 +12119,7 @@ msgstr ""
 #: virtualization/forms/model_forms.py:155
 #, python-brace-format
 msgid ""
-"{device} belongs to a different site ({site}) than the cluster "
+"{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
 
@@ -12165,7 +12155,7 @@ msgstr ""
 msgid "clusters"
 msgstr ""
 
-#: virtualization/models/clusters.py:142
+#: virtualization/models/clusters.py:141
 #, python-brace-format
 msgid ""
 "{count} devices are assigned as hosts for this cluster but are not in site "
@@ -12328,5 +12318,5 @@ msgstr ""
 
 #: wireless/models.py:216 wireless/models.py:222
 #, python-brace-format
-msgid "{type_display} is not a wireless interface."
+msgid "{type} is not a wireless interface."
 msgstr ""

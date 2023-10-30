@@ -287,8 +287,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             except ValidationError as err:
                 raise ValidationError({
                     'default': _(
-                        'Invalid default value "{value}": {message}'
-                    ).format(value=self.default, message=err.message)
+                        'Invalid default value "{value}": {error}'
+                    ).format(value=self.default, error=err.message)
                 })
 
         # Minimum/maximum values can be set only for numeric fields
