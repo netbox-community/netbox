@@ -1,5 +1,6 @@
 import logging
 from copy import deepcopy
+from collections import defaultdict
 
 from django.contrib import messages
 from django.db import transaction, router
@@ -16,7 +17,7 @@ from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
+from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields, title
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -323,7 +324,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
     def _get_dependent_objects(self, obj):
         """
-        Returns a dict of dependent objects, model names as primary key, inside each two keys exist name and items (list)
+        Returns a dict of dependent objects, model names as primary key, inside each two keys exist title and objects (list)
 
         Args:
             obj: The object to return dependent objects for
@@ -331,19 +332,18 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         using = router.db_for_write(obj._meta.model)
         collector = Collector(using=using)
         collector.collect([obj])
-        related_objects = {}
+        related_objects = defaultdict(dict)
         for model, instance in collector.instances_with_model():
             if instance == obj:
                 continue
-            if model.__name__ not in related_objects:
-                related_objects[model.__name__] = {
-                    "name": model._meta.verbose_name,
-                    "items": []
-                }
-            related_objects[model.__name__]['items'].append(instance)
-            if len(related_objects[model.__name__]['items']) > 1:
-                related_objects[model.__name__]['name'] = model._meta.verbose_name_plural
-        return related_objects
+
+            related_objects.setdefault(model.__name__, {"objects": []})['objects'].append(instance)
+
+            if len(related_objects[model.__name__]['objects']) == 1:
+                related_objects[model.__name__]['title'] = title(model._meta.verbose_name)
+            else:
+                related_objects[model.__name__]['title'] = title(model._meta.verbose_name_plural)
+        return dict(related_objects)
 
     #
     # Request handlers

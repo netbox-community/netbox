@@ -21,12 +21,12 @@
         <div class="accordion-item">
           <h2 class="accordion-header" id="deleteheading{{ forloop.counter }}">
             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
-              {{ object_dict.items |length }} {{ object_dict.name }}
+              {{ object_dict.objects |length }} {{ object_dict.title }}
             </button>
           </h2>
           <div id="collapse{{  forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="deleteheading{{ forloop.counter }}" data-bs-parent="#deleteAccordion">
             <div class="accordion-body">
-              {% for object in object_dict.items %}
+              {% for object in object_dict.objects %}
                 - {{ object | linkify }}{% if not forloop.last %}<br> {% endif %}
               {% endfor %}
             </div>
