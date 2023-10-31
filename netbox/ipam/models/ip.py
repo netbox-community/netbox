@@ -140,8 +140,11 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
             if covering_aggregates:
                 raise ValidationError({
                     'prefix': _(
-                        "Aggregates cannot overlap. {} is already covered by an existing aggregate ({})."
-                    ).format(self.prefix, covering_aggregates[0])
+                        "Aggregates cannot overlap. {prefix} is already covered by an existing aggregate ({aggregate})."
+                    ).format(
+                        prefix=self.prefix,
+                        aggregate=covering_aggregates[0]
+                    )
                 })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
@@ -150,8 +153,11 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
                 raise ValidationError({
-                    'prefix': _("Aggregates cannot overlap. {} covers an existing aggregate ({}).").format(
-                        self.prefix, covered_aggregates[0]
+                    'prefix': _(
+                        "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate ({aggregate})."
+                    ).format(
+                        prefix=self.prefix,
+                        aggregate=covered_aggregates[0]
                     )
                 })
 
@@ -314,10 +320,11 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
                 if duplicate_prefixes:
+                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
                     raise ValidationError({
-                        'prefix': _("Duplicate prefix found in {}: {}").format(
-                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
-                            duplicate_prefixes.first(),
+                        'prefix': _("Duplicate prefix found in {table}: {prefix}").format(
+                            table=table,
+                            prefix=duplicate_prefixes.first(),
                         )
                     })
 
@@ -843,10 +850,11 @@ class IPAddress(PrimaryModel):
                         self.role not in IPADDRESS_ROLES_NONUNIQUE or
                         any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
                 ):
+                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
                     raise ValidationError({
-                        'address': _("Duplicate IP address found in {}: {}").format(
-                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
-                            duplicate_ips.first(),
+                        'address': _("Duplicate IP address found in {table}: {ipaddress}").format(
+                            table=table,
+                            ipaddress=duplicate_ips.first(),
                         )
                     })
 

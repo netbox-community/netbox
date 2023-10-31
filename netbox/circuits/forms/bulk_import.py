@@ -3,6 +3,7 @@ from django import forms
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.models import Site
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
@@ -64,7 +65,10 @@ class CircuitTypeImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = CircuitType
-        fields = ('name', 'slug', 'description', 'tags')
+        fields = ('name', 'slug', 'color', 'description', 'tags')
+        help_texts = {
+            'color': mark_safe(_('RGB color in hexadecimal. Example:') + ' <code>00ff00</code>'),
+        }
 
 
 class CircuitImportForm(NetBoxModelImportForm):

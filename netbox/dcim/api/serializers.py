@@ -343,9 +343,9 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         model = DeviceType
         fields = [
             'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height',
-            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'console_port_template_count', 'console_server_port_template_count', 'power_port_template_count',
+            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
+            'front_image', 'rear_image', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'device_count', 'console_port_template_count', 'console_server_port_template_count', 'power_port_template_count',
             'power_outlet_template_count', 'interface_template_count', 'front_port_template_count',
             'rear_port_template_count', 'device_bay_template_count', 'module_bay_template_count',
             'inventory_item_template_count',

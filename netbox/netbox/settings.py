@@ -14,11 +14,11 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_str
-from extras.plugins import PluginConfig
 from sentry_sdk.integrations.django import DjangoIntegration
 
 from netbox.config import PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
+from netbox.plugins import PluginConfig
 
 
 #

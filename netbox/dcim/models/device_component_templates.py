@@ -534,14 +534,16 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             # Validate rear port assignment
             if self.rear_port.device_type != self.device_type:
                 raise ValidationError(
-                    _("Rear port ({}) must belong to the same device type").format(self.rear_port)
+                    _("Rear port ({name}) must belong to the same device type").format(name=self.rear_port)
                 )
 
             # Validate rear port position assignment
             if self.rear_port_position > self.rear_port.positions:
                 raise ValidationError(
-                    _("Invalid rear port position ({}); rear port {} has only {} positions").format(
-                        self.rear_port_position, self.rear_port.name, self.rear_port.positions
+                    _("Invalid rear port position ({position}); rear port {name} has only {count} positions").format(
+                        position=self.rear_port_position,
+                        name=self.rear_port.name,
+                        count=self.rear_port.positions
                     )
                 )
 

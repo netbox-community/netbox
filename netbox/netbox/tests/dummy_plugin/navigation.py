@@ -1,5 +1,5 @@
 from django.utils.translation import gettext as _
-from extras.plugins import PluginMenu, PluginMenuButton, PluginMenuItem
+from netbox.plugins.navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 
 
 items = (
