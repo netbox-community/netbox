@@ -92,6 +92,11 @@ class Job(models.Model):
         null=True,
         blank=True
     )
+    error = models.TextField(
+        verbose_name=_('error'),
+        editable=False,
+        blank=True
+    )
     job_id = models.UUIDField(
         verbose_name=_('job ID'),
         unique=True
@@ -158,7 +163,7 @@ class Job(models.Model):
         # Handle webhooks
         self.trigger_webhooks(event=EVENT_JOB_START)
 
-    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED):
+    def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):
         """
         Mark the job as completed, optionally specifying a particular termination status.
         """
@@ -168,6 +173,8 @@ class Job(models.Model):
 
         # Mark the job as completed
         self.status = status
+        if error:
+            self.error = error
         self.completed = timezone.now()
         self.save()
 

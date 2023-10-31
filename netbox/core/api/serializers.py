@@ -69,5 +69,5 @@ class JobSerializer(BaseModelSerializer):
         model = Job
         fields = [
             'id', 'url', 'display', 'object_type', 'object_id', 'name', 'status', 'created', 'scheduled', 'interval',
-            'started', 'completed', 'user', 'data', 'job_id',
+            'started', 'completed', 'user', 'data', 'error', 'job_id',
         ]
