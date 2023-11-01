@@ -100,7 +100,9 @@ class DataFileListView(generic.ObjectListView):
     filterset = filtersets.DataFileFilterSet
     filterset_form = forms.DataFileFilterForm
     table = tables.DataFileTable
-    actions = ('bulk_delete',)
+    actions = {
+        'bulk_delete': {'delete'},
+    }
 
 
 @register_model_view(DataFile)
@@ -128,7 +130,10 @@ class JobListView(generic.ObjectListView):
     filterset = filtersets.JobFilterSet
     filterset_form = forms.JobFilterForm
     table = tables.JobTable
-    actions = ('export', 'delete', 'bulk_delete')
+    actions = {
+        'export': {'view'},
+        'bulk_delete': {'delete'},
+    }
 
 
 class JobView(generic.ObjectView):

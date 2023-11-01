@@ -7,10 +7,10 @@
   </p>
   <p>
     <i class="mdi mdi-alert"></i>
-    {% blocktrans with media_root=settings.MEDIA_ROOT %}
-      <strong>Insufficient write permission to the media root.</strong> The configured media root is
-      <code>{{ media_root }}</code>. Ensure that the user NetBox runs as has access to write files to all locations
-      within this path.
+    <strong>{% trans "Insufficient write permission to the media root" %}.</strong>
+    {% blocktrans trimmed with media_root=settings.MEDIA_ROOT %}
+      The configured media root is <code>{{ media_root }}</code>. Ensure that the user NetBox runs as has access to
+      write files to all locations within this path.
     {% endblocktrans %}
   </p>
 {% endblock message %}

@@ -1,10 +1,13 @@
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.db import transaction
 from django.test import TestCase, override_settings
 
 from ipam.models import ASN, RIR
+from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.validators import CustomValidator
+from utilities.exceptions import AbortRequest
 
 
 class MyValidator(CustomValidator):
@@ -12,6 +15,20 @@ class MyValidator(CustomValidator):
     def validate(self, instance):
         if instance.name != 'foo':
             self.fail("Name must be foo!")
+
+
+eq_validator = CustomValidator({
+    'asn': {
+        'eq': 100
+    }
+})
+
+
+neq_validator = CustomValidator({
+    'asn': {
+        'neq': 100
+    }
+})
 
 
 min_validator = CustomValidator({
@@ -76,6 +93,18 @@ class CustomValidatorTest(TestCase):
         self.assertIn('ipam.asn', settings.CUSTOM_VALIDATORS)
         validator = settings.CUSTOM_VALIDATORS['ipam.asn'][0]
         self.assertIsInstance(validator, CustomValidator)
+
+    @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [eq_validator]})
+    def test_eq(self):
+        ASN(asn=100, rir=RIR.objects.first()).clean()
+        with self.assertRaises(ValidationError):
+            ASN(asn=99, rir=RIR.objects.first()).clean()
+
+    @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [neq_validator]})
+    def test_neq(self):
+        ASN(asn=99, rir=RIR.objects.first()).clean()
+        with self.assertRaises(ValidationError):
+            ASN(asn=100, rir=RIR.objects.first()).clean()
 
     @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [min_validator]})
     def test_min(self):
@@ -147,7 +176,7 @@ class CustomValidatorConfigTest(TestCase):
     @override_settings(
         CUSTOM_VALIDATORS={
             'dcim.site': (
-                'extras.tests.test_customvalidator.MyValidator',
+                'extras.tests.test_customvalidation.MyValidator',
             )
         }
     )
@@ -159,3 +188,62 @@ class CustomValidatorConfigTest(TestCase):
         Site(name='foo', slug='foo').clean()
         with self.assertRaises(ValidationError):
             Site(name='bar', slug='bar').clean()
+
+
+class ProtectionRulesConfigTest(TestCase):
+
+    @override_settings(
+        PROTECTION_RULES={
+            'dcim.site': [
+                {'status': {'eq': SiteStatusChoices.STATUS_DECOMMISSIONING}}
+            ]
+        }
+    )
+    def test_plain_data(self):
+        """
+        Test custom validator configuration using plain data (as opposed to a CustomValidator
+        class)
+        """
+        # Create a site with a protected status
+        site = Site(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        site.save()
+
+        # Try to delete it
+        with self.assertRaises(AbortRequest):
+            with transaction.atomic():
+                site.delete()
+
+        # Change its status to an allowed value
+        site.status = SiteStatusChoices.STATUS_DECOMMISSIONING
+        site.save()
+
+        # Deletion should now succeed
+        site.delete()
+
+    @override_settings(
+        PROTECTION_RULES={
+            'dcim.site': (
+                'extras.tests.test_customvalidation.MyValidator',
+            )
+        }
+    )
+    def test_dotted_path(self):
+        """
+        Test custom validator configuration using a dotted path (string) reference to a
+        CustomValidator class.
+        """
+        # Create a site with a protected name
+        site = Site(name='bar', slug='bar')
+        site.save()
+
+        # Try to delete it
+        with self.assertRaises(AbortRequest):
+            with transaction.atomic():
+                site.delete()
+
+        # Change the name to an allowed value
+        site.name = site.slug = 'foo'
+        site.save()
+
+        # Deletion should now succeed
+        site.delete()

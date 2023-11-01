@@ -15,7 +15,7 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v6
+      - uses: actions/stale@v8
         with:
           close-issue-message: >
             This issue has been automatically closed due to lack of activity. In an

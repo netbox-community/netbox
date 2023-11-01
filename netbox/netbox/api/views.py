@@ -11,7 +11,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rq.worker import Worker
 
-from extras.plugins.utils import get_installed_plugins
+from netbox.plugins.utils import get_installed_plugins
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 
 

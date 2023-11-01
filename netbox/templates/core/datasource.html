@@ -58,7 +58,7 @@
             <tr>
               <th scope="row">{% trans "URL" %}</th>
               <td>
-                {% if not object.is_local %}
+                {% if not object.type.is_local %}
                   <a href="{{ object.source_url }}">{{ object.source_url }}</a>
                 {% else %}
                   {{ object.source_url }}

@@ -9,6 +9,7 @@ from utilities.forms.fields import DynamicModelMultipleChoiceField
 __all__ = (
     'CustomFieldsMixin',
     'SavedFiltersMixin',
+    'TagsMixin',
 )
 
 
@@ -72,3 +73,19 @@ class SavedFiltersMixin(forms.Form):
             'usable': True,
         }
     )
+
+
+class TagsMixin(forms.Form):
+    tags = DynamicModelMultipleChoiceField(
+        queryset=Tag.objects.all(),
+        required=False,
+        label=_('Tags'),
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Limit tags to those applicable to the object type
+        content_type = ContentType.objects.get_for_model(self._meta.model)
+        if content_type and hasattr(self.fields['tags'].widget, 'add_query_param'):
+            self.fields['tags'].widget.add_query_param('for_object_type_id', content_type.pk)

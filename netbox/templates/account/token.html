@@ -15,11 +15,6 @@
 {% block content %}
   <div class="row">
     <div class="col col-md-12">
-      {% if key and not settings.ALLOW_TOKEN_RETRIEVAL %}
-        <div class="alert alert-danger" role="alert">
-          <i class="mdi mdi-alert"></i> Tokens cannot be retrieved at a later time. You must <a href="#" class="copy-content" data-clipboard-target="#token_id" title="Copy to clipboard">copy the token value</a> below and store it securely.
-        </div>
-      {% endif %}
       <div class="card">
         <h5 class="card-header">{% trans "Token" %}</h5>
         <div class="card-body">

@@ -86,7 +86,7 @@ class ComponentModel(NetBoxModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original Device ID for reference under clean()
-        self._original_device = self.device_id
+        self._original_device = self.__dict__.get('device_id')
 
     def __str__(self):
         if self.label:
@@ -537,7 +537,7 @@ class BaseInterface(models.Model):
     )
     parent = models.ForeignKey(
         to='self',
-        on_delete=models.SET_NULL,
+        on_delete=models.RESTRICT,
         related_name='child_interfaces',
         null=True,
         blank=True,
@@ -799,9 +799,9 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         if self.bridge and self.bridge.device != self.device:
             if self.device.virtual_chassis is None:
                 raise ValidationError({
-                    'bridge': _("""
-                    The selected bridge interface ({bridge}) belongs to a different device
-                    ({device}).""").format(bridge=self.bridge, device=self.bridge.device)
+                    'bridge': _(
+                        "The selected bridge interface ({bridge}) belongs to a different device ({device})."
+                    ).format(bridge=self.bridge, device=self.bridge.device)
                 })
             elif self.bridge.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
@@ -889,10 +889,10 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
             raise ValidationError({
-                'untagged_vlan': _("""
-                    The untagged VLAN ({untagged_vlan}) must belong to the same site as the
-                    interface's parent device, or it must be global.
-                    """).format(untagged_vlan=self.untagged_vlan)
+                'untagged_vlan': _(
+                    "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
+                    "device, or it must be global."
+                ).format(untagged_vlan=self.untagged_vlan)
             })
 
     def save(self, *args, **kwargs):
@@ -1067,9 +1067,10 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
             frontport_count = self.frontports.count()
             if self.positions < frontport_count:
                 raise ValidationError({
-                    "positions": _("""
-                        The number of positions cannot be less than the number of mapped front ports
-                        ({frontport_count})""").format(frontport_count=frontport_count)
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped front ports "
+                        "({frontport_count})"
+                    ).format(frontport_count=frontport_count)
                 })
 
 

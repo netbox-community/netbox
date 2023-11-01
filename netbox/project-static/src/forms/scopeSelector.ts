@@ -88,6 +88,7 @@ const showHideLayout: ShowHideLayout = {
 const showHideMap: ShowHideMap = {
   vlangroup_add: 'vlangroup',
   vlangroup_edit: 'vlangroup',
+  vlangroup_bulk_edit: 'vlangroup',
 };
 
 /**

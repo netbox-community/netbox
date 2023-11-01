@@ -8,11 +8,17 @@
     {% if perms.extras.run_report %}
       <div class="row">
         <div class="col">
+          {% if not report.is_valid %}
+            <div class="alert alert-warning">
+              <i class="mdi mdi-alert"></i>
+              {% trans "This report is invalid and cannot be run." %}
+            </div>
+          {% endif %}
           <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post" class="form-object-edit">
             {% csrf_token %}
             {% render_form form %}
             <div class="float-end">
-              <button type="submit" name="_run" class="btn btn-primary">
+              <button type="submit" name="_run" class="btn btn-primary"{% if not report.is_valid %} disabled{% endif %}>
                 {% if report.result %}
                   <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
                 {% else %}

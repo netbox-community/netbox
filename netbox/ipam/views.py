@@ -1,7 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import F, Prefetch
 from django.db.models.expressions import RawSQL
-from django.db.models.functions import Round
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -11,6 +10,7 @@ from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
+from utilities.tables import get_table_ordering
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
@@ -606,7 +606,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        if not request.GET.get('q') and not request.GET.get('sort'):
+        if not get_table_ordering(request, self.table):
             return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
         return queryset
 
@@ -952,7 +952,9 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
         )
 
     def prep_table_data(self, request, queryset, parent):
-        return add_available_vlans(parent.get_child_vlans(), parent)
+        if not get_table_ordering(request, self.table):
+            return add_available_vlans(parent.get_child_vlans(), parent)
+        return queryset
 
 
 #

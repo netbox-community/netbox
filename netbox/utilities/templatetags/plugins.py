@@ -2,7 +2,7 @@ from django import template as template_
 from django.conf import settings
 from django.utils.safestring import mark_safe
 
-from extras.plugins import PluginTemplateExtension
+from netbox.plugins import PluginTemplateExtension
 from netbox.registry import registry
 
 register = template_.Library()

@@ -296,7 +296,7 @@
                                     {% for leg in utilization.legs %}
                                         <tr>
                                             <td style="padding-left: 20px">
-                                              {% trans "Leg" context "Leg of a power feed" %} {{ leg }}
+                                              {% trans "Leg" context "Leg of a power feed" %} {{ leg.name }}
                                             </td>
                                             <td>{{ leg.outlet_count }}</td>
                                             <td>{{ leg.allocated }}</td>

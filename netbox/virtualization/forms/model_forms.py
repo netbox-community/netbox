@@ -151,8 +151,12 @@ class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
             for device in self.cleaned_data.get('devices', []):
                 if device.site != self.cluster.site:
                     raise ValidationError({
-                        'devices': _("{} belongs to a different site ({}) than the cluster ({})").format(
-                            device, device.site, self.cluster.site
+                        'devices': _(
+                            "{device} belongs to a different site ({device_site}) than the cluster ({cluster_site})"
+                        ).format(
+                            device=device,
+                            device_site=device.site,
+                            cluster_site=self.cluster.site
                         )
                     })
 

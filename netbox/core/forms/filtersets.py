@@ -8,6 +8,7 @@ from core.models import *
 from extras.forms.mixins import SavedFiltersMixin
 from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelFilterSetForm
+from netbox.utils import get_data_backend_choices
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
@@ -27,7 +28,7 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
-        choices=DataSourceTypeChoices,
+        choices=get_data_backend_choices,
         required=False
     )
     status = forms.MultipleChoiceField(

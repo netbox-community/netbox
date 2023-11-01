@@ -1,4 +1,4 @@
-from extras.plugins import PluginTemplateExtension
+from netbox.plugins.templates import PluginTemplateExtension
 
 
 class SiteContent(PluginTemplateExtension):

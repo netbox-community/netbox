@@ -26,13 +26,13 @@
         <p>{% trans "Check the following" %}:</p>
         <ul>
             <li class="tip">
-              {% blocktrans %}
+              {% blocktrans trimmed %}
                 <code>manage.py collectstatic</code> was run during the most recent upgrade. This installs the most
                 recent iteration of each static file into the static root path.
               {% endblocktrans %}
             </li>
             <li class="tip">
-              {% blocktrans with docs_url="https://docs.netbox.dev/en/stable/installation/" %}
+              {% blocktrans trimmed with docs_url="https://docs.netbox.dev/en/stable/installation/" %}
                 The HTTP service (e.g. nginx or Apache) is configured to serve files from the <code>STATIC_ROOT</code>
                 path. Refer to <a href="{{ docs_url }}">the installation documentation</a> for further guidance.
               {% endblocktrans %}
@@ -44,7 +44,7 @@
               </ul>
             </li>
             <li class="tip">
-              {% blocktrans %}
+              {% blocktrans trimmed %}
                 The file <code>{{ filename }}</code> exists in the static root directory and is readable by the HTTP
                 server.
               {% endblocktrans %}
@@ -52,7 +52,7 @@
         </ul>
         <p>
           {% url 'home' as home_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
             Click <a href="{{ home_url }}">here</a> to attempt loading NetBox again.
           {% endblocktrans %}
         </p>

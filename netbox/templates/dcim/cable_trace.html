@@ -3,7 +3,7 @@
 {% load i18n %}
 
 {% block title %}
-  {% blocktrans with object_type=object|meta:"verbose_name"|bettertitle %}
+  {% blocktrans trimmed with object_type=object|meta:"verbose_name"|bettertitle %}
     Cable Trace for {{ object_type }} {{ object }}
   {% endblocktrans %}
 {% endblock %}
@@ -23,7 +23,15 @@
               </div>
             </div>
             <div class="trace-end">
-                {% if path.is_split %}
+                {% if path.is_split and path.get_asymmetric_nodes %}
+                    <h3 class="text-danger">{% trans "Asymmetric Path" %}!</h3>
+                    <p>{% trans "The nodes below have no links and result in an asymmetric path" %}:</p>
+                    <ul class="text-start">
+                      {% for next_node in path.get_asymmetric_nodes %}
+                        <li class="text-muted">{{ next_node|linkify }}</li>
+                      {% endfor %}
+                    </ul>
+                {% elif path.is_split %}
                     <h3 class="text-danger">{% trans "Path split" %}!</h3>
                     <p>{% trans "Select a node below to continue" %}:</p>
                     <ul class="text-start">
@@ -51,10 +59,10 @@
                         <th scope="row">{% trans "Total length" %}</th>
                         <td>
                             {% if total_length %}
-                            {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} {% trans "Meters" %} /
-                            {{ total_length|meters_to_feet|floatformat:"-2" }} {% trans "Feet" %}
+                              {{ total_length|floatformat:"-2" }}{% if not is_definitive %}+{% endif %} {% trans "Meters" %} /
+                              {{ total_length|meters_to_feet|floatformat:"-2" }} {% trans "Feet" %}
                             {% else %}
-                            <span class="text-muted">{% trans "N/A" %}</span>
+                              {{ ''|placeholder }}
                             {% endif %}
                         </td>
                         </tr>

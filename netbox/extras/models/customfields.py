@@ -28,6 +28,7 @@ from utilities.forms.fields import (
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
 from utilities.querysets import RestrictedQuerySet
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import validate_regex
 
 __all__ = (
@@ -219,7 +220,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         super().__init__(*args, **kwargs)
 
         # Cache instance's original name so we can check later whether it has changed
-        self._name = self.name
+        self._name = self.__dict__.get('name')
 
     @property
     def search_type(self):
@@ -230,6 +231,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if self.choice_set:
             return self.choice_set.choices
         return []
+
+    def get_choice_label(self, value):
+        if not hasattr(self, '_choice_map'):
+            self._choice_map = dict(self.choices)
+        return self._choice_map.get(value, value)
 
     def populate_initial_data(self, content_types):
         """
@@ -281,8 +287,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             except ValidationError as err:
                 raise ValidationError({
                     'default': _(
-                        'Invalid default value "{default}": {message}'
-                    ).format(default=self.default, message=err.message)
+                        'Invalid default value "{value}": {error}'
+                    ).format(value=self.default, error=err.message)
                 })
 
         # Minimum/maximum values can be set only for numeric fields
@@ -326,8 +332,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         elif self.object_type:
             raise ValidationError({
                 'object_type': _(
-                    "{type_display} fields may not define an object type.")
-                .format(type_display=self.get_type_display())
+                    "{type} fields may not define an object type.")
+                .format(type=self.get_type_display())
             })
 
     def serialize(self, value):
@@ -498,7 +504,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         field.model = self
         field.label = str(self)
         if self.description:
-            field.help_text = escape(self.description)
+            field.help_text = render_markdown(self.description)
 
         # Annotate read-only fields
         if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:

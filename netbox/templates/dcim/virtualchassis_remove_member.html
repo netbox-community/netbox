@@ -6,7 +6,7 @@
 
 {% block message %}
   <p>
-    {% blocktrans with name=device.virtual_chassis %}
+    {% blocktrans trimmed with name=device.virtual_chassis %}
       Are you sure you want to remove <strong>{{ device }}</strong> from virtual chassis {{ name }}?
     {% endblocktrans %}
   </p>

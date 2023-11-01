@@ -69,7 +69,7 @@ class RenderConfigMixin(models.Model):
         """
         if self.config_template:
             return self.config_template
-        if self.role.config_template:
+        if self.role and self.role.config_template:
             return self.role.config_template
         if self.platform and self.platform.config_template:
             return self.platform.config_template

@@ -82,7 +82,10 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
             data = [
                 {'id': c[0], 'display': c[1]} for c in page
             ]
-            return self.get_paginated_response(data)
+        else:
+            data = []
+
+        return self.get_paginated_response(data)
 
 
 #

@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 import django_filters
 
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from netbox.utils import get_data_backend_choices
 from .choices import *
 from .models import *
 
@@ -16,7 +17,7 @@ __all__ = (
 
 class DataSourceFilterSet(NetBoxModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=DataSourceTypeChoices,
+        choices=get_data_backend_choices,
         null_value=None
     )
     status = django_filters.MultipleChoiceFilter(

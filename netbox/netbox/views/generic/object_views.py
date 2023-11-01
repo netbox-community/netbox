@@ -1,10 +1,10 @@
 import logging
-from copy import deepcopy
 from collections import defaultdict
+from copy import deepcopy
 
 from django.contrib import messages
-from django.db import transaction, router
-from django.db.models import ProtectedError
+from django.db import router, transaction
+from django.db.models import ProtectedError, RestrictedError
 from django.db.models.deletion import Collector
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -17,7 +17,7 @@ from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
-from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields, title
+from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
@@ -400,8 +400,8 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             try:
                 obj.delete()
 
-            except ProtectedError as e:
-                logger.info("Caught ProtectedError while attempting to delete object")
+            except (ProtectedError, RestrictedError) as e:
+                logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
 

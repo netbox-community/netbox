@@ -659,6 +659,62 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
         )
         IPAddress.objects.bulk_create(ip_addresses)
 
+    def test_assign_object(self):
+        """
+        Test the creation of available IP addresses within a parent IP range.
+        """
+        site = Site.objects.create(name='Site 1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1')
+        device_type = DeviceType.objects.create(model='Device Type 1', manufacturer=manufacturer)
+        role = DeviceRole.objects.create(name='Switch')
+        device1 = Device.objects.create(
+            name='Device 1',
+            site=site,
+            device_type=device_type,
+            role=role,
+            status='active'
+        )
+        interface1 = Interface.objects.create(name='Interface 1', device=device1, type='1000baset')
+        interface2 = Interface.objects.create(name='Interface 2', device=device1, type='1000baset')
+        device2 = Device.objects.create(
+            name='Device 2',
+            site=site,
+            device_type=device_type,
+            role=role,
+            status='active'
+        )
+        interface3 = Interface.objects.create(name='Interface 3', device=device2, type='1000baset')
+
+        ip_addresses = (
+            IPAddress(address=IPNetwork('192.168.0.4/24'), assigned_object=interface1),
+            IPAddress(address=IPNetwork('192.168.1.4/24')),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
+
+        ip1 = ip_addresses[0]
+        ip1.assigned_object = interface1
+        device1.primary_ip4 = ip_addresses[0]
+        device1.save()
+
+        ip2 = ip_addresses[1]
+
+        url = reverse('ipam-api:ipaddress-detail', kwargs={'pk': ip1.pk})
+        self.add_permissions('ipam.change_ipaddress')
+
+        # assign to same parent
+        data = {
+            'assigned_object_id': interface2.pk
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+
+        # assign to same different parent - should error
+        data = {
+            'assigned_object_id': interface3.pk
+        }
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
 
 class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
     model = FHRPGroup

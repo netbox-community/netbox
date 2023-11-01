@@ -1,8 +1,8 @@
-from extras.plugins import PluginConfig
+from netbox.plugins import PluginConfig
 
 
 class DummyPluginConfig(PluginConfig):
-    name = 'extras.tests.dummy_plugin'
+    name = 'netbox.tests.dummy_plugin'
     verbose_name = 'Dummy plugin'
     version = '0.0'
     description = 'For testing purposes only'
@@ -10,7 +10,7 @@ class DummyPluginConfig(PluginConfig):
     min_version = '1.0'
     max_version = '9.0'
     middleware = [
-        'extras.tests.dummy_plugin.middleware.DummyMiddleware'
+        'netbox.tests.dummy_plugin.middleware.DummyMiddleware'
     ]
     queues = [
         'testing-low',

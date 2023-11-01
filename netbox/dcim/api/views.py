@@ -20,10 +20,11 @@ from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.renderers import TextRenderer
-from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
+from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine
 from . import serializers
@@ -98,7 +99,7 @@ class PassThroughPortMixin(object):
 # Regions
 #
 
-class RegionViewSet(NetBoxModelViewSet):
+class RegionViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = Region.objects.add_related_count(
         Region.objects.all(),
         Site,
@@ -114,7 +115,7 @@ class RegionViewSet(NetBoxModelViewSet):
 # Site groups
 #
 
-class SiteGroupViewSet(NetBoxModelViewSet):
+class SiteGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = SiteGroup.objects.add_related_count(
         SiteGroup.objects.all(),
         Site,
@@ -149,7 +150,7 @@ class SiteViewSet(NetBoxModelViewSet):
 # Locations
 #
 
-class LocationViewSet(NetBoxModelViewSet):
+class LocationViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = Location.objects.add_related_count(
         Location.objects.add_related_count(
             Location.objects.all(),
@@ -350,7 +351,7 @@ class DeviceBayTemplateViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.DeviceBayTemplateFilterSet
 
 
-class InventoryItemTemplateViewSet(NetBoxModelViewSet):
+class InventoryItemTemplateViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = InventoryItemTemplate.objects.prefetch_related('device_type__manufacturer', 'role')
     serializer_class = serializers.InventoryItemTemplateSerializer
     filterset_class = filtersets.InventoryItemTemplateFilterSet
@@ -505,6 +506,10 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     filterset_class = filtersets.InterfaceFilterSet
     brief_prefetch_fields = ['device']
 
+    def get_bulk_destroy_queryset(self):
+        # Ensure child interfaces are deleted prior to their parents
+        return self.get_queryset().order_by('device', 'parent', CollateAsChar('_name'))
+
 
 class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = FrontPort.objects.prefetch_related(
@@ -538,7 +543,7 @@ class DeviceBayViewSet(NetBoxModelViewSet):
     brief_prefetch_fields = ['device']
 
 
-class InventoryItemViewSet(NetBoxModelViewSet):
+class InventoryItemViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = InventoryItem.objects.prefetch_related('device', 'manufacturer', 'tags')
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filtersets.InventoryItemFilterSet

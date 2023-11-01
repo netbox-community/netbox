@@ -58,3 +58,14 @@ HTTP_REQUEST_META_SAFE_COPY = [
     'SERVER_NAME',
     'SERVER_PORT',
 ]
+
+
+#
+# CSV-style format delimiters
+#
+
+CSV_DELIMITERS = {
+    'comma': ',',
+    'semicolon': ';',
+    'tab': '\t',
+}

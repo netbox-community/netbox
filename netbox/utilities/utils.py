@@ -19,9 +19,9 @@ from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
-from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from netbox.config import get_config
+from netbox.plugins import PluginConfig
 from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 

@@ -64,9 +64,19 @@ def get_interface_state_attribute(record):
     Get interface enabled state as string to attach to <tr/> DOM element.
     """
     if record.enabled:
-        return "enabled"
+        return 'enabled'
     else:
-        return "disabled"
+        return 'disabled'
+
+
+def get_interface_connected_attribute(record):
+    """
+    Get interface disconnected state as string to attach to <tr/> DOM element.
+    """
+    if record.mark_connected or record.cable:
+        return 'connected'
+    else:
+        return 'disconnected'
 
 
 #
@@ -674,6 +684,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-name': lambda record: record.name,
             'data-enabled': get_interface_state_attribute,
             'data-type': lambda record: record.type,
+            'data-connected': get_interface_connected_attribute
         }
 
 
@@ -871,8 +882,9 @@ class ModuleBayTable(DeviceComponentTable):
         url_name='dcim:modulebay_list'
     )
     module_status = columns.TemplateColumn(
-        verbose_name=_('Module Status'),
-        template_code=MODULEBAY_STATUS
+        accessor=tables.A('installed_module__status'),
+        template_code=MODULEBAY_STATUS,
+        verbose_name=_('Module Status')
     )
 
     class Meta(DeviceComponentTable.Meta):
