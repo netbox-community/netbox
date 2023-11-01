@@ -1,5 +1,4 @@
 import traceback
-from collections import defaultdict
 
 from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
@@ -26,6 +25,7 @@ from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 from virtualization.models import VirtualMachine
@@ -2562,7 +2562,8 @@ class InterfaceBulkDisconnectView(BulkDisconnectView):
 
 
 class InterfaceBulkDeleteView(generic.BulkDeleteView):
-    queryset = Interface.objects.all()
+    # Ensure child interfaces are deleted prior to their parents
+    queryset = Interface.objects.order_by('device', 'parent', CollateAsChar('_name'))
     filterset = filtersets.InterfaceFilterSet
     table = tables.InterfaceTable
 

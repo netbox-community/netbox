@@ -798,11 +798,12 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
                 try:
-                    for obj in queryset:
-                        # Take a snapshot of change-logged models
-                        if hasattr(obj, 'snapshot'):
-                            obj.snapshot()
-                        obj.delete()
+                    with transaction.atomic():
+                        for obj in queryset:
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+                            obj.delete()
 
                 except (ProtectedError, RestrictedError) as e:
                     logger.info(f"Caught {type(e)} while attempting to delete objects")
