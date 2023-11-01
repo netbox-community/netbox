@@ -7,7 +7,7 @@ from django.contrib.contenttypes.fields import GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ManyToManyField, ProtectedError
+from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import HiddenInput, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
@@ -798,14 +798,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
                 try:
-                    for obj in queryset:
-                        # Take a snapshot of change-logged models
-                        if hasattr(obj, 'snapshot'):
-                            obj.snapshot()
-                        obj.delete()
+                    with transaction.atomic():
+                        for obj in queryset:
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+                            obj.delete()
 
-                except ProtectedError as e:
-                    logger.info("Caught ProtectedError while attempting to delete objects")
+                except (ProtectedError, RestrictedError) as e:
+                    logger.info(f"Caught {type(e)} while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
 

@@ -1607,6 +1607,33 @@ class InterfaceTest(Mixins.ComponentTraceMixin, APIViewTestCases.APIViewTestCase
             },
         ]
 
+    def test_bulk_delete_child_interfaces(self):
+        interface1 = Interface.objects.get(name='Interface 1')
+        device = interface1.device
+        self.add_permissions('dcim.delete_interface')
+
+        # Create a child interface
+        child = Interface.objects.create(
+            device=device,
+            name='Interface 1A',
+            type=InterfaceTypeChoices.TYPE_VIRTUAL,
+            parent=interface1
+        )
+        self.assertEqual(device.interfaces.count(), 4)
+
+        # Attempt to delete only the parent interface
+        url = self._get_detail_url(interface1)
+        self.client.delete(url, **self.header)
+        self.assertEqual(device.interfaces.count(), 4)  # Parent was not deleted
+
+        # Attempt to bulk delete parent & child together
+        data = [
+            {"id": interface1.pk},
+            {"id": child.pk},
+        ]
+        self.client.delete(self._get_list_url(), data, format='json', **self.header)
+        self.assertEqual(device.interfaces.count(), 2)  # Child & parent were both deleted
+
 
 class FrontPortTest(APIViewTestCases.APIViewTestCase):
     model = FrontPort
