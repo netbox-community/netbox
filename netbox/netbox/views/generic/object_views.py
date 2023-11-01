@@ -324,7 +324,8 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
     def _get_dependent_objects(self, obj):
         """
-        Returns a dict of dependent objects, model names as primary key, inside each two keys exist title and objects (list)
+        Returns a dictionary mapping of dependent objects (organized by model) which will be deleted as a result of
+        deleting the requested object.
 
         Args:
             obj: The object to return dependent objects for
@@ -332,18 +333,15 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         using = router.db_for_write(obj._meta.model)
         collector = Collector(using=using)
         collector.collect([obj])
-        related_objects = defaultdict(dict)
+
+        # Compile a mapping of models to instances
+        dependent_objects = defaultdict(list)
         for model, instance in collector.instances_with_model():
-            if instance == obj:
-                continue
+            # Omit the root object
+            if instance != obj:
+                dependent_objects[model].append(instance)
 
-            related_objects.setdefault(model.__name__, {"objects": []})['objects'].append(instance)
-
-            if len(related_objects[model.__name__]['objects']) == 1:
-                related_objects[model.__name__]['title'] = title(model._meta.verbose_name)
-            else:
-                related_objects[model.__name__]['title'] = title(model._meta.verbose_name_plural)
-        return dict(related_objects)
+        return dict(dependent_objects)
 
     #
     # Request handlers
@@ -358,8 +356,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
-
-        related_objects = self._get_dependent_objects(obj)
+        dependent_objects = self._get_dependent_objects(obj)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
@@ -370,7 +367,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 'object_type': self.queryset.model._meta.verbose_name,
                 'form': form,
                 'form_url': form_url,
-                'related_objects': related_objects,
+                'dependent_objects': dependent_objects,
                 **self.get_extra_context(request, obj),
             })
 
@@ -378,7 +375,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
-            'related_objects': related_objects,
+            'dependent_objects': dependent_objects,
             **self.get_extra_context(request, obj),
         })
 
