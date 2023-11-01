@@ -293,3 +293,29 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
                 'vrf': vrfs[2].pk,
             },
         ]
+
+    def test_bulk_delete_child_interfaces(self):
+        interface1 = VMInterface.objects.get(name='Interface 1')
+        virtual_machine = interface1.virtual_machine
+        self.add_permissions('virtualization.delete_vminterface')
+
+        # Create a child interface
+        child = VMInterface.objects.create(
+            virtual_machine=virtual_machine,
+            name='Interface 1A',
+            parent=interface1
+        )
+        self.assertEqual(virtual_machine.interfaces.count(), 4)
+
+        # Attempt to delete only the parent interface
+        url = self._get_detail_url(interface1)
+        self.client.delete(url, **self.header)
+        self.assertEqual(virtual_machine.interfaces.count(), 4)  # Parent was not deleted
+
+        # Attempt to bulk delete parent & child together
+        data = [
+            {"id": interface1.pk},
+            {"id": child.pk},
+        ]
+        self.client.delete(self._get_list_url(), data, format='json', **self.header)
+        self.assertEqual(virtual_machine.interfaces.count(), 2)  # Child & parent were both deleted

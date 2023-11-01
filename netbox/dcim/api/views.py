@@ -24,6 +24,7 @@ from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
+from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
 from virtualization.models import VirtualMachine
 from . import serializers
@@ -504,6 +505,10 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
     brief_prefetch_fields = ['device']
+
+    def get_bulk_destroy_queryset(self):
+        # Ensure child interfaces are deleted prior to their parents
+        return self.get_queryset().order_by('device', 'parent', CollateAsChar('_name'))
 
 
 class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
