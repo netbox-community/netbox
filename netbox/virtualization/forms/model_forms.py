@@ -197,21 +197,11 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             "vm_role": "True"
         }
     )
-    manufacturer = DynamicModelChoiceField(
-        label=_('Manufacturer'),
-        queryset=Manufacturer.objects.all(),
-        required=False,
-        initial_params={
-            'platforms': '$platform'
-        }
-    )
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
         required=False,
-        query_params={
-            "manufacturer_id": '$manufacturer'
-        }
+        selector=True
     )
     local_context_data = JSONField(
         required=False,
