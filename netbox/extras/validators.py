@@ -98,6 +98,27 @@ class CustomValidator:
         """
         return
 
+    def validate_data(self, data):
+        """
+        Custom validation method for model forms and model serializers, to be overridden by the user.
+        Validation failures should raise a ValidationError exception.
+        """
+        return
+
+    def validate_form_data(self, data):
+        """
+        Custom validation method for model forms, to be overridden by the user.
+        Validation failures should raise a ValidationError exception.
+        """
+        return self.validate_data(data)
+
+    def validate_serializer_data(self, data):
+        """
+        Custom validation method for model serializers, to be overridden by the user.
+        Validation failures should raise a ValidationError exception.
+        """
+        return self.validate_data(data)
+
     def fail(self, message, field=None):
         """
         Raise a ValidationError exception. Associate the provided message with a form/serializer field if specified.

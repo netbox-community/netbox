@@ -9,7 +9,7 @@ from django_prometheus.models import model_deletes, model_inserts, model_updates
 from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, webhooks_queue
-from netbox.signals import post_clean
+from netbox.signals import post_clean, post_form_clean, post_serializer_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
 from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
@@ -178,11 +178,16 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_type
 # Custom validation
 #
 
-@receiver(post_clean)
-def run_custom_validators(sender, instance, **kwargs):
+@receiver([post_clean, post_form_clean, post_serializer_clean])
+def run_custom_validators(signal, sender, instance=None, data=None, **kwargs):
     config = get_config()
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
     validators = config.CUSTOM_VALIDATORS.get(model_name, [])
+
+    if signal is post_clean:
+        assert instance is not None
+    else:
+        assert data is not None
 
     for validator in validators:
 
@@ -195,7 +200,12 @@ def run_custom_validators(sender, instance, **kwargs):
         elif type(validator) is dict:
             validator = CustomValidator(validator)
 
-        validator(instance)
+        if signal is post_form_clean:
+            validator.validate_form_data(data)
+        elif signal is post_serializer_clean:
+            validator.validate_serializer_data(data)
+        else:
+            validator(instance)
 
 
 #

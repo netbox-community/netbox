@@ -6,6 +6,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
 from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 from extras.models import CustomField, Tag
+from netbox.signals import post_form_clean
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.mixins import BootstrapMixin, CheckLastUpdatedMixin
@@ -54,6 +55,9 @@ class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, 
                 self.instance.custom_field_data[key] = None
             else:
                 self.instance.custom_field_data[key] = customfield.serialize(value)
+
+        # Send the post_form_clean signal
+        post_form_clean.send(sender=self._meta.model, data=self.cleaned_data)
 
         return super().clean()
 

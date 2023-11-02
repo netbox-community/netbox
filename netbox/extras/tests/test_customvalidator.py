@@ -4,6 +4,9 @@ from django.test import TestCase, override_settings
 
 from ipam.models import ASN, RIR
 from dcim.models import Site
+from dcim.api.serializers import SiteSerializer
+from dcim.forms.model_forms import SiteForm
+from extras.models import Tag
 from extras.validators import CustomValidator
 
 
@@ -12,6 +15,33 @@ class MyValidator(CustomValidator):
     def validate(self, instance):
         if instance.name != 'foo':
             self.fail("Name must be foo!")
+
+
+class FooTagValidation:
+
+    def validate_foo_tag(self, data):
+        if data['name'] != 'foo':
+            for tag in data['tags']:
+                if tag.name == 'FOO':
+                    self.fail('FOO tag is reserved for site foo', 'tags')
+
+
+class MyDataValidator(FooTagValidation, CustomValidator):
+
+    def validate_data(self, data):
+        self.validate_foo_tag(data)
+
+
+class MyFormValidator(FooTagValidation, CustomValidator):
+
+    def validate_form_data(self, data):
+        self.validate_foo_tag(data)
+
+
+class MySerializerValidator(FooTagValidation, CustomValidator):
+
+    def validate_serializer_data(self, data):
+        self.validate_foo_tag(data)
 
 
 min_validator = CustomValidator({
@@ -64,12 +94,31 @@ prohibited_validator = CustomValidator({
 
 custom_validator = MyValidator()
 
+custom_data_validator = MyDataValidator()
+
+custom_form_validator = MyFormValidator()
+
+custom_serializer_validator = MySerializerValidator()
+
 
 class CustomValidatorTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
         RIR.objects.create(name='RIR 1', slug='rir-1')
+        tag = Tag.objects.create(name='FOO', slug='foo')
+        cls.valid_data = {
+            'name': 'foo',
+            'slug': 'foo',
+            'status': 'active',
+            'tags': [tag.pk],
+        }
+        cls.invalid_data = {
+            'name': 'abc',
+            'slug': 'abc',
+            'status': 'active',
+            'tags': [tag.pk],
+        }
 
     @override_settings(CUSTOM_VALIDATORS={'ipam.asn': [min_validator]})
     def test_configuration(self):
@@ -124,6 +173,54 @@ class CustomValidatorTest(TestCase):
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_validator]})
     def test_custom_valid(self):
         Site(name='foo', slug='foo').clean()
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_data_validator]})
+    def test_custom_data_invalid(self):
+        form = SiteForm(self.invalid_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('tags', form.errors)
+        serializer = SiteSerializer(data=self.invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('tags', serializer.errors)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_data_validator]})
+    def test_custom_data_valid(self):
+        form = SiteForm(self.valid_data)
+        self.assertTrue(form.is_valid(), form.errors.as_data())
+        serializer = SiteSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_form_validator]})
+    def test_custom_form_invalid(self):
+        form = SiteForm(self.invalid_data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('tags', form.errors)
+        # Form validator does not affect serializer validation.
+        serializer = SiteSerializer(data=self.invalid_data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_form_validator]})
+    def test_custom_form_valid(self):
+        form = SiteForm(self.valid_data)
+        self.assertTrue(form.is_valid(), form.errors.as_data())
+        serializer = SiteSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_serializer_validator]})
+    def test_custom_serializer_invalid(self):
+        # Serializer validator does not affect form validation.
+        form = SiteForm(self.invalid_data)
+        self.assertTrue(form.is_valid(), form.errors.as_data())
+        serializer = SiteSerializer(data=self.invalid_data)
+        self.assertFalse(serializer.is_valid())
+        self.assertIn('tags', serializer.errors)
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_serializer_validator]})
+    def test_custom_serializer_valid(self):
+        form = SiteForm(self.valid_data)
+        self.assertTrue(form.is_valid(), form.errors.as_data())
+        serializer = SiteSerializer(data=self.valid_data)
+        self.assertTrue(serializer.is_valid(), serializer.errors)
 
 
 class CustomValidatorConfigTest(TestCase):

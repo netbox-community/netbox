@@ -3,6 +3,8 @@ from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
+from netbox.signals import post_serializer_clean
+
 __all__ = (
     'BaseModelSerializer',
     'ValidatedModelSerializer',
@@ -42,5 +44,8 @@ class ValidatedModelSerializer(BaseModelSerializer):
             for k, v in attrs.items():
                 setattr(instance, k, v)
         instance.full_clean()
+
+        # Send the post_serializer_clean signal
+        post_serializer_clean.send(sender=self.Meta.model, data=data)
 
         return data
