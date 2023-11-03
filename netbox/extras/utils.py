@@ -67,6 +67,10 @@ def register_features(model, features):
                 f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
             )
 
+    # Register public models
+    if not getattr(model, '_netbox_private', False):
+        registry['models'][app_label].add(model_name)
+
 
 def is_script(obj):
     """

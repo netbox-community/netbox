@@ -1,9 +1,8 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
-from core.models import DataFile, DataSource
+from core.models import ContentType, DataFile, DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
@@ -196,7 +195,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     )
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
+        queryset=ContentType.objects.public(),
         required=False
     )
     enabled = forms.NullBooleanField(

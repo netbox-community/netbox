@@ -99,6 +99,8 @@ class UserConfig(models.Model):
         default=dict
     )
 
+    _netbox_private = True
+
     class Meta:
         ordering = ['user']
         verbose_name = _('user preferences')
