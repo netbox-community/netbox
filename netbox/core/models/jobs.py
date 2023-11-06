@@ -12,7 +12,6 @@ from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
-from extras.utils import FeatureQuery
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
@@ -28,9 +27,8 @@ class Job(models.Model):
     Tracks the lifecycle of a job which represents a background task (e.g. the execution of a custom script).
     """
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='jobs',
-        limit_choices_to=FeatureQuery('jobs'),
         on_delete=models.CASCADE,
     )
     object_id = models.PositiveBigIntegerField(

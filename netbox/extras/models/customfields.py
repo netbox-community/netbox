@@ -10,13 +10,11 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
 from extras.data import CHOICE_SETS
-from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
@@ -60,9 +58,8 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='custom_fields',
-        limit_choices_to=FeatureQuery('custom_fields'),
         help_text=_('The object(s) to which this field applies.')
     )
     type = models.CharField(
@@ -73,7 +70,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of data this custom field holds')
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,

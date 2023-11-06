@@ -3,7 +3,6 @@ import urllib.parse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
@@ -14,10 +13,11 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext, gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
+from core.models import ContentType
 from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
-from extras.utils import FeatureQuery, image_upload
+from extras.utils import image_upload
 from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
@@ -45,10 +45,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='webhooks',
         verbose_name=_('object types'),
-        limit_choices_to=FeatureQuery('webhooks'),
         help_text=_("The object(s) to which this Webhook applies.")
     )
     name = models.CharField(
@@ -645,7 +644,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         super().clean()
 
         # Prevent the creation of journal entries on unsupported models
-        permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
+        permitted_types = ContentType.objects.with_feature('journaling')
         if self.assigned_object_type not in permitted_types:
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
