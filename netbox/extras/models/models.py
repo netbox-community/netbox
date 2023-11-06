@@ -559,6 +559,15 @@ class ImageAttachment(ChangeLoggedModel):
         filename = self.image.name.rsplit('/', 1)[-1]
         return filename.split('_', 2)[2]
 
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.content_type not in ContentType.objects.with_feature('image_attachments'):
+            raise ValidationError(
+                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.content_type)
+            )
+
     def delete(self, *args, **kwargs):
 
         _name = self.image.name
@@ -643,9 +652,8 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
     def clean(self):
         super().clean()
 
-        # Prevent the creation of journal entries on unsupported models
-        permitted_types = ContentType.objects.with_feature('journaling')
-        if self.assigned_object_type not in permitted_types:
+        # Validate the assigned object type
+        if self.assigned_object_type not in ContentType.objects.with_feature('journaling'):
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
             )
@@ -693,6 +701,15 @@ class Bookmark(models.Model):
         if self.object:
             return str(self.object)
         return super().__str__()
+
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.object_type not in ContentType.objects.with_feature('bookmarks'):
+            raise ValidationError(
+                _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
+            )
 
 
 class ConfigRevision(models.Model):

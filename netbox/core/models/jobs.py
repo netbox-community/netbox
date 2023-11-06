@@ -3,6 +3,7 @@ import uuid
 import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -120,6 +121,15 @@ class Job(models.Model):
 
     def get_status_color(self):
         return JobStatusChoices.colors.get(self.status)
+
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.object_type not in ContentType.objects.with_feature('jobs'):
+            raise ValidationError(
+                _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
+            )
 
     @property
     def duration(self):
