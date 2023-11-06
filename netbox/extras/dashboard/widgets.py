@@ -343,7 +343,6 @@ class BookmarksWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         object_types = forms.MultipleChoiceField(
-            # TODO: Restrict the choices by FeatureQuery('bookmarks')
             choices=get_content_type_labels,
             required=False
         )
