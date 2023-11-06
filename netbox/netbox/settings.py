@@ -9,12 +9,14 @@ import warnings
 from urllib.parse import urlencode, urlsplit
 
 import django
-import sentry_sdk
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_str
-from sentry_sdk.integrations.django import DjangoIntegration
+try:
+    import sentry_sdk
+except ModuleNotFoundError:
+    pass
 
 from netbox.config import PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
@@ -38,8 +40,6 @@ if sys.version_info < (3, 8):
     raise RuntimeError(
         f"NetBox requires Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
     )
-
-DEFAULT_SENTRY_DSN = 'https://198cf560b29d4054ab8e583a1d10ea58@o1242133.ingest.sentry.io/6396485'
 
 #
 # Configuration import
@@ -158,7 +158,7 @@ RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
-SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', DEFAULT_SENTRY_DSN)
+SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
 SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
@@ -517,12 +517,12 @@ SERIALIZATION_MODULES = {
 #
 
 if SENTRY_ENABLED:
+    try:
+        from sentry_sdk.integrations.django import DjangoIntegration
+    except ModuleNotFoundError:
+        raise ImproperlyConfigured("SENTRY_ENABLED is True but the sentry-sdk package is not installed.")
     if not SENTRY_DSN:
         raise ImproperlyConfigured("SENTRY_ENABLED is True but SENTRY_DSN has not been defined.")
-    # If using the default DSN, force sampling rates
-    if SENTRY_DSN == DEFAULT_SENTRY_DSN:
-        SENTRY_SAMPLE_RATE = 1.0
-        SENTRY_TRACES_SAMPLE_RATE = 0
     # Initialize the SDK
     sentry_sdk.init(
         dsn=SENTRY_DSN,
@@ -537,9 +537,6 @@ if SENTRY_ENABLED:
     # Assign any configured tags
     for k, v in SENTRY_TAGS.items():
         sentry_sdk.set_tag(k, v)
-    # If using the default DSN, append a unique deployment ID tag for error correlation
-    if SENTRY_DSN == DEFAULT_SENTRY_DSN:
-        sentry_sdk.set_tag('netbox.deployment_id', DEPLOYMENT_ID)
 
 
 #

@@ -126,10 +126,6 @@ PyYAML
 # https://github.com/psf/requests/blob/main/HISTORY.md
 requests
 
-# Sentry SDK
-# https://github.com/getsentry/sentry-python/blob/master/CHANGELOG.md
-sentry-sdk
-
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md
 social-auth-core
