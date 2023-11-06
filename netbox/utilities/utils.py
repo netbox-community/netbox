@@ -8,7 +8,7 @@ from itertools import count, groupby
 import bleach
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.utils import timezone
@@ -567,3 +567,17 @@ def local_now():
     Return the current date & time in the system timezone.
     """
     return localtime(timezone.now())
+
+
+def get_related_models(model):
+    """
+    Return a list of all models which have a ForeignKey to the given model and the name of the field.
+    """
+    related_models = []
+    for field in model._meta.get_fields():
+        if type(field) is ManyToOneRel:
+            related_models.append(
+                (field.related_model, field.remote_field.name)
+            )
+
+    return related_models
