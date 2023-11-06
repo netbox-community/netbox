@@ -3,7 +3,6 @@ import uuid
 import django_rq
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 from django.urls import reverse
@@ -11,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
+from core.models import ContentType
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT

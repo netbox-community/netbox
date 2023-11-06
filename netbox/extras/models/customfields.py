@@ -5,7 +5,6 @@ from datetime import datetime, date
 import django_filters
 from django import forms
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
@@ -13,6 +12,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from extras.choices import *
 from extras.data import CHOICE_SETS
 from netbox.models import ChangeLoggedModel

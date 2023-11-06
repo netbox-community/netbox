@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -48,7 +47,7 @@ class ObjectChange(models.Model):
         choices=ObjectChangeActionChoices
     )
     changed_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         related_name='+'
     )
@@ -58,7 +57,7 @@ class ObjectChange(models.Model):
         fk_field='changed_object_id'
     )
     related_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,
