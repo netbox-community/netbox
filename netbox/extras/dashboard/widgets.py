@@ -32,10 +32,17 @@ __all__ = (
 )
 
 
-def get_content_type_labels():
+def get_object_type_choices():
     return [
         (content_type_identifier(ct), content_type_name(ct))
         for ct in ContentType.objects.public().order_by('app_label', 'model')
+    ]
+
+
+def get_bookmarks_object_type_choices():
+    return [
+        (content_type_identifier(ct), content_type_name(ct))
+        for ct in ContentType.objects.with_feature('bookmarks').order_by('app_label', 'model')
     ]
 
 
@@ -158,7 +165,7 @@ class ObjectCountsWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         models = forms.MultipleChoiceField(
-            choices=get_content_type_labels
+            choices=get_object_type_choices
         )
         filters = forms.JSONField(
             required=False,
@@ -207,7 +214,7 @@ class ObjectListWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         model = forms.ChoiceField(
-            choices=get_content_type_labels
+            choices=get_object_type_choices
         )
         page_size = forms.IntegerField(
             required=False,
@@ -343,7 +350,7 @@ class BookmarksWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         object_types = forms.MultipleChoiceField(
-            choices=get_content_type_labels,
+            choices=get_bookmarks_object_type_choices,
             required=False
         )
         order_by = forms.ChoiceField(
