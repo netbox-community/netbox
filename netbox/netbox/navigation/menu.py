@@ -195,15 +195,28 @@ IPAM_MENU = Menu(
     ),
 )
 
-OVERLAY_MENU = Menu(
-    label=_('Overlay'),
+VPN_MENU = Menu(
+    label=_('VPN'),
     icon_class='mdi mdi-graph-outline',
     groups=(
         MenuGroup(
-            label='L2VPNs',
+            label=_('Tunnels'),
+            items=(
+                get_model_item('vpn', 'tunnel', _('Tunnels')),
+                get_model_item('vpn', 'tunneltermination', _('Tunnel Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('L2VPNs'),
             items=(
                 get_model_item('ipam', 'l2vpn', _('L2VPNs')),
                 get_model_item('ipam', 'l2vpntermination', _('Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Security'),
+            items=(
+                get_model_item('vpn', 'ipsecprofile', _('IPSec Profiles')),
             ),
         ),
     ),
@@ -443,7 +456,7 @@ MENUS = [
     CONNECTIONS_MENU,
     WIRELESS_MENU,
     IPAM_MENU,
-    OVERLAY_MENU,
+    VPN_MENU,
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,
