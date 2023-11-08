@@ -249,10 +249,27 @@ class EventRuleForm(NetBoxModelForm):
         limit_choices_to=FeatureQuery('webhooks')
     )
 
+    # Webhook form fields
+    #
+    payload_url = Webhook._meta.get_field('payload_url').formfield()
+    http_method = Webhook._meta.get_field('http_method').formfield()
+    http_content_type = Webhook._meta.get_field('http_content_type').formfield()
+    additional_headers = Webhook._meta.get_field('additional_headers').formfield()
+    body_template = Webhook._meta.get_field('body_template').formfield()
+    secret = Webhook._meta.get_field('secret').formfield()
+    ssl_verification = Webhook._meta.get_field('ssl_verification').formfield()
+    ca_file_path = Webhook._meta.get_field('ca_file_path').formfield()
+
     fieldsets = (
         (_('EventRule'), ('name', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
+        (_('Action'), ('action_type',)),
+
+        (_('HTTP Request'), (
+            'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
+        )),
+        (_('SSL'), ('ssl_verification', 'ca_file_path')),
     )
 
     class Meta:
@@ -268,6 +285,27 @@ class EventRuleForm(NetBoxModelForm):
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        SCRIPT_CHOICES = [
+            (
+                "Audio",
+                (
+                    ("vinyl", "Vinyl"),
+                    ("cd", "CD"),
+                ),
+            ),
+            (
+                "Video",
+                (
+                    ("vhs", "VHS Tape"),
+                    ("dvd", "DVD"),
+                ),
+            ),
+            ("unknown", "Unknown"),
+        ]
 
 
 class TagForm(BootstrapMixin, forms.ModelForm):

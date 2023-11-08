@@ -297,8 +297,8 @@ class EventRuleTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    event_type = tables.Column(
-        verbose_name=_('Event Type'),
+    action_type = tables.Column(
+        verbose_name=_('Action Type'),
     )
     content_types = columns.ContentTypesColumn(
         verbose_name=_('Content Types'),
@@ -328,11 +328,11 @@ class EventRuleTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = EventRule
         fields = (
-            'pk', 'id', 'name', 'event_type', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
+            'pk', 'id', 'name', 'action_type', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'event_type', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'pk', 'name', 'action_type', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
             'type_job_end',
         )
 

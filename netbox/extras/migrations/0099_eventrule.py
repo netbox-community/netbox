@@ -25,7 +25,7 @@ def move_webhooks(apps, schema_editor):
         event.enabled = webhook.enabled
         event.conditions = webhook.conditions
 
-        event.event_type = EventRuleTypeChoices.WEBHOOK
+        event.action_type = EventRuleActionChoices.WEBHOOK
         event.object_type_id = ContentType.objects.get_for_model(webhook).id
         event.object_id = webhook.id
         event.save()
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('type_job_end', models.BooleanField(default=False)),
                 ('enabled', models.BooleanField(default=True)),
                 ('conditions', models.JSONField(blank=True, null=True)),
-                ('event_type', models.CharField(default='webhook', max_length=30)),
+                ('action_type', models.CharField(default='webhook', max_length=30)),
                 ('object_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 (
                     'content_types',
@@ -76,6 +76,8 @@ class Migration(migrations.Migration):
                         to='contenttypes.contenttype',
                     ),
                 ),
+                ('object_identifier', models.CharField(max_length=80, blank=True)),
+                ('parameters', models.JSONField(blank=True, null=True)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
@@ -129,9 +131,5 @@ class Migration(migrations.Migration):
                 related_name='eventrule_actions',
                 to='contenttypes.contenttype',
             ),
-        ),
-        migrations.AlterUniqueTogether(
-            name='eventrule',
-            unique_together={('object_type', 'object_id')},
         ),
     ]

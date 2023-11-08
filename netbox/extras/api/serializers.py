@@ -73,7 +73,7 @@ class EventRuleSerializer(NetBoxModelSerializer):
         model = EventRule
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'event_type',
+            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type',
             'custom_fields', 'tags', 'created', 'last_updated',
         ]
 

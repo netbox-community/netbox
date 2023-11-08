@@ -93,17 +93,16 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         help_text=_("A set of conditions which determine whether the event will be generated.")
     )
 
-    event_type = models.CharField(
+    # Action to take
+    action_type = models.CharField(
         max_length=30,
-        choices=EventRuleTypeChoices,
-        default=EventRuleTypeChoices.WEBHOOK,
+        choices=EventRuleActionChoices,
+        default=EventRuleActionChoices.WEBHOOK,
         verbose_name=_('event type')
     )
-    # Action to take
     object_type = models.ForeignKey(
         to=ContentType,
         related_name='eventrule_actions',
-        # limit_choices_to=EVENT_TYPE_MODELS,
         on_delete=models.CASCADE,
     )
     object_id = models.PositiveBigIntegerField(
@@ -115,11 +114,22 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         fk_field='object_id',
     )
 
+    # internal (not show in UI) - used by scripts to store function name
+    object_identifier = models.CharField(
+        max_length=80,
+        blank=True
+    )
+    parameters = models.JSONField(
+        verbose_name=_('parameters'),
+        blank=True,
+        null=True,
+        help_text=_("Parameters to pass to the action.")
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('eventrule')
         verbose_name_plural = _('eventrules')
-        unique_together = ('object_type', 'object_id')
 
     def __str__(self):
         return self.name

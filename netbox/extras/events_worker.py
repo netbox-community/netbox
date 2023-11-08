@@ -7,7 +7,7 @@ from django_rq import job
 from jinja2.exceptions import TemplateError
 
 from .conditions import ConditionSet
-from .choices import EventRuleTypeChoices
+from .choices import EventRuleActionChoices
 from .constants import WEBHOOK_EVENT_TYPES
 from .scripts_worker import process_script
 from .webhooks import generate_signature
@@ -43,9 +43,9 @@ def module_member(name):
 
 
 def process_event_rules(event_rule, model_name, event, data, timestamp, username, request_id, snapshots):
-    if event_rule.event_type == EventRuleTypeChoices.WEBHOOK:
+    if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
         process_webhook(event_rule, model_name, event, data, timestamp, username, request_id, snapshots)
-    elif event_rule.event_type == EventRuleTypeChoicesEventRuleTypeChoices.SCRIPT:
+    elif event_rule.action_type == EventRuleActionChoicesEventRuleTypeChoices.SCRIPT:
         process_script(event_rule, model_name, event, data, timestamp, username, request_id, snapshots)
 
 

@@ -286,7 +286,7 @@ class DashboardWidgetColorChoices(ChoiceSet):
 # Event Rules
 #
 
-class EventRuleTypeChoices(ChoiceSet):
+class EventRuleActionChoices(ChoiceSet):
 
     WEBHOOK = 'webhook'
     SCRIPT = 'script'
