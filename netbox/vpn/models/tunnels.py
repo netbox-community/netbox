@@ -50,7 +50,8 @@ class Tunnel(PrimaryModel):
     )
     tunnel_id = models.PositiveBigIntegerField(
         verbose_name=_('tunnel ID'),
-        blank=True
+        blank=True,
+        null=True
     )
 
     clone_fields = (
@@ -113,3 +114,6 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
 
     def get_absolute_url(self):
         return self.tunnel.get_absolute_url()
+
+    def get_role_color(self):
+        return TunnelTerminationRoleChoices.colors.get(self.role)

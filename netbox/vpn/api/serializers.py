@@ -69,14 +69,14 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
         model = TunnelTermination
         fields = (
             'id', 'url', 'display', 'tunnel', 'role', 'interface_type', 'interface_id', 'interface', 'outside_ip',
-            'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
+            'tags', 'custom_fields', 'created', 'last_updated',
         )
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_interface(self, obj):
         serializer = get_serializer_for_model(obj.interface, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
-        return serializer(obj.assigned_object, context=context).data
+        return serializer(obj.interface, context=context).data
 
 
 class IPSecProfileSerializer(NetBoxModelSerializer):

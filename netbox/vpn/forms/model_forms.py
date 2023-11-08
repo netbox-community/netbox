@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Interface
+from ipam.models import IPAddress
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
@@ -17,7 +18,8 @@ __all__ = (
 
 class TunnelForm(TenancyForm, NetBoxModelForm):
     ipsec_profile = DynamicModelChoiceField(
-        queryset=IPSecProfile.objects.all()
+        queryset=IPSecProfile.objects.all(),
+        label=_('IPSec Profile')
     )
     comments = CommentField()
 
@@ -50,6 +52,11 @@ class TunnelTerminationForm(NetBoxModelForm):
         required=False,
         selector=True,
         label=_('Interface'),
+    )
+    outside_ip = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        selector=True,
+        label=_('Outside IP'),
     )
 
     class Meta:

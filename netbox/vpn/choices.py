@@ -24,12 +24,14 @@ class TunnelStatusChoices(ChoiceSet):
 class TunnelEncapsulationChoices(ChoiceSet):
     ENCAP_GRE = 'gre'
     ENCAP_IP_IP = 'ip-ip'
-    ENCAP_IPSEC = 'ipsec'
+    ENCAP_IPSEC_TRANSPORT = 'ipsec-transport'
+    ENCAP_IPSEC_TUNNEL = 'ipsec-tunnel'
 
     CHOICES = [
-        (ENCAP_IPSEC, _('IPsec')),
-        (ENCAP_IP_IP, _('Active')),
-        (ENCAP_GRE, _('Disabled')),
+        (ENCAP_IPSEC_TRANSPORT, _('IPsec - Transport')),
+        (ENCAP_IPSEC_TUNNEL, _('IPsec - Tunnel')),
+        (ENCAP_IP_IP, _('IP-in-IP')),
+        (ENCAP_GRE, _('GRE')),
     ]
 
 
@@ -39,9 +41,9 @@ class TunnelTerminationRoleChoices(ChoiceSet):
     ROLE_SPOKE = 'spoke'
 
     CHOICES = [
-        (ROLE_PEER, _('Peer')),
-        (ROLE_HUB, _('Hub')),
-        (ROLE_SPOKE, _('Spoke')),
+        (ROLE_PEER, _('Peer'), 'green'),
+        (ROLE_HUB, _('Hub'), 'blue'),
+        (ROLE_SPOKE, _('Spoke'), 'orange'),
     ]
 
 

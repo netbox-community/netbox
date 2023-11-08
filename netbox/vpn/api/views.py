@@ -35,7 +35,7 @@ class TunnelViewSet(NetBoxModelViewSet):
 
 
 class TunnelTerminationViewSet(NetBoxModelViewSet):
-    queryset = Tunnel.objects.prefetch_related('tunnel')
+    queryset = TunnelTermination.objects.prefetch_related('tunnel')
     serializer_class = serializers.TunnelTerminationSerializer
     filterset_class = filtersets.TunnelTerminationFilterSet
 

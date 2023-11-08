@@ -2,6 +2,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from netbox.forms import NetBoxModelFilterSetForm
+from tenancy.forms import TenancyFilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from vpn.choices import *
 from vpn.models import *
@@ -13,13 +14,13 @@ __all__ = (
 )
 
 
-class TunnelFilterForm(NetBoxModelFilterSetForm):
+class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = Tunnel
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Tunnel'), ('status', 'encapsulation', 'tunnel_id')),
         (_('Security'), ('ipsec_profile_id', 'preshared_key')),
-        (_('Tenancy'), ('tenant',)),
+        (_('Tenancy'), ('tenant_group_id', 'tenant_id')),
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),
@@ -35,6 +36,14 @@ class TunnelFilterForm(NetBoxModelFilterSetForm):
         queryset=IPSecProfile.objects.all(),
         required=False,
         label=_('IPSec profile')
+    )
+    preshared_key = forms.CharField(
+        required=False,
+        label=_('Pre-shared key')
+    )
+    tunnel_id = forms.IntegerField(
+        required=False,
+        label=_('Tunnel ID')
     )
     tag = TagFilterField(model)
 

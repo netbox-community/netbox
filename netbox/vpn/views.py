@@ -67,11 +67,6 @@ class TunnelTerminationListView(generic.ObjectListView):
     table = tables.TunnelTerminationTable
 
 
-@register_model_view(TunnelTermination)
-class TunnelTerminationView(generic.ObjectView):
-    queryset = TunnelTermination.objects.all()
-
-
 @register_model_view(TunnelTermination, 'edit')
 class TunnelTerminationEditView(generic.ObjectEditView):
     queryset = TunnelTermination.objects.all()
