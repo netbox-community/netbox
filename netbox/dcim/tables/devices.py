@@ -933,6 +933,9 @@ class InventoryItemTable(DeviceComponentTable):
     discovered = columns.BooleanColumn(
         verbose_name=_('Discovered'),
     )
+    parent = tables.LinkColumn(
+        verbose_name=_('Parent'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:inventoryitem_list'
     )
@@ -941,7 +944,7 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
+            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
             'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (
