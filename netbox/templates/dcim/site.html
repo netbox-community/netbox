@@ -3,6 +3,7 @@
 {% load plugins %}
 {% load tz %}
 {% load i18n %}
+{% load display_region %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -29,14 +30,7 @@
           <tr>
             <th scope="row">{% trans "Region" %}</th>
             <td>
-              {% if object.region %}
-                {% for region in object.region.get_ancestors %}
-                  {{ region|linkify }} /
-                {% endfor %}
-                {{ object.region|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
+              {% display_region object %}
             </td>
           </tr>
           <tr>

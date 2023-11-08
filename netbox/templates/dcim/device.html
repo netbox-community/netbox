@@ -5,6 +5,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load i18n %}
+{% load display_region %}
 
 {% block content %}
     <div class="row">
@@ -16,14 +17,7 @@
                         <tr>
                             <th scope="row">{% trans "Region" %}</th>
                             <td>
-                                {% if object.site.region %}
-                                    {% for region in object.site.region.get_ancestors %}
-                                        {{ region|linkify }} /
-                                    {% endfor %}
-                                    {{ object.site.region|linkify }}
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
+                                {% display_region object %}
                             </td>
                         </tr>
                         <tr>
