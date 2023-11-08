@@ -4,6 +4,7 @@
 {% load static %}
 {% load plugins %}
 {% load i18n %}
+{% load display_region %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -24,10 +25,7 @@
                         <tr>
                             <th scope="row">{% trans "Site" %}</th>
                             <td>
-                                {% if rack.site.region %}
-                                    {{ rack.site.region|linkify }} /
-                                {% endif %}
-                                {{ rack.site|linkify }}
+                                {% display_region rack include_site=True %}
                             </td>
                         </tr>
                         <tr>

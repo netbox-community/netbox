@@ -3,6 +3,7 @@
 {% load render_table from django_tables2 %}
 {% load plugins %}
 {% load i18n %}
+{% load display_region %}
 
 {% block content %}
     <div class="row">
@@ -16,14 +17,7 @@
                         <tr>
                             <th scope="row">{% trans "Site" %}</th>
                             <td>
-                                {% if object.site %}
-                                    {% if object.site.region %}
-                                        {{ object.site.region|linkify }} /
-                                    {% endif %}
-                                    {{ object.site|linkify }}
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
+                                {% display_region object include_site=True %}
                             </td>
                         </tr>
                         <tr>
