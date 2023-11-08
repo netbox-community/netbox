@@ -93,7 +93,7 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         verbose_name=_('Config Template'),
         linkify=True
     )
-    disk = tables.Column(
+    disk_space = tables.Column(
         empty_values=(),
         verbose_name=_('Disk Size (GB)'),
     )
@@ -102,18 +102,18 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
         model = VirtualMachine
         fields = (
             'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'platform',
-            'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments',
+            'vcpus', 'memory', 'disk_space', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments',
             'config_template', 'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
+            'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk_space', 'primary_ip',
         )
 
-    def render_disk(self, value, record):
+    def render_disk_space(self, value, record):
         if record.disk:
             return record.disk
-        elif record.virtual_disk_space:
-            return record.virtual_disk_space
+        elif record.disk_space:
+            return record.disk_space
         else:
             return '—'
 

@@ -85,7 +85,6 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     # Counter fields
     interface_count = serializers.IntegerField(read_only=True)
     virtual_disk_count = serializers.IntegerField(read_only=True)
-    disk = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = VirtualMachine
@@ -93,7 +92,7 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
             'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
-            'interface_count', 'virtual_disk_count',
+            'interface_count', 'virtual_disk_count', 'disk_space',
         ]
         validators = []
 
@@ -101,7 +100,7 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
         if obj.disk:
             return obj.disk
 
-        return obj.virtual_disk_space
+        return obj.disk_space
 
 
 class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):

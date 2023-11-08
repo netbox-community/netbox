@@ -243,7 +243,7 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
             return None
 
     @property
-    def virtual_disk_space(self):
+    def disk_space(self):
         return sum([disk.size for disk in self.virtualdisks.all()])
 
 
