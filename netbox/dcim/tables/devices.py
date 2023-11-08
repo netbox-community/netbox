@@ -466,12 +466,12 @@ class PowerPortTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
-    maximum_draw = tables.TemplateColumn(
-        template_code='''{% if record.maximum_draw %}{{ record.maximum_draw }} W{% else %}&mdash;{% endif %}''',
+    maximum_draw = columns.TemplateColumn(
+        template_code='''{% if record.maximum_draw %}{{ value }} W{% endif %}''',
         verbose_name=_('Maximum draw')
     )
-    allocated_draw = tables.TemplateColumn(
-        template_code='''{% if record.allocated_draw %}{{ record.allocated_draw }} W{% else %}&mdash;{% endif %}''',
+    allocated_draw = columns.TemplateColumn(
+        template_code='''{% if record.allocated_draw %}{{ value }} W{% endif %}''',
         verbose_name=_('Allocated draw')
     )
     tags = columns.TagColumn(
