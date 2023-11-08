@@ -933,7 +933,8 @@ class InventoryItemTable(DeviceComponentTable):
     discovered = columns.BooleanColumn(
         verbose_name=_('Discovered'),
     )
-    parent = tables.LinkColumn(
+    parent = tables.Column(
+        linkify=True,
         verbose_name=_('Parent'),
     )
     tags = columns.TagColumn(
