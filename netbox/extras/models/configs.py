@@ -260,12 +260,14 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         _context = dict()
 
         # Populate the default template context with NetBox model classes, namespaced by app
-        # TODO: Devise a canonical mechanism for identifying the models to include (see #13427)
-        for app, model_names in registry['model_features']['custom_fields'].items():
+        for app, model_names in registry['models'].items():
             _context.setdefault(app, {})
             for model_name in model_names:
-                model = apps.get_registered_model(app, model_name)
-                _context[app][model.__name__] = model
+                try:
+                    model = apps.get_registered_model(app, model_name)
+                    _context[app][model.__name__] = model
+                except LookupError:
+                    pass
 
         # Add the provided context data, if any
         if context is not None:

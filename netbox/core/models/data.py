@@ -378,6 +378,8 @@ class AutoSyncRecord(models.Model):
         fk_field='object_id'
     )
 
+    _netbox_private = True
+
     class Meta:
         constraints = (
             models.UniqueConstraint(

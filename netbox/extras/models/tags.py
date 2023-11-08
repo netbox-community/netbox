@@ -75,6 +75,8 @@ class TaggedItem(GenericTaggedItemBase):
         on_delete=models.CASCADE
     )
 
+    _netbox_private = True
+
     class Meta:
         indexes = [models.Index(fields=["content_type", "object_id"])]
         verbose_name = _('tagged item')

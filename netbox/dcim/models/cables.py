@@ -431,6 +431,8 @@ class CablePath(models.Model):
     )
     _nodes = PathField()
 
+    _netbox_private = True
+
     class Meta:
         verbose_name = _('cable path')
         verbose_name_plural = _('cable paths')

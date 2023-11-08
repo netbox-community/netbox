@@ -49,6 +49,8 @@ class CachedValue(models.Model):
         default=1000
     )
 
+    _netbox_private = True
+
     class Meta:
         ordering = ('weight', 'object_type', 'value', 'object_id')
         verbose_name = _('cached value')
