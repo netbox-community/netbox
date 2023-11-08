@@ -87,8 +87,9 @@ class PowerFeedTable(TenancyColumnsMixin, CableTerminationTable):
         linkify=True,
         verbose_name=_('Tenant')
     )
-    site = tables.TemplateColumn(
-        template_code='''{% if record.rack %}{{ record.rack.site|linkify }}{% else %}&mdash;{% endif %}''',
+    site = tables.Column(
+        accessor='rack__site',
+        linkify=True,
         verbose_name=_('Site'),
     )
     comments = columns.MarkdownColumn(
