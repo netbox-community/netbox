@@ -25,7 +25,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 # Environment setup
 #
 
-VERSION = '3.6.4'
+VERSION = '3.6.5'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -502,6 +502,9 @@ AUTH_EXEMPT_PATHS = (
 MAINTENANCE_EXEMPT_PATHS = (
     f'/{BASE_PATH}admin/',
     f'/{BASE_PATH}extras/config-revisions/',  # Allow modifying the configuration
+    LOGIN_URL,
+    LOGIN_REDIRECT_URL,
+    LOGOUT_REDIRECT_URL
 )
 
 SERIALIZATION_MODULES = {

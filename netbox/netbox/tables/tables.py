@@ -119,7 +119,7 @@ class BaseTable(tables.Table):
 
     @property
     def available_columns(self):
-        return self._get_columns(visible=False)
+        return sorted(self._get_columns(visible=False))
 
     @property
     def selected_columns(self):

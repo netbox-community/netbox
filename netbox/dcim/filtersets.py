@@ -4,6 +4,7 @@ from django.utils.translation import gettext as _
 
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
+from ipam.filtersets import PrimaryIPFilterSet
 from ipam.models import ASN, L2VPN, IPAddress, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
@@ -817,7 +818,13 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         fields = ['id', 'name', 'slug', 'description']
 
 
-class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet, LocalConfigContextFilterSet):
+class DeviceFilterSet(
+    NetBoxModelFilterSet,
+    TenancyFilterSet,
+    ContactModelFilterSet,
+    LocalConfigContextFilterSet,
+    PrimaryIPFilterSet,
+):
     manufacturer_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_type__manufacturer',
         queryset=Manufacturer.objects.all(),
@@ -993,16 +1000,6 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         method='_device_bays',
         label=_('Has device bays'),
     )
-    primary_ip4_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='primary_ip4',
-        queryset=IPAddress.objects.all(),
-        label=_('Primary IPv4 (ID)'),
-    )
-    primary_ip6_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='primary_ip6',
-        queryset=IPAddress.objects.all(),
-        label=_('Primary IPv6 (ID)'),
-    )
     oob_ip_id = django_filters.ModelMultipleChoiceFilter(
         field_name='oob_ip',
         queryset=IPAddress.objects.all(),
@@ -1069,7 +1066,7 @@ class DeviceFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilter
         return queryset.exclude(devicebays__isnull=value)
 
 
-class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
+class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, PrimaryIPFilterSet):
     device_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
         queryset=Device.objects.all(),
