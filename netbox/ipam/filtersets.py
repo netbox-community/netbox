@@ -266,7 +266,8 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     )
     mask_length = MultiValueNumberFilter(
         field_name='prefix',
-        lookup_expr='net_mask_length'
+        lookup_expr='net_mask_length',
+        label=_('Mask length')
     )
     mask_length__gte = django_filters.NumberFilter(
         field_name='prefix',
@@ -531,10 +532,10 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         method='filter_address',
         label=_('Address'),
     )
-    mask_length = django_filters.NumberFilter(
+    mask_length = MultiValueNumberFilter(
         field_name='address',
         lookup_expr='net_mask_length',
-        label=_('Mask length'),
+        label=_('Mask length')
     )
     mask_length__gte = django_filters.NumberFilter(
         field_name='address',
