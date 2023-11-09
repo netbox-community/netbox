@@ -15,6 +15,7 @@ class ContactIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('group', 'title', 'phone', 'email', 'description')
 
 
 @register_search
@@ -25,6 +26,7 @@ class ContactGroupIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
+    display_attrs = ('description',)
 
 
 @register_search
@@ -35,6 +37,7 @@ class ContactRoleIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
+    display_attrs = ('description',)
 
 
 @register_search
@@ -46,6 +49,7 @@ class TenantIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('group', 'description')
 
 
 @register_search
@@ -56,3 +60,4 @@ class TenantGroupIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
+    display_attrs = ('description',)

@@ -10,6 +10,7 @@ class CircuitIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('provider', 'provider_account', 'type', 'status', 'tenant', 'description')
 
 
 @register_search
@@ -22,6 +23,7 @@ class CircuitTerminationIndex(SearchIndex):
         ('port_speed', 2000),
         ('upstream_speed', 2000),
     )
+    display_attrs = ('circuit', 'site', 'provider_network', 'description')
 
 
 @register_search
@@ -32,6 +34,7 @@ class CircuitTypeIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
+    display_attrs = ('description',)
 
 
 @register_search
@@ -42,6 +45,7 @@ class ProviderIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('description',)
 
 
 class ProviderAccountIndex(SearchIndex):
@@ -51,6 +55,7 @@ class ProviderAccountIndex(SearchIndex):
         ('account', 200),
         ('comments', 5000),
     )
+    display_attrs = ('provider', 'account', 'description')
 
 
 @register_search
@@ -62,3 +67,4 @@ class ProviderNetworkIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('provider', 'service_id', 'description')

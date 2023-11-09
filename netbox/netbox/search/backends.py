@@ -3,7 +3,8 @@ from collections import defaultdict
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
-from django.db.models import F, Window, Q
+from django.db.models import F, Window, Q, prefetch_related_objects
+from django.db.models.fields.related import ForeignKey
 from django.db.models.functions import window
 from django.db.models.signals import post_delete, post_save
 from django.utils.module_loading import import_string
@@ -13,7 +14,7 @@ from netaddr.core import AddrFormatError
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
 from utilities.querysets import RestrictedPrefetch
-from utilities.utils import title
+from utilities.utils import content_type_identifier, title
 from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
@@ -103,17 +104,17 @@ class CachedValueSearchBackend(SearchBackend):
 
     def search(self, value, user=None, object_types=None, lookup=DEFAULT_LOOKUP_TYPE):
 
+        # Build the filter used to find relevant CachedValue records
         query_filter = Q(**{f'value__{lookup}': value})
-
         if object_types:
+            # Limit results by object type
             query_filter &= Q(object_type__in=object_types)
-
         if lookup in (LookupTypes.STARTSWITH, LookupTypes.ENDSWITH):
-            # Partial string matches are valid only on string values
+            # "Starts/ends with" matches are valid only on string values
             query_filter &= Q(type=FieldTypes.STRING)
-
-        if lookup == LookupTypes.PARTIAL:
+        elif lookup == LookupTypes.PARTIAL:
             try:
+                # If the value looks like an IP address, add an extra match for CIDR values
                 address = str(netaddr.IPNetwork(value.strip()).cidr)
                 query_filter |= Q(type=FieldTypes.CIDR) & Q(value__net_contains_or_equals=address)
             except (AddrFormatError, ValueError):
@@ -128,6 +129,12 @@ class CachedValueSearchBackend(SearchBackend):
                 order_by=[F('weight').asc()],
             )
         )[:MAX_RESULTS]
+
+        # Gather all ContentTypes present in the search results (used for prefetching related
+        # objects). This must be done before generating the final results list, which returns
+        # a RawQuerySet.
+        content_type_ids = set(queryset.values_list('object_type', flat=True))
+        content_types = ContentType.objects.filter(pk__in=content_type_ids)
 
         # Construct a Prefetch to pre-fetch only those related objects for which the
         # user has permission to view.
@@ -144,12 +151,34 @@ class CachedValueSearchBackend(SearchBackend):
             params
         )
 
+        # Iterate through each ContentType represented in the search results and prefetch any
+        # related objects necessary to render the prescribed display attributes (display_attrs).
+        for ct in content_types:
+            model = ct.model_class()
+            indexer = registry['search'].get(content_type_identifier(ct))
+            if not (display_attrs := getattr(indexer, 'display_attrs', None)):
+                continue
+
+            # Add ForeignKey fields to prefetch list
+            prefetch_fields = []
+            for attr in display_attrs:
+                field = model._meta.get_field(attr)
+                if type(field) is ForeignKey:
+                    prefetch_fields.append(f'object__{attr}')
+
+            # Compile a list of all CachedValues referencing this object type, and prefetch
+            # any related objects
+            if prefetch_fields:
+                objects = [r for r in results if r.object_type == ct]
+                prefetch_related_objects(objects, *prefetch_fields)
+
         # Omit any results pertaining to an object the user does not have permission to view
         ret = []
         for r in results:
             if r.object is not None:
                 r.name = str(r.object)
                 ret.append(r)
+
         return ret
 
     def cache(self, instances, indexer=None, remove_existing=True):
