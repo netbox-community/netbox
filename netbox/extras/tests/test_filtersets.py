@@ -150,104 +150,39 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
         webhooks = (
             Webhook(
                 name='Webhook 1',
-                type_create=True,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
                 payload_url='http://example.com/?1',
-                enabled=True,
                 http_method='GET',
                 ssl_verification=True,
             ),
             Webhook(
                 name='Webhook 2',
-                type_create=False,
-                type_update=True,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
                 payload_url='http://example.com/?2',
-                enabled=True,
                 http_method='POST',
                 ssl_verification=True,
             ),
             Webhook(
                 name='Webhook 3',
-                type_create=False,
-                type_update=False,
-                type_delete=True,
-                type_job_start=False,
-                type_job_end=False,
                 payload_url='http://example.com/?3',
-                enabled=False,
                 http_method='PATCH',
                 ssl_verification=False,
             ),
             Webhook(
                 name='Webhook 4',
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=True,
-                type_job_end=False,
                 payload_url='http://example.com/?4',
-                enabled=False,
                 http_method='PATCH',
                 ssl_verification=False,
             ),
             Webhook(
                 name='Webhook 5',
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=True,
                 payload_url='http://example.com/?5',
-                enabled=False,
                 http_method='PATCH',
                 ssl_verification=False,
             ),
         )
         Webhook.objects.bulk_create(webhooks)
-        webhooks[0].content_types.add(content_types[0])
-        webhooks[1].content_types.add(content_types[1])
-        webhooks[2].content_types.add(content_types[2])
-        webhooks[3].content_types.add(content_types[3])
-        webhooks[4].content_types.add(content_types[4])
 
     def test_name(self):
         params = {'name': ['Webhook 1', 'Webhook 2']}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
-    def test_content_types(self):
-        params = {'content_types': 'dcim.region'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Region).pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_create(self):
-        params = {'type_create': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_update(self):
-        params = {'type_update': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_delete(self):
-        params = {'type_delete': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_job_start(self):
-        params = {'type_job_start': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_type_job_end(self):
-        params = {'type_job_end': True}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_enabled(self):
-        params = {'enabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_http_method(self):

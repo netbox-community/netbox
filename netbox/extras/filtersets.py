@@ -47,7 +47,7 @@ class WebhookFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'payload_url',
+            'id', 'name', 'payload_url',
             'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
         ]
 
