@@ -2,6 +2,7 @@ import json
 
 from django import forms
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -291,14 +292,20 @@ class EventRuleForm(NetBoxModelForm):
         self.fields['action_choice'].initial = get_field_value(self, 'action_object_identifier')
 
     def get_webhook_choices(self):
+        initial = None
+        if self.fields['action_object_type'] and self.fields['action_object_id']:
+            initial = Webhook.objects.get(pk=get_field_value(self, 'action_object_id'))
         self.fields['action_choice'] = DynamicModelChoiceField(
             label=_('Webhook'),
             queryset=Webhook.objects.all(),
-            required=True
+            required=True,
+            initial=initial
         )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['action_object_type'].required = False
+        self.fields['action_object_id'].required = False
 
         # Determine the action type
         action_type = get_field_value(self, 'action_type')
@@ -307,6 +314,22 @@ class EventRuleForm(NetBoxModelForm):
             self.get_webhook_choices()
         elif action_type == EventRuleActionChoices.SCRIPT:
             self.get_script_choices()
+
+    def clean(self):
+        super().clean()
+
+        action_choice = self.cleaned_data.get('action_choice')
+        if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
+            self.cleaned_data['action_object_id'] = action_choice.id
+            self.cleaned_data['action_object_identifier'] = ''
+        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
+            script = ScriptModule.objects.get(pk=action_choice.split(":")[0])
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script)
+            self.cleaned_data['action_object_id'] = script.id
+            self.cleaned_data['action_object_identifier'] = action_choice
+
+        return self.cleaned_data
 
 
 class TagForm(BootstrapMixin, forms.ModelForm):
