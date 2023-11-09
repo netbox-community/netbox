@@ -1,5 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe
+from dcim.models import Site
 
 register = template.Library()
 
@@ -10,7 +11,10 @@ def display_region(context, obj):
     Renders hierarchical region data for a given object.
     """
     # Retrieve the region or site information
-    region = getattr(obj, 'region', None) or getattr(obj.site, 'region', None)
+    if isinstance(obj, Site):
+        region = obj.region
+    else:
+        region = getattr(obj, 'region', None) or getattr(obj.site, 'region', None)
 
     # Return a placeholder if no region or site is found
     if not region:
