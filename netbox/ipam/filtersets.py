@@ -266,7 +266,8 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     )
     mask_length = MultiValueNumberFilter(
         field_name='prefix',
-        lookup_expr='net_mask_length'
+        lookup_expr='net_mask_length',
+        label=_('Mask length')
     )
     mask_length__gte = django_filters.NumberFilter(
         field_name='prefix',
@@ -531,9 +532,18 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         method='filter_address',
         label=_('Address'),
     )
-    mask_length = django_filters.NumberFilter(
-        method='filter_mask_length',
-        label=_('Mask length'),
+    mask_length = MultiValueNumberFilter(
+        field_name='address',
+        lookup_expr='net_mask_length',
+        label=_('Mask length')
+    )
+    mask_length__gte = django_filters.NumberFilter(
+        field_name='address',
+        lookup_expr='net_mask_length__gte'
+    )
+    mask_length__lte = django_filters.NumberFilter(
+        field_name='address',
+        lookup_expr='net_mask_length__lte'
     )
     vrf_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VRF.objects.all(),
@@ -676,11 +686,6 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
             return queryset.filter(address__net_in=value)
         except ValidationError:
             return queryset.none()
-
-    def filter_mask_length(self, queryset, name, value):
-        if not value:
-            return queryset
-        return queryset.filter(address__net_mask_length=value)
 
     @extend_schema_field(OpenApiTypes.STR)
     def filter_present_in_vrf(self, queryset, name, vrf):
