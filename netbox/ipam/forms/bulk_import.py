@@ -517,20 +517,18 @@ class ServiceImportForm(NetBoxModelImportForm):
     class Meta:
         model = Service
         fields = (
-            'device', 'virtual_machine', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
+            'device', 'virtual_machine', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
+        )
 
     def clean_ipaddresses(self):
+        parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
+        for ip_address in self.cleaned_data['ipaddresses']:
+            if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
+                raise forms.ValidationError(
+                    _("{ip} is not assigned to this device/VM.").format(ip=ip_address)
+                )
 
-        device = self.cleaned_data.get('device')
-        virtual_machine = self.cleaned_data.get('virtual_machine')
-
-        for ip_address in self.cleaned_data.get('ipaddresses'):
-            if device and ip_address != device.primary_ip4:
-                raise forms.ValidationError(f"Device is not assigned to this {ip_address}")
-            if virtual_machine and ip_address != virtual_machine.primary_ip4:
-                raise forms.ValidationError(f"Virtual Machine is not assigned to this {ip_address}")
-
-        return self.cleaned_data
+        return self.cleaned_data['ipaddresses']
 
 
 class L2VPNImportForm(NetBoxModelImportForm):
