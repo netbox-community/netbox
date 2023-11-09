@@ -526,17 +526,17 @@ class ServiceFilterForm(ServiceTemplateFilterForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('protocol', 'port')),
-        (_('Device/VM'), ('device_id', 'virtual_machine_id')),
+        (_('Assignment'), ('device_id', 'virtual_machine_id')),
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label=_('Assigned Device'),
+        label=_('Device'),
     )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        label=_('Assigned VM'),
+        label=_('Virtual Machine'),
     )
     tag = TagFilterField(model)
 
