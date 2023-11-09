@@ -254,7 +254,7 @@ class EventRuleForm(NetBoxModelForm):
         (_('EventRule'), ('name', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
-        (_('Action'), ('action_type', 'action_choice', 'parameters')),
+        (_('Action'), ('action_type', 'action_choice', 'parameters', 'action_object_type', 'action_object_id', 'action_object_identifier')),
     )
 
     class Meta:
@@ -270,6 +270,9 @@ class EventRuleForm(NetBoxModelForm):
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
             'action_type': HTMXSelect(),
+            'action_object_type': forms.HiddenInput,
+            'action_object_id': forms.HiddenInput,
+            'action_object_identifier': forms.HiddenInput,
         }
 
     def get_script_choices(self):
@@ -278,13 +281,14 @@ class EventRuleForm(NetBoxModelForm):
         for module in ScriptModule.objects.all():
             scripts = []
             for script_name in module.scripts.keys():
-                name = f"{str(module).lower()}:{script_name.lower()}"
+                name = f"{str(module.pk)}:{script_name.lower()}"
                 scripts.append((name, script_name))
 
             if scripts:
                 choices.append((str(module), scripts))
 
         self.fields['action_choice'].choices = choices
+        self.fields['action_choice'].initial = get_field_value(self, 'action_object_identifier')
 
     def get_webhook_choices(self):
         self.fields['action_choice'] = DynamicModelChoiceField(

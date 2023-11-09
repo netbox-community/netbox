@@ -26,8 +26,8 @@ def move_webhooks(apps, schema_editor):
         event.conditions = webhook.conditions
 
         event.action_type = EventRuleActionChoices.WEBHOOK
-        event.object_type_id = ContentType.objects.get_for_model(webhook).id
-        event.object_id = webhook.id
+        event.action_object_type_id = ContentType.objects.get_for_model(webhook).id
+        event.action_object_id = webhook.id
         event.save()
         event.content_types.add(*webhook.content_types.all())
 
@@ -58,7 +58,7 @@ class Migration(migrations.Migration):
                 ('enabled', models.BooleanField(default=True)),
                 ('conditions', models.JSONField(blank=True, null=True)),
                 ('action_type', models.CharField(default='webhook', max_length=30)),
-                ('object_id', models.PositiveBigIntegerField(blank=True, null=True)),
+                ('action_object_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 (
                     'content_types',
                     models.ManyToManyField(
@@ -68,15 +68,14 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    'object_type',
+                    'action_object_type',
                     models.ForeignKey(
-                        limit_choices_to=models.Q(('app_label', 'extras'), ('model__in', ('webhook', 'script'))),
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name='eventrule_actions',
                         to='contenttypes.contenttype',
                     ),
                 ),
-                ('object_identifier', models.CharField(max_length=80, blank=True)),
+                ('action_object_identifier', models.CharField(max_length=80, blank=True)),
                 ('parameters', models.JSONField(blank=True, null=True)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
@@ -122,14 +121,5 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='webhook',
             name='type_update',
-        ),
-        migrations.AlterField(
-            model_name='eventrule',
-            name='object_type',
-            field=models.ForeignKey(
-                on_delete=django.db.models.deletion.CASCADE,
-                related_name='eventrule_actions',
-                to='contenttypes.contenttype',
-            ),
         ),
     ]

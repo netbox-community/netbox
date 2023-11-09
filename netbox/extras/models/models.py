@@ -100,22 +100,22 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         default=EventRuleActionChoices.WEBHOOK,
         verbose_name=_('event type')
     )
-    object_type = models.ForeignKey(
+    action_object_type = models.ForeignKey(
         to=ContentType,
         related_name='eventrule_actions',
         on_delete=models.CASCADE,
     )
-    object_id = models.PositiveBigIntegerField(
+    action_object_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )
-    object = GenericForeignKey(
-        ct_field='object_type',
-        fk_field='object_id',
+    action_object = GenericForeignKey(
+        ct_field='action_object_type',
+        fk_field='action_object_id',
     )
 
     # internal (not show in UI) - used by scripts to store function name
-    object_identifier = models.CharField(
+    action_object_identifier = models.CharField(
         max_length=80,
         blank=True
     )
