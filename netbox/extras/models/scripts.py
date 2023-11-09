@@ -2,6 +2,7 @@ import inspect
 import logging
 from functools import cached_property
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -75,6 +76,14 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
                 scripts[_get_name(cls)] = cls
 
         return scripts
+
+    def clean(self):
+        super().clean()
+
+        # Ensure that the file root and path make a unique pair
+        if self.file_root and self.file_path:
+            if ScriptModule.objects.filter(file_root=self.file_root, file_path=self.file_path).exclude(pk=self.pk).exists():
+                raise ValidationError(f"A script module with this file path already exists ({self.file_root}/{self.file_path}).")
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
