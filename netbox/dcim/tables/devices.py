@@ -466,6 +466,12 @@ class PowerPortTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
+    maximum_draw = tables.Column(
+        verbose_name=_('Maximum draw (W)')
+    )
+    allocated_draw = tables.Column(
+        verbose_name=_('Allocated draw (W)')
+    )
     tags = columns.TagColumn(
         url_name='dcim:powerport_list'
     )
