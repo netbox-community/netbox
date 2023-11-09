@@ -2,6 +2,22 @@
 
 ## v3.6.5 (FUTURE)
 
+### Enhancements
+
+* [#13669](https://github.com/netbox-community/netbox/issues/13669) - Add bulk import button to contact assignments list view
+* [#13723](https://github.com/netbox-community/netbox/issues/13723) - Add inventory items column to interfaces table
+* [#13743](https://github.com/netbox-community/netbox/issues/13743) - Add site column to power feeds table
+* [#13951](https://github.com/netbox-community/netbox/issues/13951) - Add device & virtual machine fields to service filter form
+* [#14101](https://github.com/netbox-community/netbox/issues/14101) - Add greater/less than mask length filters for IP addresses
+* [#14112](https://github.com/netbox-community/netbox/issues/14112) - Add tab listing child items under inventory item view
+* [#14113](https://github.com/netbox-community/netbox/issues/14113) - Add optional parent column to inventory items table
+* [#14220](https://github.com/netbox-community/netbox/issues/14220) - Order available columns alphabetically in table configuration form
+
+### Bug Fixes
+
+* [#14033](https://github.com/netbox-community/netbox/issues/14033) - Avoid exception when attempting to connect both ends of a cable to the same object
+* [#14223](https://github.com/netbox-community/netbox/issues/14223) - Disable ordering of jobs by assigned object
+
 ---
 
 ## v3.6.4 (2023-10-17)
