@@ -627,8 +627,12 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mask_length(self):
-        params = {'mask_length': ['24']}
+        params = {'mask_length': [24]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'mask_length__gte': 32}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {'mask_length__lte': 24}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
 
     def test_vrf(self):
         vrfs = VRF.objects.all()[:2]
@@ -954,8 +958,12 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mask_length(self):
-        params = {'mask_length': '24'}
+        params = {'mask_length': [24]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)
+        params = {'mask_length__gte': 64}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'mask_length__lte': 25}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
     def test_vrf(self):
         vrfs = VRF.objects.all()[:2]

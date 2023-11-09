@@ -466,6 +466,12 @@ class PowerPortTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
+    maximum_draw = tables.Column(
+        verbose_name=_('Maximum draw (W)')
+    )
+    allocated_draw = tables.Column(
+        verbose_name=_('Allocated draw (W)')
+    )
     tags = columns.TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -625,6 +631,10 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         verbose_name=_('VRF'),
         linkify=True
     )
+    inventory_items = tables.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name=_('Inventory Items'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:interface_list'
     )
@@ -636,7 +646,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
             'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
+            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'inventory_items', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -933,6 +943,10 @@ class InventoryItemTable(DeviceComponentTable):
     discovered = columns.BooleanColumn(
         verbose_name=_('Discovered'),
     )
+    parent = tables.Column(
+        linkify=True,
+        verbose_name=_('Parent'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:inventoryitem_list'
     )
@@ -941,7 +955,7 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
+            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
             'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (

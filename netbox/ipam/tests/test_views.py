@@ -4,6 +4,7 @@ from django.test import override_settings
 from django.urls import reverse
 from netaddr import IPNetwork
 
+from dcim.constants import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site, Interface
 from ipam.choices import *
 from ipam.models import *
@@ -911,6 +912,7 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
         role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
         device = Device.objects.create(name='Device 1', site=site, device_type=devicetype, role=role)
+        interface = Interface.objects.create(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL)
 
         services = (
             Service(device=device, name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[101]),
@@ -918,6 +920,12 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             Service(device=device, name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[103]),
         )
         Service.objects.bulk_create(services)
+
+        ip_addresses = (
+            IPAddress(assigned_object=interface, address='192.0.2.1/24'),
+            IPAddress(assigned_object=interface, address='192.0.2.2/24'),
+        )
+        IPAddress.objects.bulk_create(ip_addresses)
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
@@ -933,10 +941,10 @@ class ServiceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "device,name,protocol,ports,description",
-            "Device 1,Service 1,tcp,1,First service",
-            "Device 1,Service 2,tcp,2,Second service",
-            "Device 1,Service 3,udp,3,Third service",
+            "device,name,protocol,ports,ipaddresses,description",
+            "Device 1,Service 1,tcp,1,192.0.2.1/24,First service",
+            "Device 1,Service 2,tcp,2,192.0.2.2/24,Second service",
+            "Device 1,Service 3,udp,3,,Third service",
         )
 
         cls.csv_update_data = (

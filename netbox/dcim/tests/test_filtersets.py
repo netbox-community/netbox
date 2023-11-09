@@ -4712,12 +4712,18 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         addresses = (
             IPAddress(assigned_object=interfaces[0], address='10.1.1.1/24'),
             IPAddress(assigned_object=interfaces[1], address='10.1.1.2/24'),
+            IPAddress(assigned_object=None, address='10.1.1.3/24'),
+            IPAddress(assigned_object=interfaces[0], address='2001:db8::1/64'),
+            IPAddress(assigned_object=interfaces[1], address='2001:db8::2/64'),
+            IPAddress(assigned_object=None, address='2001:db8::3/64'),
         )
         IPAddress.objects.bulk_create(addresses)
 
         vdcs[0].primary_ip4 = addresses[0]
+        vdcs[0].primary_ip6 = addresses[3]
         vdcs[0].save()
         vdcs[1].primary_ip4 = addresses[1]
+        vdcs[1].primary_ip6 = addresses[4]
         vdcs[1].save()
 
     def test_device(self):
@@ -4738,3 +4744,17 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'has_primary_ip': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_primary_ip4(self):
+        addresses = IPAddress.objects.filter(address__family=4)
+        params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_primary_ip6(self):
+        addresses = IPAddress.objects.filter(address__family=6)
+        params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
