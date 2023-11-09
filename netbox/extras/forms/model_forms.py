@@ -2,12 +2,11 @@ import json
 
 from django import forms
 from django.conf import settings
-from django.db.models import Q
-from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
+from core.models import ContentType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
@@ -50,9 +49,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     )
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
-        queryset=ContentType.objects.all(),
-        # TODO: Come up with a canonical way to register suitable models
-        limit_choices_to=FeatureQuery('webhooks').get_query() | Q(app_label='auth', model__in=['user', 'group']),
+        queryset=ContentType.objects.public(),
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )

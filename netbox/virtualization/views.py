@@ -1,5 +1,4 @@
 import traceback
-from collections import defaultdict
 
 from django.contrib import messages
 from django.db import transaction
@@ -19,6 +18,7 @@ from ipam.tables import InterfaceVLANTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
+from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
@@ -550,7 +550,8 @@ class VMInterfaceBulkRenameView(generic.BulkRenameView):
 
 
 class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
-    queryset = VMInterface.objects.all()
+    # Ensure child interfaces are deleted prior to their parents
+    queryset = VMInterface.objects.order_by('virtual_machine', 'parent', CollateAsChar('_name'))
     filterset = filtersets.VMInterfaceFilterSet
     table = tables.VMInterfaceTable
 

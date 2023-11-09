@@ -1,9 +1,11 @@
 import logging
+from collections import defaultdict
 from copy import deepcopy
 
 from django.contrib import messages
-from django.db import transaction
-from django.db.models import ProtectedError
+from django.db import router, transaction
+from django.db.models import ProtectedError, RestrictedError
+from django.db.models.deletion import Collector
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -320,6 +322,27 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
     def get_required_permission(self):
         return get_permission_for_model(self.queryset.model, 'delete')
 
+    def _get_dependent_objects(self, obj):
+        """
+        Returns a dictionary mapping of dependent objects (organized by model) which will be deleted as a result of
+        deleting the requested object.
+
+        Args:
+            obj: The object to return dependent objects for
+        """
+        using = router.db_for_write(obj._meta.model)
+        collector = Collector(using=using)
+        collector.collect([obj])
+
+        # Compile a mapping of models to instances
+        dependent_objects = defaultdict(list)
+        for model, instance in collector.instances_with_model():
+            # Omit the root object
+            if instance != obj:
+                dependent_objects[model].append(instance)
+
+        return dict(dependent_objects)
+
     #
     # Request handlers
     #
@@ -333,6 +356,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
+        dependent_objects = self._get_dependent_objects(obj)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
@@ -343,6 +367,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
                 'object_type': self.queryset.model._meta.verbose_name,
                 'form': form,
                 'form_url': form_url,
+                'dependent_objects': dependent_objects,
                 **self.get_extra_context(request, obj),
             })
 
@@ -350,6 +375,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             'object': obj,
             'form': form,
             'return_url': self.get_return_url(request, obj),
+            'dependent_objects': dependent_objects,
             **self.get_extra_context(request, obj),
         })
 
@@ -374,8 +400,8 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             try:
                 obj.delete()
 
-            except ProtectedError as e:
-                logger.info("Caught ProtectedError while attempting to delete object")
+            except (ProtectedError, RestrictedError) as e:
+                logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
                 return redirect(obj.get_absolute_url())
 

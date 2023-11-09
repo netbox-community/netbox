@@ -1,9 +1,9 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from extras.choices import *
 from extras.models import *
 from extras.utils import FeatureQuery
@@ -41,8 +41,7 @@ class CustomFieldImportForm(CSVModelForm):
     )
     object_type = CSVContentTypeField(
         label=_('Object type'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        queryset=ContentType.objects.public(),
         required=False,
         help_text=_("Object type (for object or multi-object fields)")
     )
