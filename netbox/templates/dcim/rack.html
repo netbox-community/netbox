@@ -4,7 +4,7 @@
 {% load static %}
 {% load plugins %}
 {% load i18n %}
-{% load display_region %}
+{% load mptt %}
 
 {% block content %}
   <div class="row">
@@ -16,10 +16,14 @@
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">{% trans "Site" %}</th>
+                        <th scope="row">{% trans "Region" %}</th>
                         <td>
-                            {% display_region object include_site=True %}
+                            {% display_region object %}
                         </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Site" %}</th>
+                        <td>{{ object.site|linkify }}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Location" %}</th>

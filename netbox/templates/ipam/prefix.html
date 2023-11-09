@@ -3,7 +3,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load i18n %}
-{% load display_region %}
+{% load mptt %}
 
 {% block content %}
 <div class="row">
@@ -46,10 +46,14 @@
             </td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Site" %}</th>
+            <th scope="row">{% trans "Region" %}</th>
             <td>
-              {% display_region object include_site=True %}
+              {% display_region object %}
             </td>
+          </tr>
+          <tr>
+              <th scope="row">{% trans "Site" %}</th>
+              <td>{{ object.site|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "VLAN" %}</th>
