@@ -523,6 +523,21 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 
 class ServiceFilterForm(ServiceTemplateFilterForm):
     model = Service
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Attributes'), ('protocol', 'port')),
+        (_('Assignment'), ('device_id', 'virtual_machine_id')),
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Virtual Machine'),
+    )
     tag = TagFilterField(model)
 
 
