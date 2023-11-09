@@ -6,7 +6,7 @@ register = template.Library()
 
 
 @register.simple_tag(takes_context=True)
-def display_region(context, obj):
+def nested_tree(context, obj):
     """
     Renders hierarchical region data for a given object.
     """
