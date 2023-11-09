@@ -569,7 +569,7 @@ def local_now():
     return localtime(timezone.now())
 
 
-def get_related_models(model):
+def get_related_models(model, ordered=True):
     """
     Return a list of all models which have a ForeignKey to the given model and the name of the field.
     """
@@ -579,5 +579,8 @@ def get_related_models(model):
             related_models.append(
                 (field.related_model, field.remote_field.name)
             )
+
+    if ordered:
+        return sorted(related_models, key=lambda x: x[0]._meta.verbose_name)
 
     return related_models
