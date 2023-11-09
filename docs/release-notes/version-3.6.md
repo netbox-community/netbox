@@ -4,18 +4,28 @@
 
 ### Enhancements
 
+* [#12741](https://github.com/netbox-community/netbox/issues/12741) - Add selector widget to platform field on device & virtual machine forms
+* [#13022](https://github.com/netbox-community/netbox/issues/13022) - Introduce support for assigning IP addresses when bulk importing services
+* [#13587](https://github.com/netbox-community/netbox/issues/13587) - Annotate units of measurement on power port table columns
 * [#13669](https://github.com/netbox-community/netbox/issues/13669) - Add bulk import button to contact assignments list view
 * [#13723](https://github.com/netbox-community/netbox/issues/13723) - Add inventory items column to interfaces table
 * [#13743](https://github.com/netbox-community/netbox/issues/13743) - Add site column to power feeds table
+* [#13936](https://github.com/netbox-community/netbox/issues/13936) - Add primary IPv4 and IPv6 filters for virtual machines and VDCs
 * [#13951](https://github.com/netbox-community/netbox/issues/13951) - Add device & virtual machine fields to service filter form
+* [#14085](https://github.com/netbox-community/netbox/issues/14085) - Strip trailing port number from value returned by `get_client_ip()`
 * [#14101](https://github.com/netbox-community/netbox/issues/14101) - Add greater/less than mask length filters for IP addresses
 * [#14112](https://github.com/netbox-community/netbox/issues/14112) - Add tab listing child items under inventory item view
 * [#14113](https://github.com/netbox-community/netbox/issues/14113) - Add optional parent column to inventory items table
 * [#14220](https://github.com/netbox-community/netbox/issues/14220) - Order available columns alphabetically in table configuration form
+* [#14221](https://github.com/netbox-community/netbox/issues/14221) - Add contact group column on contact assignments table
 
 ### Bug Fixes
 
 * [#14033](https://github.com/netbox-community/netbox/issues/14033) - Avoid exception when attempting to connect both ends of a cable to the same object
+* [#14117](https://github.com/netbox-community/netbox/issues/14117) - Check that enough rear port positions have been selected to accommodate the number of front ports being created
+* [#14166](https://github.com/netbox-community/netbox/issues/14166) - Permit user login when maintenance mode is enabled
+* [#14182](https://github.com/netbox-community/netbox/issues/14182) - Ensure the active configuration is restored upon clearing cache
+* [#14195](https://github.com/netbox-community/netbox/issues/14195) - Correct permissions evaluation for ASN range child ASNs view
 * [#14223](https://github.com/netbox-community/netbox/issues/14223) - Disable ordering of jobs by assigned object
 
 ---
