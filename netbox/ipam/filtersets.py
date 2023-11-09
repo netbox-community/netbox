@@ -29,6 +29,7 @@ __all__ = (
     'L2VPNFilterSet',
     'L2VPNTerminationFilterSet',
     'PrefixFilterSet',
+    'PrimaryIPFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
     'RouteTargetFilterSet',
