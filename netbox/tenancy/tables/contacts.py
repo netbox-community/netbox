@@ -102,6 +102,11 @@ class ContactAssignmentTable(NetBoxTable):
         verbose_name=_('Role'),
         linkify=True
     )
+    contact_group = tables.Column(
+        accessor=Accessor('contact__group'),
+        verbose_name=_('Group'),
+        linkify=True
+    )
     contact_title = tables.Column(
         accessor=Accessor('contact__title'),
         verbose_name=_('Contact Title')
@@ -137,7 +142,8 @@ class ContactAssignmentTable(NetBoxTable):
         model = ContactAssignment
         fields = (
             'pk', 'content_type', 'object', 'contact', 'role', 'priority', 'contact_title', 'contact_phone',
-            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'tags', 'actions'
+            'contact_email', 'contact_address', 'contact_link', 'contact_description', 'contact_group', 'tags',
+            'actions'
         )
         default_columns = (
             'pk', 'content_type', 'object', 'contact', 'role', 'priority', 'contact_email', 'contact_phone'
