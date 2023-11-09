@@ -29,6 +29,7 @@ __all__ = (
     'L2VPNFilterSet',
     'L2VPNTerminationFilterSet',
     'PrefixFilterSet',
+    'PrimaryIPFilterSet',
     'RIRFilterSet',
     'RoleFilterSet',
     'RouteTargetFilterSet',
@@ -1232,3 +1233,19 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
             )
         )
         return qs
+
+
+class PrimaryIPFilterSet(django_filters.FilterSet):
+    """
+    An inheritable FilterSet for models which support primary IP assignment.
+    """
+    primary_ip4_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip4',
+        queryset=IPAddress.objects.all(),
+        label=_('Primary IPv4 (ID)'),
+    )
+    primary_ip6_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='primary_ip6',
+        queryset=IPAddress.objects.all(),
+        label=_('Primary IPv6 (ID)'),
+    )
