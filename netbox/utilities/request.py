@@ -17,7 +17,7 @@ def get_client_ip(request, additional_headers=()):
     )
     for header in HTTP_HEADERS:
         if header in request.META:
-            client_ip = request.META[header].split(',')[0]
+            client_ip = request.META[header].split(',')[0].partition(':')[0]
             try:
                 return IPAddress(client_ip)
             except ValueError:
