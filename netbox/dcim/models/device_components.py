@@ -1283,10 +1283,3 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
                 raise ValidationError({
                     "device": _("Cannot assign inventory item to component on another device")
                 })
-
-    @property
-    def children(self):
-        return InventoryItem.objects.filter(
-            device=self.device,
-            parent=self
-        )

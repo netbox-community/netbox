@@ -3002,14 +3002,14 @@ class InventoryItemChildrenView(generic.ObjectChildrenView):
     template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Children'),
-        badge=lambda obj: obj.children.count(),
+        badge=lambda obj: obj.child_items.count(),
         permission='dcim.view_inventoryitem',
         hide_if_empty=True,
         weight=5000
     )
 
     def get_children(self, request, parent):
-        return parent.children.restrict(request.user, 'view')
+        return parent.child_items.restrict(request.user, 'view')
 
 
 #
