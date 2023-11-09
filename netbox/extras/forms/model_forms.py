@@ -14,12 +14,12 @@ from extras.utils import FeatureQuery
 from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import BootstrapMixin, add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.widgets import ChoicesWidget
+from utilities.forms.widgets import ChoicesWidget, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 
@@ -245,28 +245,16 @@ class EventRuleForm(NetBoxModelForm):
         queryset=ContentType.objects.all(),
         limit_choices_to=FeatureQuery('webhooks')
     )
-
-    # Webhook form fields
-    #
-    payload_url = Webhook._meta.get_field('payload_url').formfield()
-    http_method = Webhook._meta.get_field('http_method').formfield()
-    http_content_type = Webhook._meta.get_field('http_content_type').formfield()
-    additional_headers = Webhook._meta.get_field('additional_headers').formfield()
-    body_template = Webhook._meta.get_field('body_template').formfield()
-    secret = Webhook._meta.get_field('secret').formfield()
-    ssl_verification = Webhook._meta.get_field('ssl_verification').formfield()
-    ca_file_path = Webhook._meta.get_field('ca_file_path').formfield()
+    action_choice = forms.ChoiceField(
+        label=_('Action choice'),
+        choices=[]
+    )
 
     fieldsets = (
         (_('EventRule'), ('name', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
-        (_('Action'), ('action_type',)),
-
-        (_('HTTP Request'), (
-            'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-        )),
-        (_('SSL'), ('ssl_verification', 'ca_file_path')),
+        (_('Action'), ('action_type', 'action_choice', 'parameters')),
     )
 
     class Meta:
@@ -281,28 +269,40 @@ class EventRuleForm(NetBoxModelForm):
         }
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'action_type': HTMXSelect(),
         }
+
+    def get_script_choices(self):
+        choices = []
+        idx = 0
+        for module in ScriptModule.objects.all():
+            scripts = []
+            for script_name in module.scripts.keys():
+                name = f"{str(module).lower()}:{script_name.lower()}"
+                scripts.append((name, script_name))
+
+            if scripts:
+                choices.append((str(module), scripts))
+
+        self.fields['action_choice'].choices = choices
+
+    def get_webhook_choices(self):
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Webhook'),
+            queryset=Webhook.objects.all(),
+            required=True
+        )
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        SCRIPT_CHOICES = [
-            (
-                "Audio",
-                (
-                    ("vinyl", "Vinyl"),
-                    ("cd", "CD"),
-                ),
-            ),
-            (
-                "Video",
-                (
-                    ("vhs", "VHS Tape"),
-                    ("dvd", "DVD"),
-                ),
-            ),
-            ("unknown", "Unknown"),
-        ]
+        # Determine the action type
+        action_type = get_field_value(self, 'action_type')
+
+        if action_type == EventRuleActionChoices.WEBHOOK:
+            self.get_webhook_choices()
+        elif action_type == EventRuleActionChoices.SCRIPT:
+            self.get_script_choices()
 
 
 class TagForm(BootstrapMixin, forms.ModelForm):
