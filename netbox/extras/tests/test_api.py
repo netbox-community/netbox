@@ -86,21 +86,15 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
             'name': 'Webhook 4',
-            'type_create': True,
             'payload_url': 'http://example.com/?4',
         },
         {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
             'name': 'Webhook 5',
-            'type_update': True,
             'payload_url': 'http://example.com/?5',
         },
         {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
             'name': 'Webhook 6',
-            'type_delete': True,
             'payload_url': 'http://example.com/?6',
         },
     ]
@@ -110,29 +104,22 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
-        rack_ct = ContentType.objects.get_for_model(Rack)
 
         webhooks = (
             Webhook(
                 name='Webhook 1',
-                type_create=True,
                 payload_url='http://example.com/?1',
             ),
             Webhook(
                 name='Webhook 2',
-                type_update=True,
                 payload_url='http://example.com/?1',
             ),
             Webhook(
                 name='Webhook 3',
-                type_delete=True,
                 payload_url='http://example.com/?1',
             ),
         )
         Webhook.objects.bulk_create(webhooks)
-        for webhook in webhooks:
-            webhook.content_types.add(site_ct, rack_ct)
 
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):

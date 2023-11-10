@@ -174,36 +174,6 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
     )
-    enabled = forms.NullBooleanField(
-        label=_('Enabled'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_create = forms.NullBooleanField(
-        label=_('On create'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_update = forms.NullBooleanField(
-        label=_('On update'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_delete = forms.NullBooleanField(
-        label=_('On delete'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_job_start = forms.NullBooleanField(
-        label=_('On job start'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
-    type_job_end = forms.NullBooleanField(
-        label=_('On job end'),
-        required=False,
-        widget=BulkEditNullBooleanSelect()
-    )
     http_method = forms.ChoiceField(
         choices=add_blank_choice(WebhookHttpMethodChoices),
         required=False,
