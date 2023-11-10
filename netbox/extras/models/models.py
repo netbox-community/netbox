@@ -165,7 +165,11 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
-    events = GenericRelation(EventRule)
+    events = GenericRelation(
+        EventRule,
+        content_type_field='action_object_type',
+        object_id_field='action_object_id'
+    )
 
     name = models.CharField(
         verbose_name=_('name'),
