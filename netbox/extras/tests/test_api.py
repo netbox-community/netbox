@@ -27,60 +27,6 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
-class EventRuleTest(APIViewTestCases.APIViewTestCase):
-    model = EventRule
-    brief_fields = ['display', 'id', 'name', 'url']
-    create_data = [
-        {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
-            'name': 'Event Rule 4',
-            'type_create': True,
-            'payload_url': 'http://example.com/?4',
-        },
-        {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
-            'name': 'Event Rule 5',
-            'type_update': True,
-            'payload_url': 'http://example.com/?5',
-        },
-        {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
-            'name': 'Event Rule 6',
-            'type_delete': True,
-            'payload_url': 'http://example.com/?6',
-        },
-    ]
-    bulk_update_data = {
-        'ssl_verification': False,
-    }
-
-    @classmethod
-    def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
-        rack_ct = ContentType.objects.get_for_model(Rack)
-
-        webhooks = (
-            Webhook(
-                name='Webhook 1',
-                type_create=True,
-                payload_url='http://example.com/?1',
-            ),
-            Webhook(
-                name='Webhook 2',
-                type_update=True,
-                payload_url='http://example.com/?1',
-            ),
-            Webhook(
-                name='Webhook 3',
-                type_delete=True,
-                payload_url='http://example.com/?1',
-            ),
-        )
-        Webhook.objects.bulk_create(webhooks)
-        for webhook in webhooks:
-            webhook.content_types.add(site_ct, rack_ct)
-
-
 class WebhookTest(APIViewTestCases.APIViewTestCase):
     model = Webhook
     brief_fields = ['display', 'id', 'name', 'url']
