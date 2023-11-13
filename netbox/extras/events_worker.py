@@ -45,7 +45,7 @@ def module_member(name):
 def process_event_rules(event_rule, model_name, event, data, timestamp, username, request_id, snapshots):
     if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
         process_webhook(event_rule, model_name, event, data, timestamp, username, request_id, snapshots)
-    elif event_rule.action_type == EventRuleActionChoicesEventRuleTypeChoices.SCRIPT:
+    elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
         process_script(event_rule, model_name, event, data, timestamp, username, request_id, snapshots)
 
 

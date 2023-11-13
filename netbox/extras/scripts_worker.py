@@ -1,20 +1,39 @@
 import logging
 
 import requests
+from core.models import Job
 from django.conf import settings
 from django_rq import job
 from jinja2.exceptions import TemplateError
+from utilities.rqworker import get_workers_for_queue
 
-from .conditions import ConditionSet
-from .constants import WEBHOOK_EVENT_TYPES
-from .webhooks import generate_signature
+from extras.conditions import ConditionSet
+from extras.constants import WEBHOOK_EVENT_TYPES
+from extras.models import ScriptModule
+from extras.webhooks import generate_signature
 
 logger = logging.getLogger('netbox.webhooks_worker')
 
 
-def process_script(webhook, model_name, event, data, timestamp, username, request_id=None, snapshots=None):
+def process_script(event_rule, model_name, event, data, timestamp, username, request_id=None, snapshots=None):
     """
-    Make a POST request to the defined Webhook
+    Run the requested script
     """
+    module_name = event_rule.action_object_identifier.split(":")[0]
+    script_name = event_rule.action_object_identifier.split(":")[1]
+    try:
+        module = ScriptModule.objects.get(file_path__regex=f"^{module_name}\\.")
+    except ScriptModule.DoesNotExist:
+        return
 
-    pass
+    script = module.scripts[script_name]()
+
+    job = Job.enqueue(
+        run_script,
+        instance=module,
+        name=script.class_name,
+        user=None,
+        schedule_at=None,
+        interval=None,
+        data=event_rule.parameters,
+    )

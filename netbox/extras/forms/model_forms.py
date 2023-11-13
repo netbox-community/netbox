@@ -293,7 +293,7 @@ class EventRuleForm(NetBoxModelForm):
 
     def get_webhook_choices(self):
         initial = None
-        if self.fields['action_object_type'] and self.fields['action_object_id']:
+        if self.fields['action_object_type'] and get_field_value(self, 'action_object_id'):
             initial = Webhook.objects.get(pk=get_field_value(self, 'action_object_id'))
         self.fields['action_choice'] = DynamicModelChoiceField(
             label=_('Webhook'),
