@@ -48,14 +48,12 @@ class EventRuleTest(APITestCase):
             Tag(name='Baz', slug='baz'),
         ))
 
-    '''
-    def test_webhook_conditions(self):
+    def test_event_rule_conditions(self):
         # Create a conditional Webhook
-        webhook = Webhook(
+        webhook = EventRule(
             name='Conditional Webhook',
             type_create=True,
             type_update=True,
-            payload_url='http://localhost:9000/',
             conditions={
                 'and': [
                     {
@@ -79,4 +77,3 @@ class EventRuleTest(APITestCase):
 
         # Evaluate the conditions (status='active')
         self.assertTrue(eval_conditions(webhook, data))
-    '''
