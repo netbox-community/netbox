@@ -47,3 +47,36 @@ class EventRuleTest(APITestCase):
             Tag(name='Bar', slug='bar'),
             Tag(name='Baz', slug='baz'),
         ))
+
+    '''
+    def test_webhook_conditions(self):
+        # Create a conditional Webhook
+        webhook = Webhook(
+            name='Conditional Webhook',
+            type_create=True,
+            type_update=True,
+            payload_url='http://localhost:9000/',
+            conditions={
+                'and': [
+                    {
+                        'attr': 'status.value',
+                        'value': 'active',
+                    }
+                ]
+            }
+        )
+
+        # Create a Site to evaluate
+        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_STAGING)
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status='staging')
+        self.assertFalse(eval_conditions(webhook, data))
+
+        # Change the site's status
+        site.status = SiteStatusChoices.STATUS_ACTIVE
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status='active')
+        self.assertTrue(eval_conditions(webhook, data))
+    '''
