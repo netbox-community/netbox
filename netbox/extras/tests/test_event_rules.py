@@ -14,7 +14,7 @@ from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
 from extras.models import Tag, EventRule, Webhook
 from extras.events import enqueue_object, flush_events, serialize_for_event
-from extras.events_worker import eval_conditions
+from extras.utils import eval_conditions
 from extras.webhooks import generate_signature
 from extras.webhooks_worker import process_webhook
 from utilities.testing import APITestCase
