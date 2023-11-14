@@ -28,6 +28,7 @@ registry = Registry({
     'models': collections.defaultdict(set),
     'plugins': dict(),
     'search': dict(),
+    'tables': collections.defaultdict(dict),
     'views': collections.defaultdict(dict),
     'widgets': dict(),
 })
