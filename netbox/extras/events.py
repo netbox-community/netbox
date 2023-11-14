@@ -1,6 +1,9 @@
 import hashlib
 import hmac
+import logging
+import sys
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
 from django_rq import get_queue
@@ -13,6 +16,8 @@ from utilities.rqworker import get_rq_retry
 from utilities.utils import serialize_object
 from .choices import *
 from .models import EventRule, Webhook
+
+logger = logging.getLogger('netbox.events_processor')
 
 
 def serialize_for_event(instance):
@@ -65,7 +70,7 @@ def enqueue_object(queue, instance, user, request_id, action):
     })
 
 
-def flush_events(queue):
+def process_event_rules(queue):
     """
     Flush a list of object representation to RQ for webhook processing.
     """
@@ -96,8 +101,15 @@ def flush_events(queue):
         event_rules = events_cache[action_flag][content_type]
 
         for event_rule in event_rules:
+            if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
+                processor = "extras.webhooks_worker.process_webhook"
+            elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
+                processor = "extras.scripts_worker.process_script"
+            else:
+                return
+
             rq_queue.enqueue(
-                "extras.events_worker.process_event",
+                processor,
                 event_rule=event_rule,
                 model_name=content_type.model,
                 event=data['event'],
@@ -108,3 +120,26 @@ def flush_events(queue):
                 request_id=data['request_id'],
                 retry=get_rq_retry()
             )
+
+
+def import_module(name):
+    __import__(name)
+    return sys.modules[name]
+
+
+def module_member(name):
+    mod, member = name.rsplit(".", 1)
+    module = import_module(mod)
+    return getattr(module, member)
+
+
+def flush_events(queue):
+    """
+    Flush a list of object representation to RQ for webhook processing.
+    """
+    for name in settings.NETBOX_EVENTS_PIPELINE:
+        try:
+            func = module_member(name)
+            func(queue)
+        except Exception as e:
+            logger.error(f"Cannot import events pipeline {name} error: {e}")

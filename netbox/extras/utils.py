@@ -1,8 +1,11 @@
+import logging
 from django.db.models import Q
 from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
 from netbox.registry import registry
+
+logger = logging.getLogger('netbox.extras.utils')
 
 
 def is_taggable(obj):
@@ -92,3 +95,18 @@ def is_report(obj):
         return issubclass(obj, Report) and obj != Report
     except TypeError:
         return False
+
+
+def eval_conditions(event_rule, data):
+    """
+    Test whether the given data meets the conditions of the event rule (if any). Return True
+    if met or no conditions are specified.
+    """
+    if not event_rule.conditions:
+        return True
+
+    logger.debug(f'Evaluating event rule conditions: {event_rule.conditions}')
+    if ConditionSet(event_rule.conditions).eval(data):
+        return True
+
+    return False

@@ -175,7 +175,7 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 NETBOX_EVENTS_PIPELINE = getattr(configuration, 'NETBOX_EVENTS_PIPELINE', (
-    'extras.events_worker.process_event_rules',
+    'extras.events.process_event_rules',
 ))
 
 

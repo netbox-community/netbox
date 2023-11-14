@@ -7,15 +7,20 @@ from jinja2.exceptions import TemplateError
 
 from .conditions import ConditionSet
 from .constants import WEBHOOK_EVENT_TYPES
+from .utils import eval_conditions
 from .webhooks import generate_signature
 
 logger = logging.getLogger('netbox.webhooks_worker')
 
 
+@job('default')
 def process_webhook(event_rule, model_name, event, data, timestamp, username, request_id=None, snapshots=None):
     """
     Make a POST request to the defined Webhook
     """
+
+    if not eval_conditions(event_rule, data):
+        return
 
     webhook = event_rule.action_object
 
