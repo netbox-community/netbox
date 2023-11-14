@@ -28,7 +28,6 @@ def process_script(event_rule, model_name, event, data, timestamp, username, req
     except ScriptModule.DoesNotExist:
         return
 
-    # breakpoint()
     script = module.scripts[script_name]()
 
     job = Job.enqueue(
