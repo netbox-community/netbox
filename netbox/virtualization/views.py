@@ -2,7 +2,7 @@ import traceback
 
 from django.contrib import messages
 from django.db import transaction
-from django.db.models import F, Prefetch, Sum
+from django.db.models import Prefetch, Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -24,10 +24,10 @@ from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 
+
 #
 # Cluster types
 #
-
 
 class ClusterTypeListView(generic.ObjectListView):
     queryset = ClusterType.objects.annotate(
@@ -341,9 +341,7 @@ class ClusterContactsView(ObjectContactsView):
 #
 
 class VirtualMachineListView(generic.ObjectListView):
-    queryset = VirtualMachine.objects.annotate(
-        disk_size=Sum('virtualdisks__size')
-    ).prefetch_related('primary_ip4', 'primary_ip6')
+    queryset = VirtualMachine.objects.prefetch_related('primary_ip4', 'primary_ip6')
     filterset = filtersets.VirtualMachineFilterSet
     filterset_form = forms.VirtualMachineFilterForm
     table = tables.VirtualMachineTable
@@ -352,8 +350,7 @@ class VirtualMachineListView(generic.ObjectListView):
 
 @register_model_view(VirtualMachine)
 class VirtualMachineView(generic.ObjectView):
-    queryset = VirtualMachine.objects.all().annotate(
-        disk_size=Sum('virtualdisks__size'))
+    queryset = VirtualMachine.objects.all()
 
 
 @register_model_view(VirtualMachine, 'interfaces')

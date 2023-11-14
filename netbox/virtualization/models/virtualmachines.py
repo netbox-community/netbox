@@ -242,10 +242,6 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
         else:
             return None
 
-    @property
-    def disk_space(self):
-        return sum([disk.size for disk in self.virtualdisks.all()])
-
 
 class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
     virtual_machine = models.ForeignKey(

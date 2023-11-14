@@ -1,7 +1,6 @@
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from django.db.models import Sum
 from extras.api.mixins import ConfigContextQuerySetMixin
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.query_functions import CollateAsChar
