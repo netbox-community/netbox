@@ -472,7 +472,7 @@ def get_module_and_script(module_name, script_name):
     return module, script
 
 
-def run_script(data, request, job, commit=True, **kwargs):
+def run_script(data, job, request=None, commit=True, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside the Script class to ensure it cannot be overridden by a script author.
@@ -486,9 +486,10 @@ def run_script(data, request, job, commit=True, **kwargs):
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
-    files = request.FILES
-    for field_name, fileobj in files.items():
-        data[field_name] = fileobj
+    if request:
+        files = request.FILES
+        for field_name, fileobj in files.items():
+            data[field_name] = fileobj
 
     # Add the current request as a property of the script
     script.request = request

@@ -282,7 +282,7 @@ class EventRuleForm(NetBoxModelForm):
         for module in ScriptModule.objects.all():
             scripts = []
             for script_name in module.scripts.keys():
-                name = f"{str(module.pk)}:{script_name.lower()}"
+                name = f"{str(module.pk)}:{script_name}"
                 scripts.append((name, script_name))
 
             if scripts:
