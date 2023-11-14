@@ -125,7 +125,7 @@ class IPSecProfileFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IPSecProfile
-        fields = ['id', 'name', 'phase1_sa_lifetime', 'phase2_sa_lifetime']
+        fields = ['id', 'name', 'phase1_sa_lifetime', 'phase2_sa_lifetime', 'phase2_sa_lifetime_data']
 
     def search(self, queryset, name, value):
         if not value.strip():

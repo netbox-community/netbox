@@ -115,7 +115,7 @@ class IPSecProfileTable(TenancyColumnsMixin, NetBoxTable):
         model = IPSecProfile
         fields = (
             'pk', 'id', 'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group',
-            'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase1_sa_lifetime',
-            'description', 'comments', 'tags', 'created', 'last_updated',
+            'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
+            'phase2_sa_lifetime_data', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'protocol', 'ike_version', 'description')

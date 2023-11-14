@@ -72,8 +72,13 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Profile'), ('protocol', 'ike_version')),
-        (_('Phase 1 Parameters'), ('phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime')),
-        (_('Phase 2 Parameters'), ('phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime')),
+        (_('Phase 1 Parameters'), (
+            'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
+        )),
+        (_('Phase 2 Parameters'), (
+            'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
+            'phase2_sa_lifetime_data',
+        )),
     )
     protocol = forms.MultipleChoiceField(
         label=_('Protocol'),
@@ -129,5 +134,10 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
         required=False,
         min_value=0,
         label=_('SA lifetime')
+    )
+    phase2_sa_lifetime_data = forms.IntegerField(
+        required=False,
+        min_value=0,
+        label=_('SA lifetime (data)')
     )
     tag = TagFilterField(model)

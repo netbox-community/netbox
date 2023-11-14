@@ -1,4 +1,3 @@
-from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Interface
@@ -89,9 +88,16 @@ class IPSecProfileForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Profile'), ('name', 'protocol', 'ike_version', 'description', 'tags')),
-        (_('Phase 1 Parameters'), ('phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime')),
-        (_('Phase 2 Parameters'), ('phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime')),
+        (_('Profile'), (
+            'name', 'protocol', 'ike_version', 'description', 'tags',
+        )),
+        (_('Phase 1 Parameters'), (
+            'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
+        )),
+        (_('Phase 2 Parameters'), (
+            'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
+            'phase2_sa_lifetime_data',
+        )),
     )
 
     class Meta:
@@ -99,5 +105,5 @@ class IPSecProfileForm(NetBoxModelForm):
         fields = [
             'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group',
             'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'description', 'comments', 'tags',
+            'phase2_sa_lifetime_data', 'description', 'comments', 'tags',
         ]

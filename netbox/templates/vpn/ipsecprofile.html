@@ -75,8 +75,12 @@
               <td>{{ object.get_phase2_group_display }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "SA Lifetime" %}</th>
+              <th scope="row">{% trans "SA Lifetime (Seconds)" %}</th>
               <td>{{ object.phase2_sa_lifetime|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "SA Lifetime (KB)" %}</th>
+              <td>{{ object.phase2_sa_lifetime_data|placeholder }}</td>
             </tr>
           </table>
         </div>

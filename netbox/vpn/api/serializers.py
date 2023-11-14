@@ -113,5 +113,6 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
         fields = (
             'id', 'url', 'display', 'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication',
             'phase1_group', 'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group',
-            'phase2_sa_lifetime', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'phase2_sa_lifetime', 'phase2_sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         )

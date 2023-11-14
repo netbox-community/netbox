@@ -62,16 +62,22 @@ class IPSecProfile(PrimaryModel):
         help_text=_('Diffie-Hellman group')
     )
     phase2_sa_lifetime = models.PositiveIntegerField(
-        verbose_name=_('phase 2 SA lifetime'),
+        verbose_name=_('phase 2 SA lifetime (seconds)'),
         blank=True,
         null=True,
-        help_text=_('Security association lifetime (in seconds)')
+        help_text=_('Security association lifetime (seconds)')
+    )
+    phase2_sa_lifetime_data = models.PositiveIntegerField(
+        verbose_name=_('phase 2 SA lifetime (KB)'),
+        blank=True,
+        null=True,
+        help_text=_('Security association lifetime (in kilobytes)')
     )
     # TODO: Add PFS group?
 
     clone_fields = (
         'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
-        'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
+        'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime', 'phase2_sa_lifetime_data',
     )
 
     class Meta:

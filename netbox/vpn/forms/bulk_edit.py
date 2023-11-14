@@ -127,14 +127,24 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
     phase2_sa_lifetime = forms.IntegerField(
         required=False
     )
+    phase2_sa_lifetime_data = forms.IntegerField(
+        required=False
+    )
     comments = CommentField()
 
     model = IPSecProfile
     fieldsets = (
-        (_('Profile'), ('protocol', 'ike_version', 'description')),
-        (_('Phase 1 Parameters'), ('phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime')),
-        (_('Phase 2 Parameters'), ('phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime')),
+        (_('Profile'), (
+            'protocol', 'ike_version', 'description',
+        )),
+        (_('Phase 1 Parameters'), (
+            'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
+        )),
+        (_('Phase 2 Parameters'), (
+            'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
+            'phase2_sa_lifetime_data',
+        )),
     )
     nullable_fields = (
-        'description', 'phase1_sa_lifetime', 'phase2_sa_lifetime', 'comments',
+        'description', 'phase1_sa_lifetime', 'phase2_sa_lifetime', 'phase2_sa_lifetime_data', 'comments',
     )

@@ -148,6 +148,6 @@ class IPSecProfileImportForm(NetBoxModelImportForm):
         model = IPSecProfile
         fields = (
             'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group',
-            'phase1_sa_lifetime', 'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
-            'description', 'comments', 'tags',
+            'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
+            'phase2_sa_lifetime_data', 'description', 'comments', 'tags',
         )
