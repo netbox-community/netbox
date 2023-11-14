@@ -240,6 +240,11 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
         if self.instance.pk:
 
+            # Disable the disk field if one or more VirtualDisks have been created
+            if self.instance.virtualdisks.exists():
+                self.fields['disk'].widget.attrs['disabled'] = True
+                self.fields['disk'].help_text = _("Disk size is managed via the attachment of virtual disks.")
+
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]

@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -120,12 +120,10 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
         null=True,
         verbose_name=_('memory (MB)')
     )
-    # TODO: Remove in v4.0
     disk = models.PositiveIntegerField(
         blank=True,
         null=True,
-        verbose_name=_('disk (GB)'),
-        help_text=_('deprecated - use Virtual Disks')
+        verbose_name=_('disk (GB)')
     )
 
     # Counter fields
@@ -198,6 +196,17 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
                     "The selected device ({device}) is not assigned to this cluster ({cluster})."
                 ).format(device=self.device, cluster=self.cluster)
             })
+
+        # Validate aggregate disk size
+        if self.pk:
+            total_disk = self.virtualdisks.aggregate(Sum('size', default=0))['size__sum']
+            if total_disk and self.disk != total_disk:
+                raise ValidationError({
+                    'disk': _(
+                        "The specified disk size ({size}) must match the aggregate size of assigned virtual disks "
+                        "({total_size})."
+                    ).format(size=self.disk, total_size=total_disk)
+                })
 
         # Validate primary IP addresses
         interfaces = self.interfaces.all() if self.pk else None

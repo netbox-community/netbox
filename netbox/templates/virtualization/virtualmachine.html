@@ -145,12 +145,6 @@
                       <td>
                         {% if object.disk %}
                           {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
-                          <span class="text-warning">
-                            <i class="mdi mdi-alert" title="{% trans "This field has been deprecated and will be removed in a future release." %}"></i>
-                          </span>
-                        {% elif object.disk_size %}
-                          {{ object.disk_size }} {% trans "GB" context "Abbreviation for gigabyte" %}
-                          ({{ object.virtualdisks.count }} {% trans "disks" %})
                         {% else %}
                           {{ ''|placeholder }}
                         {% endif %}
