@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
+from extras.conditions import ConditionSet
 from netbox.registry import registry
 
 logger = logging.getLogger('netbox.extras.utils')
