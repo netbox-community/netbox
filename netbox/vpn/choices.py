@@ -35,6 +35,17 @@ class TunnelEncapsulationChoices(ChoiceSet):
     ]
 
 
+class TunnelTerminationTypeChoices(ChoiceSet):
+    # For TunnelCreateForm
+    TYPE_DEVICE = 'dcim.device'
+    TYPE_VIRUTALMACHINE = 'virtualization.virtualmachine'
+
+    CHOICES = (
+        (TYPE_DEVICE, _('Device')),
+        (TYPE_VIRUTALMACHINE, _('Virtual Machine')),
+    )
+
+
 class TunnelTerminationRoleChoices(ChoiceSet):
     ROLE_PEER = 'peer'
     ROLE_HUB = 'hub'

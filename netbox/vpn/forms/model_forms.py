@@ -1,24 +1,30 @@
+from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Interface
+from dcim.models import Device, Interface
 from ipam.models import IPAddress
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
-from virtualization.models import VMInterface
+from utilities.forms.widgets import HTMXSelect
+from virtualization.models import VirtualMachine, VMInterface
+from vpn.choices import *
 from vpn.models import *
 
 __all__ = (
     'IPSecProfileForm',
+    'TunnelCreateForm',
     'TunnelForm',
     'TunnelTerminationForm',
+    'TunnelTerminationCreateForm',
 )
 
 
 class TunnelForm(TenancyForm, NetBoxModelForm):
     ipsec_profile = DynamicModelChoiceField(
         queryset=IPSecProfile.objects.all(),
-        label=_('IPSec Profile')
+        label=_('IPSec Profile'),
+        required=False
     )
     comments = CommentField()
 
@@ -36,52 +42,220 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
         ]
 
 
-class TunnelTerminationForm(NetBoxModelForm):
-    tunnel = DynamicModelChoiceField(
-        queryset=Tunnel.objects.all()
+class TunnelCreateForm(TunnelForm):
+    # First termination
+    termination1_role = forms.ChoiceField(
+        choices=TunnelTerminationRoleChoices,
+        label=_('Role')
     )
-    interface = DynamicModelChoiceField(
+    termination1_type = forms.ChoiceField(
+        choices=TunnelTerminationTypeChoices,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
+    termination1_parent = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        selector=True,
+        label=_('Device')
+    )
+    termination1_interface = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
         label=_('Interface'),
+        query_params={
+            'device_id': '$termination1_parent',
+        }
+    )
+    termination1_outside_ip = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        label=_('Outside IP'),
+        required=False,
+        query_params={
+            'device_id': '$termination1_parent',
+        }
+    )
+
+    # Second termination
+    termination2_role = forms.ChoiceField(
+        choices=TunnelTerminationRoleChoices,
+        required=False,
+        label=_('Role')
+    )
+    termination2_type = forms.ChoiceField(
+        choices=TunnelTerminationTypeChoices,
+        required=False,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
+    termination2_parent = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        selector=True,
+        label=_('Device')
+    )
+    termination2_interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        selector=True,
-    )
-    vminterface = DynamicModelChoiceField(
-        queryset=VMInterface.objects.all(),
-        required=False,
-        selector=True,
         label=_('Interface'),
+        query_params={
+            'device_id': '$termination2_parent',
+        }
     )
+    termination2_outside_ip = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        label=_('Outside IP'),
+        query_params={
+            'device_id': '$termination2_parent',
+        }
+    )
+
+    fieldsets = (
+        (_('Tunnel'), ('name', 'status', 'encapsulation', 'description', 'tunnel_id', 'tags')),
+        (_('Security'), ('ipsec_profile', 'preshared_key')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
+        (_('First Termination'), (
+            'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_interface',
+            'termination1_outside_ip',
+        )),
+        (_('Second Termination'), (
+            'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_interface',
+            'termination2_outside_ip',
+        )),
+    )
+
+    def __init__(self, *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        if initial and initial.get('termination1_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+            self.fields['termination1_parent'].label = _('Virtual Machine')
+            self.fields['termination1_parent'].queryset = VirtualMachine.objects.all()
+            self.fields['termination1_interface'].queryset = VMInterface.objects.all()
+            self.fields['termination1_interface'].widget.add_query_params({
+                'virtual_machine_id': '$termination1_parent',
+            })
+            self.fields['termination1_outside_ip'].widget.add_query_params({
+                'virtual_machine_id': '$termination1_parent',
+            })
+
+        if initial and initial.get('termination2_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+            self.fields['termination2_parent'].label = _('Virtual Machine')
+            self.fields['termination2_parent'].queryset = VirtualMachine.objects.all()
+            self.fields['termination2_interface'].queryset = VMInterface.objects.all()
+            self.fields['termination2_interface'].widget.add_query_params({
+                'virtual_machine_id': '$termination2_parent',
+            })
+            self.fields['termination2_outside_ip'].widget.add_query_params({
+                'virtual_machine_id': '$termination2_parent',
+            })
+
+    def clean(self):
+        super().clean()
+
+        # Check that all required parameters have been set for the second termination (if any)
+        termination2_required_parameters = (
+            'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_interface',
+        )
+        termination2_parameters = (
+            *termination2_required_parameters,
+            'termination2_outside_ip',
+        )
+        if any([self.cleaned_data[param] for param in termination2_parameters]):
+            for param in termination2_required_parameters:
+                if not self.cleaned_data[param]:
+                    raise forms.ValidationError({
+                        param: _("This parameter is required when defining a second termination.")
+                    })
+
+    def save(self, *args, **kwargs):
+        instance = super().save(*args, **kwargs)
+
+        # Create first termination
+        TunnelTermination.objects.create(
+            tunnel=instance,
+            role=self.cleaned_data['termination1_role'],
+            interface=self.cleaned_data['termination1_interface'],
+            outside_ip=self.cleaned_data['termination1_outside_ip'],
+        )
+
+        # Create second termination, if defined
+        if self.cleaned_data['termination2_role']:
+            TunnelTermination.objects.create(
+                tunnel=instance,
+                role=self.cleaned_data['termination2_role'],
+                interface=self.cleaned_data['termination2_interface'],
+                outside_ip=self.cleaned_data.get('termination1_outside_ip'),
+            )
+
+        return instance
+
+
+class TunnelTerminationForm(NetBoxModelForm):
     outside_ip = DynamicModelChoiceField(
         queryset=IPAddress.objects.all(),
-        selector=True,
-        label=_('Outside IP'),
+        required=False,
+        label=_('Outside IP')
     )
 
     class Meta:
         model = TunnelTermination
         fields = [
-            'tunnel', 'role', 'outside_ip', 'tags',
+            'role', 'outside_ip', 'tags',
         ]
 
-    def __init__(self, *args, **kwargs):
 
-        # Initialize helper selectors
-        initial = kwargs.get('initial', {}).copy()
-        if instance := kwargs.get('instance'):
-            if type(instance.interface) is Interface:
-                initial['interface'] = instance.interface
-            elif type(instance.interface) is VMInterface:
-                initial['vminterface'] = instance.interface
-        kwargs['initial'] = initial
+class TunnelTerminationCreateForm(NetBoxModelForm):
+    tunnel = DynamicModelChoiceField(
+        queryset=Tunnel.objects.all()
+    )
+    type = forms.ChoiceField(
+        choices=TunnelTerminationTypeChoices,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
+    parent = DynamicModelChoiceField(
+        queryset=Device.objects.all(),
+        selector=True,
+        label=_('Device')
+    )
+    interface = DynamicModelChoiceField(
+        queryset=Interface.objects.all(),
+        label=_('Interface'),
+        query_params={
+            'device_id': '$parent',
+        }
+    )
+    outside_ip = DynamicModelChoiceField(
+        queryset=IPAddress.objects.all(),
+        label=_('Outside IP'),
+        required=False,
+        query_params={
+            'device_id': '$parent',
+        }
+    )
 
-        super().__init__(*args, **kwargs)
+    fieldsets = (
+        (None, ('tunnel', 'role', 'type', 'parent', 'interface', 'outside_ip', 'tags')),
+    )
 
-    def clean(self):
-        super().clean()
+    class Meta:
+        model = TunnelTermination
+        fields = [
+            'tunnel', 'role', 'interface', 'outside_ip', 'tags',
+        ]
 
-        # Handle interface assignment
-        self.instance.interface = self.cleaned_data['interface'] or self.cleaned_data['interface'] or None
+    def __init__(self, *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        if initial and initial.get('type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+            self.fields['parent'].label = _('Virtual Machine')
+            self.fields['parent'].queryset = VirtualMachine.objects.all()
+            self.fields['interface'].queryset = VMInterface.objects.all()
+            self.fields['interface'].widget.add_query_params({
+                'virtual_machine_id': '$parent',
+            })
+            self.fields['outside_ip'].widget.add_query_params({
+                'virtual_machine_id': '$parent',
+            })
 
 
 class IPSecProfileForm(NetBoxModelForm):

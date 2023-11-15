@@ -28,6 +28,14 @@ class TunnelEditView(generic.ObjectEditView):
     queryset = Tunnel.objects.all()
     form = forms.TunnelForm
 
+    def dispatch(self, request, *args, **kwargs):
+
+        # If creating a new Tunnel, use the creation form
+        if 'pk' not in kwargs:
+            self.form = forms.TunnelCreateForm
+
+        return super().dispatch(request, *args, **kwargs)
+
 
 @register_model_view(Tunnel, 'delete')
 class TunnelDeleteView(generic.ObjectDeleteView):
@@ -71,6 +79,14 @@ class TunnelTerminationListView(generic.ObjectListView):
 class TunnelTerminationEditView(generic.ObjectEditView):
     queryset = TunnelTermination.objects.all()
     form = forms.TunnelTerminationForm
+
+    def dispatch(self, request, *args, **kwargs):
+
+        # If creating a new Tunnel, use the creation form
+        if 'pk' not in kwargs:
+            self.form = forms.TunnelTerminationCreateForm
+
+        return super().dispatch(request, *args, **kwargs)
 
 
 @register_model_view(TunnelTermination, 'delete')

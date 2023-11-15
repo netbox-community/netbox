@@ -81,7 +81,7 @@ class Migration(migrations.Migration):
                 ('role', models.CharField(default='peer', max_length=50)),
                 ('interface_id', models.PositiveBigIntegerField(blank=True, null=True)),
                 ('interface_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
-                ('outside_ip', models.OneToOneField(on_delete=django.db.models.deletion.PROTECT, related_name='tunnel_termination', to='ipam.ipaddress')),
+                ('outside_ip', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnel_termination', to='ipam.ipaddress')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
                 ('tunnel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='terminations', to='vpn.tunnel')),
             ],

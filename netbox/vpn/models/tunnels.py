@@ -101,7 +101,9 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
     outside_ip = models.OneToOneField(
         to='ipam.IPAddress',
         on_delete=models.PROTECT,
-        related_name='tunnel_termination'
+        related_name='tunnel_termination',
+        blank=True,
+        null=True
     )
 
     class Meta:
@@ -117,3 +119,8 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
 
     def get_role_color(self):
         return TunnelTerminationRoleChoices.colors.get(self.role)
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.tunnel
+        return objectchange
