@@ -1,4 +1,5 @@
 import django_tables2 as tables
+from django.contrib.contenttypes.fields import GenericRelation
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
@@ -55,9 +56,21 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
     role = columns.ChoiceFieldColumn(
         verbose_name=_('Role')
     )
+    interface_parent = tables.Column(
+        accessor='interface__parent_object',
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Host')
+    )
     interface = tables.Column(
         verbose_name=_('Interface'),
         linkify=True
+    )
+    ip_addresses = tables.ManyToManyColumn(
+        accessor=tables.A('interface__ip_addresses'),
+        orderable=False,
+        linkify_item=True,
+        verbose_name=_('IP Addresses')
     )
     outside_ip = tables.Column(
         verbose_name=_('Outside IP'),
@@ -70,9 +83,10 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = TunnelTermination
         fields = (
-            'pk', 'id', 'tunnel', 'role', 'interface', 'outside_ip', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip', 'tags',
+            'created', 'last_updated',
         )
-        default_columns = ('pk', 'tunnel', 'role', 'interface', 'outside_ip')
+        default_columns = ('pk', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip')
 
 
 class IPSecProfileTable(TenancyColumnsMixin, NetBoxTable):
