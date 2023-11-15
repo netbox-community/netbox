@@ -1,5 +1,3 @@
-import hashlib
-import hmac
 import logging
 import sys
 
@@ -15,14 +13,14 @@ from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
 from utilities.utils import serialize_object
 from .choices import *
-from .models import EventRule, Webhook
+from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
 
 
 def serialize_for_event(instance):
     """
-    Return a serialized representation of the given instance suitable for use in a webhook.
+    Return a serialized representation of the given instance suitable for use in a queued event.
     """
     serializer_class = get_serializer_for_model(instance.__class__)
     serializer_context = {
@@ -51,9 +49,9 @@ def get_snapshots(instance, action):
 def enqueue_object(queue, instance, user, request_id, action):
     """
     Enqueue a serialized representation of a created/updated/deleted object for the processing of
-    webhooks once the request has completed.
+    events once the request has completed.
     """
-    # Determine whether this type of object supports webhooks
+    # Determine whether this type of object supports event rules
     app_label = instance._meta.app_label
     model_name = instance._meta.model_name
     if model_name not in registry['model_features']['webhooks'].get(app_label, []):
@@ -72,7 +70,7 @@ def enqueue_object(queue, instance, user, request_id, action):
 
 def process_event_rules(queue):
     """
-    Flush a list of object representation to RQ for webhook processing.
+    Flush a list of object representation to RQ for EventRule processing.
     """
     rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
     rq_queue = get_queue(rq_queue_name)
@@ -138,7 +136,7 @@ def flush_events(queue):
     Flush a list of object representation to RQ for webhook processing.
     """
     if queue:
-        for name in settings.NETBOX_EVENTS_PIPELINE:
+        for name in settings.EVENTS_PIPELINE:
             try:
                 func = module_member(name)
                 func(queue)

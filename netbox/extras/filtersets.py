@@ -47,8 +47,8 @@ class WebhookFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'name', 'payload_url',
-            'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+            'id', 'name', 'payload_url', 'http_method', 'http_content_type', 'secret', 'ssl_verification',
+            'ca_file_path',
         ]
 
     def search(self, queryset, name, value):
@@ -73,8 +73,7 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = EventRule
         fields = [
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end',
-            'enabled',
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled',
         ]
 
     def search(self, queryset, name, value):

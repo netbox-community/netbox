@@ -292,6 +292,6 @@ class EventRuleActionChoices(ChoiceSet):
     SCRIPT = 'script'
 
     CHOICES = (
-        (WEBHOOK, _('Webhook'), 'webhook'),
-        (SCRIPT, _('Script'), 'script'),
+        (WEBHOOK, _('Webhook')),
+        (SCRIPT, _('Script')),
     )

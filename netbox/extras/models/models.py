@@ -41,14 +41,15 @@ __all__ = (
 
 class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     """
-    A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
-    delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
-    Each Webhook can be limited to firing only on certain actions or certain object types.
+    An EventRule defines an action to be taken automatically in response to a specific set of events, such as when a
+    specific type of object is created, modified, or deleted. The action to be taken might entail transmitting a
+    webhook or executing a custom script.
     """
     content_types = models.ManyToManyField(
         to=ContentType,
         related_name='eventrules',
         verbose_name=_('object types'),
+        # TODO: FeatureQuery is being removed under #14153
         limit_choices_to=FeatureQuery('eventrules'),
         help_text=_("The object(s) to which this Event applies.")
     )
@@ -98,12 +99,12 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         max_length=30,
         choices=EventRuleActionChoices,
         default=EventRuleActionChoices.WEBHOOK,
-        verbose_name=_('event type')
+        verbose_name=_('action type')
     )
     action_object_type = models.ForeignKey(
         to=ContentType,
         related_name='eventrule_actions',
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE
     )
     action_object_id = models.PositiveBigIntegerField(
         blank=True,
@@ -111,9 +112,8 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
     )
     action_object = GenericForeignKey(
         ct_field='action_object_type',
-        fk_field='action_object_id',
+        fk_field='action_object_id'
     )
-
     # internal (not show in UI) - used by scripts to store function name
     action_object_identifier = models.CharField(
         max_length=80,
@@ -128,8 +128,8 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('eventrule')
-        verbose_name_plural = _('eventrules')
+        verbose_name = _('event rule')
+        verbose_name_plural = _('event rules')
 
     def __str__(self):
         return self.name
@@ -149,9 +149,10 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
             self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
         ]):
             raise ValidationError(
-                _("At least one event type must be selected: create, update, delete, job_start, and/or job_end.")
+                _("At least one event type must be selected: create, update, delete, job start, and/or job end.")
             )
 
+        # Validate that any conditions are in the correct format
         if self.conditions:
             try:
                 ConditionSet(self.conditions)
@@ -170,7 +171,6 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         content_type_field='action_object_type',
         object_id_field='action_object_id'
     )
-
     name = models.CharField(
         verbose_name=_('name'),
         max_length=150,

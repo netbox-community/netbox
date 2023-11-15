@@ -136,10 +136,3 @@ DEFAULT_DASHBOARD = [
         }
     },
 ]
-
-EVENT_TYPE_MODELS = Q(
-    app_label='extras',
-    model__in=(
-        'webhook',
-        'script',
-    ))
