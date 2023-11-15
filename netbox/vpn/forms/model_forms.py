@@ -257,6 +257,12 @@ class TunnelTerminationCreateForm(NetBoxModelForm):
                 'virtual_machine_id': '$parent',
             })
 
+    def clean(self):
+        super().clean()
+
+        # Assign the interface
+        self.instance.interface = self.cleaned_data['interface']
+
 
 class IPSecProfileForm(NetBoxModelForm):
     comments = CommentField()

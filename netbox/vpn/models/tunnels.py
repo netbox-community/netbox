@@ -1,4 +1,5 @@
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -126,6 +127,18 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
 
     def get_role_color(self):
         return TunnelTerminationRoleChoices.colors.get(self.role)
+
+    def clean(self):
+        super().clean()
+
+        # Check that the selected Interface is not already attached to a Tunnel
+        if self.interface.tunnel_termination:
+            raise ValidationError({
+                'interface': _("Interface {name} is already attached to a tunnel ({tunnel}).").format(
+                    name=self.interface.name,
+                    tunnel=self.interface.tunnel_termination.tunnel
+                )
+            })
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)
