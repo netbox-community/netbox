@@ -1,4 +1,4 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -107,7 +107,14 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
     )
 
     class Meta:
-        ordering = ('tunnel', 'pk')
+        ordering = ('tunnel', 'role', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('interface_type', 'interface_id'),
+                name='%(app_label)s_%(class)s_interface',
+                violation_error_message=_("An interface may be terminated to only one tunnel at a time.")
+            ),
+        )
         verbose_name = _('tunnel termination')
         verbose_name_plural = _('tunnel terminations')
 
