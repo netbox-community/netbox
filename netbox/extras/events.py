@@ -137,9 +137,10 @@ def flush_events(queue):
     """
     Flush a list of object representation to RQ for webhook processing.
     """
-    for name in settings.NETBOX_EVENTS_PIPELINE:
-        try:
-            func = module_member(name)
-            func(queue)
-        except Exception as e:
-            logger.error(f"Cannot import events pipeline {name} error: {e}")
+    if queue:
+        for name in settings.NETBOX_EVENTS_PIPELINE:
+            try:
+                func = module_member(name)
+                func(queue)
+            except Exception as e:
+                logger.error(f"Cannot import events pipeline {name} error: {e}")
