@@ -7,7 +7,6 @@ from django_rq import job
 from jinja2.exceptions import TemplateError
 from utilities.rqworker import get_workers_for_queue
 
-from extras.conditions import ConditionSet
 from extras.constants import WEBHOOK_EVENT_TYPES
 from extras.models import ScriptModule
 from extras.scripts import run_script

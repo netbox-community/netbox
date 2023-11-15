@@ -5,7 +5,6 @@ from django.conf import settings
 from django_rq import job
 from jinja2.exceptions import TemplateError
 
-from .conditions import ConditionSet
 from .constants import WEBHOOK_EVENT_TYPES
 from .utils import eval_conditions
 from .webhooks import generate_signature
