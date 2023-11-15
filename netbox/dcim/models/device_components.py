@@ -551,6 +551,11 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('bridge interface')
     )
+    tunnel_terminations = GenericRelation(
+        to='vpn.TunnelTermination',
+        content_type_field='interface_type',
+        object_id_field='interface_id'
+    )
 
     class Meta:
         abstract = True
@@ -566,6 +571,10 @@ class BaseInterface(models.Model):
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
+
+    @property
+    def tunnel_termination(self):
+        return self.tunnel_terminations.first()
 
     @property
     def count_ipaddresses(self):
