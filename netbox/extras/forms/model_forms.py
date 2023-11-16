@@ -249,7 +249,7 @@ class EventRuleForm(NetBoxModelForm):
         (_('EventRule'), ('name', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
-        (_('Action'), ('action_type', 'action_choice', 'parameters', 'action_object_type', 'action_object_id', 'action_object_identifier')),
+        (_('Action'), ('action_type', 'action_choice', 'action_parameters', 'action_object_type', 'action_object_id', 'action_data')),
     )
 
     class Meta:
@@ -267,7 +267,9 @@ class EventRuleForm(NetBoxModelForm):
             'action_type': HTMXSelect(),
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
-            'action_object_identifier': forms.HiddenInput,
+            'action_parameters': forms.HiddenInput,
+            'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'action_data': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
 
     def get_script_choices(self):
@@ -283,7 +285,7 @@ class EventRuleForm(NetBoxModelForm):
                 choices.append((str(module), scripts))
 
         self.fields['action_choice'].choices = choices
-        self.fields['action_choice'].initial = get_field_value(self, 'action_object_identifier')
+        self.fields['action_choice'].initial = get_field_value(self, 'action_parameters')
 
     def get_webhook_choices(self):
         initial = None
@@ -316,12 +318,12 @@ class EventRuleForm(NetBoxModelForm):
         if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
-            self.cleaned_data['action_object_identifier'] = ''
+            self.cleaned_data['action_parameters'] = ''
         elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
             script = ScriptModule.objects.get(pk=action_choice.split(":")[0])
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script)
             self.cleaned_data['action_object_id'] = script.id
-            self.cleaned_data['action_object_identifier'] = action_choice
+            self.cleaned_data['action_parameters'] = action_choice
 
         return self.cleaned_data
 
