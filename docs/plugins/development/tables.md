@@ -96,12 +96,13 @@ Plugins can register their own custom columns on core tables using the `register
 
 ```python
 import django_tables2
+from django.utils.translation import gettext_lazy as _
 
 from dcim.tables import SiteTable
 from utilities.tables import register_table_column
 
 mycol = django_tables2.Column(
-    verbose_name='My Column',
+    verbose_name=_('My Column'),
     accessor=django_tables2.A('description')
 )
 
