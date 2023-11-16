@@ -1,13 +1,16 @@
 import logging
 from django.db.models import Q
-from django.utils.deconstruct import deconstructible
 from django_rq import get_queue
+from django.utils import timezone
+from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
 from extras.conditions import ConditionSet
+from netbox.constants import RQ_QUEUE_DEFAULT
 from extras.choices import EventRuleActionChoices
 from netbox.config import get_config
 from netbox.registry import registry
+from utilities.rqworker import get_rq_retry
 
 logger = logging.getLogger('netbox.extras.utils')
 
@@ -93,7 +96,7 @@ def eval_conditions(event_rule, data):
     return False
 
 
-def process_event_rules(event_rules, event, data, username, snapshots=None, request_id=None):
+def process_event_rules(event_rules, model_name, event, data, username, snapshots=None, request_id=None):
     rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
     rq_queue = get_queue(rq_queue_name)
 
@@ -107,7 +110,7 @@ def process_event_rules(event_rules, event, data, username, snapshots=None, requ
 
         params = {
             "event_rule": event_rule,
-            "model_name": content_type.model,
+            "model_name": model_name,
             "event": event,
             "data": data,
             "snapshots": snapshots,

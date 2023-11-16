@@ -17,7 +17,7 @@ from extras.utils import process_event_rules
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
-from utilities.rqworker import get_queue_for_model, get_rq_retry
+from utilities.rqworker import get_queue_for_model
 
 __all__ = (
     'Job',
@@ -235,19 +235,4 @@ class Job(models.Model):
             enabled=True
         )
 
-        process_event_rules(event_rules, event, self.data, self.user.username)
-
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
-        rq_queue = django_rq.get_queue(rq_queue_name, is_async=False)
-
-        for event_rule in event_rules:
-            rq_queue.enqueue(
-                "extras.events_worker.process_event",
-                event_rule=event_rule,
-                model_name=self.object_type.model,
-                event=event,
-                data=self.data,
-                timestamp=str(timezone.now()),
-                username=self.user.username,
-                retry=get_rq_retry()
-            )
+        process_event_rules(event_rules, self.object_type.model, event, self.data, self.user.username)

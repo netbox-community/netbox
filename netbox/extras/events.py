@@ -10,7 +10,6 @@ from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
-from utilities.rqworker import get_rq_retry
 from utilities.utils import serialize_object
 from .choices import *
 from .models import EventRule
@@ -96,7 +95,10 @@ def process_event_queue(queue):
             )
         event_rules = events_cache[action_flag][content_type]
 
-        process_event_rules(event_rules, data['event'], data['data'], data['username'], data['snapshots'], data['request_id'])
+        process_event_rules(
+            event_rules, content_type.model, data['event'], data['data'], data['username'],
+            snapshots=data['snapshots'], request_id=data['request_id']
+        )
 
 
 def import_module(name):
