@@ -40,6 +40,7 @@ async function bundleGraphIQL() {
 async function bundleNetBox() {
   const entryPoints = {
     netbox: 'src/index.ts',
+    sentry: 'src/sentry.ts',
   };
   try {
     const result = await esbuild.build({

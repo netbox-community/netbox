@@ -331,3 +331,19 @@ def applied_filters(context, model, form, query_params):
         'applied_filters': applied_filters,
         'save_link': save_link,
     }
+
+
+@register.simple_tag
+def sentry_traceparent():
+    """
+        Return sentry-trace value
+    """
+    return settings.sentry_sdk.get_traceparent()
+
+
+@register.simple_tag
+def sentry_baggage():
+    """
+        Return sentry baggage value
+    """
+    return settings.sentry_sdk.get_baggage()

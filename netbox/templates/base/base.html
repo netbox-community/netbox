@@ -23,6 +23,8 @@
       name="viewport"
       content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, viewport-fit=cover"
     />
+    <meta name="sentry-trace" content="{% sentry_traceparent %}">
+    <meta name="baggage" content="{% sentry_baggage %}">
 
     {# Page title #}
     <title>{% block title %}{% trans "Home" %}{% endblock %} | NetBox</title>
@@ -64,6 +66,27 @@
     />
     <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
     <link rel="apple-touch-icon" type="image/png" href="{% static 'netbox_touch-icon-180.png' %}" />
+
+    {# Sentry loader #}
+    {% if settings.SENTRY_ENABLED_JS %}
+    <script type="text/javascript">
+      window.sentryOnLoad = function () {
+        Sentry.init({
+            release: '{{ settings.VERSION | safe }}',
+            dsn: '{{ settings.SENTRY_DSN_JS | safe }}',
+            integrations: [
+                new Sentry.BrowserTracing()
+            ],
+            sampleRate: {{ settings.SENTRY_SAMPLE_RATE }},
+            tracesSampleRate: {{ settings.SENTRY_TRACES_SAMPLE_RATE }}
+        });
+      };
+    </script>
+    <script
+      type="text/javascript"
+      src="{% static 'sentry.js' %}?v={{ settings.VERSION }}">
+    </script>
+    {% endif %}
 
     {# Javascript #}
     <script
