@@ -1,12 +1,7 @@
-from rest_framework.decorators import action
-from rest_framework.renderers import JSONRenderer
-from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.status import HTTP_400_BAD_REQUEST
 
 from dcim.models import Device
-from extras.api.mixins import ConfigContextQuerySetMixin, ConfigTemplateRenderMixin
-from netbox.api.renderers import TextRenderer
+from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.utils import count_related
 from virtualization import filtersets
@@ -57,7 +52,7 @@ class ClusterViewSet(NetBoxModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixin, NetBoxModelViewSet):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
         'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'config_template', 'tags'
     )
@@ -82,23 +77,6 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixi
             return serializers.VirtualMachineSerializer
 
         return serializers.VirtualMachineWithConfigContextSerializer
-
-    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
-    def render_config(self, request, pk):
-        """
-        Resolve and render the preferred ConfigTemplate for this Virtual Machine.
-        """
-        instance = self.get_object()
-        configtemplate = instance.get_config_template()
-        if not configtemplate:
-            return Response({'error': 'No config template found for this virtual machine.'}, status=HTTP_400_BAD_REQUEST)
-
-        # Compile context data
-        context_data = instance.get_config_context()
-        context_data.update(request.data)
-        context_data.update({'virtualmachine': instance})
-
-        return self.render_configtemplate(request, configtemplate, context_data)
 
 
 class VMInterfaceViewSet(NetBoxModelViewSet):
