@@ -14,6 +14,7 @@ from utilities.rqworker import get_rq_retry
 from utilities.utils import serialize_object
 from .choices import *
 from .models import EventRule
+from .utils import process_event_rules
 
 logger = logging.getLogger('netbox.events_processor')
 
@@ -68,12 +69,10 @@ def enqueue_object(queue, instance, user, request_id, action):
     })
 
 
-def process_event_rules(queue):
+def process_event_queue(queue):
     """
     Flush a list of object representation to RQ for EventRule processing.
     """
-    rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
-    rq_queue = get_queue(rq_queue_name)
     events_cache = {
         'type_create': {},
         'type_update': {},
@@ -81,7 +80,6 @@ def process_event_rules(queue):
     }
 
     for data in queue:
-
         action_flag = {
             ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
             ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',
@@ -98,26 +96,7 @@ def process_event_rules(queue):
             )
         event_rules = events_cache[action_flag][content_type]
 
-        for event_rule in event_rules:
-            if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
-                processor = "extras.webhooks_worker.process_webhook"
-            elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
-                processor = "extras.scripts_worker.process_script"
-            else:
-                return
-
-            rq_queue.enqueue(
-                processor,
-                event_rule=event_rule,
-                model_name=content_type.model,
-                event=data['event'],
-                data=data['data'],
-                snapshots=data['snapshots'],
-                timestamp=str(timezone.now()),
-                username=data['username'],
-                request_id=data['request_id'],
-                retry=get_rq_retry()
-            )
+        process_event_rules(event_rules, data['event'], data['data'], data['username'], data['snapshots'], data['request_id'])
 
 
 def import_module(name):

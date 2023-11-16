@@ -1,9 +1,12 @@
 import logging
 from django.db.models import Q
 from django.utils.deconstruct import deconstructible
+from django_rq import get_queue
 from taggit.managers import _TaggableManager
 
 from extras.conditions import ConditionSet
+from extras.choices import EventRuleActionChoices
+from netbox.config import get_config
 from netbox.registry import registry
 
 logger = logging.getLogger('netbox.extras.utils')
@@ -111,3 +114,37 @@ def eval_conditions(event_rule, data):
         return True
 
     return False
+
+
+def process_event_rules(event_rules, event, data, username, snapshots=None, request_id=None):
+    rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
+    rq_queue = get_queue(rq_queue_name)
+
+    for event_rule in event_rules:
+        if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
+            processor = "extras.webhooks_worker.process_webhook"
+        elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
+            processor = "extras.scripts_worker.process_script"
+        else:
+            raise ValueError(f"Unknown Event Rule action type: {event_rule.action_type}")
+
+        params = {
+            "event_rule": event_rule,
+            "model_name": content_type.model,
+            "event": event,
+            "data": data,
+            "snapshots": snapshots,
+            "timestamp": str(timezone.now()),
+            "username": username,
+            "retry": get_rq_retry()
+        }
+
+        if snapshots:
+            params["snapshots"] = snapshots
+        if request_id:
+            params["request_id"] = request_id
+
+        rq_queue.enqueue(
+            processor,
+            **params
+        )

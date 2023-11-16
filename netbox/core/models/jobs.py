@@ -12,7 +12,7 @@ from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
-from extras.utils import FeatureQuery
+from extras.utils import FeatureQuery, process_event_rules
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
@@ -219,15 +219,17 @@ class Job(models.Model):
     def trigger_events(self, event):
         from extras.models import EventRule
 
-        rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
-        rq_queue = django_rq.get_queue(rq_queue_name, is_async=False)
-
         # Fetch any webhooks matching this object type and action
         event_rules = EventRule.objects.filter(
             **{f'type_{event}': True},
             content_types=self.object_type,
             enabled=True
         )
+
+        process_event_rules(event_rules, event, self.data, self.user.username)
+
+        rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
+        rq_queue = django_rq.get_queue(rq_queue_name, is_async=False)
 
         for event_rule in event_rules:
             rq_queue.enqueue(

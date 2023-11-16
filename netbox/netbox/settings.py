@@ -116,7 +116,7 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
-    'extras.events.process_event_rules',
+    'extras.events.process_event_queue',
 ))
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
