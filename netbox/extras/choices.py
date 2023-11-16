@@ -68,6 +68,32 @@ class CustomFieldVisibilityChoices(ChoiceSet):
     )
 
 
+class CustomFieldUIVisibleChoices(ChoiceSet):
+
+    ALWAYS = 'always'
+    IF_SET = 'if-set'
+    HIDDEN = 'hidden'
+
+    CHOICES = (
+        (ALWAYS, _('Always'), 'green'),
+        (IF_SET, _('If set'), 'yellow'),
+        (HIDDEN, _('Hidden'), 'gray'),
+    )
+
+
+class CustomFieldUIEditableChoices(ChoiceSet):
+
+    YES = 'yes'
+    NO = 'no'
+    HIDDEN = 'hidden'
+
+    CHOICES = (
+        (YES, _('Yes'), 'green'),
+        (NO, _('No'), 'red'),
+        (HIDDEN, _('Hidden'), 'gray'),
+    )
+
+
 class CustomFieldChoiceSetBaseChoices(ChoiceSet):
 
     IATA = 'IATA'
