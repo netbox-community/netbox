@@ -1,8 +1,12 @@
+from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.mixins import ConfigContextQuerySetMixin
+from extras.api.mixins import ConfigContextQuerySetMixin, ConfigTemplateRenderMixin
 from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.renderers import TextRenderer
 from utilities.utils import count_related
 from virtualization import filtersets
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
@@ -52,7 +56,7 @@ class ClusterViewSet(NetBoxModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet, ConfigTemplateRenderMixin):
     queryset = VirtualMachine.objects.prefetch_related(
         'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
     )
@@ -77,6 +81,23 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
             return serializers.VirtualMachineSerializer
 
         return serializers.VirtualMachineWithConfigContextSerializer
+
+    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
+    def render_config(self, request, pk):
+        """
+        Resolve and render the preferred ConfigTemplate for this virtual machine.
+        """
+        vm = self.get_object()
+        configtemplate = vm.get_config_template()
+        if not configtemplate:
+            return Response({'error': 'No config template found for this virtualmachine.'}, status=HTTP_400_BAD_REQUEST)
+
+        # Compile context data
+        context_data = vm.get_config_context()
+        context_data.update(request.data)
+        context_data.update({'virtualmachine': vm})
+
+        return self.render_configtemplate(request, configtemplate, context_data)
 
 
 class VMInterfaceViewSet(NetBoxModelViewSet):
