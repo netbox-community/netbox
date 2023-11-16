@@ -115,11 +115,11 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         fk_field='action_object_id'
     )
     # internal (not show in UI) - used by scripts to store function name
-    action_object_identifier = models.CharField(
+    action_parameters = models.CharField(
         max_length=80,
         blank=True
     )
-    parameters = models.JSONField(
+    action_data = models.JSONField(
         verbose_name=_('parameters'),
         blank=True,
         null=True,
@@ -136,10 +136,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
 
     def get_absolute_url(self):
         return reverse('extras:eventrule', args=[self.pk])
-
-    @property
-    def docs_url(self):
-        return f'{settings.STATIC_URL}docs/models/extras/eventrule/'
 
     def clean(self):
         super().clean()

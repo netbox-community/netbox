@@ -23,7 +23,7 @@ from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, 
 from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from .context_managers import event_wrapper
+from .context_managers import event_tracking
 from .forms import ScriptForm
 
 __all__ = (
@@ -497,7 +497,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     def _run_script():
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
-        the event_wrapper context manager (which is bypassed if commit == False).
+        the event_tracking context manager (which is bypassed if commit == False).
         """
         try:
             try:
@@ -525,10 +525,10 @@ def run_script(data, job, request=None, commit=True, **kwargs):
 
         logger.info(f"Script completed in {job.duration}")
 
-    # Execute the script. If commit is True, wrap it with the event_wrapper context manager to ensure we process
+    # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
     # change logging, webhooks, etc.
     if commit:
-        with event_wrapper(request):
+        with event_tracking(request):
             _run_script()
     else:
         _run_script()

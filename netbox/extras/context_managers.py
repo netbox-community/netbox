@@ -5,9 +5,9 @@ from .events import flush_events
 
 
 @contextmanager
-def event_wrapper(request):
+def event_tracking(request):
     """
-    Enable change logging by connecting the appropriate signals to their receivers before code is run, and
+    Enable event tracking by connecting the appropriate signals to their receivers before code is run, and
     disconnecting them afterward.
 
     :param request: WSGIRequest object with a unique `id` set

@@ -24,8 +24,8 @@ def process_script(event_rule, model_name, event, data, timestamp, username, req
     if not eval_conditions(event_rule, data):
         return
 
-    module_id = event_rule.action_object_identifier.split(":")[0]
-    script_name = event_rule.action_object_identifier.split(":")[1]
+    module_id = event_rule.action_parameters.split(":")[0]
+    script_name = event_rule.action_parameters.split(":")[1]
 
     try:
         module = ScriptModule.objects.get(pk=module_id)
@@ -41,5 +41,5 @@ def process_script(event_rule, model_name, event, data, timestamp, username, req
         user=None,
         schedule_at=None,
         interval=None,
-        data=event_rule.parameters,
+        data=event_rule.action_data,
     )

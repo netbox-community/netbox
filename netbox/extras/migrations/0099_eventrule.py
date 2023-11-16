@@ -75,8 +75,8 @@ class Migration(migrations.Migration):
                         to='contenttypes.contenttype',
                     ),
                 ),
-                ('action_object_identifier', models.CharField(max_length=80, blank=True)),
-                ('parameters', models.JSONField(blank=True, null=True)),
+                ('action_parameters', models.CharField(max_length=80, blank=True)),
+                ('action_data', models.JSONField(blank=True, null=True)),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={

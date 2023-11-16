@@ -11,7 +11,7 @@ from django.db import transaction
 from core.choices import JobStatusChoices
 from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
-from extras.context_managers import event_wrapper
+from extras.context_managers import event_tracking
 from extras.scripts import get_module_and_script
 from extras.signals import clear_webhooks
 from utilities.exceptions import AbortTransaction
@@ -37,7 +37,7 @@ class Command(BaseCommand):
         def _run_script():
             """
             Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
-            the event_wrapper context manager (which is bypassed if commit == False).
+            the event_tracking context manager (which is bypassed if commit == False).
             """
             try:
                 try:
@@ -136,9 +136,9 @@ class Command(BaseCommand):
             logger.info(f"Running script (commit={commit})")
             script.request = request
 
-            # Execute the script. If commit is True, wrap it with the event_wrapper context manager to ensure we process
+            # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
             # change logging, webhooks, etc.
-            with event_wrapper(request):
+            with event_tracking(request):
                 _run_script()
         else:
             logger.error('Data is not valid:')

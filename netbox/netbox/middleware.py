@@ -10,7 +10,7 @@ from django.db import connection, ProgrammingError
 from django.db.utils import InternalError
 from django.http import Http404, HttpResponseRedirect
 
-from extras.context_managers import event_wrapper
+from extras.context_managers import event_tracking
 from netbox.config import clear_config, get_config
 from netbox.views import handler_500
 from utilities.api import is_api_request, rest_api_server_error
@@ -42,8 +42,8 @@ class CoreMiddleware:
             login_url = f'{settings.LOGIN_URL}?next={parse.quote(request.get_full_path_info())}'
             return HttpResponseRedirect(login_url)
 
-        # Enable the event_wrapper context manager and process the request.
-        with event_wrapper(request):
+        # Enable the event_tracking context manager and process the request.
+        with event_tracking(request):
             response = self.get_response(request)
 
         # Attach the unique request ID as an HTTP header.
