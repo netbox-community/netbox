@@ -56,6 +56,11 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         max_length=150,
         unique=True
     )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
     type_create = models.BooleanField(
         verbose_name=_('on create'),
         default=False,
@@ -122,6 +127,10 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         blank=True,
         null=True,
         help_text=_("Parameters to pass to the action.")
+    )
+    comments = models.TextField(
+        verbose_name=_('comments'),
+        blank=True
     )
 
     class Meta:

@@ -50,6 +50,7 @@ class Migration(migrations.Migration):
                     models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder),
                 ),
                 ('name', models.CharField(max_length=150, unique=True)),
+                ('description', models.CharField(blank=True, max_length=200)),
                 ('type_create', models.BooleanField(default=False)),
                 ('type_update', models.BooleanField(default=False)),
                 ('type_delete', models.BooleanField(default=False)),
@@ -59,24 +60,9 @@ class Migration(migrations.Migration):
                 ('conditions', models.JSONField(blank=True, null=True)),
                 ('action_type', models.CharField(default='webhook', max_length=30)),
                 ('action_object_id', models.PositiveBigIntegerField(blank=True, null=True)),
-                (
-                    'content_types',
-                    models.ManyToManyField(
-                        related_name='eventrules',
-                        to='contenttypes.contenttype',
-                    ),
-                ),
-                (
-                    'action_object_type',
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name='eventrule_actions',
-                        to='contenttypes.contenttype',
-                    ),
-                ),
-                ('action_parameters', models.CharField(max_length=80, blank=True)),
+                ('action_parameters', models.CharField(blank=True, max_length=80)),
                 ('action_data', models.JSONField(blank=True, null=True)),
-                ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
+                ('comments', models.TextField(blank=True)),
             ],
             options={
                 'verbose_name': 'eventrule',
@@ -120,5 +106,24 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name='webhook',
             name='type_update',
+        ),
+        migrations.AddField(
+            model_name='eventrule',
+            name='action_object_type',
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name='eventrule_actions',
+                to='contenttypes.contenttype',
+            ),
+        ),
+        migrations.AddField(
+            model_name='eventrule',
+            name='content_types',
+            field=models.ManyToManyField(related_name='eventrules', to='contenttypes.contenttype'),
+        ),
+        migrations.AddField(
+            model_name='eventrule',
+            name='tags',
+            field=taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag'),
         ),
     ]
