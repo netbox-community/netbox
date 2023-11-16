@@ -179,13 +179,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         blank=True,
         null=True
     )
-    ui_visibility = models.CharField(
-        max_length=50,
-        choices=CustomFieldVisibilityChoices,
-        default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
-        verbose_name=_('UI visibility'),
-        help_text=_('Specifies the visibility of custom field in the UI')
-    )
     ui_visible = models.CharField(
         max_length=50,
         choices=CustomFieldUIVisibleChoices,
@@ -211,7 +204,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-        'choice_set', 'ui_visibility', 'ui_visible', 'ui_editable', 'is_cloneable',
+        'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:

@@ -96,7 +96,6 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
     choice_set = NestedCustomFieldChoiceSetSerializer(required=False)
-    ui_visibility = ChoiceField(choices=CustomFieldVisibilityChoices, required=False)
     ui_visible = ChoiceField(choices=CustomFieldUIVisibleChoices, required=False)
     ui_editable = ChoiceField(choices=CustomFieldUIEditableChoices, required=False)
 
@@ -104,9 +103,9 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         model = CustomField
         fields = [
             'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
-            'description', 'required', 'search_weight', 'filter_logic', 'ui_visibility', 'ui_visible', 'ui_editable',
-            'is_cloneable', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-            'choice_set', 'created', 'last_updated',
+            'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
+            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set',
+            'created', 'last_updated',
         ]
 
     def validate_type(self, value):

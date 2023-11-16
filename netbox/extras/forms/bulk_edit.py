@@ -48,12 +48,6 @@ class CustomFieldBulkEditForm(BulkEditForm):
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False
     )
-    ui_visibility = forms.ChoiceField(
-        label=_("UI visibility"),
-        choices=add_blank_choice(CustomFieldVisibilityChoices),
-        required=False,
-        initial=''
-    )
     ui_visible = forms.ChoiceField(
         label=_("UI visible"),
         choices=add_blank_choice(CustomFieldUIVisibleChoices),

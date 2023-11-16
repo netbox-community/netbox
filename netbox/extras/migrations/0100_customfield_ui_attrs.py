@@ -34,4 +34,8 @@ class Migration(migrations.Migration):
             code=update_ui_attrs,
             reverse_code=migrations.RunPython.noop
         ),
+        migrations.RemoveField(
+            model_name='customfield',
+            name='ui_visibility',
+        ),
     ]

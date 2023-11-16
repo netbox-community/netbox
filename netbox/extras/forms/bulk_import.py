@@ -51,11 +51,6 @@ class CustomFieldImportForm(CSVModelForm):
         required=False,
         help_text=_('Choice set (for selection fields)')
     )
-    ui_visibility = CSVChoiceField(
-        label=_('UI visibility'),
-        choices=CustomFieldVisibilityChoices,
-        help_text=_('How the custom field is displayed in the user interface')
-    )
     ui_visible = CSVChoiceField(
         label=_('UI visible'),
         choices=CustomFieldUIVisibleChoices,
@@ -74,7 +69,7 @@ class CustomFieldImportForm(CSVModelForm):
         fields = (
             'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
             'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
-            'validation_maximum', 'validation_regex', 'ui_visibility', 'ui_visible', 'ui_editable', 'is_cloneable',
+            'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable',
         )
 
 

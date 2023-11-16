@@ -39,8 +39,8 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Attributes'), (
-            'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visibility',
-            'ui_visible', 'ui_editable', 'is_cloneable',
+            'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible', 'ui_editable',
+            'is_cloneable',
         )),
     )
     content_type_id = ContentTypeMultipleChoiceField(
@@ -72,11 +72,6 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False,
         label=_('Choice set')
-    )
-    ui_visibility = forms.ChoiceField(
-        choices=add_blank_choice(CustomFieldVisibilityChoices),
-        required=False,
-        label=_('UI visibility')
     )
     ui_visible = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldUIVisibleChoices),
