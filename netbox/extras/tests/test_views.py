@@ -446,7 +446,7 @@ class ConfigContextTestCase(
             'platforms': [],
             'tenant_groups': [],
             'tenants': [],
-            'device_types': [devicetype.id,],
+            'device_types': [devicetype.id],
             'tags': [],
             'data': '{"foo": 123}',
         }

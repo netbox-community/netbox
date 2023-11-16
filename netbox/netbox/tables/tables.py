@@ -15,6 +15,7 @@ from extras.choices import CustomFieldVisibilityChoices
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import get_viewname, highlight_string, title
+from .template_code import *
 
 __all__ = (
     'BaseTable',
@@ -119,7 +120,7 @@ class BaseTable(tables.Table):
 
     @property
     def available_columns(self):
-        return self._get_columns(visible=False)
+        return sorted(self._get_columns(visible=False))
 
     @property
     def selected_columns(self):
@@ -235,6 +236,10 @@ class SearchTable(tables.Table):
     )
     value = tables.Column(
         verbose_name=_('Value'),
+    )
+    attrs = columns.TemplateColumn(
+        template_code=SEARCH_RESULT_ATTRS,
+        verbose_name=_('Attributes')
     )
 
     trim_length = 30

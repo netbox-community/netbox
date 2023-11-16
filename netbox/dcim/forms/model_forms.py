@@ -443,7 +443,8 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        selector=True
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),
