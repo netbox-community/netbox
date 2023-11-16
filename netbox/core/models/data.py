@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -368,7 +367,7 @@ class AutoSyncRecord(models.Model):
         related_name='+'
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='+'
     )

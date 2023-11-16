@@ -88,7 +88,7 @@ class Migration(migrations.Migration):
                 ('secret', models.CharField(blank=True, max_length=255)),
                 ('ssl_verification', models.BooleanField(default=True)),
                 ('ca_file_path', models.CharField(blank=True, max_length=4096, null=True)),
-                ('content_types', models.ManyToManyField(limit_choices_to=extras.utils.FeatureQuery('webhooks'), related_name='webhooks', to='contenttypes.ContentType')),
+                ('content_types', models.ManyToManyField(related_name='webhooks', to='contenttypes.ContentType')),
             ],
             options={
                 'ordering': ('name',),
@@ -151,7 +151,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default='pending', max_length=30)),
                 ('data', models.JSONField(blank=True, null=True)),
                 ('job_id', models.UUIDField(unique=True)),
-                ('obj_type', models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('jobs'), on_delete=django.db.models.deletion.CASCADE, related_name='job_results', to='contenttypes.contenttype')),
+                ('obj_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='job_results', to='contenttypes.contenttype')),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
             ],
             options={
@@ -184,7 +184,7 @@ class Migration(migrations.Migration):
                 ('mime_type', models.CharField(blank=True, max_length=50)),
                 ('file_extension', models.CharField(blank=True, max_length=15)),
                 ('as_attachment', models.BooleanField(default=True)),
-                ('content_type', models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('export_templates'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
             options={
                 'ordering': ['content_type', 'name'],
@@ -201,7 +201,7 @@ class Migration(migrations.Migration):
                 ('group_name', models.CharField(blank=True, max_length=50)),
                 ('button_class', models.CharField(default='default', max_length=30)),
                 ('new_window', models.BooleanField(default=False)),
-                ('content_type', models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('custom_links'), on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
+                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
             ],
             options={
                 'ordering': ['group_name', 'weight', 'name'],
@@ -223,7 +223,7 @@ class Migration(migrations.Migration):
                 ('validation_maximum', models.PositiveIntegerField(blank=True, null=True)),
                 ('validation_regex', models.CharField(blank=True, max_length=500, validators=[utilities.validators.validate_regex])),
                 ('choices', django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, null=True, size=None)),
-                ('content_types', models.ManyToManyField(limit_choices_to=extras.utils.FeatureQuery('custom_fields'), related_name='custom_fields', to='contenttypes.ContentType')),
+                ('content_types', models.ManyToManyField(related_name='custom_fields', to='contenttypes.ContentType')),
             ],
             options={
                 'ordering': ['weight', 'name'],

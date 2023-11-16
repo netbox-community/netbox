@@ -1,6 +1,5 @@
 import netaddr
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
@@ -9,6 +8,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -740,7 +740,7 @@ class IPAddress(PrimaryModel):
         help_text=_('The functional role of this IP')
     )
     assigned_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=IPADDRESS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',

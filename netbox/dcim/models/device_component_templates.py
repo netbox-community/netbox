@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -709,7 +708,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
         db_index=True
     )
     component_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=MODULAR_COMPONENT_TEMPLATE_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
