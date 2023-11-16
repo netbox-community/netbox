@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -12,6 +14,7 @@ from django_tables2.data import TableQuerysetData
 
 from extras.models import CustomField, CustomLink
 from extras.choices import CustomFieldVisibilityChoices
+from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import get_viewname, highlight_string, title
@@ -191,12 +194,17 @@ class NetBoxTable(BaseTable):
         if extra_columns is None:
             extra_columns = []
 
+        if registered_columns := registry['tables'].get(self.__class__):
+            extra_columns.extend([
+                # Create a copy to avoid modifying the original Column
+                (name, deepcopy(column)) for name, column in registered_columns.items()
+            ])
+
         # Add custom field & custom link columns
         content_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(
             content_types=content_type
         ).exclude(ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN)
-
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])

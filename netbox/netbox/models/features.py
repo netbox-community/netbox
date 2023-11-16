@@ -3,7 +3,6 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
@@ -13,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
+from core.models import ContentType
 from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
 from extras.utils import is_taggable, register_features
 from netbox.registry import registry

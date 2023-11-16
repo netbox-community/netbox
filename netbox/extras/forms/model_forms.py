@@ -11,7 +11,6 @@ from core.models import ContentType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
-from extras.utils import FeatureQuery
 from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
@@ -45,8 +44,7 @@ __all__ = (
 class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        queryset=ContentType.objects.with_feature('custom_fields')
     )
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
@@ -116,8 +114,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
+        queryset=ContentType.objects.with_feature('custom_links')
     )
 
     fieldsets = (
@@ -144,8 +141,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
 class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('export_templates')
+        queryset=ContentType.objects.with_feature('export_templates')
     )
     template_code = forms.CharField(
         label=_('Template code'),
@@ -212,8 +208,7 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
 class BookmarkForm(BootstrapMixin, forms.ModelForm):
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('bookmarks').get_query()
+        queryset=ContentType.objects.with_feature('bookmarks')
     )
 
     class Meta:
@@ -243,8 +238,7 @@ class WebhookForm(NetBoxModelForm):
 class EventRuleForm(NetBoxModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('webhooks')
+        queryset=ContentType.objects.with_feature('webhooks'),
     )
     action_choice = forms.ChoiceField(
         label=_('Action choice'),
@@ -336,8 +330,7 @@ class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('tags'),
+        queryset=ContentType.objects.with_feature('tags'),
         required=False
     )
 

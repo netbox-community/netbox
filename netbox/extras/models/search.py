@@ -1,6 +1,5 @@
 import uuid
 
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
@@ -27,7 +26,7 @@ class CachedValue(models.Model):
         editable=False
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='+'
     )

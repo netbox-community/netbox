@@ -6,7 +6,6 @@ from core.models import ContentType, DataFile, DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
-from extras.utils import FeatureQuery
 from netbox.forms.base import NetBoxModelFilterSetForm
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
@@ -45,7 +44,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         )),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.filter(FeatureQuery('custom_fields').get_query()),
+        queryset=ContentType.objects.with_feature('custom_fields'),
         required=False,
         label=_('Object type')
     )
@@ -109,7 +108,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     )
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.filter(FeatureQuery('custom_links').get_query()),
+        queryset=ContentType.objects.with_feature('custom_links'),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -152,7 +151,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
         }
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.filter(FeatureQuery('export_templates').get_query()),
+        queryset=ContentType.objects.with_feature('export_templates'),
         required=False,
         label=_('Content types')
     )
@@ -180,7 +179,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     )
     content_type_id = ContentTypeChoiceField(
         label=_('Content type'),
-        queryset=ContentType.objects.filter(FeatureQuery('image_attachments').get_query()),
+        queryset=ContentType.objects.with_feature('image_attachments'),
         required=False
     )
     name = forms.CharField(
@@ -244,7 +243,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.filter(FeatureQuery('webhooks').get_query()),
+        queryset=ContentType.objects.with_feature('webhooks'),
         required=False,
         label=_('Object type')
     )
@@ -295,12 +294,12 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
 class TagFilterForm(SavedFiltersMixin, FilterForm):
     model = Tag
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
+        queryset=ContentType.objects.with_feature('tags'),
         required=False,
         label=_('Tagged object type')
     )
     for_object_type_id = ContentTypeChoiceField(
-        queryset=ContentType.objects.filter(FeatureQuery('tags').get_query()),
+        queryset=ContentType.objects.with_feature('tags'),
         required=False,
         label=_('Allowed object type')
     )

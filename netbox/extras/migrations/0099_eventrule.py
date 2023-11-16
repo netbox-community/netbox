@@ -62,7 +62,6 @@ class Migration(migrations.Migration):
                 (
                     'content_types',
                     models.ManyToManyField(
-                        limit_choices_to=extras.utils.FeatureQuery('eventrules'),
                         related_name='eventrules',
                         to='contenttypes.contenttype',
                     ),

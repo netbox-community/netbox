@@ -1,10 +1,11 @@
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from extras.choices import *
 from ..querysets import ObjectChangeQuerySet
 
@@ -48,7 +49,7 @@ class ObjectChange(models.Model):
         choices=ObjectChangeActionChoices
     )
     changed_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         related_name='+'
     )
@@ -58,7 +59,7 @@ class ObjectChange(models.Model):
         fk_field='changed_object_id'
     )
     related_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         related_name='+',
         blank=True,
@@ -103,6 +104,17 @@ class ObjectChange(models.Model):
             self.get_action_display().lower(),
             self.user_name
         )
+
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.changed_object_type not in ContentType.objects.with_feature('change_logging'):
+            raise ValidationError(
+                _("Change logging is not supported for this object type ({type}).").format(
+                    type=self.changed_object_type
+                )
+            )
 
     def save(self, *args, **kwargs):
 

@@ -1,13 +1,12 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import ChangeLoggedModel, PrimaryModel
 from ipam.choices import *
 from ipam.constants import *
+from netbox.models import ChangeLoggedModel, PrimaryModel
 
 __all__ = (
     'FHRPGroup',
@@ -78,7 +77,7 @@ class FHRPGroup(PrimaryModel):
 
 class FHRPGroupAssignment(ChangeLoggedModel):
     interface_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE
     )
     interface_id = models.PositiveBigIntegerField()

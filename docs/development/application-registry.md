@@ -53,6 +53,10 @@ This store maintains all registered items for plugins, such as navigation menus,
 
 A dictionary mapping each model (identified by its app and label) to its search index class, if one has been registered for it.
 
+### `tables`
+
+A dictionary mapping table classes to lists of extra columns that have been registered by plugins using the `register_table_column()` utility function. Each column is defined as a tuple of name and column instance.
+
 ### `views`
 
 A hierarchical mapping of registered views for each model. Mappings are added using the `register_model_view()` decorator, and URLs paths can be generated from these using `get_model_urls()`.
