@@ -86,7 +86,7 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, ConfigTemplateRenderMixi
     @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
     def render_config(self, request, pk):
         """
-        Resolve and render the preferred ConfigTemplate for this Device.
+        Resolve and render the preferred ConfigTemplate for this Virtual Machine.
         """
         instance = self.get_object()
         configtemplate = instance.get_config_template()
