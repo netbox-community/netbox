@@ -4,6 +4,8 @@ from django.views.generic import View
 from dcim.models import Site
 from utilities.views import register_model_view
 from .models import DummyModel
+# Trigger registration of custom column
+from .tables import mycol
 
 
 class DummyModelsView(View):

@@ -6,7 +6,6 @@ from django.utils.translation import gettext_lazy as _
 from core.models import ContentType
 from extras.choices import *
 from extras.models import *
-from extras.utils import FeatureQuery
 from netbox.forms import NetBoxModelImportForm
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import (
@@ -29,8 +28,7 @@ __all__ = (
 class CustomFieldImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        queryset=ContentType.objects.with_feature('custom_fields'),
         help_text=_("One or more assigned object types")
     )
     type = CSVChoiceField(
@@ -95,8 +93,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
 class CustomLinkImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links'),
+        queryset=ContentType.objects.with_feature('custom_links'),
         help_text=_("One or more assigned object types")
     )
 
@@ -111,8 +108,7 @@ class CustomLinkImportForm(CSVModelForm):
 class ExportTemplateImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('export_templates'),
+        queryset=ContentType.objects.with_feature('export_templates'),
         help_text=_("One or more assigned object types")
     )
 
@@ -149,8 +145,7 @@ class SavedFilterImportForm(CSVModelForm):
 class WebhookImportForm(NetBoxModelImportForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('webhooks'),
+        queryset=ContentType.objects.with_feature('webhooks'),
         help_text=_("One or more assigned object types")
     )
 

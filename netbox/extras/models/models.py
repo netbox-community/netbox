@@ -3,7 +3,6 @@ import urllib.parse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.core.validators import ValidationError
 from django.db import models
@@ -14,10 +13,11 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext, gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
+from core.models import ContentType
 from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
-from extras.utils import FeatureQuery, image_upload
+from extras.utils import image_upload
 from netbox.config import get_config
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
@@ -45,10 +45,9 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='webhooks',
         verbose_name=_('object types'),
-        limit_choices_to=FeatureQuery('webhooks'),
         help_text=_("The object(s) to which this Webhook applies.")
     )
     name = models.CharField(
@@ -235,7 +234,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     code to be rendered with an object as context.
     """
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='custom_links',
         help_text=_('The object type(s) to which this link applies.')
     )
@@ -331,7 +330,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
 class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='export_templates',
         help_text=_('The object type(s) to which this template applies.')
     )
@@ -440,7 +439,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='saved_filters',
         help_text=_('The object type(s) to which this filter applies.')
     )
@@ -520,7 +519,7 @@ class ImageAttachment(ChangeLoggedModel):
     An uploaded image which is associated with an object.
     """
     content_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE
     )
     object_id = models.PositiveBigIntegerField()
@@ -559,6 +558,15 @@ class ImageAttachment(ChangeLoggedModel):
             return self.name
         filename = self.image.name.rsplit('/', 1)[-1]
         return filename.split('_', 2)[2]
+
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.content_type not in ContentType.objects.with_feature('image_attachments'):
+            raise ValidationError(
+                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.content_type)
+            )
 
     def delete(self, *args, **kwargs):
 
@@ -605,7 +613,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
     might record a new journal entry when a device undergoes maintenance, or when a prefix is expanded.
     """
     assigned_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE
     )
     assigned_object_id = models.PositiveBigIntegerField()
@@ -644,9 +652,8 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
     def clean(self):
         super().clean()
 
-        # Prevent the creation of journal entries on unsupported models
-        permitted_types = ContentType.objects.filter(FeatureQuery('journaling').get_query())
-        if self.assigned_object_type not in permitted_types:
+        # Validate the assigned object type
+        if self.assigned_object_type not in ContentType.objects.with_feature('journaling'):
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
             )
@@ -664,7 +671,7 @@ class Bookmark(models.Model):
         auto_now_add=True
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT
     )
     object_id = models.PositiveBigIntegerField()
@@ -694,6 +701,15 @@ class Bookmark(models.Model):
         if self.object:
             return str(self.object)
         return super().__str__()
+
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.object_type not in ContentType.objects.with_feature('bookmarks'):
+            raise ValidationError(
+                _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
+            )
 
 
 class ConfigRevision(models.Model):

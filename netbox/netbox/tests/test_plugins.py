@@ -97,6 +97,16 @@ class PluginTest(TestCase):
 
         self.assertIn(SiteContent, registry['plugins']['template_extensions']['dcim.site'])
 
+    def test_registered_columns(self):
+        """
+        Check that a plugin can register a custom column on a core model table.
+        """
+        from dcim.models import Site
+        from dcim.tables import SiteTable
+
+        table = SiteTable(Site.objects.all())
+        self.assertIn('foo', table.columns.names())
+
     def test_user_preferences(self):
         """
         Check that plugin UserPreferences are registered.

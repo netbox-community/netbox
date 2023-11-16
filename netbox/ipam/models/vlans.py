@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -32,7 +31,7 @@ class VLANGroup(OrganizationalModel):
         max_length=100
     )
     scope_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         limit_choices_to=Q(model__in=VLANGROUP_SCOPE_TYPES),
         blank=True,
