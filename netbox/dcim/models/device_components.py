@@ -86,7 +86,7 @@ class ComponentModel(NetBoxModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original Device ID for reference under clean()
-        self._original_device = self.device_id
+        self._original_device = self.__dict__.get('device_id')
 
     def __str__(self):
         if self.label:
@@ -1245,11 +1245,6 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
             models.UniqueConstraint(
                 fields=('device', 'parent', 'name'),
                 name='%(app_label)s_%(class)s_unique_device_parent_name'
-            ),
-            models.UniqueConstraint(
-                fields=('device', 'name'),
-                name='%(app_label)s_%(class)s_unique_device_name',
-                condition=Q(parent__isnull=True)
             ),
         )
         verbose_name = _('inventory item')

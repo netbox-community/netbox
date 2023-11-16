@@ -290,8 +290,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original prefix and VRF so we can check if they have changed on post_save
-        self._prefix = self.prefix
-        self._vrf_id = self.vrf_id
+        self._prefix = self.__dict__.get('prefix')
+        self._vrf_id = self.__dict__.get('vrf_id')
 
     def __str__(self):
         return str(self.prefix)
@@ -782,6 +782,13 @@ class IPAddress(PrimaryModel):
     def __str__(self):
         return str(self.address)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Denote the original assigned object (if any) for validation in clean()
+        self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
+        self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
+
     def get_absolute_url(self):
         return reverse('ipam:ipaddress', args=[self.pk])
 
@@ -842,6 +849,26 @@ class IPAddress(PrimaryModel):
                             duplicate_ips.first(),
                         )
                     })
+
+        if self._original_assigned_object_id and self._original_assigned_object_type_id:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
+            original_parent = getattr(original_assigned_object, 'parent_object', None)
+
+            # can't use is_primary_ip as self.assigned_object might be changed
+            is_primary = False
+            if self.family == 4 and hasattr(original_parent, 'primary_ip4') and original_parent.primary_ip4_id == self.pk:
+                is_primary = True
+            if self.family == 6 and hasattr(original_parent, 'primary_ip6') and original_parent.primary_ip6_id == self.pk:
+                is_primary = True
+
+            if is_primary and (parent != original_parent):
+                raise ValidationError({
+                    'assigned_object': _(
+                        "Cannot reassign IP address while it is designated as the primary IP for the parent object"
+                    )
+                })
 
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:

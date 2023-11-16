@@ -87,6 +87,11 @@ class PowerFeedTable(TenancyColumnsMixin, CableTerminationTable):
         linkify=True,
         verbose_name=_('Tenant')
     )
+    site = tables.Column(
+        accessor='rack__site',
+        linkify=True,
+        verbose_name=_('Site'),
+    )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )
@@ -97,9 +102,9 @@ class PowerFeedTable(TenancyColumnsMixin, CableTerminationTable):
     class Meta(NetBoxTable.Meta):
         model = PowerFeed
         fields = (
-            'pk', 'id', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase',
-            'max_utilization', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'available_power', 'tenant',
-            'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'power_panel', 'site', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage',
+            'phase', 'max_utilization', 'mark_connected', 'cable', 'cable_color', 'link_peer', 'available_power',
+            'tenant', 'tenant_group', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'power_panel', 'rack', 'status', 'type', 'supply', 'voltage', 'amperage', 'phase', 'cable',

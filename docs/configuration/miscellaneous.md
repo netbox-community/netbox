@@ -80,6 +80,14 @@ changes in the database indefinitely.
 
 ---
 
+## DATA_UPLOAD_MAX_MEMORY_SIZE
+
+Default: `2621440` (2.5 MB)
+
+The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` data). Requests which exceed this size will raise a `RequestDataTooBig` exception.
+
+---
+
 ## ENFORCE_GLOBAL_UNIQUE
 
 !!! tip "Dynamic Configuration Parameter"
@@ -90,9 +98,9 @@ By default, NetBox will permit users to create duplicate prefixes and IP address
 
 ---
 
-## `FILE_UPLOAD_MAX_MEMORY_SIZE`
+## FILE_UPLOAD_MAX_MEMORY_SIZE
 
-Default: `2621440` (2.5 MB).
+Default: `2621440` (2.5 MB)
 
 The maximum amount (in bytes) of uploaded data that will be held in memory before being written to the filesystem. Changing this setting can be useful for example to be able to upload files bigger than 2.5MB to custom scripts for processing.
 

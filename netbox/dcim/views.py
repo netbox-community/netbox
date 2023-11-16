@@ -122,16 +122,18 @@ class BulkDisconnectView(GetReturnURLMixin, ObjectPermissionRequiredMixin, View)
             if form.is_valid():
 
                 with transaction.atomic():
-
                     count = 0
+                    cable_ids = set()
                     for obj in self.queryset.filter(pk__in=form.cleaned_data['pk']):
-                        if obj.cable is None:
-                            continue
-                        obj.cable.delete()
-                        count += 1
+                        if obj.cable:
+                            cable_ids.add(obj.cable.pk)
+                            count += 1
+                    for cable in Cable.objects.filter(pk__in=cable_ids):
+                        cable.delete()
 
-                messages.success(request, "Disconnected {} {}".format(
-                    count, self.queryset.model._meta.verbose_name_plural
+                messages.success(request, _("Disconnected {count} {type}").format(
+                    count=count,
+                    type=self.queryset.model._meta.verbose_name_plural
                 ))
 
                 return redirect(return_url)
@@ -2989,6 +2991,25 @@ class InventoryItemBulkDeleteView(generic.BulkDeleteView):
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
     template_name = 'dcim/inventoryitem_bulk_delete.html'
+
+
+@register_model_view(InventoryItem, 'children')
+class InventoryItemChildrenView(generic.ObjectChildrenView):
+    queryset = InventoryItem.objects.all()
+    child_model = InventoryItem
+    table = tables.InventoryItemTable
+    filterset = filtersets.InventoryItemFilterSet
+    template_name = 'generic/object_children.html'
+    tab = ViewTab(
+        label=_('Children'),
+        badge=lambda obj: obj.child_items.count(),
+        permission='dcim.view_inventoryitem',
+        hide_if_empty=True,
+        weight=5000
+    )
+
+    def get_children(self, request, parent):
+        return parent.child_items.restrict(request.user, 'view')
 
 
 #

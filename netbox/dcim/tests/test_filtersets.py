@@ -4275,6 +4275,7 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
             Interface(device=devices[4], name='Interface 10', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[5], name='Interface 11', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
             Interface(device=devices[5], name='Interface 12', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
+            Interface(device=devices[5], name='Interface 13', type=InterfaceTypeChoices.TYPE_1GE_FIXED),
         )
         Interface.objects.bulk_create(interfaces)
 
@@ -4289,6 +4290,9 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
         Cable(a_terminations=[interfaces[9]], b_terminations=[interfaces[10]], label='Cable 5', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=10, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(a_terminations=[interfaces[11]], b_terminations=[interfaces[0]], label='Cable 6', type=CableTypeChoices.TYPE_CAT6, tenant=tenants[2], status=LinkStatusChoices.STATUS_PLANNED, color='e91e63', length=20, length_unit=CableLengthUnitChoices.UNIT_METER).save()
         Cable(a_terminations=[console_port], b_terminations=[console_server_port], label='Cable 7').save()
+
+        # Cable for unterminated test
+        Cable(a_terminations=[interfaces[12]], label='Cable 8', type=CableTypeChoices.TYPE_CAT6, status=LinkStatusChoices.STATUS_DECOMMISSIONING).save()
 
     def test_label(self):
         params = {'label': ['Cable 1', 'Cable 2']}
@@ -4367,6 +4371,12 @@ class CableTestCase(TestCase, ChangeLoggedFilterSetTests):
             'termination_a_id': list(interface_ids),
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
+    def test_unterminated(self):
+        params = {'unterminated': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'unterminated': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
 
 
 class PowerPanelTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -4702,12 +4712,18 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         addresses = (
             IPAddress(assigned_object=interfaces[0], address='10.1.1.1/24'),
             IPAddress(assigned_object=interfaces[1], address='10.1.1.2/24'),
+            IPAddress(assigned_object=None, address='10.1.1.3/24'),
+            IPAddress(assigned_object=interfaces[0], address='2001:db8::1/64'),
+            IPAddress(assigned_object=interfaces[1], address='2001:db8::2/64'),
+            IPAddress(assigned_object=None, address='2001:db8::3/64'),
         )
         IPAddress.objects.bulk_create(addresses)
 
         vdcs[0].primary_ip4 = addresses[0]
+        vdcs[0].primary_ip6 = addresses[3]
         vdcs[0].save()
         vdcs[1].primary_ip4 = addresses[1]
+        vdcs[1].primary_ip6 = addresses[4]
         vdcs[1].save()
 
     def test_device(self):
@@ -4728,3 +4744,17 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'has_primary_ip': False}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_primary_ip4(self):
+        addresses = IPAddress.objects.filter(address__family=4)
+        params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_primary_ip6(self):
+        addresses = IPAddress.objects.filter(address__family=6)
+        params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)

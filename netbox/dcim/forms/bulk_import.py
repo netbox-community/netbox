@@ -549,9 +549,9 @@ class DeviceImportForm(BaseDeviceImportForm):
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
             }
-            if 'location' in data:
+            if location := data.get('location'):
                 params.update({
-                    f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                    f"location__{self.fields['location'].to_field_name}": location,
                 })
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -1192,7 +1192,7 @@ class CableImportForm(NetBoxModelImportForm):
                 termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
             else:
                 termination_object = model.objects.get(device=device, name=name)
-            if termination_object.cable is not None:
+            if termination_object.cable is not None and termination_object.cable != self.instance:
                 raise forms.ValidationError(f"Side {side.upper()}: {device} {termination_object} is already connected")
         except ObjectDoesNotExist:
             raise forms.ValidationError(f"{side.upper()} side termination not found: {device} {name}")

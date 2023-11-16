@@ -109,7 +109,7 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Device type')
     )
-    role_id = DynamicModelMultipleChoiceField(
+    device_role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
         label=_('Device role')
@@ -910,7 +910,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Location'), ('site_id', 'location_id', 'rack_id', 'device_id')),
-        (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit')),
+        (_('Attributes'), ('type', 'status', 'color', 'length', 'length_unit', 'unterminated')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -978,6 +978,13 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Length unit'),
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False
+    )
+    unterminated = forms.NullBooleanField(
+        label=_('Unterminated'),
+        required=False,
+        widget=forms.Select(
+            choices=BOOLEAN_WITH_BLANK_CHOICES
+        )
     )
     tag = TagFilterField(model)
 
@@ -1136,7 +1143,7 @@ class ConsolePortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'type', 'speed')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
         (_('Connection'), ('cabled', 'connected', 'occupied')),
     )
     type = forms.MultipleChoiceField(
@@ -1158,7 +1165,7 @@ class ConsoleServerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterF
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'type', 'speed')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
         (_('Connection'), ('cabled', 'connected', 'occupied')),
     )
     type = forms.MultipleChoiceField(
@@ -1180,7 +1187,7 @@ class PowerPortFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'type')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
         (_('Connection'), ('cabled', 'connected', 'occupied')),
     )
     type = forms.MultipleChoiceField(
@@ -1197,7 +1204,7 @@ class PowerOutletFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'type')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
         (_('Connection'), ('cabled', 'connected', 'occupied')),
     )
     type = forms.MultipleChoiceField(
@@ -1217,7 +1224,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         (_('PoE'), ('poe_mode', 'poe_type')),
         (_('Wireless'), ('rf_role', 'rf_channel', 'rf_channel_width', 'tx_power')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id', 'vdc_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id', 'vdc_id')),
         (_('Connection'), ('cabled', 'connected', 'occupied')),
     )
     vdc_id = DynamicModelMultipleChoiceField(
@@ -1324,7 +1331,7 @@ class FrontPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'type', 'color')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
         (_('Cable'), ('cabled', 'occupied')),
     )
     model = FrontPort
@@ -1346,7 +1353,7 @@ class RearPortFilterForm(CabledFilterForm, DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'type', 'color')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
         (_('Cable'), ('cabled', 'occupied')),
     )
     type = forms.MultipleChoiceField(
@@ -1367,7 +1374,7 @@ class ModuleBayFilterForm(DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'position')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
     )
     tag = TagFilterField(model)
     position = forms.CharField(
@@ -1382,7 +1389,7 @@ class DeviceBayFilterForm(DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
     )
     tag = TagFilterField(model)
 
@@ -1393,7 +1400,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         (None, ('q', 'filter_id', 'tag')),
         (_('Attributes'), ('name', 'label', 'role_id', 'manufacturer_id', 'serial', 'asset_tag', 'discovered')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id', 'rack_id')),
-        (_('Device'), ('device_type_id', 'role_id', 'device_id', 'virtual_chassis_id')),
+        (_('Device'), ('device_type_id', 'device_role_id', 'device_id', 'virtual_chassis_id')),
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=InventoryItemRole.objects.all(),

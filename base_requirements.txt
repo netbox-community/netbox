@@ -23,8 +23,9 @@ django-filter
 django-graphiql-debug-toolbar
 
 # Modified Preorder Tree Traversal (recursive nesting of objects)
+# Pinned to 0.14.0; 0.15.0 requires Python 3.9+
 # https://github.com/django-mptt/django-mptt/blob/main/CHANGELOG.rst
-django-mptt
+django-mptt==0.14.0
 
 # Context managers for PostgreSQL advisory locks
 # https://github.com/Xof/django-pglocks/blob/master/CHANGES.txt
@@ -52,7 +53,8 @@ django-tables2
 
 # User-defined tags for objects
 # https://github.com/jazzband/django-taggit/blob/master/CHANGELOG.rst
-django-taggit
+# TODO: Upgrade to v5.0 for NetBox v3.7 beta
+django-taggit<5.0
 
 # A Django field for representing time zones
 # https://github.com/mfogel/django-timezone-field/
@@ -119,6 +121,10 @@ psycopg[binary,pool]
 # YAML rendering library
 # https://github.com/yaml/pyyaml/blob/master/CHANGES
 PyYAML
+
+# Requests
+# https://github.com/psf/requests/blob/main/HISTORY.md
+requests
 
 # Sentry SDK
 # https://github.com/getsentry/sentry-python/blob/master/CHANGELOG.md

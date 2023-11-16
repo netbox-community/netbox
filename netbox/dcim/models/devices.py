@@ -4,6 +4,7 @@ import yaml
 from functools import cached_property
 
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
@@ -205,11 +206,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         super().__init__(*args, **kwargs)
 
         # Save a copy of u_height for validation in clean()
-        self._original_u_height = self.u_height
+        self._original_u_height = self.__dict__.get('u_height')
 
         # Save references to the original front/rear images
-        self._original_front_image = self.front_image
-        self._original_rear_image = self.rear_image
+        self._original_front_image = self.__dict__.get('front_image')
+        self._original_rear_image = self.__dict__.get('rear_image')
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -332,10 +333,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         ret = super().save(*args, **kwargs)
 
         # Delete any previously uploaded image files that are no longer in use
-        if self.front_image != self._original_front_image:
-            self._original_front_image.delete(save=False)
-        if self.rear_image != self._original_rear_image:
-            self._original_rear_image.delete(save=False)
+        if self._original_front_image and self.front_image != self._original_front_image:
+            default_storage.delete(self._original_front_image)
+        if self._original_rear_image and self.rear_image != self._original_rear_image:
+            default_storage.delete(self._original_rear_image)
 
         return ret
 

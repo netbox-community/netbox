@@ -29,6 +29,14 @@
           {{ label }}
         </label>
       </div>
+    {# Include a copy-to-clipboard button #}
+    {% elif 'data-clipboard' in field.field.widget.attrs %}
+      <div class="input-group">
+        {{ field }}
+        <button type="button" title="{% trans "Copy to clipboard" %}" class="btn btn-outline-dark border-input copy-content" data-clipboard-target="#{{ field.id_for_label }}">
+          <i class="mdi mdi-content-copy"></i>
+        </button>
+      </div>
     {# Default field rendering #}
     {% else %}
       {{ field }}

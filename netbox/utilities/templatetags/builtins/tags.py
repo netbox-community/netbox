@@ -1,6 +1,7 @@
 from django import template
 from django.http import QueryDict
 
+from extras.choices import CustomFieldTypeChoices
 from utilities.utils import dict_to_querydict
 
 __all__ = (
@@ -38,6 +39,11 @@ def customfield_value(customfield, value):
         customfield: A CustomField instance
         value: The custom field value applied to an object
     """
+    if value:
+        if customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
+            value = customfield.get_choice_label(value)
+        elif customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
+            value = [customfield.get_choice_label(v) for v in value]
     return {
         'customfield': customfield,
         'value': value,

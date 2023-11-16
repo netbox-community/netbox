@@ -116,7 +116,7 @@ Multiple conditions can be combined into nested sets using AND or OR logic. This
       ]
     },
     {
-      "attr": "tags",
+      "attr": "tags.slug",
       "value": "exempt",
       "op": "contains"
     }

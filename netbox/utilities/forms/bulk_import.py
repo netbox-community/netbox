@@ -129,6 +129,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         headers, records = parse_csv(reader)
 
         # Set CSV headers for reference by the model form
+        headers.pop('id', None)
         self._csv_headers = headers
 
         return records

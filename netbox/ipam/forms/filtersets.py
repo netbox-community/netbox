@@ -295,7 +295,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = IPAddress
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface')),
+        (_('Attributes'), ('parent', 'family', 'status', 'role', 'mask_length', 'assigned_to_interface', 'dns_name')),
         (_('VRF'), ('vrf_id', 'present_in_vrf_id')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Device/VM'), ('device_id', 'virtual_machine_id')),
@@ -356,6 +356,10 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
+    )
+    dns_name = forms.CharField(
+        required=False,
+        label=_('DNS Name')
     )
     tag = TagFilterField(model)
 
@@ -519,6 +523,21 @@ class ServiceTemplateFilterForm(NetBoxModelFilterSetForm):
 
 class ServiceFilterForm(ServiceTemplateFilterForm):
     model = Service
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Attributes'), ('protocol', 'port')),
+        (_('Assignment'), ('device_id', 'virtual_machine_id')),
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device'),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Virtual Machine'),
+    )
     tag = TagFilterField(model)
 
 

@@ -200,7 +200,8 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        selector=True
     )
     local_context_data = JSONField(
         required=False,
