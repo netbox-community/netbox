@@ -51,3 +51,12 @@ class VMInterfaceIndex(SearchIndex):
         ('description', 500),
         ('mtu', 2000),
     )
+
+
+@register_search
+class VirtualDiskIndex(SearchIndex):
+    model = models.VirtualDisk
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )
