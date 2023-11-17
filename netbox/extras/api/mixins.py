@@ -70,7 +70,7 @@ class RenderConfigMixin(ConfigTemplateRenderMixin):
         Resolve and render the preferred ConfigTemplate for this Device.
         """
         instance = self.get_object()
-        object_type = instance._meta._model_name
+        object_type = instance._meta.model_name
         configtemplate = instance.get_config_template()
         if not configtemplate:
             return Response({
