@@ -86,6 +86,7 @@ nav:
         - Auth & Permissions: 'features/authentication-permissions.md'
         - API & Integration: 'features/api-integration.md'
         - Customization: 'features/customization.md'
+        - Event Rules: 'features/event-rules.md'
     - Installation & Upgrade:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
@@ -214,6 +215,7 @@ nav:
             - CustomField: 'models/extras/customfield.md'
             - CustomFieldChoiceSet: 'models/extras/customfieldchoiceset.md'
             - CustomLink: 'models/extras/customlink.md'
+            - EventRule: 'models/extras/eventrule.md'
             - ExportTemplate: 'models/extras/exporttemplate.md'
             - ImageAttachment: 'models/extras/imageattachment.md'
             - JournalEntry: 'models/extras/journalentry.md'
