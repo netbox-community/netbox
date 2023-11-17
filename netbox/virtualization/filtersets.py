@@ -321,7 +321,7 @@ class VirtualDiskFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = VirtualDisk
-        fields = ['id', 'name', 'size']
+        fields = ['id', 'name', 'size', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

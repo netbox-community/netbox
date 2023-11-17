@@ -34,7 +34,7 @@ class VMInterfaceBulkCreateForm(
 
 
 class VirtualDiskBulkCreateForm(
-    form_from_model(VirtualDisk, ['size', 'tags']),
+    form_from_model(VirtualDisk, ['size', 'description', 'tags']),
     VirtualMachineBulkAddComponentForm
 ):
     replication_fields = ('name',)

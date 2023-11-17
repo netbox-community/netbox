@@ -369,13 +369,13 @@ class VirtualDiskForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (None, ('virtual_machine', 'name', 'size', 'tags')),
+        (None, ('virtual_machine', 'name', 'size', 'description', 'tags')),
     )
 
     class Meta:
         model = VirtualDisk
         fields = [
-            'virtual_machine', 'name', 'size', 'tags',
+            'virtual_machine', 'name', 'size', 'description', 'tags',
         ]
 
     def __init__(self, *args, **kwargs):

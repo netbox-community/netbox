@@ -331,12 +331,17 @@ class VirtualDiskBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         label=_('Size (GB)')
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=100,
+        required=False
+    )
 
     model = VirtualDisk
     fieldsets = (
-        (None, ('size',)),
+        (None, ('size', 'description')),
     )
-    nullable_fields = ()
+    nullable_fields = ('description',)
 
 
 class VirtualDiskBulkRenameForm(BulkRenameForm):

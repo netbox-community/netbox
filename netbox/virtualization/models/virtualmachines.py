@@ -252,11 +252,19 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
             return None
 
 
-class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
+#
+# VM components
+#
+
+
+class ComponentModel(NetBoxModel):
+    """
+    An abstract model inherited by any model which has a parent VirtualMachine.
+    """
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
-        related_name='interfaces'
+        related_name='%(class)ss'
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -271,6 +279,42 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
     description = models.CharField(
         verbose_name=_('description'),
         max_length=200,
+        blank=True
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ('virtual_machine', CollateAsChar('_name'))
+        constraints = (
+            models.UniqueConstraint(
+                fields=('virtual_machine', 'name'),
+                name='%(app_label)s_%(class)s_unique_virtual_machine_name'
+            ),
+        )
+
+    def __str__(self):
+        return self.name
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.virtual_machine
+        return objectchange
+
+    @property
+    def parent_object(self):
+        return self.virtual_machine
+
+
+class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='interfaces'  # Override ComponentModel
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
         blank=True
     )
     untagged_vlan = models.ForeignKey(
@@ -314,19 +358,9 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
         related_query_name='vminterface',
     )
 
-    class Meta:
-        ordering = ('virtual_machine', CollateAsChar('_name'))
-        constraints = (
-            models.UniqueConstraint(
-                fields=('virtual_machine', 'name'),
-                name='%(app_label)s_%(class)s_unique_virtual_machine_name'
-            ),
-        )
+    class Meta(ComponentModel.Meta):
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
@@ -375,61 +409,19 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
                 ).format(untagged_vlan=self.untagged_vlan)
             })
 
-    def to_objectchange(self, action):
-        objectchange = super().to_objectchange(action)
-        objectchange.related_object = self.virtual_machine
-        return objectchange
-
-    @property
-    def parent_object(self):
-        return self.virtual_machine
-
     @property
     def l2vpn_termination(self):
         return self.l2vpn_terminations.first()
 
 
-class VirtualDisk(NetBoxModel, TrackingModelMixin):
-    virtual_machine = models.ForeignKey(
-        to=VirtualMachine,
-        on_delete=models.CASCADE,
-        related_name='%(class)ss'
-    )
-    name = models.CharField(
-        verbose_name=_('name'),
-        max_length=64
-    )
-    _name = NaturalOrderingField(
-        target_field='name',
-        max_length=100,
-        blank=True
-    )
+class VirtualDisk(ComponentModel, TrackingModelMixin):
     size = models.PositiveIntegerField(
         verbose_name=_('size (GB)'),
     )
 
-    class Meta:
-        ordering = ('virtual_machine', '_name')
-        constraints = (
-            models.UniqueConstraint(
-                Lower('name'), 'virtual_machine',
-                name='%(app_label)s_%(class)s_unique_name_virtual_machine'
-            ),
-        )
+    class Meta(ComponentModel.Meta):
         verbose_name = _('virtual disk')
         verbose_name_plural = _('virtual disks')
 
-    def __str__(self):
-        return self.name
-
     def get_absolute_url(self):
         return reverse('virtualization:virtualdisk', args=[self.pk])
-
-    def to_objectchange(self, action):
-        objectchange = super().to_objectchange(action)
-        objectchange.related_object = self.virtual_machine
-        return objectchange
-
-    @property
-    def parent_object(self):
-        return self.virtual_machine

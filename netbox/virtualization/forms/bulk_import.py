@@ -212,5 +212,5 @@ class VirtualDiskImportForm(NetBoxModelImportForm):
     class Meta:
         model = VirtualDisk
         fields = (
-            'virtual_machine', 'name', 'size', 'tags'
+            'virtual_machine', 'name', 'size', 'description', 'tags'
         )
