@@ -244,6 +244,14 @@ class EventRuleForm(NetBoxModelForm):
         label=_('Action choice'),
         choices=[]
     )
+    conditions = JSONField(
+        required=False,
+        help_text=_('Enter conditions in <a href="https://json.org/">JSON</a> format.')
+    )
+    action_data = JSONField(
+        required=False,
+        help_text=_('Enter parameters to pass to the action in <a href="https://json.org/">JSON</a> format.')
+    )
 
     fieldsets = (
         (_('EventRule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
@@ -268,8 +276,6 @@ class EventRuleForm(NetBoxModelForm):
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
             'action_parameters': forms.HiddenInput,
-            'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'action_data': forms.Textarea(attrs={'class': 'font-monospace'}),
         }
 
     def get_script_choices(self):
@@ -310,6 +316,8 @@ class EventRuleForm(NetBoxModelForm):
             self.get_webhook_choices()
         elif action_type == EventRuleActionChoices.SCRIPT:
             self.get_script_choices()
+
+        val = get_field_value(self, 'conditions')
 
     def clean(self):
         super().clean()
