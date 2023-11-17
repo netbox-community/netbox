@@ -5,9 +5,9 @@ from dcim.choices import InterfaceModeChoices
 from dcim.models import Site
 from extras.models import ConfigTemplate
 from ipam.models import VLAN, VRF
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import *
 
 
 class AppTest(APITestCase):
@@ -256,10 +256,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        clustertype = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
-        cluster = Cluster.objects.create(name='Test Cluster 1', type=clustertype)
-        virtualmachine = VirtualMachine.objects.create(cluster=cluster, name='Test VM 1')
+        virtualmachine = create_test_virtualmachine('Virtual Machine 1')
 
         interfaces = (
             VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
@@ -336,3 +333,41 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
         ]
         self.client.delete(self._get_list_url(), data, format='json', **self.header)
         self.assertEqual(virtual_machine.interfaces.count(), 2)  # Child & parent were both deleted
+
+
+class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
+    model = VirtualDisk
+    brief_fields = ['display', 'id', 'name', 'size', 'url', 'virtual_machine']
+    bulk_update_data = {
+        'size': 888,
+    }
+    graphql_base_name = 'virtual_disk'
+
+    @classmethod
+    def setUpTestData(cls):
+        virtualmachine = create_test_virtualmachine('Virtual Machine 1')
+
+        disks = (
+            VirtualDisk(virtual_machine=virtualmachine, name='Disk 1', size=10),
+            VirtualDisk(virtual_machine=virtualmachine, name='Disk 2', size=20),
+            VirtualDisk(virtual_machine=virtualmachine, name='Disk 3', size=30),
+        )
+        VirtualDisk.objects.bulk_create(disks)
+
+        cls.create_data = [
+            {
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Disk 4',
+                'size': 10,
+            },
+            {
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Disk 5',
+                'size': 20,
+            },
+            {
+                'virtual_machine': virtualmachine.pk,
+                'name': 'Disk 6',
+                'size': 30,
+            },
+        ]

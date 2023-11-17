@@ -22,7 +22,7 @@ from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from .models import *
 
 
 #
@@ -378,6 +378,28 @@ class VirtualMachineInterfacesView(generic.ObjectChildrenView):
         )
 
 
+@register_model_view(VirtualMachine, 'disks')
+class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
+    queryset = VirtualMachine.objects.all()
+    child_model = VirtualDisk
+    table = tables.VirtualMachineVirtualDiskTable
+    filterset = filtersets.VirtualDiskFilterSet
+    template_name = 'virtualization/virtualmachine/virtual_disks.html'
+    tab = ViewTab(
+        label=_('Virtual Disks'),
+        badge=lambda obj: obj.virtual_disk_count,
+        permission='virtualization.view_virtual_disk',
+        weight=500
+    )
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_rename': {'change'},
+    }
+
+    def get_children(self, request, parent):
+        return parent.virtualdisks.restrict(request.user, 'view').prefetch_related('tags')
+
+
 @register_model_view(VirtualMachine, 'configcontext', path='config-context')
 class VirtualMachineConfigContextView(ObjectConfigContextView):
     queryset = VirtualMachine.objects.annotate_config_context_data()
@@ -557,6 +579,62 @@ class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Virtual disks
+#
+
+class VirtualDiskListView(generic.ObjectListView):
+    queryset = VirtualDisk.objects.all()
+    filterset = filtersets.VirtualDiskFilterSet
+    filterset_form = forms.VirtualDiskFilterForm
+    table = tables.VirtualDiskTable
+
+
+@register_model_view(VirtualDisk)
+class VirtualDiskView(generic.ObjectView):
+    queryset = VirtualDisk.objects.all()
+
+
+class VirtualDiskCreateView(generic.ComponentCreateView):
+    queryset = VirtualDisk.objects.all()
+    form = forms.VirtualDiskCreateForm
+    model_form = forms.VirtualDiskForm
+
+
+@register_model_view(VirtualDisk, 'edit')
+class VirtualDiskEditView(generic.ObjectEditView):
+    queryset = VirtualDisk.objects.all()
+    form = forms.VirtualDiskForm
+
+
+@register_model_view(VirtualDisk, 'delete')
+class VirtualDiskDeleteView(generic.ObjectDeleteView):
+    queryset = VirtualDisk.objects.all()
+
+
+class VirtualDiskBulkImportView(generic.BulkImportView):
+    queryset = VirtualDisk.objects.all()
+    model_form = forms.VirtualDiskImportForm
+
+
+class VirtualDiskBulkEditView(generic.BulkEditView):
+    queryset = VirtualDisk.objects.all()
+    filterset = filtersets.VirtualDiskFilterSet
+    table = tables.VirtualDiskTable
+    form = forms.VirtualDiskBulkEditForm
+
+
+class VirtualDiskBulkRenameView(generic.BulkRenameView):
+    queryset = VirtualDisk.objects.all()
+    form = forms.VirtualDiskBulkRenameForm
+
+
+class VirtualDiskBulkDeleteView(generic.BulkDeleteView):
+    queryset = VirtualDisk.objects.all()
+    filterset = filtersets.VirtualDiskFilterSet
+    table = tables.VirtualDiskTable
+
+
+#
 # Bulk Device component creation
 #
 
@@ -572,3 +650,17 @@ class VirtualMachineBulkAddInterfaceView(generic.BulkComponentCreateView):
 
     def get_required_permission(self):
         return f'virtualization.add_vminterface'
+
+
+class VirtualMachineBulkAddVirtualDiskView(generic.BulkComponentCreateView):
+    parent_model = VirtualMachine
+    parent_field = 'virtual_machine'
+    form = forms.VirtualDiskBulkCreateForm
+    queryset = VirtualDisk.objects.all()
+    model_form = forms.VirtualDiskForm
+    filterset = filtersets.VirtualMachineFilterSet
+    table = tables.VirtualMachineTable
+    default_return_url = 'virtualization:virtualmachine_list'
+
+    def get_required_permission(self):
+        return f'virtualization.add_virtualdisk'

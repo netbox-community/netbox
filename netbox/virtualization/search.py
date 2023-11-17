@@ -56,3 +56,13 @@ class VMInterfaceIndex(SearchIndex):
         ('mtu', 2000),
     )
     display_attrs = ('virtual_machine', 'description')
+
+
+@register_search
+class VirtualDiskIndex(SearchIndex):
+    model = models.VirtualDisk
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )
+    display_attrs = ('virtual_machine', 'description')

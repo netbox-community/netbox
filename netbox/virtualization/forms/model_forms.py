@@ -22,6 +22,7 @@ __all__ = (
     'ClusterGroupForm',
     'ClusterRemoveDevicesForm',
     'ClusterTypeForm',
+    'VirtualDiskForm',
     'VirtualMachineForm',
     'VMInterfaceForm',
 )
@@ -240,6 +241,11 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
         if self.instance.pk:
 
+            # Disable the disk field if one or more VirtualDisks have been created
+            if self.instance.virtualdisks.exists():
+                self.fields['disk'].widget.attrs['disabled'] = True
+                self.fields['disk'].help_text = _("Disk size is managed via the attachment of virtual disks.")
+
             # Compile list of choices for primary IPv4 and IPv6 addresses
             for family in [4, 6]:
                 ip_choices = [(None, '---------')]
@@ -276,12 +282,26 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
+#
+# Virtual machine components
+#
+
+class VMComponentForm(NetBoxModelForm):
     virtual_machine = DynamicModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         selector=True
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable reassignment of VirtualMachine when editing an existing instance
+        if self.instance.pk:
+            self.fields['virtual_machine'].disabled = True
+
+
+class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
@@ -348,9 +368,15 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'mode': HTMXSelect(),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # Disable reassignment of VirtualMachine when editing an existing instance
-        if self.instance.pk:
-            self.fields['virtual_machine'].disabled = True
+class VirtualDiskForm(VMComponentForm):
+
+    fieldsets = (
+        (_('Disk'), ('virtual_machine', 'name', 'size', 'description', 'tags')),
+    )
+
+    class Meta:
+        model = VirtualDisk
+        fields = [
+            'virtual_machine', 'name', 'size', 'description', 'tags',
+        ]
