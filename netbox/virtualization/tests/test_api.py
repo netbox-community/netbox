@@ -3,6 +3,7 @@ from rest_framework import status
 
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Site
+from extras.models import ConfigTemplate
 from ipam.models import VLAN, VRF
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.choices import *
@@ -227,6 +228,22 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
 
         response = self.client.post(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_render_config(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for virtual machine {{ virtualmachine.name }}'
+        )
+
+        vm = VirtualMachine.objects.first()
+        vm.config_template = configtemplate
+        vm.save()
+
+        self.add_permissions('virtualization.add_virtualmachine')
+        url = reverse('virtualization-api:virtualmachine-detail', kwargs={'pk': vm.pk}) + 'render-config/'
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], f'Config for virtual machine {vm.name}')
 
 
 class VMInterfaceTest(APIViewTestCases.APIViewTestCase):

@@ -6,6 +6,7 @@ from rest_framework import status
 from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
+from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
@@ -1264,6 +1265,22 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         response = self.client.post(url, data, format='json', **self.header)
 
         self.assertHttpStatus(response, status.HTTP_400_BAD_REQUEST)
+
+    def test_render_config(self):
+        configtemplate = ConfigTemplate.objects.create(
+            name='Config Template 1',
+            template_code='Config for device {{ device.name }}'
+        )
+
+        device = Device.objects.first()
+        device.config_template = configtemplate
+        device.save()
+
+        self.add_permissions('dcim.add_device')
+        url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
+        response = self.client.post(url, {}, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(response.data['content'], f'Config for device {device.name}')
 
 
 class ModuleTest(APIViewTestCases.APIViewTestCase):

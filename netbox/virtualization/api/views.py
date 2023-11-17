@@ -1,7 +1,7 @@
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.mixins import ConfigContextQuerySetMixin
+from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
@@ -53,9 +53,9 @@ class ClusterViewSet(NetBoxModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
-        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
+        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'config_template', 'tags'
     )
     filterset_class = filtersets.VirtualMachineFilterSet
 
