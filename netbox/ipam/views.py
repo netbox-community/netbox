@@ -220,7 +220,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
-        permission='ipam.view_asns',
+        permission='ipam.view_asn',
         weight=500
     )
 

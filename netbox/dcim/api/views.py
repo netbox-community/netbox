@@ -3,10 +3,8 @@ from django.shortcuts import get_object_or_404
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.decorators import action
-from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.status import HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ViewSet
 
 from circuits.models import Circuit
@@ -14,12 +12,11 @@ from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
-from extras.api.mixins import ConfigContextQuerySetMixin, ConfigTemplateRenderMixin
+from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
-from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
@@ -390,7 +387,7 @@ class PlatformViewSet(NetBoxModelViewSet):
 class DeviceViewSet(
     SequentialBulkCreatesMixin,
     ConfigContextQuerySetMixin,
-    ConfigTemplateRenderMixin,
+    RenderConfigMixin,
     NetBoxModelViewSet
 ):
     queryset = Device.objects.prefetch_related(
@@ -419,23 +416,6 @@ class DeviceViewSet(
             return serializers.DeviceSerializer
 
         return serializers.DeviceWithConfigContextSerializer
-
-    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
-    def render_config(self, request, pk):
-        """
-        Resolve and render the preferred ConfigTemplate for this Device.
-        """
-        device = self.get_object()
-        configtemplate = device.get_config_template()
-        if not configtemplate:
-            return Response({'error': 'No config template found for this device.'}, status=HTTP_400_BAD_REQUEST)
-
-        # Compile context data
-        context_data = device.get_config_context()
-        context_data.update(request.data)
-        context_data.update({'device': device})
-
-        return self.render_configtemplate(request, configtemplate, context_data)
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):

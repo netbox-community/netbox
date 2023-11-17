@@ -1,5 +1,3 @@
-from django.db.models import Q
-from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
 from netbox.registry import registry
@@ -29,29 +27,6 @@ def image_upload(instance, filename):
         filename = instance.name
 
     return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
-
-
-@deconstructible
-class FeatureQuery:
-    """
-    Helper class that delays evaluation of the registry contents for the functionality store
-    until it has been populated.
-    """
-    def __init__(self, feature):
-        self.feature = feature
-
-    def __call__(self):
-        return self.get_query()
-
-    def get_query(self):
-        """
-        Given an extras feature, return a Q object for content type lookup
-        """
-        query = Q()
-        for app_label, models in registry['model_features'][self.feature].items():
-            query |= Q(app_label=app_label, model__in=models)
-
-        return query
 
 
 def register_features(model, features):

@@ -21,6 +21,24 @@ class ContentTypeManager(ContentTypeManager_):
             q |= Q(app_label=app_label, model__in=models)
         return self.get_queryset().filter(q)
 
+    def with_feature(self, feature):
+        """
+        Return the ContentTypes only for models which are registered as supporting the specified feature. For example,
+        we can find all ContentTypes for models which support webhooks with
+
+            ContentType.objects.with_feature('webhooks')
+        """
+        if feature not in registry['model_features']:
+            raise KeyError(
+                f"{feature} is not a registered model feature! Valid features are: {registry['model_features'].keys()}"
+            )
+
+        q = Q()
+        for app_label, models in registry['model_features'][feature].items():
+            q |= Q(app_label=app_label, model__in=models)
+
+        return self.get_queryset().filter(q)
+
 
 class ContentType(ContentType_):
     """

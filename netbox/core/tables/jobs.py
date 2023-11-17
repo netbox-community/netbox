@@ -19,7 +19,8 @@ class JobTable(NetBoxTable):
     )
     object = tables.Column(
         verbose_name=_('Object'),
-        linkify=True
+        linkify=True,
+        orderable=False
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),

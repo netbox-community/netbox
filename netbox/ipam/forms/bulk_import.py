@@ -507,10 +507,28 @@ class ServiceImportForm(NetBoxModelImportForm):
         choices=ServiceProtocolChoices,
         help_text=_('IP protocol')
     )
+    ipaddresses = CSVModelMultipleChoiceField(
+        queryset=IPAddress.objects.all(),
+        required=False,
+        to_field_name='address',
+        help_text=_('IP Address'),
+    )
 
     class Meta:
         model = Service
-        fields = ('device', 'virtual_machine', 'name', 'protocol', 'ports', 'description', 'comments', 'tags')
+        fields = (
+            'device', 'virtual_machine', 'ipaddresses', 'name', 'protocol', 'ports', 'description', 'comments', 'tags',
+        )
+
+    def clean_ipaddresses(self):
+        parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
+        for ip_address in self.cleaned_data['ipaddresses']:
+            if not ip_address.assigned_object or getattr(ip_address.assigned_object, 'parent_object') != parent:
+                raise forms.ValidationError(
+                    _("{ip} is not assigned to this device/VM.").format(ip=ip_address)
+                )
+
+        return self.cleaned_data['ipaddresses']
 
 
 class L2VPNImportForm(NetBoxModelImportForm):

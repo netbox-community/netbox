@@ -11,6 +11,7 @@ class DataSourceIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('type', 'status', 'description')
 
 
 @register_search

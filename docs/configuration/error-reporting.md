@@ -18,6 +18,9 @@ Default: False
 
 Set to True to enable automatic error reporting via [Sentry](https://sentry.io/).
 
+!!! note
+    The `sentry-sdk` Python package is required to enable Sentry integration.
+
 ---
 
 ## SENTRY_SAMPLE_RATE

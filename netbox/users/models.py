@@ -3,7 +3,6 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import Group, GroupManager, User, UserManager
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
@@ -15,6 +14,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from netaddr import IPNetwork
 
+from core.models import ContentType
 from ipam.fields import IPNetworkField
 from netbox.config import get_config
 from utilities.querysets import RestrictedQuerySet
@@ -353,7 +353,7 @@ class ObjectPermission(models.Model):
         default=True
     )
     object_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         related_name='object_permissions'
     )

@@ -2,7 +2,6 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
@@ -71,7 +70,7 @@ class StagedChange(ChangeLoggedModel):
         choices=ChangeActionChoices
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='+'
     )
