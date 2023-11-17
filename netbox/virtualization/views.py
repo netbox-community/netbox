@@ -579,7 +579,7 @@ class VMInterfaceBulkDeleteView(generic.BulkDeleteView):
 
 
 #
-# Virtual Disk
+# Virtual disks
 #
 
 class VirtualDiskListView(generic.ObjectListView):

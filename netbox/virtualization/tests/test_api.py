@@ -4,7 +4,7 @@ from rest_framework import status
 from dcim.choices import InterfaceModeChoices
 from dcim.models import Site
 from ipam.models import VLAN, VRF
-from utilities.testing import APITestCase, APIViewTestCases, create_test_device
+from utilities.testing import APITestCase, APIViewTestCases, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -239,10 +239,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        clustertype = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
-        cluster = Cluster.objects.create(name='Test Cluster 1', type=clustertype)
-        virtualmachine = VirtualMachine.objects.create(cluster=cluster, name='Test VM 1')
+        virtualmachine = create_test_virtualmachine('Virtual Machine 1')
 
         interfaces = (
             VMInterface(virtual_machine=virtualmachine, name='Interface 1'),
@@ -331,14 +328,12 @@ class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        clustertype = ClusterType.objects.create(name='Test Cluster Type 1', slug='test-cluster-type-1')
-        cluster = Cluster.objects.create(name='Test Cluster 1', type=clustertype)
-        virtualmachine = VirtualMachine.objects.create(cluster=cluster, name='Test VM 1')
+        virtualmachine = create_test_virtualmachine('Virtual Machine 1')
 
         disks = (
-            VirtualDisk(virtual_machine=virtualmachine, name='Disk 1', size=123),
-            VirtualDisk(virtual_machine=virtualmachine, name='Disk 2', size=456),
-            VirtualDisk(virtual_machine=virtualmachine, name='Disk 3', size=789),
+            VirtualDisk(virtual_machine=virtualmachine, name='Disk 1', size=10),
+            VirtualDisk(virtual_machine=virtualmachine, name='Disk 2', size=20),
+            VirtualDisk(virtual_machine=virtualmachine, name='Disk 3', size=30),
         )
         VirtualDisk.objects.bulk_create(disks)
 
@@ -346,16 +341,16 @@ class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
             {
                 'virtual_machine': virtualmachine.pk,
                 'name': 'Disk 4',
-                'size': 111,
+                'size': 10,
             },
             {
                 'virtual_machine': virtualmachine.pk,
                 'name': 'Disk 5',
-                'size': 222,
+                'size': 20,
             },
             {
                 'virtual_machine': virtualmachine.pk,
                 'name': 'Disk 6',
-                'size': 333,
+                'size': 30,
             },
         ]

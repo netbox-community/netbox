@@ -105,10 +105,10 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
         )
 
+
 #
 # VM components
 #
-
 
 class VMInterfaceTable(BaseInterfaceTable):
     virtual_machine = tables.Column(

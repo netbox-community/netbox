@@ -524,34 +524,29 @@ class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-
-        cluster_types = (
-            ClusterType(name='Cluster Type 1', slug='cluster-type-1'),
-            ClusterType(name='Cluster Type 2', slug='cluster-type-2'),
-            ClusterType(name='Cluster Type 3', slug='cluster-type-3'),
-        )
-        ClusterType.objects.bulk_create(cluster_types)
-
-        clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0]),
-            Cluster(name='Cluster 2', type=cluster_types[1]),
-            Cluster(name='Cluster 3', type=cluster_types[2]),
-        )
-        Cluster.objects.bulk_create(clusters)
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=cluster_type)
 
         vms = (
-            VirtualMachine(name='Virtual Machine 1', cluster=clusters[0]),
-            VirtualMachine(name='Virtual Machine 2', cluster=clusters[1]),
-            VirtualMachine(name='Virtual Machine 3', cluster=clusters[2]),
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 3', cluster=cluster),
         )
         VirtualMachine.objects.bulk_create(vms)
 
         disks = (
-            VirtualDisk(virtual_machine=vms[0], name='Disk 1', size=1,),
-            VirtualDisk(virtual_machine=vms[1], name='Disk 2', size=2,),
-            VirtualDisk(virtual_machine=vms[2], name='Disk 3', size=3,),
+            VirtualDisk(virtual_machine=vms[0], name='Disk 1', size=1, description='A'),
+            VirtualDisk(virtual_machine=vms[1], name='Disk 2', size=2, description='B'),
+            VirtualDisk(virtual_machine=vms[2], name='Disk 3', size=3, description='C'),
         )
         VirtualDisk.objects.bulk_create(disks)
+
+    def test_virtual_machine(self):
+        vms = VirtualMachine.objects.all()[:2]
+        params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_machine': [vms[0].name, vms[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_name(self):
         params = {'name': ['Disk 1', 'Disk 2']}
@@ -561,9 +556,6 @@ class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'size': [1, 2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_virtual_machine(self):
-        vms = VirtualMachine.objects.all()[:2]
-        params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'virtual_machine': [vms[0].name, vms[1].name]}
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

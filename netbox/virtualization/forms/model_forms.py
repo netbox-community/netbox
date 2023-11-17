@@ -281,12 +281,26 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
             self.fields['primary_ip6'].widget.attrs['readonly'] = True
 
 
-class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
+#
+# Virtual machine components
+#
+
+class VMComponentForm(NetBoxModelForm):
     virtual_machine = DynamicModelChoiceField(
         label=_('Virtual machine'),
         queryset=VirtualMachine.objects.all(),
         selector=True
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Disable reassignment of VirtualMachine when editing an existing instance
+        if self.instance.pk:
+            self.fields['virtual_machine'].disabled = True
+
+
+class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
     parent = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
@@ -353,23 +367,11 @@ class VMInterfaceForm(InterfaceCommonForm, NetBoxModelForm):
             'mode': HTMXSelect(),
         }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-        # Disable reassignment of VirtualMachine when editing an existing instance
-        if self.instance.pk:
-            self.fields['virtual_machine'].disabled = True
-
-
-class VirtualDiskForm(NetBoxModelForm):
-    virtual_machine = DynamicModelChoiceField(
-        label=_('Virtual machine'),
-        queryset=VirtualMachine.objects.all(),
-        selector=True
-    )
+class VirtualDiskForm(VMComponentForm):
 
     fieldsets = (
-        (None, ('virtual_machine', 'name', 'size', 'description', 'tags')),
+        (_('Disk'), ('virtual_machine', 'name', 'size', 'description', 'tags')),
     )
 
     class Meta:
@@ -377,10 +379,3 @@ class VirtualDiskForm(NetBoxModelForm):
         fields = [
             'virtual_machine', 'name', 'size', 'description', 'tags',
         ]
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Disable reassignment of VirtualMachine when editing an existing instance
-        if self.instance.pk:
-            self.fields['virtual_machine'].disabled = True

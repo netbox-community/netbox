@@ -6,7 +6,7 @@ from .models import VirtualDisk, VirtualMachine
 
 
 @receiver((post_delete, post_save), sender=VirtualDisk)
-def update_circuit(instance, **kwargs):
+def update_virtualmachine_disk(instance, **kwargs):
     """
     When a VirtualDisk has been modified, update the aggregate disk_size value of its VM.
     """

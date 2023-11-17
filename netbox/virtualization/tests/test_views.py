@@ -5,7 +5,7 @@ from netaddr import EUI
 from dcim.choices import InterfaceModeChoices
 from dcim.models import DeviceRole, Platform, Site
 from ipam.models import VLAN, VRF
-from utilities.testing import ViewTestCases, create_tags, create_test_device
+from utilities.testing import ViewTestCases, create_tags, create_test_device, create_test_virtualmachine
 from virtualization.choices import *
 from virtualization.models import *
 
@@ -411,53 +411,46 @@ class VirtualDiskTestCase(ViewTestCases.DeviceComponentViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
-        site = Site.objects.create(name='Site 1', slug='site-1')
-        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
-        clustertype = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
-        cluster = Cluster.objects.create(name='Cluster 1', type=clustertype, site=site)
-        virtualmachines = (
-            VirtualMachine(name='Virtual Machine 1', site=site, cluster=cluster, role=role),
-            VirtualMachine(name='Virtual Machine 2', site=site, cluster=cluster, role=role),
-        )
-        VirtualMachine.objects.bulk_create(virtualmachines)
+        virtualmachine = create_test_virtualmachine('Virtual Machine 1')
 
         disks = VirtualDisk.objects.bulk_create([
-            VirtualDisk(virtual_machine=virtualmachines[0], name='Disk 1', size=123),
-            VirtualDisk(virtual_machine=virtualmachines[0], name='Disk 2', size=456),
-            VirtualDisk(virtual_machine=virtualmachines[0], name='Disk 3', size=789),
+            VirtualDisk(virtual_machine=virtualmachine, name='Virtual Disk 1', size=10),
+            VirtualDisk(virtual_machine=virtualmachine, name='Virtual Disk 2', size=10),
+            VirtualDisk(virtual_machine=virtualmachine, name='Virtual Disk 3', size=10),
         ])
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
         cls.form_data = {
-            'virtual_machine': virtualmachines[0].pk,
-            'name': 'Disk X',
-            'size': 123,
+            'virtual_machine': virtualmachine.pk,
+            'name': 'Virtual Disk X',
+            'size': 20,
+            'description': 'New description',
             'tags': [t.pk for t in tags],
         }
 
         cls.bulk_create_data = {
-            'virtual_machine': virtualmachines[1].pk,
-            'name': 'Disk [4-6]',
-            'size': 456,
+            'virtual_machine': virtualmachine.pk,
+            'name': 'Virtual Disk [4-6]',
+            'size': 10,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            f"virtual_machine,name,size",
-            f"Virtual Machine 2,Disk 4,111",
-            f"Virtual Machine 2,Disk 5,222",
-            f"Virtual Machine 2,Disk 6,333",
+            f"virtual_machine,name,size,description",
+            f"Virtual Machine 1,Disk 4,20,Fourth",
+            f"Virtual Machine 1,Disk 5,20,Fifth",
+            f"Virtual Machine 1,Disk 6,20,Sixth",
         )
 
         cls.csv_update_data = (
             f"id,name,size",
-            f"{disks[0].pk},Disk 7,777",
-            f"{disks[1].pk},Disk 8,888",
-            f"{disks[2].pk},Disk 9,999",
+            f"{disks[0].pk},disk1,20",
+            f"{disks[1].pk},disk2,20",
+            f"{disks[2].pk},disk3,20",
         )
 
         cls.bulk_edit_data = {
-            'size': 444,
+            'size': 30,
+            'description': 'New description',
         }
