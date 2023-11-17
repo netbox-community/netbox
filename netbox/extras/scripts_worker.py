@@ -3,6 +3,8 @@ import logging
 import requests
 from core.models import Job
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import get_user_model
 from django_rq import job
 from jinja2.exceptions import TemplateError
 from utilities.rqworker import get_workers_for_queue
@@ -30,6 +32,13 @@ def process_script(event_rule, model_name, event, data, timestamp, username, req
     try:
         module = ScriptModule.objects.get(pk=module_id)
     except ScriptModule.DoesNotExist:
+        logger.warning(f"event run script - script module_id: {module_id} script_name: {script_name}")
+        return
+
+    try:
+        user = get_user_model().objects.get(username=username)
+    except ObjectDoesNotExist:
+        logger.warning(f"event run script - user does not exist username: {username} script_name: {script_name}")
         return
 
     script = module.scripts[script_name]()
@@ -38,7 +47,7 @@ def process_script(event_rule, model_name, event, data, timestamp, username, req
         run_script,
         instance=module,
         name=script.class_name,
-        user=None,
+        user=user,
         schedule_at=None,
         interval=None,
         data=event_rule.action_data,
