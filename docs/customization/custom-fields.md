@@ -40,13 +40,21 @@ Related custom fields can be grouped together within the UI by assigning each th
 
 This parameter has no effect on the API representation of custom field data.
 
-### Visibility
+### Visibility & Editing
 
-When creating a custom field, there are three options for UI visibility. These control how and whether the custom field is displayed within the NetBox UI.
+!!! info "This feature was improved in NetBox v3.7."
 
-* **Read/write** (default): The custom field is included when viewing and editing objects.
-* **Read-only**: The custom field is displayed when viewing an object, but it cannot be edited via the UI. (It will appear in the form as a read-only field.)
+When creating a custom field, users can control the conditions under which it may be displayed and edited within the NetBox user interface. The following choices are available for controlling the display of a custom field on an object:
+
+* **Always** (default): The custom field is included when viewing an object.
+* **If Set**: The custom field is included only if a value has been defined for the object.
 * **Hidden**: The custom field will never be displayed within the UI. This option is recommended for fields which are not intended for use by human users.
+
+Additionally, the following options are available for controlling whether custom field values can be altered within the NetBox UI:
+
+* **Yes** (default): The custom field's value may be modified when editing an object.
+* **No**: The custom field is displayed for reference when editing an object, but its value may not be modified.
+* **Hidden**: The custom field is not displayed when editing an object.
 
 Note that this setting has no impact on the REST or GraphQL APIs: Custom field data will always be available via either API.
 

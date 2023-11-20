@@ -40,7 +40,8 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 required=True,
                 weight=100,
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_LOOSE,
-                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE
+                ui_visible=CustomFieldUIVisibleChoices.ALWAYS,
+                ui_editable=CustomFieldUIEditableChoices.YES
             ),
             CustomField(
                 name='Custom Field 2',
@@ -48,7 +49,8 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 required=False,
                 weight=200,
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_EXACT,
-                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY
+                ui_visible=CustomFieldUIVisibleChoices.IF_SET,
+                ui_editable=CustomFieldUIEditableChoices.NO
             ),
             CustomField(
                 name='Custom Field 3',
@@ -56,7 +58,8 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 required=False,
                 weight=300,
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
-                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
+                ui_visible=CustomFieldUIVisibleChoices.HIDDEN,
+                ui_editable=CustomFieldUIEditableChoices.HIDDEN
             ),
             CustomField(
                 name='Custom Field 4',
@@ -64,7 +67,8 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 required=False,
                 weight=400,
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
-                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN,
+                ui_visible=CustomFieldUIVisibleChoices.HIDDEN,
+                ui_editable=CustomFieldUIEditableChoices.HIDDEN,
                 choice_set=choice_sets[0]
             ),
             CustomField(
@@ -73,7 +77,8 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 required=False,
                 weight=500,
                 filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
-                ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN,
+                ui_visible=CustomFieldUIVisibleChoices.HIDDEN,
+                ui_editable=CustomFieldUIEditableChoices.HIDDEN,
                 choice_set=choice_sets[1]
             ),
         )
@@ -106,8 +111,12 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
         params = {'filter_logic': CustomFieldFilterLogicChoices.FILTER_LOOSE}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
-    def test_ui_visibility(self):
-        params = {'ui_visibility': CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE}
+    def test_ui_visible(self):
+        params = {'ui_visible': CustomFieldUIVisibleChoices.ALWAYS}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_ui_editable(self):
+        params = {'ui_editable': CustomFieldUIEditableChoices.YES}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_choice_set(self):
