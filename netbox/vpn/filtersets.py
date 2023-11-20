@@ -6,12 +6,17 @@ from dcim.models import Interface
 from ipam.models import IPAddress
 from netbox.filtersets import NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
+from utilities.filters import ContentTypeFilter, MultiValueNumberFilter
 from virtualization.models import VMInterface
 from .choices import *
 from .models import *
 
 __all__ = (
+    'IKEPolicyFilterSet',
+    'IKEProposalFilterSet',
+    'IPSecPolicyFilterSet',
     'IPSecProfileFilterSet',
+    'IPSecProposalFilterSet',
     'TunnelFilterSet',
     'TunnelTerminationFilterSet',
 )
@@ -37,7 +42,7 @@ class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Tunnel
-        fields = ['id', 'name', 'preshared_key', 'tunnel_id']
+        fields = ['id', 'name', 'tunnel_id']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -97,35 +102,129 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
         fields = ['id']
 
 
-class IPSecProfileFilterSet(NetBoxModelFilterSet):
-    protocol = django_filters.MultipleChoiceFilter(
-        choices=IPSecProtocolChoices
+class IKEProposalFilterSet(NetBoxModelFilterSet):
+    authentication_method = django_filters.MultipleChoiceFilter(
+        choices=AuthenticationMethodChoices
     )
-    ike_version = django_filters.MultipleChoiceFilter(
-        choices=IKEVersionChoices
+    encryption_algorithm = django_filters.MultipleChoiceFilter(
+        choices=EncryptionAlgorithmChoices
     )
-    phase1_encryption = django_filters.MultipleChoiceFilter(
-        choices=EncryptionChoices
+    authentication_algorithm = django_filters.MultipleChoiceFilter(
+        choices=AuthenticationAlgorithmChoices
     )
-    phase1_authentication = django_filters.MultipleChoiceFilter(
-        choices=AuthenticationChoices
-    )
-    phase1_group = django_filters.MultipleChoiceFilter(
-        choices=DHGroupChoices
-    )
-    phase2_encryption = django_filters.MultipleChoiceFilter(
-        choices=EncryptionChoices
-    )
-    phase2_authentication = django_filters.MultipleChoiceFilter(
-        choices=AuthenticationChoices
-    )
-    phase2_group = django_filters.MultipleChoiceFilter(
+    group = django_filters.MultipleChoiceFilter(
         choices=DHGroupChoices
     )
 
     class Meta:
+        model = IKEProposal
+        fields = ['id', 'name', 'sa_lifetime']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class IKEPolicyFilterSet(NetBoxModelFilterSet):
+    version = django_filters.MultipleChoiceFilter(
+        choices=IKEVersionChoices
+    )
+    mode = django_filters.MultipleChoiceFilter(
+        choices=IKEModeChoices
+    )
+    proposal_id = MultiValueNumberFilter(
+        field_name='proposals__id'
+    )
+    proposals = ContentTypeFilter()
+
+    class Meta:
+        model = IKEPolicy
+        fields = ['id', 'name']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class IPSecProposalFilterSet(NetBoxModelFilterSet):
+    encryption_algorithm = django_filters.MultipleChoiceFilter(
+        choices=EncryptionAlgorithmChoices
+    )
+    authentication_algorithm = django_filters.MultipleChoiceFilter(
+        choices=AuthenticationAlgorithmChoices
+    )
+
+    class Meta:
+        model = IPSecProposal
+        fields = ['id', 'name', 'sa_lifetime_seconds', 'sa_lifetime_data']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class IPSecPolicyFilterSet(NetBoxModelFilterSet):
+    pfs_group = django_filters.MultipleChoiceFilter(
+        choices=DHGroupChoices
+    )
+    proposal_id = MultiValueNumberFilter(
+        field_name='proposals__id'
+    )
+    proposals = ContentTypeFilter()
+
+    class Meta:
+        model = IPSecPolicy
+        fields = ['id', 'name']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class IPSecProfileFilterSet(NetBoxModelFilterSet):
+    mode = django_filters.MultipleChoiceFilter(
+        choices=IPSecModeChoices
+    )
+    ike_policy_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=IKEPolicy.objects.all(),
+        label=_('IKE policy (ID)'),
+    )
+    ike_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policy__name',
+        queryset=IKEPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IKE policy (name)'),
+    )
+    ipsec_policy_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=IPSecPolicy.objects.all(),
+        label=_('IPSec policy (ID)'),
+    )
+    ipsec_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipsec_policy__name',
+        queryset=IPSecPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IPSec policy (name)'),
+    )
+
+    class Meta:
         model = IPSecProfile
-        fields = ['id', 'name', 'phase1_sa_lifetime', 'phase2_sa_lifetime', 'phase2_sa_lifetime_data']
+        fields = ['id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():

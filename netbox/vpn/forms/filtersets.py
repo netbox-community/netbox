@@ -8,7 +8,11 @@ from vpn.choices import *
 from vpn.models import *
 
 __all__ = (
+    'IKEPolicyFilterForm',
+    'IKEProposalFilterForm',
+    'IPSecPolicyFilterForm',
     'IPSecProfileFilterForm',
+    'IPSecProposalFilterForm',
     'TunnelFilterForm',
     'TunnelTerminationFilterForm',
 )
@@ -19,7 +23,7 @@ class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Tunnel'), ('status', 'encapsulation', 'tunnel_id')),
-        (_('Security'), ('ipsec_profile_id', 'preshared_key')),
+        (_('Security'), ('ipsec_profile_id',)),
         (_('Tenancy'), ('tenant_group_id', 'tenant_id')),
     )
     status = forms.MultipleChoiceField(
@@ -36,10 +40,6 @@ class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         queryset=IPSecProfile.objects.all(),
         required=False,
         label=_('IPSec profile')
-    )
-    preshared_key = forms.CharField(
-        required=False,
-        label=_('Pre-shared key')
     )
     tunnel_id = forms.IntegerField(
         required=False,
@@ -67,6 +67,97 @@ class TunnelTerminationFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
 
+class IKEProposalFilterForm(NetBoxModelFilterSetForm):
+    model = IKEProposal
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Parameters'), ('authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group')),
+    )
+    authentication_method = forms.MultipleChoiceField(
+        label=_('Authentication method'),
+        choices=AuthenticationMethodChoices,
+        required=False
+    )
+    encryption_algorithm = forms.MultipleChoiceField(
+        label=_('Encryption algorithm'),
+        choices=EncryptionAlgorithmChoices,
+        required=False
+    )
+    authentication_algorithm = forms.MultipleChoiceField(
+        label=_('Authentication algorithm'),
+        choices=AuthenticationAlgorithmChoices,
+        required=False
+    )
+    group = forms.MultipleChoiceField(
+        label=_('Group'),
+        choices=DHGroupChoices,
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
+class IKEPolicyFilterForm(NetBoxModelFilterSetForm):
+    model = IKEPolicy
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Parameters'), ('version', 'mode', 'proposal_id')),
+    )
+    version = forms.MultipleChoiceField(
+        label=_('IKE version'),
+        choices=IKEVersionChoices,
+        required=False
+    )
+    mode = forms.MultipleChoiceField(
+        label=_('Mode'),
+        choices=IKEModeChoices,
+        required=False
+    )
+    proposal_id = DynamicModelMultipleChoiceField(
+        queryset=IKEProposal.objects.all(),
+        required=False,
+        label=_('Proposal')
+    )
+    tag = TagFilterField(model)
+
+
+class IPSecProposalFilterForm(NetBoxModelFilterSetForm):
+    model = IPSecProposal
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Parameters'), ('encryption_algorithm', 'authentication_algorithm')),
+    )
+    encryption_algorithm = forms.MultipleChoiceField(
+        label=_('Encryption algorithm'),
+        choices=EncryptionAlgorithmChoices,
+        required=False
+    )
+    authentication_algorithm = forms.MultipleChoiceField(
+        label=_('Authentication algorithm'),
+        choices=AuthenticationAlgorithmChoices,
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
+class IPSecPolicyFilterForm(NetBoxModelFilterSetForm):
+    model = IPSecPolicy
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Parameters'), ('proposal', 'pfs_group')),
+    )
+    proposal_id = DynamicModelMultipleChoiceField(
+        queryset=IKEProposal.objects.all(),
+        required=False,
+        label=_('Proposal')
+    )
+    pfs_group = forms.MultipleChoiceField(
+        label=_('Mode'),
+        choices=DHGroupChoices,
+        required=False
+    )
+    tag = TagFilterField(model)
+
+
 class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
@@ -80,64 +171,19 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
             'phase2_sa_lifetime_data',
         )),
     )
-    protocol = forms.MultipleChoiceField(
-        label=_('Protocol'),
-        choices=IPSecProtocolChoices,
+    mode = forms.MultipleChoiceField(
+        label=_('Mode'),
+        choices=IPSecModeChoices,
         required=False
     )
-    ike_version = forms.MultipleChoiceField(
-        label=_('IKE version'),
-        choices=IKEVersionChoices,
-        required=False
-    )
-    ipsec_profile_id = DynamicModelMultipleChoiceField(
-        queryset=IPSecProfile.objects.all(),
+    ike_policy_id = DynamicModelMultipleChoiceField(
+        queryset=IKEPolicy.objects.all(),
         required=False,
-        label=_('IPSec profile')
+        label=_('IKE policy')
     )
-    phase1_encryption = forms.MultipleChoiceField(
-        label=_('Encryption'),
-        choices=EncryptionChoices,
-        required=False
-    )
-    phase1_authentication = forms.MultipleChoiceField(
-        label=_('Authentication'),
-        choices=AuthenticationChoices,
-        required=False
-    )
-    phase1_group = forms.MultipleChoiceField(
-        label=_('Group'),
-        choices=DHGroupChoices,
-        required=False
-    )
-    phase1_sa_lifetime = forms.IntegerField(
+    ipsec_policy_id = DynamicModelMultipleChoiceField(
+        queryset=IPSecPolicy.objects.all(),
         required=False,
-        min_value=0,
-        label=_('SA lifetime')
-    )
-    phase2_encryption = forms.MultipleChoiceField(
-        label=_('Encryption'),
-        choices=EncryptionChoices,
-        required=False
-    )
-    phase2_authentication = forms.MultipleChoiceField(
-        label=_('Authentication'),
-        choices=AuthenticationChoices,
-        required=False
-    )
-    phase2_group = forms.MultipleChoiceField(
-        label=_('Group'),
-        choices=DHGroupChoices,
-        required=False
-    )
-    phase2_sa_lifetime = forms.IntegerField(
-        required=False,
-        min_value=0,
-        label=_('SA lifetime')
-    )
-    phase2_sa_lifetime_data = forms.IntegerField(
-        required=False,
-        min_value=0,
-        label=_('SA lifetime (data)')
+        label=_('IPSec policy')
     )
     tag = TagFilterField(model)

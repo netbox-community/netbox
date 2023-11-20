@@ -113,6 +113,186 @@ class TunnelTerminationBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# IKE proposals
+#
+
+class IKEProposalListView(generic.ObjectListView):
+    queryset = IKEProposal.objects.all()
+    filterset = filtersets.IKEProposalFilterSet
+    filterset_form = forms.IKEProposalFilterForm
+    table = tables.IKEProposalTable
+
+
+@register_model_view(IKEProposal)
+class IKEProposalView(generic.ObjectView):
+    queryset = IKEProposal.objects.all()
+
+
+@register_model_view(IKEProposal, 'edit')
+class IKEProposalEditView(generic.ObjectEditView):
+    queryset = IKEProposal.objects.all()
+    form = forms.IKEProposalForm
+
+
+@register_model_view(IKEProposal, 'delete')
+class IKEProposalDeleteView(generic.ObjectDeleteView):
+    queryset = IKEProposal.objects.all()
+
+
+class IKEProposalBulkImportView(generic.BulkImportView):
+    queryset = IKEProposal.objects.all()
+    model_form = forms.IKEProposalImportForm
+
+
+class IKEProposalBulkEditView(generic.BulkEditView):
+    queryset = IKEProposal.objects.all()
+    filterset = filtersets.IKEProposalFilterSet
+    table = tables.IKEProposalTable
+    form = forms.IKEProposalBulkEditForm
+
+
+class IKEProposalBulkDeleteView(generic.BulkDeleteView):
+    queryset = IKEProposal.objects.all()
+    filterset = filtersets.IKEProposalFilterSet
+    table = tables.IKEProposalTable
+
+
+#
+# IKE policies
+#
+
+class IKEPolicyListView(generic.ObjectListView):
+    queryset = IKEPolicy.objects.all()
+    filterset = filtersets.IKEPolicyFilterSet
+    filterset_form = forms.IKEPolicyFilterForm
+    table = tables.IKEPolicyTable
+
+
+@register_model_view(IKEPolicy)
+class IKEPolicyView(generic.ObjectView):
+    queryset = IKEPolicy.objects.all()
+
+
+@register_model_view(IKEPolicy, 'edit')
+class IKEPolicyEditView(generic.ObjectEditView):
+    queryset = IKEPolicy.objects.all()
+    form = forms.IKEPolicyForm
+
+
+@register_model_view(IKEPolicy, 'delete')
+class IKEPolicyDeleteView(generic.ObjectDeleteView):
+    queryset = IKEPolicy.objects.all()
+
+
+class IKEPolicyBulkImportView(generic.BulkImportView):
+    queryset = IKEPolicy.objects.all()
+    model_form = forms.IKEPolicyImportForm
+
+
+class IKEPolicyBulkEditView(generic.BulkEditView):
+    queryset = IKEPolicy.objects.all()
+    filterset = filtersets.IKEPolicyFilterSet
+    table = tables.IKEPolicyTable
+    form = forms.IKEPolicyBulkEditForm
+
+
+class IKEPolicyBulkDeleteView(generic.BulkDeleteView):
+    queryset = IKEPolicy.objects.all()
+    filterset = filtersets.IKEPolicyFilterSet
+    table = tables.IKEPolicyTable
+
+
+#
+# IPSec proposals
+#
+
+class IPSecProposalListView(generic.ObjectListView):
+    queryset = IPSecProposal.objects.all()
+    filterset = filtersets.IPSecProposalFilterSet
+    filterset_form = forms.IPSecProposalFilterForm
+    table = tables.IPSecProposalTable
+
+
+@register_model_view(IPSecProposal)
+class IPSecProposalView(generic.ObjectView):
+    queryset = IPSecProposal.objects.all()
+
+
+@register_model_view(IPSecProposal, 'edit')
+class IPSecProposalEditView(generic.ObjectEditView):
+    queryset = IPSecProposal.objects.all()
+    form = forms.IPSecProposalForm
+
+
+@register_model_view(IPSecProposal, 'delete')
+class IPSecProposalDeleteView(generic.ObjectDeleteView):
+    queryset = IPSecProposal.objects.all()
+
+
+class IPSecProposalBulkImportView(generic.BulkImportView):
+    queryset = IPSecProposal.objects.all()
+    model_form = forms.IPSecProposalImportForm
+
+
+class IPSecProposalBulkEditView(generic.BulkEditView):
+    queryset = IPSecProposal.objects.all()
+    filterset = filtersets.IPSecProposalFilterSet
+    table = tables.IPSecProposalTable
+    form = forms.IPSecProposalBulkEditForm
+
+
+class IPSecProposalBulkDeleteView(generic.BulkDeleteView):
+    queryset = IPSecProposal.objects.all()
+    filterset = filtersets.IPSecProposalFilterSet
+    table = tables.IPSecProposalTable
+
+
+#
+# IPSec policies
+#
+
+class IPSecPolicyListView(generic.ObjectListView):
+    queryset = IPSecPolicy.objects.all()
+    filterset = filtersets.IPSecPolicyFilterSet
+    filterset_form = forms.IPSecPolicyFilterForm
+    table = tables.IPSecPolicyTable
+
+
+@register_model_view(IPSecPolicy)
+class IPSecPolicyView(generic.ObjectView):
+    queryset = IPSecPolicy.objects.all()
+
+
+@register_model_view(IPSecPolicy, 'edit')
+class IPSecPolicyEditView(generic.ObjectEditView):
+    queryset = IPSecPolicy.objects.all()
+    form = forms.IPSecPolicyForm
+
+
+@register_model_view(IPSecPolicy, 'delete')
+class IPSecPolicyDeleteView(generic.ObjectDeleteView):
+    queryset = IPSecPolicy.objects.all()
+
+
+class IPSecPolicyBulkImportView(generic.BulkImportView):
+    queryset = IPSecPolicy.objects.all()
+    model_form = forms.IPSecPolicyImportForm
+
+
+class IPSecPolicyBulkEditView(generic.BulkEditView):
+    queryset = IPSecPolicy.objects.all()
+    filterset = filtersets.IPSecPolicyFilterSet
+    table = tables.IPSecPolicyTable
+    form = forms.IPSecPolicyBulkEditForm
+
+
+class IPSecPolicyBulkDeleteView(generic.BulkDeleteView):
+    queryset = IPSecPolicy.objects.all()
+    filterset = filtersets.IPSecPolicyFilterSet
+    table = tables.IPSecPolicyTable
+
+
+#
 # IPSec profiles
 #
 

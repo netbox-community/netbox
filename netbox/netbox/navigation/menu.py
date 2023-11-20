@@ -216,6 +216,10 @@ VPN_MENU = Menu(
         MenuGroup(
             label=_('Security'),
             items=(
+                get_model_item('vpn', 'ikeproposal', _('IKE Proposals')),
+                get_model_item('vpn', 'ikepolicy', _('IKE Policies')),
+                get_model_item('vpn', 'ipsecproposal', _('IPSec Proposals')),
+                get_model_item('vpn', 'ipsecpolicy', _('IPSec Policies')),
                 get_model_item('vpn', 'ipsecprofile', _('IPSec Profiles')),
             ),
         ),

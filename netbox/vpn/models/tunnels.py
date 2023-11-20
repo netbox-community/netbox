@@ -45,10 +45,6 @@ class Tunnel(PrimaryModel):
         blank=True,
         null=True
     )
-    preshared_key = models.TextField(
-        verbose_name=_('pre-shared key'),
-        blank=True
-    )
     tunnel_id = models.PositiveBigIntegerField(
         verbose_name=_('tunnel ID'),
         blank=True,

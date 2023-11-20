@@ -9,7 +9,11 @@ from vpn.choices import *
 from vpn.models import *
 
 __all__ = (
+    'IKEPolicyBulkEditForm',
+    'IKEProposalBulkEditForm',
+    'IPSecPolicyBulkEditForm',
     'IPSecProfileBulkEditForm',
+    'IPSecProposalBulkEditForm',
     'TunnelBulkEditForm',
     'TunnelTerminationBulkEditForm',
 )
@@ -31,10 +35,6 @@ class TunnelBulkEditForm(NetBoxModelBulkEditForm):
         label=_('IPSec profile'),
         required=False
     )
-    preshared_key = forms.CharField(
-        label=_('Pre-shared key'),
-        required=False
-    )
     tenant = DynamicModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
@@ -54,11 +54,11 @@ class TunnelBulkEditForm(NetBoxModelBulkEditForm):
     model = Tunnel
     fieldsets = (
         (_('Tunnel'), ('status', 'encapsulation', 'tunnel_id', 'description')),
-        (_('Security'), ('ipsec_profile', 'preshared_key')),
+        (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant',)),
     )
     nullable_fields = (
-        'ipsec_profile', 'preshared_key', 'tunnel_id', 'tenant', 'description', 'comments',
+        'ipsec_profile', 'tunnel_id', 'tenant', 'description', 'comments',
     )
 
 
@@ -75,59 +75,128 @@ class TunnelTerminationBulkEditForm(NetBoxModelBulkEditForm):
     )
 
 
-class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
-    protocol = forms.ChoiceField(
-        label=_('Protocol'),
-        choices=add_blank_choice(IPSecProtocolChoices),
+class IKEProposalBulkEditForm(NetBoxModelBulkEditForm):
+    authentication_method = forms.ChoiceField(
+        label=_('Authentication method'),
+        choices=add_blank_choice(AuthenticationMethodChoices),
         required=False
     )
-    ike_version = forms.ChoiceField(
-        label=_('IKE version'),
+    encryption_algorithm = forms.ChoiceField(
+        label=_('Encryption algorithm'),
+        choices=add_blank_choice(EncryptionAlgorithmChoices),
+        required=False
+    )
+    authentication_algorithm = forms.ChoiceField(
+        label=_('Authentication algorithm'),
+        choices=add_blank_choice(AuthenticationAlgorithmChoices),
+        required=False
+    )
+    group = forms.ChoiceField(
+        label=_('Group'),
+        choices=add_blank_choice(DHGroupChoices),
+        required=False
+    )
+    sa_lifetime = forms.IntegerField(
+        required=False
+    )
+
+    model = IKEProposal
+    fieldsets = (
+        (None, ('name', 'description')),
+        (_('Parameters'), (
+            'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime',
+        )),
+    )
+    nullable_fields = (
+        'description', 'sa_lifetime', 'comments',
+    )
+
+
+class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
+    version = forms.ChoiceField(
+        label=_('Version'),
         choices=add_blank_choice(IKEVersionChoices),
         required=False
     )
+    mode = forms.ChoiceField(
+        label=_('Mode'),
+        choices=add_blank_choice(IKEModeChoices),
+        required=False
+    )
+    preshared_key = forms.CharField(
+        label=_('Pre-shared key'),
+        required=False
+    )
+    certificate = forms.CharField(
+        label=_('Certificate'),
+        required=False
+    )
+
+    model = IKEPolicy
+    fieldsets = (
+        (None, ('name', 'description')),
+        (_('Parameters'), (
+            'version', 'mode', 'preshared_key', 'certificate',
+        )),
+    )
+    nullable_fields = (
+        'description', 'preshared_key', 'certificate', 'comments',
+    )
+
+
+class IPSecProposalBulkEditForm(NetBoxModelBulkEditForm):
+    encryption_algorithm = forms.ChoiceField(
+        label=_('Encryption algorithm'),
+        choices=add_blank_choice(EncryptionAlgorithmChoices),
+        required=False
+    )
+    authentication_algorithm = forms.ChoiceField(
+        label=_('Authentication algorithm'),
+        choices=add_blank_choice(AuthenticationAlgorithmChoices),
+        required=False
+    )
+    sa_lifetime_seconds = forms.IntegerField(
+        required=False
+    )
+    sa_lifetime_data = forms.IntegerField(
+        required=False
+    )
+
+    model = IPSecProposal
+    fieldsets = (
+        (None, ('name', 'description')),
+        (_('Parameters'), (
+            'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data',
+        )),
+    )
+    nullable_fields = (
+        'description', 'sa_lifetime_seconds', 'sa_lifetime_data', 'comments',
+    )
+
+
+class IPSecPolicyBulkEditForm(NetBoxModelBulkEditForm):
+    pfs_group = forms.ChoiceField(
+        label=_('PFS group'),
+        choices=add_blank_choice(DHGroupChoices),
+        required=False
+    )
+
+    model = IPSecPolicy
+    fieldsets = (
+        (None, ('name', 'description')),
+        (_('Parameters'), (
+            'pfs_group',
+        )),
+    )
+    nullable_fields = (
+        'description', 'pfs_group', 'comments',
+    )
+
+
+class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
-        required=False
-    )
-    phase1_encryption = forms.ChoiceField(
-        label=_('Encryption'),
-        choices=add_blank_choice(EncryptionChoices),
-        required=False
-    )
-    phase1_authentication = forms.ChoiceField(
-        label=_('Authentication'),
-        choices=add_blank_choice(AuthenticationChoices),
-        required=False
-    )
-    phase1_group = forms.ChoiceField(
-        label=_('Group'),
-        choices=add_blank_choice(DHGroupChoices),
-        required=False
-    )
-    phase1_sa_lifetime = forms.IntegerField(
-        required=False
-    )
-    phase2_encryption = forms.ChoiceField(
-        label=_('Encryption'),
-        choices=add_blank_choice(EncryptionChoices),
-        required=False
-    )
-    phase2_authentication = forms.ChoiceField(
-        label=_('Authentication'),
-        choices=add_blank_choice(AuthenticationChoices),
-        required=False
-    )
-    phase2_group = forms.ChoiceField(
-        label=_('Group'),
-        choices=add_blank_choice(DHGroupChoices),
-        required=False
-    )
-    phase2_sa_lifetime = forms.IntegerField(
-        required=False
-    )
-    phase2_sa_lifetime_data = forms.IntegerField(
         required=False
     )
     comments = CommentField()
@@ -137,14 +206,7 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
         (_('Profile'), (
             'protocol', 'ike_version', 'description',
         )),
-        (_('Phase 1 Parameters'), (
-            'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
-        )),
-        (_('Phase 2 Parameters'), (
-            'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'phase2_sa_lifetime_data',
-        )),
     )
     nullable_fields = (
-        'description', 'phase1_sa_lifetime', 'phase2_sa_lifetime', 'phase2_sa_lifetime_data', 'comments',
+        'description', 'comments',
     )

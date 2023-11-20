@@ -10,7 +10,11 @@ from vpn.choices import *
 from vpn.models import *
 
 __all__ = (
+    'IKEPolicyImportForm',
+    'IKEProposalImportForm',
+    'IPSecPolicyImportForm',
     'IPSecProfileImportForm',
+    'IPSecProposalImportForm',
     'TunnelImportForm',
     'TunnelTerminationImportForm',
 )
@@ -43,8 +47,8 @@ class TunnelImportForm(NetBoxModelImportForm):
     class Meta:
         model = Tunnel
         fields = (
-            'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'preshared_key', 'tunnel_id', 'description',
-            'comments', 'tags',
+            'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id', 'description', 'comments',
+            'tags',
         )
 
 
@@ -108,46 +112,109 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
                 )
 
 
+class IKEProposalImportForm(NetBoxModelImportForm):
+    authentication_method = CSVChoiceField(
+        label=_('Authentication method'),
+        choices=AuthenticationMethodChoices
+    )
+    encryption_algorithm = CSVChoiceField(
+        label=_('Encryption algorithm'),
+        choices=EncryptionAlgorithmChoices
+    )
+    authentication_algorithmn = CSVChoiceField(
+        label=_('Authentication algorithm'),
+        choices=AuthenticationAlgorithmChoices
+    )
+    group = CSVChoiceField(
+        label=_('Group'),
+        choices=DHGroupChoices
+    )
+
+    class Meta:
+        model = IKEProposal
+        fields = (
+            'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithmn',
+            'group', 'sa_lifetime', 'tags',
+        )
+
+
+class IKEPolicyImportForm(NetBoxModelImportForm):
+    version = CSVChoiceField(
+        label=_('Version'),
+        choices=IKEVersionChoices
+    )
+    mode = CSVChoiceField(
+        label=_('Mode'),
+        choices=IKEModeChoices
+    )
+    # TODO: M2M field for proposals
+
+    class Meta:
+        model = IKEPolicy
+        fields = (
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'certificate', 'tags',
+        )
+
+
+class IPSecProposalImportForm(NetBoxModelImportForm):
+    authentication_method = CSVChoiceField(
+        label=_('Authentication method'),
+        choices=AuthenticationMethodChoices
+    )
+    encryption_algorithm = CSVChoiceField(
+        label=_('Encryption algorithm'),
+        choices=EncryptionAlgorithmChoices
+    )
+    authentication_algorithmn = CSVChoiceField(
+        label=_('Authentication algorithm'),
+        choices=AuthenticationAlgorithmChoices
+    )
+    group = CSVChoiceField(
+        label=_('Group'),
+        choices=DHGroupChoices
+    )
+
+    class Meta:
+        model = IPSecProposal
+        fields = (
+            'name', 'description', 'encryption_algorithm', 'authentication_algorithmn', 'sa_lifetime_seconds',
+            'sa_lifetime_data', 'tags',
+        )
+
+
+class IPSecPolicyImportForm(NetBoxModelImportForm):
+    pfs_group = CSVChoiceField(
+        label=_('PFS group'),
+        choices=DHGroupChoices
+    )
+    # TODO: M2M field for proposals
+
+    class Meta:
+        model = IPSecPolicy
+        fields = (
+            'name', 'description', 'proposals', 'pfs_group', 'tags',
+        )
+
+
 class IPSecProfileImportForm(NetBoxModelImportForm):
-    protocol = CSVChoiceField(
-        label=_('Protocol'),
-        choices=IPSecProtocolChoices,
+    mode = CSVChoiceField(
+        label=_('Mode'),
+        choices=IPSecModeChoices,
         help_text=_('IPSec protocol')
     )
-    ike_version = CSVChoiceField(
-        label=_('IKE version'),
-        choices=IKEVersionChoices,
-        help_text=_('IKE version')
+    ike_policy = CSVModelChoiceField(
+        label=_('IKE policy'),
+        queryset=IKEPolicy.objects.all(),
+        to_field_name='name'
     )
-    phase1_encryption = CSVChoiceField(
-        label=_('Phase 1 Encryption'),
-        choices=EncryptionChoices
-    )
-    phase1_authentication = CSVChoiceField(
-        label=_('Phase 1 Authentication'),
-        choices=AuthenticationChoices
-    )
-    phase1_group = CSVChoiceField(
-        label=_('Phase 1 Group'),
-        choices=DHGroupChoices
-    )
-    phase2_encryption = CSVChoiceField(
-        label=_('Phase 2 Encryption'),
-        choices=EncryptionChoices
-    )
-    phase2_authentication = CSVChoiceField(
-        label=_('Phase 2 Authentication'),
-        choices=AuthenticationChoices
-    )
-    phase2_group = CSVChoiceField(
-        label=_('Phase 2 Group'),
-        choices=DHGroupChoices
+    ipsec_policy = CSVModelChoiceField(
+        label=_('IPSec policy'),
+        queryset=IPSecPolicy.objects.all(),
+        to_field_name='name'
     )
 
     class Meta:
         model = IPSecProfile
         fields = (
-            'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group',
-            'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'phase2_sa_lifetime_data', 'description', 'comments', 'tags',
+            'name', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
         )

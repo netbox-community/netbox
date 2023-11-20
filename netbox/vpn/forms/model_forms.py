@@ -5,14 +5,18 @@ from dcim.models import Device, Interface
 from ipam.models import IPAddress
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.models import *
 
 __all__ = (
+    'IKEPolicyForm',
+    'IKEProposalForm',
+    'IPSecPolicyForm',
     'IPSecProfileForm',
+    'IPSecProposalForm',
     'TunnelCreateForm',
     'TunnelForm',
     'TunnelTerminationForm',
@@ -30,15 +34,15 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
 
     fieldsets = (
         (_('Tunnel'), ('name', 'status', 'encapsulation', 'description', 'tunnel_id', 'tags')),
-        (_('Security'), ('ipsec_profile', 'preshared_key')),
+        (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant_group', 'tenant')),
     )
 
     class Meta:
         model = Tunnel
         fields = [
-            'name', 'status', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'preshared_key',
-            'tenant_group', 'tenant', 'comments', 'tags',
+            'name', 'status', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tenant_group', 'tenant',
+            'comments', 'tags',
         ]
 
 
@@ -111,7 +115,7 @@ class TunnelCreateForm(TunnelForm):
 
     fieldsets = (
         (_('Tunnel'), ('name', 'status', 'encapsulation', 'description', 'tunnel_id', 'tags')),
-        (_('Security'), ('ipsec_profile', 'preshared_key')),
+        (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant_group', 'tenant')),
         (_('First Termination'), (
             'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_interface',
@@ -264,26 +268,87 @@ class TunnelTerminationCreateForm(NetBoxModelForm):
         self.instance.interface = self.cleaned_data['interface']
 
 
+class IKEProposalForm(NetBoxModelForm):
+
+    fieldsets = (
+        (_('Proposal'), ('name', 'description', 'tags')),
+        (_('Parameters'), (
+            'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime',
+        )),
+    )
+
+    class Meta:
+        model = IKEProposal
+        fields = [
+            'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group',
+            'sa_lifetime', 'tags',
+        ]
+
+
+class IKEPolicyForm(NetBoxModelForm):
+    proposals = DynamicModelMultipleChoiceField(
+        queryset=IKEProposal.objects.all()
+    )
+
+    fieldsets = (
+        (_('Policy'), ('name', 'description', 'tags')),
+        (_('Parameters'), ('version', 'mode', 'proposals')),
+        (_('Authentication'), ('preshared_key', 'certificate')),
+    )
+
+    class Meta:
+        model = IKEPolicy
+        fields = [
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'certificate', 'tags',
+        ]
+
+
+class IPSecProposalForm(NetBoxModelForm):
+
+    fieldsets = (
+        (_('Proposal'), ('name', 'description', 'tags')),
+        (_('Parameters'), (
+            'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data',
+        )),
+    )
+
+    class Meta:
+        model = IPSecProposal
+        fields = [
+            'name', 'description', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
+            'sa_lifetime_data', 'tags',
+        ]
+
+
+class IPSecPolicyForm(NetBoxModelForm):
+    proposals = DynamicModelMultipleChoiceField(
+        queryset=IPSecProposal.objects.all()
+    )
+
+    fieldsets = (
+        (_('Policy'), ('name', 'description', 'tags')),
+        (_('Parameters'), ('proposals', 'pfs_group')),
+    )
+
+    class Meta:
+        model = IPSecPolicy
+        fields = [
+            'name', 'description', 'proposals', 'pfs_group', 'tags',
+        ]
+
+
 class IPSecProfileForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
         (_('Profile'), (
-            'name', 'protocol', 'ike_version', 'description', 'tags',
+            'name', 'mode', 'description', 'tags',
         )),
-        (_('Phase 1 Parameters'), (
-            'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
-        )),
-        (_('Phase 2 Parameters'), (
-            'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'phase2_sa_lifetime_data',
-        )),
+        (_('Policies'), ('ipsec_policy', 'description', 'tags')),
     )
 
     class Meta:
         model = IPSecProfile
         fields = [
-            'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group',
-            'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'phase2_sa_lifetime_data', 'description', 'comments', 'tags',
+            'name', 'description', 'mode', 'ipsec_policy', 'description', 'comments', 'tags',
         ]

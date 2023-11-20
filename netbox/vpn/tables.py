@@ -1,5 +1,4 @@
 import django_tables2 as tables
-from django.contrib.contenttypes.fields import GenericRelation
 from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import Accessor
 
@@ -8,6 +7,10 @@ from netbox.tables import NetBoxTable, columns
 from vpn.models import *
 
 __all__ = (
+    'IKEPolicyTable',
+    'IKEProposalTable',
+    'IPSecPolicyTable',
+    'IPSecProposalTable',
     'IPSecProfileTable',
     'TunnelTable',
     'TunnelTerminationTable',
@@ -42,8 +45,8 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Tunnel
         fields = (
-            'pk', 'id', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tenant_group', 'preshared_key',
-            'tunnel_id', 'termination_count', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tenant_group', 'tunnel_id',
+            'termination_count', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'status', 'encapsulation', 'tenant', 'terminations_count')
 
@@ -89,47 +92,164 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
         default_columns = ('pk', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip')
 
 
-class IPSecProfileTable(TenancyColumnsMixin, NetBoxTable):
+class IKEProposalTable(NetBoxTable):
     name = tables.Column(
         verbose_name=_('Name'),
         linkify=True
     )
-    protocol = columns.ChoiceFieldColumn(
-        verbose_name=_('Protocol')
+    authentication_method = columns.ChoiceFieldColumn(
+        verbose_name=_('Authentication Method')
     )
-    ike_version = columns.ChoiceFieldColumn(
-        verbose_name=_('IKE Version')
+    encryption_algorithm = columns.ChoiceFieldColumn(
+        verbose_name=_('Encryption Algorithm')
     )
-    phase1_encryption = columns.ChoiceFieldColumn(
-        verbose_name=_('Phase 1 Encryption')
+    authentication_algorithm = columns.ChoiceFieldColumn(
+        verbose_name=_('Authentication Algorithm')
     )
-    phase1_authentication = columns.ChoiceFieldColumn(
-        verbose_name=_('Phase 1 Authentication')
+    group = columns.ChoiceFieldColumn(
+        verbose_name=_('Group')
     )
-    phase1_group = columns.ChoiceFieldColumn(
-        verbose_name=_('Phase 1 Group')
+    sa_lifetime = tables.Column(
+        verbose_name=_('SA Lifetime')
     )
-    phase2_encryption = columns.ChoiceFieldColumn(
-        verbose_name=_('Phase 2 Encryption')
+    tags = columns.TagColumn(
+        url_name='vpn:ikeproposal_list'
     )
-    phase2_authentication = columns.ChoiceFieldColumn(
-        verbose_name=_('Phase 2 Authentication')
+
+    class Meta(NetBoxTable.Meta):
+        model = IKEProposal
+        fields = (
+            'pk', 'id', 'name', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm',
+            'group', 'sa_lifetime', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group',
+            'sa_lifetime', 'description',
+        )
+
+
+class IKEPolicyTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
     )
-    phase2_group = columns.ChoiceFieldColumn(
-        verbose_name=_('Phase 2 Group')
+    version = columns.ChoiceFieldColumn(
+        verbose_name=_('Version')
+    )
+    mode = columns.ChoiceFieldColumn(
+        verbose_name=_('Mode')
+    )
+    proposals = tables.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name=_('Proposals')
+    )
+    preshared_key = tables.Column(
+        verbose_name=_('Pre-shared Key')
+    )
+    certificate = tables.Column(
+        verbose_name=_('Certificate')
+    )
+    tags = columns.TagColumn(
+        url_name='vpn:ikepolicy_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = IKEPolicy
+        fields = (
+            'pk', 'id', 'name', 'version', 'mode', 'proposals', 'preshared_key', 'certificate', 'description', 'tags',
+            'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'version', 'mode', 'proposals', 'description',
+        )
+
+
+class IPSecProposalTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    encryption_algorithm = columns.ChoiceFieldColumn(
+        verbose_name=_('Encryption Algorithm')
+    )
+    authentication_algorithm = columns.ChoiceFieldColumn(
+        verbose_name=_('Authentication Algorithm')
+    )
+    sa_lifetime_seconds = tables.Column(
+        verbose_name=_('SA Lifetime (Seconds)')
+    )
+    sa_lifetime_data = tables.Column(
+        verbose_name=_('SA Lifetime (KB)')
+    )
+    tags = columns.TagColumn(
+        url_name='vpn:ipsecproposal_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = IPSecProposal
+        fields = (
+            'pk', 'id', 'name', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
+            'sa_lifetime_data', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
+            'sa_lifetime_data', 'description',
+        )
+
+
+class IPSecPolicyTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    proposals = tables.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name=_('Proposals')
+    )
+    pfs_group = columns.ChoiceFieldColumn(
+        verbose_name=_('PFS Group')
+    )
+    tags = columns.TagColumn(
+        url_name='vpn:ipsecpolicy_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = IPSecPolicy
+        fields = (
+            'pk', 'id', 'name', 'proposals', 'pfs_group', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'proposals', 'pfs_group', 'description',
+        )
+
+
+class IPSecProfileTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    mode = columns.ChoiceFieldColumn(
+        verbose_name=_('Mode')
+    )
+    ike_policy = tables.Column(
+        linkify=True,
+        verbose_name=_('IKE Policy')
+    )
+    ipsec_policy = tables.Column(
+        linkify=True,
+        verbose_name=_('IPSec Policy')
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )
     tags = columns.TagColumn(
-        url_name='vpn:tunnel_list'
+        url_name='vpn:ipsecprofile_list'
     )
 
     class Meta(NetBoxTable.Meta):
         model = IPSecProfile
         fields = (
-            'pk', 'id', 'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication', 'phase1_group',
-            'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'phase2_sa_lifetime_data', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags', 'created',
+            'last_updated',
         )
-        default_columns = ('pk', 'name', 'protocol', 'ike_version', 'description')
+        default_columns = ('pk', 'name', 'mode', 'ike_policy', 'ipsec_policy', 'description')

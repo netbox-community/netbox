@@ -7,7 +7,11 @@ from vpn.models import *
 from . import serializers
 
 __all__ = (
+    'IKEPolicyViewSet',
+    'IKEProposalViewSet',
+    'IPSecPolicyViewSet',
     'IPSecProfileViewSet',
+    'IPSecProposalViewSet',
     'TunnelTerminationViewSet',
     'TunnelViewSet',
     'VPNRootView',
@@ -38,6 +42,30 @@ class TunnelTerminationViewSet(NetBoxModelViewSet):
     queryset = TunnelTermination.objects.prefetch_related('tunnel')
     serializer_class = serializers.TunnelTerminationSerializer
     filterset_class = filtersets.TunnelTerminationFilterSet
+
+
+class IKEProposalViewSet(NetBoxModelViewSet):
+    queryset = IKEProposal.objects.all()
+    serializer_class = serializers.IKEProposalSerializer
+    filterset_class = filtersets.IKEProposalFilterSet
+
+
+class IKEPolicyViewSet(NetBoxModelViewSet):
+    queryset = IKEPolicy.objects.all()
+    serializer_class = serializers.IKEPolicySerializer
+    filterset_class = filtersets.IKEPolicyFilterSet
+
+
+class IPSecProposalViewSet(NetBoxModelViewSet):
+    queryset = IPSecProposal.objects.all()
+    serializer_class = serializers.IPSecProposalSerializer
+    filterset_class = filtersets.IPSecProposalFilterSet
+
+
+class IPSecPolicyViewSet(NetBoxModelViewSet):
+    queryset = IKEPolicy.objects.all()
+    serializer_class = serializers.IPSecPolicySerializer
+    filterset_class = filtersets.IPSecPolicyFilterSet
 
 
 class IPSecProfileViewSet(NetBoxModelViewSet):

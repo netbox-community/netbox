@@ -59,18 +59,8 @@ class TunnelTerminationRoleChoices(ChoiceSet):
 
 
 #
-# IKE
+# Crypto
 #
-
-class IPSecProtocolChoices(ChoiceSet):
-    PROTOCOL_ESP = 'esp'
-    PROTOCOL_AH = 'ah'
-
-    CHOICES = (
-        (PROTOCOL_ESP, 'ESP'),
-        (PROTOCOL_AH, 'AH'),
-    )
-
 
 class IKEVersionChoices(ChoiceSet):
     VERSION_1 = 1
@@ -82,7 +72,41 @@ class IKEVersionChoices(ChoiceSet):
     )
 
 
-class EncryptionChoices(ChoiceSet):
+class IKEModeChoices(ChoiceSet):
+    AGGRESSIVE = 'aggressive'
+    MAIN = 'main'
+
+    CHOICES = (
+        (AGGRESSIVE, _('Aggressive')),
+        (MAIN, _('Main')),
+    )
+
+
+class AuthenticationMethodChoices(ChoiceSet):
+    PRESHARED_KEYS = 'preshared-keys'
+    CERTIFICATES = 'certificates'
+    RSA_SIGNATURES = 'rsa-signatures'
+    DSA_SIGNATURES = 'dsa-signatures'
+
+    CHOICES = (
+        (PRESHARED_KEYS, _('Pre-shared keys')),
+        (CERTIFICATES, _('Certificates')),
+        (RSA_SIGNATURES, _('RSA signatures')),
+        (DSA_SIGNATURES, _('DSA signatures')),
+    )
+
+
+class IPSecModeChoices(ChoiceSet):
+    ESP = 'esp'
+    AH = 'ah'
+
+    CHOICES = (
+        (ESP, 'ESP'),
+        (AH, 'AH'),
+    )
+
+
+class EncryptionAlgorithmChoices(ChoiceSet):
     ENCRYPTION_AES128_CBC = 'aes-128-cbc'
     ENCRYPTION_AES128_GCM = 'aes-128-gcm'
     ENCRYPTION_AES192_CBC = 'aes-192-cbc'
@@ -104,7 +128,7 @@ class EncryptionChoices(ChoiceSet):
     )
 
 
-class AuthenticationChoices(ChoiceSet):
+class AuthenticationAlgorithmChoices(ChoiceSet):
     AUTH_HMAC_SHA1 = 'hmac-sha1'
     AUTH_HMAC_SHA256 = 'hmac-sha256'
     AUTH_HMAC_SHA384 = 'hmac-sha384'
