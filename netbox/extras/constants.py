@@ -1,6 +1,3 @@
-from django.db.models import Q
-
-
 # Events
 EVENT_CREATE = 'create'
 EVENT_UPDATE = 'update'

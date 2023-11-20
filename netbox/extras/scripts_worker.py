@@ -1,21 +1,15 @@
 import logging
 
-import requests
-from core.models import Job
-from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from django_rq import job
-from jinja2.exceptions import TemplateError
-from utilities.rqworker import get_workers_for_queue
 
-from extras.constants import WEBHOOK_EVENT_TYPES
+from core.models import Job
 from extras.models import ScriptModule
 from extras.scripts import run_script
 from extras.utils import eval_conditions
-from extras.webhooks import generate_signature
 
-logger = logging.getLogger('netbox.webhooks_worker')
+logger = logging.getLogger('netbox.scripts_worker')
 
 
 @job('default')
@@ -43,7 +37,7 @@ def process_script(event_rule, model_name, event, data, timestamp, username, req
 
     script = module.scripts[script_name]()
 
-    job = Job.enqueue(
+    Job.enqueue(
         run_script,
         instance=module,
         name=script.class_name,

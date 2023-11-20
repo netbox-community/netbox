@@ -73,7 +73,8 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = EventRule
         fields = [
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled', 'description',
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled',
+            'description',
         ]
 
     def search(self, queryset, name, value):

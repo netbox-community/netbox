@@ -14,8 +14,8 @@ from netbox.context import current_request, events_queue
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
-from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
 from .events import enqueue_object, get_snapshots, serialize_for_event
+from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
 
 #
 # Change logging/webhooks

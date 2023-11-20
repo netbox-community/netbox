@@ -1,13 +1,13 @@
 # Event Rules
 
-NetBox includes the ability to execute certain functions in response in response to internal object changes. These include:
+NetBox includes the ability to execute certain functions in response to internal object changes. These include:
 
 * [Scripts](../customization/custom-scripts.md) execution
 * [Webhooks](../integrations/webhooks.md) execution
 
-For example, suppose you want to automatically configure a monitoring system to start monitoring a device when its operational status is changed to active, and remove it from monitoring for any other status. You can create a webhook in NetBox for the device model and craft its content and destination URL to effect the desired change on the receiving system. You can then associate and Event Rule with this webhook and the webhook will be sent automatically by NetBox whenever the configured constraints are met.
+For example, suppose you want to automatically configure a monitoring system to start monitoring a device when its operational status is changed to active, and remove it from monitoring for any other status. You can create a webhook in NetBox for the device model and craft its content and destination URL to effect the desired change on the receiving system. You can then associate an event rule with this webhook and the webhook will be sent automatically by NetBox whenever the configured constraints are met.
 
-Each event must be associated with at least one NetBox object type and at least one event (create, update, or delete). 
+Each event must be associated with at least one NetBox object type and at least one event (e.g. create, update, or delete).
 
 ## Conditional Event Rules
 

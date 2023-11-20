@@ -1,6 +1,6 @@
 # EventRule
 
-An event rule is a mechanism for taking an action (such as running a script or sending a webhook) when a change takes place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating an event pointing to a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.
+An event rule is a mechanism for automatically taking an action (such as running a script or sending a webhook) in response to an event in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating an event for device objects and designating a webhook to be transmitted. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver.
 
 See the [event rules documentation](../features/event-rules.md)  for more information.
 
@@ -12,15 +12,15 @@ A unique human-friendly name.
 
 ### Content Types
 
-The type(s) of object in NetBox that will trigger the webhook.
+The type(s) of object in NetBox that will trigger the rule.
 
 ### Enabled
 
-If not selected, the webhook will be inactive.
+If not selected, the event rule will not be processed.
 
 ### Events
 
-The events which will trigger the action. At least one event type must be selected.
+The events which will trigger the rule. At least one event type must be selected.
 
 | Name       | Description                          |
 |------------|--------------------------------------|
@@ -32,4 +32,4 @@ The events which will trigger the action. At least one event type must be select
 
 ### Conditions
 
-A set of [prescribed conditions](../../reference/conditions.md) against which the triggering object will be evaluated. If the conditions are defined but not met by the object, the webhook will not be sent. A webhook that does not define any conditions will _always_ trigger.
+A set of [prescribed conditions](../../reference/conditions.md) against which the triggering object will be evaluated. If the conditions are defined but not met by the object, no action will be taken. An event rule that does not define any conditions will _always_ trigger.

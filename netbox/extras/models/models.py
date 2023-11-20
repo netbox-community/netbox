@@ -49,7 +49,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         to='contenttypes.ContentType',
         related_name='eventrules',
         verbose_name=_('object types'),
-        help_text=_("The object(s) to which this Event applies.")
+        help_text=_("The object(s) to which this rule applies.")
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -169,11 +169,6 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
     delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
     Each Webhook can be limited to firing only on certain actions or certain object types.
     """
-    events = GenericRelation(
-        EventRule,
-        content_type_field='action_object_type',
-        object_id_field='action_object_id'
-    )
     name = models.CharField(
         verbose_name=_('name'),
         max_length=150,
@@ -242,6 +237,11 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         help_text=_(
             "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults."
         )
+    )
+    events = GenericRelation(
+        EventRule,
+        content_type_field='action_object_type',
+        object_id_field='action_object_id'
     )
 
     class Meta:

@@ -106,7 +106,7 @@ def process_event_rules(event_rules, model_name, event, data, username, snapshot
         elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
             processor = "extras.scripts_worker.process_script"
         else:
-            raise ValueError(f"Unknown Event Rule action type: {event_rule.action_type}")
+            raise ValueError(f"Unknown action type for an event rule: {event_rule.action_type}")
 
         params = {
             "event_rule": event_rule,

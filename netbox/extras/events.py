@@ -3,11 +3,7 @@ import sys
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.utils import timezone
-from django_rq import get_queue
 
-from netbox.config import get_config
-from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.utils import serialize_object
@@ -68,7 +64,7 @@ def enqueue_object(queue, instance, user, request_id, action):
     })
 
 
-def process_event_queue(queue):
+def process_event_queue(events):
     """
     Flush a list of object representation to RQ for EventRule processing.
     """
@@ -78,7 +74,7 @@ def process_event_queue(queue):
         'type_delete': {},
     }
 
-    for data in queue:
+    for data in events:
         action_flag = {
             ObjectChangeActionChoices.ACTION_CREATE: 'type_create',
             ObjectChangeActionChoices.ACTION_UPDATE: 'type_update',

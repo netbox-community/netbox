@@ -178,7 +178,6 @@ TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 
-
 # Check for hard-coded dynamic config parameters
 for param in PARAMS:
     if hasattr(configuration, param.name):

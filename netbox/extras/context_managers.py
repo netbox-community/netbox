@@ -7,8 +7,8 @@ from .events import flush_events
 @contextmanager
 def event_tracking(request):
     """
-    Enable event tracking by connecting the appropriate signals to their receivers before code is run, and
-    disconnecting them afterward.
+    Queue interesting events in memory while processing a request, then flush that queue for processing by the
+    events pipline before returning the response.
 
     :param request: WSGIRequest object with a unique `id` set
     """

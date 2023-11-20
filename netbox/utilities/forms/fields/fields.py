@@ -101,11 +101,9 @@ class JSONField(_JSONField):
             self.widget.attrs['class'] = 'font-monospace'
 
     def prepare_value(self, value):
-        if value == '':
-            return value
         if isinstance(value, InvalidJSONInput):
             return value
-        if value is None:
+        if value in ('', None):
             return ''
         return json.dumps(value, sort_keys=True, indent=4)
 

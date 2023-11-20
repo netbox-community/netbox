@@ -72,8 +72,8 @@ class EventRuleSerializer(NetBoxModelSerializer):
         model = EventRule
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type',
-            'custom_fields', 'tags', 'created', 'last_updated',
+            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'custom_fields', 'tags',
+            'created', 'last_updated',
         ]
 
 
@@ -87,10 +87,9 @@ class WebhookSerializer(NetBoxModelSerializer):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'url', 'display', 'name',
-            'payload_url', 'http_method', 'http_content_type',
-            'additional_headers', 'body_template', 'secret', 'ssl_verification', 'ca_file_path',
-            'custom_fields', 'tags', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'payload_url', 'http_method', 'http_content_type', 'additional_headers',
+            'body_template', 'secret', 'ssl_verification', 'ca_file_path', 'custom_fields', 'tags', 'created',
+            'last_updated',
         ]
 
 

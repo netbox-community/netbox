@@ -22,7 +22,6 @@ from utilities.forms.fields import (
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
-
 __all__ = (
     'BookmarkForm',
     'ConfigContextForm',
@@ -257,12 +256,19 @@ class EventRuleForm(NetBoxModelForm):
         (_('EventRule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
-        (_('Action'), ('action_type', 'action_choice', 'action_parameters', 'action_object_type', 'action_object_id', 'action_data')),
+        (_('Action'), (
+            'action_type', 'action_choice', 'action_parameters', 'action_object_type', 'action_object_id',
+            'action_data',
+        )),
     )
 
     class Meta:
         model = EventRule
-        fields = '__all__'
+        fields = (
+            'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
+            'action_parameters', 'action_data', 'comments', 'tags'
+        )
         labels = {
             'type_create': _('Creations'),
             'type_update': _('Updates'),
@@ -280,7 +286,6 @@ class EventRuleForm(NetBoxModelForm):
 
     def get_script_choices(self):
         choices = []
-        idx = 0
         for module in ScriptModule.objects.all():
             scripts = []
             for script_name in module.scripts.keys():

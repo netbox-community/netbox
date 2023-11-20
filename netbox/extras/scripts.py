@@ -476,6 +476,12 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside the Script class to ensure it cannot be overridden by a script author.
+
+    Args:
+        data: A dictionary of data to be passed to the script upon execution
+        job: The Job associated with this execution
+        request: The WSGI request associated with this execution (if any)
+        commit: Passed through to Script.run()
     """
     job.start()
 
@@ -507,7 +513,8 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                         raise AbortTransaction()
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
-                clear_webhooks.send(request)
+                if request:
+                    clear_webhooks.send(request)
             job.data = ScriptOutputSerializer(script).data
             job.terminate()
         except Exception as e:
@@ -521,12 +528,13 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             script.log_info("Database changes have been reverted due to error.")
             job.data = ScriptOutputSerializer(script).data
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=str(e))
-            clear_webhooks.send(request)
+            if request:
+                clear_webhooks.send(request)
 
         logger.info(f"Script completed in {job.duration}")
 
     # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
-    # change logging, webhooks, etc.
+    # change logging, event rules, etc.
     if commit:
         with event_tracking(request):
             _run_script()

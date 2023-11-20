@@ -170,7 +170,7 @@ class Job(models.Model):
         self.save()
 
         # Handle events
-        self.trigger_events(event=EVENT_JOB_START)
+        self.process_event(event=EVENT_JOB_START)
 
     def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):
         """
@@ -188,7 +188,7 @@ class Job(models.Model):
         self.save()
 
         # Handle events
-        self.trigger_events(event=EVENT_JOB_END)
+        self.process_event(event=EVENT_JOB_END)
 
     @classmethod
     def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
@@ -225,10 +225,13 @@ class Job(models.Model):
 
         return job
 
-    def trigger_events(self, event):
+    def process_event(self, event):
+        """
+        Process any EventRules relevant to the passed job event (i.e. start or stop).
+        """
         from extras.models import EventRule
 
-        # Fetch any webhooks matching this object type and action
+        # Fetch any event rules matching this object type and action
         event_rules = EventRule.objects.filter(
             **{f'type_{event}': True},
             content_types=self.object_type,
