@@ -67,12 +67,14 @@ class EventRuleSerializer(NetBoxModelSerializer):
         queryset=ContentType.objects.with_feature('webhooks'),
         many=True
     )
+    action_type = ChoiceField(choices=EventRuleActionChoices)
 
     class Meta:
         model = EventRule
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'custom_fields', 'tags',
+            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type'
+            'action_object_id', 'action_object', 'custom_fields', 'tags',
             'created', 'last_updated',
         ]
 

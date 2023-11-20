@@ -69,12 +69,17 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
         field_name='content_types__id'
     )
     content_types = ContentTypeFilter()
+    action_type = django_filters.MultipleChoiceFilter(
+        choices=EventRuleActionChoices
+    )
+    action_object_type = ContentTypeFilter()
+    action_object_id = MultiValueNumberFilter()
 
     class Meta:
         model = EventRule
         fields = [
             'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled',
-            'description',
+            'action_type', 'description',
         ]
 
     def search(self, queryset, name, value):

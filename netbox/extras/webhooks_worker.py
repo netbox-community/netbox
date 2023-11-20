@@ -6,7 +6,6 @@ from django_rq import job
 from jinja2.exceptions import TemplateError
 
 from .constants import WEBHOOK_EVENT_TYPES
-from .utils import eval_conditions
 from .webhooks import generate_signature
 
 logger = logging.getLogger('netbox.webhooks_worker')
@@ -18,7 +17,7 @@ def process_webhook(event_rule, model_name, event, data, timestamp, username, re
     Make a POST request to the defined Webhook
     """
 
-    if not eval_conditions(event_rule, data):
+    if not event_rule.eval_conditions(data):
         return
 
     webhook = event_rule.action_object

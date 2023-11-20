@@ -162,6 +162,20 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
             except ValueError as e:
                 raise ValidationError({'conditions': e})
 
+    def eval_conditions(self, data):
+        """
+        Test whether the given data meets the conditions of the event rule (if any). Return True
+        if met or no conditions are specified.
+        """
+        if not self.conditions:
+            return True
+
+        logger.debug(f'Evaluating event rule conditions: {self.conditions}')
+        if ConditionSet(self.conditions).eval(data):
+            return True
+
+        return False
+
 
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     """

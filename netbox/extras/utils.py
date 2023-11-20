@@ -81,21 +81,6 @@ def is_report(obj):
         return False
 
 
-def eval_conditions(event_rule, data):
-    """
-    Test whether the given data meets the conditions of the event rule (if any). Return True
-    if met or no conditions are specified.
-    """
-    if not event_rule.conditions:
-        return True
-
-    logger.debug(f'Evaluating event rule conditions: {event_rule.conditions}')
-    if ConditionSet(event_rule.conditions).eval(data):
-        return True
-
-    return False
-
-
 def process_event_rules(event_rules, model_name, event, data, username, snapshots=None, request_id=None):
     rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
     rq_queue = get_queue(rq_queue_name)

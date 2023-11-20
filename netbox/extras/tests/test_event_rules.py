@@ -14,7 +14,6 @@ from dcim.models import Site
 from extras.choices import ObjectChangeActionChoices
 from extras.models import Tag, EventRule, Webhook
 from extras.events import enqueue_object, flush_events, serialize_for_event
-from extras.utils import eval_conditions
 from extras.webhooks import generate_signature
 from extras.webhooks_worker import process_webhook
 from utilities.testing import APITestCase
@@ -50,7 +49,7 @@ class EventRuleTest(APITestCase):
 
     def test_event_rule_conditions(self):
         # Create a conditional Webhook
-        webhook = EventRule(
+        event_rule = EventRule(
             name='Conditional Webhook',
             type_create=True,
             type_update=True,
@@ -69,11 +68,11 @@ class EventRuleTest(APITestCase):
         data = serialize_for_event(site)
 
         # Evaluate the conditions (status='staging')
-        self.assertFalse(eval_conditions(webhook, data))
+        self.assertFalse(event_rule.eval_conditions(data))
 
         # Change the site's status
         site.status = SiteStatusChoices.STATUS_ACTIVE
         data = serialize_for_event(site)
 
         # Evaluate the conditions (status='active')
-        self.assertTrue(eval_conditions(webhook, data))
+        self.assertTrue(event_rule.eval_conditions(data))

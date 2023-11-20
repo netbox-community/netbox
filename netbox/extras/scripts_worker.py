@@ -7,17 +7,16 @@ from django_rq import job
 from core.models import Job
 from extras.models import ScriptModule
 from extras.scripts import run_script
-from extras.utils import eval_conditions
 
 logger = logging.getLogger('netbox.scripts_worker')
 
 
 @job('default')
-def process_script(event_rule, model_name, event, data, timestamp, username, request_id=None, snapshots=None):
+def process_script(event_rule, data, username, **kwargs):
     """
     Run the requested script
     """
-    if not eval_conditions(event_rule, data):
+    if not event_rule.eval_conditions(data):
         return
 
     module_id = event_rule.action_parameters.split(":")[0]
