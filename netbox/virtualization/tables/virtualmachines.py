@@ -4,10 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 __all__ = (
+    'VirtualDiskTable',
     'VirtualMachineTable',
+    'VirtualMachineVirtualDiskTable',
     'VirtualMachineVMInterfaceTable',
     'VMInterfaceTable',
 )
@@ -84,6 +86,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     interface_count = tables.Column(
         verbose_name=_('Interfaces')
     )
+    virtual_disk_count = tables.Column(
+        verbose_name=_('Virtual Disks')
+    )
     config_template = tables.Column(
         verbose_name=_('Config Template'),
         linkify=True
@@ -155,3 +160,39 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         row_attrs = {
             'data-name': lambda record: record.name,
         }
+
+
+class VirtualDiskTable(NetBoxTable):
+    virtual_machine = tables.Column(
+        verbose_name=_('Virtual Machine'),
+        linkify=True
+    )
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    tags = columns.TagColumn(
+        url_name='virtualization:virtualdisk_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VirtualDisk
+        fields = (
+            'pk', 'id', 'virtual_machine', 'name', 'size', 'description', 'tags',
+        )
+        default_columns = ('pk', 'name', 'virtual_machine', 'size', 'description')
+        row_attrs = {
+            'data-name': lambda record: record.name,
+        }
+
+
+class VirtualMachineVirtualDiskTable(VirtualDiskTable):
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(VirtualDiskTable.Meta):
+        fields = (
+            'pk', 'id', 'name', 'size', 'description', 'tags', 'actions',
+        )
+        default_columns = ('pk', 'name', 'size', 'description')

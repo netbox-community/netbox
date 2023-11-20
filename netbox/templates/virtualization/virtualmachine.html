@@ -139,14 +139,16 @@
                         </td>
                     </tr>
                     <tr>
-                        <th scope="row"><i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}</th>
-                        <td>
-                            {% if object.disk %}
-                                {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
-                            {% else %}
-                                {{ ''|placeholder }}
-                            {% endif %}
-                        </td>
+                      <th scope="row">
+                        <i class="mdi mdi-harddisk"></i> {% trans "Disk Space" %}
+                      </th>
+                      <td>
+                        {% if object.disk %}
+                          {{ object.disk }} {% trans "GB" context "Abbreviation for gigabyte" %}
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
                     </tr>
                 </table>
             </div>
@@ -168,6 +170,26 @@
         {% plugin_right_page object %}
     </div>
 </div>
+
+<div class="row">
+  <div class="col col-md-12">
+    <div class="card">
+      <h5 class="card-header">{% trans "Virtual Disks" %}</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'virtualization:virtualdisk_list' %}?virtual_machine_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
+      {% if perms.virtualization.add_virtualdisk %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'virtualization:virtualdisk_add' %}?device={{ object.device.pk }}&virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Virtual Disk" %}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
 <div class="row">
     <div class="col col-md-12">
         {% plugin_full_width_page object %}

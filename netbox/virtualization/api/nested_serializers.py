@@ -2,12 +2,13 @@ from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from netbox.api.serializers import WritableNestedSerializer
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import *
 
 __all__ = [
     'NestedClusterGroupSerializer',
     'NestedClusterSerializer',
     'NestedClusterTypeSerializer',
+    'NestedVirtualDiskSerializer',
     'NestedVMInterfaceSerializer',
     'NestedVirtualMachineSerializer',
 ]
@@ -72,3 +73,12 @@ class NestedVMInterfaceSerializer(WritableNestedSerializer):
     class Meta:
         model = VMInterface
         fields = ['id', 'url', 'display', 'virtual_machine', 'name']
+
+
+class NestedVirtualDiskSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualdisk-detail')
+    virtual_machine = NestedVirtualMachineSerializer(read_only=True)
+
+    class Meta:
+        model = VirtualDisk
+        fields = ['id', 'url', 'display', 'virtual_machine', 'name', 'size']

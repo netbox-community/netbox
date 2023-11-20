@@ -6,7 +6,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.choices import *
 from virtualization.filtersets import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import *
 
 
 class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -533,4 +533,47 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualDisk.objects.all()
+    filterset = VirtualDiskFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=cluster_type)
+
+        vms = (
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 3', cluster=cluster),
+        )
+        VirtualMachine.objects.bulk_create(vms)
+
+        disks = (
+            VirtualDisk(virtual_machine=vms[0], name='Disk 1', size=1, description='A'),
+            VirtualDisk(virtual_machine=vms[1], name='Disk 2', size=2, description='B'),
+            VirtualDisk(virtual_machine=vms[2], name='Disk 3', size=3, description='C'),
+        )
+        VirtualDisk.objects.bulk_create(disks)
+
+    def test_virtual_machine(self):
+        vms = VirtualMachine.objects.all()[:2]
+        params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_machine': [vms[0].name, vms[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Disk 1', 'Disk 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_size(self):
+        params = {'size': [1, 2]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['A', 'B']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

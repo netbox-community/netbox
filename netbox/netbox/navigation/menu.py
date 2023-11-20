@@ -218,6 +218,7 @@ VIRTUALIZATION_MENU = Menu(
             items=(
                 get_model_item('virtualization', 'virtualmachine', _('Virtual Machines')),
                 get_model_item('virtualization', 'vminterface', _('Interfaces')),
+                get_model_item('virtualization', 'virtualdisk', _('Virtual Disks')),
             ),
         ),
         MenuGroup(

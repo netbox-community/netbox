@@ -36,3 +36,9 @@ class VirtualizationQuery(graphene.ObjectType):
 
     def resolve_vm_interface_list(root, info, **kwargs):
         return gql_query_optimizer(models.VMInterface.objects.all(), info)
+
+    virtual_disk = ObjectField(VirtualDiskType)
+    virtual_disk_list = ObjectListField(VirtualDiskType)
+
+    def resolve_virtual_disk_list(root, info, **kwargs):
+        return gql_query_optimizer(models.VirtualDisk.objects.all(), info)
