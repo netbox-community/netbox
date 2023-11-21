@@ -15,76 +15,30 @@
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Protocol" %}</th>
-              <td>{{ object.get_protocol_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "IKE Version" %}</th>
-              <td>{{ object.get_ike_version_display }}</td>
-            </tr>
-            <tr>
               <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Mode" %}</th>
+              <td>{{ object.get_mode_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "IKE Policy" %}</th>
+              <td>{{ object.ike_policy|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "IPSec Policy" %}</th>
+              <td>{{ object.ipsec_policy|linkify }}</td>
             </tr>
           </table>
         </div>
       </div>
-      {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-      <div class="card">
-        <h5 class="card-header">{% trans "Phase 1 Parameters" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Encryption" %}</th>
-              <td>{{ object.get_phase1_encryption_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Authentication" %}</th>
-              <td>{{ object.get_phase1_authentication_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "DH Group" %}</th>
-              <td>{{ object.get_phase1_group_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "SA Lifetime" %}</th>
-              <td>{{ object.phase1_sa_lifetime|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
-      </div>
-      <div class="card">
-        <h5 class="card-header">{% trans "Phase 2 Parameters" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Encryption" %}</th>
-              <td>{{ object.get_phase2_encryption_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Authentication" %}</th>
-              <td>{{ object.get_phase2_authentication_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "DH Group" %}</th>
-              <td>{{ object.get_phase2_group_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "SA Lifetime (Seconds)" %}</th>
-              <td>{{ object.phase2_sa_lifetime|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "SA Lifetime (KB)" %}</th>
-              <td>{{ object.phase2_sa_lifetime_data|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
-      </div>
+      {% include 'inc/panels/custom_fields.html' %}
       {% plugin_right_page object %}
     </div>
   </div>

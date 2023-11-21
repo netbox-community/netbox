@@ -118,12 +118,6 @@ class IKEPolicySerializer(NetBoxModelSerializer):
     mode = ChoiceField(
         choices=IKEModeChoices
     )
-    authentication_algorithm = ChoiceField(
-        choices=AuthenticationAlgorithmChoices
-    )
-    group = ChoiceField(
-        choices=DHGroupChoices
-    )
     proposals = SerializedPKRelatedField(
         queryset=IKEProposal.objects.all(),
         serializer=NestedIKEProposalSerializer,
@@ -148,9 +142,6 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
     )
     authentication_algorithm = ChoiceField(
         choices=AuthenticationAlgorithmChoices
-    )
-    group = ChoiceField(
-        choices=DHGroupChoices
     )
 
     class Meta:
@@ -187,36 +178,15 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='vpn-api:ipsecprofile-detail'
     )
-    protocol = ChoiceField(
+    mode = ChoiceField(
         choices=IPSecModeChoices
     )
-    ike_version = ChoiceField(
-        choices=IKEVersionChoices
-    )
-    phase1_encryption = ChoiceField(
-        choices=EncryptionAlgorithmChoices
-    )
-    phase1_authentication = ChoiceField(
-        choices=AuthenticationAlgorithmChoices
-    )
-    phase1_group = ChoiceField(
-        choices=DHGroupChoices
-    )
-    phase2_encryption = ChoiceField(
-        choices=EncryptionAlgorithmChoices
-    )
-    phase2_authentication = ChoiceField(
-        choices=AuthenticationAlgorithmChoices
-    )
-    phase2_group = ChoiceField(
-        choices=DHGroupChoices
-    )
+    ike_policy = NestedIKEPolicySerializer()
+    ipsec_policy = NestedIPSecPolicySerializer()
 
     class Meta:
         model = IPSecProfile
         fields = (
-            'id', 'url', 'display', 'name', 'protocol', 'ike_version', 'phase1_encryption', 'phase1_authentication',
-            'phase1_group', 'phase1_sa_lifetime', 'phase2_encryption', 'phase2_authentication', 'phase2_group',
-            'phase2_sa_lifetime', 'phase2_sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         )

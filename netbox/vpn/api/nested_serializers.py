@@ -50,7 +50,7 @@ class NestedIKEPolicySerializer(WritableNestedSerializer):
     )
 
     class Meta:
-        model = models.IKEProposal
+        model = models.IKEPolicy
         fields = ('id', 'url', 'display', 'name')
 
 
@@ -70,7 +70,7 @@ class NestedIPSecPolicySerializer(WritableNestedSerializer):
     )
 
     class Meta:
-        model = models.IPSecProposal
+        model = models.IPSecPolicy
         fields = ('id', 'url', 'display', 'name')
 
 

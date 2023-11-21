@@ -143,7 +143,7 @@ class IPSecPolicyFilterForm(NetBoxModelFilterSetForm):
     model = IPSecPolicy
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Parameters'), ('proposal', 'pfs_group')),
+        (_('Parameters'), ('proposal_id', 'pfs_group')),
     )
     proposal_id = DynamicModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
@@ -162,14 +162,7 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     model = IPSecProfile
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Profile'), ('protocol', 'ike_version')),
-        (_('Phase 1 Parameters'), (
-            'phase1_encryption', 'phase1_authentication', 'phase1_group', 'phase1_sa_lifetime',
-        )),
-        (_('Phase 2 Parameters'), (
-            'phase2_encryption', 'phase2_authentication', 'phase2_group', 'phase2_sa_lifetime',
-            'phase2_sa_lifetime_data',
-        )),
+        (_('Profile'), ('mode', 'ike_policy_id', 'ipsec_policy_id')),
     )
     mode = forms.MultipleChoiceField(
         label=_('Mode'),

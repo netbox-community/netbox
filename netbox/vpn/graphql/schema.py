@@ -7,11 +7,36 @@ from .types import *
 
 
 class VPNQuery(graphene.ObjectType):
+
+    ike_policy = ObjectField(IKEPolicyType)
+    ike_policy_list = ObjectListField(IKEPolicyType)
+
+    def resolve_ike_policy_list(root, info, **kwargs):
+        return gql_query_optimizer(models.IKEPolicy.objects.all(), info)
+
+    ike_proposal = ObjectField(IKEProposalType)
+    ike_proposal_list = ObjectListField(IKEProposalType)
+
+    def resolve_ike_proposal_list(root, info, **kwargs):
+        return gql_query_optimizer(models.IKEProposal.objects.all(), info)
+
+    ipsec_policy = ObjectField(IPSecPolicyType)
+    ipsec_policy_list = ObjectListField(IPSecPolicyType)
+
+    def resolve_ipsec_policy_list(root, info, **kwargs):
+        return gql_query_optimizer(models.IPSecPolicy.objects.all(), info)
+
     ipsec_profile = ObjectField(IPSecProfileType)
     ipsec_profile_list = ObjectListField(IPSecProfileType)
 
     def resolve_ipsec_profile_list(root, info, **kwargs):
         return gql_query_optimizer(models.IPSecProfile.objects.all(), info)
+
+    ipsec_proposal = ObjectField(IPSecProposalType)
+    ipsec_proposal_list = ObjectListField(IPSecProposalType)
+
+    def resolve_ipsec_proposal_list(root, info, **kwargs):
+        return gql_query_optimizer(models.IPSecProposal.objects.all(), info)
 
     tunnel = ObjectField(TunnelType)
     tunnel_list = ObjectListField(TunnelType)

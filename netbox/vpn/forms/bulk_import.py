@@ -157,10 +157,6 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
 
 
 class IPSecProposalImportForm(NetBoxModelImportForm):
-    authentication_method = CSVChoiceField(
-        label=_('Authentication method'),
-        choices=AuthenticationMethodChoices
-    )
     encryption_algorithm = CSVChoiceField(
         label=_('Encryption algorithm'),
         choices=EncryptionAlgorithmChoices
@@ -168,10 +164,6 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
     authentication_algorithmn = CSVChoiceField(
         label=_('Authentication algorithm'),
         choices=AuthenticationAlgorithmChoices
-    )
-    group = CSVChoiceField(
-        label=_('Group'),
-        choices=DHGroupChoices
     )
 
     class Meta:
@@ -216,5 +208,5 @@ class IPSecProfileImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPSecProfile
         fields = (
-            'name', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
+            'name', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
         )

@@ -53,6 +53,10 @@ class IKEProposal(NetBoxModel):
         help_text=_('Security association lifetime (in seconds)')
     )
 
+    clone_fields = (
+        'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime',
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('IKE proposal')
@@ -99,6 +103,13 @@ class IKEPolicy(NetBoxModel):
         blank=True
     )
 
+    clone_fields = (
+        'version', 'mode', 'proposals',
+    )
+    prerequisite_models = (
+        'vpn.IKEProposal',
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('IKE policy')
@@ -108,7 +119,7 @@ class IKEPolicy(NetBoxModel):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('vpn:ikeprofile', args=[self.pk])
+        return reverse('vpn:ikepolicy', args=[self.pk])
 
 
 #
@@ -147,6 +158,10 @@ class IPSecProposal(NetBoxModel):
         help_text=_('Security association lifetime (in kilobytes)')
     )
 
+    clone_fields = (
+        'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data',
+    )
+
     class Meta:
         ordering = ('name',)
         verbose_name = _('IPSec proposal')
@@ -181,6 +196,13 @@ class IPSecPolicy(NetBoxModel):
         blank=True,
         null=True,
         help_text=_('Diffie-Hellman group for Perfect Forward Secrecy')
+    )
+
+    clone_fields = (
+        'proposals', 'pfs_group',
+    )
+    prerequisite_models = (
+        'vpn.IPSecProposal',
     )
 
     class Meta:
@@ -218,6 +240,10 @@ class IPSecProfile(PrimaryModel):
 
     clone_fields = (
         'mode', 'ike_policy', 'ipsec_policy',
+    )
+    prerequisite_models = (
+        'vpn.IKEPolicy',
+        'vpn.IPSecPolicy',
     )
 
     class Meta:

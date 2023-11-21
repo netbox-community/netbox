@@ -63,7 +63,7 @@ class IPSecProposalViewSet(NetBoxModelViewSet):
 
 
 class IPSecPolicyViewSet(NetBoxModelViewSet):
-    queryset = IKEPolicy.objects.all()
+    queryset = IPSecPolicy.objects.all()
     serializer_class = serializers.IPSecPolicySerializer
     filterset_class = filtersets.IPSecPolicyFilterSet
 

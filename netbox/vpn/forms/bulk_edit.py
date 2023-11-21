@@ -97,18 +97,25 @@ class IKEProposalBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     sa_lifetime = forms.IntegerField(
+        label=_('SA lifetime'),
         required=False
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
 
     model = IKEProposal
     fieldsets = (
-        (None, ('name', 'description')),
-        (_('Parameters'), (
+        (None, (
             'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime',
+            'description',
         )),
     )
     nullable_fields = (
-        'description', 'sa_lifetime', 'comments',
+        'sa_lifetime', 'description', 'comments',
     )
 
 
@@ -131,16 +138,21 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Certificate'),
         required=False
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
 
     model = IKEPolicy
     fieldsets = (
-        (None, ('name', 'description')),
-        (_('Parameters'), (
-            'version', 'mode', 'preshared_key', 'certificate',
+        (None, (
+            'version', 'mode', 'preshared_key', 'certificate', 'description',
         )),
     )
     nullable_fields = (
-        'description', 'preshared_key', 'certificate', 'comments',
+        'preshared_key', 'certificate', 'description', 'comments',
     )
 
 
@@ -156,21 +168,29 @@ class IPSecProposalBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     sa_lifetime_seconds = forms.IntegerField(
+        label=_('SA lifetime (seconds)'),
         required=False
     )
     sa_lifetime_data = forms.IntegerField(
+        label=_('SA lifetime (KB)'),
         required=False
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
 
     model = IPSecProposal
     fieldsets = (
-        (None, ('name', 'description')),
-        (_('Parameters'), (
+        (None, (
             'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data',
+            'description',
         )),
     )
     nullable_fields = (
-        'description', 'sa_lifetime_seconds', 'sa_lifetime_data', 'comments',
+        'sa_lifetime_seconds', 'sa_lifetime_data', 'description', 'comments',
     )
 
 
@@ -180,20 +200,38 @@ class IPSecPolicyBulkEditForm(NetBoxModelBulkEditForm):
         choices=add_blank_choice(DHGroupChoices),
         required=False
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
 
     model = IPSecPolicy
     fieldsets = (
-        (None, ('name', 'description')),
-        (_('Parameters'), (
-            'pfs_group',
-        )),
+        (None, ('pfs_group', 'description',)),
     )
     nullable_fields = (
-        'description', 'pfs_group', 'comments',
+        'pfs_group', 'description', 'comments',
     )
 
 
 class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
+    mode = forms.ChoiceField(
+        label=_('Mode'),
+        choices=add_blank_choice(IPSecModeChoices),
+        required=False
+    )
+    ike_policy = DynamicModelChoiceField(
+        label=_('IKE policy'),
+        queryset=IKEPolicy.objects.all(),
+        required=False
+    )
+    ipsec_policy = DynamicModelChoiceField(
+        label=_('IPSec policy'),
+        queryset=IPSecPolicy.objects.all(),
+        required=False
+    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -204,7 +242,7 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
     model = IPSecProfile
     fieldsets = (
         (_('Profile'), (
-            'protocol', 'ike_version', 'description',
+            'mode', 'ike_policy', 'ipsec_policy', 'description',
         )),
     )
     nullable_fields = (

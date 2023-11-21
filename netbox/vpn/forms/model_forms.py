@@ -287,7 +287,8 @@ class IKEProposalForm(NetBoxModelForm):
 
 class IKEPolicyForm(NetBoxModelForm):
     proposals = DynamicModelMultipleChoiceField(
-        queryset=IKEProposal.objects.all()
+        queryset=IKEProposal.objects.all(),
+        label=_('Proposals')
     )
 
     fieldsets = (
@@ -322,7 +323,8 @@ class IPSecProposalForm(NetBoxModelForm):
 
 class IPSecPolicyForm(NetBoxModelForm):
     proposals = DynamicModelMultipleChoiceField(
-        queryset=IPSecProposal.objects.all()
+        queryset=IPSecProposal.objects.all(),
+        label=_('Proposals')
     )
 
     fieldsets = (
@@ -338,17 +340,23 @@ class IPSecPolicyForm(NetBoxModelForm):
 
 
 class IPSecProfileForm(NetBoxModelForm):
+    ike_policy = DynamicModelChoiceField(
+        queryset=IKEPolicy.objects.all(),
+        label=_('IKE policy')
+    )
+    ipsec_policy = DynamicModelChoiceField(
+        queryset=IPSecPolicy.objects.all(),
+        label=_('IPSec policy')
+    )
     comments = CommentField()
 
     fieldsets = (
-        (_('Profile'), (
-            'name', 'mode', 'description', 'tags',
-        )),
-        (_('Policies'), ('ipsec_policy', 'description', 'tags')),
+        (_('Profile'), ('name', 'description', 'tags')),
+        (_('Parameters'), ('mode', 'ike_policy', 'ipsec_policy')),
     )
 
     class Meta:
         model = IPSecProfile
         fields = [
-            'name', 'description', 'mode', 'ipsec_policy', 'description', 'comments', 'tags',
+            'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'description', 'comments', 'tags',
         ]

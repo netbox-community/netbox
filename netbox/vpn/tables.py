@@ -97,16 +97,16 @@ class IKEProposalTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    authentication_method = columns.ChoiceFieldColumn(
+    authentication_method = tables.Column(
         verbose_name=_('Authentication Method')
     )
-    encryption_algorithm = columns.ChoiceFieldColumn(
+    encryption_algorithm = tables.Column(
         verbose_name=_('Encryption Algorithm')
     )
-    authentication_algorithm = columns.ChoiceFieldColumn(
+    authentication_algorithm = tables.Column(
         verbose_name=_('Authentication Algorithm')
     )
-    group = columns.ChoiceFieldColumn(
+    group = tables.Column(
         verbose_name=_('Group')
     )
     sa_lifetime = tables.Column(
@@ -133,10 +133,10 @@ class IKEPolicyTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    version = columns.ChoiceFieldColumn(
+    version = tables.Column(
         verbose_name=_('Version')
     )
-    mode = columns.ChoiceFieldColumn(
+    mode = tables.Column(
         verbose_name=_('Mode')
     )
     proposals = tables.ManyToManyColumn(
@@ -169,10 +169,10 @@ class IPSecProposalTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    encryption_algorithm = columns.ChoiceFieldColumn(
+    encryption_algorithm = tables.Column(
         verbose_name=_('Encryption Algorithm')
     )
-    authentication_algorithm = columns.ChoiceFieldColumn(
+    authentication_algorithm = tables.Column(
         verbose_name=_('Authentication Algorithm')
     )
     sa_lifetime_seconds = tables.Column(
@@ -206,7 +206,7 @@ class IPSecPolicyTable(NetBoxTable):
         linkify_item=True,
         verbose_name=_('Proposals')
     )
-    pfs_group = columns.ChoiceFieldColumn(
+    pfs_group = tables.Column(
         verbose_name=_('PFS Group')
     )
     tags = columns.TagColumn(
@@ -228,7 +228,7 @@ class IPSecProfileTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    mode = columns.ChoiceFieldColumn(
+    mode = tables.Column(
         verbose_name=_('Mode')
     )
     ike_policy = tables.Column(
