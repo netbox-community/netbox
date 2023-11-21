@@ -170,7 +170,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         if not self.conditions:
             return True
 
-        logger.debug(f'Evaluating event rule conditions: {self.conditions}')
         if ConditionSet(self.conditions).eval(data):
             return True
 

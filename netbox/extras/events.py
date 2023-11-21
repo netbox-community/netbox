@@ -3,9 +3,14 @@ import sys
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django_rq import get_queue
+from django.utils import timezone
 
+from netbox.config import get_config
+from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
+from utilities.rqworker import get_rq_retry
 from utilities.utils import serialize_object
 from .choices import *
 from .models import EventRule
