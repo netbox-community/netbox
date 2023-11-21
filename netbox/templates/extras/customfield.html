@@ -79,8 +79,12 @@
             <td>{{ object.weight }}</td>
           </tr>
           <tr>
-            <th scope="row">{% trans "UI Visibility" %}</th>
-            <td>{{ object.get_ui_visibility_display }}</td>
+            <th scope="row">{% trans "UI Visible" %}</th>
+            <td>{{ object.get_ui_visible_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "UI Editable" %}</th>
+            <td>{{ object.get_ui_editable_display }}</td>
           </tr>
         </table>
       </div>

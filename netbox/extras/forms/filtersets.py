@@ -39,7 +39,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Attributes'), (
-            'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visibility',
+            'type', 'content_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible', 'ui_editable',
             'is_cloneable',
         )),
     )
@@ -73,10 +73,15 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Choice set')
     )
-    ui_visibility = forms.ChoiceField(
-        choices=add_blank_choice(CustomFieldVisibilityChoices),
+    ui_visible = forms.ChoiceField(
+        choices=add_blank_choice(CustomFieldUIVisibleChoices),
         required=False,
-        label=_('UI visibility')
+        label=_('UI visible')
+    )
+    ui_editable = forms.ChoiceField(
+        choices=add_blank_choice(CustomFieldUIEditableChoices),
+        required=False,
+        label=_('UI editable')
     )
     is_cloneable = forms.NullBooleanField(
         label=_('Is cloneable'),

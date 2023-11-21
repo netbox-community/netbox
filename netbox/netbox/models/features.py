@@ -13,7 +13,7 @@ from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
 from core.models import ContentType
-from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
+from extras.choices import *
 from extras.utils import is_taggable, register_features
 from netbox.registry import registry
 from netbox.signals import post_clean
@@ -205,12 +205,11 @@ class CustomFieldsMixin(models.Model):
         for field in CustomField.objects.get_for_model(self):
             value = self.custom_field_data.get(field.name)
 
-            # Skip fields that are hidden if 'omit_hidden' is set
-            if omit_hidden:
-                if field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN:
-                    continue
-                if field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET and not value:
-                    continue
+            # Skip hidden fields if 'omit_hidden' is True
+            if omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.HIDDEN:
+                continue
+            elif omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.IF_SET and not value:
+                continue
 
             data[field] = field.deserialize(value)
 
@@ -232,12 +231,12 @@ class CustomFieldsMixin(models.Model):
         from extras.models import CustomField
         groups = defaultdict(dict)
         visible_custom_fields = CustomField.objects.get_for_model(self).exclude(
-            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
+            ui_visible=CustomFieldUIVisibleChoices.HIDDEN
         )
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
-            if value in (None, []) and cf.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET:
+            if value in (None, []) and cf.ui_visible == CustomFieldUIVisibleChoices.IF_SET:
                 continue
             value = cf.deserialize(value)
             groups[cf.group_name][cf] = value

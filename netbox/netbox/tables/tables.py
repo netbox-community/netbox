@@ -12,8 +12,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.data import TableQuerysetData
 
+from extras.choices import *
 from extras.models import CustomField, CustomLink
-from extras.choices import CustomFieldVisibilityChoices
 from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -204,7 +204,7 @@ class NetBoxTable(BaseTable):
         content_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(
             content_types=content_type
-        ).exclude(ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN)
+        ).exclude(ui_visible=CustomFieldUIVisibleChoices.HIDDEN)
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])

@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
-from extras.choices import CustomFieldVisibilityChoices
+from extras.choices import *
 from extras.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 
@@ -40,7 +40,7 @@ class CustomFieldsMixin:
 
     def _get_custom_fields(self, content_type):
         return CustomField.objects.filter(content_types=content_type).exclude(
-            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
+            ui_visible=CustomFieldUIVisibleChoices.HIDDEN
         )
 
     def _get_form_field(self, customfield):
@@ -51,9 +51,6 @@ class CustomFieldsMixin:
         Append form fields for all CustomFields assigned to this object type.
         """
         for customfield in self._get_custom_fields(self._get_content_type()):
-            if customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN:
-                continue
-
             field_name = f'cf_{customfield.name}'
             self.fields[field_name] = self._get_form_field(customfield)
 

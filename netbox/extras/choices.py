@@ -53,18 +53,29 @@ class CustomFieldFilterLogicChoices(ChoiceSet):
     )
 
 
-class CustomFieldVisibilityChoices(ChoiceSet):
+class CustomFieldUIVisibleChoices(ChoiceSet):
 
-    VISIBILITY_READ_WRITE = 'read-write'
-    VISIBILITY_READ_ONLY = 'read-only'
-    VISIBILITY_HIDDEN = 'hidden'
-    VISIBILITY_HIDDEN_IFUNSET = 'hidden-ifunset'
+    ALWAYS = 'always'
+    IF_SET = 'if-set'
+    HIDDEN = 'hidden'
 
     CHOICES = (
-        (VISIBILITY_READ_WRITE, _('Read/write')),
-        (VISIBILITY_READ_ONLY, _('Read-only')),
-        (VISIBILITY_HIDDEN, _('Hidden')),
-        (VISIBILITY_HIDDEN_IFUNSET, _('Hidden (if unset)')),
+        (ALWAYS, _('Always'), 'green'),
+        (IF_SET, _('If set'), 'yellow'),
+        (HIDDEN, _('Hidden'), 'gray'),
+    )
+
+
+class CustomFieldUIEditableChoices(ChoiceSet):
+
+    YES = 'yes'
+    NO = 'no'
+    HIDDEN = 'hidden'
+
+    CHOICES = (
+        (YES, _('Yes'), 'green'),
+        (NO, _('No'), 'red'),
+        (HIDDEN, _('Hidden'), 'gray'),
     )
 
 
