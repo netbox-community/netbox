@@ -226,10 +226,14 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
     tag = TagFilterField(model)
+    payload_url = forms.CharField(
+        label=_('Payload URL'),
+        required=False
+    )
 
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('http_method',)),
+        (_('Attributes'), ('payload_url', 'http_method',)),
     )
     http_method = forms.MultipleChoiceField(
         choices=WebhookHttpMethodChoices,

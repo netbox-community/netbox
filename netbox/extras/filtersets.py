@@ -43,6 +43,9 @@ class WebhookFilterSet(NetBoxModelFilterSet):
     http_method = django_filters.MultipleChoiceFilter(
         choices=WebhookHttpMethodChoices
     )
+    payload_url = MultiValueCharFilter(
+        lookup_expr='icontains'
+    )
 
     class Meta:
         model = Webhook
