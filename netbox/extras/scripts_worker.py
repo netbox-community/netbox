@@ -24,8 +24,7 @@ def process_script(event_rule, data, username, **kwargs):
         script_choice = event_rule.action_parameters['script_choice']
 
     if script_choice:
-        module_id = script_choice.split(":")[0]
-        script_name = script_choice.split(":")[1]
+        module_id, script_name = script_choice.split(":", maxsplit=1)
     else:
         logger.warning(f"event run script - event_rule: {event_rule.id} no script_choice selected")
         return
