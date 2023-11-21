@@ -89,7 +89,7 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
             'pk', 'id', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip', 'tags',
             'created', 'last_updated',
         )
-        default_columns = ('pk', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip')
+        default_columns = ('pk', 'id', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip')
 
 
 class IKEProposalTable(NetBoxTable):

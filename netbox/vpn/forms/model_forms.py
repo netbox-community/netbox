@@ -6,6 +6,7 @@ from ipam.models import IPAddress
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
@@ -20,7 +21,6 @@ __all__ = (
     'TunnelCreateForm',
     'TunnelForm',
     'TunnelTerminationForm',
-    'TunnelTerminationCreateForm',
 )
 
 
@@ -49,21 +49,25 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
 class TunnelCreateForm(TunnelForm):
     # First termination
     termination1_role = forms.ChoiceField(
-        choices=TunnelTerminationRoleChoices,
+        choices=add_blank_choice(TunnelTerminationRoleChoices),
+        required=False,
         label=_('Role')
     )
     termination1_type = forms.ChoiceField(
         choices=TunnelTerminationTypeChoices,
+        required=False,
         widget=HTMXSelect(),
         label=_('Type')
     )
     termination1_parent = DynamicModelChoiceField(
         queryset=Device.objects.all(),
+        required=False,
         selector=True,
         label=_('Device')
     )
     termination1_interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
+        required=False,
         label=_('Interface'),
         query_params={
             'device_id': '$termination1_parent',
@@ -80,7 +84,7 @@ class TunnelCreateForm(TunnelForm):
 
     # Second termination
     termination2_role = forms.ChoiceField(
-        choices=TunnelTerminationRoleChoices,
+        choices=add_blank_choice(TunnelTerminationRoleChoices),
         required=False,
         label=_('Role')
     )
@@ -155,34 +159,36 @@ class TunnelCreateForm(TunnelForm):
     def clean(self):
         super().clean()
 
-        # Check that all required parameters have been set for the second termination (if any)
-        termination2_required_parameters = (
-            'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_interface',
-        )
-        termination2_parameters = (
-            *termination2_required_parameters,
-            'termination2_outside_ip',
-        )
-        if any([self.cleaned_data[param] for param in termination2_parameters]):
-            for param in termination2_required_parameters:
+        # Validate attributes for each termination (if any)
+        for term in ('termination1', 'termination2'):
+            required_parameters = (
+                f'{term}_role', f'{term}_parent', f'{term}_interface',
+            )
+            parameters = (
+                *required_parameters,
+                f'{term}_outside_ip',
+            )
+        if any([self.cleaned_data[param] for param in parameters]):
+            for param in required_parameters:
                 if not self.cleaned_data[param]:
                     raise forms.ValidationError({
-                        param: _("This parameter is required when defining a second termination.")
+                        param: _("This parameter is required when defining a termination.")
                     })
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
 
         # Create first termination
-        TunnelTermination.objects.create(
-            tunnel=instance,
-            role=self.cleaned_data['termination1_role'],
-            interface=self.cleaned_data['termination1_interface'],
-            outside_ip=self.cleaned_data['termination1_outside_ip'],
-        )
+        if self.cleaned_data['termination1_interface']:
+            TunnelTermination.objects.create(
+                tunnel=instance,
+                role=self.cleaned_data['termination1_role'],
+                interface=self.cleaned_data['termination1_interface'],
+                outside_ip=self.cleaned_data['termination1_outside_ip'],
+            )
 
         # Create second termination, if defined
-        if self.cleaned_data['termination2_role']:
+        if self.cleaned_data['termination2_interface']:
             TunnelTermination.objects.create(
                 tunnel=instance,
                 role=self.cleaned_data['termination2_role'],
@@ -194,20 +200,6 @@ class TunnelCreateForm(TunnelForm):
 
 
 class TunnelTerminationForm(NetBoxModelForm):
-    outside_ip = DynamicModelChoiceField(
-        queryset=IPAddress.objects.all(),
-        required=False,
-        label=_('Outside IP')
-    )
-
-    class Meta:
-        model = TunnelTermination
-        fields = [
-            'role', 'outside_ip', 'tags',
-        ]
-
-
-class TunnelTerminationCreateForm(NetBoxModelForm):
     tunnel = DynamicModelChoiceField(
         queryset=Tunnel.objects.all()
     )
@@ -261,11 +253,15 @@ class TunnelTerminationCreateForm(NetBoxModelForm):
                 'virtual_machine_id': '$parent',
             })
 
+        if self.instance.pk:
+            self.fields['parent'].initial = self.instance.interface.parent_object
+            self.fields['interface'].initial = self.instance.interface
+
     def clean(self):
         super().clean()
 
         # Assign the interface
-        self.instance.interface = self.cleaned_data['interface']
+        self.instance.interface = self.cleaned_data.get('interface')
 
 
 class IKEProposalForm(NetBoxModelForm):

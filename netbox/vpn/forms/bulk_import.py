@@ -4,7 +4,7 @@ from dcim.models import Device, Interface
 from ipam.models import IPAddress
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.models import *
@@ -34,6 +34,7 @@ class TunnelImportForm(NetBoxModelImportForm):
     ipsec_profile = CSVModelChoiceField(
         label=_('IPSec profile'),
         queryset=IPSecProfile.objects.all(),
+        required=False,
         to_field_name='name'
     )
     tenant = CSVModelChoiceField(
@@ -87,6 +88,7 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
     outside_ip = CSVModelChoiceField(
         label=_('Outside IP'),
         queryset=IPAddress.objects.all(),
+        required=False,
         to_field_name='name'
     )
 
@@ -111,6 +113,14 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
                     **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
                 )
 
+    def save(self, *args, **kwargs):
+
+        # Set interface assignment
+        if self.cleaned_data.get('interface'):
+            self.instance.interface = self.cleaned_data['interface']
+
+        return super().save(*args, **kwargs)
+
 
 class IKEProposalImportForm(NetBoxModelImportForm):
     authentication_method = CSVChoiceField(
@@ -121,7 +131,7 @@ class IKEProposalImportForm(NetBoxModelImportForm):
         label=_('Encryption algorithm'),
         choices=EncryptionAlgorithmChoices
     )
-    authentication_algorithmn = CSVChoiceField(
+    authentication_algorithm = CSVChoiceField(
         label=_('Authentication algorithm'),
         choices=AuthenticationAlgorithmChoices
     )
@@ -133,7 +143,7 @@ class IKEProposalImportForm(NetBoxModelImportForm):
     class Meta:
         model = IKEProposal
         fields = (
-            'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithmn',
+            'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm',
             'group', 'sa_lifetime', 'tags',
         )
 
@@ -147,7 +157,11 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
         label=_('Mode'),
         choices=IKEModeChoices
     )
-    # TODO: M2M field for proposals
+    proposals = CSVModelMultipleChoiceField(
+        queryset=IKEProposal.objects.all(),
+        to_field_name='name',
+        help_text=_('IKE proposal(s)'),
+    )
 
     class Meta:
         model = IKEPolicy
@@ -161,7 +175,7 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
         label=_('Encryption algorithm'),
         choices=EncryptionAlgorithmChoices
     )
-    authentication_algorithmn = CSVChoiceField(
+    authentication_algorithm = CSVChoiceField(
         label=_('Authentication algorithm'),
         choices=AuthenticationAlgorithmChoices
     )
@@ -169,7 +183,7 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPSecProposal
         fields = (
-            'name', 'description', 'encryption_algorithm', 'authentication_algorithmn', 'sa_lifetime_seconds',
+            'name', 'description', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
             'sa_lifetime_data', 'tags',
         )
 
@@ -179,7 +193,11 @@ class IPSecPolicyImportForm(NetBoxModelImportForm):
         label=_('PFS group'),
         choices=DHGroupChoices
     )
-    # TODO: M2M field for proposals
+    proposals = CSVModelMultipleChoiceField(
+        queryset=IPSecProposal.objects.all(),
+        to_field_name='name',
+        help_text=_('IPSec proposal(s)'),
+    )
 
     class Meta:
         model = IPSecPolicy

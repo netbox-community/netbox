@@ -119,7 +119,7 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         return f'{self.tunnel}: Termination {self.pk}'
 
     def get_absolute_url(self):
-        return self.tunnel.get_absolute_url()
+        return reverse('vpn:tunneltermination', args=[self.pk])
 
     def get_role_color(self):
         return TunnelTerminationRoleChoices.colors.get(self.role)
@@ -128,7 +128,7 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         super().clean()
 
         # Check that the selected Interface is not already attached to a Tunnel
-        if self.interface.tunnel_termination and self.interface.tunnel_termination.pk != self.pk:
+        if getattr(self.interface, 'tunnel_termination', None) and self.interface.tunnel_termination.pk != self.pk:
             raise ValidationError({
                 'interface': _("Interface {name} is already attached to a tunnel ({tunnel}).").format(
                     name=self.interface.name,
