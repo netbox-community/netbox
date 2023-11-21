@@ -6,7 +6,7 @@ from dcim.models import Interface
 from ipam.models import IPAddress
 from netbox.filtersets import NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
-from utilities.filters import ContentTypeFilter, MultiValueNumberFilter
+from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import VMInterface
 from .choices import *
 from .models import *
@@ -62,7 +62,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     )
     tunnel = django_filters.ModelMultipleChoiceFilter(
         field_name='tunnel__name',
-        queryset=IPSecProfile.objects.all(),
+        queryset=Tunnel.objects.all(),
         to_field_name='name',
         label=_('Tunnel (name)'),
     )
@@ -139,7 +139,9 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
     proposal_id = MultiValueNumberFilter(
         field_name='proposals__id'
     )
-    proposals = ContentTypeFilter()
+    proposal = MultiValueCharFilter(
+        field_name='proposals__name'
+    )
 
     class Meta:
         model = IKEPolicy
@@ -182,7 +184,9 @@ class IPSecPolicyFilterSet(NetBoxModelFilterSet):
     proposal_id = MultiValueNumberFilter(
         field_name='proposals__id'
     )
-    proposals = ContentTypeFilter()
+    proposal = MultiValueCharFilter(
+        field_name='proposals__name'
+    )
 
     class Meta:
         model = IPSecPolicy
