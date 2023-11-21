@@ -284,7 +284,7 @@ class EventRuleForm(NetBoxModelForm):
             'action_parameters': forms.HiddenInput,
         }
 
-    def get_script_choices(self):
+    def init_script_choice(self):
         choices = []
         for module in ScriptModule.objects.all():
             scripts = []
@@ -298,7 +298,7 @@ class EventRuleForm(NetBoxModelForm):
         self.fields['action_choice'].choices = choices
         self.fields['action_choice'].initial = get_field_value(self, 'action_parameters')
 
-    def get_webhook_choices(self):
+    def init_webhook_choice(self):
         initial = None
         if self.fields['action_object_type'] and get_field_value(self, 'action_object_id'):
             initial = Webhook.objects.get(pk=get_field_value(self, 'action_object_id'))
@@ -318,9 +318,9 @@ class EventRuleForm(NetBoxModelForm):
         action_type = get_field_value(self, 'action_type')
 
         if action_type == EventRuleActionChoices.WEBHOOK:
-            self.get_webhook_choices()
+            self.init_webhook_choice()
         elif action_type == EventRuleActionChoices.SCRIPT:
-            self.get_script_choices()
+            self.init_script_choice()
 
         val = get_field_value(self, 'conditions')
 

@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 from core.choices import JobStatusChoices
 from core.models import ContentType
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
-from extras.utils import process_event_rules
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
 from utilities.querysets import RestrictedQuerySet
@@ -230,6 +229,7 @@ class Job(models.Model):
         Process any EventRules relevant to the passed job event (i.e. start or stop).
         """
         from extras.models import EventRule
+        from extras.events import process_event_rules
 
         # Fetch any event rules matching this object type and action
         event_rules = EventRule.objects.filter(

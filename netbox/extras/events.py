@@ -9,7 +9,6 @@ from utilities.api import get_serializer_for_model
 from utilities.utils import serialize_object
 from .choices import *
 from .models import EventRule
-from .utils import process_event_rules
 
 logger = logging.getLogger('netbox.events_processor')
 
@@ -62,6 +61,40 @@ def enqueue_object(queue, instance, user, request_id, action):
         'username': user.username,
         'request_id': request_id
     })
+
+
+def process_event_rules(event_rules, model_name, event, data, username, snapshots=None, request_id=None):
+    rq_queue_name = get_config().QUEUE_MAPPINGS.get('webhook', RQ_QUEUE_DEFAULT)
+    rq_queue = get_queue(rq_queue_name)
+
+    for event_rule in event_rules:
+        if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
+            processor = "extras.webhooks_worker.process_webhook"
+        elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
+            processor = "extras.scripts_worker.process_script"
+        else:
+            raise ValueError(f"Unknown action type for an event rule: {event_rule.action_type}")
+
+        params = {
+            "event_rule": event_rule,
+            "model_name": model_name,
+            "event": event,
+            "data": data,
+            "snapshots": snapshots,
+            "timestamp": str(timezone.now()),
+            "username": username,
+            "retry": get_rq_retry()
+        }
+
+        if snapshots:
+            params["snapshots"] = snapshots
+        if request_id:
+            params["request_id"] = request_id
+
+        rq_queue.enqueue(
+            processor,
+            **params
+        )
 
 
 def process_event_queue(events):
