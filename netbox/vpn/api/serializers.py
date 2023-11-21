@@ -46,7 +46,7 @@ class TunnelSerializer(NetBoxModelSerializer):
         model = Tunnel
         fields = (
             'id', 'url', 'display', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
-            'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
 
 
@@ -163,7 +163,8 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
         many=True
     )
     pfs_group = ChoiceField(
-        choices=DHGroupChoices
+        choices=DHGroupChoices,
+        required=False
     )
 
     class Meta:

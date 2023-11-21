@@ -128,7 +128,7 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         super().clean()
 
         # Check that the selected Interface is not already attached to a Tunnel
-        if self.interface.tunnel_termination:
+        if self.interface.tunnel_termination and self.interface.tunnel_termination.pk != self.pk:
             raise ValidationError({
                 'interface': _("Interface {name} is already attached to a tunnel ({tunnel}).").format(
                     name=self.interface.name,
