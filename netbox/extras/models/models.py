@@ -118,9 +118,9 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         fk_field='action_object_id'
     )
     # internal (not show in UI) - used by scripts to store function name
-    action_parameters = models.CharField(
-        max_length=80,
-        blank=True
+    action_parameters = models.JSONField(
+        blank=True,
+        null=True,
     )
     action_data = models.JSONField(
         verbose_name=_('parameters'),

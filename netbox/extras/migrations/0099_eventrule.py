@@ -60,7 +60,7 @@ class Migration(migrations.Migration):
                 ('conditions', models.JSONField(blank=True, null=True)),
                 ('action_type', models.CharField(default='webhook', max_length=30)),
                 ('action_object_id', models.PositiveBigIntegerField(blank=True, null=True)),
-                ('action_parameters', models.CharField(blank=True, max_length=80)),
+                ('action_parameters', models.JSONField(blank=True, null=True)),
                 ('action_data', models.JSONField(blank=True, null=True)),
                 ('comments', models.TextField(blank=True)),
             ],

@@ -19,8 +19,16 @@ def process_script(event_rule, data, username, **kwargs):
     if not event_rule.eval_conditions(data):
         return
 
-    module_id = event_rule.action_parameters.split(":")[0]
-    script_name = event_rule.action_parameters.split(":")[1]
+    script_choice = None
+    if event_rule.action_parameters and 'script_choice' in event_rule_action_parameters:
+        script_choice = event_rule.action_parameters['script_choice']
+
+    if script_choice:
+        module_id = script_choice.split(":")[0]
+        script_name = script_choice.split(":")[1]
+    else:
+        logger.warning(f"event run script - event_rule: {event_rule.id} no script_choice selected")
+        return
 
     try:
         module = ScriptModule.objects.get(pk=module_id)

@@ -296,7 +296,11 @@ class EventRuleForm(NetBoxModelForm):
                 choices.append((str(module), scripts))
 
         self.fields['action_choice'].choices = choices
-        self.fields['action_choice'].initial = get_field_value(self, 'action_parameters')
+        parameters = get_field_value(self, 'action_parameters')
+        initial = None
+        if parameters and 'script_choice' in parameters:
+            initial = parameters['script_choice']
+        self.fields['action_choice'].initial = initial
 
     def init_webhook_choice(self):
         initial = None
@@ -331,12 +335,11 @@ class EventRuleForm(NetBoxModelForm):
         if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
-            self.cleaned_data['action_parameters'] = ''
         elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
             script = ScriptModule.objects.get(pk=action_choice.split(":")[0])
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script)
             self.cleaned_data['action_object_id'] = script.id
-            self.cleaned_data['action_parameters'] = action_choice
+            self.cleaned_data['action_parameters'] = {'script_choice': action_choice}
 
         return self.cleaned_data
 
