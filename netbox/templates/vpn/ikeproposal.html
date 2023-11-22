@@ -15,6 +15,10 @@
               <td>{{ object.name }}</td>
             </tr>
             <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
               <th scope="row">{% trans "Authentication method" %}</th>
               <td>{{ object.get_authentication_method_display }}</td>
             </tr>
@@ -35,8 +39,10 @@
               <td>{{ object.sa_lifetime|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
+              <th scope="row">{% trans "IKE Policies" %}</th>
+              <td>
+                <a href="{% url 'vpn:ikepolicy_list' %}?proposal_id={{ object.pk }}">{{ object.ike_policies.count }}</a>
+              </td>
             </tr>
           </table>
         </div>

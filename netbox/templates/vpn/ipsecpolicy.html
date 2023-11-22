@@ -15,12 +15,18 @@
               <td>{{ object.name }}</td>
             </tr>
             <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
               <th scope="row">{% trans "PFS group" %}</th>
               <td>{{ object.get_pfs_group_display|placeholder }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
+              <th scope="row">{% trans "IPSec Profiles" %}</th>
+              <td>
+                <a href="{% url 'vpn:ipsecprofile_list' %}?ipsec_policy_id={{ object.pk }}">{{ object.ipsec_profiles.count }}</a>
+              </td>
             </tr>
           </table>
         </div>
@@ -35,6 +41,14 @@
   </div>
   <div class="row">
     <div class="col col-md-12">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Proposals" %}</h5>
+        <div class="card-body htmx-container table-responsive"
+          hx-get="{% url 'vpn:ipsecproposal_list' %}?ipsec_policy_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
       {% plugin_full_width_page object %}
     </div>
   </div>
