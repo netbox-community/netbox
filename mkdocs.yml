@@ -74,6 +74,7 @@ nav:
         - Circuits: 'features/circuits.md'
         - Wireless: 'features/wireless.md'
         - Virtualization: 'features/virtualization.md'
+        - VPN Tunnels: 'features/vpn-tunnels.md'
         - Tenancy: 'features/tenancy.md'
         - Contacts: 'features/contacts.md'
         - Search: 'features/search.md'
@@ -252,6 +253,14 @@ nav:
             - ClusterType: 'models/virtualization/clustertype.md'
             - VMInterface: 'models/virtualization/vminterface.md'
             - VirtualMachine: 'models/virtualization/virtualmachine.md'
+        - VPN:
+            - IKEPolicy: 'models/vpn/ikepolicy.md'
+            - IKEProposal: 'models/vpn/ikeproposal.md'
+            - IPSecPolicy: 'models/vpn/ipsecpolicy.md'
+            - IPSecProfile: 'models/vpn/ipsecprofile.md'
+            - IPSecProposal: 'models/vpn/ipsecproposal.md'
+            - Tunnel: 'models/vpn/tunnel.md'
+            - TunnelTermination: 'models/vpn/tunneltermination.md'
         - Wireless:
             - WirelessLAN: 'models/wireless/wirelesslan.md'
             - WirelessLANGroup: 'models/wireless/wirelesslangroup.md'
