@@ -18,7 +18,6 @@ from utilities.forms.fields import (
 )
 from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
-from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'AggregateForm',
@@ -30,8 +29,6 @@ __all__ = (
     'IPAddressBulkAddForm',
     'IPAddressForm',
     'IPRangeForm',
-    'L2VPNForm',
-    'L2VPNTerminationForm',
     'PrefixForm',
     'RIRForm',
     'RoleForm',
@@ -755,97 +752,3 @@ class ServiceCreateForm(ServiceForm):
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
             raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")
-
-
-#
-# L2VPN
-#
-
-
-class L2VPNForm(TenancyForm, NetBoxModelForm):
-    slug = SlugField()
-    import_targets = DynamicModelMultipleChoiceField(
-        label=_('Import targets'),
-        queryset=RouteTarget.objects.all(),
-        required=False
-    )
-    export_targets = DynamicModelMultipleChoiceField(
-        label=_('Export targets'),
-        queryset=RouteTarget.objects.all(),
-        required=False
-    )
-    comments = CommentField()
-
-    fieldsets = (
-        (_('L2VPN'), ('name', 'slug', 'type', 'identifier', 'description', 'tags')),
-        (_('Route Targets'), ('import_targets', 'export_targets')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-    )
-
-    class Meta:
-        model = L2VPN
-        fields = (
-            'name', 'slug', 'type', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
-            'comments', 'tags'
-        )
-
-
-class L2VPNTerminationForm(NetBoxModelForm):
-    l2vpn = DynamicModelChoiceField(
-        queryset=L2VPN.objects.all(),
-        required=True,
-        query_params={},
-        label=_('L2VPN'),
-        fetch_trigger='open'
-    )
-    vlan = DynamicModelChoiceField(
-        queryset=VLAN.objects.all(),
-        required=False,
-        selector=True,
-        label=_('VLAN')
-    )
-    interface = DynamicModelChoiceField(
-        label=_('Interface'),
-        queryset=Interface.objects.all(),
-        required=False,
-        selector=True
-    )
-    vminterface = DynamicModelChoiceField(
-        queryset=VMInterface.objects.all(),
-        required=False,
-        selector=True,
-        label=_('Interface')
-    )
-
-    class Meta:
-        model = L2VPNTermination
-        fields = ('l2vpn', )
-
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {}).copy()
-
-        if instance:
-            if type(instance.assigned_object) is Interface:
-                initial['interface'] = instance.assigned_object
-            elif type(instance.assigned_object) is VLAN:
-                initial['vlan'] = instance.assigned_object
-            elif type(instance.assigned_object) is VMInterface:
-                initial['vminterface'] = instance.assigned_object
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        super().clean()
-
-        interface = self.cleaned_data.get('interface')
-        vminterface = self.cleaned_data.get('vminterface')
-        vlan = self.cleaned_data.get('vlan')
-
-        if not (interface or vminterface or vlan):
-            raise ValidationError(_('A termination must specify an interface or VLAN.'))
-        if len([x for x in (interface, vminterface, vlan) if x]) > 1:
-            raise ValidationError(_('A termination can only have one terminating object (an interface or VLAN).'))
-
-        self.instance.assigned_object = interface or vminterface or vlan

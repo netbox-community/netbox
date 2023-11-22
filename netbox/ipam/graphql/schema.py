@@ -3,8 +3,6 @@ import graphene
 from ipam import models
 from netbox.graphql.fields import ObjectField, ObjectListField
 from utilities.graphql_optimizer import gql_query_optimizer
-from vpn.models import L2VPN, L2VPNTermination
-
 from .types import *
 
 
@@ -38,18 +36,6 @@ class IPAMQuery(graphene.ObjectType):
 
     def resolve_ip_range_list(root, info, **kwargs):
         return gql_query_optimizer(models.IPRange.objects.all(), info)
-
-    l2vpn = ObjectField(L2VPNType)
-    l2vpn_list = ObjectListField(L2VPNType)
-
-    def resolve_l2vpn_list(root, info, **kwargs):
-        return gql_query_optimizer(L2VPN.objects.all(), info)
-
-    l2vpn_termination = ObjectField(L2VPNTerminationType)
-    l2vpn_termination_list = ObjectListField(L2VPNTerminationType)
-
-    def resolve_l2vpn_termination_list(root, info, **kwargs):
-        return gql_query_optimizer(L2VPNTermination.objects.all(), info)
 
     prefix = ObjectField(PrefixType)
     prefix_list = ObjectListField(PrefixType)

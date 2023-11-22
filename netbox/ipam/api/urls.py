@@ -23,8 +23,6 @@ router.register('vlan-groups', views.VLANGroupViewSet)
 router.register('vlans', views.VLANViewSet)
 router.register('service-templates', views.ServiceTemplateViewSet)
 router.register('services', views.ServiceViewSet)
-router.register('l2vpns', views.L2VPNViewSet)
-router.register('l2vpn-terminations', views.L2VPNTerminationViewSet)
 
 app_name = 'ipam-api'
 

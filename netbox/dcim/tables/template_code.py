@@ -316,8 +316,8 @@ INTERFACE_BUTTONS = """
       {% if perms.dcim.add_interface %}
         <li><a class="dropdown-item" href="{% url 'dcim:interface_add' %}?device={{ record.device_id }}&parent={{ record.pk }}&name={{ record.name }}.&type=virtual&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Child Interface</a></li>
       {% endif %}
-      {% if perms.ipam.add_l2vpntermination %}
-        <li><a class="dropdown-item" href="{% url 'ipam:l2vpntermination_add' %}?device={{ object.pk }}&interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
+      {% if perms.vpn.add_l2vpntermination %}
+        <li><a class="dropdown-item" href="{% url 'vpn:l2vpntermination_add' %}?device={{ object.pk }}&interface={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
       {% endif %}
       {% if perms.ipam.add_fhrpgroupassignment %}
         <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'dcim:device_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>

@@ -21,7 +21,6 @@ from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
-from vpn.models import L2VPN, L2VPNTermination
 from . import serializers
 
 
@@ -176,18 +175,6 @@ class ServiceViewSet(NetBoxModelViewSet):
     )
     serializer_class = serializers.ServiceSerializer
     filterset_class = filtersets.ServiceFilterSet
-
-
-class L2VPNViewSet(NetBoxModelViewSet):
-    queryset = L2VPN.objects.prefetch_related('import_targets', 'export_targets', 'tenant', 'tags')
-    serializer_class = serializers.L2VPNSerializer
-    filterset_class = filtersets.L2VPNFilterSet
-
-
-class L2VPNTerminationViewSet(NetBoxModelViewSet):
-    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
-    serializer_class = serializers.L2VPNTerminationSerializer
-    filterset_class = filtersets.L2VPNTerminationFilterSet
 
 
 #

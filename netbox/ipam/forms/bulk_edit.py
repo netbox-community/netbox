@@ -15,7 +15,6 @@ from utilities.forms.fields import (
 )
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.models import Cluster, ClusterGroup
-from vpn.models import L2VPN
 
 __all__ = (
     'AggregateBulkEditForm',
@@ -24,8 +23,6 @@ __all__ = (
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
-    'L2VPNBulkEditForm',
-    'L2VPNTerminationBulkEditForm',
     'PrefixBulkEditForm',
     'RIRBulkEditForm',
     'RoleBulkEditForm',
@@ -597,32 +594,3 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
     model = Service
-
-
-class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
-    type = forms.ChoiceField(
-        label=_('Type'),
-        choices=add_blank_choice(L2VPNTypeChoices),
-        required=False
-    )
-    tenant = DynamicModelChoiceField(
-        label=_('Tenant'),
-        queryset=Tenant.objects.all(),
-        required=False
-    )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
-
-    model = L2VPN
-    fieldsets = (
-        (None, ('type', 'tenant', 'description')),
-    )
-    nullable_fields = ('tenant', 'description', 'comments')
-
-
-class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):
-    model = L2VPN

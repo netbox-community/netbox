@@ -37,7 +37,7 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Comments'),
     )
     tags = columns.TagColumn(
-        url_name='ipam:l2vpn_list'
+        url_name='vpn:l2vpn_list'
     )
 
     class Meta(NetBoxTable.Meta):
