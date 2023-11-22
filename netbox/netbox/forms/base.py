@@ -4,11 +4,11 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import *
-from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 from extras.models import CustomField, Tag
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.mixins import BootstrapMixin, CheckLastUpdatedMixin
+from .mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 
 __all__ = (
     'NetBoxModelForm',

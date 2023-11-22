@@ -7,6 +7,7 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from netbox.forms.base import NetBoxModelFilterSetForm
+from netbox.forms.mixins import SavedFiltersMixin
 from tenancy.models import Tenant, TenantGroup
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import (
@@ -14,7 +15,6 @@ from utilities.forms.fields import (
 )
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-from .mixins import *
 
 __all__ = (
     'ConfigContextFilterForm',
