@@ -11,7 +11,7 @@ from django.views.generic import View
 
 from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
-from core.models import Job
+from core.models import ConfigRevision, Job
 from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class

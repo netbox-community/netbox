@@ -4,6 +4,7 @@ import django_tables2 as tables
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ConfigRevision
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
 from .template_code import *

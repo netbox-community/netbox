@@ -8,13 +8,14 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from core.models import ConfigRevision
 from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, webhooks_queue
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
-from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
+from .models import CustomField, ObjectChange, TaggedItem
 from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
 
 #
