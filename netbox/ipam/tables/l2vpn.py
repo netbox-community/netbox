@@ -1,9 +1,9 @@
 from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
 
-from ipam.models import L2VPN, L2VPNTermination
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin
+from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'L2VPNTable',

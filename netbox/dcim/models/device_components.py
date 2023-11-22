@@ -730,7 +730,7 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         related_query_name='interface'
     )
     l2vpn_terminations = GenericRelation(
-        to='ipam.L2VPNTermination',
+        to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface',

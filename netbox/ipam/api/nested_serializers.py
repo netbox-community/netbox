@@ -2,8 +2,8 @@ from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from ipam import models
-from ipam.models.l2vpn import L2VPNTermination, L2VPN
 from netbox.api.serializers import WritableNestedSerializer
+from vpn.models import L2VPN, L2VPNTermination
 from .field_serializers import IPAddressField
 
 __all__ = [

@@ -10,6 +10,7 @@ from ipam.choices import *
 from ipam.models import *
 from tenancy.models import Tenant
 from utilities.testing import ViewTestCases, create_test_device, create_tags
+from vpn.models import L2VPN, L2VPNTermination
 
 
 class ASNRangeTestCase(ViewTestCases.PrimaryObjectViewTestCase):

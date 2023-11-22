@@ -15,6 +15,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.models import Cluster, ClusterGroup
+from vpn.models import L2VPN
 
 __all__ = (
     'AggregateBulkEditForm',

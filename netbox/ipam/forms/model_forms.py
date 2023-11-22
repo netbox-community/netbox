@@ -18,6 +18,7 @@ from utilities.forms.fields import (
 )
 from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
+from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'AggregateForm',

@@ -14,7 +14,6 @@ from circuits.models import Provider
 from dcim.models import Site
 from ipam import filtersets
 from ipam.models import *
-from ipam.models import L2VPN, L2VPNTermination
 from ipam.utils import get_next_available_prefix
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
@@ -22,6 +21,7 @@ from netbox.config import get_config
 from netbox.constants import ADVISORY_LOCK_KEYS
 from utilities.api import get_serializer_for_model
 from utilities.utils import count_related
+from vpn.models import L2VPN, L2VPNTermination
 from . import serializers
 
 

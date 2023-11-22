@@ -15,6 +15,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine, VMInterface
+from vpn.models import L2VPN, L2VPNTermination
 from .choices import *
 from .models import *
 

@@ -3,8 +3,9 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase, override_settings
 
 from dcim.models import Interface, Device, DeviceRole, DeviceType, Manufacturer, Site
-from ipam.choices import IPAddressRoleChoices, PrefixStatusChoices
-from ipam.models import Aggregate, IPAddress, IPRange, Prefix, RIR, VLAN, VLANGroup, VRF, L2VPN, L2VPNTermination
+from ipam.choices import *
+from ipam.models import *
+from vpn.models import L2VPN, L2VPNTermination
 
 
 class TestAggregate(TestCase):

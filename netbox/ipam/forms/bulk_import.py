@@ -13,6 +13,7 @@ from utilities.forms.fields import (
     CSVChoiceField, CSVContentTypeField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
 )
 from virtualization.models import VirtualMachine, VMInterface
+from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'AggregateImportForm',

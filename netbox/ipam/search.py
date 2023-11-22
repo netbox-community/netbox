@@ -1,5 +1,6 @@
-from . import models
 from netbox.search import SearchIndex, register_search
+from vpn.models import L2VPN
+from . import models
 
 
 @register_search
@@ -71,7 +72,7 @@ class IPRangeIndex(SearchIndex):
 
 @register_search
 class L2VPNIndex(SearchIndex):
-    model = models.L2VPN
+    model = L2VPN
     fields = (
         ('name', 100),
         ('slug', 110),

@@ -10,6 +10,7 @@ from ipam.models import *
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
 from tenancy.models import Tenant, TenantGroup
+from vpn.models import L2VPN, L2VPNTermination
 
 
 class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTests):

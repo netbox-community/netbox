@@ -13,6 +13,7 @@ from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
 from virtualization.models import VirtualMachine
+from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'AggregateFilterForm',

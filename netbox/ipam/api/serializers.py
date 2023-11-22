@@ -12,6 +12,7 @@ from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
+from vpn.models import L2VPN, L2VPNTermination
 from .nested_serializers import *
 from .field_serializers import IPAddressField, IPNetworkField
 

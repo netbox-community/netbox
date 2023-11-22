@@ -4,6 +4,7 @@ from extras.graphql.mixins import ContactsMixin
 from ipam import filtersets, models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'ASNType',
@@ -192,7 +193,7 @@ class VRFType(NetBoxObjectType):
 
 class L2VPNType(ContactsMixin, NetBoxObjectType):
     class Meta:
-        model = models.L2VPN
+        model = L2VPN
         fields = '__all__'
         filtersets_class = filtersets.L2VPNFilterSet
 
@@ -201,6 +202,6 @@ class L2VPNTerminationType(NetBoxObjectType):
     assigned_object = graphene.Field('ipam.graphql.gfk_mixins.L2VPNAssignmentType')
 
     class Meta:
-        model = models.L2VPNTermination
+        model = L2VPNTermination
         exclude = ('assigned_object_type', 'assigned_object_id')
         filtersets_class = filtersets.L2VPNTerminationFilterSet
