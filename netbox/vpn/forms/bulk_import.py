@@ -166,7 +166,7 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
     class Meta:
         model = IKEPolicy
         fields = (
-            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'certificate', 'tags',
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'tags',
         )
 
 

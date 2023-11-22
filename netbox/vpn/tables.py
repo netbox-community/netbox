@@ -146,9 +146,6 @@ class IKEPolicyTable(NetBoxTable):
     preshared_key = tables.Column(
         verbose_name=_('Pre-shared Key')
     )
-    certificate = tables.Column(
-        verbose_name=_('Certificate')
-    )
     tags = columns.TagColumn(
         url_name='vpn:ikepolicy_list'
     )
@@ -156,8 +153,8 @@ class IKEPolicyTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IKEPolicy
         fields = (
-            'pk', 'id', 'name', 'version', 'mode', 'proposals', 'preshared_key', 'certificate', 'description', 'tags',
-            'created', 'last_updated',
+            'pk', 'id', 'name', 'version', 'mode', 'proposals', 'preshared_key', 'description', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
             'pk', 'name', 'version', 'mode', 'proposals', 'description',

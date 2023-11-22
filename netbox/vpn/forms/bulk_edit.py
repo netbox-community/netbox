@@ -134,10 +134,6 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Pre-shared key'),
         required=False
     )
-    certificate = forms.CharField(
-        label=_('Certificate'),
-        required=False
-    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -148,11 +144,11 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
     model = IKEPolicy
     fieldsets = (
         (None, (
-            'version', 'mode', 'preshared_key', 'certificate', 'description',
+            'version', 'mode', 'preshared_key', 'description',
         )),
     )
     nullable_fields = (
-        'preshared_key', 'certificate', 'description', 'comments',
+        'preshared_key', 'description', 'comments',
     )
 
 

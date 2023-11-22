@@ -98,10 +98,6 @@ class IKEPolicy(NetBoxModel):
         verbose_name=_('pre-shared key'),
         blank=True
     )
-    certificate = models.TextField(
-        verbose_name=_('certificate'),
-        blank=True
-    )
 
     clone_fields = (
         'version', 'mode', 'proposals',

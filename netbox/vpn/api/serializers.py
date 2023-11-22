@@ -128,8 +128,8 @@ class IKEPolicySerializer(NetBoxModelSerializer):
     class Meta:
         model = IKEPolicy
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key',
-            'certificate', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'tags',
+            'custom_fields', 'created', 'last_updated',
         )
 
 

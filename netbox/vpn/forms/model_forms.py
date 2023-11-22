@@ -289,14 +289,13 @@ class IKEPolicyForm(NetBoxModelForm):
 
     fieldsets = (
         (_('Policy'), ('name', 'description', 'tags')),
-        (_('Parameters'), ('version', 'mode', 'proposals')),
-        (_('Authentication'), ('preshared_key', 'certificate')),
+        (_('Parameters'), ('version', 'mode', 'proposals', 'preshared_key')),
     )
 
     class Meta:
         model = IKEPolicy
         fields = [
-            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'certificate', 'tags',
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'tags',
         ]
 
 
