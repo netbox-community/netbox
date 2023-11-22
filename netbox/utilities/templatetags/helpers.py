@@ -13,6 +13,7 @@ __all__ = (
     'applied_filters',
     'as_range',
     'divide',
+    'fixindent',
     'get_item',
     'get_key',
     'humanize_megabytes',
@@ -303,3 +304,19 @@ def applied_filters(context, model, form, query_params):
         'applied_filters': applied_filters,
         'save_link': save_link,
     }
+
+
+@register.filter
+def fixindent(value: str) -> str:
+    """
+    Fixes the indentation of multiline strings so they align well
+    within the changelog view.
+    """
+    lines = value.splitlines(keepends=True)
+    # For 1 line, the indentation doesn't need to be fixed
+    if len(lines) == 1:
+        return value
+    ret = lines[0]
+    for line in lines[1:]:
+        ret += f'    {line}'
+    return ret

@@ -7,7 +7,7 @@ __all__ = (
     'deepmerge',
     'drange',
     'flatten_dict',
-    'shallow_compare_dict',
+    'deep_compare_dict',
 )
 
 
@@ -46,20 +46,34 @@ def flatten_dict(d, prefix='', separator='.'):
     return ret
 
 
-def shallow_compare_dict(source_dict, destination_dict, exclude=tuple()):
+def deep_compare_dict(old, new, exclude=tuple()):
     """
-    Return a new dictionary of the different keys. The values of `destination_dict` are returned. Only the equality of
-    the first layer of keys/values is checked. `exclude` is a list or tuple of keys to be ignored.
+    Return a tuple of two dictionaries `(removed_diffs, added_diffs)` in a format
+    that is compatible with the requirements of `ObjectChangeView`.
+    `exclude` is a list or tuple of keys to be ignored.
     """
-    difference = {}
+    added_diffs = {}
+    removed_diffs = {}
 
-    for key, value in destination_dict.items():
+    for key in old:
         if key in exclude:
             continue
-        if source_dict.get(key) != value:
-            difference[key] = value
 
-    return difference
+        old_data = old[key]
+        new_data = new[key]
+
+        if old_data != new_data:
+            if isinstance(old_data, dict) and isinstance(new_data, dict):
+                (sub_added, sub_removed) = deep_compare_dict(old_data, new_data, exclude=exclude)
+                if len(sub_removed) > 0:
+                    removed_diffs[key] = sub_removed
+                if len(sub_added) > 0:
+                    added_diffs[key] = sub_added
+            else:
+                removed_diffs[key] = old_data
+                added_diffs[key] = new_data
+
+    return added_diffs, removed_diffs
 
 
 #

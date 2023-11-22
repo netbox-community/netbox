@@ -19,7 +19,7 @@ from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
-from utilities.data import shallow_compare_dict
+from utilities.data import deep_compare_dict
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -729,21 +729,28 @@ class ObjectChangeView(generic.ObjectView):
             prechange_data = instance.prechange_data_clean
 
         if prechange_data and instance.postchange_data:
-            diff_added = shallow_compare_dict(
-                prechange_data or dict(),
-                instance.postchange_data_clean or dict(),
-                exclude=['last_updated'],
-            )
-            diff_removed = {
-                x: prechange_data.get(x) for x in diff_added
-            } if prechange_data else {}
+            diff_added, diff_removed = deep_compare_dict(prechange_data, instance.postchange_data, exclude=('last_updated'))
+            custom_fields_added = diff_added['custom_fields'] if 'custom_fields' in diff_added else None
+            custom_fields_removed = diff_removed['custom_fields'] if 'custom_fields' in diff_removed else None
+            cfr_list = []
+            if custom_fields_added:
+                for cf, cf_value in prechange_data['custom_fields'].items():
+                    cfr_list.append((cf, cf_value, cf in custom_fields_added))
+            cfa_list = []
+            if custom_fields_removed:
+                for cf, cf_value in instance.postchange_data['custom_fields'].items():
+                    cfa_list.append((cf, cf_value, cf in custom_fields_removed))
         else:
             diff_added = None
             diff_removed = None
+            cfa_list = None
+            cfr_list = None
 
         return {
             'diff_added': diff_added,
             'diff_removed': diff_removed,
+            "cfa_list": cfa_list,
+            "cfr_list": cfr_list,
             'next_change': next_change,
             'prev_change': prev_change,
             'related_changes_table': related_changes_table,

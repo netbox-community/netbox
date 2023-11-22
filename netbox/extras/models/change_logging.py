@@ -11,7 +11,7 @@ from mptt.models import MPTTModel
 from core.models import ObjectType
 from extras.choices import *
 from netbox.models.features import ChangeLoggingMixin
-from utilities.data import shallow_compare_dict
+from utilities.data import deep_compare_dict
 from ..querysets import ObjectChangeQuerySet
 
 __all__ = (
@@ -198,7 +198,7 @@ class ObjectChange(models.Model):
             changed_attrs = sorted(prechange_data.keys())
         else:
             # TODO: Support deep (recursive) comparison
-            changed_data = shallow_compare_dict(prechange_data, postchange_data)
+            changed_data = deep_compare_dict(prechange_data, postchange_data)
             changed_attrs = sorted(changed_data.keys())
 
         return {
