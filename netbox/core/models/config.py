@@ -51,7 +51,7 @@ class ConfigRevision(models.Model):
     def get_absolute_url(self):
         if not self.pk:
             return reverse('core:config')  # Default config view
-        return reverse('extras:configrevision', args=[self.pk])
+        return reverse('core:configrevision', args=[self.pk])
 
     def activate(self):
         """

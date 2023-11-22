@@ -8,7 +8,6 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
-from core.models import ConfigRevision
 from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, webhooks_queue
@@ -218,18 +217,6 @@ def run_delete_validators(sender, instance, **kwargs):
                 message=e
             )
         )
-
-
-#
-# Dynamic configuration
-#
-
-@receiver(post_save, sender=ConfigRevision)
-def update_config(sender, instance, **kwargs):
-    """
-    Update the cached NetBox configuration when a new ConfigRevision is created.
-    """
-    instance.activate()
 
 
 #

@@ -18,7 +18,6 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
     'ConfigContextFilterForm',
-    'ConfigRevisionFilterForm',
     'ConfigTemplateFilterForm',
     'CustomFieldChoiceSetFilterForm',
     'CustomFieldFilterForm',
@@ -498,10 +497,4 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         widget=APISelectMultiple(
             api_url='/api/extras/content-types/',
         )
-    )
-
-
-class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
-    fieldsets = (
-        (None, ('q', 'filter_id')),
     )

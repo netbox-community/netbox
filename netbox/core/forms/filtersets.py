@@ -12,6 +12,7 @@ from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleC
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 
 __all__ = (
+    'ConfigRevisionFilterForm',
     'DataFileFilterForm',
     'DataSourceFilterForm',
     'JobFilterForm',
@@ -122,4 +123,10 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         widget=APISelectMultiple(
             api_url='/api/users/users/',
         )
+    )
+
+
+class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id')),
     )

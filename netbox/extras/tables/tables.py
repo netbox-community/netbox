@@ -4,7 +4,6 @@ import django_tables2 as tables
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ConfigRevision
 from extras.models import *
 from netbox.tables import NetBoxTable, columns
 from .template_code import *
@@ -12,7 +11,6 @@ from .template_code import *
 __all__ = (
     'BookmarkTable',
     'ConfigContextTable',
-    'ConfigRevisionTable',
     'ConfigTemplateTable',
     'CustomFieldChoiceSetTable',
     'CustomFieldTable',
@@ -34,31 +32,6 @@ IMAGEATTACHMENT_IMAGE = '''
   &mdash;
 {% endif %}
 '''
-
-REVISION_BUTTONS = """
-{% if not record.is_active %}
-<a href="{% url 'extras:configrevision_restore' pk=record.pk %}" class="btn btn-sm btn-primary" title="Restore config">
-    <i class="mdi mdi-file-restore"></i>
-</a>
-{% endif %}
-"""
-
-
-class ConfigRevisionTable(NetBoxTable):
-    is_active = columns.BooleanColumn(
-        verbose_name=_('Is Active'),
-    )
-    actions = columns.ActionsColumn(
-        actions=('delete',),
-        extra_buttons=REVISION_BUTTONS
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = ConfigRevision
-        fields = (
-            'pk', 'id', 'is_active', 'created', 'comment',
-        )
-        default_columns = ('pk', 'id', 'is_active', 'created', 'comment')
 
 
 class CustomFieldTable(NetBoxTable):
