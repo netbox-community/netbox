@@ -65,6 +65,8 @@ class TunnelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class TunnelTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = TunnelTermination
+    # TODO: Workaround for conflict between form field and GFK
+    validation_excluded_fields = ('interface',)
 
     @classmethod
     def setUpTestData(cls):
@@ -112,7 +114,6 @@ class TunnelTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': TunnelTerminationRoleChoices.ROLE_PEER,
             'type': TunnelTerminationTypeChoices.TYPE_DEVICE,
             'parent': device.pk,
-            # TODO: Solve for GFK validation
             'interface': interfaces[6].pk,
             'tags': [t.pk for t in tags],
         }
