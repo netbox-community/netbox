@@ -1576,6 +1576,17 @@ class FrontPortFilterSet(
     NetBoxModelFilterSet,
     CabledObjectFilterSet
 ):
+    virtual_chassis_member = MultiValueCharFilter(
+        method='filter_virtual_chassis_member',
+        field_name='name',
+        label=_('Virtual Chassis Front Ports for Device')
+    )
+    virtual_chassis_member_id = MultiValueNumberFilter(
+        method='filter_virtual_chassis_member',
+        field_name='pk',
+        label=_('Virtual Chassis Front Ports for Device (ID)')
+    )
+    
     type = django_filters.MultipleChoiceFilter(
         choices=PortTypeChoices,
         null_value=None
@@ -1585,6 +1596,15 @@ class FrontPortFilterSet(
         model = FrontPort
         fields = ['id', 'name', 'label', 'type', 'color', 'description', 'cable_end']
 
+    def filter_virtual_chassis_member(self, queryset, name, value):
+        try:
+            vc_front_port_ids = []
+            for device in Device.objects.filter(**{f'{name}__in': value}):
+                vc_front_port_ids.extend(device.vc_front_ports(if_master=False).values_list('id', flat=True))
+            return queryset.filter(pk__in=vc_front_port_ids)
+        except Device.DoesNotExist:
+            return queryset.none()
+        
 
 class RearPortFilterSet(
     ModularDeviceComponentFilterSet,

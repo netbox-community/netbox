@@ -1103,6 +1103,22 @@ class Device(
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)
 
+    @property
+    def front_ports_count(self):
+        return self.vc_front_ports().count()
+    
+    def vc_front_ports(self, if_master=True):
+        """
+        Return a QuerySet matching all FrontPorts assigned to this Device or, if this Device is a VC master, to another
+        Device belonging to the same VirtualChassis.
+
+        :param if_master: If True, return VC member front ports only if this Device is the VC master.
+        """
+        filter = Q(device=self)
+        if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
+            filter |= Q(device__virtual_chassis=self.virtual_chassis)
+        return FrontPort.objects.filter(filter)
+    
     def get_cables(self, pk_list=False):
         """
         Return a QuerySet or PK list matching all Cables connected to a component of this Device.

@@ -1945,12 +1945,15 @@ class DeviceFrontPortsView(DeviceComponentsView):
     template_name = 'dcim/device/frontports.html'
     tab = ViewTab(
         label=_('Front Ports'),
-        badge=lambda obj: obj.front_port_count,
+        badge=lambda obj: obj.vc_front_ports().count(),
         permission='dcim.view_frontport',
         weight=530,
         hide_if_empty=True
     )
 
+    def get_children(self, request, parent):
+        return parent.vc_front_ports().restrict(request.user, 'view')
+    
 
 @register_model_view(Device, 'rearports', path='rear-ports')
 class DeviceRearPortsView(DeviceComponentsView):
