@@ -229,7 +229,7 @@ class Job(models.Model):
                 model_name=self.object_type.model,
                 event=event,
                 data=self.data,
-                timestamp=str(timezone.now()),
+                timestamp=str(timezone.now().isoformat()),
                 username=self.user.username,
                 retry=get_rq_retry()
             )
