@@ -20,17 +20,17 @@
             </tr>
             <tr>
               <th scope="row">
-                {% if object.interface.device %}
+                {% if object.termination.device %}
                   {% trans "Device" %}
-                {% elif object.interface.virtual_machine %}
+                {% elif object.termination.virtual_machine %}
                   {% trans "Virtual Machine" %}
                 {% endif %}
               </th>
-              <td>{{ object.interface.parent_object|linkify }}</td>
+              <td>{{ object.termination.parent_object|linkify }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Interface" %}</th>
-              <td>{{ object.interface|linkify }}</td>
+              <td>{{ object.termination|linkify }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Outside IP" %}</th>

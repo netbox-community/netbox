@@ -65,7 +65,7 @@ class TunnelCreateForm(TunnelForm):
         selector=True,
         label=_('Device')
     )
-    termination1_interface = DynamicModelChoiceField(
+    termination1_termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         label=_('Interface'),
@@ -100,7 +100,7 @@ class TunnelCreateForm(TunnelForm):
         selector=True,
         label=_('Device')
     )
-    termination2_interface = DynamicModelChoiceField(
+    termination2_termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
         label=_('Interface'),
@@ -122,11 +122,11 @@ class TunnelCreateForm(TunnelForm):
         (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant_group', 'tenant')),
         (_('First Termination'), (
-            'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_interface',
+            'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_termination',
             'termination1_outside_ip',
         )),
         (_('Second Termination'), (
-            'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_interface',
+            'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_termination',
             'termination2_outside_ip',
         )),
     )
@@ -137,8 +137,8 @@ class TunnelCreateForm(TunnelForm):
         if initial and initial.get('termination1_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
             self.fields['termination1_parent'].label = _('Virtual Machine')
             self.fields['termination1_parent'].queryset = VirtualMachine.objects.all()
-            self.fields['termination1_interface'].queryset = VMInterface.objects.all()
-            self.fields['termination1_interface'].widget.add_query_params({
+            self.fields['termination1_termination'].queryset = VMInterface.objects.all()
+            self.fields['termination1_termination'].widget.add_query_params({
                 'virtual_machine_id': '$termination1_parent',
             })
             self.fields['termination1_outside_ip'].widget.add_query_params({
@@ -148,8 +148,8 @@ class TunnelCreateForm(TunnelForm):
         if initial and initial.get('termination2_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
             self.fields['termination2_parent'].label = _('Virtual Machine')
             self.fields['termination2_parent'].queryset = VirtualMachine.objects.all()
-            self.fields['termination2_interface'].queryset = VMInterface.objects.all()
-            self.fields['termination2_interface'].widget.add_query_params({
+            self.fields['termination2_termination'].queryset = VMInterface.objects.all()
+            self.fields['termination2_termination'].widget.add_query_params({
                 'virtual_machine_id': '$termination2_parent',
             })
             self.fields['termination2_outside_ip'].widget.add_query_params({
@@ -162,7 +162,7 @@ class TunnelCreateForm(TunnelForm):
         # Validate attributes for each termination (if any)
         for term in ('termination1', 'termination2'):
             required_parameters = (
-                f'{term}_role', f'{term}_parent', f'{term}_interface',
+                f'{term}_role', f'{term}_parent', f'{term}_termination',
             )
             parameters = (
                 *required_parameters,
@@ -179,20 +179,20 @@ class TunnelCreateForm(TunnelForm):
         instance = super().save(*args, **kwargs)
 
         # Create first termination
-        if self.cleaned_data['termination1_interface']:
+        if self.cleaned_data['termination1_termination']:
             TunnelTermination.objects.create(
                 tunnel=instance,
                 role=self.cleaned_data['termination1_role'],
-                interface=self.cleaned_data['termination1_interface'],
+                termination=self.cleaned_data['termination1_termination'],
                 outside_ip=self.cleaned_data['termination1_outside_ip'],
             )
 
         # Create second termination, if defined
-        if self.cleaned_data['termination2_interface']:
+        if self.cleaned_data['termination2_termination']:
             TunnelTermination.objects.create(
                 tunnel=instance,
                 role=self.cleaned_data['termination2_role'],
-                interface=self.cleaned_data['termination2_interface'],
+                termination=self.cleaned_data['termination2_termination'],
                 outside_ip=self.cleaned_data.get('termination1_outside_ip'),
             )
 
@@ -213,7 +213,7 @@ class TunnelTerminationForm(NetBoxModelForm):
         selector=True,
         label=_('Device')
     )
-    interface = DynamicModelChoiceField(
+    termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         label=_('Interface'),
         query_params={
@@ -230,13 +230,13 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (None, ('tunnel', 'role', 'type', 'parent', 'interface', 'outside_ip', 'tags')),
+        (None, ('tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags')),
     )
 
     class Meta:
         model = TunnelTermination
         fields = [
-            'tunnel', 'role', 'interface', 'outside_ip', 'tags',
+            'tunnel', 'role', 'termination', 'outside_ip', 'tags',
         ]
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -245,8 +245,8 @@ class TunnelTerminationForm(NetBoxModelForm):
         if initial and initial.get('type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
             self.fields['parent'].label = _('Virtual Machine')
             self.fields['parent'].queryset = VirtualMachine.objects.all()
-            self.fields['interface'].queryset = VMInterface.objects.all()
-            self.fields['interface'].widget.add_query_params({
+            self.fields['termination'].queryset = VMInterface.objects.all()
+            self.fields['termination'].widget.add_query_params({
                 'virtual_machine_id': '$parent',
             })
             self.fields['outside_ip'].widget.add_query_params({
@@ -254,14 +254,14 @@ class TunnelTerminationForm(NetBoxModelForm):
             })
 
         if self.instance.pk:
-            self.fields['parent'].initial = self.instance.interface.parent_object
-            self.fields['interface'].initial = self.instance.interface
+            self.fields['parent'].initial = self.instance.termination.parent_object
+            self.fields['termination'].initial = self.instance.termination
 
     def clean(self):
         super().clean()
 
-        # Assign the interface
-        self.instance.interface = self.cleaned_data.get('interface')
+        # Set the terminated object
+        self.instance.termination = self.cleaned_data.get('termination')
 
 
 class IKEProposalForm(NetBoxModelForm):

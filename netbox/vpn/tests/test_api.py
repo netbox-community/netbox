@@ -96,17 +96,17 @@ class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
             TunnelTermination(
                 tunnel=tunnel,
                 role=TunnelTerminationRoleChoices.ROLE_HUB,
-                interface=interfaces[0]
+                termination=interfaces[0]
             ),
             TunnelTermination(
                 tunnel=tunnel,
                 role=TunnelTerminationRoleChoices.ROLE_HUB,
-                interface=interfaces[1]
+                termination=interfaces[1]
             ),
             TunnelTermination(
                 tunnel=tunnel,
                 role=TunnelTerminationRoleChoices.ROLE_HUB,
-                interface=interfaces[2]
+                termination=interfaces[2]
             ),
         )
         TunnelTermination.objects.bulk_create(tunnel_terminations)
@@ -115,20 +115,20 @@ class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
             {
                 'tunnel': tunnel.pk,
                 'role': TunnelTerminationRoleChoices.ROLE_PEER,
-                'interface_type': 'dcim.interface',
-                'interface_id': interfaces[3].pk,
+                'termination_type': 'dcim.interface',
+                'termination_id': interfaces[3].pk,
             },
             {
                 'tunnel': tunnel.pk,
                 'role': TunnelTerminationRoleChoices.ROLE_PEER,
-                'interface_type': 'dcim.interface',
-                'interface_id': interfaces[4].pk,
+                'termination_type': 'dcim.interface',
+                'termination_id': interfaces[4].pk,
             },
             {
                 'tunnel': tunnel.pk,
                 'role': TunnelTerminationRoleChoices.ROLE_PEER,
-                'interface_type': 'dcim.interface',
-                'interface_id': interfaces[5].pk,
+                'termination_type': 'dcim.interface',
+                'termination_id': interfaces[5].pk,
             },
         ]
 

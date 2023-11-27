@@ -58,10 +58,10 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
     role = ChoiceField(
         choices=TunnelTerminationRoleChoices
     )
-    interface_type = ContentTypeField(
+    termination_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
-    interface = serializers.SerializerMethodField(
+    termination = serializers.SerializerMethodField(
         read_only=True
     )
     outside_ip = NestedIPAddressSerializer(
@@ -72,15 +72,15 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
     class Meta:
         model = TunnelTermination
         fields = (
-            'id', 'url', 'display', 'tunnel', 'role', 'interface_type', 'interface_id', 'interface', 'outside_ip',
+            'id', 'url', 'display', 'tunnel', 'role', 'termination_type', 'termination_id', 'termination', 'outside_ip',
             'tags', 'custom_fields', 'created', 'last_updated',
         )
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_interface(self, obj):
-        serializer = get_serializer_for_model(obj.interface, prefix=NESTED_SERIALIZER_PREFIX)
+    def get_termination(self, obj):
+        serializer = get_serializer_for_model(obj.termination, prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
-        return serializer(obj.interface, context=context).data
+        return serializer(obj.termination, context=context).data
 
 
 class IKEProposalSerializer(NetBoxModelSerializer):

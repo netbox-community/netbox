@@ -147,19 +147,19 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
             TunnelTermination(
                 tunnel=tunnels[0],
                 role=TunnelTerminationRoleChoices.ROLE_HUB,
-                interface=interfaces[0],
+                termination=interfaces[0],
                 outside_ip=ip_addresses[0]
             ),
             TunnelTermination(
                 tunnel=tunnels[1],
                 role=TunnelTerminationRoleChoices.ROLE_SPOKE,
-                interface=interfaces[1],
+                termination=interfaces[1],
                 outside_ip=ip_addresses[1]
             ),
             TunnelTermination(
                 tunnel=tunnels[2],
                 role=TunnelTerminationRoleChoices.ROLE_PEER,
-                interface=interfaces[2],
+                termination=interfaces[2],
                 outside_ip=ip_addresses[2]
             ),
         )

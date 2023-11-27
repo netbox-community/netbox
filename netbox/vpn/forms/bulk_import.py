@@ -78,12 +78,12 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text=_('Parent VM of assigned interface')
     )
-    interface = CSVModelChoiceField(
-        label=_('Interface'),
+    termination = CSVModelChoiceField(
+        label=_('Termination'),
         queryset=Interface.objects.none(),  # Can also refer to VMInterface
         required=False,
         to_field_name='name',
-        help_text=_('Assigned interface')
+        help_text=_('Device or virtual machine interface')
     )
     outside_ip = CSVModelChoiceField(
         label=_('Outside IP'),
@@ -103,21 +103,21 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
 
         if data:
 
-            # Limit interface queryset by assigned device/VM
+            # Limit termination queryset by assigned device/VM
             if data.get('device'):
-                self.fields['interface'].queryset = Interface.objects.filter(
+                self.fields['termination'].queryset = Interface.objects.filter(
                     **{f"device__{self.fields['device'].to_field_name}": data['device']}
                 )
             elif data.get('virtual_machine'):
-                self.fields['interface'].queryset = VMInterface.objects.filter(
+                self.fields['termination'].queryset = VMInterface.objects.filter(
                     **{f"virtual_machine__{self.fields['virtual_machine'].to_field_name}": data['virtual_machine']}
                 )
 
     def save(self, *args, **kwargs):
 
-        # Set interface assignment
-        if self.cleaned_data.get('interface'):
-            self.instance.interface = self.cleaned_data['interface']
+        # Assign termination object
+        if self.cleaned_data.get('termination'):
+            self.instance.termination = self.cleaned_data['termination']
 
         return super().save(*args, **kwargs)
 

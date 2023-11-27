@@ -1,5 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
-
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
 from vpn.choices import *
@@ -66,7 +64,7 @@ class TunnelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 class TunnelTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = TunnelTermination
     # TODO: Workaround for conflict between form field and GFK
-    validation_excluded_fields = ('interface',)
+    validation_excluded_fields = ('termination',)
 
     @classmethod
     def setUpTestData(cls):
@@ -92,17 +90,17 @@ class TunnelTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             TunnelTermination(
                 tunnel=tunnel,
                 role=TunnelTerminationRoleChoices.ROLE_HUB,
-                interface=interfaces[0]
+                termination=interfaces[0]
             ),
             TunnelTermination(
                 tunnel=tunnel,
                 role=TunnelTerminationRoleChoices.ROLE_SPOKE,
-                interface=interfaces[1]
+                termination=interfaces[1]
             ),
             TunnelTermination(
                 tunnel=tunnel,
                 role=TunnelTerminationRoleChoices.ROLE_SPOKE,
-                interface=interfaces[2]
+                termination=interfaces[2]
             ),
         )
         TunnelTermination.objects.bulk_create(tunnel_terminations)
@@ -114,12 +112,12 @@ class TunnelTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'role': TunnelTerminationRoleChoices.ROLE_PEER,
             'type': TunnelTerminationTypeChoices.TYPE_DEVICE,
             'parent': device.pk,
-            'interface': interfaces[6].pk,
+            'termination': interfaces[6].pk,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "tunnel,role,device,interface",
+            "tunnel,role,device,termination",
             "Tunnel 1,peer,Device 1,Interface 4",
             "Tunnel 1,peer,Device 1,Interface 5",
             "Tunnel 1,peer,Device 1,Interface 6",

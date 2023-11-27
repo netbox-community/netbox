@@ -82,18 +82,18 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         choices=TunnelTerminationRoleChoices,
         default=TunnelTerminationRoleChoices.ROLE_PEER
     )
-    interface_type = models.ForeignKey(
+    termination_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         related_name='+'
     )
-    interface_id = models.PositiveBigIntegerField(
+    termination_id = models.PositiveBigIntegerField(
         blank=True,
         null=True
     )
-    interface = GenericForeignKey(
-        ct_field='interface_type',
-        fk_field='interface_id'
+    termination = GenericForeignKey(
+        ct_field='termination_type',
+        fk_field='termination_id'
     )
     outside_ip = models.OneToOneField(
         to='ipam.IPAddress',
@@ -111,9 +111,9 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         ordering = ('tunnel', 'role', 'pk')
         constraints = (
             models.UniqueConstraint(
-                fields=('interface_type', 'interface_id'),
-                name='%(app_label)s_%(class)s_interface',
-                violation_error_message=_("An interface may be terminated to only one tunnel at a time.")
+                fields=('termination_type', 'termination_id'),
+                name='%(app_label)s_%(class)s_termination',
+                violation_error_message=_("An object may be terminated to only one tunnel at a time.")
             ),
         )
         verbose_name = _('tunnel termination')
@@ -131,12 +131,12 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
     def clean(self):
         super().clean()
 
-        # Check that the selected Interface is not already attached to a Tunnel
-        if getattr(self.interface, 'tunnel_termination', None) and self.interface.tunnel_termination.pk != self.pk:
+        # Check that the selected termination object is not already attached to a Tunnel
+        if getattr(self.termination, 'tunnel_termination', None) and self.termination.tunnel_termination.pk != self.pk:
             raise ValidationError({
-                'interface': _("Interface {name} is already attached to a tunnel ({tunnel}).").format(
-                    name=self.interface.name,
-                    tunnel=self.interface.tunnel_termination.tunnel
+                'termination': _("{name} is already attached to a tunnel ({tunnel}).").format(
+                    name=self.termination.name,
+                    tunnel=self.termination.tunnel_termination.tunnel
                 )
             })
 

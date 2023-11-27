@@ -104,8 +104,8 @@ class Migration(migrations.Migration):
                 ('last_updated', models.DateTimeField(auto_now=True, null=True)),
                 ('custom_field_data', models.JSONField(blank=True, default=dict, encoder=utilities.json.CustomFieldJSONEncoder)),
                 ('role', models.CharField(default='peer', max_length=50)),
-                ('interface_id', models.PositiveBigIntegerField(blank=True, null=True)),
-                ('interface_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
+                ('termination_id', models.PositiveBigIntegerField(blank=True, null=True)),
+                ('termination_type', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='+', to='contenttypes.contenttype')),
                 ('outside_ip', models.OneToOneField(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='tunnel_termination', to='ipam.ipaddress')),
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
                 ('tunnel', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='terminations', to='vpn.tunnel')),
@@ -181,6 +181,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AddConstraint(
             model_name='tunneltermination',
-            constraint=models.UniqueConstraint(fields=('interface_type', 'interface_id'), name='vpn_tunneltermination_interface', violation_error_message='An interface may be terminated to only one tunnel at a time.'),
+            constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='vpn_tunneltermination_termination', violation_error_message='An object may be terminated to only one tunnel at a time.'),
         ),
     ]
