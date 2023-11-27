@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                     },
                 ),
             ],
-            # Table has been renamed from extras_configrevision
+            # Table will be renamed from extras_configrevision in extras/0101_move_configrevision
             database_operations=[],
         ),
     ]
