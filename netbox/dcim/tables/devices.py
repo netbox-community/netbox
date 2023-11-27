@@ -584,6 +584,12 @@ class BaseInterfaceTable(NetBoxTable):
         orderable=False,
         verbose_name=_('L2VPN')
     )
+    tunnel = tables.Column(
+        accessor=tables.A('tunnel_termination__tunnel'),
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Tunnel')
+    )
     untagged_vlan = tables.Column(
         verbose_name=_('Untagged VLAN'),
         linkify=True
@@ -646,7 +652,8 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
             'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'inventory_items', 'created', 'last_updated',
+            'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'inventory_items', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -682,8 +689,8 @@ class DeviceInterfaceTable(InterfaceTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
             'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups',
-            'untagged_vlan', 'tagged_vlans', 'actions',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
+            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',

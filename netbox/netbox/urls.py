@@ -33,6 +33,7 @@ _patterns = [
     path('tenancy/', include('tenancy.urls')),
     path('users/', include('users.urls')),
     path('virtualization/', include('virtualization.urls')),
+    path('vpn/', include('vpn.urls')),
     path('wireless/', include('wireless.urls')),
 
     # Current user views
@@ -51,6 +52,7 @@ _patterns = [
     path('api/tenancy/', include('tenancy.api.urls')),
     path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
+    path('api/vpn/', include('vpn.api.urls')),
     path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
 
