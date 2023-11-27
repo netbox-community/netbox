@@ -9,6 +9,7 @@ from .choices import *
 from .models import *
 
 __all__ = (
+    'ConfigRevisionFilterSet',
     'DataFileFilterSet',
     'DataSourceFilterSet',
     'JobFilterSet',
@@ -122,4 +123,24 @@ class JobFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(user__username__icontains=value) |
             Q(name__icontains=value)
+        )
+
+
+class ConfigRevisionFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = ConfigRevision
+        fields = [
+            'id',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(comment__icontains=value)
         )

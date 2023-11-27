@@ -424,13 +424,13 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='core:config',
                     link_text=_('Current Config'),
-                    permissions=['extras.view_configrevision'],
+                    permissions=['core.view_configrevision'],
                     staff_only=True
                 ),
                 MenuItem(
-                    link='extras:configrevision_list',
+                    link='core:configrevision_list',
                     link_text=_('Config Revisions'),
-                    permissions=['extras.view_configrevision'],
+                    permissions=['core.view_configrevision'],
                     staff_only=True
                 ),
             ),
