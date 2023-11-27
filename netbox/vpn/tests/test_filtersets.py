@@ -209,6 +209,12 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'role': [TunnelTerminationRoleChoices.ROLE_HUB, TunnelTerminationRoleChoices.ROLE_SPOKE]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_termination_type(self):
+        params = {'termination_type': 'dcim.interface'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'termination_type': 'virtualization.vminterface'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+
     def test_interface(self):
         interfaces = Interface.objects.all()[:2]
         params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}

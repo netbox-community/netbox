@@ -69,6 +69,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=TunnelTerminationRoleChoices
     )
+    termination_type = ContentTypeFilter()
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
         queryset=Interface.objects.all(),
