@@ -3,10 +3,11 @@ from django.test import TestCase
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
 from ipam.models import IPAddress
+from virtualization.models import VMInterface
 from vpn.choices import *
 from vpn.filtersets import *
 from vpn.models import *
-from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
+from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 
 
 class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -117,10 +118,21 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         Interface.objects.bulk_create(interfaces)
 
+        virtual_machine = create_test_virtualmachine('Virtual Machine 1')
+        vm_interfaces = (
+            VMInterface(virtual_machine=virtual_machine, name='Interface 1'),
+            VMInterface(virtual_machine=virtual_machine, name='Interface 2'),
+            VMInterface(virtual_machine=virtual_machine, name='Interface 3'),
+        )
+        VMInterface.objects.bulk_create(vm_interfaces)
+
         ip_addresses = (
             IPAddress(address='192.168.0.1/32'),
             IPAddress(address='192.168.0.2/32'),
             IPAddress(address='192.168.0.3/32'),
+            IPAddress(address='192.168.0.4/32'),
+            IPAddress(address='192.168.0.5/32'),
+            IPAddress(address='192.168.0.6/32'),
         )
         IPAddress.objects.bulk_create(ip_addresses)
 
@@ -144,6 +156,7 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tunnel.objects.bulk_create(tunnels)
 
         tunnel_terminations = (
+            # Tunnel 1
             TunnelTermination(
                 tunnel=tunnels[0],
                 role=TunnelTerminationRoleChoices.ROLE_HUB,
@@ -151,16 +164,36 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
                 outside_ip=ip_addresses[0]
             ),
             TunnelTermination(
-                tunnel=tunnels[1],
+                tunnel=tunnels[0],
                 role=TunnelTerminationRoleChoices.ROLE_SPOKE,
-                termination=interfaces[1],
+                termination=vm_interfaces[0],
                 outside_ip=ip_addresses[1]
             ),
+            # Tunnel 2
+            TunnelTermination(
+                tunnel=tunnels[1],
+                role=TunnelTerminationRoleChoices.ROLE_HUB,
+                termination=interfaces[1],
+                outside_ip=ip_addresses[2]
+            ),
+            TunnelTermination(
+                tunnel=tunnels[1],
+                role=TunnelTerminationRoleChoices.ROLE_SPOKE,
+                termination=vm_interfaces[1],
+                outside_ip=ip_addresses[3]
+            ),
+            # Tunnel 3
             TunnelTermination(
                 tunnel=tunnels[2],
                 role=TunnelTerminationRoleChoices.ROLE_PEER,
                 termination=interfaces[2],
-                outside_ip=ip_addresses[2]
+                outside_ip=ip_addresses[4]
+            ),
+            TunnelTermination(
+                tunnel=tunnels[2],
+                role=TunnelTerminationRoleChoices.ROLE_PEER,
+                termination=vm_interfaces[2],
+                outside_ip=ip_addresses[5]
             ),
         )
         TunnelTermination.objects.bulk_create(tunnel_terminations)
@@ -168,12 +201,26 @@ class TunnelTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_tunnel(self):
         tunnels = Tunnel.objects.all()[:2]
         params = {'tunnel_id': [tunnels[0].pk, tunnels[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tunnel': [tunnels[0].name, tunnels[1].name]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_role(self):
         params = {'role': [TunnelTerminationRoleChoices.ROLE_HUB, TunnelTerminationRoleChoices.ROLE_SPOKE]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_interface(self):
+        interfaces = Interface.objects.all()[:2]
+        params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'interface': [interfaces[0].name, interfaces[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_vminterface(self):
+        vm_interfaces = VMInterface.objects.all()[:2]
+        params = {'vminterface_id': [vm_interfaces[0].pk, vm_interfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'vminterface': [vm_interfaces[0].name, vm_interfaces[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_outside_ip(self):

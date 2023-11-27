@@ -69,28 +69,28 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
     role = django_filters.MultipleChoiceFilter(
         choices=TunnelTerminationRoleChoices
     )
-    # interface = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='interface__name',
-    #     queryset=Interface.objects.all(),
-    #     to_field_name='name',
-    #     label=_('Interface (name)'),
-    # )
-    # interface_id = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='interface',
-    #     queryset=Interface.objects.all(),
-    #     label=_('Interface (ID)'),
-    # )
-    # vminterface = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='interface__name',
-    #     queryset=VMInterface.objects.all(),
-    #     to_field_name='name',
-    #     label=_('VM interface (name)'),
-    # )
-    # vminterface_id = django_filters.ModelMultipleChoiceFilter(
-    #     field_name='vminterface',
-    #     queryset=VMInterface.objects.all(),
-    #     label=_('VM interface (ID)'),
-    # )
+    interface = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface__name',
+        queryset=Interface.objects.all(),
+        to_field_name='name',
+        label=_('Interface (name)'),
+    )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interface',
+        queryset=Interface.objects.all(),
+        label=_('Interface (ID)'),
+    )
+    vminterface = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface__name',
+        queryset=VMInterface.objects.all(),
+        to_field_name='name',
+        label=_('VM interface (name)'),
+    )
+    vminterface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='vminterface',
+        queryset=VMInterface.objects.all(),
+        label=_('VM interface (ID)'),
+    )
     outside_ip_id = django_filters.ModelMultipleChoiceFilter(
         field_name='outside_ip',
         queryset=IPAddress.objects.all(),
