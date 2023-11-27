@@ -3,6 +3,14 @@
 {% load plugins %}
 {% load i18n %}
 
+{% block extra_controls %}
+  {% if perms.vpn.add_tunneltermination %}
+    <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+      <i class="mdi mdi-plus-thick"></i> {% trans "Add Termination" %}
+    </a>
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   <div class="row">
     <div class="col col-md-6">

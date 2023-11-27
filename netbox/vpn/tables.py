@@ -213,7 +213,7 @@ class IPSecPolicyTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPSecPolicy
         fields = (
-            'pk', 'id', 'name', 'proposals', 'pfs_group', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'proposals', 'pfs_group', 'description', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'proposals', 'pfs_group', 'description',

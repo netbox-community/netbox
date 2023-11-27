@@ -103,6 +103,10 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         null=True
     )
 
+    prerequisite_models = (
+        'vpn.Tunnel',
+    )
+
     class Meta:
         ordering = ('tunnel', 'role', 'pk')
         constraints = (
