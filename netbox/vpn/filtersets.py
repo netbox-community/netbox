@@ -145,7 +145,7 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IKEPolicy
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'preshared_key']
 
     def search(self, queryset, name, value):
         if not value.strip():

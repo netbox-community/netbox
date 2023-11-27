@@ -148,7 +148,7 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
         model = IPSecProposal
         fields = (
             'id', 'url', 'display', 'name', 'description', 'encryption_algorithm', 'authentication_algorithm',
-            'sa_lifetime_data', 'sa_lifetime_seconds', 'tags', 'custom_fields', 'created', 'last_updated',
+            'sa_lifetime_seconds', 'sa_lifetime_data', 'tags', 'custom_fields', 'created', 'last_updated',
         )
 
 

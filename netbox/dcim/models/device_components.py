@@ -551,11 +551,6 @@ class BaseInterface(models.Model):
         blank=True,
         verbose_name=_('bridge interface')
     )
-    tunnel_terminations = GenericRelation(
-        to='vpn.TunnelTermination',
-        content_type_field='interface_type',
-        object_id_field='interface_id'
-    )
 
     class Meta:
         abstract = True

@@ -70,9 +70,6 @@ class TunnelTerminationBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     model = TunnelTermination
-    fieldsets = (
-        (None, ('role',)),
-    )
 
 
 class IKEProposalBulkEditForm(NetBoxModelBulkEditForm):

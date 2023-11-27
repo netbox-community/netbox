@@ -1,6 +1,6 @@
 # Tunnels
 
-NetBox can model private tunnels formed among virtual termination points across your network. Typical tunnel implementations include GRE, IP-in-IP, or IPSec. A tunnel may be terminated to two or more device or virtual machine interfaces.
+NetBox can model private tunnels formed among virtual termination points across your network. Typical tunnel implementations include GRE, IP-in-IP, and IPSec. A tunnel may be terminated to two or more device or virtual machine interfaces.
 
 ```mermaid
 flowchart TD

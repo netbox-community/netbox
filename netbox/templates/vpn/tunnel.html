@@ -27,12 +27,20 @@
               <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
             </tr>
             <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
               <th scope="row">{% trans "Encapsulation" %}</th>
               <td>{{ object.get_encapsulation_display }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "IPSec profile" %}</th>
               <td>{{ object.ipsec_profile|linkify|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Tunnel ID" %}</th>
+              <td>{{ object.tunnel_id|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Tenant" %}</th>
@@ -42,18 +50,6 @@
                 {% endif %}
                 {{ object.tenant|linkify|placeholder }}
               </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Pre-shared key" %}</th>
-              <td>{{ object.preshared_key|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Tunnel ID" %}</th>
-              <td>{{ object.tunnel_id|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>
         </div>

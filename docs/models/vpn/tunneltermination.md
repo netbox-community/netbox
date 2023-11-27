@@ -21,7 +21,7 @@ The functional role of the attached interface. The following options are availab
 !!! note
     Multiple hub terminations may be attached to a tunnel.
 
-### Interface
+### Termination
 
 The device or virtual machine interface terminated to the tunnel.
 

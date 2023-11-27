@@ -190,7 +190,7 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
 
 class IPSecPolicyImportForm(NetBoxModelImportForm):
     pfs_group = CSVChoiceField(
-        label=_('PFS group'),
+        label=_('Diffie-Hellman group for Perfect Forward Secrecy'),
         choices=DHGroupChoices
     )
     proposals = CSVModelMultipleChoiceField(

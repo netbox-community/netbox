@@ -48,7 +48,7 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
             'pk', 'id', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tenant_group', 'tunnel_id',
             'termination_count', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'status', 'encapsulation', 'tenant', 'terminations_count')
+        default_columns = ('pk', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'terminations_count')
 
 
 class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
