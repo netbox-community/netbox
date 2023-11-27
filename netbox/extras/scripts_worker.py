@@ -20,7 +20,7 @@ def process_script(event_rule, data, username, **kwargs):
         return
 
     script_choice = None
-    if event_rule.action_parameters and 'script_choice' in event_rule_action_parameters:
+    if event_rule.action_parameters and 'script_choice' in event_rule.action_parameters:
         script_choice = event_rule.action_parameters['script_choice']
 
     if script_choice:

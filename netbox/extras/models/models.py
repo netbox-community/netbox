@@ -170,10 +170,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         if not self.conditions:
             return True
 
-        if ConditionSet(self.conditions).eval(data):
-            return True
-
-        return False
+        return ConditionSet(self.conditions).eval(data)
 
 
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

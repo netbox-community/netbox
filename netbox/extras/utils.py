@@ -1,14 +1,6 @@
-import logging
-from django.db.models import Q
-from django.utils.deconstruct import deconstructible
 from taggit.managers import _TaggableManager
 
-from extras.conditions import ConditionSet
-from extras.choices import EventRuleActionChoices
-from netbox.config import get_config
 from netbox.registry import registry
-
-logger = logging.getLogger('netbox.extras.utils')
 
 
 def is_taggable(obj):
