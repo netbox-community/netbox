@@ -32,7 +32,7 @@ In addition to its expansive and robust data model, NetBox offers myriad mechani
 * Custom fields
 * Custom model validation
 * Export templates
-* Webhooks
+* Event rules
 * Plugins
 * REST & GraphQL APIs
 
