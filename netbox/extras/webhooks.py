@@ -115,7 +115,7 @@ def flush_webhooks(queue):
                 event=data['event'],
                 data=data['data'],
                 snapshots=data['snapshots'],
-                timestamp=str(timezone.now().isoformat()),
+                timestamp=timezone.now().isoformat(),
                 username=data['username'],
                 request_id=data['request_id'],
                 retry=get_rq_retry()
