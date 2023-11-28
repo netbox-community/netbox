@@ -17,7 +17,7 @@ from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import LogLevelChoices
 from extras.models import ScriptModule
-from extras.signals import clear_webhooks
+from extras.signals import clear_events
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortScript, AbortTransaction
@@ -514,7 +514,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
                 if request:
-                    clear_webhooks.send(request)
+                    clear_events.send(request)
             job.data = ScriptOutputSerializer(script).data
             job.terminate()
         except Exception as e:
@@ -529,7 +529,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             job.data = ScriptOutputSerializer(script).data
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=str(e))
             if request:
-                clear_webhooks.send(request)
+                clear_events.send(request)
 
         logger.info(f"Script completed in {job.duration}")
 

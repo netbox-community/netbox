@@ -21,8 +21,8 @@ from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
 # Change logging/webhooks
 #
 
-# Define a custom signal that can be sent to clear any queued webhooks
-clear_webhooks = Signal()
+# Define a custom signal that can be sent to clear any queued events
+clear_events = Signal()
 
 
 def is_same_object(instance, webhook_data, request_id):
@@ -125,13 +125,13 @@ def handle_deleted_object(sender, instance, **kwargs):
     model_deletes.labels(instance._meta.model_name).inc()
 
 
-@receiver(clear_webhooks)
-def clear_webhook_queue(sender, **kwargs):
+@receiver(clear_events)
+def clear_events_queue(sender, **kwargs):
     """
-    Delete any queued webhooks (e.g. because of an aborted bulk transaction)
+    Delete any queued events (e.g. because of an aborted bulk transaction)
     """
-    logger = logging.getLogger('webhooks')
-    logger.info(f"Clearing {len(events_queue.get())} queued webhooks ({sender})")
+    logger = logging.getLogger('events')
+    logger.info(f"Clearing {len(events_queue.get())} queued events ({sender})")
     events_queue.set([])
 
 

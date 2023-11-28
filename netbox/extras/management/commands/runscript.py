@@ -13,7 +13,7 @@ from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
 from extras.context_managers import event_tracking
 from extras.scripts import get_module_and_script
-from extras.signals import clear_webhooks
+from extras.signals import clear_events
 from utilities.exceptions import AbortTransaction
 from utilities.utils import NetBoxFakeRequest
 
@@ -47,7 +47,7 @@ class Command(BaseCommand):
                             raise AbortTransaction()
                 except AbortTransaction:
                     script.log_info("Database changes have been reverted automatically.")
-                    clear_webhooks.send(request)
+                    clear_events.send(request)
                 job.data = ScriptOutputSerializer(script).data
                 job.terminate()
             except Exception as e:
@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 )
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
-                clear_webhooks.send(request)
+                clear_events.send(request)
                 job.data = ScriptOutputSerializer(script).data
                 job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=str(e))
 
