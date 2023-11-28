@@ -323,8 +323,6 @@ class EventRuleForm(NetBoxModelForm):
         elif action_type == EventRuleActionChoices.SCRIPT:
             self.init_script_choice()
 
-        val = get_field_value(self, 'conditions')
-
     def clean(self):
         super().clean()
 
