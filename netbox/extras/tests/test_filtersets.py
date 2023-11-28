@@ -211,16 +211,26 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
     def setUpTestData(cls):
         content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device'])
 
+        webhooks = (
+            Webhook(
+                name='Webhook 1',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 2',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 3',
+                payload_url='http://example.com/?1',
+            ),
+        )
+        Webhook.objects.bulk_create(webhooks)
+
         event_rules = (
-            EventRule(
-                name='EventRule 1',
-            ),
-            EventRule(
-                name='EventRule 2',
-            ),
-            EventRule(
-                name='EventRule 3',
-            ),
+            EventRule(name='EventRule 1', action_object=webhooks[0]),
+            EventRule(name='EventRule 2', action_object=webhooks[1]),
+            EventRule(name='EventRule 3', action_object=webhooks[2]),
         )
         EventRule.objects.bulk_create(event_rules)
 
