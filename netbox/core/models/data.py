@@ -122,6 +122,7 @@ class DataSource(JobsMixin, PrimaryModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Ensure URL scheme matches selected type
         if self.type == DataSourceTypeChoices.LOCAL and self.url_scheme not in ('file', ''):
