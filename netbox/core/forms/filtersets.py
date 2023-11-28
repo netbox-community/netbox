@@ -4,14 +4,15 @@ from django.utils.translation import gettext_lazy as _
 
 from core.choices import *
 from core.models import *
-from extras.forms.mixins import SavedFiltersMixin
 from netbox.forms import NetBoxModelFilterSetForm
+from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 
 __all__ = (
+    'ConfigRevisionFilterForm',
     'DataFileFilterForm',
     'DataSourceFilterForm',
     'JobFilterForm',
@@ -122,4 +123,10 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         widget=APISelectMultiple(
             api_url='/api/users/users/',
         )
+    )
+
+
+class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
+    fieldsets = (
+        (None, ('q', 'filter_id')),
     )

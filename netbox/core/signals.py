@@ -1,4 +1,7 @@
+from django.db.models.signals import post_save
 from django.dispatch import Signal, receiver
+
+from .models import ConfigRevision
 
 __all__ = (
     'post_sync',
@@ -19,3 +22,11 @@ def auto_sync(instance, **kwargs):
 
     for autosync in AutoSyncRecord.objects.filter(datafile__source=instance).prefetch_related('object'):
         autosync.object.sync(save=True)
+
+
+@receiver(post_save, sender=ConfigRevision)
+def update_config(sender, instance, **kwargs):
+    """
+    Update the cached NetBox configuration when a new ConfigRevision is created.
+    """
+    instance.activate()

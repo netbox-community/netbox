@@ -15,7 +15,7 @@ from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
 from .events import enqueue_object, get_snapshots, serialize_for_event
-from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
+from .models import CustomField, ObjectChange, TaggedItem
 
 #
 # Change logging/webhooks
@@ -217,18 +217,6 @@ def run_delete_validators(sender, instance, **kwargs):
                 message=e
             )
         )
-
-
-#
-# Dynamic configuration
-#
-
-@receiver(post_save, sender=ConfigRevision)
-def update_config(sender, instance, **kwargs):
-    """
-    Update the cached NetBox configuration when a new ConfigRevision is created.
-    """
-    instance.activate()
 
 
 #

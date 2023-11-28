@@ -18,8 +18,8 @@
     <div class="col col-md-12">
       <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'extras:configrevision_list' %}">{% trans "Config revisions" %}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:configrevision' pk=object.pk %}">{{ object }}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'core:configrevision_list' %}">{% trans "Config revisions" %}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'core:configrevision' pk=object.pk %}">{{ object }}</a></li>
         </ol>
       </nav>
     </div>
@@ -77,7 +77,7 @@
       <div class="controls">
         <div class="control-group">
           <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
-          <a href="{% url 'extras:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+          <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
         </div>
       </div>
     </div>

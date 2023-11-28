@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 
-from extras.models import ConfigRevision
+from core.models import ConfigRevision
 
 
 class Command(BaseCommand):

@@ -195,15 +195,32 @@ IPAM_MENU = Menu(
     ),
 )
 
-OVERLAY_MENU = Menu(
-    label=_('Overlay'),
+VPN_MENU = Menu(
+    label=_('VPN'),
     icon_class='mdi mdi-graph-outline',
     groups=(
         MenuGroup(
-            label='L2VPNs',
+            label=_('Tunnels'),
+            items=(
+                get_model_item('vpn', 'tunnel', _('Tunnels')),
+                get_model_item('vpn', 'tunneltermination', _('Tunnel Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('L2VPNs'),
             items=(
                 get_model_item('ipam', 'l2vpn', _('L2VPNs')),
                 get_model_item('ipam', 'l2vpntermination', _('Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Security'),
+            items=(
+                get_model_item('vpn', 'ikeproposal', _('IKE Proposals')),
+                get_model_item('vpn', 'ikepolicy', _('IKE Policies')),
+                get_model_item('vpn', 'ipsecproposal', _('IPSec Proposals')),
+                get_model_item('vpn', 'ipsecpolicy', _('IPSec Policies')),
+                get_model_item('vpn', 'ipsecprofile', _('IPSec Profiles')),
             ),
         ),
     ),
@@ -425,13 +442,13 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='core:config',
                     link_text=_('Current Config'),
-                    permissions=['extras.view_configrevision'],
+                    permissions=['core.view_configrevision'],
                     staff_only=True
                 ),
                 MenuItem(
-                    link='extras:configrevision_list',
+                    link='core:configrevision_list',
                     link_text=_('Config Revisions'),
-                    permissions=['extras.view_configrevision'],
+                    permissions=['core.view_configrevision'],
                     staff_only=True
                 ),
             ),
@@ -445,7 +462,7 @@ MENUS = [
     CONNECTIONS_MENU,
     WIRELESS_MENU,
     IPAM_MENU,
-    OVERLAY_MENU,
+    VPN_MENU,
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,

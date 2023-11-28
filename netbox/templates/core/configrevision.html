@@ -14,11 +14,11 @@
   <div class="controls">
     <div class="control-group">
       {% plugin_buttons object %}
-      {% if not object.pk or object.is_active and perms.extras.add_configrevision %}
-        {% url 'extras:configrevision_add' as edit_url %}
+      {% if not object.pk or object.is_active and perms.core.add_configrevision %}
+        {% url 'core:configrevision_add' as edit_url %}
         {% include "buttons/edit.html" with url=edit_url %}
       {% endif %}
-      {% if object.pk and not object.is_active and perms.extras.delete_configrevision %}
+      {% if object.pk and not object.is_active and perms.core.delete_configrevision %}
         {% delete_button object %}
       {% endif %}
     </div>
