@@ -22,7 +22,7 @@ Depending on its classification, each NetBox model may support various features 
 | [Journaling](../features/journaling.md)                    | `JournalingMixin`       | `journaling`       | These models support persistent historical commentary                          |
 | [Synchronized data](../integrations/synchronized-data.md)  | `SyncedDataMixin`       | `synced_data`      | Certain model data can be automatically synchronized from a remote data source |
 | [Tagging](../models/extras/tag.md)                         | `TagsMixin`             | `tags`             | The models can be tagged with user-defined tags                                |
-| [Webhooks](../integrations/webhooks.md)                    | `WebhooksMixin`         | `webhooks`         | NetBox is capable of generating outgoing webhooks for these objects            |
+| [Webhooks](../integrations/webhooks.md)                    | `EventRulesMixin`       | `webhooks`         | NetBox is capable of generating outgoing webhooks for these objects            |
 
 ## Models Index
 
