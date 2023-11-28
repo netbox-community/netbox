@@ -7,12 +7,13 @@ from dcim.constants import *
 from dcim.models import *
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
-from ipam.models import ASN, L2VPN, VRF
+from ipam.models import ASN, VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_choice
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import APISelectMultiple, NumberWithOptions
+from vpn.models import L2VPN
 from wireless.choices import *
 
 __all__ = (

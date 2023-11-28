@@ -183,9 +183,8 @@ class VLAN(PrimaryModel):
         null=True,
         help_text=_("The primary function of this VLAN")
     )
-
     l2vpn_terminations = GenericRelation(
-        to='ipam.L2VPNTermination',
+        to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='vlan'

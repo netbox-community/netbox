@@ -2,8 +2,8 @@ import decimal
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from timezone_field.rest_framework import TimeZoneSerializerField
 
@@ -12,8 +12,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import (
-    NestedASNSerializer, NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer,
-    NestedVRFSerializer,
+    NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer,
 )
 from ipam.models import ASN, VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
@@ -27,6 +26,7 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterSerializer
+from vpn.api.nested_serializers import NestedL2VPNTerminationSerializer
 from wireless.api.nested_serializers import NestedWirelessLANSerializer, NestedWirelessLinkSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN

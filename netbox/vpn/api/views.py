@@ -12,6 +12,8 @@ __all__ = (
     'IPSecPolicyViewSet',
     'IPSecProfileViewSet',
     'IPSecProposalViewSet',
+    'L2VPNViewSet',
+    'L2VPNTerminationViewSet',
     'TunnelTerminationViewSet',
     'TunnelViewSet',
     'VPNRootView',
@@ -72,3 +74,15 @@ class IPSecProfileViewSet(NetBoxModelViewSet):
     queryset = IPSecProfile.objects.all()
     serializer_class = serializers.IPSecProfileSerializer
     filterset_class = filtersets.IPSecProfileFilterSet
+
+
+class L2VPNViewSet(NetBoxModelViewSet):
+    queryset = L2VPN.objects.prefetch_related('import_targets', 'export_targets', 'tenant', 'tags')
+    serializer_class = serializers.L2VPNSerializer
+    filterset_class = filtersets.L2VPNFilterSet
+
+
+class L2VPNTerminationViewSet(NetBoxModelViewSet):
+    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
+    serializer_class = serializers.L2VPNTerminationSerializer
+    filterset_class = filtersets.L2VPNTerminationFilterSet

@@ -5,7 +5,7 @@ from django.utils.translation import gettext as _
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
-from ipam.models import ASN, L2VPN, IPAddress, VRF
+from ipam.models import ASN, IPAddress, VRF
 from netbox.filtersets import (
     BaseFilterSet, ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet,
 )
@@ -17,6 +17,7 @@ from utilities.filters import (
     TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import Cluster
+from vpn.models import L2VPN
 from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
 from .choices import *
 from .constants import *

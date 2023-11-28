@@ -1,4 +1,6 @@
+from ipam.tables import RouteTargetTable
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.utils import count_related
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
@@ -332,3 +334,112 @@ class IPSecProfileBulkDeleteView(generic.BulkDeleteView):
     queryset = IPSecProfile.objects.all()
     filterset = filtersets.IPSecProfileFilterSet
     table = tables.IPSecProfileTable
+
+
+# L2VPN
+
+class L2VPNListView(generic.ObjectListView):
+    queryset = L2VPN.objects.all()
+    table = tables.L2VPNTable
+    filterset = filtersets.L2VPNFilterSet
+    filterset_form = forms.L2VPNFilterForm
+
+
+@register_model_view(L2VPN)
+class L2VPNView(generic.ObjectView):
+    queryset = L2VPN.objects.all()
+
+    def get_extra_context(self, request, instance):
+        import_targets_table = RouteTargetTable(
+            instance.import_targets.prefetch_related('tenant'),
+            orderable=False
+        )
+        export_targets_table = RouteTargetTable(
+            instance.export_targets.prefetch_related('tenant'),
+            orderable=False
+        )
+
+        return {
+            'import_targets_table': import_targets_table,
+            'export_targets_table': export_targets_table,
+        }
+
+
+@register_model_view(L2VPN, 'edit')
+class L2VPNEditView(generic.ObjectEditView):
+    queryset = L2VPN.objects.all()
+    form = forms.L2VPNForm
+
+
+@register_model_view(L2VPN, 'delete')
+class L2VPNDeleteView(generic.ObjectDeleteView):
+    queryset = L2VPN.objects.all()
+
+
+class L2VPNBulkImportView(generic.BulkImportView):
+    queryset = L2VPN.objects.all()
+    model_form = forms.L2VPNImportForm
+
+
+class L2VPNBulkEditView(generic.BulkEditView):
+    queryset = L2VPN.objects.all()
+    filterset = filtersets.L2VPNFilterSet
+    table = tables.L2VPNTable
+    form = forms.L2VPNBulkEditForm
+
+
+class L2VPNBulkDeleteView(generic.BulkDeleteView):
+    queryset = L2VPN.objects.all()
+    filterset = filtersets.L2VPNFilterSet
+    table = tables.L2VPNTable
+
+
+@register_model_view(L2VPN, 'contacts')
+class L2VPNContactsView(ObjectContactsView):
+    queryset = L2VPN.objects.all()
+
+
+#
+# L2VPN terminations
+#
+
+class L2VPNTerminationListView(generic.ObjectListView):
+    queryset = L2VPNTermination.objects.all()
+    table = tables.L2VPNTerminationTable
+    filterset = filtersets.L2VPNTerminationFilterSet
+    filterset_form = forms.L2VPNTerminationFilterForm
+
+
+@register_model_view(L2VPNTermination)
+class L2VPNTerminationView(generic.ObjectView):
+    queryset = L2VPNTermination.objects.all()
+
+
+@register_model_view(L2VPNTermination, 'edit')
+class L2VPNTerminationEditView(generic.ObjectEditView):
+    queryset = L2VPNTermination.objects.all()
+    form = forms.L2VPNTerminationForm
+    template_name = 'vpn/l2vpntermination_edit.html'
+
+
+@register_model_view(L2VPNTermination, 'delete')
+class L2VPNTerminationDeleteView(generic.ObjectDeleteView):
+    queryset = L2VPNTermination.objects.all()
+
+
+class L2VPNTerminationBulkImportView(generic.BulkImportView):
+    queryset = L2VPNTermination.objects.all()
+    model_form = forms.L2VPNTerminationImportForm
+
+
+class L2VPNTerminationBulkEditView(generic.BulkEditView):
+    queryset = L2VPNTermination.objects.all()
+    filterset = filtersets.L2VPNTerminationFilterSet
+    table = tables.L2VPNTerminationTable
+    form = forms.L2VPNTerminationBulkEditForm
+
+
+class L2VPNTerminationBulkDeleteView(generic.BulkDeleteView):
+    queryset = L2VPNTermination.objects.all()
+    filterset = filtersets.L2VPNTerminationFilterSet
+    table = tables.L2VPNTerminationTable

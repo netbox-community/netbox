@@ -10,6 +10,8 @@ router.register('ipsec-proposals', views.IPSecProposalViewSet)
 router.register('ipsec-profiles', views.IPSecProfileViewSet)
 router.register('tunnels', views.TunnelViewSet)
 router.register('tunnel-terminations', views.TunnelTerminationViewSet)
+router.register('l2vpns', views.L2VPNViewSet)
+router.register('l2vpn-terminations', views.L2VPNTerminationViewSet)
 
 app_name = 'vpn-api'
 urlpatterns = router.urls
