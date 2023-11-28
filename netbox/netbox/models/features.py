@@ -555,7 +555,7 @@ FEATURES_MAP = {
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
     'tags': TagsMixin,
-    'webhooks': EventRulesMixin,
+    'event_rules': EventRulesMixin,
 }
 
 registry['model_features'].update({

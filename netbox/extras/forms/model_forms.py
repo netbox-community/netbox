@@ -237,7 +237,7 @@ class WebhookForm(NetBoxModelForm):
 class EventRuleForm(NetBoxModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('webhooks'),
+        queryset=ContentType.objects.with_feature('event_rules'),
     )
     action_choice = forms.ChoiceField(
         label=_('Action choice'),

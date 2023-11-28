@@ -64,7 +64,7 @@ __all__ = (
 class EventRuleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
     content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('webhooks'),
+        queryset=ContentType.objects.with_feature('event_rules'),
         many=True
     )
     action_type = ChoiceField(choices=EventRuleActionChoices)

@@ -26,7 +26,7 @@ class ContentTypeManager(ContentTypeManager_):
         Return the ContentTypes only for models which are registered as supporting the specified feature. For example,
         we can find all ContentTypes for models which support webhooks with
 
-            ContentType.objects.with_feature('webhooks')
+            ContentType.objects.with_feature('event_rules')
         """
         if feature not in registry['model_features']:
             raise KeyError(

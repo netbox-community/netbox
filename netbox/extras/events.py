@@ -55,7 +55,7 @@ def enqueue_object(queue, instance, user, request_id, action):
     # Determine whether this type of object supports event rules
     app_label = instance._meta.app_label
     model_name = instance._meta.model_name
-    if model_name not in registry['model_features']['webhooks'].get(app_label, []):
+    if model_name not in registry['model_features']['event_rules'].get(app_label, []):
         return
 
     queue.append({

@@ -255,7 +255,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('webhooks'),
+        queryset=ContentType.objects.with_feature('event_rules'),
         required=False,
         label=_('Object type')
     )
