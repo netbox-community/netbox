@@ -203,6 +203,32 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
+class EventRuleTestCase(TestCase, BaseFilterSetTests):
+    queryset = EventRule.objects.all()
+    filterset = EventRuleFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device'])
+
+        event_rules = (
+            EventRule(
+                name='EventRule 1',
+            ),
+            EventRule(
+                name='EventRule 2',
+            ),
+            EventRule(
+                name='EventRule 3',
+            ),
+        )
+        EventRule.objects.bulk_create(event_rules)
+
+    def test_name(self):
+        params = {'name': ['EventRule 1', 'EventRule 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class CustomLinkTestCase(TestCase, BaseFilterSetTests):
     queryset = CustomLink.objects.all()
     filterset = CustomLinkFilterSet
