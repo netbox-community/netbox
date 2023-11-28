@@ -60,9 +60,7 @@ class UserSerializer(ValidatedModelSerializer):
         if password is not None:
             instance.set_password(password)
 
-        super().update(instance, validated_data)
-
-        return instance
+        return super().update(instance, validated_data)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
