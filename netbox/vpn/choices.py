@@ -237,12 +237,12 @@ class L2VPNTypeChoices(ChoiceSet):
             (TYPE_EVPL, 'EVPL'),
         )),
         ('E-LAN', (
-            (TYPE_EPLAN, 'Ethernet Private LAN'),
-            (TYPE_EVPLAN, 'Ethernet Virtual Private LAN'),
+            (TYPE_EPLAN, _('Ethernet Private LAN')),
+            (TYPE_EVPLAN, _('Ethernet Virtual Private LAN')),
         )),
         ('E-Tree', (
-            (TYPE_EPTREE, 'Ethernet Private Tree'),
-            (TYPE_EVPTREE, 'Ethernet Virtual Private Tree'),
+            (TYPE_EPTREE, _('Ethernet Private Tree')),
+            (TYPE_EVPTREE, _('Ethernet Virtual Private Tree')),
         )),
     )
 
