@@ -60,7 +60,7 @@ class UserSerializer(ValidatedModelSerializer):
         if password is not None:
             instance.set_password(password)
 
-        instance.save()
+        super().update(instance, validated_data)
 
         return instance
 
