@@ -10,6 +10,7 @@ __all__ = [
     'NestedCustomFieldChoiceSetSerializer',
     'NestedCustomFieldSerializer',
     'NestedCustomLinkSerializer',
+    'NestedEventRuleSerializer',
     'NestedExportTemplateSerializer',
     'NestedImageAttachmentSerializer',
     'NestedJournalEntrySerializer',
@@ -17,6 +18,13 @@ __all__ = [
     'NestedTagSerializer',  # Defined in netbox.api.serializers
     'NestedWebhookSerializer',
 ]
+
+
+class NestedEventRuleSerializer(WritableNestedSerializer):
+
+    class Meta:
+        model = models.EventRule
+        fields = ['id', 'display', 'name']
 
 
 class NestedWebhookSerializer(WritableNestedSerializer):

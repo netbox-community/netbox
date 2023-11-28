@@ -68,6 +68,9 @@ class EventRuleSerializer(NetBoxModelSerializer):
         many=True
     )
     action_type = ChoiceField(choices=EventRuleActionChoices)
+    action_object_type = ContentTypeField(
+        queryset=ContentType.objects.with_feature('event_rules'),
+    )
     action_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
