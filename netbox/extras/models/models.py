@@ -53,6 +53,11 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         max_length=150,
         unique=True
     )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
     type_create = models.BooleanField(
         verbose_name=_('on create'),
         default=False,

@@ -283,11 +283,11 @@ class WebhookTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
-            'tags', 'created', 'last_updated',
+            'description', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
-            'type_job_end', 'http_method', 'payload_url',
+            'type_job_end', 'http_method', 'payload_url', 'description',
         )
 
 

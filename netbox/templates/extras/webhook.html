@@ -17,6 +17,10 @@
             <td>{{ object.name }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Enabled" %}</th>
             <td>{% checkmark object.enabled %}</td>
           </tr>

@@ -9,3 +9,12 @@ class JournalEntryIndex(SearchIndex):
         ('comments', 5000),
     )
     category = 'Journal'
+
+
+@register_search
+class WebhookEntryIndex(SearchIndex):
+    model = models.Webhook
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )

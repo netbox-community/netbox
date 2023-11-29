@@ -356,20 +356,21 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'http_method': 'GET',
             'http_content_type': 'application/foo',
             'conditions': None,
+            'description': 'My webhook',
         }
 
         cls.csv_data = (
-            "name,content_types,type_create,payload_url,http_method,http_content_type",
-            "Webhook 4,dcim.site,True,http://example.com/?4,GET,application/json",
-            "Webhook 5,dcim.site,True,http://example.com/?5,GET,application/json",
-            "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
+            "name,content_types,type_create,payload_url,http_method,http_content_type,description",
+            "Webhook 4,dcim.site,True,http://example.com/?4,GET,application/json,Foo",
+            "Webhook 5,dcim.site,True,http://example.com/?5,GET,application/json,Bar",
+            "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json,Baz",
         )
 
         cls.csv_update_data = (
-            "id,name",
-            f"{webhooks[0].pk},Webhook 7",
-            f"{webhooks[1].pk},Webhook 8",
-            f"{webhooks[2].pk},Webhook 9",
+            "id,name,description",
+            f"{webhooks[0].pk},Webhook 7,Foo",
+            f"{webhooks[1].pk},Webhook 8,Bar",
+            f"{webhooks[2].pk},Webhook 9,Baz",
         )
 
         cls.bulk_edit_data = {
@@ -378,6 +379,7 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'type_update': True,
             'type_delete': True,
             'http_method': 'GET',
+            'description': 'New description',
         }
 
 

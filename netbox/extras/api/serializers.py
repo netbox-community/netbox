@@ -70,7 +70,7 @@ class WebhookSerializer(NetBoxModelSerializer):
     class Meta:
         model = Webhook
         fields = [
-            'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
+            'id', 'url', 'display', 'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'payload_url', 'enabled', 'http_method', 'http_content_type',
             'additional_headers', 'body_template', 'secret', 'conditions', 'ssl_verification', 'ca_file_path',
             'custom_fields', 'tags', 'created', 'last_updated',

@@ -217,7 +217,7 @@ class WebhookForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Webhook'), ('name', 'content_types', 'enabled', 'tags')),
+        (_('Webhook'), ('name', 'description', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('HTTP Request'), (
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',

@@ -177,6 +177,11 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
         required=False,
@@ -230,7 +235,7 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         label=_('CA file path')
     )
 
-    nullable_fields = ('secret', 'conditions', 'ca_file_path')
+    nullable_fields = ('description', 'secret', 'conditions', 'ca_file_path')
 
 
 class TagBulkEditForm(BulkEditForm):

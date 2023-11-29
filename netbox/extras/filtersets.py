@@ -58,6 +58,7 @@ class WebhookFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(payload_url__icontains=value)
         )
 
