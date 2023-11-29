@@ -370,6 +370,60 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = EventRule
+
+    @classmethod
+    def setUpTestData(cls):
+
+        webhooks = (
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', http_method='POST'),
+        )
+        for webhook in webhooks:
+            webhook.save()
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        event_rules = (
+            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
+            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
+            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+        )
+        for event in event_rules:
+            event.save()
+            event.content_types.add(site_ct)
+
+        webhook_ct = ContentType.objects.get_for_model(Webhook)
+        cls.form_data = {
+            'name': 'Event X',
+            'content_types': [site_ct.pk],
+            'type_create': False,
+            'type_update': True,
+            'type_delete': True,
+            'conditions': None,
+            'action_type': 'webhook',
+            'action_object_type': webhook_ct.pk,
+            'action_object_id': webhooks[0].pk
+        }
+
+        cls.csv_data = (
+            "name,content_types,type_create,action_type,action_object",
+            "Webhook 4,dcim.site,True,webhook,Webhook 1",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{event_rules[0].pk},Event 7",
+            f"{event_rules[1].pk},Event 8",
+            f"{event_rules[2].pk},Event 9",
+        )
+
+        cls.bulk_edit_data = {
+            'type_update': True,
+        }
+
+
 class TagTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
     model = Tag
 
