@@ -72,6 +72,15 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 class EventRuleTest(APIViewTestCases.APIViewTestCase):
     model = EventRule
     brief_fields = ['display', 'id', 'name',]
+    bulk_update_data = {
+        'enabled': False,
+        'description': 'New description',
+    }
+    update_data = {
+        'name': 'Event Rule X',
+        'enabled': False,
+        'description': 'New description',
+    }
 
     @classmethod
     def setUpTestData(cls):
@@ -103,18 +112,14 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
         )
         Webhook.objects.bulk_create(webhooks)
 
-    def setUp(self):
-        super().setUp()
-
-        webhooks = Webhook.objects.all()
         event_rules = (
-            EventRule(name='EventRule 1', action_object=webhooks[0]),
-            EventRule(name='EventRule 2', action_object=webhooks[1]),
-            EventRule(name='EventRule 3', action_object=webhooks[2]),
+            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
+            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
+            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
         )
         EventRule.objects.bulk_create(event_rules)
 
-        self.create_data = [
+        cls.create_data = [
             {
                 'name': 'EventRule 4',
                 'content_types': ['dcim.device', 'dcim.devicetype'],
