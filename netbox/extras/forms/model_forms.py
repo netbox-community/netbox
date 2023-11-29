@@ -331,10 +331,12 @@ class EventRuleForm(NetBoxModelForm):
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
         elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
-            script = ScriptModule.objects.get(pk=action_choice.split(":")[0])
-            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script, for_concrete_model=False)
-            self.cleaned_data['action_object_id'] = script.id
-            self.cleaned_data['action_parameters'] = {'script_choice': action_choice}
+            module_id, script_name = action_choice.split(":", maxsplit=1)
+            script_module = ScriptModule.objects.get(pk=module_id)
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script_module, for_concrete_model=False)
+            self.cleaned_data['action_object_id'] = script_module.id
+            script = script_module.scripts[script_name]()
+            self.cleaned_data['action_parameters'] = {'script_choice': action_choice, 'script_full_name': script.full_name}
 
         return self.cleaned_data
 
