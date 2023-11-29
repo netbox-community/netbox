@@ -283,7 +283,7 @@ class ReportViewSet(ViewSet):
 
         # Retrieve and run the Report. This will create a new Job.
         module, report_cls = self._get_report(pk)
-        report = report_cls()
+        report = report_cls
         input_serializer = serializers.ReportInputSerializer(
             data=request.data,
             context={'report': report}
