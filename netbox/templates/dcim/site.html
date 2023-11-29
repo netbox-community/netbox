@@ -30,20 +30,13 @@
           <tr>
             <th scope="row">{% trans "Region" %}</th>
             <td>
-              {% nested_tree object %}
+              {% nested_tree object.region %}
             </td>
           </tr>
           <tr>
             <th scope="row">{% trans "Group" %}</th>
             <td>
-              {% if object.group %}
-                {% for group in object.group.get_ancestors %}
-                  {{ group|linkify }} /
-                {% endfor %}
-                {{ object.group|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
+              {% nested_tree object.group %}
             </td>
           </tr>
           <tr>

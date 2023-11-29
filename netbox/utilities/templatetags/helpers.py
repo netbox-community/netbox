@@ -27,6 +27,7 @@ __all__ = (
     'icon_from_status',
     'kg_to_pounds',
     'meters_to_feet',
+    'nested_tree',
     'percentage',
     'querystring',
     'startswith',

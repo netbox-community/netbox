@@ -14,12 +14,14 @@
                 </h5>
                 <div class="card-body">
                     <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Region" %}</th>
-                            <td>
-                                {% nested_tree object %}
-                            </td>
-                        </tr>
+                        {% if object.site.region %}
+                            <tr>
+                                <th scope="row">{% trans "Region" %}</th>
+                                <td>
+                                    {% nested_tree object.site.region %}
+                                </td>
+                            </tr>
+                        {% endif %}
                         <tr>
                             <th scope="row">{% trans "Site" %}</th>
                             <td>{{ object.site|linkify|placeholder }}</td>

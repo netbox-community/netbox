@@ -21,26 +21,24 @@
             </h5>
             <div class="card-body">
                 <table class="table table-hover attr-table">
-                    {% with rack=object.rack %}
-                        <tr>
-                            <th scope="row">{% trans "Region" %}</th>
-                            <td>
-                                {% nested_tree rack %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Site" %}</th>
-                            <td>{{ rack.site|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Location" %}</th>
-                            <td>{{ rack.location|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Rack" %}</th>
-                            <td>{{ rack|linkify }}</td>
-                        </tr>
-                    {% endwith %}
+                    <tr>
+                        <th scope="row">{% trans "Region" %}</th>
+                        <td>
+                            {% nested_tree object.rack.site.region %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Site" %}</th>
+                        <td>{{ object.rack.site|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Location" %}</th>
+                        <td>{{ object.rack.location|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Rack" %}</th>
+                        <td>{{ object.rack|linkify }}</td>
+                    </tr>
                 </table>
             </div>
         </div>

@@ -18,7 +18,7 @@
                     <tr>
                         <th scope="row">{% trans "Region" %}</th>
                         <td>
-                            {% nested_tree object %}
+                            {% nested_tree object.site.region %}
                         </td>
                     </tr>
                     <tr>
@@ -27,16 +27,7 @@
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Location" %}</th>
-                        <td>
-                            {% if object.location %}
-                                {% for location in object.location.get_ancestors %}
-                                    {{ location|linkify }} /
-                                {% endfor %}
-                                {{ object.location|linkify }}
-                            {% else %}
-                                {{ ''|placeholder }}
-                            {% endif %}
-                        </td>
+                        <td>{% nested_tree object.location %}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Facility ID" %}</th>
