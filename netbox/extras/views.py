@@ -1073,7 +1073,7 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         jobs = Job.objects.filter(
             object_type=object_type,
             object_id=module.pk,
-            name=report.name
+            name=report.class_name
         )
 
         jobs_table = JobTable(
