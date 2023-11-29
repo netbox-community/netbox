@@ -119,7 +119,7 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
 class NestedScriptModuleSerializer(serializers.Serializer):
 
     class Meta:
-        fields = ['id', 'display', 'created']
+        fields = ['id', 'display', 'name', 'created']
 
     def get_display(self, obj):
         return f'{obj.name} ({obj.module})'
