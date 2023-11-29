@@ -210,7 +210,9 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device', 'circuit'])
+        content_types = ContentType.objects.filter(
+            model__in=['region', 'site', 'rack', 'location', 'device']
+        )
 
         webhooks = (
             Webhook(
@@ -219,23 +221,30 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
             ),
             Webhook(
                 name='Webhook 2',
-                payload_url='http://example.com/?1',
+                payload_url='http://example.com/?2',
             ),
             Webhook(
                 name='Webhook 3',
-                payload_url='http://example.com/?1',
+                payload_url='http://example.com/?3',
             ),
         )
         Webhook.objects.bulk_create(webhooks)
 
-        module = ScriptModule.objects.create(
-            file_root=ManagedFileRootPathChoices.SCRIPTS,
-            file_path='/var/tmp/script.py'
+        scripts = (
+            ScriptModule(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='/var/tmp/script1.py'
+            ),
+            ScriptModule(
+                file_root=ManagedFileRootPathChoices.SCRIPTS,
+                file_path='/var/tmp/script2.py'
+            ),
         )
+        ScriptModule.objects.bulk_create(scripts)
 
         event_rules = (
             EventRule(
-                name='EventRule 1',
+                name='Event Rule 1',
                 action_object=webhooks[0],
                 enabled=True,
                 type_create=True,
@@ -246,8 +255,8 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 action_type=EventRuleActionChoices.WEBHOOK,
             ),
             EventRule(
-                name='EventRule 2',
-                action_object=webhooks[0],
+                name='Event Rule 2',
+                action_object=webhooks[1],
                 enabled=True,
                 type_create=False,
                 type_update=True,
@@ -257,8 +266,8 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 action_type=EventRuleActionChoices.WEBHOOK,
             ),
             EventRule(
-                name='EventRule 3',
-                action_object=webhooks[0],
+                name='Event Rule 3',
+                action_object=webhooks[2],
                 enabled=False,
                 type_create=False,
                 type_update=False,
@@ -268,36 +277,25 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 action_type=EventRuleActionChoices.WEBHOOK,
             ),
             EventRule(
-                name='EventRule 4',
-                action_object=webhooks[0],
+                name='Event Rule 4',
+                action_object=scripts[0],
                 enabled=False,
                 type_create=False,
                 type_update=False,
                 type_delete=False,
                 type_job_start=True,
                 type_job_end=False,
-                action_type=EventRuleActionChoices.WEBHOOK,
+                action_type=EventRuleActionChoices.SCRIPT,
             ),
             EventRule(
-                name='EventRule 5',
-                action_object=webhooks[0],
+                name='Event Rule 5',
+                action_object=scripts[1],
                 enabled=False,
                 type_create=False,
                 type_update=False,
                 type_delete=False,
                 type_job_start=False,
                 type_job_end=True,
-                action_type=EventRuleActionChoices.WEBHOOK,
-            ),
-            EventRule(
-                name='EventRule 6',
-                action_object=webhooks[0],
-                enabled=False,
-                type_create=False,
-                type_update=False,
-                type_delete=False,
-                type_job_start=False,
-                type_job_end=False,
                 action_type=EventRuleActionChoices.SCRIPT,
             ),
         )
@@ -307,10 +305,9 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         event_rules[2].content_types.add(content_types[2])
         event_rules[3].content_types.add(content_types[3])
         event_rules[4].content_types.add(content_types[4])
-        event_rules[5].content_types.add(content_types[5])
 
     def test_name(self):
-        params = {'name': ['EventRule 1', 'EventRule 2']}
+        params = {'name': ['Event Rule 1', 'Event Rule 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_types(self):
@@ -320,14 +317,16 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_action_type(self):
-        params = {'action_type': EventRuleActionChoices.SCRIPT}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'action_type': [EventRuleActionChoices.WEBHOOK]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
+        params = {'action_type': [EventRuleActionChoices.SCRIPT]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_enabled(self):
         params = {'enabled': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'enabled': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_type_create(self):
         params = {'type_create': True}
