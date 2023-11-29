@@ -2,6 +2,25 @@
 
 ## v3.6.6 (FUTURE)
 
+### Enhancements
+
+* [#13735](https://github.com/netbox-community/netbox/issues/13735) - Show complete region hierarchy in UI for all relevant objects
+
+### Bug Fixes
+
+* [#14056](https://github.com/netbox-community/netbox/issues/14056) - Record a pre-change snapshot when bulk editing objects via CSV
+* [#14187](https://github.com/netbox-community/netbox/issues/14187) - Raise a validation error when attempting to create a duplicate script or report
+* [#14199](https://github.com/netbox-community/netbox/issues/14199) - Fix jobs list for reports with a custom name
+* [#14239](https://github.com/netbox-community/netbox/issues/14239) - Fix CustomFieldChoiceSet search filter
+* [#14242](https://github.com/netbox-community/netbox/issues/14242) - Enable export templates for contact assignments
+* [#14299](https://github.com/netbox-community/netbox/issues/14299) - Webhook timestamps should be in proper ISO 8601 format
+* [#14325](https://github.com/netbox-community/netbox/issues/14325) - Fix numeric ordering of service ports
+* [#14339](https://github.com/netbox-community/netbox/issues/14339) - Correctly hash local user password when set via REST API
+* [#14343](https://github.com/netbox-community/netbox/issues/14343) - Fix ordering ASN table by ASDOT column
+* [#14346](https://github.com/netbox-community/netbox/issues/14346) - Fix running reports via REST API
+* [#14349](https://github.com/netbox-community/netbox/issues/14349) - Fix custom validation support for remote data sources
+* [#14363](https://github.com/netbox-community/netbox/issues/14363) - Fix bulk editing of interfaces assigned to VM with no cluster
+
 ---
 
 ## v3.6.5 (2023-11-09)
