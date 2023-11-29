@@ -404,7 +404,8 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'conditions': None,
             'action_type': 'webhook',
             'action_object_type': webhook_ct.pk,
-            'action_object_id': webhooks[0].pk
+            'action_object_id': webhooks[0].pk,
+            'action_choice': webhooks[0]
         }
 
         cls.csv_data = (
