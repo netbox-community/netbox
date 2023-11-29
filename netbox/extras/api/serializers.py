@@ -71,14 +71,24 @@ class EventRuleSerializer(NetBoxModelSerializer):
     action_object_type = ContentTypeField(
         queryset=ContentType.objects.with_feature('event_rules'),
     )
+    action_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = EventRule
         fields = [
             'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type',
-            'action_object_id', 'custom_fields', 'tags', 'created', 'last_updated',
+            'action_object_id', 'action_object', 'custom_fields', 'tags', 'created', 'last_updated',
         ]
+
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_action_object(self, instance):
+        serializer = get_serializer_for_model(
+            model=instance.action_object_type.model_class(),
+            prefix=NESTED_SERIALIZER_PREFIX
+        )
+        context = {'request': self.context['request']}
+        return serializer(instance.action_object, context=context).data
 
 
 #
