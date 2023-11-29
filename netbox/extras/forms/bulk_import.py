@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -159,13 +160,51 @@ class EventRuleImportForm(NetBoxModelImportForm):
         queryset=ContentType.objects.with_feature('event_rules'),
         help_text=_("One or more assigned object types")
     )
+    action_object = forms.CharField(
+        label=_('Action object'),
+        required=True,
+        help_text=_('Webhook name or script as dotted path module.Class')
+    )
 
     class Meta:
         model = EventRule
         fields = (
             'name', 'description', 'enabled', 'conditions', 'content_types', 'type_create', 'type_update',
-            'type_delete', 'type_job_start', 'type_job_end', 'comments', 'tags'
+            'type_delete', 'type_job_start', 'type_job_end', 'action_type', 'action_object', 'comments', 'tags'
         )
+
+    def clean(self):
+        super().clean()
+
+        action_object = self.cleaned_data.get('action_object')
+        action_type = self.cleaned_data.get('action_type')
+        if action_object and action_type:
+            if action_type == EventRuleActionChoices.WEBHOOK:
+                webhook = Webhook.objects.filter(name=action_object)
+                if not webhook:
+                    raise forms.ValidationError(f"Webhook {action_object} not found")
+            elif action_type == EventRuleActionChoices.SCRIPT:
+                from extras.scripts import get_module_and_script
+                module_name, script_name = action_object.split('.', 1)
+                try:
+                    module, script = get_module_and_script(module_name, script_name)
+                except ObjectDoesNotExist:
+                    raise forms.ValidationError(f"Script {action_object} not found")
+
+    def save(self, *args, **kwargs):
+        action_object = self.cleaned_data.get('action_object')
+        action_type = self.cleaned_data.get('action_type')
+
+        if action_type == EventRuleActionChoices.WEBHOOK:
+            self.instance.action_object = Webhook.objects.get(name=action_object)
+        elif action_type == EventRuleActionChoices.SCRIPT:
+            from extras.scripts import get_module_and_script
+            module_name, script_name = action_object.split('.', 1)
+            module, script = get_module_and_script(module_name, script_name)
+            self.instance.action_object = module
+            self.instance.action_parameters = {'script_choice': f"{str(module.pk)}:{script_name}"}
+
+        return super().save(*args, **kwargs)
 
 
 class TagImportForm(CSVModelForm):
