@@ -25,7 +25,7 @@ class NestedEventRuleSerializer(WritableNestedSerializer):
 
     class Meta:
         model = models.EventRule
-        fields = ['id', 'display', 'name']
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedWebhookSerializer(WritableNestedSerializer):
@@ -117,10 +117,18 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
 
 
 class NestedScriptModuleSerializer(WritableNestedSerializer):
+    # url = serializers.SerializerMethodField()
+    url = serializers.HyperlinkedIdentityField(
+        view_name='extras-api:script-detail',
+        lookup_field='full_name',
+        lookup_url_kwarg='pk'
+    )
+    name = serializers.CharField(read_only=True)
+    display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = models.ScriptModule
-        fields = ['id', 'name', 'created']
+        fields = ['id', 'url', 'display', 'name']
 
     def get_display(self, obj):
         return f'{obj.name} ({obj.module})'

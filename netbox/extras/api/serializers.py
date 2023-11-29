@@ -83,12 +83,18 @@ class EventRuleSerializer(NetBoxModelSerializer):
 
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_action_object(self, instance):
-        serializer = get_serializer_for_model(
-            model=instance.action_object_type.model_class(),
-            prefix=NESTED_SERIALIZER_PREFIX
-        )
         context = {'request': self.context['request']}
-        return serializer(instance.action_object, context=context).data
+        if instance.action_type == EventRuleActionChoices.WEBHOOK:
+            serializer = get_serializer_for_model(
+                model=instance.action_object_type.model_class(),
+                prefix=NESTED_SERIALIZER_PREFIX
+            )
+            return serializer(instance.action_object, context=context).data
+        elif instance.action_type == EventRuleActionChoices.SCRIPT:
+            from extras.api.nested_serializers import NestedScriptModuleSerializer
+            module_id, script_name = instance.action_parameters['script_choice'].split(":", maxsplit=1)
+            script = instance.action_object.scripts[script_name]()
+            return NestedScriptModuleSerializer(script, context=context).data
 
 
 #
