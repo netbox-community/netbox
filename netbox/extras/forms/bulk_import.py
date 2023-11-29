@@ -202,7 +202,11 @@ class EventRuleImportForm(NetBoxModelImportForm):
             module_name, script_name = action_object.split('.', 1)
             module, script = get_module_and_script(module_name, script_name)
             self.instance.action_object = module
-            self.instance.action_parameters = {'script_choice': f"{str(module.pk)}:{script_name}"}
+            self.instance.action_parameters = {
+                'script_choice': f"{str(module.pk)}:{script_name}",
+                'script_name': script.name,
+                'script_full_name': script.full_name,
+            }
 
         return super().save(*args, **kwargs)
 
