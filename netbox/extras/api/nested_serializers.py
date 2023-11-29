@@ -15,6 +15,7 @@ __all__ = [
     'NestedImageAttachmentSerializer',
     'NestedJournalEntrySerializer',
     'NestedSavedFilterSerializer',
+    'NestedScriptModuleSerializer',
     'NestedTagSerializer',  # Defined in netbox.api.serializers
     'NestedWebhookSerializer',
 ]
@@ -113,3 +114,10 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
     class Meta:
         model = models.JournalEntry
         fields = ['id', 'url', 'display', 'created']
+
+
+class NestedScriptModuleSerializer(serializers.Serializer):
+    fields = ['id', ]
+
+    def get_display(self, obj):
+        return f'{obj.name} ({obj.module})'
