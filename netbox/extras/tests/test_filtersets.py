@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from circuits.models import Provider
+from core.choices import ManagedFileRootPathChoices
 from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from dcim.models import Location
@@ -209,7 +210,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device'])
+        content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device', 'circuit'])
 
         webhooks = (
             Webhook(
@@ -227,16 +228,126 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         )
         Webhook.objects.bulk_create(webhooks)
 
+        module = ScriptModule.objects.create(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='/var/tmp/script.py'
+        )
+
         event_rules = (
-            EventRule(name='EventRule 1', action_object=webhooks[0]),
-            EventRule(name='EventRule 2', action_object=webhooks[1]),
-            EventRule(name='EventRule 3', action_object=webhooks[2]),
+            EventRule(
+                name='EventRule 1',
+                action_object=webhooks[0],
+                enabled=True,
+                type_create=True,
+                type_update=False,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=False,
+                action_type=EventRuleActionChoices.WEBHOOK,
+            ),
+            EventRule(
+                name='EventRule 2',
+                action_object=webhooks[0],
+                enabled=True,
+                type_create=False,
+                type_update=True,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=False,
+                action_type=EventRuleActionChoices.WEBHOOK,
+            ),
+            EventRule(
+                name='EventRule 3',
+                action_object=webhooks[0],
+                enabled=False,
+                type_create=False,
+                type_update=False,
+                type_delete=True,
+                type_job_start=False,
+                type_job_end=False,
+                action_type=EventRuleActionChoices.WEBHOOK,
+            ),
+            EventRule(
+                name='EventRule 4',
+                action_object=webhooks[0],
+                enabled=False,
+                type_create=False,
+                type_update=False,
+                type_delete=False,
+                type_job_start=True,
+                type_job_end=False,
+                action_type=EventRuleActionChoices.WEBHOOK,
+            ),
+            EventRule(
+                name='EventRule 5',
+                action_object=webhooks[0],
+                enabled=False,
+                type_create=False,
+                type_update=False,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=True,
+                action_type=EventRuleActionChoices.WEBHOOK,
+            ),
+            EventRule(
+                name='EventRule 6',
+                action_object=webhooks[0],
+                enabled=False,
+                type_create=False,
+                type_update=False,
+                type_delete=False,
+                type_job_start=False,
+                type_job_end=False,
+                action_type=EventRuleActionChoices.SCRIPT,
+            ),
         )
         EventRule.objects.bulk_create(event_rules)
+        event_rules[0].content_types.add(content_types[0])
+        event_rules[1].content_types.add(content_types[1])
+        event_rules[2].content_types.add(content_types[2])
+        event_rules[3].content_types.add(content_types[3])
+        event_rules[4].content_types.add(content_types[4])
+        event_rules[5].content_types.add(content_types[5])
 
     def test_name(self):
         params = {'name': ['EventRule 1', 'EventRule 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_content_types(self):
+        params = {'content_types': 'dcim.region'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'content_type_id': [ContentType.objects.get_for_model(Region).pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_action_type(self):
+        params = {'action_type': EventRuleActionChoices.SCRIPT}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_enabled(self):
+        params = {'enabled': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'enabled': False}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_type_create(self):
+        params = {'type_create': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_update(self):
+        params = {'type_update': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_delete(self):
+        params = {'type_delete': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_job_start(self):
+        params = {'type_job_start': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_type_job_end(self):
+        params = {'type_job_end': True}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
 class CustomLinkTestCase(TestCase, BaseFilterSetTests):
