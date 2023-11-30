@@ -124,4 +124,9 @@ class Migration(migrations.Migration):
             name='tags',
             field=taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag'),
         ),
+        migrations.AddField(
+            model_name='webhook',
+            name='description',
+            field=models.CharField(blank=True, max_length=200),
+        ),
     ]

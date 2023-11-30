@@ -178,6 +178,11 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
     http_method = forms.ChoiceField(
         choices=add_blank_choice(WebhookHttpMethodChoices),
         required=False,
@@ -242,7 +247,7 @@ class EventRuleBulkEditForm(NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
 
-    nullable_fields = ('conditions',)
+    nullable_fields = ('description', 'conditions',)
 
 
 class TagBulkEditForm(BulkEditForm):

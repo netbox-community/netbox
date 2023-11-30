@@ -347,20 +347,21 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'payload_url': 'http://example.com/?x',
             'http_method': 'GET',
             'http_content_type': 'application/foo',
+            'description': 'My webhook',
         }
 
         cls.csv_data = (
-            "name,payload_url,http_method,http_content_type",
-            "Webhook 4,http://example.com/?4,GET,application/json",
-            "Webhook 5,http://example.com/?5,GET,application/json",
-            "Webhook 6,http://example.com/?6,GET,application/json",
+            "name,payload_url,http_method,http_content_type,description",
+            "Webhook 4,http://example.com/?4,GET,application/json,Foo",
+            "Webhook 5,http://example.com/?5,GET,application/json,Bar",
+            "Webhook 6,http://example.com/?6,GET,application/json,Baz",
         )
 
         cls.csv_update_data = (
-            "id,name",
-            f"{webhooks[0].pk},Webhook 7",
-            f"{webhooks[1].pk},Webhook 8",
-            f"{webhooks[2].pk},Webhook 9",
+            "id,name,description",
+            f"{webhooks[0].pk},Webhook 7,Foo",
+            f"{webhooks[1].pk},Webhook 8,Bar",
+            f"{webhooks[2].pk},Webhook 9,Baz",
         )
 
         cls.bulk_edit_data = {
@@ -403,7 +404,8 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'action_type': 'webhook',
             'action_object_type': webhook_ct.pk,
             'action_object_id': webhooks[0].pk,
-            'action_choice': webhooks[0]
+            'action_choice': webhooks[0],
+            'description': 'New description',
         }
 
         cls.csv_data = (

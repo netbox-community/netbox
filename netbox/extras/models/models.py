@@ -182,6 +182,11 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         max_length=150,
         unique=True
     )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
     payload_url = models.CharField(
         max_length=500,
         verbose_name=_('URL'),
