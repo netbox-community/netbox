@@ -4,9 +4,15 @@ from django.dispatch import Signal, receiver
 from .models import ConfigRevision
 
 __all__ = (
+    'job_end',
+    'job_start',
     'post_sync',
     'pre_sync',
 )
+
+# Job signals
+job_start = Signal()
+job_end = Signal()
 
 # DataSource signals
 pre_sync = Signal()

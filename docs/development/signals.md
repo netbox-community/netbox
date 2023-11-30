@@ -9,3 +9,15 @@ This signal is sent by models which inherit from `CustomValidationMixin` at the 
 ### Receivers
 
 * `extras.signals.run_custom_validators()`
+
+## core.job_start
+
+* `extras..signals.process_job_start_event_rules()`
+
+## core.job_end
+
+* `extras..signals.process_job_end_event_rules()`
+
+## core.pre_sync
+
+## core.post_sync

@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
 from core.models import ContentType
+from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT
@@ -168,8 +169,8 @@ class Job(models.Model):
         self.status = JobStatusChoices.STATUS_RUNNING
         self.save()
 
-        # Handle events
-        self.process_event(event=EVENT_JOB_START)
+        # Send signal
+        job_start.send(self)
 
     def terminate(self, status=JobStatusChoices.STATUS_COMPLETED, error=None):
         """
@@ -186,8 +187,8 @@ class Job(models.Model):
         self.completed = timezone.now()
         self.save()
 
-        # Handle events
-        self.process_event(event=EVENT_JOB_END)
+        # Send signal
+        job_end.send(self)
 
     @classmethod
     def enqueue(cls, func, instance, name='', user=None, schedule_at=None, interval=None, **kwargs):
@@ -223,19 +224,3 @@ class Job(models.Model):
             queue.enqueue(func, job_id=str(job.job_id), job=job, **kwargs)
 
         return job
-
-    def process_event(self, event):
-        """
-        Process any EventRules relevant to the passed job event (i.e. start or stop).
-        """
-        from extras.models import EventRule
-        from extras.events import process_event_rules
-
-        # Fetch any event rules matching this object type and action
-        event_rules = EventRule.objects.filter(
-            **{f'type_{event}': True},
-            content_types=self.object_type,
-            enabled=True
-        )
-
-        process_event_rules(event_rules, self.object_type.model, event, self.data, self.user.username)
