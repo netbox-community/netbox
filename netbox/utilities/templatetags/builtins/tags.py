@@ -87,13 +87,14 @@ def checkmark(value, show_false=True, true='Yes', false='No'):
 
 
 @register.inclusion_tag('builtins/copy_content.html')
-def copy_content(target, prefix=None, color='primary'):
+def copy_content(target, prefix=None, color='primary', classes=None):
     """
     Display a copy button to copy the content of a field.
     """
     return {
         'target': f'#{prefix or ""}{target}',
-        'color': f'btn-{color}'
+        'color': f'btn-{color}',
+        'classes': classes or '',
     }
 
 
