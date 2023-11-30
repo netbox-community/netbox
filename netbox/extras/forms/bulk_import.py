@@ -192,6 +192,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
                 except ObjectDoesNotExist:
                     raise forms.ValidationError(f"Script {action_object} not found")
                 self.instance.action_object = module
+                self.instance.action_object_type = ContentType.objects.get_for_model(module, for_concrete_model=False)
                 self.instance.action_parameters = {
                     'script_choice': f"{str(module.pk)}:{script_name}",
                     'script_name': script.name,
