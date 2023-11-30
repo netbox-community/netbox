@@ -71,7 +71,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
 class EventRuleTest(APIViewTestCases.APIViewTestCase):
     model = EventRule
-    brief_fields = ['display', 'id', 'name',]
+    brief_fields = ['display', 'id', 'name', 'url']
     bulk_update_data = {
         'enabled': False,
         'description': 'New description',
