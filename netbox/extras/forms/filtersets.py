@@ -22,6 +22,7 @@ __all__ = (
     'CustomFieldChoiceSetFilterForm',
     'CustomFieldFilterForm',
     'CustomLinkFilterForm',
+    'EventRuleFilterForm',
     'ExportTemplateFilterForm',
     'ImageAttachmentFilterForm',
     'JournalEntryFilterForm',
@@ -223,22 +224,44 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
-    tag = TagFilterField(model)
-
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('content_type_id', 'http_method', 'enabled')),
-        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        (_('Attributes'), ('payload_url', 'http_method', 'http_content_type')),
     )
-    content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('webhooks'),
-        required=False,
-        label=_('Object type')
+    http_content_type = forms.CharField(
+        label=_('HTTP content type'),
+        required=False
+    )
+    payload_url = forms.CharField(
+        label=_('Payload URL'),
+        required=False
     )
     http_method = forms.MultipleChoiceField(
         choices=WebhookHttpMethodChoices,
         required=False,
         label=_('HTTP method')
+    )
+    tag = TagFilterField(model)
+
+
+class EventRuleFilterForm(NetBoxModelFilterSetForm):
+    model = EventRule
+    tag = TagFilterField(model)
+
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Attributes'), ('content_type_id', 'action_type', 'enabled')),
+        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+    )
+    content_type_id = ContentTypeMultipleChoiceField(
+        queryset=ContentType.objects.with_feature('event_rules'),
+        required=False,
+        label=_('Object type')
+    )
+    action_type = forms.ChoiceField(
+        choices=add_blank_choice(EventRuleActionChoices),
+        required=False,
+        label=_('Action type')
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),

@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -17,6 +18,7 @@ __all__ = (
     'CustomFieldChoiceSetImportForm',
     'CustomFieldImportForm',
     'CustomLinkImportForm',
+    'EventRuleImportForm',
     'ExportTemplateImportForm',
     'JournalEntryImportForm',
     'SavedFilterImportForm',
@@ -143,19 +145,60 @@ class SavedFilterImportForm(CSVModelForm):
 
 
 class WebhookImportForm(NetBoxModelImportForm):
-    content_types = CSVMultipleContentTypeField(
-        label=_('Content types'),
-        queryset=ContentType.objects.with_feature('webhooks'),
-        help_text=_("One or more assigned object types")
-    )
 
     class Meta:
         model = Webhook
         fields = (
-            'name', 'enabled', 'content_types', 'type_create', 'type_update', 'type_delete', 'type_job_start',
-            'type_job_end', 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template',
+            'name', 'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template',
             'secret', 'ssl_verification', 'ca_file_path', 'tags'
         )
+
+
+class EventRuleImportForm(NetBoxModelImportForm):
+    content_types = CSVMultipleContentTypeField(
+        label=_('Content types'),
+        queryset=ContentType.objects.with_feature('event_rules'),
+        help_text=_("One or more assigned object types")
+    )
+    action_object = forms.CharField(
+        label=_('Action object'),
+        required=True,
+        help_text=_('Webhook name or script as dotted path module.Class')
+    )
+
+    class Meta:
+        model = EventRule
+        fields = (
+            'name', 'description', 'enabled', 'conditions', 'content_types', 'type_create', 'type_update',
+            'type_delete', 'type_job_start', 'type_job_end', 'action_type', 'action_object', 'comments', 'tags'
+        )
+
+    def clean(self):
+        super().clean()
+
+        action_object = self.cleaned_data.get('action_object')
+        action_type = self.cleaned_data.get('action_type')
+        if action_object and action_type:
+            if action_type == EventRuleActionChoices.WEBHOOK:
+                try:
+                    webhook = Webhook.objects.get(name=action_object)
+                except Webhook.ObjectDoesNotExist:
+                    raise forms.ValidationError(f"Webhook {action_object} not found")
+                self.instance.action_object = webhook
+            elif action_type == EventRuleActionChoices.SCRIPT:
+                from extras.scripts import get_module_and_script
+                module_name, script_name = action_object.split('.', 1)
+                try:
+                    module, script = get_module_and_script(module_name, script_name)
+                except ObjectDoesNotExist:
+                    raise forms.ValidationError(f"Script {action_object} not found")
+                self.instance.action_object = module
+                self.instance.action_object_type = ContentType.objects.get_for_model(module, for_concrete_model=False)
+                self.instance.action_parameters = {
+                    'script_choice': f"{str(module.pk)}:{script_name}",
+                    'script_name': script.name,
+                    'script_full_name': script.full_name,
+                }
 
 
 class TagImportForm(CSVModelForm):

@@ -1,6 +1,7 @@
 import json
 
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -11,12 +12,12 @@ from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import BootstrapMixin, add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.widgets import ChoicesWidget
+from utilities.forms.widgets import ChoicesWidget, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
 __all__ = (
@@ -26,6 +27,7 @@ __all__ = (
     'CustomFieldChoiceSetForm',
     'CustomFieldForm',
     'CustomLinkForm',
+    'EventRuleForm',
     'ExportTemplateForm',
     'ImageAttachmentForm',
     'JournalEntryForm',
@@ -211,24 +213,59 @@ class BookmarkForm(BootstrapMixin, forms.ModelForm):
 
 
 class WebhookForm(NetBoxModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
-        queryset=ContentType.objects.with_feature('webhooks')
-    )
 
     fieldsets = (
-        (_('Webhook'), ('name', 'content_types', 'enabled', 'tags')),
-        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        (_('Webhook'), ('name', 'tags',)),
         (_('HTTP Request'), (
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
         )),
-        (_('Conditions'), ('conditions',)),
         (_('SSL'), ('ssl_verification', 'ca_file_path')),
     )
 
     class Meta:
         model = Webhook
         fields = '__all__'
+        widgets = {
+            'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
+        }
+
+
+class EventRuleForm(NetBoxModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        label=_('Content types'),
+        queryset=ContentType.objects.with_feature('event_rules'),
+    )
+    action_choice = forms.ChoiceField(
+        label=_('Action choice'),
+        choices=[]
+    )
+    conditions = JSONField(
+        required=False,
+        help_text=_('Enter conditions in <a href="https://json.org/">JSON</a> format.')
+    )
+    action_data = JSONField(
+        required=False,
+        help_text=_('Enter parameters to pass to the action in <a href="https://json.org/">JSON</a> format.')
+    )
+
+    fieldsets = (
+        (_('Event Rule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
+        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        (_('Conditions'), ('conditions',)),
+        (_('Action'), (
+            'action_type', 'action_choice', 'action_parameters', 'action_object_type', 'action_object_id',
+            'action_data',
+        )),
+    )
+
+    class Meta:
+        model = EventRule
+        fields = (
+            'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
+            'action_parameters', 'action_data', 'comments', 'tags'
+        )
         labels = {
             'type_create': _('Creations'),
             'type_update': _('Updates'),
@@ -237,10 +274,75 @@ class WebhookForm(NetBoxModelForm):
             'type_job_end': _('Job terminations'),
         }
         widgets = {
-            'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'action_type': HTMXSelect(),
+            'action_object_type': forms.HiddenInput,
+            'action_object_id': forms.HiddenInput,
+            'action_parameters': forms.HiddenInput,
         }
+
+    def init_script_choice(self):
+        choices = []
+        for module in ScriptModule.objects.all():
+            scripts = []
+            for script_name in module.scripts.keys():
+                name = f"{str(module.pk)}:{script_name}"
+                scripts.append((name, script_name))
+
+            if scripts:
+                choices.append((str(module), scripts))
+
+        self.fields['action_choice'].choices = choices
+        parameters = get_field_value(self, 'action_parameters')
+        initial = None
+        if parameters and 'script_choice' in parameters:
+            initial = parameters['script_choice']
+        self.fields['action_choice'].initial = initial
+
+    def init_webhook_choice(self):
+        initial = None
+        if self.fields['action_object_type'] and get_field_value(self, 'action_object_id'):
+            initial = Webhook.objects.get(pk=get_field_value(self, 'action_object_id'))
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Webhook'),
+            queryset=Webhook.objects.all(),
+            required=True,
+            initial=initial
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['action_object_type'].required = False
+        self.fields['action_object_id'].required = False
+
+        # Determine the action type
+        action_type = get_field_value(self, 'action_type')
+
+        if action_type == EventRuleActionChoices.WEBHOOK:
+            self.init_webhook_choice()
+        elif action_type == EventRuleActionChoices.SCRIPT:
+            self.init_script_choice()
+
+    def clean(self):
+        super().clean()
+
+        action_choice = self.cleaned_data.get('action_choice')
+        if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
+            self.cleaned_data['action_object_id'] = action_choice.id
+        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
+            module_id, script_name = action_choice.split(":", maxsplit=1)
+            script_module = ScriptModule.objects.get(pk=module_id)
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script_module, for_concrete_model=False)
+            self.cleaned_data['action_object_id'] = script_module.id
+            script = script_module.scripts[script_name]()
+            self.cleaned_data['action_parameters'] = {
+                'script_choice': action_choice,
+                'script_name': script.name,
+                'script_full_name': script.full_name,
+            }
+
+        return self.cleaned_data
 
 
 class TagForm(BootstrapMixin, forms.ModelForm):

@@ -15,6 +15,7 @@ __all__ = (
     'CustomFieldChoiceSetTable',
     'CustomFieldTable',
     'CustomLinkTable',
+    'EventRuleTable',
     'ExportTemplateTable',
     'ImageAttachmentTable',
     'JournalEntryTable',
@@ -250,6 +251,32 @@ class WebhookTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    ssl_validation = columns.BooleanColumn(
+        verbose_name=_('SSL Validation')
+    )
+    tags = columns.TagColumn(
+        url_name='extras:webhook_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Webhook
+        fields = (
+            'pk', 'id', 'name', 'http_method', 'payload_url', 'http_content_type', 'secret', 'ssl_verification',
+            'ca_file_path', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'http_method', 'payload_url',
+        )
+
+
+class EventRuleTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    action_type = tables.Column(
+        verbose_name=_('Action Type'),
+    )
     content_types = columns.ContentTypesColumn(
         verbose_name=_('Content Types'),
     )
@@ -271,23 +298,19 @@ class WebhookTable(NetBoxTable):
     type_job_end = columns.BooleanColumn(
         verbose_name=_('Job End')
     )
-    ssl_validation = columns.BooleanColumn(
-        verbose_name=_('SSL Validation')
-    )
     tags = columns.TagColumn(
         url_name='extras:webhook_list'
     )
 
     class Meta(NetBoxTable.Meta):
-        model = Webhook
+        model = EventRule
         fields = (
-            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'enabled', 'description', 'action_type', 'content_types', 'type_create', 'type_update',
+            'type_delete', 'type_job_start', 'type_job_end', 'tags', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
-            'type_job_end', 'http_method', 'payload_url',
+            'pk', 'name', 'enabled', 'action_type', 'content_types', 'type_create', 'type_update', 'type_delete',
+            'type_job_start', 'type_job_end',
         )
 
 

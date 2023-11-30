@@ -14,6 +14,7 @@ __all__ = (
     'CustomFieldBulkEditForm',
     'CustomFieldChoiceSetBulkEditForm',
     'CustomLinkBulkEditForm',
+    'EventRuleBulkEditForm',
     'ExportTemplateBulkEditForm',
     'JournalEntryBulkEditForm',
     'SavedFilterBulkEditForm',
@@ -177,6 +178,39 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         queryset=Webhook.objects.all(),
         widget=forms.MultipleHiddenInput
     )
+    http_method = forms.ChoiceField(
+        choices=add_blank_choice(WebhookHttpMethodChoices),
+        required=False,
+        label=_('HTTP method')
+    )
+    payload_url = forms.CharField(
+        required=False,
+        label=_('Payload URL')
+    )
+    ssl_verification = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('SSL verification')
+    )
+    secret = forms.CharField(
+        label=_('Secret'),
+        required=False
+    )
+    ca_file_path = forms.CharField(
+        required=False,
+        label=_('CA file path')
+    )
+
+    nullable_fields = ('secret', 'ca_file_path')
+
+
+class EventRuleBulkEditForm(NetBoxModelBulkEditForm):
+    model = EventRule
+
+    pk = forms.ModelMultipleChoiceField(
+        queryset=EventRule.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
         required=False,
@@ -207,30 +241,8 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
-    http_method = forms.ChoiceField(
-        choices=add_blank_choice(WebhookHttpMethodChoices),
-        required=False,
-        label=_('HTTP method')
-    )
-    payload_url = forms.CharField(
-        required=False,
-        label=_('Payload URL')
-    )
-    ssl_verification = forms.NullBooleanField(
-        required=False,
-        widget=BulkEditNullBooleanSelect(),
-        label=_('SSL verification')
-    )
-    secret = forms.CharField(
-        label=_('Secret'),
-        required=False
-    )
-    ca_file_path = forms.CharField(
-        required=False,
-        label=_('CA file path')
-    )
 
-    nullable_fields = ('secret', 'conditions', 'ca_file_path')
+    nullable_fields = ('conditions',)
 
 
 class TagBulkEditForm(BulkEditForm):
