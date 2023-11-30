@@ -22,6 +22,7 @@ __all__ = [
 
 
 class NestedEventRuleSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
 
     class Meta:
         model = models.EventRule
@@ -117,7 +118,6 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
 
 
 class NestedScriptModuleSerializer(WritableNestedSerializer):
-    # url = serializers.SerializerMethodField()
     url = serializers.HyperlinkedIdentityField(
         view_name='extras-api:script-detail',
         lookup_field='full_name',
