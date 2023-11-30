@@ -180,8 +180,9 @@ class EventRuleImportForm(NetBoxModelImportForm):
         action_type = self.cleaned_data.get('action_type')
         if action_object and action_type:
             if action_type == EventRuleActionChoices.WEBHOOK:
-                webhook = Webhook.objects.filter(name=action_object)
-                if not webhook:
+                try:
+                    webhook = Webhook.objects.get(name=action_object)
+                except Webhook.ObjectDoesNotExist:
                     raise forms.ValidationError(f"Webhook {action_object} not found")
                 self.instance.action_object = webhook
             elif action_type == EventRuleActionChoices.SCRIPT:
