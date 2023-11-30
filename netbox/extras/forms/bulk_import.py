@@ -183,6 +183,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
                 webhook = Webhook.objects.filter(name=action_object)
                 if not webhook:
                     raise forms.ValidationError(f"Webhook {action_object} not found")
+                self.instance.action_object = webhook
             elif action_type == EventRuleActionChoices.SCRIPT:
                 from extras.scripts import get_module_and_script
                 module_name, script_name = action_object.split('.', 1)
@@ -190,25 +191,12 @@ class EventRuleImportForm(NetBoxModelImportForm):
                     module, script = get_module_and_script(module_name, script_name)
                 except ObjectDoesNotExist:
                     raise forms.ValidationError(f"Script {action_object} not found")
-
-    def save(self, *args, **kwargs):
-        action_object = self.cleaned_data.get('action_object')
-        action_type = self.cleaned_data.get('action_type')
-
-        if action_type == EventRuleActionChoices.WEBHOOK:
-            self.instance.action_object = Webhook.objects.get(name=action_object)
-        elif action_type == EventRuleActionChoices.SCRIPT:
-            from extras.scripts import get_module_and_script
-            module_name, script_name = action_object.split('.', 1)
-            module, script = get_module_and_script(module_name, script_name)
-            self.instance.action_object = module
-            self.instance.action_parameters = {
-                'script_choice': f"{str(module.pk)}:{script_name}",
-                'script_name': script.name,
-                'script_full_name': script.full_name,
-            }
-
-        return super().save(*args, **kwargs)
+                self.instance.action_object = module
+                self.instance.action_parameters = {
+                    'script_choice': f"{str(module.pk)}:{script_name}",
+                    'script_name': script.name,
+                    'script_full_name': script.full_name,
+                }
 
 
 class TagImportForm(CSVModelForm):
