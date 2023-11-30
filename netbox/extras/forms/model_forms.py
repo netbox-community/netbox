@@ -250,7 +250,7 @@ class EventRuleForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('EventRule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
+        (_('Event Rule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
         (_('Action'), (

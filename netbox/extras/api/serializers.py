@@ -1,17 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.api.serializers import JobSerializer
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
+from core.api.serializers import JobSerializer
 from core.models import ContentType
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
-from drf_spectacular.utils import extend_schema_field
-from drf_spectacular.types import OpenApiTypes
 from extras.choices import *
 from extras.models import *
 from netbox.api.exceptions import SerializerNotFound
@@ -84,17 +84,17 @@ class EventRuleSerializer(NetBoxModelSerializer):
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_action_object(self, instance):
         context = {'request': self.context['request']}
-        if instance.action_type == EventRuleActionChoices.WEBHOOK:
+        # We need to manually instantiate the serializer for scripts
+        if instance.action_type == EventRuleActionChoices.SCRIPT:
+            module_id, script_name = instance.action_parameters['script_choice'].split(":", maxsplit=1)
+            script = instance.action_object.scripts[script_name]()
+            return NestedScriptSerializer(script, context=context).data
+        else:
             serializer = get_serializer_for_model(
                 model=instance.action_object_type.model_class(),
                 prefix=NESTED_SERIALIZER_PREFIX
             )
             return serializer(instance.action_object, context=context).data
-        elif instance.action_type == EventRuleActionChoices.SCRIPT:
-            from extras.api.nested_serializers import NestedScriptModuleSerializer
-            module_id, script_name = instance.action_parameters['script_choice'].split(":", maxsplit=1)
-            script = instance.action_object.scripts[script_name]()
-            return NestedScriptModuleSerializer(script, context=context).data
 
 
 #

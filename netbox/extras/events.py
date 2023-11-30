@@ -1,11 +1,10 @@
 import logging
-import sys
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django_rq import get_queue
 from django.utils import timezone
 from django.utils.module_loading import import_string
+from django_rq import get_queue
 
 from netbox.config import get_config
 from netbox.constants import RQ_QUEUE_DEFAULT

@@ -15,7 +15,7 @@ __all__ = [
     'NestedImageAttachmentSerializer',
     'NestedJournalEntrySerializer',
     'NestedSavedFilterSerializer',
-    'NestedScriptModuleSerializer',
+    'NestedScriptSerializer',
     'NestedTagSerializer',  # Defined in netbox.api.serializers
     'NestedWebhookSerializer',
 ]
@@ -117,7 +117,7 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
         fields = ['id', 'url', 'display', 'created']
 
 
-class NestedScriptModuleSerializer(WritableNestedSerializer):
+class NestedScriptSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='extras-api:script-detail',
         lookup_field='full_name',
@@ -127,7 +127,7 @@ class NestedScriptModuleSerializer(WritableNestedSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
-        model = models.ScriptModule
+        model = models.Script
         fields = ['id', 'url', 'display', 'name']
 
     def get_display(self, obj):

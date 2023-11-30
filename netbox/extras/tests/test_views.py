@@ -1,4 +1,3 @@
-import json
 import urllib.parse
 import uuid
 
@@ -10,7 +9,6 @@ from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
-
 
 User = get_user_model()
 
