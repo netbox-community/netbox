@@ -16,10 +16,6 @@ def process_webhook(event_rule, model_name, event, data, timestamp, username, re
     """
     Make a POST request to the defined Webhook
     """
-
-    if not event_rule.eval_conditions(data):
-        return
-
     webhook = event_rule.action_object
 
     # Prepare context data for headers & body templates
