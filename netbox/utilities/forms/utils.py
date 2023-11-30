@@ -40,7 +40,7 @@ def parse_numeric_range(string, base=10):
         except ValueError:
             raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
         values.extend(range(begin, end))
-    return list(set(values))
+    return sorted(set(values))
 
 
 def parse_alphanumeric_range(string):

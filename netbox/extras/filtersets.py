@@ -121,8 +121,7 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value) |
-            Q(extra_choices__contains=value)
+            Q(description__icontains=value)
         )
 
     def filter_by_choice(self, queryset, name, value):

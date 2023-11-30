@@ -3,6 +3,7 @@
 {% load plugins %}
 {% load tz %}
 {% load i18n %}
+{% load mptt %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -29,27 +30,13 @@
           <tr>
             <th scope="row">{% trans "Region" %}</th>
             <td>
-              {% if object.region %}
-                {% for region in object.region.get_ancestors %}
-                  {{ region|linkify }} /
-                {% endfor %}
-                {{ object.region|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
+              {% nested_tree object.region %}
             </td>
           </tr>
           <tr>
             <th scope="row">{% trans "Group" %}</th>
             <td>
-              {% if object.group %}
-                {% for group in object.group.get_ancestors %}
-                  {{ group|linkify }} /
-                {% endfor %}
-                {{ object.group|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
+              {% nested_tree object.group %}
             </td>
           </tr>
           <tr>

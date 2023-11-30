@@ -3,6 +3,7 @@
 {% load helpers %}
 {% load plugins %}
 {% load i18n %}
+{% load mptt %}
 
 {% block content %}
 <div class="row">
@@ -44,18 +45,17 @@
               {% endif %}
             </td>
           </tr>
+          {% if object.site.region %}
+            <tr>
+              <th scope="row">{% trans "Region" %}</th>
+              <td>
+                {% nested_tree object.site.region %}
+              </td>
+            </tr>
+          {% endif %}
           <tr>
             <th scope="row">{% trans "Site" %}</th>
-            <td>
-              {% if object.site %}
-                {% if object.site.region %}
-                  {{ object.site.region|linkify }} /
-                {% endif %}
-                {{ object.site|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
+            <td>{{ object.site|linkify|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "VLAN" %}</th>

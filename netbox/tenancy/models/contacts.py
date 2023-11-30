@@ -6,7 +6,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.models import ContentType
 from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import CustomFieldsMixin, TagsMixin
+from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, TagsMixin
 from tenancy.choices import *
 
 __all__ = (
@@ -110,7 +110,7 @@ class Contact(PrimaryModel):
         return reverse('tenancy:contact', args=[self.pk])
 
 
-class ContactAssignment(CustomFieldsMixin, TagsMixin, ChangeLoggedModel):
+class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     content_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.CASCADE
