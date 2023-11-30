@@ -394,6 +394,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     form.add_error('data', f"Row {i}: Object with ID {object_id} does not exist")
                     raise ValidationError('')
 
+                # Take a snapshot for change logging
+                if instance.pk and hasattr(instance, 'snapshot'):
+                    instance.snapshot()
+
             # Instantiate the model form for the object
             model_form_kwargs = {
                 'data': record,
