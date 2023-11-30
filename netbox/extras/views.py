@@ -396,6 +396,51 @@ class WebhookBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Event Rules
+#
+
+class EventRuleListView(generic.ObjectListView):
+    queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
+    filterset_form = forms.EventRuleFilterForm
+    table = tables.EventRuleTable
+
+
+@register_model_view(EventRule)
+class EventRuleView(generic.ObjectView):
+    queryset = EventRule.objects.all()
+
+
+@register_model_view(EventRule, 'edit')
+class EventRuleEditView(generic.ObjectEditView):
+    queryset = EventRule.objects.all()
+    form = forms.EventRuleForm
+
+
+@register_model_view(EventRule, 'delete')
+class EventRuleDeleteView(generic.ObjectDeleteView):
+    queryset = EventRule.objects.all()
+
+
+class EventRuleBulkImportView(generic.BulkImportView):
+    queryset = EventRule.objects.all()
+    model_form = forms.EventRuleImportForm
+
+
+class EventRuleBulkEditView(generic.BulkEditView):
+    queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
+    table = tables.EventRuleTable
+    form = forms.EventRuleBulkEditForm
+
+
+class EventRuleBulkDeleteView(generic.BulkDeleteView):
+    queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
+    table = tables.EventRuleTable
+
+
+#
 # Tags
 #
 
@@ -1093,7 +1138,7 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         jobs = Job.objects.filter(
             object_type=object_type,
             object_id=module.pk,
-            name=report.name
+            name=report.class_name
         )
 
         jobs_table = JobTable(

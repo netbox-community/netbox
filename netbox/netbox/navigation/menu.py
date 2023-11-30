@@ -343,6 +343,7 @@ OPERATIONS_MENU = Menu(
             label=_('Integrations'),
             items=(
                 get_model_item('core', 'datasource', _('Data Sources')),
+                get_model_item('extras', 'eventrule', _('Event Rules')),
                 get_model_item('extras', 'webhook', _('Webhooks')),
             ),
         ),

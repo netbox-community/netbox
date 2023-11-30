@@ -1,17 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.api.serializers import JobSerializer
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
+from core.api.serializers import JobSerializer
 from core.models import ContentType
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
 )
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
-from drf_spectacular.utils import extend_schema_field
-from drf_spectacular.types import OpenApiTypes
 from extras.choices import *
 from extras.models import *
 from netbox.api.exceptions import SerializerNotFound
@@ -38,6 +38,7 @@ __all__ = (
     'CustomFieldSerializer',
     'CustomLinkSerializer',
     'DashboardSerializer',
+    'EventRuleSerializer',
     'ExportTemplateSerializer',
     'ImageAttachmentSerializer',
     'JournalEntrySerializer',
@@ -57,23 +58,58 @@ __all__ = (
 
 
 #
+# Event Rules
+#
+
+class EventRuleSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
+    content_types = ContentTypeField(
+        queryset=ContentType.objects.with_feature('event_rules'),
+        many=True
+    )
+    action_type = ChoiceField(choices=EventRuleActionChoices)
+    action_object_type = ContentTypeField(
+        queryset=ContentType.objects.with_feature('event_rules'),
+    )
+    action_object = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = EventRule
+        fields = [
+            'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
+            'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type',
+            'action_object_id', 'action_object', 'description', 'custom_fields', 'tags', 'created', 'last_updated',
+        ]
+
+    @extend_schema_field(OpenApiTypes.OBJECT)
+    def get_action_object(self, instance):
+        context = {'request': self.context['request']}
+        # We need to manually instantiate the serializer for scripts
+        if instance.action_type == EventRuleActionChoices.SCRIPT:
+            module_id, script_name = instance.action_parameters['script_choice'].split(":", maxsplit=1)
+            script = instance.action_object.scripts[script_name]()
+            return NestedScriptSerializer(script, context=context).data
+        else:
+            serializer = get_serializer_for_model(
+                model=instance.action_object_type.model_class(),
+                prefix=NESTED_SERIALIZER_PREFIX
+            )
+            return serializer(instance.action_object, context=context).data
+
+
+#
 # Webhooks
 #
 
 class WebhookSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:webhook-detail')
-    content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('webhooks'),
-        many=True
-    )
 
     class Meta:
         model = Webhook
         fields = [
-            'id', 'url', 'display', 'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'payload_url', 'enabled', 'http_method', 'http_content_type',
-            'additional_headers', 'body_template', 'secret', 'conditions', 'ssl_verification', 'ca_file_path',
-            'custom_fields', 'tags', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'payload_url', 'http_method', 'http_content_type',
+            'additional_headers', 'body_template', 'secret', 'ssl_verification', 'ca_file_path', 'custom_fields',
+            'tags', 'created', 'last_updated',
         ]
 
 

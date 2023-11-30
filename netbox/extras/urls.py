@@ -61,6 +61,14 @@ urlpatterns = [
     path('webhooks/delete/', views.WebhookBulkDeleteView.as_view(), name='webhook_bulk_delete'),
     path('webhooks/<int:pk>/', include(get_model_urls('extras', 'webhook'))),
 
+    # Event rules
+    path('event-rules/', views.EventRuleListView.as_view(), name='eventrule_list'),
+    path('event-rules/add/', views.EventRuleEditView.as_view(), name='eventrule_add'),
+    path('event-rules/import/', views.EventRuleBulkImportView.as_view(), name='eventrule_import'),
+    path('event-rules/edit/', views.EventRuleBulkEditView.as_view(), name='eventrule_bulk_edit'),
+    path('event-rules/delete/', views.EventRuleBulkDeleteView.as_view(), name='eventrule_bulk_delete'),
+    path('event-rules/<int:pk>/', include(get_model_urls('extras', 'eventrule'))),
+
     # Tags
     path('tags/', views.TagListView.as_view(), name='tag_list'),
     path('tags/add/', views.TagEditView.as_view(), name='tag_add'),

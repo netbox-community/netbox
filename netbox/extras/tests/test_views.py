@@ -1,4 +1,3 @@
-import json
 import urllib.parse
 import uuid
 
@@ -10,7 +9,6 @@ from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
-
 
 User = get_user_model()
 
@@ -336,34 +334,27 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site_ct = ContentType.objects.get_for_model(Site)
         webhooks = (
-            Webhook(name='Webhook 1', payload_url='http://example.com/?1', type_create=True, http_method='POST'),
-            Webhook(name='Webhook 2', payload_url='http://example.com/?2', type_create=True, http_method='POST'),
-            Webhook(name='Webhook 3', payload_url='http://example.com/?3', type_create=True, http_method='POST'),
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', http_method='POST'),
         )
         for webhook in webhooks:
             webhook.save()
-            webhook.content_types.add(site_ct)
 
         cls.form_data = {
             'name': 'Webhook X',
-            'content_types': [site_ct.pk],
-            'type_create': False,
-            'type_update': True,
-            'type_delete': True,
             'payload_url': 'http://example.com/?x',
             'http_method': 'GET',
             'http_content_type': 'application/foo',
-            'conditions': None,
             'description': 'My webhook',
         }
 
         cls.csv_data = (
-            "name,content_types,type_create,payload_url,http_method,http_content_type,description",
-            "Webhook 4,dcim.site,True,http://example.com/?4,GET,application/json,Foo",
-            "Webhook 5,dcim.site,True,http://example.com/?5,GET,application/json,Bar",
-            "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json,Baz",
+            "name,payload_url,http_method,http_content_type,description",
+            "Webhook 4,http://example.com/?4,GET,application/json,Foo",
+            "Webhook 5,http://example.com/?5,GET,application/json,Bar",
+            "Webhook 6,http://example.com/?6,GET,application/json,Baz",
         )
 
         cls.csv_update_data = (
@@ -374,12 +365,63 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
 
         cls.bulk_edit_data = {
-            'enabled': False,
+            'http_method': 'GET',
+        }
+
+
+class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = EventRule
+
+    @classmethod
+    def setUpTestData(cls):
+
+        webhooks = (
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', http_method='POST'),
+        )
+        for webhook in webhooks:
+            webhook.save()
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        event_rules = (
+            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
+            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
+            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+        )
+        for event in event_rules:
+            event.save()
+            event.content_types.add(site_ct)
+
+        webhook_ct = ContentType.objects.get_for_model(Webhook)
+        cls.form_data = {
+            'name': 'Event X',
+            'content_types': [site_ct.pk],
             'type_create': False,
             'type_update': True,
             'type_delete': True,
-            'http_method': 'GET',
+            'conditions': None,
+            'action_type': 'webhook',
+            'action_object_type': webhook_ct.pk,
+            'action_object_id': webhooks[0].pk,
+            'action_choice': webhooks[0],
             'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "name,content_types,type_create,action_type,action_object",
+            "Webhook 4,dcim.site,True,webhook,Webhook 1",
+        )
+
+        cls.csv_update_data = (
+            "id,name",
+            f"{event_rules[0].pk},Event 7",
+            f"{event_rules[1].pk},Event 8",
+            f"{event_rules[2].pk},Event 9",
+        )
+
+        cls.bulk_edit_data = {
+            'type_update': True,
         }
 
 

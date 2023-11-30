@@ -17,7 +17,7 @@ from django.utils.safestring import mark_safe
 from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
-from extras.signals import clear_webhooks
+from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -279,7 +279,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -394,6 +394,10 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     form.add_error('data', f"Row {i}: Object with ID {object_id} does not exist")
                     raise ValidationError('')
 
+                # Take a snapshot for change logging
+                if instance.pk and hasattr(instance, 'snapshot'):
+                    instance.snapshot()
+
             # Instantiate the model form for the object
             model_form_kwargs = {
                 'data': record,
@@ -470,12 +474,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -628,12 +632,12 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
                 except ValidationError as e:
                     messages.error(self.request, ", ".join(e.messages))
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
             else:
                 logger.debug("Form validation failed")
@@ -729,7 +733,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
@@ -923,12 +927,12 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                             raise PermissionsViolation
 
                 except IntegrityError:
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
                 if not form.errors:
                     msg = "Added {} {} to {} {}.".format(

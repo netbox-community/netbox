@@ -35,7 +35,7 @@ __all__ = (
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
-    'WebhooksMixin',
+    'EventRulesMixin',
 )
 
 
@@ -400,9 +400,9 @@ class TagsMixin(models.Model):
         abstract = True
 
 
-class WebhooksMixin(models.Model):
+class EventRulesMixin(models.Model):
     """
-    Enables support for webhooks.
+    Enables support for event rules, which can be used to transmit webhooks or execute scripts automatically.
     """
     class Meta:
         abstract = True
@@ -555,7 +555,7 @@ FEATURES_MAP = {
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
     'tags': TagsMixin,
-    'webhooks': WebhooksMixin,
+    'event_rules': EventRulesMixin,
 }
 
 registry['model_features'].update({

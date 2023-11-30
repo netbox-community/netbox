@@ -9,7 +9,7 @@ from django.utils.translation import gettext_lazy as _
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
 from extras.utils import is_script
-from netbox.models.features import JobsMixin, WebhooksMixin
+from netbox.models.features import JobsMixin, EventRulesMixin
 from utilities.querysets import RestrictedQuerySet
 from .mixins import PythonModuleMixin
 
@@ -21,7 +21,7 @@ __all__ = (
 logger = logging.getLogger('netbox.data_backends')
 
 
-class Script(WebhooksMixin, models.Model):
+class Script(EventRulesMixin, models.Model):
     """
     Dummy model used to generate permissions for custom scripts. Does not exist in the database.
     """

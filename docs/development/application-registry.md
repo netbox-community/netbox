@@ -31,7 +31,7 @@ A dictionary of particular features (e.g. custom fields) mapped to the NetBox mo
         'dcim': ['site', 'rack', 'devicetype', ...],
         ...
     },
-    'webhooks': {
+    'event_rules': {
         'extras': ['configcontext', 'tag', ...],
         'dcim': ['site', 'rack', 'devicetype', ...],
     },

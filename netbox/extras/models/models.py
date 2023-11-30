@@ -2,7 +2,7 @@ import json
 import urllib.parse
 
 from django.conf import settings
-from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
 from django.http import HttpResponse
@@ -28,6 +28,7 @@ from utilities.utils import clean_html, dict_to_querydict, render_jinja2
 __all__ = (
     'Bookmark',
     'CustomLink',
+    'EventRule',
     'ExportTemplate',
     'ImageAttachment',
     'JournalEntry',
@@ -36,17 +37,17 @@ __all__ = (
 )
 
 
-class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     """
-    A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
-    delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
-    Each Webhook can be limited to firing only on certain actions or certain object types.
+    An EventRule defines an action to be taken automatically in response to a specific set of events, such as when a
+    specific type of object is created, modified, or deleted. The action to be taken might entail transmitting a
+    webhook or executing a custom script.
     """
     content_types = models.ManyToManyField(
         to='contenttypes.ContentType',
-        related_name='webhooks',
+        related_name='eventrules',
         verbose_name=_('object types'),
-        help_text=_("The object(s) to which this Webhook applies.")
+        help_text=_("The object(s) to which this rule applies.")
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -83,6 +84,109 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         default=False,
         help_text=_("Triggers when a job for a matching object terminates.")
     )
+    enabled = models.BooleanField(
+        verbose_name=_('enabled'),
+        default=True
+    )
+    conditions = models.JSONField(
+        verbose_name=_('conditions'),
+        blank=True,
+        null=True,
+        help_text=_("A set of conditions which determine whether the event will be generated.")
+    )
+
+    # Action to take
+    action_type = models.CharField(
+        max_length=30,
+        choices=EventRuleActionChoices,
+        default=EventRuleActionChoices.WEBHOOK,
+        verbose_name=_('action type')
+    )
+    action_object_type = models.ForeignKey(
+        to='contenttypes.ContentType',
+        related_name='eventrule_actions',
+        on_delete=models.CASCADE
+    )
+    action_object_id = models.PositiveBigIntegerField(
+        blank=True,
+        null=True
+    )
+    action_object = GenericForeignKey(
+        ct_field='action_object_type',
+        fk_field='action_object_id'
+    )
+    # internal (not show in UI) - used by scripts to store function name
+    action_parameters = models.JSONField(
+        blank=True,
+        null=True,
+    )
+    action_data = models.JSONField(
+        verbose_name=_('parameters'),
+        blank=True,
+        null=True,
+        help_text=_("Parameters to pass to the action.")
+    )
+    comments = models.TextField(
+        verbose_name=_('comments'),
+        blank=True
+    )
+
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('event rule')
+        verbose_name_plural = _('event rules')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('extras:eventrule', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # At least one action type must be selected
+        if not any([
+            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
+        ]):
+            raise ValidationError(
+                _("At least one event type must be selected: create, update, delete, job start, and/or job end.")
+            )
+
+        # Validate that any conditions are in the correct format
+        if self.conditions:
+            try:
+                ConditionSet(self.conditions)
+            except ValueError as e:
+                raise ValidationError({'conditions': e})
+
+    def eval_conditions(self, data):
+        """
+        Test whether the given data meets the conditions of the event rule (if any). Return True
+        if met or no conditions are specified.
+        """
+        if not self.conditions:
+            return True
+
+        return ConditionSet(self.conditions).eval(data)
+
+
+class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+    """
+    A Webhook defines a request that will be sent to a remote application when an object is created, updated, and/or
+    delete in NetBox. The request will contain a representation of the object, which the remote application can act on.
+    Each Webhook can be limited to firing only on certain actions or certain object types.
+    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=150,
+        unique=True
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
     payload_url = models.CharField(
         max_length=500,
         verbose_name=_('URL'),
@@ -90,10 +194,6 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
             "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template "
             "processing is supported with the same context as the request body."
         )
-    )
-    enabled = models.BooleanField(
-        verbose_name=_('enabled'),
-        default=True
     )
     http_method = models.CharField(
         max_length=30,
@@ -137,12 +237,6 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
             "digest of the payload body using the secret as the key. The secret is not transmitted in the request."
         )
     )
-    conditions = models.JSONField(
-        verbose_name=_('conditions'),
-        blank=True,
-        null=True,
-        help_text=_("A set of conditions which determine whether the webhook will be generated.")
-    )
     ssl_verification = models.BooleanField(
         default=True,
         verbose_name=_('SSL verification'),
@@ -157,15 +251,14 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
             "The specific CA certificate file to use for SSL verification. Leave blank to use the system defaults."
         )
     )
+    events = GenericRelation(
+        EventRule,
+        content_type_field='action_object_type',
+        object_id_field='action_object_id'
+    )
 
     class Meta:
         ordering = ('name',)
-        constraints = (
-            models.UniqueConstraint(
-                fields=('payload_url', 'type_create', 'type_update', 'type_delete'),
-                name='%(app_label)s_%(class)s_unique_payload_url_types'
-            ),
-        )
         verbose_name = _('webhook')
         verbose_name_plural = _('webhooks')
 
@@ -181,20 +274,6 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
 
     def clean(self):
         super().clean()
-
-        # At least one action type must be selected
-        if not any([
-            self.type_create, self.type_update, self.type_delete, self.type_job_start, self.type_job_end
-        ]):
-            raise ValidationError(
-                _("At least one event type must be selected: create, update, delete, job_start, and/or job_end.")
-            )
-
-        if self.conditions:
-            try:
-                ConditionSet(self.conditions)
-            except ValueError as e:
-                raise ValidationError({'conditions': e})
 
         # CA file path requires SSL verification enabled
         if not self.ssl_verification and self.ca_file_path:

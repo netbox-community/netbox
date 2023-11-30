@@ -15,7 +15,7 @@ def update_content_type(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0100_customfield_ui_attrs'),
+        ('extras', '0101_eventrule'),
     ]
 
     operations = [

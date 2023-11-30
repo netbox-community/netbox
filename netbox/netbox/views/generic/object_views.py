@@ -11,7 +11,7 @@ from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 
-from extras.signals import clear_webhooks
+from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
@@ -300,7 +300,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -528,7 +528,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
         return render(request, self.template_name, {
             'object': instance,

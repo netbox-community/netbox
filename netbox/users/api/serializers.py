@@ -52,6 +52,16 @@ class UserSerializer(ValidatedModelSerializer):
 
         return user
 
+    def update(self, instance, validated_data):
+        """
+        Ensure proper updated password hash generation.
+        """
+        password = validated_data.pop('password', None)
+        if password is not None:
+            instance.set_password(password)
+
+        return super().update(instance, validated_data)
+
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
         if full_name := obj.get_full_name():

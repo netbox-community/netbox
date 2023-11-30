@@ -48,6 +48,7 @@ class ASNTable(TenancyColumnsMixin, NetBoxTable):
     asn_asdot = tables.Column(
         accessor=tables.A('asn_asdot'),
         linkify=True,
+        order_by=tables.A('asn'),
         verbose_name=_('ASDOT')
     )
     site_count = columns.LinkedCountColumn(

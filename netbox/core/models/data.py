@@ -116,6 +116,7 @@ class DataSource(JobsMixin, PrimaryModel):
         )
 
     def clean(self):
+        super().clean()
 
         # Validate data backend type
         if self.type and self.type not in registry['data_backends']:

@@ -3,22 +3,22 @@ import uuid
 from unittest.mock import patch
 
 import django_rq
+from dcim.choices import SiteStatusChoices
+from dcim.models import Site
 from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
+from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
+from extras.events import enqueue_object, flush_events, serialize_for_event
+from extras.models import EventRule, Tag, Webhook
+from extras.webhooks import generate_signature
+from extras.webhooks_worker import process_webhook
 from requests import Session
 from rest_framework import status
-
-from dcim.choices import SiteStatusChoices
-from dcim.models import Site
-from extras.choices import ObjectChangeActionChoices
-from extras.models import Tag, Webhook
-from extras.webhooks import enqueue_object, flush_webhooks, generate_signature, serialize_for_webhook
-from extras.webhooks_worker import eval_conditions, process_webhook
 from utilities.testing import APITestCase
 
 
-class WebhookTest(APITestCase):
+class EventRuleTest(APITestCase):
 
     def setUp(self):
         super().setUp()
@@ -35,12 +35,37 @@ class WebhookTest(APITestCase):
         DUMMY_SECRET = 'LOOKATMEIMASECRETSTRING'
 
         webhooks = Webhook.objects.bulk_create((
-            Webhook(name='Webhook 1', type_create=True, payload_url=DUMMY_URL, secret=DUMMY_SECRET, additional_headers='X-Foo: Bar'),
-            Webhook(name='Webhook 2', type_update=True, payload_url=DUMMY_URL, secret=DUMMY_SECRET),
-            Webhook(name='Webhook 3', type_delete=True, payload_url=DUMMY_URL, secret=DUMMY_SECRET),
+            Webhook(name='Webhook 1', payload_url=DUMMY_URL, secret=DUMMY_SECRET, additional_headers='X-Foo: Bar'),
+            Webhook(name='Webhook 2', payload_url=DUMMY_URL, secret=DUMMY_SECRET),
+            Webhook(name='Webhook 3', payload_url=DUMMY_URL, secret=DUMMY_SECRET),
         ))
-        for webhook in webhooks:
-            webhook.content_types.set([site_ct])
+
+        ct = ContentType.objects.get(app_label='extras', model='webhook')
+        event_rules = EventRule.objects.bulk_create((
+            EventRule(
+                name='Webhook Event 1',
+                type_create=True,
+                action_type=EventRuleActionChoices.WEBHOOK,
+                action_object_type=ct,
+                action_object_id=webhooks[0].id
+            ),
+            EventRule(
+                name='Webhook Event 2',
+                type_update=True,
+                action_type=EventRuleActionChoices.WEBHOOK,
+                action_object_type=ct,
+                action_object_id=webhooks[0].id
+            ),
+            EventRule(
+                name='Webhook Event 3',
+                type_delete=True,
+                action_type=EventRuleActionChoices.WEBHOOK,
+                action_object_type=ct,
+                action_object_id=webhooks[0].id
+            ),
+        ))
+        for event_rule in event_rules:
+            event_rule.content_types.set([site_ct])
 
         Tag.objects.bulk_create((
             Tag(name='Foo', slug='foo'),
@@ -48,7 +73,42 @@ class WebhookTest(APITestCase):
             Tag(name='Baz', slug='baz'),
         ))
 
-    def test_enqueue_webhook_create(self):
+    def test_eventrule_conditions(self):
+        """
+        Test evaluation of EventRule conditions.
+        """
+        event_rule = EventRule(
+            name='Event Rule 1',
+            type_create=True,
+            type_update=True,
+            conditions={
+                'and': [
+                    {
+                        'attr': 'status.value',
+                        'value': 'active',
+                    }
+                ]
+            }
+        )
+
+        # Create a Site to evaluate
+        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_STAGING)
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status='staging')
+        self.assertFalse(event_rule.eval_conditions(data))
+
+        # Change the site's status
+        site.status = SiteStatusChoices.STATUS_ACTIVE
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status='active')
+        self.assertTrue(event_rule.eval_conditions(data))
+
+    def test_single_create_process_eventrule(self):
+        """
+        Check that creating an object with an applicable EventRule queues a background task for the rule's action.
+        """
         # Create an object via the REST API
         data = {
             'name': 'Site 1',
@@ -65,10 +125,10 @@ class WebhookTest(APITestCase):
         self.assertEqual(Site.objects.count(), 1)
         self.assertEqual(Site.objects.first().tags.count(), 2)
 
-        # Verify that a job was queued for the object creation webhook
+        # Verify that a background task was queued for the new object
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_create=True))
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
         self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], response.data['id'])
@@ -76,7 +136,11 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
 
-    def test_enqueue_webhook_bulk_create(self):
+    def test_bulk_create_process_eventrule(self):
+        """
+        Check that bulk creating multiple objects with an applicable EventRule queues a background task for each
+        new object.
+        """
         # Create multiple objects via the REST API
         data = [
             {
@@ -111,10 +175,10 @@ class WebhookTest(APITestCase):
         self.assertEqual(Site.objects.count(), 3)
         self.assertEqual(Site.objects.first().tags.count(), 2)
 
-        # Verify that a webhook was queued for each object
+        # Verify that a background task was queued for each new object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_create=True))
+            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
             self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], response.data[i]['id'])
@@ -122,7 +186,10 @@ class WebhookTest(APITestCase):
             self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
             self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Bar', 'Foo'])
 
-    def test_enqueue_webhook_update(self):
+    def test_single_update_process_eventrule(self):
+        """
+        Check that updating an object with an applicable EventRule queues a background task for the rule's action.
+        """
         site = Site.objects.create(name='Site 1', slug='site-1')
         site.tags.set(Tag.objects.filter(name__in=['Foo', 'Bar']))
 
@@ -139,10 +206,10 @@ class WebhookTest(APITestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        # Verify that a job was queued for the object update webhook
+        # Verify that a background task was queued for the updated object
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_update=True))
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
         self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
@@ -152,7 +219,11 @@ class WebhookTest(APITestCase):
         self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Site X')
         self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
 
-    def test_enqueue_webhook_bulk_update(self):
+    def test_bulk_update_process_eventrule(self):
+        """
+        Check that bulk updating multiple objects with an applicable EventRule queues a background task for each
+        updated object.
+        """
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
@@ -191,10 +262,10 @@ class WebhookTest(APITestCase):
         response = self.client.patch(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
 
-        # Verify that a job was queued for the object update webhook
+        # Verify that a background task was queued for each updated object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_update=True))
+            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
             self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], data[i]['id'])
@@ -204,7 +275,10 @@ class WebhookTest(APITestCase):
             self.assertEqual(job.kwargs['snapshots']['postchange']['name'], response.data[i]['name'])
             self.assertEqual(job.kwargs['snapshots']['postchange']['tags'], ['Baz'])
 
-    def test_enqueue_webhook_delete(self):
+    def test_single_delete_process_eventrule(self):
+        """
+        Check that deleting an object with an applicable EventRule queues a background task for the rule's action.
+        """
         site = Site.objects.create(name='Site 1', slug='site-1')
         site.tags.set(Tag.objects.filter(name__in=['Foo', 'Bar']))
 
@@ -214,17 +288,21 @@ class WebhookTest(APITestCase):
         response = self.client.delete(url, **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
 
-        # Verify that a job was queued for the object update webhook
+        # Verify that a task was queued for the deleted object
         self.assertEqual(self.queue.count, 1)
         job = self.queue.jobs[0]
-        self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_delete=True))
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
         self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
         self.assertEqual(job.kwargs['model_name'], 'site')
         self.assertEqual(job.kwargs['data']['id'], site.pk)
         self.assertEqual(job.kwargs['snapshots']['prechange']['name'], 'Site 1')
         self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
-    def test_enqueue_webhook_bulk_delete(self):
+    def test_bulk_delete_process_eventrule(self):
+        """
+        Check that bulk deleting multiple objects with an applicable EventRule queues a background task for each
+        deleted object.
+        """
         sites = (
             Site(name='Site 1', slug='site-1'),
             Site(name='Site 2', slug='site-2'),
@@ -243,49 +321,17 @@ class WebhookTest(APITestCase):
         response = self.client.delete(url, data, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
 
-        # Verify that a job was queued for the object update webhook
+        # Verify that a background task was queued for each deleted object
         self.assertEqual(self.queue.count, 3)
         for i, job in enumerate(self.queue.jobs):
-            self.assertEqual(job.kwargs['webhook'], Webhook.objects.get(type_delete=True))
+            self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_delete=True))
             self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_DELETE)
             self.assertEqual(job.kwargs['model_name'], 'site')
             self.assertEqual(job.kwargs['data']['id'], sites[i].pk)
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
-    def test_webhook_conditions(self):
-        # Create a conditional Webhook
-        webhook = Webhook(
-            name='Conditional Webhook',
-            type_create=True,
-            type_update=True,
-            payload_url='http://localhost:9000/',
-            conditions={
-                'and': [
-                    {
-                        'attr': 'status.value',
-                        'value': 'active',
-                    }
-                ]
-            }
-        )
-
-        # Create a Site to evaluate
-        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_STAGING)
-        data = serialize_for_webhook(site)
-
-        # Evaluate the conditions (status='staging')
-        self.assertFalse(eval_conditions(webhook, data))
-
-        # Change the site's status
-        site.status = SiteStatusChoices.STATUS_ACTIVE
-        data = serialize_for_webhook(site)
-
-        # Evaluate the conditions (status='active')
-        self.assertTrue(eval_conditions(webhook, data))
-
     def test_webhooks_worker(self):
-
         request_id = uuid.uuid4()
 
         def dummy_send(_, request, **kwargs):
@@ -293,7 +339,8 @@ class WebhookTest(APITestCase):
             A dummy implementation of Session.send() to be used for testing.
             Always returns a 200 HTTP response.
             """
-            webhook = Webhook.objects.get(type_create=True)
+            event = EventRule.objects.get(type_create=True)
+            webhook = event.action_object
             signature = generate_signature(request.body, webhook.secret)
 
             # Validate the outgoing request headers
@@ -322,7 +369,7 @@ class WebhookTest(APITestCase):
             request_id=request_id,
             action=ObjectChangeActionChoices.ACTION_CREATE
         )
-        flush_webhooks(webhooks_queue)
+        flush_events(webhooks_queue)
 
         # Retrieve the job from queue
         job = self.queue.jobs[0]

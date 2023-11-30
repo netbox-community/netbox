@@ -22,6 +22,7 @@ __all__ = (
     'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
+    'EventRuleFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
     'JournalEntryFilterSet',
@@ -38,19 +39,18 @@ class WebhookFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
-    )
-    content_types = ContentTypeFilter()
     http_method = django_filters.MultipleChoiceFilter(
         choices=WebhookHttpMethodChoices
+    )
+    payload_url = MultiValueCharFilter(
+        lookup_expr='icontains'
     )
 
     class Meta:
         model = Webhook
         fields = [
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'payload_url',
-            'enabled', 'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+            'id', 'name', 'payload_url', 'http_method', 'http_content_type', 'secret', 'ssl_verification',
+            'ca_file_path',
         ]
 
     def search(self, queryset, name, value):
@@ -60,6 +60,38 @@ class WebhookFilterSet(NetBoxModelFilterSet):
             Q(name__icontains=value) |
             Q(description__icontains=value) |
             Q(payload_url__icontains=value)
+        )
+
+
+class EventRuleFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
+    action_type = django_filters.MultipleChoiceFilter(
+        choices=EventRuleActionChoices
+    )
+    action_object_type = ContentTypeFilter()
+    action_object_id = MultiValueNumberFilter()
+
+    class Meta:
+        model = EventRule
+        fields = [
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled',
+            'action_type', 'description',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -122,8 +154,7 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value) |
-            Q(extra_choices__contains=value)
+            Q(description__icontains=value)
         )
 
     def filter_by_choice(self, queryset, name, value):

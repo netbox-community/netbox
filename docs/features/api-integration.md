@@ -26,9 +26,9 @@ To learn more about this feature, check out the [GraphQL API documentation](../i
 
 ## Webhooks
 
-A webhook is a mechanism for conveying to some external system a change that took place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. This can be done by creating a webhook for the device model in NetBox and identifying the webhook receiver. When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver. Webhooks are an excellent mechanism for building event-based automation processes.
+A webhook is a mechanism for conveying to some external system a change that has taken place in NetBox. For example, you may want to notify a monitoring system whenever the status of a device is updated in NetBox. To do this, first create a [webhook](../models/extras/webhook.md) identifying the remote receiver (URL), HTTP method, and any other necessary parameters. Then, define an [event rule](../models/extras/eventrule.md) which is triggered by device changes to transmit the webhook.
 
-To learn more about this feature, check out the [webhooks documentation](../integrations/webhooks.md).
+When NetBox detects a change to a device, an HTTP request containing the details of the change and who made it be sent to the specified receiver. Webhooks are an excellent mechanism for building event-based automation processes. To learn more about this feature, check out the [webhooks documentation](../integrations/webhooks.md).
 
 ## Prometheus Metrics
 
