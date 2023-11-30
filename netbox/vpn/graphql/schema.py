@@ -38,6 +38,18 @@ class VPNQuery(graphene.ObjectType):
     def resolve_ipsec_proposal_list(root, info, **kwargs):
         return gql_query_optimizer(models.IPSecProposal.objects.all(), info)
 
+    l2vpn = ObjectField(L2VPNType)
+    l2vpn_list = ObjectListField(L2VPNType)
+
+    def resolve_l2vpn_list(root, info, **kwargs):
+        return gql_query_optimizer(models.L2VPN.objects.all(), info)
+
+    l2vpn_termination = ObjectField(L2VPNTerminationType)
+    l2vpn_termination_list = ObjectListField(L2VPNTerminationType)
+
+    def resolve_l2vpn_termination_list(root, info, **kwargs):
+        return gql_query_optimizer(models.L2VPNTermination.objects.all(), info)
+
     tunnel = ObjectField(TunnelType)
     tunnel_list = ObjectListField(TunnelType)
 

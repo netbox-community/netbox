@@ -6,10 +6,10 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ContentType
-from ipam.choices import L2VPNTypeChoices
-from ipam.constants import L2VPN_ASSIGNMENT_MODELS
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
+from vpn.choices import L2VPNTypeChoices
+from vpn.constants import L2VPN_ASSIGNMENT_MODELS
 
 __all__ = (
     'L2VPN',
@@ -69,7 +69,7 @@ class L2VPN(ContactsMixin, PrimaryModel):
         return f'{self.name}'
 
     def get_absolute_url(self):
-        return reverse('ipam:l2vpn', args=[self.pk])
+        return reverse('vpn:l2vpn', args=[self.pk])
 
     @cached_property
     def can_add_termination(self):
@@ -81,7 +81,7 @@ class L2VPN(ContactsMixin, PrimaryModel):
 
 class L2VPNTermination(NetBoxModel):
     l2vpn = models.ForeignKey(
-        to='ipam.L2VPN',
+        to='vpn.L2VPN',
         on_delete=models.CASCADE,
         related_name='terminations'
     )
@@ -99,7 +99,7 @@ class L2VPNTermination(NetBoxModel):
 
     clone_fields = ('l2vpn',)
     prerequisite_models = (
-        'ipam.L2VPN',
+        'vpn.L2VPN',
     )
 
     class Meta:
@@ -107,7 +107,7 @@ class L2VPNTermination(NetBoxModel):
         constraints = (
             models.UniqueConstraint(
                 fields=('assigned_object_type', 'assigned_object_id'),
-                name='ipam_l2vpntermination_assigned_object'
+                name='vpn_l2vpntermination_assigned_object'
             ),
         )
         verbose_name = _('L2VPN termination')
@@ -119,7 +119,7 @@ class L2VPNTermination(NetBoxModel):
         return super().__str__()
 
     def get_absolute_url(self):
-        return reverse('ipam:l2vpntermination', args=[self.pk])
+        return reverse('vpn:l2vpntermination', args=[self.pk])
 
     def clean(self):
         # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.

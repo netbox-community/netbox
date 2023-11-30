@@ -9,6 +9,8 @@ __all__ = (
     'NestedIPSecPolicySerializer',
     'NestedIPSecProfileSerializer',
     'NestedIPSecProposalSerializer',
+    'NestedL2VPNSerializer',
+    'NestedL2VPNTerminationSerializer',
     'NestedTunnelSerializer',
     'NestedTunnelTerminationSerializer',
 )
@@ -82,3 +84,28 @@ class NestedIPSecProfileSerializer(WritableNestedSerializer):
     class Meta:
         model = models.IPSecProfile
         fields = ('id', 'url', 'display', 'name')
+
+
+#
+# L2VPN
+#
+
+class NestedL2VPNSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:l2vpn-detail')
+
+    class Meta:
+        model = models.L2VPN
+        fields = [
+            'id', 'url', 'display', 'identifier', 'name', 'slug', 'type'
+        ]
+
+
+class NestedL2VPNTerminationSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:l2vpntermination-detail')
+    l2vpn = NestedL2VPNSerializer()
+
+    class Meta:
+        model = models.L2VPNTermination
+        fields = [
+            'id', 'url', 'display', 'l2vpn'
+        ]

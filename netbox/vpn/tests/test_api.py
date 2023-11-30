@@ -2,6 +2,7 @@ from django.urls import reverse
 
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Interface
+from ipam.models import VLAN
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from vpn.choices import *
 from vpn.models import *
@@ -470,4 +471,97 @@ class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
             'ike_policy': ike_policies[1].pk,
             'ipsec_policy': ipsec_policies[1].pk,
             'description': 'New description',
+        }
+
+
+class L2VPNTest(APIViewTestCases.APIViewTestCase):
+    model = L2VPN
+    brief_fields = ['display', 'id', 'identifier', 'name', 'slug', 'type', 'url']
+    create_data = [
+        {
+            'name': 'L2VPN 4',
+            'slug': 'l2vpn-4',
+            'type': 'vxlan',
+            'identifier': 33343344
+        },
+        {
+            'name': 'L2VPN 5',
+            'slug': 'l2vpn-5',
+            'type': 'vxlan',
+            'identifier': 33343345
+        },
+        {
+            'name': 'L2VPN 6',
+            'slug': 'l2vpn-6',
+            'type': 'vpws',
+            'identifier': 33343346
+        },
+    ]
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        l2vpns = (
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type='vxlan', identifier=650001),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type='vpws', identifier=650002),
+            L2VPN(name='L2VPN 3', slug='l2vpn-3', type='vpls'),  # No RD
+        )
+        L2VPN.objects.bulk_create(l2vpns)
+
+
+class L2VPNTerminationTest(APIViewTestCases.APIViewTestCase):
+    model = L2VPNTermination
+    brief_fields = ['display', 'id', 'l2vpn', 'url']
+
+    @classmethod
+    def setUpTestData(cls):
+
+        vlans = (
+            VLAN(name='VLAN 1', vid=651),
+            VLAN(name='VLAN 2', vid=652),
+            VLAN(name='VLAN 3', vid=653),
+            VLAN(name='VLAN 4', vid=654),
+            VLAN(name='VLAN 5', vid=655),
+            VLAN(name='VLAN 6', vid=656),
+            VLAN(name='VLAN 7', vid=657)
+        )
+        VLAN.objects.bulk_create(vlans)
+
+        l2vpns = (
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type='vxlan', identifier=650001),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type='vpws', identifier=650002),
+            L2VPN(name='L2VPN 3', slug='l2vpn-3', type='vpls'),  # No RD
+        )
+        L2VPN.objects.bulk_create(l2vpns)
+
+        l2vpnterminations = (
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[0]),
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[1]),
+            L2VPNTermination(l2vpn=l2vpns[0], assigned_object=vlans[2])
+        )
+        L2VPNTermination.objects.bulk_create(l2vpnterminations)
+
+        cls.create_data = [
+            {
+                'l2vpn': l2vpns[0].pk,
+                'assigned_object_type': 'ipam.vlan',
+                'assigned_object_id': vlans[3].pk,
+            },
+            {
+                'l2vpn': l2vpns[0].pk,
+                'assigned_object_type': 'ipam.vlan',
+                'assigned_object_id': vlans[4].pk,
+            },
+            {
+                'l2vpn': l2vpns[0].pk,
+                'assigned_object_type': 'ipam.vlan',
+                'assigned_object_id': vlans[5].pk,
+            },
+        ]
+
+        cls.bulk_update_data = {
+            'l2vpn': l2vpns[2].pk
         }

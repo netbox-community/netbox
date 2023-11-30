@@ -1,9 +1,9 @@
-from django.utils.translation import gettext_lazy as _
 import django_tables2 as tables
+from django.utils.translation import gettext_lazy as _
 
-from ipam.models import L2VPN, L2VPNTermination
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import TenancyColumnsMixin
+from vpn.models import L2VPN, L2VPNTermination
 
 __all__ = (
     'L2VPNTable',
@@ -37,7 +37,7 @@ class L2VPNTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Comments'),
     )
     tags = columns.TagColumn(
-        url_name='ipam:l2vpn_list'
+        url_name='vpn:l2vpn_list'
     )
 
     class Meta(NetBoxTable.Meta):

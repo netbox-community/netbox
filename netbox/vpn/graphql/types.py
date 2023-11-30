@@ -1,4 +1,6 @@
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
+import graphene
+
+from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
 from vpn import filtersets, models
 
@@ -8,6 +10,8 @@ __all__ = (
     'IPSecPolicyType',
     'IPSecProfileType',
     'IPSecProposalType',
+    'L2VPNType',
+    'L2VPNTerminationType',
     'TunnelTerminationType',
     'TunnelType',
 )
@@ -67,3 +71,19 @@ class IPSecProfileType(OrganizationalObjectType):
         model = models.IPSecProfile
         fields = '__all__'
         filterset_class = filtersets.IPSecProfileFilterSet
+
+
+class L2VPNType(ContactsMixin, NetBoxObjectType):
+    class Meta:
+        model = models.L2VPN
+        fields = '__all__'
+        filtersets_class = filtersets.L2VPNFilterSet
+
+
+class L2VPNTerminationType(NetBoxObjectType):
+    assigned_object = graphene.Field('vpn.graphql.gfk_mixins.L2VPNAssignmentType')
+
+    class Meta:
+        model = models.L2VPNTermination
+        exclude = ('assigned_object_type', 'assigned_object_id')
+        filtersets_class = filtersets.L2VPNTerminationFilterSet

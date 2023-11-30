@@ -4,13 +4,14 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
-from ipam.models import L2VPN, VRF
+from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from virtualization.choices import *
 from virtualization.models import *
+from vpn.models import L2VPN
 
 __all__ = (
     'ClusterFilterForm',

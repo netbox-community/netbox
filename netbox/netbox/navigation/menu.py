@@ -209,8 +209,8 @@ VPN_MENU = Menu(
         MenuGroup(
             label=_('L2VPNs'),
             items=(
-                get_model_item('ipam', 'l2vpn', _('L2VPNs')),
-                get_model_item('ipam', 'l2vpntermination', _('Terminations')),
+                get_model_item('vpn', 'l2vpn', _('L2VPNs')),
+                get_model_item('vpn', 'l2vpntermination', _('Terminations')),
             ),
         ),
         MenuGroup(

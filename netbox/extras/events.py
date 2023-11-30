@@ -92,7 +92,7 @@ def process_event_rules(event_rules, model_name, event, data, username, snapshot
             "event": event,
             "data": data,
             "snapshots": snapshots,
-            "timestamp": str(timezone.now()),
+            "timestamp": timezone.now().isoformat(),
             "username": username,
             "retry": get_rq_retry()
         }

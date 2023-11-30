@@ -6,15 +6,14 @@ from dcim.api.nested_serializers import (
 )
 from dcim.choices import InterfaceModeChoices
 from extras.api.nested_serializers import NestedConfigTemplateSerializer
-from ipam.api.nested_serializers import (
-    NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer, NestedVRFSerializer,
-)
+from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualDisk, VirtualMachine, VMInterface
+from vpn.api.nested_serializers import NestedL2VPNTerminationSerializer
 from .nested_serializers import *
 
 

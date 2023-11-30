@@ -14,6 +14,8 @@ __all__ = (
     'IPSecPolicyBulkEditForm',
     'IPSecProfileBulkEditForm',
     'IPSecProposalBulkEditForm',
+    'L2VPNBulkEditForm',
+    'L2VPNTerminationBulkEditForm',
     'TunnelBulkEditForm',
     'TunnelTerminationBulkEditForm',
 )
@@ -241,3 +243,32 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
     nullable_fields = (
         'description', 'comments',
     )
+
+
+class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
+    type = forms.ChoiceField(
+        label=_('Type'),
+        choices=add_blank_choice(L2VPNTypeChoices),
+        required=False
+    )
+    tenant = DynamicModelChoiceField(
+        label=_('Tenant'),
+        queryset=Tenant.objects.all(),
+        required=False
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    comments = CommentField()
+
+    model = L2VPN
+    fieldsets = (
+        (None, ('type', 'tenant', 'description')),
+    )
+    nullable_fields = ('tenant', 'description', 'comments')
+
+
+class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):
+    model = L2VPN
