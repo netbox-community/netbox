@@ -236,7 +236,7 @@ class CustomFieldsMixin(models.Model):
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
-            if value in (None, []) and cf.ui_visible == CustomFieldUIVisibleChoices.IF_SET:
+            if value in (None, '', []) and cf.ui_visible == CustomFieldUIVisibleChoices.IF_SET:
                 continue
             value = cf.deserialize(value)
             groups[cf.group_name][cf] = value
