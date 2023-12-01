@@ -8,6 +8,10 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from core.signals import job_end, job_start
+from extras.constants import EVENT_JOB_END, EVENT_JOB_START
+from extras.events import process_event_rules
+from extras.models import EventRule
 from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
@@ -235,3 +239,25 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
     for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
         if ct not in tag.object_types.all():
             raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")
+
+
+#
+# Event rules
+#
+
+@receiver(job_start)
+def process_job_start_event_rules(sender, **kwargs):
+    """
+    Process event rules for jobs starting.
+    """
+    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, content_types=sender.object_type)
+    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, sender.user.username)
+
+
+@receiver(job_end)
+def process_job_end_event_rules(sender, **kwargs):
+    """
+    Process event rules for jobs terminating.
+    """
+    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, content_types=sender.object_type)
+    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, sender.user.username)
