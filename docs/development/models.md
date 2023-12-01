@@ -52,7 +52,6 @@ These are considered the "core" application models which are used to model netwo
 * [ipam.FHRPGroup](../models/ipam/fhrpgroup.md)
 * [ipam.IPAddress](../models/ipam/ipaddress.md)
 * [ipam.IPRange](../models/ipam/iprange.md)
-* [ipam.L2VPN](../models/ipam/l2vpn.md)
 * [ipam.Prefix](../models/ipam/prefix.md)
 * [ipam.RouteTarget](../models/ipam/routetarget.md)
 * [ipam.Service](../models/ipam/service.md)
@@ -63,6 +62,9 @@ These are considered the "core" application models which are used to model netwo
 * [tenancy.Tenant](../models/tenancy/tenant.md)
 * [virtualization.Cluster](../models/virtualization/cluster.md)
 * [virtualization.VirtualMachine](../models/virtualization/virtualmachine.md)
+* [vpn.IPSecProfile](../models/vpn/ipsecprofile.md)
+* [vpn.L2VPN](../models/vpn/l2vpn.md)
+* [vpn.Tunnel](../models/vpn/tunnel.md)
 * [wireless.WirelessLAN](../models/wireless/wirelesslan.md)
 * [wireless.WirelessLink](../models/wireless/wirelesslink.md)
 
@@ -75,6 +77,7 @@ Organization models are used to organize and classify primary models.
 * [dcim.Manufacturer](../models/dcim/manufacturer.md)
 * [dcim.Platform](../models/dcim/platform.md)
 * [dcim.RackRole](../models/dcim/rackrole.md)
+* [ipam.ASNRange](../models/ipam/asnrange.md)
 * [ipam.RIR](../models/ipam/rir.md)
 * [ipam.Role](../models/ipam/role.md)
 * [ipam.VLANGroup](../models/ipam/vlangroup.md)
@@ -107,6 +110,7 @@ Component models represent individual physical or virtual components belonging t
 * [dcim.PowerOutlet](../models/dcim/poweroutlet.md)
 * [dcim.PowerPort](../models/dcim/powerport.md)
 * [dcim.RearPort](../models/dcim/rearport.md)
+* [virtualization.VirtualDisk](../models/virtualization/virtualdisk.md)
 * [virtualization.VMInterface](../models/virtualization/vminterface.md)
 
 ### Component Template Models
