@@ -86,9 +86,8 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         child_model: The model class which represents the child objects
         table: The django-tables2 Table class used to render the child objects list
         filterset: A django-filter FilterSet that is applied to the queryset
-        actions: Supported actions for the model. When adding custom actions, bulk action names must
-            be prefixed with `bulk_`. Default actions: add, import, export, bulk_edit, bulk_delete
-        action_perms: A dictionary mapping supported actions to a set of permissions required for each
+        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
+            action names must be prefixed with `bulk_`. (See ActionsMixin.)
     """
     child_model = None
     table = None

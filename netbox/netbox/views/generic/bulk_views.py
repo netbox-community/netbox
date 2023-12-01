@@ -48,9 +48,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: Supported actions for the model. When adding custom actions, bulk action names must
-            be prefixed with `bulk_`. Default actions: add, import, export, bulk_edit, bulk_delete
-        action_perms: A dictionary mapping supported actions to a set of permissions required for each
+        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
+            action names must be prefixed with `bulk_`. (See ActionsMixin.)
     """
     template_name = 'generic/object_list.html'
     filterset = None
