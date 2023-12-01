@@ -1118,6 +1118,22 @@ class Device(
         if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
             filter |= Q(device__virtual_chassis=self.virtual_chassis)
         return FrontPort.objects.filter(filter)
+
+    @property
+    def rear_ports_count(self):
+        return self.vc_rear_ports().count()
+
+    def vc_rear_ports(self, if_master=True):
+        """
+        Return a QuerySet matching all RearPorts assigned to this Device or, if this Device is a VC master, to another
+        Device belonging to the same VirtualChassis.
+
+        :param if_master: If True, return VC member rear ports only if this Device is the VC master.
+        """
+        filter = Q(device=self)
+        if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
+            filter |= Q(device__virtual_chassis=self.virtual_chassis)
+        return RearPort.objects.filter(filter)
     
     def get_cables(self, pk_list=False):
         """
