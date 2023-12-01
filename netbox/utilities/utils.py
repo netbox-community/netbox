@@ -581,6 +581,6 @@ def get_related_models(model, ordered=True):
     ]
 
     if ordered:
-        return sorted(related_models, key=lambda x: x[0]._meta.verbose_name)
+        return sorted(related_models, key=lambda x: x[0]._meta.verbose_name.lower())
 
     return related_models
