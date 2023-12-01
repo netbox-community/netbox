@@ -59,7 +59,7 @@ class Command(BaseCommand):
                 logger.error(f"Exception raised during script execution: {e}")
                 clear_events.send(request)
                 job.data = ScriptOutputSerializer(script).data
-                job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=str(e))
+                job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
 
             logger.info(f"Script completed in {job.duration}")
 

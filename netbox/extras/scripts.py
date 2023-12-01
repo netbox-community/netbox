@@ -527,7 +527,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
             job.data = ScriptOutputSerializer(script).data
-            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=str(e))
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
                 clear_events.send(request)
 
