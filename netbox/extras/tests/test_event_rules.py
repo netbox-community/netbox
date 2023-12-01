@@ -11,8 +11,7 @@ from django.urls import reverse
 from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
 from extras.events import enqueue_object, flush_events, serialize_for_event
 from extras.models import EventRule, Tag, Webhook
-from extras.webhooks import generate_signature
-from extras.webhooks_worker import process_webhook
+from extras.webhooks import generate_signature, send_webhook
 from requests import Session
 from rest_framework import status
 from utilities.testing import APITestCase
@@ -331,7 +330,7 @@ class EventRuleTest(APITestCase):
             self.assertEqual(job.kwargs['snapshots']['prechange']['name'], sites[i].name)
             self.assertEqual(job.kwargs['snapshots']['prechange']['tags'], ['Bar', 'Foo'])
 
-    def test_webhooks_worker(self):
+    def test_send_webhook(self):
         request_id = uuid.uuid4()
 
         def dummy_send(_, request, **kwargs):
@@ -376,4 +375,4 @@ class EventRuleTest(APITestCase):
 
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, 'send', dummy_send) as mock_send:
-            process_webhook(**job.kwargs)
+            send_webhook(**job.kwargs)
