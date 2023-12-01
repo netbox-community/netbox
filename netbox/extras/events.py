@@ -108,7 +108,7 @@ def process_event_rules(event_rules, model_name, event, data, username, snapshot
 
             # Enqueue the task
             rq_queue.enqueue(
-                "extras.webhooks_worker.process_webhook",
+                "extras.webhooks.send_webhook",
                 **params
             )
 
