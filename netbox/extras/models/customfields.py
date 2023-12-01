@@ -519,8 +519,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         # Annotate read-only fields
         if enforce_visibility and self.ui_editable != CustomFieldUIEditableChoices.YES:
             field.disabled = True
-            prepend = '<br />' if field.help_text else ''
-            field.help_text += f'{prepend}<i class="mdi mdi-alert-circle-outline"></i> ' + _('Field is not editable.')
 
         return field
 
