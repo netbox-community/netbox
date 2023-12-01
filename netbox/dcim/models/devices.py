@@ -109,12 +109,12 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     exclude_from_utilization = models.BooleanField(
         default=False,
         verbose_name=_('exclude from utilization'),
-        help_text=_('Exclude from rack utilization calculations.')
+        help_text=_('Devices of this type are excluded when calculating rack utilization.')
     )
     is_full_depth = models.BooleanField(
         default=True,
         verbose_name=_('is full depth'),
-        help_text=_('Device consumes both front and rear rack faces')
+        help_text=_('Device consumes both front and rear rack faces.')
     )
     subdevice_role = models.CharField(
         max_length=50,
