@@ -3465,6 +3465,64 @@ class VirtualChassisAddMemberView(ObjectPermissionRequiredMixin, GetReturnURLMix
         })
 
 
+class VirtualChassisComponentsView(generic.ObjectChildrenView):
+    queryset = VirtualChassis.objects.all()
+
+
+@register_model_view(VirtualChassis, 'interfaces')
+class VirtualChassisInterfacesView(VirtualChassisComponentsView):
+    child_model = Interface
+    table = tables.DeviceInterfaceTable
+    filterset = filtersets.InterfaceFilterSet
+    template_name = 'dcim/device/interfaces.html'
+    tab = ViewTab(
+        label=_('Interfaces'),
+        badge=lambda obj: obj.master.vc_interfaces().count(),
+        permission='dcim.view_interface',
+        weight=520,
+        hide_if_empty=True
+    )
+
+    def get_children(self, request, parent):
+        return parent.master.vc_interfaces().restrict(request.user, 'view')
+
+
+@register_model_view(VirtualChassis, 'frontports', path='front-ports')
+class VirtualChassisFrontPortsView(VirtualChassisComponentsView):
+    child_model = FrontPort
+    table = tables.DeviceFrontPortTable
+    filterset = filtersets.FrontPortFilterSet
+    template_name = 'dcim/device/frontports.html'
+    tab = ViewTab(
+        label=_('Front Ports'),
+        badge=lambda obj: obj.master.vc_front_ports().count(),
+        permission='dcim.view_frontport',
+        weight=520,
+        hide_if_empty=True
+    )
+
+    def get_children(self, request, parent):
+        return parent.master.vc_front_ports().restrict(request.user, 'view')
+
+
+@register_model_view(VirtualChassis, 'rearports', path='rear-ports')
+class VirtualChassisRearPortsView(VirtualChassisComponentsView):
+    child_model = RearPort
+    table = tables.DeviceRearPortTable
+    filterset = filtersets.RearPortFilterSet
+    template_name = 'dcim/device/rearports.html'
+    tab = ViewTab(
+        label=_('Rear Ports'),
+        badge=lambda obj: obj.master.vc_rear_ports().count(),
+        permission='dcim.view_rearport',
+        weight=520,
+        hide_if_empty=True
+    )
+
+    def get_children(self, request, parent):
+        return parent.master.vc_rear_ports().restrict(request.user, 'view')
+
+
 class VirtualChassisRemoveMemberView(ObjectPermissionRequiredMixin, GetReturnURLMixin, View):
     queryset = Device.objects.all()
 
