@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.db import router, transaction
 from django.db.models import ProtectedError, RestrictedError
 from django.db.models.deletion import Collector
+from django.http import HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
@@ -343,6 +344,19 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         return dict(dependent_objects)
 
+    def _handle_protected_objects(self, obj, protected_objects, request, exc):
+        """
+        Handle a ProtectedError or RestrictedError exception raised while attempt to resolve dependent objects.
+        """
+        handle_protectederror(protected_objects, request, exc)
+
+        if is_htmx(request):
+            return HttpResponse(headers={
+                'HX-Redirect': obj.get_absolute_url(),
+            })
+        else:
+            return redirect(obj.get_absolute_url())
+
     #
     # Request handlers
     #
@@ -356,7 +370,13 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         obj = self.get_object(**kwargs)
         form = ConfirmationForm(initial=request.GET)
-        dependent_objects = self._get_dependent_objects(obj)
+
+        try:
+            dependent_objects = self._get_dependent_objects(obj)
+        except ProtectedError as e:
+            return self._handle_protected_objects(obj, e.protected_objects, request, e)
+        except RestrictedError as e:
+            return self._handle_protected_objects(obj, e.restricted_objects, request, e)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
         if is_htmx(request):
