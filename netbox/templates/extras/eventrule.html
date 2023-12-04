@@ -29,6 +29,20 @@
       </div>
       <div class="card">
         <h5 class="card-header">
+          {% trans "Object Types" %}
+        </h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            {% for ct in object.content_types.all %}
+              <tr>
+                <td>{{ ct }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">
           {% trans "Events" %}
         </h5>
         <div class="card-body">
@@ -61,20 +75,6 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">
-          {% trans "Object Types" %}
-        </h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            {% for ct in object.content_types.all %}
-              <tr>
-                <td>{{ ct }}</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </div>
-      <div class="card">
-        <h5 class="card-header">
           {% trans "Conditions" %}
         </h5>
         <div class="card-body">
@@ -83,6 +83,41 @@
           {% else %}
             <p class="text-muted">{% trans "None" %}</p>
           {% endif %}
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">
+          {% trans "Action" %}
+        </h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Type" %}</th>
+              <td>{{ object.get_action_type_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Object" %}</th>
+              <td>
+                {% if object.action_type == 'script' %}
+                  <a href="{% url 'extras:script' module=object.action_object.python_name name=object.action_parameters.script_name %}">
+                   {{ object.action_object }} / {{ object.action_parameters.script_name }}
+                  </a>
+                {% else %}
+                  {{ object.action_object|linkify }}
+                {% endif %}
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Data" %}</th>
+              <td>
+                {% if object.action_data %}
+                  <pre>{{ object.action_data|json }}</pre>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+            </tr>
+          </table>
         </div>
       </div>
       {% include 'inc/panels/custom_fields.html' %}
