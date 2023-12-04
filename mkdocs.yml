@@ -83,11 +83,11 @@ nav:
         - Synchronized Data: 'features/synchronized-data.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
+        - Event Rules: 'features/event-rules.md'
         - Background Jobs: 'features/background-jobs.md'
         - Auth & Permissions: 'features/authentication-permissions.md'
         - API & Integration: 'features/api-integration.md'
         - Customization: 'features/customization.md'
-        - Event Rules: 'features/event-rules.md'
     - Installation & Upgrade:
         - Installing NetBox: 'installation/index.md'
         - 1. PostgreSQL: 'installation/1-postgresql.md'
