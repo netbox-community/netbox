@@ -17,6 +17,38 @@ class AppTest(APITestCase):
         self.assertEqual(response.status_code, 200)
 
 
+class TunnelGroupTest(APIViewTestCases.APIViewTestCase):
+    model = TunnelGroup
+    brief_fields = ['display', 'id', 'name', 'slug', 'tunnel_count', 'url']
+    create_data = (
+        {
+            'name': 'Tunnel Group 4',
+            'slug': 'tunnel-group-4',
+        },
+        {
+            'name': 'Tunnel Group 5',
+            'slug': 'tunnel-group-5',
+        },
+        {
+            'name': 'Tunnel Group 6',
+            'slug': 'tunnel-group-6',
+        },
+    )
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tunnel_groups = (
+            TunnelGroup(name='Tunnel Group 1', slug='tunnel-group-1'),
+            TunnelGroup(name='Tunnel Group 2', slug='tunnel-group-2'),
+            TunnelGroup(name='Tunnel Group 3', slug='tunnel-group-3'),
+        )
+        TunnelGroup.objects.bulk_create(tunnel_groups)
+
+
 class TunnelTest(APIViewTestCases.APIViewTestCase):
     model = Tunnel
     brief_fields = ['display', 'id', 'name', 'url']
@@ -29,20 +61,29 @@ class TunnelTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        tunnel_groups = (
+            TunnelGroup(name='Tunnel Group 1', slug='tunnel-group-1'),
+            TunnelGroup(name='Tunnel Group 2', slug='tunnel-group-2'),
+        )
+        TunnelGroup.objects.bulk_create(tunnel_groups)
+
         tunnels = (
             Tunnel(
                 name='Tunnel 1',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[0],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP
             ),
             Tunnel(
                 name='Tunnel 2',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[0],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP
             ),
             Tunnel(
                 name='Tunnel 3',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[0],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP
             ),
         )
@@ -52,16 +93,19 @@ class TunnelTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Tunnel 4',
                 'status': TunnelStatusChoices.STATUS_DISABLED,
+                'group': tunnel_groups[1].pk,
                 'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             },
             {
                 'name': 'Tunnel 5',
                 'status': TunnelStatusChoices.STATUS_DISABLED,
+                'group': tunnel_groups[1].pk,
                 'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             },
             {
                 'name': 'Tunnel 6',
                 'status': TunnelStatusChoices.STATUS_DISABLED,
+                'group': tunnel_groups[1].pk,
                 'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             },
         ]

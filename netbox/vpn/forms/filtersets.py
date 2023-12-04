@@ -24,8 +24,14 @@ __all__ = (
     'L2VPNFilterForm',
     'L2VPNTerminationFilterForm',
     'TunnelFilterForm',
+    'TunnelGroupFilterForm',
     'TunnelTerminationFilterForm',
 )
+
+
+class TunnelGroupFilterForm(NetBoxModelFilterSetForm):
+    model = TunnelGroup
+    tag = TagFilterField(model)
 
 
 class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
@@ -40,6 +46,11 @@ class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         label=_('Status'),
         choices=TunnelStatusChoices,
         required=False
+    )
+    group_id = DynamicModelMultipleChoiceField(
+        queryset=TunnelGroup.objects.all(),
+        required=False,
+        label=_('Tunnel group')
     )
     encapsulation = forms.MultipleChoiceField(
         label=_('Encapsulation'),

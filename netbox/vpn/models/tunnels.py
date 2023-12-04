@@ -1,17 +1,33 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import ChangeLoggedModel, PrimaryModel
+from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import CustomFieldsMixin, CustomLinksMixin, TagsMixin
 from vpn.choices import *
 
 __all__ = (
     'Tunnel',
+    'TunnelGroup',
     'TunnelTermination',
 )
+
+
+class TunnelGroup(OrganizationalModel):
+    """
+    An administrative grouping of Tunnels. This can be used to correlate peer-to-peer tunnels which form a mesh,
+    for example.
+    """
+    class Meta:
+        ordering = ('name',)
+        verbose_name = _('tunnel group')
+        verbose_name_plural = _('tunnel groups')
+
+    def get_absolute_url(self):
+        return reverse('vpn:tunnelgroup', args=[self.pk])
 
 
 class Tunnel(PrimaryModel):
@@ -25,6 +41,13 @@ class Tunnel(PrimaryModel):
         max_length=50,
         choices=TunnelStatusChoices,
         default=TunnelStatusChoices.STATUS_ACTIVE
+    )
+    group = models.ForeignKey(
+        to='vpn.TunnelGroup',
+        on_delete=models.PROTECT,
+        related_name='tunnels',
+        blank=True,
+        null=True
     )
     encapsulation = models.CharField(
         verbose_name=_('encapsulation'),
@@ -57,6 +80,17 @@ class Tunnel(PrimaryModel):
 
     class Meta:
         ordering = ('name',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('group', 'name'),
+                name='%(app_label)s_%(class)s_group_name'
+            ),
+            models.UniqueConstraint(
+                fields=('name',),
+                name='%(app_label)s_%(class)s_name',
+                condition=Q(group__isnull=True)
+            ),
+        )
         verbose_name = _('tunnel')
         verbose_name_plural = _('tunnels')
 

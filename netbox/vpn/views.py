@@ -8,6 +8,66 @@ from .models import *
 
 
 #
+# Tunnel groups
+#
+
+class TunnelGroupListView(generic.ObjectListView):
+    queryset = TunnelGroup.objects.annotate(
+        tunnel_count=count_related(Tunnel, 'group')
+    )
+    filterset = filtersets.TunnelGroupFilterSet
+    filterset_form = forms.TunnelGroupFilterForm
+    table = tables.TunnelGroupTable
+
+
+@register_model_view(TunnelGroup)
+class TunnelGroupView(generic.ObjectView):
+    queryset = TunnelGroup.objects.all()
+
+    def get_extra_context(self, request, instance):
+        related_models = (
+            (Tunnel.objects.restrict(request.user, 'view').filter(group=instance), 'group_id'),
+        )
+
+        return {
+            'related_models': related_models,
+        }
+
+
+@register_model_view(TunnelGroup, 'edit')
+class TunnelGroupEditView(generic.ObjectEditView):
+    queryset = TunnelGroup.objects.all()
+    form = forms.TunnelGroupForm
+
+
+@register_model_view(TunnelGroup, 'delete')
+class TunnelGroupDeleteView(generic.ObjectDeleteView):
+    queryset = TunnelGroup.objects.all()
+
+
+class TunnelGroupBulkImportView(generic.BulkImportView):
+    queryset = TunnelGroup.objects.all()
+    model_form = forms.TunnelGroupImportForm
+
+
+class TunnelGroupBulkEditView(generic.BulkEditView):
+    queryset = TunnelGroup.objects.annotate(
+        tunnel_count=count_related(Tunnel, 'group')
+    )
+    filterset = filtersets.TunnelGroupFilterSet
+    table = tables.TunnelGroupTable
+    form = forms.TunnelGroupBulkEditForm
+
+
+class TunnelGroupBulkDeleteView(generic.BulkDeleteView):
+    queryset = TunnelGroup.objects.annotate(
+        tunnel_count=count_related(Tunnel, 'group')
+    )
+    filterset = filtersets.TunnelGroupFilterSet
+    table = tables.TunnelGroupTable
+
+
+#
 # Tunnels
 #
 

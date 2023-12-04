@@ -14,14 +14,16 @@ A unique name assigned to the tunnel for identification.
 
 The operational status of the tunnel. By default, the following statuses are available:
 
-| Name           |
-|----------------|
-| Planned        |
-| Active         |
-| Disabled       |
+* Planned
+* Active
+* Disabled
 
 !!! tip "Custom tunnel statuses"
     Additional tunnel statuses may be defined by setting `Tunnel.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
+### Group
+
+The [administrative group](./tunnelgroup.md) to which this tunnel is assigned (optional).
 
 ### Encapsulation
 

@@ -12,9 +12,18 @@ __all__ = (
     'IPSecProposalType',
     'L2VPNType',
     'L2VPNTerminationType',
+    'TunnelGroupType',
     'TunnelTerminationType',
     'TunnelType',
 )
+
+
+class TunnelGroupType(OrganizationalObjectType):
+
+    class Meta:
+        model = models.TunnelGroup
+        fields = '__all__'
+        filterset_class = filtersets.TunnelGroupFilterSet
 
 
 class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):

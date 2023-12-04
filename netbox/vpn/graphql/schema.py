@@ -56,6 +56,12 @@ class VPNQuery(graphene.ObjectType):
     def resolve_tunnel_list(root, info, **kwargs):
         return gql_query_optimizer(models.Tunnel.objects.all(), info)
 
+    tunnel_group = ObjectField(TunnelGroupType)
+    tunnel_group_list = ObjectListField(TunnelGroupType)
+
+    def resolve_tunnel_group_list(root, info, **kwargs):
+        return gql_query_optimizer(models.TunnelGroup.objects.all(), info)
+
     tunnel_termination = ObjectField(TunnelTerminationType)
     tunnel_termination_list = ObjectListField(TunnelTerminationType)
 

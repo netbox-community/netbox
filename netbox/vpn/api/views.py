@@ -14,6 +14,7 @@ __all__ = (
     'IPSecProposalViewSet',
     'L2VPNViewSet',
     'L2VPNTerminationViewSet',
+    'TunnelGroupViewSet',
     'TunnelTerminationViewSet',
     'TunnelViewSet',
     'VPNRootView',
@@ -31,6 +32,14 @@ class VPNRootView(APIRootView):
 #
 # Viewsets
 #
+
+class TunnelGroupViewSet(NetBoxModelViewSet):
+    queryset = TunnelGroup.objects.annotate(
+        tunnel_count=count_related(Tunnel, 'group')
+    )
+    serializer_class = serializers.TunnelGroupSerializer
+    filterset_class = filtersets.TunnelGroupFilterSet
+
 
 class TunnelViewSet(NetBoxModelViewSet):
     queryset = Tunnel.objects.prefetch_related('ipsec_profile', 'tenant').annotate(

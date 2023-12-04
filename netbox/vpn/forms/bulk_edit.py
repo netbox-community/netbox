@@ -17,14 +17,31 @@ __all__ = (
     'L2VPNBulkEditForm',
     'L2VPNTerminationBulkEditForm',
     'TunnelBulkEditForm',
+    'TunnelGroupBulkEditForm',
     'TunnelTerminationBulkEditForm',
 )
+
+
+class TunnelGroupBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = TunnelGroup
+    nullable_fields = ('description',)
 
 
 class TunnelBulkEditForm(NetBoxModelBulkEditForm):
     status = forms.ChoiceField(
         label=_('Status'),
         choices=add_blank_choice(TunnelStatusChoices),
+        required=False
+    )
+    group = DynamicModelChoiceField(
+        queryset=TunnelGroup.objects.all(),
+        label=_('Tunnel group'),
         required=False
     )
     encapsulation = forms.ChoiceField(
@@ -55,12 +72,12 @@ class TunnelBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Tunnel
     fieldsets = (
-        (_('Tunnel'), ('status', 'encapsulation', 'tunnel_id', 'description')),
+        (_('Tunnel'), ('status', 'group', 'encapsulation', 'tunnel_id', 'description')),
         (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant',)),
     )
     nullable_fields = (
-        'ipsec_profile', 'tunnel_id', 'tenant', 'description', 'comments',
+        'group', 'ipsec_profile', 'tunnel_id', 'tenant', 'description', 'comments',
     )
 
 

@@ -11,6 +11,32 @@ from vpn.filtersets import *
 from vpn.models import *
 
 
+class TunnelGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = TunnelGroup.objects.all()
+    filterset = TunnelGroupFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+
+        TunnelGroup.objects.bulk_create((
+            TunnelGroup(name='Tunnel Group 1', slug='tunnel-group-1', description='foobar1'),
+            TunnelGroup(name='Tunnel Group 2', slug='tunnel-group-2', description='foobar2'),
+            TunnelGroup(name='Tunnel Group 3', slug='tunnel-group-3'),
+        ))
+
+    def test_name(self):
+        params = {'name': ['Tunnel Group 1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_slug(self):
+        params = {'slug': ['tunnel-group-1']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
 class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tunnel.objects.all()
     filterset = TunnelFilterSet
@@ -56,10 +82,18 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         IPSecProfile.objects.bulk_create(ipsec_profiles)
 
+        tunnel_groups = (
+            TunnelGroup(name='Tunnel Group 1', slug='tunnel-group-1'),
+            TunnelGroup(name='Tunnel Group 2', slug='tunnel-group-2'),
+            TunnelGroup(name='Tunnel Group 3', slug='tunnel-group-3'),
+        )
+        TunnelGroup.objects.bulk_create(tunnel_groups)
+
         tunnels = (
             Tunnel(
                 name='Tunnel 1',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[0],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_GRE,
                 ipsec_profile=ipsec_profiles[0],
                 tunnel_id=100
@@ -67,6 +101,7 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
             Tunnel(
                 name='Tunnel 2',
                 status=TunnelStatusChoices.STATUS_PLANNED,
+                group=tunnel_groups[1],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP,
                 ipsec_profile=ipsec_profiles[0],
                 tunnel_id=200
@@ -74,6 +109,7 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
             Tunnel(
                 name='Tunnel 3',
                 status=TunnelStatusChoices.STATUS_DISABLED,
+                group=tunnel_groups[2],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IPSEC_TUNNEL,
                 ipsec_profile=None,
                 tunnel_id=300
@@ -87,6 +123,13 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_status(self):
         params = {'status': [TunnelStatusChoices.STATUS_ACTIVE, TunnelStatusChoices.STATUS_PLANNED]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_group(self):
+        tunnel_groups = TunnelGroup.objects.all()[:2]
+        params = {'group_id': [tunnel_groups[0].pk, tunnel_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'group': [tunnel_groups[0].slug, tunnel_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_encapsulation(self):

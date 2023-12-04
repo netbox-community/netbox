@@ -21,9 +21,22 @@ __all__ = (
     'IPSecProposalSerializer',
     'L2VPNSerializer',
     'L2VPNTerminationSerializer',
+    'TunnelGroupSerializer',
     'TunnelSerializer',
     'TunnelTerminationSerializer',
 )
+
+
+class TunnelGroupSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
+    tunnel_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = TunnelGroup
+        fields = [
+            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'tunnel_count',
+        ]
 
 
 class TunnelSerializer(NetBoxModelSerializer):
@@ -33,6 +46,7 @@ class TunnelSerializer(NetBoxModelSerializer):
     status = ChoiceField(
         choices=TunnelStatusChoices
     )
+    group = NestedTunnelGroupSerializer()
     encapsulation = ChoiceField(
         choices=TunnelEncapsulationChoices
     )
@@ -48,7 +62,7 @@ class TunnelSerializer(NetBoxModelSerializer):
     class Meta:
         model = Tunnel
         fields = (
-            'id', 'url', 'display', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
+            'id', 'url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
 

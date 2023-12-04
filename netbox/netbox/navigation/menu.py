@@ -203,6 +203,7 @@ VPN_MENU = Menu(
             label=_('Tunnels'),
             items=(
                 get_model_item('vpn', 'tunnel', _('Tunnels')),
+                get_model_item('vpn', 'tunnelgroup', _('Tunnel Groups')),
                 get_model_item('vpn', 'tunneltermination', _('Tunnel Terminations')),
             ),
         ),

@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 
 from dcim.models import Device, Interface
 from ipam.models import IPAddress, RouteTarget, VLAN
-from netbox.filtersets import NetBoxModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
 from utilities.filters import ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter
 from virtualization.models import VirtualMachine, VMInterface
@@ -20,13 +20,31 @@ __all__ = (
     'L2VPNFilterSet',
     'L2VPNTerminationFilterSet',
     'TunnelFilterSet',
+    'TunnelGroupFilterSet',
     'TunnelTerminationFilterSet',
 )
+
+
+class TunnelGroupFilterSet(OrganizationalModelFilterSet):
+
+    class Meta:
+        model = TunnelGroup
+        fields = ['id', 'name', 'slug', 'description']
 
 
 class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     status = django_filters.MultipleChoiceFilter(
         choices=TunnelStatusChoices
+    )
+    group_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=TunnelGroup.objects.all(),
+        label=_('Tunnel group (ID)'),
+    )
+    group = django_filters.ModelMultipleChoiceFilter(
+        field_name='group__slug',
+        queryset=TunnelGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Tunnel group (slug)'),
     )
     encapsulation = django_filters.MultipleChoiceFilter(
         choices=TunnelEncapsulationChoices

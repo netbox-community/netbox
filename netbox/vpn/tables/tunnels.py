@@ -8,8 +8,31 @@ from vpn.models import *
 
 __all__ = (
     'TunnelTable',
+    'TunnelGroupTable',
     'TunnelTerminationTable',
 )
+
+
+class TunnelGroupTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    tunnel_count = columns.LinkedCountColumn(
+        viewname='vpn:tunnel_list',
+        url_params={'group_id': 'pk'},
+        verbose_name=_('Tunnels')
+    )
+    tags = columns.TagColumn(
+        url_name='vpn:tunnelgroup_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = TunnelGroup
+        fields = (
+            'pk', 'id', 'name', 'tunnel_count', 'description', 'slug', 'tags', 'actions', 'created', 'last_updated',
+        )
+        default_columns = ('pk', 'name', 'tunnel_count', 'description')
 
 
 class TunnelTable(TenancyColumnsMixin, NetBoxTable):

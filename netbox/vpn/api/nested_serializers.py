@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from netbox.api.serializers import WritableNestedSerializer
@@ -11,9 +12,22 @@ __all__ = (
     'NestedIPSecProposalSerializer',
     'NestedL2VPNSerializer',
     'NestedL2VPNTerminationSerializer',
+    'NestedTunnelGroupSerializer',
     'NestedTunnelSerializer',
     'NestedTunnelTerminationSerializer',
 )
+
+
+@extend_schema_serializer(
+    exclude_fields=('tunnel_count',),
+)
+class NestedTunnelGroupSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
+    tunnel_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = models.TunnelGroup
+        fields = ['id', 'url', 'display', 'name', 'slug', 'tunnel_count']
 
 
 class NestedTunnelSerializer(WritableNestedSerializer):

@@ -6,26 +6,78 @@ from vpn.choices import *
 from vpn.models import *
 
 
+class TunnelGroupTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
+    model = TunnelGroup
+
+    @classmethod
+    def setUpTestData(cls):
+
+        tunnel_groups = (
+            TunnelGroup(name='Tunnel Group 1', slug='tunnel-group-1'),
+            TunnelGroup(name='Tunnel Group 2', slug='tunnel-group-2'),
+            TunnelGroup(name='Tunnel Group 3', slug='tunnel-group-3'),
+        )
+        TunnelGroup.objects.bulk_create(tunnel_groups)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'name': 'Tunnel Group X',
+            'slug': 'tunnel-group-x',
+            'description': 'A new Tunnel Group',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "name,slug",
+            "Tunnel Group 4,tunnel-group-4",
+            "Tunnel Group 5,tunnel-group-5",
+            "Tunnel Group 6,tunnel-group-6",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{tunnel_groups[0].pk},Tunnel Group 7,New description7",
+            f"{tunnel_groups[1].pk},Tunnel Group 8,New description8",
+            f"{tunnel_groups[2].pk},Tunnel Group 9,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'description': 'Foo',
+        }
+
+
 class TunnelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = Tunnel
 
     @classmethod
     def setUpTestData(cls):
 
+        tunnel_groups = (
+            TunnelGroup(name='Tunnel Group 1', slug='tunnel-group-1'),
+            TunnelGroup(name='Tunnel Group 2', slug='tunnel-group-2'),
+            TunnelGroup(name='Tunnel Group 3', slug='tunnel-group-3'),
+            TunnelGroup(name='Tunnel Group 4', slug='tunnel-group-4'),
+        )
+        TunnelGroup.objects.bulk_create(tunnel_groups)
+
         tunnels = (
             Tunnel(
                 name='Tunnel 1',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[0],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP
             ),
             Tunnel(
                 name='Tunnel 2',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[1],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP
             ),
             Tunnel(
                 name='Tunnel 3',
                 status=TunnelStatusChoices.STATUS_ACTIVE,
+                group=tunnel_groups[2],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP
             ),
         )
@@ -37,26 +89,28 @@ class TunnelTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'name': 'Tunnel X',
             'description': 'New tunnel',
             'status': TunnelStatusChoices.STATUS_PLANNED,
+            'group': tunnel_groups[3].pk,
             'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             'tags': [t.pk for t in tags],
         }
 
         cls.csv_data = (
-            "name,status,encapsulation",
-            "Tunnel 4,planned,gre",
-            "Tunnel 5,planned,gre",
-            "Tunnel 6,planned,gre",
+            "name,status,group,encapsulation",
+            "Tunnel 4,planned,Tunnel Group 1,gre",
+            "Tunnel 5,planned,Tunnel Group 2,gre",
+            "Tunnel 6,planned,Tunnel Group 3,gre",
         )
 
         cls.csv_update_data = (
-            "id,status,encapsulation",
-            f"{tunnels[0].pk},active,ip-ip",
-            f"{tunnels[1].pk},active,ip-ip",
-            f"{tunnels[2].pk},active,ip-ip",
+            "id,status,group,encapsulation",
+            f"{tunnels[0].pk},active,Tunnel Group 4,ip-ip",
+            f"{tunnels[1].pk},active,Tunnel Group 4,ip-ip",
+            f"{tunnels[2].pk},active,Tunnel Group 4,ip-ip",
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
+            'group': tunnel_groups[3].pk,
             'status': TunnelStatusChoices.STATUS_DISABLED,
             'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
         }

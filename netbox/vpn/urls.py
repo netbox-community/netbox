@@ -6,6 +6,14 @@ from . import views
 app_name = 'vpn'
 urlpatterns = [
 
+    # Tunnel groups
+    path('tunnel-groups/', views.TunnelGroupListView.as_view(), name='tunnelgroup_list'),
+    path('tunnel-groups/add/', views.TunnelGroupEditView.as_view(), name='tunnelgroup_add'),
+    path('tunnel-groups/import/', views.TunnelGroupBulkImportView.as_view(), name='tunnelgroup_import'),
+    path('tunnel-groups/edit/', views.TunnelGroupBulkEditView.as_view(), name='tunnelgroup_bulk_edit'),
+    path('tunnel-groups/delete/', views.TunnelGroupBulkDeleteView.as_view(), name='tunnelgroup_bulk_delete'),
+    path('tunnel-groups/<int:pk>/', include(get_model_urls('vpn', 'tunnelgroup'))),
+
     # Tunnels
     path('tunnels/', views.TunnelListView.as_view(), name='tunnel_list'),
     path('tunnels/add/', views.TunnelEditView.as_view(), name='tunnel_add'),

@@ -23,11 +23,31 @@ __all__ = (
     'L2VPNTerminationForm',
     'TunnelCreateForm',
     'TunnelForm',
+    'TunnelGroupForm',
     'TunnelTerminationForm',
 )
 
 
+class TunnelGroupForm(NetBoxModelForm):
+    slug = SlugField()
+
+    fieldsets = (
+        (_('Tunnel Group'), ('name', 'slug', 'description', 'tags')),
+    )
+
+    class Meta:
+        model = TunnelGroup
+        fields = [
+            'name', 'slug', 'description', 'tags',
+        ]
+
+
 class TunnelForm(TenancyForm, NetBoxModelForm):
+    group = DynamicModelChoiceField(
+        queryset=TunnelGroup.objects.all(),
+        label=_('Tunnel Group'),
+        required=False
+    )
     ipsec_profile = DynamicModelChoiceField(
         queryset=IPSecProfile.objects.all(),
         label=_('IPSec Profile'),
@@ -36,7 +56,7 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Tunnel'), ('name', 'status', 'encapsulation', 'description', 'tunnel_id', 'tags')),
+        (_('Tunnel'), ('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags')),
         (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant_group', 'tenant')),
     )
@@ -44,8 +64,8 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
     class Meta:
         model = Tunnel
         fields = [
-            'name', 'status', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tenant_group', 'tenant',
-            'comments', 'tags',
+            'name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'ipsec_profile', 'tenant_group',
+            'tenant', 'comments', 'tags',
         ]
 
 

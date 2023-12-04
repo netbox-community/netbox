@@ -5,7 +5,7 @@ from dcim.models import Device, Interface
 from ipam.models import IPAddress, VLAN
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField
+from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
 from vpn.models import *
@@ -19,8 +19,17 @@ __all__ = (
     'L2VPNImportForm',
     'L2VPNTerminationImportForm',
     'TunnelImportForm',
+    'TunnelGroupImportForm',
     'TunnelTerminationImportForm',
 )
+
+
+class TunnelGroupImportForm(NetBoxModelImportForm):
+    slug = SlugField()
+
+    class Meta:
+        model = TunnelGroup
+        fields = ('name', 'slug', 'description', 'tags')
 
 
 class TunnelImportForm(NetBoxModelImportForm):
@@ -28,6 +37,12 @@ class TunnelImportForm(NetBoxModelImportForm):
         label=_('Status'),
         choices=TunnelStatusChoices,
         help_text=_('Operational status')
+    )
+    group = CSVModelChoiceField(
+        label=_('Tunnel group'),
+        queryset=TunnelGroup.objects.all(),
+        required=False,
+        to_field_name='name'
     )
     encapsulation = CSVChoiceField(
         label=_('Encapsulation'),
@@ -51,8 +66,8 @@ class TunnelImportForm(NetBoxModelImportForm):
     class Meta:
         model = Tunnel
         fields = (
-            'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id', 'description', 'comments',
-            'tags',
+            'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id', 'description',
+            'comments', 'tags',
         )
 
 
