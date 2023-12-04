@@ -200,7 +200,9 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
         # Validate aggregate disk size
         if self.pk:
             total_disk = self.virtualdisks.aggregate(Sum('size', default=0))['size__sum']
-            if total_disk and self.disk != total_disk:
+            if total_disk and self.disk is None:
+                self.disk = total_disk
+            elif total_disk and self.disk != total_disk:
                 raise ValidationError({
                     'disk': _(
                         "The specified disk size ({size}) must match the aggregate size of assigned virtual disks "
