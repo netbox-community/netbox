@@ -11,7 +11,7 @@ django-redis==5.4.0
 django-rich==1.8.0
 django-rq==2.9.0
 django-tables2==2.6.0
-django-taggit==4.0.0
+django-taggit==5.0.1
 django-timezone-field==6.1.0
 djangorestframework==3.14.0
 drf-spectacular==0.26.5
