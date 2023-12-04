@@ -31,12 +31,12 @@ urlpatterns = [
     path('ike-proposals/<int:pk>/', include(get_model_urls('vpn', 'ikeproposal'))),
 
     # IKE policies
-    path('ike-policys/', views.IKEPolicyListView.as_view(), name='ikepolicy_list'),
-    path('ike-policys/add/', views.IKEPolicyEditView.as_view(), name='ikepolicy_add'),
-    path('ike-policys/import/', views.IKEPolicyBulkImportView.as_view(), name='ikepolicy_import'),
-    path('ike-policys/edit/', views.IKEPolicyBulkEditView.as_view(), name='ikepolicy_bulk_edit'),
-    path('ike-policys/delete/', views.IKEPolicyBulkDeleteView.as_view(), name='ikepolicy_bulk_delete'),
-    path('ike-policys/<int:pk>/', include(get_model_urls('vpn', 'ikepolicy'))),
+    path('ike-policies/', views.IKEPolicyListView.as_view(), name='ikepolicy_list'),
+    path('ike-policies/add/', views.IKEPolicyEditView.as_view(), name='ikepolicy_add'),
+    path('ike-policies/import/', views.IKEPolicyBulkImportView.as_view(), name='ikepolicy_import'),
+    path('ike-policies/edit/', views.IKEPolicyBulkEditView.as_view(), name='ikepolicy_bulk_edit'),
+    path('ike-policies/delete/', views.IKEPolicyBulkDeleteView.as_view(), name='ikepolicy_bulk_delete'),
+    path('ike-policies/<int:pk>/', include(get_model_urls('vpn', 'ikepolicy'))),
 
     # IPSec proposals
     path('ipsec-proposals/', views.IPSecProposalListView.as_view(), name='ipsecproposal_list'),
@@ -47,12 +47,12 @@ urlpatterns = [
     path('ipsec-proposals/<int:pk>/', include(get_model_urls('vpn', 'ipsecproposal'))),
 
     # IPSec policies
-    path('ipsec-policys/', views.IPSecPolicyListView.as_view(), name='ipsecpolicy_list'),
-    path('ipsec-policys/add/', views.IPSecPolicyEditView.as_view(), name='ipsecpolicy_add'),
-    path('ipsec-policys/import/', views.IPSecPolicyBulkImportView.as_view(), name='ipsecpolicy_import'),
-    path('ipsec-policys/edit/', views.IPSecPolicyBulkEditView.as_view(), name='ipsecpolicy_bulk_edit'),
-    path('ipsec-policys/delete/', views.IPSecPolicyBulkDeleteView.as_view(), name='ipsecpolicy_bulk_delete'),
-    path('ipsec-policys/<int:pk>/', include(get_model_urls('vpn', 'ipsecpolicy'))),
+    path('ipsec-policies/', views.IPSecPolicyListView.as_view(), name='ipsecpolicy_list'),
+    path('ipsec-policies/add/', views.IPSecPolicyEditView.as_view(), name='ipsecpolicy_add'),
+    path('ipsec-policies/import/', views.IPSecPolicyBulkImportView.as_view(), name='ipsecpolicy_import'),
+    path('ipsec-policies/edit/', views.IPSecPolicyBulkEditView.as_view(), name='ipsecpolicy_bulk_edit'),
+    path('ipsec-policies/delete/', views.IPSecPolicyBulkDeleteView.as_view(), name='ipsecpolicy_bulk_delete'),
+    path('ipsec-policies/<int:pk>/', include(get_model_urls('vpn', 'ipsecpolicy'))),
 
     # IPSec profiles
     path('ipsec-profiles/', views.IPSecProfileListView.as_view(), name='ipsecprofile_list'),

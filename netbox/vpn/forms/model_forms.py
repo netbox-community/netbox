@@ -196,7 +196,7 @@ class TunnelCreateForm(TunnelForm):
                 tunnel=instance,
                 role=self.cleaned_data['termination2_role'],
                 termination=self.cleaned_data['termination2_termination'],
-                outside_ip=self.cleaned_data.get('termination1_outside_ip'),
+                outside_ip=self.cleaned_data.get('termination2_outside_ip'),
             )
 
         return instance

@@ -54,18 +54,18 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
     role = columns.ChoiceFieldColumn(
         verbose_name=_('Role')
     )
-    interface_parent = tables.Column(
-        accessor='interface__parent_object',
+    termination_parent = tables.Column(
+        accessor='termination__parent_object',
         linkify=True,
         orderable=False,
         verbose_name=_('Host')
     )
-    interface = tables.Column(
+    termination = tables.Column(
         verbose_name=_('Interface'),
         linkify=True
     )
     ip_addresses = tables.ManyToManyColumn(
-        accessor=tables.A('interface__ip_addresses'),
+        accessor=tables.A('termination__ip_addresses'),
         orderable=False,
         linkify_item=True,
         verbose_name=_('IP Addresses')
@@ -81,7 +81,9 @@ class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = TunnelTermination
         fields = (
-            'pk', 'id', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip', 'tags',
+            'pk', 'id', 'tunnel', 'role', 'termination_parent', 'termination', 'ip_addresses', 'outside_ip', 'tags',
             'created', 'last_updated',
         )
-        default_columns = ('pk', 'id', 'tunnel', 'role', 'interface_parent', 'interface', 'ip_addresses', 'outside_ip')
+        default_columns = (
+            'pk', 'id', 'tunnel', 'role', 'termination_parent', 'termination', 'ip_addresses', 'outside_ip',
+        )
