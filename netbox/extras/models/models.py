@@ -115,16 +115,15 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         ct_field='action_object_type',
         fk_field='action_object_id'
     )
-    # internal (not show in UI) - used by scripts to store function name
     action_parameters = models.JSONField(
         blank=True,
-        null=True,
+        null=True
     )
     action_data = models.JSONField(
-        verbose_name=_('parameters'),
+        verbose_name=_('data'),
         blank=True,
         null=True,
-        help_text=_("Parameters to pass to the action.")
+        help_text=_("Additional data to pass to the action object")
     )
     comments = models.TextField(
         verbose_name=_('comments'),

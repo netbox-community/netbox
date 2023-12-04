@@ -86,7 +86,7 @@ class EventRuleSerializer(NetBoxModelSerializer):
         context = {'request': self.context['request']}
         # We need to manually instantiate the serializer for scripts
         if instance.action_type == EventRuleActionChoices.SCRIPT:
-            module_id, script_name = instance.action_parameters['script_choice'].split(":", maxsplit=1)
+            script_name = instance.action_parameters['script_name']
             script = instance.action_object.scripts[script_name]()
             return NestedScriptSerializer(script, context=context).data
         else:

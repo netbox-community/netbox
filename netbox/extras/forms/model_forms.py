@@ -288,16 +288,15 @@ class EventRuleForm(NetBoxModelForm):
             for script_name in module.scripts.keys():
                 name = f"{str(module.pk)}:{script_name}"
                 scripts.append((name, script_name))
-
             if scripts:
                 choices.append((str(module), scripts))
-
         self.fields['action_choice'].choices = choices
-        parameters = get_field_value(self, 'action_parameters')
-        initial = None
-        if parameters and 'script_choice' in parameters:
-            initial = parameters['script_choice']
-        self.fields['action_choice'].initial = initial
+
+        if self.instance.pk:
+            scriptmodule_id = self.instance.action_object_id
+            script_name = self.instance.action_parameters.get('script_name')
+            self.fields['action_choice'].initial = f'{scriptmodule_id}:{script_name}'
+        print(self.fields['action_choice'].initial)
 
     def init_webhook_choice(self):
         initial = None
@@ -327,19 +326,20 @@ class EventRuleForm(NetBoxModelForm):
         super().clean()
 
         action_choice = self.cleaned_data.get('action_choice')
+        # Webhook
         if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
+        # Script
         elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(
+                ScriptModule,
+                for_concrete_model=False
+            )
             module_id, script_name = action_choice.split(":", maxsplit=1)
-            script_module = ScriptModule.objects.get(pk=module_id)
-            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(script_module, for_concrete_model=False)
-            self.cleaned_data['action_object_id'] = script_module.id
-            script = script_module.scripts[script_name]()
+            self.cleaned_data['action_object_id'] = module_id
             self.cleaned_data['action_parameters'] = {
-                'script_choice': action_choice,
-                'script_name': script.name,
-                'script_full_name': script.full_name,
+                'script_name': script_name,
             }
 
         return self.cleaned_data
