@@ -2,7 +2,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from netbox.models import NetBoxModel, PrimaryModel
+from netbox.models import PrimaryModel
 from vpn.choices import *
 
 __all__ = (
@@ -18,16 +18,11 @@ __all__ = (
 # IKE
 #
 
-class IKEProposal(NetBoxModel):
+class IKEProposal(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
         unique=True
-    )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True
     )
     authentication_method = models.CharField(
         verbose_name=('authentication method'),
@@ -69,16 +64,11 @@ class IKEProposal(NetBoxModel):
         return reverse('vpn:ikeproposal', args=[self.pk])
 
 
-class IKEPolicy(NetBoxModel):
+class IKEPolicy(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
         unique=True
-    )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True
     )
     version = models.PositiveSmallIntegerField(
         verbose_name=_('version'),
@@ -122,16 +112,11 @@ class IKEPolicy(NetBoxModel):
 # IPSec
 #
 
-class IPSecProposal(NetBoxModel):
+class IPSecProposal(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
         unique=True
-    )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True
     )
     encryption_algorithm = models.CharField(
         verbose_name=_('encryption'),
@@ -170,16 +155,11 @@ class IPSecProposal(NetBoxModel):
         return reverse('vpn:ipsecproposal', args=[self.pk])
 
 
-class IPSecPolicy(NetBoxModel):
+class IPSecPolicy(PrimaryModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100,
         unique=True
-    )
-    description = models.CharField(
-        verbose_name=_('description'),
-        max_length=200,
-        blank=True
     )
     proposals = models.ManyToManyField(
         to='vpn.IPSecProposal',

@@ -20,6 +20,7 @@ class IKEProposalIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 
@@ -30,6 +31,7 @@ class IKEPolicyIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 
@@ -40,6 +42,7 @@ class IPSecProposalIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 
@@ -50,6 +53,7 @@ class IPSecPolicyIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('description', 500),
+        ('comments', 5000),
     )
     display_attrs = ('description',)
 

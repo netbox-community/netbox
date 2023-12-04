@@ -33,6 +33,9 @@ class IKEProposalTable(NetBoxTable):
     sa_lifetime = tables.Column(
         verbose_name=_('SA Lifetime')
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='vpn:ikeproposal_list'
     )
@@ -41,7 +44,7 @@ class IKEProposalTable(NetBoxTable):
         model = IKEProposal
         fields = (
             'pk', 'id', 'name', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm',
-            'group', 'sa_lifetime', 'description', 'tags', 'created', 'last_updated',
+            'group', 'sa_lifetime', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group',
@@ -67,6 +70,9 @@ class IKEPolicyTable(NetBoxTable):
     preshared_key = tables.Column(
         verbose_name=_('Pre-shared Key')
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='vpn:ikepolicy_list'
     )
@@ -74,8 +80,8 @@ class IKEPolicyTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IKEPolicy
         fields = (
-            'pk', 'id', 'name', 'version', 'mode', 'proposals', 'preshared_key', 'description', 'tags', 'created',
-            'last_updated',
+            'pk', 'id', 'name', 'version', 'mode', 'proposals', 'preshared_key', 'description', 'comments', 'tags',
+            'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'version', 'mode', 'proposals', 'description',
@@ -99,6 +105,9 @@ class IPSecProposalTable(NetBoxTable):
     sa_lifetime_data = tables.Column(
         verbose_name=_('SA Lifetime (KB)')
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='vpn:ipsecproposal_list'
     )
@@ -107,7 +116,7 @@ class IPSecProposalTable(NetBoxTable):
         model = IPSecProposal
         fields = (
             'pk', 'id', 'name', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
-            'sa_lifetime_data', 'description', 'tags', 'created', 'last_updated',
+            'sa_lifetime_data', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
@@ -127,6 +136,9 @@ class IPSecPolicyTable(NetBoxTable):
     pfs_group = tables.Column(
         verbose_name=_('PFS Group')
     )
+    comments = columns.MarkdownColumn(
+        verbose_name=_('Comments'),
+    )
     tags = columns.TagColumn(
         url_name='vpn:ipsecpolicy_list'
     )
@@ -134,7 +146,7 @@ class IPSecPolicyTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = IPSecPolicy
         fields = (
-            'pk', 'id', 'name', 'proposals', 'pfs_group', 'description', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'proposals', 'pfs_group', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'proposals', 'pfs_group', 'description',

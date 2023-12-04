@@ -147,7 +147,7 @@ class IKEProposalImportForm(NetBoxModelImportForm):
         model = IKEProposal
         fields = (
             'name', 'description', 'authentication_method', 'encryption_algorithm', 'authentication_algorithm',
-            'group', 'sa_lifetime', 'tags',
+            'group', 'sa_lifetime', 'comments', 'tags',
         )
 
 
@@ -169,7 +169,7 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
     class Meta:
         model = IKEPolicy
         fields = (
-            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'tags',
+            'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments', 'tags',
         )
 
 
@@ -187,7 +187,7 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
         model = IPSecProposal
         fields = (
             'name', 'description', 'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds',
-            'sa_lifetime_data', 'tags',
+            'sa_lifetime_data', 'comments', 'tags',
         )
 
 
@@ -205,7 +205,7 @@ class IPSecPolicyImportForm(NetBoxModelImportForm):
     class Meta:
         model = IPSecPolicy
         fields = (
-            'name', 'description', 'proposals', 'pfs_group', 'tags',
+            'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
         )
 
 

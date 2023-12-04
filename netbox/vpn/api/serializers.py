@@ -107,7 +107,8 @@ class IKEProposalSerializer(NetBoxModelSerializer):
         model = IKEProposal
         fields = (
             'id', 'url', 'display', 'name', 'description', 'authentication_method', 'encryption_algorithm',
-            'authentication_algorithm', 'group', 'sa_lifetime', 'tags', 'custom_fields', 'created', 'last_updated',
+            'authentication_algorithm', 'group', 'sa_lifetime', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         )
 
 
@@ -131,8 +132,8 @@ class IKEPolicySerializer(NetBoxModelSerializer):
     class Meta:
         model = IKEPolicy
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'tags',
-            'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments',
+            'tags', 'custom_fields', 'created', 'last_updated',
         )
 
 
@@ -151,7 +152,7 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
         model = IPSecProposal
         fields = (
             'id', 'url', 'display', 'name', 'description', 'encryption_algorithm', 'authentication_algorithm',
-            'sa_lifetime_seconds', 'sa_lifetime_data', 'tags', 'custom_fields', 'created', 'last_updated',
+            'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
 
 
@@ -173,8 +174,8 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
     class Meta:
         model = IPSecPolicy
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'proposals', 'pfs_group', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
         )
 
 

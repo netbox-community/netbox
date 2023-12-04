@@ -128,7 +128,8 @@ class IKEProposalFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -155,7 +156,8 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -176,7 +178,8 @@ class IPSecProposalFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -200,7 +203,8 @@ class IPSecPolicyFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
