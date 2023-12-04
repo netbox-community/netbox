@@ -90,9 +90,8 @@ gunicorn
 Jinja2
 
 # Simple markup language for rendering HTML
-# https://python-markdown.github.io/change_log/
-# mkdocs currently requires Markdown v3.3
-Markdown<3.4
+# https://python-markdown.github.io/changelog/
+Markdown
 
 # File inclusion plugin for Python-Markdown
 # https://github.com/cmacmackin/markdown-include
