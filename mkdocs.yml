@@ -232,8 +232,6 @@ nav:
             - FHRPGroupAssignment: 'models/ipam/fhrpgroupassignment.md'
             - IPAddress: 'models/ipam/ipaddress.md'
             - IPRange: 'models/ipam/iprange.md'
-            - L2VPN: 'models/ipam/l2vpn.md'
-            - L2VPNTermination: 'models/ipam/l2vpntermination.md'
             - Prefix: 'models/ipam/prefix.md'
             - RIR: 'models/ipam/rir.md'
             - Role: 'models/ipam/role.md'
@@ -262,6 +260,8 @@ nav:
             - IPSecPolicy: 'models/vpn/ipsecpolicy.md'
             - IPSecProfile: 'models/vpn/ipsecprofile.md'
             - IPSecProposal: 'models/vpn/ipsecproposal.md'
+            - L2VPN: 'models/vpn/l2vpn.md'
+            - L2VPNTermination: 'models/vpn/l2vpntermination.md'
             - Tunnel: 'models/vpn/tunnel.md'
             - TunnelTermination: 'models/vpn/tunneltermination.md'
         - Wireless:
