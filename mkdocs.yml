@@ -53,8 +53,8 @@ markdown_extensions:
     - admonition
     - attr_list
     - pymdownx.emoji:
-        emoji_index: !!python/name:materialx.emoji.twemoji
-        emoji_generator: !!python/name:materialx.emoji.to_svg
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
     - pymdownx.superfences:
         custom_fences:
           - name: mermaid
@@ -263,6 +263,7 @@ nav:
             - L2VPN: 'models/vpn/l2vpn.md'
             - L2VPNTermination: 'models/vpn/l2vpntermination.md'
             - Tunnel: 'models/vpn/tunnel.md'
+            - TunnelGroup: 'models/vpn/tunnelgroup.md'
             - TunnelTermination: 'models/vpn/tunneltermination.md'
         - Wireless:
             - WirelessLAN: 'models/wireless/wirelesslan.md'
