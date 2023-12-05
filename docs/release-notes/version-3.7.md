@@ -1,4 +1,4 @@
-## v3.7-beta1 (FUTURE)
+## v3.7-beta1 (2023-12-05)
 
 ### Breaking Changes
 
