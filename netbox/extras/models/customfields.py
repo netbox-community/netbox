@@ -57,6 +57,15 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         content_type = ContentType.objects.get_for_model(model._meta.concrete_model)
         return self.get_queryset().filter(content_types=content_type)
 
+    def get_defaults_for_model(self, model):
+        """
+        Return a dictionary of serialized default values for all CustomFields applicable to the given model.
+        """
+        custom_fields = self.get_for_model(model).filter(default__isnull=False)
+        return {
+            cf.name: cf.default for cf in custom_fields
+        }
+
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
