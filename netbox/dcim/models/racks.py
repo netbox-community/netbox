@@ -141,6 +141,7 @@ class Rack(ContactsMixin, ImageAttachmentsMixin, PrimaryModel, WeightMixin):
     starting_unit = models.PositiveSmallIntegerField(
         default=RACK_STARTING_UNIT_DEFAULT,
         verbose_name=_('starting unit'),
+        validators=[MinValueValidator(1),],
         help_text=_('Starting unit for rack')
     )
     desc_units = models.BooleanField(
