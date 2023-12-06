@@ -180,6 +180,14 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
+## PUBLIC_SWAGGER
+
+Default: True
+
+Swagger exposes by default the schemas to unauthenticated users. Set this to False to only expose them to authenticated users.
+
+---
+
 ## QUEUE_MAPPINGS
 
 Allows changing which queues are used internally for background tasks.

@@ -653,6 +653,7 @@ SPECTACULAR_SETTINGS = {
     'VERSION': VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
+    'SERVE_PUBLIC': getattr(configuration, 'PUBLIC_SWAGGER', True),
     'SERVERS': [{
         'url': BASE_PATH,
         'description': 'NetBox',

@@ -190,6 +190,9 @@ PLUGINS = []
 #     }
 # }
 
+# Expose the SWAGGER UI schemas to unauthenticated users
+PUBLIC_SWAGGER = True
+
 # Remote authentication support
 REMOTE_AUTH_ENABLED = False
 REMOTE_AUTH_BACKEND = 'netbox.authentication.RemoteUserBackend'
