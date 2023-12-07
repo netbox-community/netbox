@@ -143,6 +143,9 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
 
     class Meta:
         ordering = ('tunnel', 'role', 'pk')
+        indexes = (
+            models.Index(fields=('termination_type', 'termination_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),

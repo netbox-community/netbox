@@ -101,6 +101,9 @@ class FHRPGroupAssignment(ChangeLoggedModel):
 
     class Meta:
         ordering = ('-priority', 'pk')
+        indexes = (
+            models.Index(fields=('interface_type', 'interface_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('interface_type', 'interface_id', 'group'),

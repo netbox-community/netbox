@@ -132,6 +132,9 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
 
     class Meta:
         ordering = ('name',)
+        indexes = (
+            models.Index(fields=('action_object_type', 'action_object_id')),
+        )
         verbose_name = _('event rule')
         verbose_name_plural = _('event rules')
 
@@ -631,6 +634,9 @@ class ImageAttachment(ChangeLoggedModel):
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
+        indexes = (
+            models.Index(fields=('content_type', 'object_id')),
+        )
         verbose_name = _('image attachment')
         verbose_name_plural = _('image attachments')
 
@@ -720,6 +726,9 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     class Meta:
         ordering = ('-created',)
+        indexes = (
+            models.Index(fields=('assigned_object_type', 'assigned_object_id')),
+        )
         verbose_name = _('journal entry')
         verbose_name_plural = _('journal entries')
 
@@ -769,6 +778,9 @@ class Bookmark(models.Model):
 
     class Meta:
         ordering = ('created', 'pk')
+        indexes = (
+            models.Index(fields=('object_type', 'object_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('object_type', 'object_id', 'user'),

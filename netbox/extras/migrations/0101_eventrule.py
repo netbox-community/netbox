@@ -91,6 +91,10 @@ class Migration(migrations.Migration):
             name='tags',
             field=taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag'),
         ),
+        migrations.AddIndex(
+            model_name='eventrule',
+            index=models.Index(fields=['action_object_type', 'action_object_id'], name='extras_even_action__d9e2af_idx'),
+        ),
 
         # Replicate Webhook data
         migrations.RunPython(move_webhooks),

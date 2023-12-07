@@ -70,4 +70,8 @@ class Migration(migrations.Migration):
                 name='vpn_l2vpntermination_assigned_object'
             ),
         ),
+        migrations.AddIndex(
+            model_name='l2vpntermination',
+            index=models.Index(fields=['assigned_object_type', 'assigned_object_id'], name='vpn_l2vpnte_assigne_9c55f8_idx'),
+        ),
     ]

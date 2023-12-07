@@ -749,6 +749,9 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
 
     class Meta:
         ordering = ('device_type__id', 'parent__id', '_name')
+        indexes = (
+            models.Index(fields=('component_type', 'component_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device_type', 'parent', 'name'),

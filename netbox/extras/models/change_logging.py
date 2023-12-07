@@ -94,6 +94,10 @@ class ObjectChange(models.Model):
 
     class Meta:
         ordering = ['-time']
+        indexes = (
+            models.Index(fields=('changed_object_type', 'changed_object_id')),
+            models.Index(fields=('related_object_type', 'related_object_id')),
+        )
         verbose_name = _('object change')
         verbose_name_plural = _('object changes')
 
