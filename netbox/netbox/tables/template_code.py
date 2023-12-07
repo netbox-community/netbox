@@ -5,7 +5,7 @@ SEARCH_RESULT_ATTRS = """
     >
     {{ name|bettertitle }}:
     {% with url=value.get_absolute_url %}
-      {% if url %}<a href="url">{% endif %}
+      {% if url %}<a href="{{ url }}">{% endif %}
       {% if value|length > 40 %}
         {{ value|truncatechars:"40" }}
       {% else %}

@@ -1,3 +1,11 @@
+# NetBox v3.7
+
+## v3.7-beta2 (FUTURE)
+
+### Bug Fixes
+
+* [#14432](https://github.com/netbox-community/netbox/issues/14432) - Fix hyperlinks for global search result attributes
+
 ## v3.7-beta1 (2023-12-05)
 
 ### Breaking Changes
