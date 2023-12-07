@@ -10,16 +10,25 @@ body:
         installation. If you're having trouble with installation or just looking for
         assistance with using NetBox, please visit our
         [discussion forum](https://github.com/netbox-community/netbox/discussions) instead.
+  - type: dropdown
+    attributes:
+      label: Deployment Type
+      description: How are you running NetBox?
+      options:
+        - Self-hosted
+        - NetBox Cloud
+    validations:
+      required: true
   - type: input
     attributes:
-      label: NetBox version
+      label: NetBox Version
       description: What version of NetBox are you currently running?
       placeholder: v3.6.6
     validations:
       required: true
   - type: dropdown
     attributes:
-      label: Python version
+      label: Python Version
       description: What version of Python are you currently running?
       options:
         - "3.8"
