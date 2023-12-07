@@ -106,6 +106,9 @@ class Job(models.Model):
 
     class Meta:
         ordering = ['-created']
+        indexes = (
+            models.Index(fields=('object_type', 'object_id')),
+        )
         verbose_name = _('job')
         verbose_name_plural = _('jobs')
 

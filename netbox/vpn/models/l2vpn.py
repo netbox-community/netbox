@@ -104,6 +104,9 @@ class L2VPNTermination(NetBoxModel):
 
     class Meta:
         ordering = ('l2vpn',)
+        indexes = (
+            models.Index(fields=('assigned_object_type', 'assigned_object_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('assigned_object_type', 'assigned_object_id'),

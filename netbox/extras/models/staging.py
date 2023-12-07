@@ -90,6 +90,9 @@ class StagedChange(ChangeLoggedModel):
 
     class Meta:
         ordering = ('pk',)
+        indexes = (
+            models.Index(fields=('object_type', 'object_id')),
+        )
         verbose_name = _('staged change')
         verbose_name_plural = _('staged changes')
 

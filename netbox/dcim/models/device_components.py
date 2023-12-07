@@ -1250,6 +1250,9 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
+        indexes = (
+            models.Index(fields=('component_type', 'component_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'parent', 'name'),

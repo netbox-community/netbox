@@ -141,6 +141,9 @@ class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, Chan
 
     class Meta:
         ordering = ('priority', 'contact')
+        indexes = (
+            models.Index(fields=('content_type', 'object_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('content_type', 'object_id', 'contact', 'role'),

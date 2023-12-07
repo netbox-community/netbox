@@ -219,6 +219,10 @@ class Migration(migrations.Migration):
                 'ordering': ('tunnel', 'role', 'pk'),
             },
         ),
+        migrations.AddIndex(
+            model_name='tunneltermination',
+            index=models.Index(fields=['termination_type', 'termination_id'], name='vpn_tunnelt_termina_c1f04b_idx'),
+        ),
         migrations.AddConstraint(
             model_name='tunneltermination',
             constraint=models.UniqueConstraint(fields=('termination_type', 'termination_id'), name='vpn_tunneltermination_termination', violation_error_message='An object may be terminated to only one tunnel at a time.'),
