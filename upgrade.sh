@@ -113,11 +113,6 @@ COMMAND="python3 netbox/manage.py clearsessions"
 echo "Removing expired user sessions ($COMMAND)..."
 eval $COMMAND || exit 1
 
-# Clear the cache
-COMMAND="python3 netbox/manage.py clearcache"
-echo "Clearing the cache ($COMMAND)..."
-eval $COMMAND || exit 1
-
 if [ -v WARN_MISSING_VENV ]; then
   echo "--------------------------------------------------------------------"
   echo "WARNING: No existing virtual environment was detected. A new one has"
