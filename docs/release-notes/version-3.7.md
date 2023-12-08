@@ -5,6 +5,7 @@
 ### Bug Fixes
 
 * [#14432](https://github.com/netbox-community/netbox/issues/14432) - Fix hyperlinks for global search result attributes
+* [#14472](https://github.com/netbox-community/netbox/issues/14472) - Fix display of hidden custom fields in object edit forms
 
 ## v3.7-beta1 (2023-12-05)
 

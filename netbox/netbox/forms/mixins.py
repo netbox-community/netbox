@@ -40,7 +40,7 @@ class CustomFieldsMixin:
 
     def _get_custom_fields(self, content_type):
         return CustomField.objects.filter(content_types=content_type).exclude(
-            ui_visible=CustomFieldUIVisibleChoices.HIDDEN
+            ui_editable=CustomFieldUIEditableChoices.HIDDEN
         )
 
     def _get_form_field(self, customfield):
