@@ -7,6 +7,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import *
 from utilities.utils import deserialize_object
 
 __all__ = (
@@ -54,7 +55,7 @@ class Branch(ChangeLoggedModel):
         self.staged_changes.all().delete()
 
 
-class StagedChange(ChangeLoggedModel):
+class StagedChange(CustomValidationMixin, EventRulesMixin, models.Model):
     """
     The prepared creation, modification, or deletion of an object to be applied to the active database at a
     future point.
