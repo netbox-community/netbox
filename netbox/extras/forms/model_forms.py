@@ -1,4 +1,5 @@
 import json
+import re
 
 from django import forms
 from django.conf import settings
@@ -107,7 +108,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
         data = []
         for line in self.cleaned_data['extra_choices'].splitlines():
             try:
-                value, label = line.split(':', maxsplit=1)
+                value, label = re.split(r'(?<!\\):', line, maxsplit=1)
             except ValueError:
                 value, label = line, line
             data.append((value, label))
