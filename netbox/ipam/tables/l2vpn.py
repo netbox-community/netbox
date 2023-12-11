@@ -73,12 +73,15 @@ class L2VPNTerminationTable(NetBoxTable):
         orderable=False,
         verbose_name=_('Object Site')
     )
+    tags = columns.TagColumn(
+        url_name='ipam:l2vpntermination_list'
+    )
 
     class Meta(NetBoxTable.Meta):
         model = L2VPNTermination
         fields = (
             'pk', 'l2vpn', 'assigned_object_type', 'assigned_object', 'assigned_object_parent', 'assigned_object_site',
-            'actions',
+            'tags', 'actions',
         )
         default_columns = (
             'pk', 'l2vpn', 'assigned_object_type', 'assigned_object_parent', 'assigned_object', 'actions',
