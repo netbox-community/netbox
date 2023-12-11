@@ -76,7 +76,6 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
 class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CustomFieldChoiceSet
-    validation_excluded_fields = ('extra_choices',)
 
     @classmethod
     def setUpTestData(cls):
@@ -120,30 +119,12 @@ class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
         }
 
-    # These are here as extra_choices field splits on colon, but is returned
-    # from DB as comma separated.  So we exclude them in validation_excluded_fields
-    # but test they are actually set correctly here.
-    def _check_extra_choices_data(self):
-        instance = self._get_queryset().last()
-        form_data = self.form_data
-        form_data['extra_choices'] = form_data['extra_choices'].replace(':', ',')
-        self.assertInstanceEqual(instance, form_data)
-
-    def test_create_object_with_constrained_permission(self):
-        super().test_create_object_with_constrained_permission()
-        self._check_extra_choices_data()
-
-    def test_create_object_with_permission(self):
-        super().test_create_object_with_permission()
-        self._check_extra_choices_data()
-
-    def test_edit_object_with_constrained_permission(self):
-        super().test_edit_object_with_constrained_permission()
-        self._check_extra_choices_data()
-
-    def test_edit_object_with_permission(self):
-        super().test_edit_object_with_permission()
-        self._check_extra_choices_data()
+    # This is here as extra_choices field splits on colon, but is returned
+    # from DB as comma separated.
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
+        if 'extra_choices' in data:
+            data['extra_choices'] = data['extra_choices'].replace(':', ',')
+        return super().assertInstanceEqual(instance, data, exclude, api)
 
 
 class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
