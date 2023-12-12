@@ -63,7 +63,8 @@ def post_save_receiver(sender, instance, created, **kwargs):
 
 
 def pre_delete_receiver(sender, instance, origin, **kwargs):
-    if not type(instance).objects.filter(pk=instance.pk).exists():
+    model = instance._meta.model
+    if not model.objects.filter(pk=instance.pk).exists():
         instance._previously_removed = True
 
 
@@ -109,14 +110,14 @@ def connect_counters(*models):
                 weak=False,
                 dispatch_uid=f'{model._meta.label}.{field.name}'
             )
-            post_delete.connect(
-                post_delete_receiver,
+            pre_delete.connect(
+                pre_delete_receiver,
                 sender=to_model,
                 weak=False,
                 dispatch_uid=f'{model._meta.label}.{field.name}'
             )
-            pre_delete.connect(
-                pre_delete_receiver,
+            post_delete.connect(
+                post_delete_receiver,
                 sender=to_model,
                 weak=False,
                 dispatch_uid=f'{model._meta.label}.{field.name}'
