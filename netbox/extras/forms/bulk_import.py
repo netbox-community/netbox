@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
@@ -93,7 +95,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
             data = []
             for line in self.cleaned_data['extra_choices']:
                 try:
-                    value, label = line.split(':', maxsplit=1)
+                    value, label = re.split(r'(?<!\\):', line, maxsplit=1)
                 except ValueError:
                     value, label = line, line
                 data.append((value, label))
