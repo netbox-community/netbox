@@ -2,6 +2,19 @@
 
 ## v3.6.7 (FUTURE)
 
+### Enhancements
+
+* [#14390](https://github.com/netbox-community/netbox/issues/14390) - Add `classes` parameter to `copy_content` template tag
+
+### Bug Fixes
+
+* [#14249](https://github.com/netbox-community/netbox/issues/14249) - Fix server error when authenticating via IP-restricted API tokens using IPv6
+* [#14392](https://github.com/netbox-community/netbox/issues/14392) - Fix bulk operations for plugin models under admin UI
+* [#14397](https://github.com/netbox-community/netbox/issues/14397) - Fix exception on non-JSON request to `/available-ips/` API endpoints
+* [#14401](https://github.com/netbox-community/netbox/issues/14401) - Rack `starting_unit` cannot be zero
+* [#14432](https://github.com/netbox-community/netbox/issues/14432) - Populate custom field default values for components when creating a device
+* [#14448](https://github.com/netbox-community/netbox/issues/14448) - Fix exception when creating a power feed with rack and panel in different sites
+
 ---
 
 ## v3.6.6 (2023-11-29)
