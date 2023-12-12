@@ -98,7 +98,7 @@ class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'Choice Set X',
-            'extra_choices': '\n'.join(['X1,Choice 1', 'X2,Choice 2', 'X3,Choice 3'])
+            'extra_choices': '\n'.join(['X1:Choice 1', 'X2:Choice 2', 'X3:Choice 3'])
         }
 
         cls.csv_data = (
@@ -118,6 +118,13 @@ class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+    # This is here as extra_choices field splits on colon, but is returned
+    # from DB as comma separated.
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
+        if 'extra_choices' in data:
+            data['extra_choices'] = data['extra_choices'].replace(':', ',')
+        return super().assertInstanceEqual(instance, data, exclude, api)
 
 
 class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
