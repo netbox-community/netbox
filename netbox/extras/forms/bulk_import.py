@@ -96,8 +96,6 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
             for line in self.cleaned_data['extra_choices']:
                 try:
                     value, label = re.split(r'(?<!\\):', line, maxsplit=1)
-                    value = value.replace('\\:', ':')
-                    label = label.replace('\\:', ':')
                 except ValueError:
                     value, label = line, line
                 data.append((value, label))

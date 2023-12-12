@@ -748,7 +748,11 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
             if self.base_choices:
                 self._choices.extend(CHOICE_SETS.get(self.base_choices))
             if self.extra_choices:
-                self._choices.extend(self.extra_choices)
+                extra_choices = []
+                for choice in self.extra_choices:
+                    choice = (choice[0], choice[1].replace('\\:', ':'))
+                    extra_choices.append(choice)
+                self._choices.extend(extra_choices)
         if self.order_alphabetically:
             self._choices = sorted(self._choices, key=lambda x: x[0])
         return self._choices
