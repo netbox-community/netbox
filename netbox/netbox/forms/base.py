@@ -57,6 +57,17 @@ class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, 
 
         return super().clean()
 
+    def _post_clean(self):
+        """
+        Override BaseModelForm's _post_clean() to store many-to-many field values on the model instance.
+        """
+        self.instance._m2m_values = {}
+        for field in self.instance._meta.local_many_to_many:
+            if field.name in self.cleaned_data:
+                self.instance._m2m_values[field.name] = list(self.cleaned_data[field.name])
+
+        return super()._post_clean()
+
 
 class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     """
