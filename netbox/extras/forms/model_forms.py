@@ -108,7 +108,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, initial=initial, **kwargs)
 
         # Escape colons in extra_choices
-        if 'extra_choices' in self.initial:
+        if 'extra_choices' in self.initial and self.initial['extra_choices']:
             choices = []
             for choice in self.initial['extra_choices']:
                 choice = (choice[0].replace(':', '\\:'), choice[1].replace(':', '\\:'))
