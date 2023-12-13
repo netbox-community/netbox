@@ -341,8 +341,10 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.fields['vminterface'].disabled = True
             self.fields['fhrpgroup'].disabled = True
 
+    # Correctly assigned assigned_object if the error exists when validating this form.
     def add_error(self, field, errors):
-        if errors.error_dict.get('assigned_object', None):
+        if isinstance(errors, ValidationError) and hasattr(errors, 'error_dict') and \
+                errors.error_dict.get('assigned_object', None):
             error = errors.error_dict.pop('assigned_object')
             if isinstance(self.instance.assigned_object, Interface):
                 errors.error_dict.update({'interface': error})
