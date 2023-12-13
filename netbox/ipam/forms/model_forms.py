@@ -341,6 +341,17 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.fields['vminterface'].disabled = True
             self.fields['fhrpgroup'].disabled = True
 
+    def add_error(self, field, errors):
+        if errors.error_dict.get('assigned_object', None):
+            error = errors.error_dict.pop('assigned_object')
+            if isinstance(self.instance.assigned_object, Interface):
+                errors.error_dict.update({'interface': error})
+            elif isinstance(self.instance.assigned_object, VMInterface):
+                errors.error_dict.update({'vminterface': error})
+            elif isinstance(self.instance.assigned_object, FHRPGroup):
+                errors.error_dict.update({'fhrpgroup': error})
+        super().add_error(field, errors)
+
     def clean(self):
         super().clean()
 
