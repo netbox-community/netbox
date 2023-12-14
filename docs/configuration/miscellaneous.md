@@ -82,7 +82,7 @@ changes in the database indefinitely.
 
 ## CHANGELOG_SKIP_EMPTY_CHANGES
 
-Default: False
+Default: True
 
 Enables skipping the creation of logged changes on updates if there were no modifications to the object.
 
