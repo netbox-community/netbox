@@ -64,19 +64,23 @@ class ChangeLoggingMixin(models.Model):
     class Meta:
         abstract = True
 
-    def serialize_object(self):
+    def serialize_object(self, exclude_fields=[]):
         """
         Return a JSON representation of the instance. Models can override this method to replace or extend the default
         serialization logic provided by the `serialize_object()` utility function.
         """
-        return serialize_object(self)
+        return serialize_object(self, exclude_fields=exclude_fields)
 
     def snapshot(self):
         """
         Save a snapshot of the object's current state in preparation for modification. The snapshot is saved as
         `_prechange_snapshot` on the instance.
         """
-        self._prechange_snapshot = self.serialize_object()
+        exclude_fields = []
+        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
+            exclude_fields = ['last_updated',]
+
+        self._prechange_snapshot = self.serialize_object(exclude_fields=exclude_fields)
     snapshot.alters_data = True
 
     def to_objectchange(self, action):
@@ -86,9 +90,13 @@ class ChangeLoggingMixin(models.Model):
         """
         from extras.models import ObjectChange
 
+        exclude_fields = []
+        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
+            exclude_fields = ['last_updated',]
+
         postchange_data = None
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            postchange_data = self.serialize_object()
+            postchange_data = self.serialize_object(exclude_fields=exclude_fields)
 
         if get_config().CHANGELOG_SKIP_EMPTY_CHANGES and action == ObjectChangeActionChoices.ACTION_UPDATE and hasattr(self, '_prechange_snapshot'):
             if postchange_data == self._prechange_snapshot:

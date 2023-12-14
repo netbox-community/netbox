@@ -144,7 +144,7 @@ def count_related(model, field):
     return Coalesce(subquery, 0)
 
 
-def serialize_object(obj, resolve_tags=True, extra=None):
+def serialize_object(obj, resolve_tags=True, extra=None, exclude_fields=[]):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
@@ -159,8 +159,10 @@ def serialize_object(obj, resolve_tags=True, extra=None):
         for field in ['level', 'lft', 'rght', 'tree_id']:
             data.pop(field)
 
-    if get_config().CHANGELOG_SKIP_EMPTY_CHANGES and 'last_updated' in data:
-        data.pop('last_updated')
+    if exclude_fields:
+        for field in exclude_fields:
+            if field in data:
+                data.pop(field)
 
     # Include custom_field_data as "custom_fields"
     if hasattr(obj, 'custom_field_data'):
