@@ -80,7 +80,7 @@ def handle_changed_object(sender, instance, **kwargs):
             )
         else:
             objectchange = instance.to_objectchange(action)
-            if objectchange:
+            if objectchange and objectchange.has_changes:
                 objectchange.user = request.user
                 objectchange.request_id = request.id
                 objectchange.save()

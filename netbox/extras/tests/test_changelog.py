@@ -208,6 +208,7 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(objectchange.prechange_data['slug'], sites[0].slug)
         self.assertEqual(objectchange.postchange_data, None)
 
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=False)
     def test_update_object_change(self):
         site = Site(
             name='Site 1',

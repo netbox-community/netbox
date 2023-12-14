@@ -93,8 +93,7 @@ class ComponentModel(NetBoxModel):
         return self.name
 
     def to_objectchange(self, action):
-        if (objectchange := super().to_objectchange(action)) is None:
-            return None
+        objectchange = super().to_objectchange(action)
         objectchange.related_object = self.device
         return objectchange
 

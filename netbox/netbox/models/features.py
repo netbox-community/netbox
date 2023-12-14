@@ -94,14 +94,6 @@ class ChangeLoggingMixin(models.Model):
         if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
             exclude_fields = ['last_updated',]
 
-        postchange_data = None
-        if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            postchange_data = self.serialize_object(exclude_fields=exclude_fields)
-
-        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES and action == ObjectChangeActionChoices.ACTION_UPDATE and hasattr(self, '_prechange_snapshot'):
-            if postchange_data == self._prechange_snapshot:
-                return None
-
         objectchange = ObjectChange(
             changed_object=self,
             object_repr=str(self)[:200],
@@ -110,7 +102,7 @@ class ChangeLoggingMixin(models.Model):
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            objectchange.postchange_data = postchange_data
+            objectchange.postchange_data = self.serialize_object(exclude_fields=exclude_fields)
 
         return objectchange
 
