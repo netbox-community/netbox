@@ -1,4 +1,5 @@
 import json
+import re
 
 from django import forms
 from django.conf import settings
@@ -95,19 +96,33 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
         required=False,
         help_text=mark_safe(_(
             'Enter one choice per line. An optional label may be specified for each choice by appending it with a '
-            'comma. Example:'
-        ) + ' <code>choice1,First Choice</code>')
+            'colon. Example:'
+        ) + ' <code>choice1:First Choice</code>')
     )
 
     class Meta:
         model = CustomFieldChoiceSet
         fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically')
 
+    def __init__(self, *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        # Escape colons in extra_choices
+        if 'extra_choices' in self.initial and self.initial['extra_choices']:
+            choices = []
+            for choice in self.initial['extra_choices']:
+                choice = (choice[0].replace(':', '\\:'), choice[1].replace(':', '\\:'))
+                choices.append(choice)
+
+            self.initial['extra_choices'] = choices
+
     def clean_extra_choices(self):
         data = []
         for line in self.cleaned_data['extra_choices'].splitlines():
             try:
-                value, label = line.split(',', maxsplit=1)
+                value, label = re.split(r'(?<!\\):', line, maxsplit=1)
+                value = value.replace('\\:', ':')
+                label = label.replace('\\:', ':')
             except ValueError:
                 value, label = line, line
             data.append((value, label))

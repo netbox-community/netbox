@@ -953,7 +953,7 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
 
     def prep_table_data(self, request, queryset, parent):
         if not get_table_ordering(request, self.table):
-            return add_available_vlans(parent.get_child_vlans(), parent)
+            return add_available_vlans(queryset, parent)
         return queryset
 
 

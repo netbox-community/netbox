@@ -110,6 +110,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
+    selector_fields = ('filter_id', 'q', 'region_id', 'site_group_id', 'site_id', 'provider_id', 'provider_network_id')
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,
