@@ -37,6 +37,7 @@ __all__ = (
     'ServiceCreateForm',
     'ServiceTemplateForm',
     'VLANForm',
+    'VLANDeviceMappingForm',
     'VLANGroupForm',
     'VRFForm',
 )
@@ -655,6 +656,24 @@ class VLANForm(TenancyForm, NetBoxModelForm):
         fields = [
             'site', 'group', 'vid', 'name', 'status', 'role', 'tenant_group', 'tenant', 'description', 'comments',
             'tags',
+        ]
+
+
+class VLANDeviceMappingForm(NetBoxModelForm):
+    vlan = DynamicModelChoiceField(
+        label=_('VLAN'),
+        queryset=VLAN.objects.all()
+    )
+    device = DynamicModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all()
+    )
+    comments = CommentField()
+
+    class Meta:
+        model = VLANDeviceMapping
+        fields = [
+            'device', 'vlan', 'description', 'comments', 'tags',
         ]
 
 

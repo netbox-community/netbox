@@ -1018,6 +1018,57 @@ class VLANTest(APIViewTestCases.APIViewTestCase):
         self.assertTrue(content['detail'].startswith('Unable to delete object.'))
 
 
+class VLANDeviceMappingTest(APIViewTestCases.APIViewTestCase):
+    model = VLANDeviceMapping
+    brief_fields = ['display', 'id', 'url']
+    bulk_update_data = {
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', site=site, device_type=devicetype, role=role),
+            Device(name='Device 2', site=site, device_type=devicetype, role=role),
+            Device(name='Device 3', site=site, device_type=devicetype, role=role),
+        )
+        Device.objects.bulk_create(devices)
+
+        vlans = (
+            VLAN(name='VLAN 1', vid=1),
+            VLAN(name='VLAN 2', vid=2),
+            VLAN(name='VLAN 3', vid=2),
+        )
+        VLAN.objects.bulk_create(vlans)
+
+        vlandevicemappings = (
+            VLANDeviceMapping(device=devices[0], vlan=vlans[0]),
+            VLANDeviceMapping(device=devices[1], vlan=vlans[0]),
+            VLANDeviceMapping(device=devices[2], vlan=vlans[0]),
+        )
+        VLANDeviceMapping.objects.bulk_create(vlandevicemappings)
+
+        cls.create_data = [
+            {
+                'device': devices[0].pk,
+                'vlan': vlans[2].pk,
+            },
+            {
+                'device': devices[1].pk,
+                'vlan': vlans[2].pk,
+            },
+            {
+                'device': devices[2].pk,
+                'vlan': vlans[2].pk,
+            },
+        ]
+
+
 class ServiceTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ServiceTemplate
     brief_fields = ['display', 'id', 'name', 'ports', 'protocol', 'url']

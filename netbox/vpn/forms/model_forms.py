@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
-from ipam.models import IPAddress, RouteTarget, VLAN
+from ipam.models import IPAddress, RouteTarget, VLAN, VLANDeviceMapping
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
@@ -426,6 +426,12 @@ class L2VPNTerminationForm(NetBoxModelForm):
         selector=True,
         label=_('VLAN')
     )
+    vlandevicemapping = DynamicModelChoiceField(
+        queryset=VLANDeviceMapping.objects.all(),
+        required=False,
+        selector=True,
+        label=_('VLAN Device Mapping')
+    )
     interface = DynamicModelChoiceField(
         label=_('Interface'),
         queryset=Interface.objects.all(),
@@ -452,6 +458,8 @@ class L2VPNTerminationForm(NetBoxModelForm):
                 initial['interface'] = instance.assigned_object
             elif type(instance.assigned_object) is VLAN:
                 initial['vlan'] = instance.assigned_object
+            elif type(instance.assigned_object) is VLANDeviceMapping:
+                initial['vlandevicemapping'] = instance.assigned_object
             elif type(instance.assigned_object) is VMInterface:
                 initial['vminterface'] = instance.assigned_object
             kwargs['initial'] = initial
@@ -464,10 +472,11 @@ class L2VPNTerminationForm(NetBoxModelForm):
         interface = self.cleaned_data.get('interface')
         vminterface = self.cleaned_data.get('vminterface')
         vlan = self.cleaned_data.get('vlan')
+        vlandevicemapping = self.cleaned_data.get('vlandevicemapping')
 
-        if not (interface or vminterface or vlan):
+        if not (interface or vminterface or vlan or vlandevicemapping):
             raise ValidationError(_('A termination must specify an interface or VLAN.'))
-        if len([x for x in (interface, vminterface, vlan) if x]) > 1:
+        if len([x for x in (interface, vminterface, vlan, vlandevicemapping) if x]) > 1:
             raise ValidationError(_('A termination can only have one terminating object (an interface or VLAN).'))
 
-        self.instance.assigned_object = interface or vminterface or vlan
+        self.instance.assigned_object = interface or vminterface or vlan or vlandevicemapping

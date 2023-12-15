@@ -20,6 +20,7 @@ __all__ = (
     'ServiceTemplateType',
     'VLANType',
     'VLANGroupType',
+    'VLANDeviceMappingType',
     'VRFType',
 )
 
@@ -177,6 +178,14 @@ class VLANGroupType(OrganizationalObjectType):
         model = models.VLANGroup
         exclude = ('scope_type', 'scope_id')
         filterset_class = filtersets.VLANGroupFilterSet
+
+
+class VLANDeviceMappingType(NetBoxObjectType):
+
+    class Meta:
+        model = models.VLANDeviceMapping
+        fields = '__all__'
+        filterset_class = filtersets.VLANDeviceMappingFilterSet
 
 
 class VRFType(NetBoxObjectType):

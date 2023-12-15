@@ -182,6 +182,7 @@ IPAM_MENU = Menu(
             items=(
                 get_model_item('ipam', 'vlan', _('VLANs')),
                 get_model_item('ipam', 'vlangroup', _('VLAN Groups')),
+                get_model_item('ipam', 'vlandevicemapping', _('VLAN Device Mappings')),
             ),
         ),
         MenuGroup(

@@ -163,6 +163,14 @@ class VLANViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.VLANFilterSet
 
 
+class VLANDeviceMappingViewSet(NetBoxModelViewSet):
+    queryset = VLANDeviceMapping.objects.prefetch_related(
+        'device', 'vlan', 'tags'
+    )
+    serializer_class = serializers.VLANDeviceMappingSerializer
+    filterset_class = filtersets.VLANDeviceMappingFilterSet
+
+
 class ServiceTemplateViewSet(NetBoxModelViewSet):
     queryset = ServiceTemplate.objects.prefetch_related('tags')
     serializer_class = serializers.ServiceTemplateSerializer

@@ -339,15 +339,14 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='pk',
         label=_('Site (ID)'),
     )
-    device = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__device__name',
-        queryset=Device.objects.all(),
-        to_field_name='name',
-        label=_('Device (name)'),
+    device = MultiValueCharFilter(
+        method='filter_device',
+        field_name='name',
+        label=_('Device (Name)'),
     )
-    device_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='interface__device',
-        queryset=Device.objects.all(),
+    device_id = MultiValueNumberFilter(
+        method='filter_device',
+        field_name='pk',
         label=_('Device (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
@@ -383,19 +382,19 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         queryset=VMInterface.objects.all(),
         label=_('VM Interface (ID)'),
     )
-    vlan = django_filters.ModelMultipleChoiceFilter(
-        field_name='vlan__name',
-        queryset=VLAN.objects.all(),
-        to_field_name='name',
-        label=_('VLAN (name)'),
+    vlan = MultiValueCharFilter(
+        method='filter_vlan',
+        field_name='name',
+        label=_('Site (Name)'),
     )
-    vlan_vid = django_filters.NumberFilter(
-        field_name='vlan__vid',
+    vlan_vid = MultiValueNumberFilter(
+        method='filter_vlan',
+        field_name='vid',
         label=_('VLAN number (1-4094)'),
     )
-    vlan_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='vlan',
-        queryset=VLAN.objects.all(),
+    vlan_id = MultiValueNumberFilter(
+        method='filter_vlan',
+        field_name='pk',
         label=_('VLAN (ID)'),
     )
     assigned_object_type = ContentTypeFilter()
@@ -413,6 +412,24 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
     def filter_assigned_object(self, queryset, name, value):
         qs = queryset.filter(
             Q(**{'{}__in'.format(name): value})
+        )
+        return qs
+
+    def filter_device(self, queryset, name, value):
+        qs = queryset.filter(
+            Q(
+                Q(**{'interface__device__{}__in'.format(name): value}) |
+                Q(**{'vlandevicemapping__device__{}__in'.format(name): value})
+            )
+        )
+        return qs
+
+    def filter_vlan(self, queryset, name, value):
+        qs = queryset.filter(
+            Q(
+                Q(**{'vlan__{}__in'.format(name): value}) |
+                Q(**{'vlandevicemapping__vlan__{}__in'.format(name): value})
+            )
         )
         return qs
 

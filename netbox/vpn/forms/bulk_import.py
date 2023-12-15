@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Device, Interface
-from ipam.models import IPAddress, VLAN
+from ipam.models import IPAddress, VLAN, VLANDeviceMapping
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, CSVModelMultipleChoiceField, SlugField
@@ -279,7 +279,7 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         queryset=Device.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent device (for interface)')
+        help_text=_('Parent device (for interface or Device-VLAN)')
     )
     virtual_machine = CSVModelChoiceField(
         label=_('Virtual machine'),
@@ -325,13 +325,24 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
     def clean(self):
         super().clean()
 
-        if self.cleaned_data.get('device') and self.cleaned_data.get('virtual_machine'):
+        device = self.cleaned_data.get('device')
+        vm = self.cleaned_data.get('virtual_machine')
+        interface = self.cleaned_data.get('interface')
+        vlan = self.cleaned_data.get('vlan')
+
+        if device and vm:
             raise ValidationError(_('Cannot import device and VM interface terminations simultaneously.'))
-        if not self.instance and not (self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')):
+        if not self.instance and not (interface or vlan):
             raise ValidationError(_('Each termination must specify either an interface or a VLAN.'))
-        if self.cleaned_data.get('interface') and self.cleaned_data.get('vlan'):
+        if interface and vlan:
             raise ValidationError(_('Cannot assign both an interface and a VLAN.'))
 
         # if this is an update we might not have interface or vlan in the form data
-        if self.cleaned_data.get('interface') or self.cleaned_data.get('vlan'):
+        if vlan and device:
+            try:
+                vlandevicemapping = VLANDeviceMapping.objects.get(device=device, vlan=vlan)
+            except VLANDeviceMapping.DoesNotExist:
+                raise ValidationError(_('Cannot find Device VLAN Mapping'))
+            self.instance.assigned_object = vlandevicemapping
+        elif interface or vlan:
             self.instance.assigned_object = self.cleaned_data.get('interface') or self.cleaned_data.get('vlan')

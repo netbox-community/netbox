@@ -116,6 +116,13 @@ urlpatterns = [
     path('vlans/delete/', views.VLANBulkDeleteView.as_view(), name='vlan_bulk_delete'),
     path('vlans/<int:pk>/', include(get_model_urls('ipam', 'vlan'))),
 
+    # VLANs
+    path('vlans-device-mappings/', views.VLANDeviceMappingListView.as_view(), name='vlandevicemapping_list'),
+    path('vlans-device-mappings/add/', views.VLANDeviceMappingEditView.as_view(), name='vlandevicemapping_add'),
+    path('vlans-device-mappings/import/', views.VLANDeviceMappingBulkImportView.as_view(), name='vlandevicemapping_import'),
+    path('vlans-device-mappings/delete/', views.VLANDeviceMappingBulkDeleteView.as_view(), name='vlandevicemapping_bulk_delete'),
+    path('vlans-device-mappings/<int:pk>/', include(get_model_urls('ipam', 'vlandevicemapping'))),
+
     # Service templates
     path('service-templates/', views.ServiceTemplateListView.as_view(), name='servicetemplate_list'),
     path('service-templates/add/', views.ServiceTemplateEditView.as_view(), name='servicetemplate_add'),

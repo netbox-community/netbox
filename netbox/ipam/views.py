@@ -1147,6 +1147,44 @@ class VLANBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# VLAN Device Terminations
+#
+
+class VLANDeviceMappingListView(generic.ObjectListView):
+    queryset = VLANDeviceMapping.objects.all()
+    filterset = filtersets.VLANDeviceMappingFilterSet
+    filterset_form = forms.VLANDeviceMappingFilterForm
+    table = tables.VLANDeviceMappingTable
+
+
+@register_model_view(VLANDeviceMapping)
+class VLANDeviceMappingView(generic.ObjectView):
+    queryset = VLANDeviceMapping.objects.all()
+
+
+@register_model_view(VLANDeviceMapping, 'edit')
+class VLANDeviceMappingEditView(generic.ObjectEditView):
+    queryset = VLANDeviceMapping.objects.all()
+    form = forms.VLANDeviceMappingForm
+
+
+@register_model_view(VLANDeviceMapping, 'delete')
+class VLANDeviceMappingDeleteView(generic.ObjectDeleteView):
+    queryset = VLANDeviceMapping.objects.all()
+
+
+class VLANDeviceMappingBulkImportView(generic.BulkImportView):
+    queryset = VLANDeviceMapping.objects.all()
+    model_form = forms.VLANDeviceMappingImportForm
+
+
+class VLANDeviceMappingBulkDeleteView(generic.BulkDeleteView):
+    queryset = VLANDeviceMapping.objects.all()
+    filterset = filtersets.VLANDeviceMappingFilterSet
+    table = tables.VLANDeviceMappingTable
+
+
+#
 # Service templates
 #
 

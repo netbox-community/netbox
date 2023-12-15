@@ -858,6 +858,72 @@ class VLANTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
+class VLANDeviceMappingTestCase(
+        ViewTestCases.GetObjectViewTestCase,
+        ViewTestCases.GetObjectChangelogViewTestCase,
+        ViewTestCases.CreateObjectViewTestCase,
+        ViewTestCases.EditObjectViewTestCase,
+        ViewTestCases.DeleteObjectViewTestCase,
+        ViewTestCases.ListObjectsViewTestCase,
+        ViewTestCases.BulkImportObjectsViewTestCase,
+        ViewTestCases.BulkDeleteObjectsViewTestCase
+):
+    model = VLANDeviceMapping
+
+    @classmethod
+    def setUpTestData(cls):
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1')
+        role = DeviceRole.objects.create(name='Device Role 1', slug='device-role-1')
+
+        devices = (
+            Device(name='Device 1', site=site, device_type=devicetype, role=role),
+            Device(name='Device 2', site=site, device_type=devicetype, role=role),
+            Device(name='Device 3', site=site, device_type=devicetype, role=role),
+        )
+        Device.objects.bulk_create(devices)
+
+        vlans = (
+            VLAN(name='VLAN 1', vid=1),
+            VLAN(name='VLAN 2', vid=2),
+            VLAN(name='VLAN 3', vid=3),
+        )
+        VLAN.objects.bulk_create(vlans)
+
+        vlandevicemappings = (
+            VLANDeviceMapping(device=devices[0], vlan=vlans[0]),
+            VLANDeviceMapping(device=devices[1], vlan=vlans[0]),
+            VLANDeviceMapping(device=devices[2], vlan=vlans[0]),
+            VLANDeviceMapping(device=devices[0], vlan=vlans[1]),
+            VLANDeviceMapping(device=devices[1], vlan=vlans[1]),
+            VLANDeviceMapping(device=devices[2], vlan=vlans[1]),
+        )
+        VLANDeviceMapping.objects.bulk_create(vlandevicemappings)
+
+        tags = create_tags('Alpha', 'Bravo', 'Charlie')
+
+        cls.form_data = {
+            'device': devices[0].pk,
+            'vlan': vlans[2].pk,
+            'description': 'A new VLAN Mapping',
+            'tags': [t.pk for t in tags],
+        }
+
+        cls.csv_data = (
+            "device,vlan",
+            f"{devices[1].name},{vlans[2].name}",
+            f"{devices[2].name},{vlans[2].name}",
+        )
+
+        cls.csv_update_data = (
+            "id,description",
+            f"{vlandevicemappings[0].pk},New description 7",
+            f"{vlandevicemappings[1].pk},New description 8",
+            f"{vlandevicemappings[2].pk},New description 9",
+        )
+
+
 class ServiceTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = ServiceTemplate
 

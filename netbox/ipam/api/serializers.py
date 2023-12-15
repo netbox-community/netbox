@@ -257,6 +257,20 @@ class VLANSerializer(NetBoxModelSerializer):
         ]
 
 
+class VLANDeviceMappingSerializer(NetBoxModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlandevicemapping-detail')
+    device = NestedDeviceSerializer(required=True)
+    vlan = NestedVLANSerializer(required=True)
+    l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
+
+    class Meta:
+        model = VLANDeviceMapping
+        fields = [
+            'id', 'url', 'display', 'device', 'vlan', 'l2vpn_termination', 'description', 'comments', 'tags',
+            'custom_fields', 'created', 'last_updated',
+        ]
+
+
 class AvailableVLANSerializer(serializers.Serializer):
     """
     Representation of a VLAN which does not exist in the database.

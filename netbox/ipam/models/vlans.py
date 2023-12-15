@@ -15,6 +15,7 @@ from virtualization.models import VMInterface
 __all__ = (
     'VLAN',
     'VLANGroup',
+    'VLANDeviceMapping',
 )
 
 
@@ -255,6 +256,62 @@ class VLAN(PrimaryModel):
             Q(untagged_vlan_id=self.pk) |
             Q(tagged_vlans=self.pk)
         ).distinct()
+
+    @property
+    def l2vpn_termination(self):
+        return self.l2vpn_terminations.first()
+
+
+class VLANDeviceMapping(PrimaryModel):
+    """
+    A VLAN to device termination is a unique VLAN to device mapping.  Mainly used as an additional termination point for
+    the L2VPN model.
+
+    Each termination must have both a unique VLAN and device
+    """
+    device = models.ForeignKey(
+        to='dcim.Device',
+        on_delete=models.CASCADE,
+        related_name='devices',
+        help_text=_("Device")
+    )
+    vlan = models.ForeignKey(
+        to='ipam.VLAN',
+        on_delete=models.CASCADE,
+        related_name='vlans',
+        help_text=_("VLAN")
+    )
+
+    l2vpn_terminations = GenericRelation(
+        to='vpn.L2VPNTermination',
+        content_type_field='assigned_object_type',
+        object_id_field='assigned_object_id',
+        related_query_name='vlandevicemapping'
+    )
+
+    clone_fields = [
+        'device', 'vlan',
+    ]
+
+    class Meta:
+        ordering = ('device', 'vlan', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('device', 'vlan'),
+                name='%(app_label)s_%(class)s_unique_device_vlan'
+            ),
+        )
+        verbose_name = _('VLAN Device Mapping')
+        verbose_name_plural = _('VLAN Device Mapping')
+
+    def __str__(self):
+        return f'{self.device} ({self.vlan.name if self.vlan.name else self.vlan.vid})'
+
+    def get_absolute_url(self):
+        return reverse('ipam:vlandevicemapping', args=[self.pk])
+
+    def clean(self):
+        super().clean()
 
     @property
     def l2vpn_termination(self):

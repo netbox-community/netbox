@@ -15,6 +15,7 @@ __all__ = (
     'VLANGroupTable',
     'VLANMembersTable',
     'VLANTable',
+    'VLANDeviceMappingTable',
     'VLANVirtualMachinesTable',
 )
 
@@ -154,6 +155,30 @@ class VLANTable(TenancyColumnsMixin, NetBoxTable):
         row_attrs = {
             'class': lambda record: 'success' if not isinstance(record, VLAN) else '',
         }
+
+
+class VLANDeviceMappingTable(NetBoxTable):
+    device = tables.Column(
+        verbose_name=_('Device'),
+        linkify=True
+    )
+    vlan = tables.Column(
+        verbose_name=_('VLAN'),
+        linkify=True
+    )
+
+    l2vpn_termination = tables.Column(
+        verbose_name=_('L2VPN'),
+        linkify=True
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VLANDeviceMapping
+        fields = (
+            'pk', 'id', 'device', 'vlan', 'l2vpn_termination', 'description', 'comments', 'tags', 'created',
+            'last_updated',
+        )
+        default_columns = ('pk', 'id', 'device', 'vlan', 'description')
 
 
 class VLANMembersTable(NetBoxTable):

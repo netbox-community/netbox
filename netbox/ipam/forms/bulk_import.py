@@ -27,6 +27,7 @@ __all__ = (
     'ServiceImportForm',
     'ServiceTemplateImportForm',
     'VLANImportForm',
+    'VLANDeviceMappingImportForm',
     'VLANGroupImportForm',
     'VRFImportForm',
 )
@@ -470,6 +471,25 @@ class VLANImportForm(NetBoxModelImportForm):
     class Meta:
         model = VLAN
         fields = ('site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description', 'comments', 'tags')
+
+
+class VLANDeviceMappingImportForm(NetBoxModelImportForm):
+    device = CSVModelChoiceField(
+        label=_('Device'),
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned device')
+    )
+    vlan = CSVModelChoiceField(
+        label=_('VLAN'),
+        queryset=VLAN.objects.all(),
+        to_field_name='name',
+        help_text=_('Assigned VLAN')
+    )
+
+    class Meta:
+        model = VLANDeviceMapping
+        fields = ('device', 'vlan', 'description', 'comments', 'tags')
 
 
 class ServiceTemplateImportForm(NetBoxModelImportForm):

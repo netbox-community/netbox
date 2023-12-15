@@ -21,6 +21,7 @@ __all__ = [
     'NestedServiceTemplateSerializer',
     'NestedVLANGroupSerializer',
     'NestedVLANSerializer',
+    'NestedVLANDeviceMappingSerializer',
     'NestedVRFSerializer',
 ]
 
@@ -157,6 +158,14 @@ class NestedVLANSerializer(WritableNestedSerializer):
     class Meta:
         model = models.VLAN
         fields = ['id', 'url', 'display', 'vid', 'name']
+
+
+class NestedVLANDeviceMappingSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlandevicemapping-detail')
+
+    class Meta:
+        model = models.VLANDeviceMapping
+        fields = ['id', 'url', 'display', ]
 
 
 #

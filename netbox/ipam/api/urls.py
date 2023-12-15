@@ -21,6 +21,7 @@ router.register('fhrp-groups', views.FHRPGroupViewSet)
 router.register('fhrp-group-assignments', views.FHRPGroupAssignmentViewSet)
 router.register('vlan-groups', views.VLANGroupViewSet)
 router.register('vlans', views.VLANViewSet)
+router.register('vlandevicemappings', views.VLANDeviceMappingViewSet)
 router.register('service-templates', views.ServiceTemplateViewSet)
 router.register('services', views.ServiceViewSet)
 

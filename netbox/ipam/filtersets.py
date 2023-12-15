@@ -15,7 +15,7 @@ from utilities.filters import (
     ContentTypeFilter, MultiValueCharFilter, MultiValueNumberFilter, NumericArrayFilter, TreeNodeMultipleChoiceFilter,
 )
 from virtualization.models import VirtualMachine, VMInterface
-from vpn.models import L2VPN
+from vpn.models import L2VPN, L2VPNTermination
 from .choices import *
 from .models import *
 
@@ -35,6 +35,7 @@ __all__ = (
     'ServiceFilterSet',
     'ServiceTemplateFilterSet',
     'VLANFilterSet',
+    'VLANDeviceMappingFilterSet',
     'VLANGroupFilterSet',
     'VRFFilterSet',
 )
@@ -990,6 +991,71 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_virtualmachine(self, queryset, name, value):
         return queryset.get_for_virtualmachine(value)
+
+
+class VLANDeviceMappingFilterSet(NetBoxModelFilterSet):
+    device_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Device.objects.all(),
+        label=_('Device (ID)'),
+    )
+    device = django_filters.ModelMultipleChoiceFilter(
+        field_name='device__name',
+        queryset=Device.objects.all(),
+        to_field_name='name',
+        label=_('Device (name)'),
+    )
+    vlan_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=VLAN.objects.all(),
+        label=_('VLAN (ID)'),
+    )
+    vlan_vid = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan__vid',
+        queryset=VLAN.objects.all(),
+        to_field_name='vid',
+        label=_('VLAN (vid)'),
+    )
+    vlan = django_filters.ModelMultipleChoiceFilter(
+        field_name='vlan__name',
+        queryset=VLAN.objects.all(),
+        to_field_name='name',
+        label=_('VLAN (name)'),
+    )
+    l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn',
+        queryset=L2VPN.objects.all(),
+        label=_('L2VPN (ID)'),
+    )
+    l2vpn_identifier = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn__identifier',
+        queryset=L2VPN.objects.all(),
+        to_field_name='identifier',
+        label=_('L2VPN'),
+    )
+    l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations__l2vpn__name',
+        queryset=L2VPN.objects.all(),
+        to_field_name='name',
+        label=_('L2VPN'),
+    )
+    l2vpn_termination_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='l2vpn_terminations',
+        queryset=L2VPNTermination.objects.all(),
+        label=_('L2VPN Termination (ID)'),
+    )
+
+    class Meta:
+        model = VLANDeviceMapping
+        fields = ['id', 'description']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        qs_filter = Q(device__name__icontains=value) | Q(vlan__name__icontains=value)
+        try:
+            qs_filter |= Q(vlan__vid=int(value.strip()))
+        except ValueError:
+            pass
+        return queryset.filter(qs_filter)
 
 
 class ServiceTemplateFilterSet(NetBoxModelFilterSet):

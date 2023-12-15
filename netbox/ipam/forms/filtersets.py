@@ -26,6 +26,7 @@ __all__ = (
     'ServiceFilterForm',
     'ServiceTemplateFilterForm',
     'VLANFilterForm',
+    'VLANDeviceMappingFilterForm',
     'VLANGroupFilterForm',
     'VRFFilterForm',
 )
@@ -490,6 +491,32 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     vid = forms.IntegerField(
         required=False,
         label=_('VLAN ID')
+    )
+    l2vpn_id = DynamicModelMultipleChoiceField(
+        queryset=L2VPN.objects.all(),
+        required=False,
+        label=_('L2VPN')
+    )
+    tag = TagFilterField(model)
+
+
+class VLANDeviceMappingFilterForm(NetBoxModelFilterSetForm):
+    model = VLANDeviceMapping
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Device'), ('device_id', )),
+        (_('VLAN'), ('vlan_id', )),
+        (_('L2VPN'), ('l2vpn_id', )),
+    )
+    device_id = DynamicModelMultipleChoiceField(
+        queryset=Device.objects.all(),
+        required=False,
+        label=_('Device')
+    )
+    vlan_id = DynamicModelMultipleChoiceField(
+        queryset=VLANGroup.objects.all(),
+        required=False,
+        label=_('VLAN')
     )
     l2vpn_id = DynamicModelMultipleChoiceField(
         queryset=L2VPN.objects.all(),

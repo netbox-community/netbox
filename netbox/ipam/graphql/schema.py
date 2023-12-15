@@ -97,6 +97,12 @@ class IPAMQuery(graphene.ObjectType):
     def resolve_vlan_group_list(root, info, **kwargs):
         return gql_query_optimizer(models.VLANGroup.objects.all(), info)
 
+    vlan_device_mapping = ObjectField(VLANDeviceMappingType)
+    vlan_device_mapping_list = ObjectListField(VLANDeviceMappingType)
+
+    def resolve_vlan_device_mapping_list(root, info, **kwargs):
+        return gql_query_optimizer(models.VLANDeviceMapping.objects.all(), info)
+
     vrf = ObjectField(VRFType)
     vrf_list = ObjectListField(VRFType)
 
