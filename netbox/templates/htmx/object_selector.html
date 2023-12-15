@@ -21,7 +21,7 @@
       <input type="hidden" name="_search" value="true" />
       <div class="tab-content p-1">
         {% for field in form.visible_fields %}
-          <div class="collapse{% if forloop.counter < 3 or field.name in form.selector_fields %} show{% endif %}" id="selector{{ forloop.counter }}">{% render_field field %}</div>
+          <div class="collapse{% if field.name in form.selector_fields %} show{% endif %}" id="selector{{ forloop.counter }}">{% render_field field %}</div>
         {% endfor %}
       </div>
       <div class="text-end">
