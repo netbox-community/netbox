@@ -144,15 +144,23 @@ def count_related(model, field):
     return Coalesce(subquery, 0)
 
 
-def serialize_object(obj, resolve_tags=True, extra=None):
+def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
     can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
     implicitly excluded.
+
+    Args:
+        obj: The object to serialize
+        resolve_tags: If true, any assigned tags will be represented by their names
+        extra: Any additional data to include in the serialized output. Keys provided in this mapping will
+            override object attributes.
+        exclude: An iterable of attributes to exclude from the serialized output
     """
     json_str = serializers.serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
+    exclude = exclude or []
 
     # Exclude any MPTTModel fields
     if issubclass(obj.__class__, MPTTModel):
@@ -169,15 +177,14 @@ def serialize_object(obj, resolve_tags=True, extra=None):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
         data['tags'] = sorted([tag.name for tag in tags])
 
+    # Skip excluded and private (prefixes with an underscore) attributes
+    for key in list(data.keys()):
+        if key in exclude or (isinstance(key, str) and key.startswith('_')):
+            data.pop(key)
+
     # Append any extra data
     if extra is not None:
         data.update(extra)
-
-    # Copy keys to list to avoid 'dictionary changed size during iteration' exception
-    for key in list(data):
-        # Private fields shouldn't be logged in the object change
-        if isinstance(key, str) and key.startswith('_'):
-            data.pop(key)
 
     return data
 

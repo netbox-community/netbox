@@ -80,6 +80,17 @@ changes in the database indefinitely.
 
 ---
 
+## CHANGELOG_SKIP_EMPTY_CHANGES
+
+Default: True
+
+If enabled, a change log record will not be created when an object is updated without any changes to its existing field values.
+
+!!! note
+    The object's `last_updated` field will always reflect the time of the most recent update, regardless of this parameter.
+
+---
+
 ## DATA_UPLOAD_MAX_MEMORY_SIZE
 
 Default: `2621440` (2.5 MB)

@@ -135,3 +135,7 @@ class ObjectChange(models.Model):
 
     def get_action_color(self):
         return ObjectChangeActionChoices.colors.get(self.action)
+
+    @property
+    def has_changes(self):
+        return self.prechange_data != self.postchange_data
