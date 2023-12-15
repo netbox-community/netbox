@@ -86,14 +86,12 @@ class CustomValidator:
         if name in m2m_fields:
             if name in instance._m2m_values:
                 return instance._m2m_values[name]
-            elif instance.pk:
-                # TODO: Handle invalid attrs
+            if instance.pk:
                 return list(getattr(instance, name).all())
-            else:
-                return []
+            return []
 
         # Raise a ValidationError for unknown attributes
-        elif not hasattr(instance, name):
+        if not hasattr(instance, name):
             raise ValidationError(_('Invalid attribute "{name}" for {model}').format(
                 name=name,
                 model=instance.__class__.__name__
