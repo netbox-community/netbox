@@ -1,9 +1,10 @@
 # NetBox v3.6
 
-## v3.6.7 (FUTURE)
+## v3.6.7 (2023-12-15)
 
 ### Enhancements
 
+* [#12751](https://github.com/netbox-community/netbox/issues/12751) - Designate fields to expand by default for object selector widget
 * [#14148](https://github.com/netbox-community/netbox/issues/14148) - Add tags column to L2VPN terminations column
 * [#14390](https://github.com/netbox-community/netbox/issues/14390) - Add `classes` parameter to `copy_content` template tag
 * [#14467](https://github.com/netbox-community/netbox/issues/14467) - Change custom field choice delimiter from comma to colon
@@ -21,6 +22,8 @@
 * [#14505](https://github.com/netbox-community/netbox/issues/14505) - Fix the assignment of tags to L2VPN terminations
 * [#14512](https://github.com/netbox-community/netbox/issues/14512) - Remove unneeded annotations from queries when using REST API brief mode
 * [#14515](https://github.com/netbox-community/netbox/issues/14515) - Ensure user config is created automatically for all user accounts
+* [#14522](https://github.com/netbox-community/netbox/issues/14522) - Fix filtering contact assignments by group
+* [#14533](https://github.com/netbox-community/netbox/issues/14533) - Fix quick search under VLAN group VLANs list
 
 ---
 
