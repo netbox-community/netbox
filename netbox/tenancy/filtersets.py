@@ -90,6 +90,19 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
         queryset=Contact.objects.all(),
         label=_('Contact (ID)'),
     )
+    group_id = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='contact__group',
+        lookup_expr='in',
+        label=_('Contact group (ID)'),
+    )
+    group = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='contact__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Contact group (slug)'),
+    )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactRole.objects.all(),
         label=_('Contact role (ID)'),

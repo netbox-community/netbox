@@ -144,11 +144,15 @@ class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMi
         model: The model class associated with the form
         fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
             the rendered form (optional). If not defined, the all fields will be rendered as a single section.
+        selector_fields: An iterable of names of fields to display by default when rendering the form as
+            a selector widget
     """
     q = forms.CharField(
         required=False,
         label=_('Search')
     )
+
+    selector_fields = ('filter_id', 'q')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

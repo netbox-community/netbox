@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -277,7 +279,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
                 )
 
             # Prepare object data for deserialization
-            requested_objects = self.prep_object_data(requested_objects, available_objects, parent)
+            requested_objects = self.prep_object_data(deepcopy(requested_objects), available_objects, parent)
 
             # Initialize the serializer with a list or a single object depending on what was requested
             serializer_class = get_serializer_for_model(self.queryset.model)

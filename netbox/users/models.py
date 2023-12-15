@@ -220,6 +220,7 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
+@receiver(post_save, sender=NetBoxUser)
 def create_userconfig(instance, created, raw=False, **kwargs):
     """
     Automatically create a new UserConfig when a new User is created. Skip this if importing a user from a fixture.

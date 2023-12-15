@@ -264,6 +264,11 @@ export class APISelect {
     switch (this.trigger) {
       case 'collapse':
         if (collapse !== null) {
+          // If the element is collapsible but already shown, load the data immediately.
+          if (collapse.classList.contains('show')) {
+            Promise.all([this.loadData()]);
+          }
+
           // If this element is part of a collapsible element, only load the data when the
           // collapsible element is shown.
           // See: https://getbootstrap.com/docs/5.0/components/collapse/#events

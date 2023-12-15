@@ -296,6 +296,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Device/VM'), ('device_id', 'virtual_machine_id')),
     )
+    selector_fields = ('filter_id', 'q', 'region_id', 'group_id', 'parent', 'status', 'role')
     parent = forms.CharField(
         required=False,
         widget=forms.TextInput(
@@ -448,6 +449,7 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         (_('Attributes'), ('group_id', 'status', 'role_id', 'vid', 'l2vpn_id')),
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
     )
+    selector_fields = ('filter_id', 'q', 'site_id')
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,

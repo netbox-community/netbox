@@ -16,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ConfigContextModel
+from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -994,11 +994,17 @@ class Device(
             bulk_create: If True, bulk_create() will be called to create all components in a single query
                          (default). Otherwise, save() will be called on each instance individually.
         """
+        components = [obj.instantiate(device=self) for obj in queryset]
+        if not components:
+            return
+
+        # Set default values for any applicable custom fields
+        model = queryset.model.component_model
+        if cf_defaults := CustomField.objects.get_defaults_for_model(model):
+            for component in components:
+                component.custom_field_data = cf_defaults
+
         if bulk_create:
-            components = [obj.instantiate(device=self) for obj in queryset]
-            if not components:
-                return
-            model = components[0]._meta.model
             model.objects.bulk_create(components)
             # Manually send the post_save signal for each of the newly created components
             for component in components:
@@ -1011,8 +1017,7 @@ class Device(
                     update_fields=None
                 )
         else:
-            for obj in queryset:
-                component = obj.instantiate(device=self)
+            for component in components:
                 component.save()
 
     def save(self, *args, **kwargs):

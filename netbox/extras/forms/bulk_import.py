@@ -1,3 +1,5 @@
+import re
+
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import ObjectDoesNotExist
@@ -82,7 +84,10 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
     extra_choices = SimpleArrayField(
         base_field=forms.CharField(),
         required=False,
-        help_text=_('Comma-separated list of field choices')
+        help_text=_(
+            'Quoted string of comma-separated field choices with optional labels separated by colon: '
+            '"choice1:First Choice,choice2:Second Choice"'
+        )
     )
 
     class Meta:
@@ -90,6 +95,19 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
         fields = (
             'name', 'description', 'extra_choices', 'order_alphabetically',
         )
+
+    def clean_extra_choices(self):
+        if isinstance(self.cleaned_data['extra_choices'], list):
+            data = []
+            for line in self.cleaned_data['extra_choices']:
+                try:
+                    value, label = re.split(r'(?<!\\):', line, maxsplit=1)
+                    value = value.replace('\\:', ':')
+                    label = label.replace('\\:', ':')
+                except ValueError:
+                    value, label = line, line
+                data.append((value, label))
+            return data
 
 
 class CustomLinkImportForm(CSVModelForm):

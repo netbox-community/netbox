@@ -1,6 +1,7 @@
 {% comment %}
   Include a hidden field of the same name to ensure that unchecked checkboxes
-  are always included in the submitted form data.
+  are always included in the submitted form data. Omit fields names
+  _selected_action to avoid breaking the admin UI.
 {% endcomment %}
-<input type="hidden" name="{{ widget.name }}" value="">
+{% if widget.name != '_selected_action' %}<input type="hidden" name="{{ widget.name }}" value="">{% endif %}
 {% include "django/forms/widgets/input.html" %}

@@ -1,6 +1,33 @@
 # NetBox v3.6
 
-## v3.6.7 (FUTURE)
+## v3.6.8 (FUTURE)
+
+---
+
+## v3.6.7 (2023-12-15)
+
+### Enhancements
+
+* [#12751](https://github.com/netbox-community/netbox/issues/12751) - Designate fields to expand by default for object selector widget
+* [#14148](https://github.com/netbox-community/netbox/issues/14148) - Add tags column to L2VPN terminations column
+* [#14390](https://github.com/netbox-community/netbox/issues/14390) - Add `classes` parameter to `copy_content` template tag
+* [#14467](https://github.com/netbox-community/netbox/issues/14467) - Change custom field choice delimiter from comma to colon
+
+### Bug Fixes
+
+* [#13983](https://github.com/netbox-community/netbox/issues/13983) - Fix bulk import support for custom field choices
+* [#14081](https://github.com/netbox-community/netbox/issues/14081) - Ensure accuracy of parent object counters when deleting related objects
+* [#14249](https://github.com/netbox-community/netbox/issues/14249) - Fix server error when authenticating via IP-restricted API tokens using IPv6
+* [#14392](https://github.com/netbox-community/netbox/issues/14392) - Fix bulk operations for plugin models under admin UI
+* [#14397](https://github.com/netbox-community/netbox/issues/14397) - Fix exception on non-JSON request to `/available-ips/` API endpoints
+* [#14401](https://github.com/netbox-community/netbox/issues/14401) - Rack `starting_unit` cannot be zero
+* [#14432](https://github.com/netbox-community/netbox/issues/14432) - Populate custom field default values for components when creating a device
+* [#14448](https://github.com/netbox-community/netbox/issues/14448) - Fix exception when creating a power feed with rack and panel in different sites
+* [#14505](https://github.com/netbox-community/netbox/issues/14505) - Fix the assignment of tags to L2VPN terminations
+* [#14512](https://github.com/netbox-community/netbox/issues/14512) - Remove unneeded annotations from queries when using REST API brief mode
+* [#14515](https://github.com/netbox-community/netbox/issues/14515) - Ensure user config is created automatically for all user accounts
+* [#14522](https://github.com/netbox-community/netbox/issues/14522) - Fix filtering contact assignments by group
+* [#14533](https://github.com/netbox-community/netbox/issues/14533) - Fix quick search under VLAN group VLANs list
 
 ---
 

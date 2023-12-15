@@ -10,7 +10,6 @@ To enable remote data synchronization, the NetBox administrator first designates
 
 (Local disk paths are considered "remote" in this context as they exist outside NetBox's database. These paths could also be mapped to external network shares.)
 
-
 !!! info
     Data backends which connect to external sources typically require the installation of one or more supporting Python libraries. The Git backend requires the [`dulwich`](https://www.dulwich.io/) package, and the S3 backend requires the [`boto3`](https://boto3.amazonaws.com/v1/documentation/api/latest/index.html) package. These must be installed within NetBox's environment to enable these backends.
 
@@ -23,3 +22,6 @@ The following NetBox models can be associated with replicated data files:
 * Export templates
 
 Once a data has been designated for a local instance, its data will be replaced with the content of the replicated file. When the replicated file is updated in the future (via synchronization jobs), the local instance will be flagged as having out-of-date data. A user can then synchronize these objects individually or in bulk to effect the update. This two-stage process ensures that automated synchronization tasks do not immediately affect production data.
+
+!!! note "Permissions"
+    A user must be assigned the `core.sync_datasource` permission in order to synchronize local files from a remote data source.

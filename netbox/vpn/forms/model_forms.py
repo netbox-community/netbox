@@ -441,7 +441,7 @@ class L2VPNTerminationForm(NetBoxModelForm):
 
     class Meta:
         model = L2VPNTermination
-        fields = ('l2vpn', )
+        fields = ('l2vpn', 'tags')
 
     def __init__(self, *args, **kwargs):
         instance = kwargs.get('instance')
