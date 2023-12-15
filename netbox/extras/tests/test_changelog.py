@@ -210,7 +210,8 @@ class ChangeLogViewTest(ModelViewTestCase):
 
     @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=False)
     def test_update_object_change(self):
-        site = Site(
+        # Create a Site
+        site = Site.objects.create(
             name='Site 1',
             slug='site-1',
             status=SiteStatusChoices.STATUS_PLANNED,
@@ -219,15 +220,13 @@ class ChangeLogViewTest(ModelViewTestCase):
                 'cf2': None
             }
         )
-        site.save()
 
+        # Update it with the same field values
         form_data = {
             'name': site.name,
             'slug': site.slug,
             'status': SiteStatusChoices.STATUS_PLANNED,
         }
-
-        oc_count = ObjectChange.objects.count()
         request = {
             'path': self._get_url('edit', instance=site),
             'data': post_data(form_data),
@@ -235,11 +234,14 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.add_permissions('dcim.change_site', 'extras.view_tag')
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
-        self.assertNotEqual(oc_count, ObjectChange.objects.count())
+
+        # Check that an ObjectChange record has been created
+        self.assertEqual(ObjectChange.objects.count(), 1)
 
     @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
     def test_update_object_nochange(self):
-        site = Site(
+        # Create a Site
+        site = Site.objects.create(
             name='Site 1',
             slug='site-1',
             status=SiteStatusChoices.STATUS_PLANNED,
@@ -248,15 +250,13 @@ class ChangeLogViewTest(ModelViewTestCase):
                 'cf2': None
             }
         )
-        site.save()
 
+        # Update it with the same field values
         form_data = {
             'name': site.name,
             'slug': site.slug,
             'status': SiteStatusChoices.STATUS_PLANNED,
         }
-
-        oc_count = ObjectChange.objects.count()
         request = {
             'path': self._get_url('edit', instance=site),
             'data': post_data(form_data),
@@ -264,7 +264,9 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.add_permissions('dcim.change_site', 'extras.view_tag')
         response = self.client.post(**request)
         self.assertHttpStatus(response, 302)
-        self.assertEqual(oc_count, ObjectChange.objects.count())
+
+        # Check that no ObjectChange records have been created
+        self.assertEqual(ObjectChange.objects.count(), 0)
 
 
 class ChangeLogAPITest(APITestCase):

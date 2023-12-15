@@ -84,10 +84,10 @@ changes in the database indefinitely.
 
 Default: True
 
-Enables skipping the creation of logged changes on updates if there were no modifications to the object.
+If enabled, a change log record will not be created when an object is updated without any changes to its existing field values.
 
 !!! note
-    As a side-effect of turning this on, the `last_updated` field will not be included in the change log record.
+    The object's `last_updated` field will always reflect the time of the most recent update, regardless of this parameter.
 
 ---
 
