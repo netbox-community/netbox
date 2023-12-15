@@ -65,9 +65,11 @@ Plugins can now [register their own data backends](../plugins/development/data-b
 * [#13794](https://github.com/netbox-community/netbox/issues/13794) - Any models with a relationship to Tenant are now included automatically in the list of related objects under the tenant view
 * [#13808](https://github.com/netbox-community/netbox/issues/13808) - Added a `/render-config` REST API endpoint for virtual machines
 * [#14035](https://github.com/netbox-community/netbox/issues/14035) - Order objects of equivalent weight by value in global search results to improve readability
+* [#14147](https://github.com/netbox-community/netbox/issues/14147) - Avoid recording empty changelog entries (and introduce `CHANGELOG_SKIP_EMPTY_CHANGES` config parameter)
 * [#14156](https://github.com/netbox-community/netbox/issues/14156) - Enable custom fields for contact assignments
 * [#14361](https://github.com/netbox-community/netbox/issues/14361) - Add a `description` field for webhooks
 * [#14365](https://github.com/netbox-community/netbox/issues/14365) - Introduced `job_start` and `job_end` signals
+* [#14436](https://github.com/netbox-community/netbox/issues/14436) - Add PostgreSQL indexes for all GenericForeignKey fields
 
 ### Other Changes
 
@@ -79,6 +81,8 @@ Plugins can now [register their own data backends](../plugins/development/data-b
 * [#14312](https://github.com/netbox-community/netbox/issues/14312) - Move the ConfigRevision model from the `extras` app to `core`
 * [#14326](https://github.com/netbox-community/netbox/issues/14326) - Form feature mixin classes have been moved from the `extras` app to `netbox`
 * [#14395](https://github.com/netbox-community/netbox/issues/14395) - Moved `extras.webhooks_worker.process_webhook()` to `extras.webhooks.send_webhook()` (backward compatibility has been retained)
+* [#14424](https://github.com/netbox-community/netbox/issues/14424) - Remove change logging functionality from StagedChange
+* [#14458](https://github.com/netbox-community/netbox/issues/14458) - Remove the obsolete `clearcache` management command
 
 ### REST API Changes
 
