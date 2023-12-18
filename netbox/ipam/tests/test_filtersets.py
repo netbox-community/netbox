@@ -1359,6 +1359,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLANGroup(name='VLAN Group 1', slug='vlan-group-1'),
             VLANGroup(name='VLAN Group 2', slug='vlan-group-2'),
             VLANGroup(name='VLAN Group 3', slug='vlan-group-3'),
+            VLANGroup(name='VLAN Group 4', slug='vlan-group-4'),
         )
         VLANGroup.objects.bulk_create(groups)
 
@@ -1416,7 +1417,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLAN(vid=302, name='VLAN 302', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
 
             # Create one globally available VLAN on a VLAN group
-            VLAN(vid=500, name='VLAN Group 1', group=groups[21]),
+            VLAN(vid=500, name='VLAN Group 1', group=groups[24]),
 
             # Create one globally available VLAN
             VLAN(vid=1000, name='Global VLAN'),
@@ -1491,12 +1492,12 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
     def test_available_on_device(self):
         device_id = Device.objects.first().pk
         params = {'available_on_device': device_id}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)  # 5 scoped + 1 global group + 1 global
 
     def test_available_on_virtualmachine(self):
         vm_id = VirtualMachine.objects.first().pk
         params = {'available_on_virtualmachine': vm_id}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)  # 5 scoped + 1 global group + 1 global
 
     def test_available_at_site(self):
         site_id = Site.objects.first().pk
