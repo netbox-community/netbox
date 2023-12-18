@@ -1415,6 +1415,9 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
             VLAN(vid=301, name='VLAN 301', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
             VLAN(vid=302, name='VLAN 302', site=sites[5], group=groups[23], role=roles[2], tenant=tenants[2], status=VLANStatusChoices.STATUS_RESERVED),
 
+            # Create one globally available VLAN on a VLAN group
+            VLAN(vid=500, name='VLAN Group 1', group=groups[21]),
+
             # Create one globally available VLAN
             VLAN(vid=1000, name='Global VLAN'),
         )
@@ -1494,6 +1497,11 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         vm_id = VirtualMachine.objects.first().pk
         params = {'available_on_virtualmachine': vm_id}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)  # 5 scoped + 1 global
+
+    def test_available_at_site(self):
+        site_id = Site.objects.first().pk
+        params = {'available_at_site': site_id}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 5)  # 4 scoped + 1 global group + 1 global
 
 
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
