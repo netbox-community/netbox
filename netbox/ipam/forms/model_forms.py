@@ -375,7 +375,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             if prev_parent.primary_ip4 == self.instance or prev_parent.primary_ip6 == self.instance:
                 self.add_error(
                     selected_objects[0],
-                    _("Cannot reassign IP address while it is designated as the primary ip for the parent object")
+                    _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
                 )
 
         # Do not allow assigning a network ID or broadcast address to an interface.
