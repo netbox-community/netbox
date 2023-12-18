@@ -341,19 +341,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.fields['vminterface'].disabled = True
             self.fields['fhrpgroup'].disabled = True
 
-    # Correctly assigned assigned_object if the error exists when validating this form.
-    def add_error(self, field, errors):
-        if isinstance(errors, ValidationError) and hasattr(errors, 'error_dict') and \
-                errors.error_dict.get('assigned_object', None):
-            error = errors.error_dict.pop('assigned_object')
-            if isinstance(self.instance.assigned_object, Interface):
-                errors.error_dict.update({'interface': error})
-            elif isinstance(self.instance.assigned_object, VMInterface):
-                errors.error_dict.update({'vminterface': error})
-            elif isinstance(self.instance.assigned_object, FHRPGroup):
-                errors.error_dict.update({'fhrpgroup': error})
-        super().add_error(field, errors)
-
     def clean(self):
         super().clean()
 
@@ -381,6 +368,15 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             self.add_error(
                 'primary_for_parent', _("Only IP addresses assigned to an interface can be designated as primary IPs.")
             )
+
+        prev_interface = self.instance.interface.first() or self.instance.vminterface.first()
+        prev_parent = prev_interface.device or prev_interface.virtual_machine
+        if prev_interface and prev_parent and prev_interface != interface:
+            if prev_parent.primary_ip4 == self.instance or prev_parent.primary_ip6 == self.instance:
+                self.add_error(
+                    selected_objects[0],
+                    _("Cannot reassign IP address while it is designated as the primary ip for the parent object")
+                )
 
         # Do not allow assigning a network ID or broadcast address to an interface.
         if interface and (address := self.cleaned_data.get('address')):
