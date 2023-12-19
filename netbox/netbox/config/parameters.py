@@ -66,7 +66,7 @@ PARAMS = (
     ConfigParam(
         name='ENFORCE_GLOBAL_UNIQUE',
         label=_('Globally unique IP space'),
-        default=False,
+        default=True,
         description=_("Enforce unique IP addressing within the global table"),
         field=forms.BooleanField
     ),

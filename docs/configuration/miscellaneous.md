@@ -103,9 +103,12 @@ The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` da
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: False
+Default: True
 
-By default, NetBox will permit users to create duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This behavior can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to True.
+By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to False.
+
+!!! info "Changed in v3.7"
+    The default value for this parameter was changed from False to True in NetBox v3.7.
 
 ---
 
