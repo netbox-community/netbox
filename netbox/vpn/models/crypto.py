@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -34,7 +35,8 @@ class IKEProposal(PrimaryModel):
     )
     authentication_algorithm = models.CharField(
         verbose_name=_('authentication algorithm'),
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        blank=True
     )
     group = models.PositiveSmallIntegerField(
         verbose_name=_('group'),
@@ -120,11 +122,13 @@ class IPSecProposal(PrimaryModel):
     )
     encryption_algorithm = models.CharField(
         verbose_name=_('encryption'),
-        choices=EncryptionAlgorithmChoices
+        choices=EncryptionAlgorithmChoices,
+        blank=True
     )
     authentication_algorithm = models.CharField(
         verbose_name=_('authentication'),
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        blank=True
     )
     sa_lifetime_seconds = models.PositiveIntegerField(
         verbose_name=_('SA lifetime (seconds)'),
@@ -153,6 +157,13 @@ class IPSecProposal(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('vpn:ipsecproposal', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Encryption and/or authentication algorithm must be defined
+        if not self.encryption_algorithm and not self.authentication_algorithm:
+            raise ValidationError(_("Encryption and/or authentication algorithm must be defined"))
 
 
 class IPSecPolicy(PrimaryModel):

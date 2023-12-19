@@ -28,7 +28,7 @@ The protocol employed for data encryption. Options include DES, 3DES, and variou
 
 ### Authentication Algorithm
 
-The mechanism employed to ensure data integrity. Options include MD5 and SHA HMAC implementations.
+The mechanism employed to ensure data integrity. Options include MD5 and SHA HMAC implementations. Specifying an authentication algorithm is optional, as some encryption algorithms (e.g. AES-GCM) provide authentication natively.
 
 ### Group
 
