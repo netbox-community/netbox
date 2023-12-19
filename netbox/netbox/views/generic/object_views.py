@@ -204,6 +204,9 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         """
         return {}
 
+    def get_initial_data(self, request):
+        return normalize_querydict(request.GET)
+
     #
     # Request handlers
     #
@@ -219,7 +222,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         obj = self.alter_object(obj, request, args, kwargs)
         model = self.queryset.model
 
-        initial_data = normalize_querydict(request.GET)
+        initial_data = self.get_initial_data(request)
+
         form = self.form(instance=obj, initial=initial_data)
         restrict_form_fields(form, request.user)
 

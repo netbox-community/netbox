@@ -416,6 +416,16 @@ class EventRuleEditView(generic.ObjectEditView):
     queryset = EventRule.objects.all()
     form = forms.EventRuleForm
 
+    def get_initial_data(self, request):
+        initial_data = normalize_querydict(request.GET)
+
+        if is_htmx(request):
+            initial_data['action_object_type'] = None
+            initial_data['action_object_id'] = None
+            initial_data['action_parameters'] = None
+
+        return initial_data
+
 
 @register_model_view(EventRule, 'delete')
 class EventRuleDeleteView(generic.ObjectDeleteView):

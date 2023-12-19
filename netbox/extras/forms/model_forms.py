@@ -308,9 +308,10 @@ class EventRuleForm(NetBoxModelForm):
         self.fields['action_choice'].choices = choices
 
         if self.instance.pk:
-            scriptmodule_id = self.instance.action_object_id
-            if self.instance.action_parameters:
-                script_name = self.instance.action_parameters.get('script_name')
+            scriptmodule_id = get_field_value(self, 'action_object_id')
+            action_parameters = get_field_value(self, 'action_parameters')
+            if action_parameters and scriptmodule_id:
+                script_name = action_parameters.get('script_name')
                 self.fields['action_choice'].initial = f'{scriptmodule_id}:{script_name}'
             else:
                 self.fields['action_choice'].inital = None
