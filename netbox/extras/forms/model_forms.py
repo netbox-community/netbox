@@ -307,11 +307,10 @@ class EventRuleForm(NetBoxModelForm):
                 choices.append((str(module), scripts))
         self.fields['action_choice'].choices = choices
 
-        if self.instance.pk:
+        if self.instance.pk and self.instance.action_parameters:
             scriptmodule_id = self.instance.action_object_id
             script_name = self.instance.action_parameters.get('script_name')
             self.fields['action_choice'].initial = f'{scriptmodule_id}:{script_name}'
-        print(self.fields['action_choice'].initial)
 
     def init_webhook_choice(self):
         initial = None
