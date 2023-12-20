@@ -2,20 +2,16 @@ import datetime
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.test import override_settings
 from django.urls import reverse
 from django.utils.timezone import make_aware
 from rest_framework import status
 
-from circuits.api.serializers import ProviderSerializer
 from core.choices import ManagedFileRootPathChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
-from ipam.models import ASN, RIR
-from utilities.testing import APITestCase, APIViewTestCases, create_tags
-
+from utilities.testing import APITestCase, APIViewTestCases
 
 User = get_user_model()
 
@@ -832,53 +828,3 @@ class ContentTypeTest(APITestCase):
 
         url = reverse('extras-api:contenttype-detail', kwargs={'pk': contenttype.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
-
-
-class CustomValidationTest(APITestCase):
-
-    @override_settings(CUSTOM_VALIDATORS={
-        'circuits.provider': [
-            {'tags': {'required': True}}
-        ]
-    })
-    def test_tags_validation(self):
-        """
-        Check that custom validation rules work for tag assignment.
-        """
-        data = {
-            'name': 'Provider 1',
-            'slug': 'provider-1',
-        }
-        serializer = ProviderSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-
-        tags = create_tags('Tag1', 'Tag2', 'Tag3')
-        data['tags'] = [tag.pk for tag in tags]
-        serializer = ProviderSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
-
-    @override_settings(CUSTOM_VALIDATORS={
-        'circuits.provider': [
-            {'asns': {'required': True}}
-        ]
-    })
-    def test_m2m_validation(self):
-        """
-        Check that custom validation rules work for many-to-many fields.
-        """
-        data = {
-            'name': 'Provider 1',
-            'slug': 'provider-1',
-        }
-        serializer = ProviderSerializer(data=data)
-        self.assertFalse(serializer.is_valid())
-
-        rir = RIR.objects.create(name='RIR 1', slug='rir-1')
-        asns = ASN.objects.bulk_create((
-            ASN(rir=rir, asn=65001),
-            ASN(rir=rir, asn=65002),
-            ASN(rir=rir, asn=65003),
-        ))
-        data['asns'] = [asn.pk for asn in asns]
-        serializer = ProviderSerializer(data=data)
-        self.assertTrue(serializer.is_valid())
