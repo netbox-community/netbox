@@ -13,6 +13,7 @@ from django.shortcuts import render, resolve_url
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.http import url_has_allowed_host_and_scheme, urlencode
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.debug import sensitive_post_parameters
 from django.views.generic import View
 from social_core.backends.utils import load_backends
@@ -193,8 +194,16 @@ class UserConfigView(LoginRequiredMixin, View):
         if form.is_valid():
             form.save()
 
-            messages.success(request, "Your preferences have been updated.")
-            return redirect('account:preferences')
+            messages.success(request, _("Your preferences have been updated."))
+            response = redirect('account:preferences')
+
+            # Set/clear language cookie
+            if language := form.cleaned_data['locale.language']:
+                response.set_cookie(settings.LANGUAGE_COOKIE_NAME, language)
+            else:
+                response.delete_cookie(settings.LANGUAGE_COOKIE_NAME)
+
+            return response
 
         return render(request, self.template_name, {
             'form': form,

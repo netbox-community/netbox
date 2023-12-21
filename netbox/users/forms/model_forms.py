@@ -56,6 +56,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         (_('User Interface'), (
+            'locale.language',
             'pagination.per_page',
             'pagination.placement',
             'ui.colormode',
