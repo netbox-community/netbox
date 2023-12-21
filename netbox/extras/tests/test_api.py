@@ -13,6 +13,7 @@ from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
+
 User = get_user_model()
 
 

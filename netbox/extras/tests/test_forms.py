@@ -5,7 +5,7 @@ from dcim.forms import SiteForm
 from dcim.models import Site
 from extras.choices import CustomFieldTypeChoices
 from extras.forms import SavedFilterForm
-from extras.models import *
+from extras.models import CustomField, CustomFieldChoiceSet
 
 
 class CustomFieldModelFormTest(TestCase):

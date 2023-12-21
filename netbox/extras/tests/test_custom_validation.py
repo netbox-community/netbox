@@ -87,20 +87,18 @@ class BulkEditCustomValidationTest(ModelViewTestCase):
             {'asns': {'required': True}}
         ]
     })
-    def test_m2m_validation(self):
+    def test_bulk_edit_without_m2m(self):
         """
-        Check that custom validation rules work for many-to-many fields.
+        Check that custom validation rules do not interfere with bulk editing.
         """
-        providers = Provider.objects.all()
         data = {
-            'pk': [provider.pk for provider in providers],
+            'pk': list(Provider.objects.values_list('pk', flat=True)),
             '_apply': '',
             'description': 'New description',
         }
         self.add_permissions(
             'circuits.view_provider',
             'circuits.change_provider',
-            'ipam.view_asn',
         )
 
         # Bulk edit the description without changing ASN assignments
@@ -112,7 +110,27 @@ class BulkEditCustomValidationTest(ModelViewTestCase):
         self.assertHttpStatus(response, 302)
         self.assertEqual(
             Provider.objects.filter(description=data['description']).count(),
-            len(providers)
+            len(data['pk'])
+        )
+
+    @override_settings(CUSTOM_VALIDATORS={
+        'circuits.provider': [
+            {'asns': {'required': True}}
+        ]
+    })
+    def test_bulk_edit_m2m(self):
+        """
+        Test that custom validation rules are enforced during bulk editing.
+        """
+        data = {
+            'pk': list(Provider.objects.values_list('pk', flat=True)),
+            '_apply': '',
+            'description': 'New description',
+        }
+        self.add_permissions(
+            'circuits.view_provider',
+            'circuits.change_provider',
+            'ipam.view_asn',
         )
 
         # Change the ASN assignments
