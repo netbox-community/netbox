@@ -315,7 +315,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         text = clean_html(text, allowed_schemes)
 
         # Sanitize link
-        link = urllib.parse.quote(link, safe='/:?&=%+[]@#,;')
+        link = urllib.parse.quote(link, safe='/:?&=%+[]@#,;!')
 
         # Verify link scheme is allowed
         result = urllib.parse.urlparse(link)
