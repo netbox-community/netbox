@@ -171,6 +171,7 @@ SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
+SWAGGER_PUBLIC = getattr(configuration, 'SWAGGER_PUBLIC', True),
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
@@ -653,7 +654,7 @@ SPECTACULAR_SETTINGS = {
     'VERSION': VERSION,
     'COMPONENT_SPLIT_REQUEST': True,
     'REDOC_DIST': 'SIDECAR',
-    'SERVE_PUBLIC': getattr(configuration, 'PUBLIC_SWAGGER', True),
+    'SERVE_PUBLIC': SWAGGER_PUBLIC,
     'SERVERS': [{
         'url': BASE_PATH,
         'description': 'NetBox',

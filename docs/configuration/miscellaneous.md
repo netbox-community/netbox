@@ -180,14 +180,6 @@ When determining the primary IP address for a device, IPv6 is preferred over IPv
 
 ---
 
-## PUBLIC_SWAGGER
-
-Default: True
-
-Swagger exposes by default the schemas to unauthenticated users. Set this to False to only expose them to authenticated users.
-
----
-
 ## QUEUE_MAPPINGS
 
 Allows changing which queues are used internally for background tasks.
@@ -242,3 +234,11 @@ This parameter controls how frequently a failed job is retried, up to the maximu
 Default: `0` (retries disabled)
 
 The maximum number of times a background task will be retried before being marked as failed.
+
+---
+
+## SWAGGER_PUBLIC
+
+Default: True
+
+The [REST API](../integrations/rest-api.md) interactive documentation (Swagger) exposes the schemas by default to unauthenticated users. As this UI is ressource intensive, it can be preferable to only expose the schemas to authenticated users, by setting this variable to False. Especially for public instances.
