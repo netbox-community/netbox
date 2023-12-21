@@ -22,7 +22,7 @@ class ConsolePortIndex(SearchIndex):
         ('description', 500),
         ('speed', 2000),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search
@@ -34,7 +34,7 @@ class ConsoleServerPortIndex(SearchIndex):
         ('description', 500),
         ('speed', 2000),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search
@@ -48,7 +48,8 @@ class DeviceIndex(SearchIndex):
         ('comments', 5000),
     )
     display_attrs = (
-        'site', 'location', 'rack', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag', 'description',
+        'site', 'location', 'rack', 'status', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag',
+        'description',
     )
 
 
@@ -94,7 +95,7 @@ class FrontPortIndex(SearchIndex):
         ('label', 200),
         ('description', 500),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search
@@ -109,7 +110,7 @@ class InterfaceIndex(SearchIndex):
         ('mtu', 2000),
         ('speed', 2000),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'mac_address', 'wwn', 'description')
 
 
 @register_search
@@ -123,7 +124,7 @@ class InventoryItemIndex(SearchIndex):
         ('description', 500),
         ('part_id', 2000),
     )
-    display_attrs = ('device', 'manufacturer', 'part_id', 'serial', 'asset_tag', 'description')
+    display_attrs = ('device', 'manufacturer', 'parent', 'part_id', 'serial', 'asset_tag', 'description')
 
 
 @register_search
@@ -213,7 +214,7 @@ class PowerOutletIndex(SearchIndex):
         ('label', 200),
         ('description', 500),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search
@@ -237,7 +238,7 @@ class PowerPortIndex(SearchIndex):
         ('maximum_draw', 2000),
         ('allocated_draw', 2000),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search
@@ -251,7 +252,9 @@ class RackIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('site', 'location', 'facility_id', 'tenant', 'status', 'role', 'description')
+    display_attrs = (
+        'site', 'location', 'facility_id', 'tenant', 'status', 'role', 'serial', 'asset_tag', 'description',
+    )
 
 
 @register_search
@@ -272,7 +275,7 @@ class RackRoleIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
-    display_attrs = ('device', 'label', 'description',)
+    display_attrs = ('description',)
 
 
 @register_search
@@ -283,7 +286,7 @@ class RearPortIndex(SearchIndex):
         ('label', 200),
         ('description', 500),
     )
-    display_attrs = ('device', 'label', 'description')
+    display_attrs = ('device', 'label', 'type', 'description')
 
 
 @register_search
@@ -309,7 +312,7 @@ class SiteIndex(SearchIndex):
         ('shipping_address', 2000),
         ('comments', 5000),
     )
-    display_attrs = ('region', 'group', 'status', 'description')
+    display_attrs = ('region', 'group', 'status', 'tenant', 'facility', 'description')
 
 
 @register_search
@@ -344,4 +347,4 @@ class VirtualDeviceContextIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('device', 'status', 'identifier', 'description')
+    display_attrs = ('device', 'status', 'identifier', 'tenant', 'description')

@@ -9,6 +9,7 @@ class JournalEntryIndex(SearchIndex):
         ('comments', 5000),
     )
     category = 'Journal'
+    display_attrs = ('kind', 'created_by')
 
 
 @register_search
@@ -18,3 +19,4 @@ class WebhookEntryIndex(SearchIndex):
         ('name', 100),
         ('description', 500),
     )
+    display_attrs = ('description',)

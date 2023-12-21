@@ -11,7 +11,7 @@ class TunnelIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
-    display_attrs = ('status', 'encapsulation', 'tenant', 'description')
+    display_attrs = ('group', 'status', 'encapsulation', 'tenant', 'tunnel_id', 'description')
 
 
 @register_search

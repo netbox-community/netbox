@@ -20,3 +20,4 @@ class DataFileIndex(SearchIndex):
     fields = (
         ('path', 200),
     )
+    display_attrs = ('source',)
