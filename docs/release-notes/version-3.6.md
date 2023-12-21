@@ -2,6 +2,17 @@
 
 ## v3.6.8 (FUTURE)
 
+### Enhancements
+
+* [#14507](https://github.com/netbox-community/netbox/issues/14507) - Print new NetBox version when running upgrade script
+* [#14538](https://github.com/netbox-community/netbox/issues/14538) - Add the `available_at_site` filter for VLANs
+
+### Bug Fixes
+
+* [#14549](https://github.com/netbox-community/netbox/issues/14549) - Fix association of job results when executing scripts via `runscript` management command
+* [#14560](https://github.com/netbox-community/netbox/issues/14560) - Do not escape exclamation marks in custom link URLs
+* [#14575](https://github.com/netbox-community/netbox/issues/14575) - Fix display of the tags column under VDC table
+
 ---
 
 ## v3.6.7 (2023-12-15)
