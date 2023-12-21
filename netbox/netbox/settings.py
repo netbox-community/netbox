@@ -13,6 +13,7 @@ from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_str
+from django.utils.translation import gettext_lazy as _
 try:
     import sentry_sdk
 except ModuleNotFoundError:
@@ -720,6 +721,14 @@ RQ_QUEUES.update({
 #
 # Localization
 #
+
+LANGUAGES = (
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('fr', _('French')),
+    ('pt', _('Portuguese')),
+    ('ru', _('Russian')),
+)
 
 LOCALE_PATHS = (
     BASE_DIR + '/translations',
