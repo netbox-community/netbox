@@ -2,10 +2,10 @@ from django.test import TestCase
 from django.test import override_settings
 
 from circuits.api.serializers import ProviderSerializer
-from circuits.forms import ProviderForm, ProviderImportForm
+from circuits.forms import ProviderForm
 from circuits.models import Provider
-from extras.models import Tag
 from ipam.models import ASN, RIR
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import APITestCase, ModelViewTestCase, create_tags, post_data
 
 
@@ -70,7 +70,6 @@ class BulkEditCustomValidationTest(ModelViewTestCase):
             ASN(rir=rir, asn=65002),
             ASN(rir=rir, asn=65003),
         ))
-        tags = create_tags('Tag1', 'Tag2', 'Tag3')
 
         providers = (
             Provider(name='Provider 1', slug='provider-1'),
@@ -80,7 +79,6 @@ class BulkEditCustomValidationTest(ModelViewTestCase):
         Provider.objects.bulk_create(providers)
         for provider in providers:
             provider.asns.set(asns)
-            provider.tags.set(tags)
 
     @override_settings(CUSTOM_VALIDATORS={
         'circuits.provider': [
@@ -156,6 +154,65 @@ class BulkEditCustomValidationTest(ModelViewTestCase):
         self.assertHttpStatus(response, 200)
         for provider in Provider.objects.all():
             self.assertTrue(provider.asns.exists())
+
+
+class BulkImportCustomValidationTest(ModelViewTestCase):
+    model = Provider
+
+    @classmethod
+    def setUpTestData(cls):
+        create_tags('Tag1', 'Tag2', 'Tag3')
+
+    @override_settings(CUSTOM_VALIDATORS={
+        'circuits.provider': [
+            {'tags': {'required': True}}
+        ]
+    })
+    def test_bulk_import_invalid(self):
+        """
+        Test that custom validation rules are enforced during bulk import.
+        """
+        csv_data = (
+            "name,slug",
+            "Provider 1,provider-1",
+            "Provider 2,provider-2",
+            "Provider 3,provider-3",
+        )
+        data = {
+            'data': '\n'.join(csv_data),
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.COMMA,
+        }
+        self.add_permissions(
+            'circuits.view_provider',
+            'circuits.add_provider',
+            'extras.view_tag',
+        )
+
+        # Attempt to import providers without tags
+        request = {
+            'path': self._get_url('import'),
+            'data': post_data(data),
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 200)
+        self.assertFalse(Provider.objects.exists())
+
+        # Import providers successfully with tag assignments
+        csv_data = (
+            "name,slug,tags",
+            "Provider 1,provider-1,tag1",
+            "Provider 2,provider-2,tag2",
+            "Provider 3,provider-3,tag3",
+        )
+        data['data'] = '\n'.join(csv_data)
+        request = {
+            'path': self._get_url('import'),
+            'data': post_data(data),
+        }
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+        self.assertTrue(Provider.objects.exists())
 
 
 class APISerializerCustomValidationTest(APITestCase):
