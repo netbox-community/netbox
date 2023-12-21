@@ -55,7 +55,7 @@ class VMInterfaceIndex(SearchIndex):
         ('description', 500),
         ('mtu', 2000),
     )
-    display_attrs = ('virtual_machine', 'description')
+    display_attrs = ('virtual_machine', 'mac_address', 'description')
 
 
 @register_search
@@ -65,4 +65,4 @@ class VirtualDiskIndex(SearchIndex):
         ('name', 100),
         ('description', 500),
     )
-    display_attrs = ('virtual_machine', 'description')
+    display_attrs = ('virtual_machine', 'size', 'description')
