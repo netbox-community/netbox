@@ -214,7 +214,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True,
         query_params={
-            'site_id': '$site',
+            'available_at_site': '$site',
         },
         label=_('VLAN'),
     )
