@@ -370,9 +370,12 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             )
 
         prev_interface = self.instance.interface.first() or self.instance.vminterface.first()
-        prev_parent = prev_interface.device or prev_interface.virtual_machine
-        if prev_interface and prev_parent and prev_interface != interface:
-            if prev_parent.primary_ip4 == self.instance or prev_parent.primary_ip6 == self.instance:
+        # If the prev interface exists and does not match the new interface, we need to validate it isn't set as primary
+        # for the parent
+        if prev_interface and prev_interface != interface:
+            prev_parent = prev_interface.device or prev_interface.virtual_machine
+            # Check that the parent exists and if it is set as a primary ip.
+            if prev_parent and prev_parent.primary_ip4 == self.instance or prev_parent.primary_ip6 == self.instance:
                 self.add_error(
                     selected_objects[0],
                     _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
