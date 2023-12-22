@@ -1,5 +1,6 @@
-from django.core.exceptions import ValidationError
 from django.core import validators
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 # NOTE: As this module may be imported by configuration.py, we cannot import
 # anything from NetBox itself.
@@ -66,8 +67,7 @@ class CustomValidator:
     def __call__(self, instance):
         # Validate instance attributes per validation rules
         for attr_name, rules in self.validation_rules.items():
-            assert hasattr(instance, attr_name), f"Invalid attribute '{attr_name}' for {instance.__class__.__name__}"
-            attr = getattr(instance, attr_name)
+            attr = self._getattr(instance, attr_name)
             for descriptor, value in rules.items():
                 validator = self.get_validator(descriptor, value)
                 try:
@@ -78,6 +78,26 @@ class CustomValidator:
 
         # Execute custom validation logic (if any)
         self.validate(instance)
+
+    @staticmethod
+    def _getattr(instance, name):
+        # Attempt to resolve many-to-many fields to their stored values
+        m2m_fields = [f.name for f in instance._meta.local_many_to_many]
+        if name in m2m_fields:
+            if name in getattr(instance, '_m2m_values', []):
+                return instance._m2m_values[name]
+            if instance.pk:
+                return list(getattr(instance, name).all())
+            return []
+
+        # Raise a ValidationError for unknown attributes
+        if not hasattr(instance, name):
+            raise ValidationError(_('Invalid attribute "{name}" for {model}').format(
+                name=name,
+                model=instance.__class__.__name__
+            ))
+
+        return getattr(instance, name)
 
     def get_validator(self, descriptor, value):
         """
