@@ -84,7 +84,7 @@ class CustomValidator:
         # Attempt to resolve many-to-many fields to their stored values
         m2m_fields = [f.name for f in instance._meta.local_many_to_many]
         if name in m2m_fields:
-            if name in instance._m2m_values:
+            if name in getattr(instance, '_m2m_values', []):
                 return instance._m2m_values[name]
             if instance.pk:
                 return list(getattr(instance, name).all())

@@ -23,9 +23,9 @@ class ValidatedModelSerializer(BaseModelSerializer):
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
     """
     def validate(self, data):
-
-        # Remove custom fields data (if any) prior to model validation
         attrs = data.copy()
+
+        # Remove custom field data (if any) prior to model validation
         attrs.pop('custom_fields', None)
 
         # Skip ManyToManyFields
