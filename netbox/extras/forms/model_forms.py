@@ -269,8 +269,7 @@ class EventRuleForm(NetBoxModelForm):
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
         (_('Action'), (
-            'action_type', 'action_choice', 'action_parameters', 'action_object_type', 'action_object_id',
-            'action_data',
+            'action_type', 'action_choice', 'action_object_type', 'action_object_id', 'action_data',
         )),
     )
 
@@ -279,7 +278,7 @@ class EventRuleForm(NetBoxModelForm):
         fields = (
             'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
             'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
-            'action_parameters', 'action_data', 'comments', 'tags'
+            'action_data', 'comments', 'tags'
         )
         labels = {
             'type_create': _('Creations'),
@@ -293,7 +292,6 @@ class EventRuleForm(NetBoxModelForm):
             'action_type': HTMXSelect(),
             'action_object_type': forms.HiddenInput,
             'action_object_id': forms.HiddenInput,
-            'action_parameters': forms.HiddenInput,
         }
 
     def init_script_choice(self):
@@ -307,16 +305,16 @@ class EventRuleForm(NetBoxModelForm):
                 choices.append((str(module), scripts))
         self.fields['action_choice'].choices = choices
 
-        if self.instance.pk:
+        if self.instance.action_type == EventRuleActionChoices.SCRIPT and self.instance.action_parameters:
             scriptmodule_id = self.instance.action_object_id
             script_name = self.instance.action_parameters.get('script_name')
             self.fields['action_choice'].initial = f'{scriptmodule_id}:{script_name}'
-        print(self.fields['action_choice'].initial)
 
     def init_webhook_choice(self):
         initial = None
-        if self.fields['action_object_type'] and get_field_value(self, 'action_object_id'):
-            initial = Webhook.objects.get(pk=get_field_value(self, 'action_object_id'))
+        if self.instance.action_type == EventRuleActionChoices.WEBHOOK:
+            webhook_id = get_field_value(self, 'action_object_id')
+            initial = Webhook.objects.get(pk=webhook_id) if webhook_id else None
         self.fields['action_choice'] = DynamicModelChoiceField(
             label=_('Webhook'),
             queryset=Webhook.objects.all(),
@@ -353,11 +351,20 @@ class EventRuleForm(NetBoxModelForm):
             )
             module_id, script_name = action_choice.split(":", maxsplit=1)
             self.cleaned_data['action_object_id'] = module_id
-            self.cleaned_data['action_parameters'] = {
-                'script_name': script_name,
-            }
 
         return self.cleaned_data
+
+    def save(self, *args, **kwargs):
+        # Set action_parameters on the instance
+        if self.cleaned_data['action_type'] == EventRuleActionChoices.SCRIPT:
+            module_id, script_name = self.cleaned_data.get('action_choice').split(":", maxsplit=1)
+            self.instance.action_parameters = {
+                'script_name': script_name,
+            }
+        else:
+            self.instance.action_parameters = None
+
+        return super().save(*args, **kwargs)
 
 
 class TagForm(BootstrapMixin, forms.ModelForm):
