@@ -274,7 +274,7 @@ class CableTraceSVG:
             if cable.type:
                 # Include the cable type in the tooltip
                 description.append(cable.get_type_display())
-            if cable.length and cable.length_unit:
+            if cable.length is not None and cable.length_unit:
                 # Include the cable length in the tooltip
                 description.append(f'{cable.length} {cable.get_length_unit_display()}')
         else:
@@ -285,7 +285,7 @@ class CableTraceSVG:
             description = []
             if cable.type:
                 labels.append(cable.get_type_display())
-            if cable.length and cable.length_unit:
+            if cable.length is not None and cable.length_unit:
                 # Include the cable length in the tooltip
                 labels.append(f'{cable.length} {cable.get_length_unit_display()}')
 
