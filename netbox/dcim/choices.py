@@ -915,6 +915,16 @@ class InterfaceTypeChoices(ChoiceSet):
     # Coaxial
     TYPE_DOCSIS = 'docsis'
 
+    # SDI
+    TYPE_SDI_BNC_3G = 'sdi-bnc-3g'
+    TYPE_SDI_BNC_6G = 'sdi-bnc-6g'
+    TYPE_SDI_BNC_12G = 'sdi-bnc-12g'
+    TYPE_SDI_BNC_24G = 'sdi-bnc-24g'
+    TYPE_SDI_SFP_3G = 'sdi-sfp-3g'
+    TYPE_SDI_SFP_6G = 'sdi-sfp-6g'
+    TYPE_SDI_SFP_12G = 'sdi-sfp-12g'
+    TYPE_SDI_SFP_24G = 'sdi-sfp-24g'
+
     # PON
     TYPE_GPON = 'gpon'
     TYPE_XG_PON = 'xg-pon'
@@ -1095,6 +1105,19 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Coaxial'),
             (
                 (TYPE_DOCSIS, 'DOCSIS'),
+            )
+        ),
+        (
+            _('SDI'),
+            (
+                (TYPE_SDI_BNC_3G, '3G-SDI (BNC)'),
+                (TYPE_SDI_BNC_6G, '6G-SDI (BNC)'),
+                (TYPE_SDI_BNC_12G, '12G-SDI (BNC)'),
+                (TYPE_SDI_BNC_24G, '24G-SDI (BNC)'),
+                (TYPE_SDI_SFP_3G, '3G-SDI (SFP)'),
+                (TYPE_SDI_SFP_6G, '6G-SDI (SFP)'),
+                (TYPE_SDI_SFP_12G, '12G-SDI (SFP)'),
+                (TYPE_SDI_SFP_24G, '24G-SDI (SFP)'),
             )
         ),
         (
