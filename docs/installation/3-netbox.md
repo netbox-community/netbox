@@ -99,9 +99,9 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
 
     ```
     sudo adduser --system --group netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
+    sudo chown --recursive netbox /opt/netbox/netbox/netbox/media/
+    sudo chown --recursive netbox /opt/netbox/netbox/netbox/reports/
+    sudo chown --recursive netbox /opt/netbox/netbox/netbox/scripts/
     ```
 
 === "CentOS"
@@ -109,9 +109,9 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
     ```
     sudo groupadd --system netbox
     sudo adduser --system -g netbox netbox
-    sudo chown --recursive netbox /opt/netbox/netbox/media/
-    sudo chown --recursive netbox /opt/netbox/netbox/reports/
-    sudo chown --recursive netbox /opt/netbox/netbox/scripts/
+    sudo chown --recursive netbox /opt/netbox/netbox/netbox/media/
+    sudo chown --recursive netbox /opt/netbox/netbox/netbox/reports/
+    sudo chown --recursive netbox /opt/netbox/netbox/netbox/scripts/
     ```
 
 ## Configuration
@@ -119,7 +119,7 @@ Create a system user account named `netbox`. We'll configure the WSGI and HTTP s
 Move into the NetBox configuration directory and make a copy of `configuration_example.py` named `configuration.py`. This file will hold all of your local configuration parameters.
 
 ```no-highlight
-cd /opt/netbox/netbox/netbox/
+cd /opt/netbox/netbox/netbox/netbox/
 sudo cp configuration_example.py configuration.py
 ```
 
