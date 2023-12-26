@@ -19,7 +19,7 @@ The parent inventory item to which this item is assigned (optional).
 
 ### Name
 
-The inventory item's name. Must be unique to the parent device.
+The inventory item's name. If the inventory item is assigned to a parent item, its name must be unique among its siblings (all items belonging to the same parent item).
 
 ### Label
 
