@@ -9,6 +9,7 @@
 
 ### Bug Fixes
 
+* [#14517](https://github.com/netbox-community/netbox/issues/14517) - Ensure reservations tab is always displayed under rack view
 * [#14549](https://github.com/netbox-community/netbox/issues/14549) - Fix association of job results when executing scripts via `runscript` management command
 * [#14560](https://github.com/netbox-community/netbox/issues/14560) - Do not escape exclamation marks in custom link URLs
 * [#14575](https://github.com/netbox-community/netbox/issues/14575) - Fix display of the tags column under VDC table
