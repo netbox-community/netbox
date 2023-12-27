@@ -156,13 +156,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         verbose_name=_('display weight'),
         help_text=_('Fields with higher weights appear lower in a form.')
     )
-    validation_minimum = models.IntegerField(
+    validation_minimum = models.BigIntegerField(
         blank=True,
         null=True,
         verbose_name=_('minimum value'),
         help_text=_('Minimum allowed value (for numeric fields)')
     )
-    validation_maximum = models.IntegerField(
+    validation_maximum = models.BigIntegerField(
         blank=True,
         null=True,
         verbose_name=_('maximum value'),
