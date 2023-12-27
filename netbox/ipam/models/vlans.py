@@ -225,11 +225,11 @@ class VLAN(PrimaryModel):
 
         # Validate VLAN group (if assigned)
         if self.group and self.site and self.group.scope != self.site:
-            raise ValidationError({
-                'group': _(
+            raise ValidationError(
+                _(
                     "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
                 ).format(group=self.group, scope=self.group.scope, site=self.site)
-            })
+            )
 
         # Validate group min/max VIDs
         if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:

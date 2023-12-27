@@ -692,8 +692,7 @@ class RackRackReservationsView(generic.ObjectChildrenView):
         label=_('Reservations'),
         badge=lambda obj: obj.reservations.count(),
         permission='dcim.view_rackreservation',
-        weight=510,
-        hide_if_empty=True
+        weight=510
     )
 
     def get_children(self, request, parent):

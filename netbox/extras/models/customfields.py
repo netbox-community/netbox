@@ -579,8 +579,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Multiselect
         elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            filter_class = filters.MultiValueCharFilter
-            kwargs['lookup_expr'] = 'has_key'
+            filter_class = filters.MultiValueArrayFilter
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:

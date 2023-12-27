@@ -1085,7 +1085,7 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     comments = columns.MarkdownColumn()
 
     tags = columns.TagColumn(
-        url_name='dcim:vdc_list'
+        url_name='dcim:virtualdevicecontext_list'
     )
 
     class Meta(NetBoxTable.Meta):

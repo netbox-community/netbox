@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('dcim', '0182_devicetype_exclude_from_utilization'),
+        ('dcim', '0183_devicetype_exclude_from_utilization'),
     ]
 
     operations = [

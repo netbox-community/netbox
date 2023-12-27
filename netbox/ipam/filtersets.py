@@ -949,6 +949,10 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         choices=VLANStatusChoices,
         null_value=None
     )
+    available_at_site = django_filters.ModelChoiceFilter(
+        queryset=Site.objects.all(),
+        method='get_for_site'
+    )
     available_on_device = django_filters.ModelChoiceFilter(
         queryset=Device.objects.all(),
         method='get_for_device'
@@ -982,6 +986,10 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         except ValueError:
             pass
         return queryset.filter(qs_filter)
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_for_site(self, queryset, name, value):
+        return queryset.get_for_site(value)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_device(self, queryset, name, value):
