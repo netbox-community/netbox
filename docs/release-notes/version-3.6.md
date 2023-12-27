@@ -1,6 +1,6 @@
 # NetBox v3.6
 
-## v3.6.8 (FUTURE)
+## v3.6.8 (2023-12-27)
 
 ### Enhancements
 
@@ -16,11 +16,13 @@
 * [#13606](https://github.com/netbox-community/netbox/issues/13606) - Fix filtering custom multi-choice fields by null
 * [#13649](https://github.com/netbox-community/netbox/issues/13649) - Correct calculation of absolute lengths for zero-length cables
 * [#13812](https://github.com/netbox-community/netbox/issues/13812) - Update status of remote data source when syncing fails via `syncdatasource` management command
+* [#13909](https://github.com/netbox-community/netbox/issues/13909) - Fix cloning of objects which have a multi-choice custom field
 * [#14517](https://github.com/netbox-community/netbox/issues/14517) - Ensure reservations tab is always displayed under rack view
 * [#14532](https://github.com/netbox-community/netbox/issues/14532) - Device/VM change record should accurately reflect when primary/OOB IP is deleted
 * [#14549](https://github.com/netbox-community/netbox/issues/14549) - Fix association of job results when executing scripts via `runscript` management command
 * [#14560](https://github.com/netbox-community/netbox/issues/14560) - Do not escape exclamation marks in custom link URLs
 * [#14575](https://github.com/netbox-community/netbox/issues/14575) - Fix display of the tags column under VDC table
+* [#14613](https://github.com/netbox-community/netbox/issues/14613) - Fix display of current configuration parameters in UI
 
 ---
 
