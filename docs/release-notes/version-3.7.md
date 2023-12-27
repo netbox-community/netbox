@@ -6,6 +6,8 @@
 
 * [#14432](https://github.com/netbox-community/netbox/issues/14432) - Fix hyperlinks for global search result attributes
 * [#14472](https://github.com/netbox-community/netbox/issues/14472) - Fix display of hidden custom fields in object edit forms
+* [#14499](https://github.com/netbox-community/netbox/issues/14499) - Relax requirements for encryption/auth algorithms on IKE & IPSec proposals
+* [#14550](https://github.com/netbox-community/netbox/issues/14550) - Fix changing action type of existing event rule
 
 ## v3.7-beta1 (2023-12-05)
 
@@ -40,7 +42,7 @@ A new [`PROTECTION_RULES`](../configuration/data-validation.md#protection_rules)
 
 #### Improved Custom Field Visibility Controls ([#13299](https://github.com/netbox-community/netbox/issues/13299))
 
-The old `ui_visible` field on the custom field model](../models/extras/customfield.md) has been replaced by two new fields, `ui_visible` and `ui_editable`, which control how and whether a custom field is displayed when view and editing an object, respectively. Separating these two functions into discrete fields enables more control over how each custom field is presented to users. The values of these fields will be appropriately set automatically during the upgrade process depending on the value of the original field.
+The old `ui_visible` field on [the custom field model](../models/extras/customfield.md) has been replaced by two new fields, `ui_visible` and `ui_editable`, which control how and whether a custom field is displayed when view and editing an object, respectively. Separating these two functions into discrete fields enables more control over how each custom field is presented to users. The values of these fields will be appropriately set automatically during the upgrade process depending on the value of the original field.
 
 #### Improved Global Search Results ([#14134](https://github.com/netbox-community/netbox/issues/14134))
 
@@ -67,9 +69,11 @@ Plugins can now [register their own data backends](../plugins/development/data-b
 * [#14035](https://github.com/netbox-community/netbox/issues/14035) - Order objects of equivalent weight by value in global search results to improve readability
 * [#14147](https://github.com/netbox-community/netbox/issues/14147) - Avoid recording empty changelog entries (and introduce `CHANGELOG_SKIP_EMPTY_CHANGES` config parameter)
 * [#14156](https://github.com/netbox-community/netbox/issues/14156) - Enable custom fields for contact assignments
+* [#14240](https://github.com/netbox-community/netbox/issues/14240) - Increase maximum values for custom fields minimum & maximum validators
 * [#14361](https://github.com/netbox-community/netbox/issues/14361) - Add a `description` field for webhooks
 * [#14365](https://github.com/netbox-community/netbox/issues/14365) - Introduced `job_start` and `job_end` signals
 * [#14436](https://github.com/netbox-community/netbox/issues/14436) - Add PostgreSQL indexes for all GenericForeignKey fields
+* [#14579](https://github.com/netbox-community/netbox/issues/14579) - Allow users to specify a preferred language for UI translations
 
 ### Other Changes
 
@@ -83,6 +87,7 @@ Plugins can now [register their own data backends](../plugins/development/data-b
 * [#14395](https://github.com/netbox-community/netbox/issues/14395) - Moved `extras.webhooks_worker.process_webhook()` to `extras.webhooks.send_webhook()` (backward compatibility has been retained)
 * [#14424](https://github.com/netbox-community/netbox/issues/14424) - Remove change logging functionality from StagedChange
 * [#14458](https://github.com/netbox-community/netbox/issues/14458) - Remove the obsolete `clearcache` management command
+* [#14536](https://github.com/netbox-community/netbox/issues/14536) - Enforce uniqueness by default for non-VRF prefixes & IP addresses (`ENFORCE_GLOBAL_UNIQUE` now defaults to true)
 
 ### REST API Changes
 

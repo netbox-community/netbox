@@ -10,7 +10,7 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
-#### [Version 3.7](./version-3.6.md) (December 2023)
+#### [Version 3.7](./version-3.7.md) (December 2023)
 
 * VPN Tunnels ([#9816](https://github.com/netbox-community/netbox/issues/9816))
 * Event Rules ([#14132](https://github.com/netbox-community/netbox/issues/14132))
