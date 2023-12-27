@@ -7,6 +7,7 @@
 * [#11039](https://github.com/netbox-community/netbox/issues/11039) - List parent prefixes under IP range view
 * [#14507](https://github.com/netbox-community/netbox/issues/14507) - Print new NetBox version when running upgrade script
 * [#14538](https://github.com/netbox-community/netbox/issues/14538) - Add the `available_at_site` filter for VLANs
+* [#14596](https://github.com/netbox-community/netbox/issues/14596) - Match against description field when searching for devices
 
 ### Bug Fixes
 
