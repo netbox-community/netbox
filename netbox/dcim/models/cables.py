@@ -201,7 +201,7 @@ class Cable(PrimaryModel):
         _created = self.pk is None
 
         # Store the given length (if any) in meters for use in database ordering
-        if self.length and self.length_unit:
+        if self.length is not None and self.length_unit:
             self._abs_length = to_meters(self.length, self.length_unit)
         else:
             self._abs_length = None

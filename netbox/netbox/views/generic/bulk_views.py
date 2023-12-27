@@ -557,6 +557,14 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 elif name in form.changed_data:
                     obj.custom_field_data[cf_name] = customfield.serialize(form.cleaned_data[name])
 
+            # Store M2M values for validation
+            obj._m2m_values = {}
+            for field in obj._meta.local_many_to_many:
+                if value := form.cleaned_data.get(field.name):
+                    obj._m2m_values[field.name] = list(value)
+                elif field.name in nullified_fields:
+                    obj._m2m_values[field.name] = []
+
             obj.full_clean()
             obj.save()
             updated_objects.append(obj)

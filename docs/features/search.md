@@ -8,6 +8,9 @@ When entering a search query, the user can choose a specific lookup type: exact 
 
 Custom fields defined by NetBox administrators are also included in search results if configured with a search weight. Additionally, NetBox plugins can register their own custom models for inclusion alongside core models.
 
+!!! note
+    NetBox does not index any static choice field's (including custom fields of type "Selection" or "Multiple selection").
+
 ## Saved Filters
 
 Each type of object in NetBox is accompanied by an extensive set of filters, each tied to a specific attribute, which enable the creation of complex queries. Often you'll find that certain queries are used routinely to apply some set of prescribed conditions to a query. Once a set of filters has been applied, NetBox offers the option to save it for future use.

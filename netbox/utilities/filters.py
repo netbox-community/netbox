@@ -9,6 +9,7 @@ from drf_spectacular.types import OpenApiTypes
 __all__ = (
     'ContentTypeFilter',
     'MACAddressFilter',
+    'MultiValueArrayFilter',
     'MultiValueCharFilter',
     'MultiValueDateFilter',
     'MultiValueDateTimeFilter',
@@ -83,6 +84,21 @@ class MultiValueDecimalFilter(django_filters.MultipleChoiceFilter):
 @extend_schema_field(OpenApiTypes.TIME)
 class MultiValueTimeFilter(django_filters.MultipleChoiceFilter):
     field_class = multivalue_field_factory(forms.TimeField)
+
+
+@extend_schema_field(OpenApiTypes.STR)
+class MultiValueArrayFilter(django_filters.MultipleChoiceFilter):
+    field_class = multivalue_field_factory(forms.CharField)
+
+    def __init__(self, *args, lookup_expr='contains', **kwargs):
+        # Set default lookup_expr to 'contains'
+        super().__init__(*args, lookup_expr=lookup_expr, **kwargs)
+
+    def get_filter_predicate(self, v):
+        # If filtering for null values, ignore lookup_expr
+        if v is None:
+            return {self.field_name: None}
+        return super().get_filter_predicate(v)
 
 
 class MACAddressFilter(django_filters.CharFilter):

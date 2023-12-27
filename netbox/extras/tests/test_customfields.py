@@ -1329,7 +1329,7 @@ class CustomFieldModelFilterTest(TestCase):
 
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'), ('x', 'X'))
+            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'))
         )
 
         # Integer filtering
@@ -1435,7 +1435,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://a.example.com',
                 'cf8': 'http://a.example.com',
                 'cf9': 'A',
-                'cf10': ['A', 'X'],
+                'cf10': ['A', 'B'],
                 'cf11': manufacturers[0].pk,
                 'cf12': [manufacturers[0].pk, manufacturers[3].pk],
             }),
@@ -1449,7 +1449,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://b.example.com',
                 'cf8': 'http://b.example.com',
                 'cf9': 'B',
-                'cf10': ['B', 'X'],
+                'cf10': ['B', 'C'],
                 'cf11': manufacturers[1].pk,
                 'cf12': [manufacturers[1].pk, manufacturers[3].pk],
             }),
@@ -1463,7 +1463,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://c.example.com',
                 'cf8': 'http://c.example.com',
                 'cf9': 'C',
-                'cf10': ['C', 'X'],
+                'cf10': None,
                 'cf11': manufacturers[2].pk,
                 'cf12': [manufacturers[2].pk, manufacturers[3].pk],
             }),
@@ -1531,8 +1531,9 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
 
     def test_filter_multiselect(self):
-        self.assertEqual(self.filterset({'cf_cf10': ['A', 'B']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf10': ['X']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)

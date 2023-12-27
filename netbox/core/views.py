@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.core.cache import cache
 from django.shortcuts import get_object_or_404, redirect
 
 from extras.models import ConfigRevision
@@ -153,9 +154,11 @@ class ConfigView(generic.ObjectView):
     queryset = ConfigRevision.objects.all()
 
     def get_object(self, **kwargs):
-        if config := self.queryset.first():
-            return config
-        # Instantiate a dummy default config if none has been created yet
-        return ConfigRevision(
-            data=get_config().defaults
-        )
+        revision_id = cache.get('config_version')
+        try:
+            return ConfigRevision.objects.get(pk=revision_id)
+        except ConfigRevision.DoesNotExist:
+            # Fall back to using the active config data if no record is found
+            return ConfigRevision(
+                data=get_config()
+            )
