@@ -1018,7 +1018,7 @@ class DeviceFilterSet(
             Q(serial__icontains=value.strip()) |
             Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
-            Q(description_icontains=value.strip()) |
+            Q(description__icontains=value.strip()) |
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
             Q(primary_ip6__address__startswith=value)
