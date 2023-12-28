@@ -1,7 +1,9 @@
 import django_filters
 from django.contrib.auth import get_user_model
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from circuits.models import CircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
 from ipam.filtersets import PrimaryIPFilterSet
@@ -1804,6 +1806,35 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         field_name='site__slug'
     )
 
+    # Termination object filters
+    consoleport_id = MultiValueNumberFilter(
+        method='filter_by_consoleport'
+    )
+    consoleserverport_id = MultiValueNumberFilter(
+        method='filter_by_consoleserverport'
+    )
+    powerport_id = MultiValueNumberFilter(
+        method='filter_by_powerport'
+    )
+    poweroutlet_id = MultiValueNumberFilter(
+        method='filter_by_poweroutlet'
+    )
+    interface_id = MultiValueNumberFilter(
+        method='filter_by_interface'
+    )
+    frontport_id = MultiValueNumberFilter(
+        method='filter_by_frontport'
+    )
+    rearport_id = MultiValueNumberFilter(
+        method='filter_by_rearport'
+    )
+    powerfeed_id = MultiValueNumberFilter(
+        method='filter_by_powerfeed'
+    )
+    circuittermination_id = MultiValueNumberFilter(
+        method='filter_by_circuittermination'
+    )
+
     class Meta:
         model = Cable
         fields = ['id', 'label', 'length', 'length_unit', 'description']
@@ -1846,6 +1877,42 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
             return queryset.filter(terminations__cable_end=CableEndChoices.SIDE_A).filter(
                 terminations__cable_end=CableEndChoices.SIDE_B
             )
+
+    def filter_by_termination_object(self, queryset, model, value):
+        # Filter by specific termination object(s)
+        content_type = ContentType.objects.get_for_model(model)
+        cable_ids = CableTermination.objects.filter(
+            termination_type=content_type,
+            termination_id__in=value
+        ).values_list('cable', flat=True)
+        return queryset.filter(pk__in=cable_ids)
+
+    def filter_by_consoleport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, ConsolePort, value)
+
+    def filter_by_consoleserverport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, ConsoleServerPort, value)
+
+    def filter_by_powerport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, PowerPort, value)
+
+    def filter_by_poweroutlet(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, PowerOutlet, value)
+
+    def filter_by_interface(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, Interface, value)
+
+    def filter_by_frontport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, FrontPort, value)
+
+    def filter_by_rearport(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, RearPort, value)
+
+    def filter_by_powerfeed(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, PowerFeed, value)
+
+    def filter_by_circuittermination(self, queryset, name, value):
+        return self.filter_by_termination_object(queryset, CircuitTermination, value)
 
 
 class CableTerminationFilterSet(BaseFilterSet):
