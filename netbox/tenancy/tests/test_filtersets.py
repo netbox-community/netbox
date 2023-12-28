@@ -23,12 +23,31 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             tenantgroup.save()
 
         tenant_groups = (
-            TenantGroup(name='Tenant Group 1', slug='tenant-group-1', parent=parent_tenant_groups[0], description='A'),
-            TenantGroup(name='Tenant Group 2', slug='tenant-group-2', parent=parent_tenant_groups[1], description='B'),
-            TenantGroup(name='Tenant Group 3', slug='tenant-group-3', parent=parent_tenant_groups[2], description='C'),
+            TenantGroup(
+                name='Tenant Group 1',
+                slug='tenant-group-1',
+                parent=parent_tenant_groups[0],
+                description='foobar1'
+            ),
+            TenantGroup(
+                name='Tenant Group 2',
+                slug='tenant-group-2',
+                parent=parent_tenant_groups[1],
+                description='foobar2'
+            ),
+            TenantGroup(
+                name='Tenant Group 3',
+                slug='tenant-group-3',
+                parent=parent_tenant_groups[2],
+                description='foobar3'
+            ),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Tenant Group 1', 'Tenant Group 2']}
@@ -39,7 +58,7 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
-        params = {'description': ['A', 'B']}
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
@@ -68,9 +87,13 @@ class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
         tenants = (
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0], description='foobar1'),
             Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1], description='foobar2'),
-            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
+            Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2], description='foobar3'),
         )
         Tenant.objects.bulk_create(tenants)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Tenant 1', 'Tenant 2']}
@@ -108,12 +131,31 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             contactgroup.save()
 
         contact_groups = (
-            ContactGroup(name='Contact Group 1', slug='contact-group-1', parent=parent_contact_groups[0], description='A'),
-            ContactGroup(name='Contact Group 2', slug='contact-group-2', parent=parent_contact_groups[1], description='B'),
-            ContactGroup(name='Contact Group 3', slug='contact-group-3', parent=parent_contact_groups[2], description='C'),
+            ContactGroup(
+                name='Contact Group 1',
+                slug='contact-group-1',
+                parent=parent_contact_groups[0],
+                description='foobar1'
+            ),
+            ContactGroup(
+                name='Contact Group 2',
+                slug='contact-group-2',
+                parent=parent_contact_groups[1],
+                description='foobar2'
+            ),
+            ContactGroup(
+                name='Contact Group 3',
+                slug='contact-group-3',
+                parent=parent_contact_groups[2],
+                description='foobar3'
+            ),
         )
         for contactgroup in contact_groups:
             contactgroup.save()
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Contact Group 1', 'Contact Group 2']}
@@ -124,7 +166,7 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
-        params = {'description': ['A', 'B']}
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
@@ -145,9 +187,13 @@ class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
         contact_roles = (
             ContactRole(name='Contact Role 1', slug='contact-role-1', description='foobar1'),
             ContactRole(name='Contact Role 2', slug='contact-role-2', description='foobar2'),
-            ContactRole(name='Contact Role 3', slug='contact-role-3'),
+            ContactRole(name='Contact Role 3', slug='contact-role-3', description='foobar3'),
         )
         ContactRole.objects.bulk_create(contact_roles)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Contact Role 1', 'Contact Role 2']}
@@ -178,14 +224,22 @@ class ContactTestCase(TestCase, ChangeLoggedFilterSetTests):
             contactgroup.save()
 
         contacts = (
-            Contact(name='Contact 1', group=contact_groups[0]),
-            Contact(name='Contact 2', group=contact_groups[1]),
-            Contact(name='Contact 3', group=contact_groups[2]),
+            Contact(name='Contact 1', group=contact_groups[0], description='foobar1'),
+            Contact(name='Contact 2', group=contact_groups[1], description='foobar2'),
+            Contact(name='Contact 3', group=contact_groups[2], description='foobar3'),
         )
         Contact.objects.bulk_create(contacts)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Contact 1', 'Contact 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_group(self):
