@@ -759,7 +759,7 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = FHRPGroup
-        fields = ['id', 'group_id', 'name', 'auth_key']
+        fields = ['id', 'group_id', 'name', 'auth_key', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1009,12 +1009,15 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ServiceTemplate
-        fields = ['id', 'name', 'protocol']
+        fields = ['id', 'name', 'protocol', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        qs_filter = Q(name__icontains=value) | Q(description__icontains=value)
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
         return queryset.filter(qs_filter)
 
 
