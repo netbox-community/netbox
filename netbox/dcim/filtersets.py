@@ -1817,7 +1817,7 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
         method='filter_by_powerport'
     )
     poweroutlet_id = MultiValueNumberFilter(
-        method='filter_by_powerport'
+        method='filter_by_poweroutlet'
     )
     interface_id = MultiValueNumberFilter(
         method='filter_by_interface'
