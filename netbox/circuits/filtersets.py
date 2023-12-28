@@ -67,13 +67,14 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Provider
-        fields = ['id', 'name', 'slug']
+        fields = ['id', 'name', 'slug', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(accounts__account__icontains=value) |
             Q(accounts__name__icontains=value) |
             Q(comments__icontains=value)
@@ -101,6 +102,7 @@ class ProviderAccountFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(account__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()

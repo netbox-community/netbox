@@ -512,7 +512,7 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ConfigContext
-        fields = ['id', 'name', 'is_active', 'data_synced']
+        fields = ['id', 'name', 'is_active', 'data_synced', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
