@@ -28,7 +28,7 @@ class DataSourceFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = DataSource
-        fields = ('id', 'name', 'enabled')
+        fields = ('id', 'name', 'enabled', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

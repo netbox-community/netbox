@@ -873,11 +873,9 @@ class IPAddress(PrimaryModel):
                 is_primary = True
 
             if is_primary and (parent != original_parent):
-                raise ValidationError({
-                    'assigned_object': _(
-                        "Cannot reassign IP address while it is designated as the primary IP for the parent object"
-                    )
-                })
+                raise ValidationError(
+                    _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
+                )
 
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:

@@ -654,9 +654,26 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
         RouteTarget.objects.bulk_create(route_targets)
 
         l2vpns = (
-            L2VPN(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=65001),
-            L2VPN(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VPWS, identifier=65002),
-            L2VPN(name='L2VPN 3', slug='l2vpn-3', type=L2VPNTypeChoices.TYPE_VPLS),
+            L2VPN(
+                name='L2VPN 1',
+                slug='l2vpn-1',
+                type=L2VPNTypeChoices.TYPE_VXLAN,
+                identifier=65001,
+                description='foobar1'
+            ),
+            L2VPN(
+                name='L2VPN 2',
+                slug='l2vpn-2',
+                type=L2VPNTypeChoices.TYPE_VPWS,
+                identifier=65002,
+                description='foobar2'
+            ),
+            L2VPN(
+                name='L2VPN 3',
+                slug='l2vpn-3',
+                type=L2VPNTypeChoices.TYPE_VPLS,
+                description='foobar3'
+            ),
         )
         L2VPN.objects.bulk_create(l2vpns)
         l2vpns[0].import_targets.add(route_targets[0])
@@ -665,6 +682,10 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
         l2vpns[0].export_targets.add(route_targets[3])
         l2vpns[1].export_targets.add(route_targets[4])
         l2vpns[2].export_targets.add(route_targets[5])
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['L2VPN 1', 'L2VPN 2']}
@@ -680,6 +701,10 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_type(self):
         params = {'type': [L2VPNTypeChoices.TYPE_VXLAN, L2VPNTypeChoices.TYPE_VPWS]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_import_targets(self):

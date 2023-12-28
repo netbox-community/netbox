@@ -101,13 +101,14 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
 
@@ -239,13 +240,14 @@ class VirtualMachineFilterSet(
 
     class Meta:
         model = VirtualMachine
-        fields = ['id', 'cluster', 'vcpus', 'memory', 'disk']
+        fields = ['id', 'cluster', 'vcpus', 'memory', 'disk', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
             Q(primary_ip6__address__startswith=value)

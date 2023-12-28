@@ -326,7 +326,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         model = Rack
         fields = [
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
-            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit'
+            'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -337,6 +337,7 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
             Q(facility_id__icontains=value) |
             Q(serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
 
@@ -498,8 +499,8 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     class Meta:
         model = DeviceType
         fields = [
-            'id', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization', 'is_full_depth', 'subdevice_role',
-            'airflow', 'weight', 'weight_unit',
+            'id', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization', 'is_full_depth',
+            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -509,6 +510,7 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
             Q(manufacturer__name__icontains=value) |
             Q(model__icontains=value) |
             Q(part_number__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
 
@@ -593,7 +595,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ['id', 'model', 'part_number', 'weight', 'weight_unit']
+        fields = ['id', 'model', 'part_number', 'weight', 'weight_unit', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -602,6 +604,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
             Q(manufacturer__name__icontains=value) |
             Q(model__icontains=value) |
             Q(part_number__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
 
@@ -641,7 +644,10 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(name__icontains=value)
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
 
 
 class ModularDeviceTypeComponentFilterSet(DeviceTypeComponentFilterSet):
@@ -656,21 +662,21 @@ class ConsolePortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 
     class Meta:
         model = ConsolePortTemplate
-        fields = ['id', 'name', 'type']
+        fields = ['id', 'name', 'type', 'description']
 
 
 class ConsoleServerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = ConsoleServerPortTemplate
-        fields = ['id', 'name', 'type']
+        fields = ['id', 'name', 'type', 'description']
 
 
 class PowerPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
 
     class Meta:
         model = PowerPortTemplate
-        fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw']
+        fields = ['id', 'name', 'type', 'maximum_draw', 'allocated_draw', 'description']
 
 
 class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
@@ -681,7 +687,7 @@ class PowerOutletTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceType
 
     class Meta:
         model = PowerOutletTemplate
-        fields = ['id', 'name', 'type', 'feed_leg']
+        fields = ['id', 'name', 'type', 'feed_leg', 'description']
 
 
 class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
@@ -705,7 +711,7 @@ class InterfaceTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = InterfaceTemplate
-        fields = ['id', 'name', 'type', 'enabled', 'mgmt_only']
+        fields = ['id', 'name', 'type', 'enabled', 'mgmt_only', 'description']
 
 
 class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
@@ -716,7 +722,7 @@ class FrontPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCo
 
     class Meta:
         model = FrontPortTemplate
-        fields = ['id', 'name', 'type', 'color']
+        fields = ['id', 'name', 'type', 'color', 'description']
 
 
 class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeComponentFilterSet):
@@ -727,21 +733,21 @@ class RearPortTemplateFilterSet(ChangeLoggedModelFilterSet, ModularDeviceTypeCom
 
     class Meta:
         model = RearPortTemplate
-        fields = ['id', 'name', 'type', 'color', 'positions']
+        fields = ['id', 'name', 'type', 'color', 'positions', 'description']
 
 
 class ModuleBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = ModuleBayTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
 
 class DeviceBayTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
 
     class Meta:
         model = DeviceBayTemplate
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
 
 class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeComponentFilterSet):
@@ -774,7 +780,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
 
     class Meta:
         model = InventoryItemTemplate
-        fields = ['id', 'name', 'label', 'part_id']
+        fields = ['id', 'name', 'label', 'part_id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1010,7 +1016,10 @@ class DeviceFilterSet(
 
     class Meta:
         model = Device
-        fields = ['id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'vc_position', 'vc_priority']
+        fields = [
+            'id', 'asset_tag', 'face', 'position', 'latitude', 'longitude', 'airflow', 'vc_position', 'vc_priority',
+            'description',
+        ]
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1020,7 +1029,7 @@ class DeviceFilterSet(
             Q(serial__icontains=value.strip()) |
             Q(inventoryitems__serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
-            Q(description_icontains=value.strip()) |
+            Q(description__icontains=value.strip()) |
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
             Q(primary_ip6__address__startswith=value)
@@ -1090,13 +1099,16 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, Prim
 
     class Meta:
         model = VirtualDeviceContext
-        fields = ['id', 'device', 'name']
+        fields = ['id', 'device', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
 
-        qs_filter = Q(name__icontains=value)
+        qs_filter = (
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
         try:
             qs_filter |= Q(identifier=int(value))
         except ValueError:
@@ -1153,7 +1165,7 @@ class ModuleFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Module
-        fields = ['id', 'status', 'asset_tag']
+        fields = ['id', 'status', 'asset_tag', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1162,6 +1174,7 @@ class ModuleFilterSet(NetBoxModelFilterSet):
             Q(device__name__icontains=value.strip()) |
             Q(serial__icontains=value.strip()) |
             Q(asset_tag__icontains=value.strip()) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         ).distinct()
 
@@ -1652,7 +1665,7 @@ class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = InventoryItemRole
-        fields = ['id', 'name', 'slug', 'color']
+        fields = ['id', 'name', 'slug', 'color', 'description']
 
 
 class VirtualChassisFilterSet(NetBoxModelFilterSet):
@@ -1717,13 +1730,14 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = VirtualChassis
-        fields = ['id', 'domain', 'name']
+        fields = ['id', 'domain', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = (
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(members__name__icontains=value) |
             Q(domain__icontains=value)
         )
@@ -1792,12 +1806,16 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = Cable
-        fields = ['id', 'label', 'length', 'length_unit']
+        fields = ['id', 'label', 'length', 'length_unit', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
-        return queryset.filter(label__icontains=value)
+        qs_filter = (
+            Q(label__icontains=value) |
+            Q(description__icontains=value)
+        )
+        return queryset.filter(qs_filter)
 
     def filter_by_termination(self, queryset, name, value):
         # Filter by a related object cached on CableTermination. Note the underscore preceding the field name.
@@ -1884,13 +1902,14 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = PowerPanel
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         qs_filter = (
-            Q(name__icontains=value)
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
         )
         return queryset.filter(qs_filter)
 
@@ -1951,6 +1970,7 @@ class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpoi
         model = PowerFeed
         fields = [
             'id', 'name', 'status', 'type', 'supply', 'phase', 'voltage', 'amperage', 'max_utilization', 'cable_end',
+            'description',
         ]
 
     def search(self, queryset, name, value):
@@ -1958,6 +1978,7 @@ class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpoi
             return queryset
         qs_filter = (
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(power_panel__name__icontains=value) |
             Q(comments__icontains=value)
         )

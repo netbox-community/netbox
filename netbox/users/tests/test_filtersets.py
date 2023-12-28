@@ -67,6 +67,10 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         users[1].groups.set([groups[1]])
         users[2].groups.set([groups[2]])
 
+    def test_q(self):
+        params = {'q': 'user1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_username(self):
         params = {'username': ['User1', 'User2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -117,6 +121,10 @@ class GroupTestCase(TestCase, BaseFilterSetTests):
         )
         Group.objects.bulk_create(groups)
 
+    def test_q(self):
+        params = {'q': 'group 1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Group 1', 'Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -163,6 +171,10 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
             permissions[i].groups.set([groups[i]])
             permissions[i].users.set([users[i]])
             permissions[i].object_types.set([object_types[i]])
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Permission 1', 'Permission 2']}
@@ -234,6 +246,10 @@ class TokenTestCase(TestCase, BaseFilterSetTests):
             Token(user=users[2], key=Token.generate_key(), expires=past_date, write_enabled=False),
         )
         Token.objects.bulk_create(tokens)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_user(self):
         users = User.objects.order_by('id')[:2]

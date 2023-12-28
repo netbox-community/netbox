@@ -21,14 +21,16 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
                 type='local',
                 source_url='file:///var/tmp/source1/',
                 status=DataSourceStatusChoices.NEW,
-                enabled=True
+                enabled=True,
+                description='foobar1'
             ),
             DataSource(
                 name='Data Source 2',
                 type='local',
                 source_url='file:///var/tmp/source2/',
                 status=DataSourceStatusChoices.SYNCING,
-                enabled=True
+                enabled=True,
+                description='foobar2'
             ),
             DataSource(
                 name='Data Source 3',
@@ -40,8 +42,16 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         DataSource.objects.bulk_create(data_sources)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Data Source 1', 'Data Source 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_type(self):
@@ -96,6 +106,10 @@ class DataFileTestCase(TestCase, ChangeLoggedFilterSetTests):
             ),
         )
         DataFile.objects.bulk_create(data_files)
+
+    def test_q(self):
+        params = {'q': 'file1.txt'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_source(self):
         sources = DataSource.objects.all()

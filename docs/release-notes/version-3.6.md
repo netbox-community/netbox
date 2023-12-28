@@ -1,5 +1,19 @@
 # NetBox v3.6
 
+## v3.6.9 (2023-12-28)
+
+### Enhancements
+
+* [#14631](https://github.com/netbox-community/netbox/issues/14631) - All models can be filtered and searched by their description field (where applicable)
+
+### Bug Fixes
+
+* [#14482](https://github.com/netbox-community/netbox/issues/14482) - Fix validation error when attempting to move a primary IP address to a new parent object
+* [#14620](https://github.com/netbox-community/netbox/issues/14620) - Permit setting device type U height to 0 during bulk edit
+* [#14621](https://github.com/netbox-community/netbox/issues/14621) - Fix error when using the device search filter
+
+---
+
 ## v3.6.8 (2023-12-27)
 
 ### Enhancements

@@ -315,5 +315,6 @@ class OrganizationalModelFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             models.Q(name__icontains=value) |
-            models.Q(slug__icontains=value)
+            models.Q(slug__icontains=value) |
+            models.Q(description__icontains=value)
         )

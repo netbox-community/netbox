@@ -412,7 +412,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
     )
     u_height = forms.IntegerField(
         label=_('U height'),
-        min_value=1,
+        min_value=0,
         required=False
     )
     is_full_depth = forms.NullBooleanField(
