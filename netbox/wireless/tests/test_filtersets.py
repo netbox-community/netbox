@@ -36,6 +36,10 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         for group in child_groups:
             group.save()
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Wireless LAN Group 1', 'Wireless LAN Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -103,7 +107,8 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=tenants[0],
                 auth_type=WirelessAuthTypeChoices.TYPE_OPEN,
                 auth_cipher=WirelessAuthCipherChoices.CIPHER_AUTO,
-                auth_psk='PSK1'
+                auth_psk='PSK1',
+                description='foobar1'
             ),
             WirelessLAN(
                 ssid='WLAN2',
@@ -113,7 +118,8 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=tenants[1],
                 auth_type=WirelessAuthTypeChoices.TYPE_WEP,
                 auth_cipher=WirelessAuthCipherChoices.CIPHER_TKIP,
-                auth_psk='PSK2'
+                auth_psk='PSK2',
+                description='foobar2'
             ),
             WirelessLAN(
                 ssid='WLAN3',
@@ -123,10 +129,15 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
                 tenant=tenants[2],
                 auth_type=WirelessAuthTypeChoices.TYPE_WPA_PERSONAL,
                 auth_cipher=WirelessAuthCipherChoices.CIPHER_AES,
-                auth_psk='PSK3'
+                auth_psk='PSK3',
+                description='foobar3'
             ),
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_ssid(self):
         params = {'ssid': ['WLAN1', 'WLAN2']}
@@ -158,6 +169,10 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_auth_psk(self):
         params = {'auth_psk': ['PSK1', 'PSK2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_tenant(self):
@@ -239,6 +254,10 @@ class WirelessLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
             interface_b=interfaces[7],
             ssid='LINK4'
         ).save()
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_ssid(self):
         params = {'ssid': ['LINK1', 'LINK2']}
