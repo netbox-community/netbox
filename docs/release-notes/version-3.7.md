@@ -75,6 +75,13 @@ Plugins can now [register their own data backends](../plugins/development/data-b
 * [#14436](https://github.com/netbox-community/netbox/issues/14436) - Add PostgreSQL indexes for all GenericForeignKey fields
 * [#14579](https://github.com/netbox-community/netbox/issues/14579) - Allow users to specify a preferred language for UI translations
 
+### Translations
+
+* [#14075](https://github.com/netbox-community/netbox/issues/14075) - Add Spanish translation
+* [#14096](https://github.com/netbox-community/netbox/issues/14096) - Add French translation
+* [#14145](https://github.com/netbox-community/netbox/issues/14145) - Add Portuguese translation
+* [#14266](https://github.com/netbox-community/netbox/issues/14266) - Add Russian translation
+
 ### Other Changes
 
 * [#13550](https://github.com/netbox-community/netbox/issues/13550) - Optimized the format for declaring view actions under `ActionsMixin` (backward compatibility has been retained)
