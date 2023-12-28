@@ -62,7 +62,7 @@ class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Tunnel
-        fields = ['id', 'name', 'tunnel_id']
+        fields = ['id', 'name', 'tunnel_id', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -139,7 +139,7 @@ class IKEProposalFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IKEProposal
-        fields = ['id', 'name', 'sa_lifetime']
+        fields = ['id', 'name', 'sa_lifetime', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -167,7 +167,7 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IKEPolicy
-        fields = ['id', 'name', 'preshared_key']
+        fields = ['id', 'name', 'preshared_key', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -189,7 +189,7 @@ class IPSecProposalFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IPSecProposal
-        fields = ['id', 'name', 'sa_lifetime_seconds', 'sa_lifetime_data']
+        fields = ['id', 'name', 'sa_lifetime_seconds', 'sa_lifetime_data', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -214,7 +214,7 @@ class IPSecPolicyFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IPSecPolicy
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -253,7 +253,7 @@ class IPSecProfileFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IPSecProfile
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -669,11 +669,15 @@ class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
         VirtualMachine.objects.bulk_create(vms)
 
         disks = (
-            VirtualDisk(virtual_machine=vms[0], name='Disk 1', size=1, description='A'),
-            VirtualDisk(virtual_machine=vms[1], name='Disk 2', size=2, description='B'),
-            VirtualDisk(virtual_machine=vms[2], name='Disk 3', size=3, description='C'),
+            VirtualDisk(virtual_machine=vms[0], name='Disk 1', size=1, description='foobar1'),
+            VirtualDisk(virtual_machine=vms[1], name='Disk 2', size=2, description='foobar2'),
+            VirtualDisk(virtual_machine=vms[2], name='Disk 3', size=3, description='foobar3'),
         )
         VirtualDisk.objects.bulk_create(disks)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_virtual_machine(self):
         vms = VirtualMachine.objects.all()[:2]
@@ -691,5 +695,5 @@ class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
-        params = {'description': ['A', 'B']}
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

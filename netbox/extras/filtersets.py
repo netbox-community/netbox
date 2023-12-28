@@ -50,7 +50,7 @@ class WebhookFilterSet(NetBoxModelFilterSet):
         model = Webhook
         fields = [
             'id', 'name', 'payload_url', 'http_method', 'http_content_type', 'secret', 'ssl_verification',
-            'ca_file_path',
+            'ca_file_path', 'description',
         ]
 
     def search(self, queryset, name, value):

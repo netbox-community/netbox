@@ -24,6 +24,10 @@ class TunnelGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
             TunnelGroup(name='Tunnel Group 3', slug='tunnel-group-3'),
         ))
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Tunnel Group 1']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -96,7 +100,8 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
                 group=tunnel_groups[0],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_GRE,
                 ipsec_profile=ipsec_profiles[0],
-                tunnel_id=100
+                tunnel_id=100,
+                description='foobar1'
             ),
             Tunnel(
                 name='Tunnel 2',
@@ -104,7 +109,8 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
                 group=tunnel_groups[1],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IP_IP,
                 ipsec_profile=ipsec_profiles[0],
-                tunnel_id=200
+                tunnel_id=200,
+                description='foobar2'
             ),
             Tunnel(
                 name='Tunnel 3',
@@ -112,10 +118,15 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
                 group=tunnel_groups[2],
                 encapsulation=TunnelEncapsulationChoices.ENCAP_IPSEC_TUNNEL,
                 ipsec_profile=None,
-                tunnel_id=300
+                tunnel_id=300,
+                description='foobar3'
             ),
         )
         Tunnel.objects.bulk_create(tunnels)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Tunnel 1', 'Tunnel 2']}
@@ -145,6 +156,10 @@ class TunnelTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_tunnel_id(self):
         params = {'tunnel_id': [100, 200]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -292,7 +307,8 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
                 encryption_algorithm=EncryptionAlgorithmChoices.ENCRYPTION_AES128_CBC,
                 authentication_algorithm=AuthenticationAlgorithmChoices.AUTH_HMAC_SHA1,
                 group=DHGroupChoices.GROUP_1,
-                sa_lifetime=1000
+                sa_lifetime=1000,
+                description='foobar1'
             ),
             IKEProposal(
                 name='IKE Proposal 2',
@@ -300,7 +316,8 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
                 encryption_algorithm=EncryptionAlgorithmChoices.ENCRYPTION_AES192_CBC,
                 authentication_algorithm=AuthenticationAlgorithmChoices.AUTH_HMAC_SHA256,
                 group=DHGroupChoices.GROUP_2,
-                sa_lifetime=2000
+                sa_lifetime=2000,
+                description='foobar2'
             ),
             IKEProposal(
                 name='IKE Proposal 3',
@@ -308,13 +325,22 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
                 encryption_algorithm=EncryptionAlgorithmChoices.ENCRYPTION_AES256_CBC,
                 authentication_algorithm=AuthenticationAlgorithmChoices.AUTH_HMAC_SHA512,
                 group=DHGroupChoices.GROUP_5,
-                sa_lifetime=3000
+                sa_lifetime=3000,
+                description='foobar3'
             ),
         )
         IKEProposal.objects.bulk_create(ike_proposals)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['IKE Proposal 1', 'IKE Proposal 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_authentication_method(self):
@@ -380,16 +406,19 @@ class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='IKE Policy 1',
                 version=IKEVersionChoices.VERSION_1,
                 mode=IKEModeChoices.MAIN,
+                description='foobar1'
             ),
             IKEPolicy(
                 name='IKE Policy 2',
                 version=IKEVersionChoices.VERSION_1,
                 mode=IKEModeChoices.MAIN,
+                description='foobar2'
             ),
             IKEPolicy(
                 name='IKE Policy 3',
                 version=IKEVersionChoices.VERSION_2,
                 mode=IKEModeChoices.AGGRESSIVE,
+                description='foobar3'
             ),
         )
         IKEPolicy.objects.bulk_create(ike_policies)
@@ -397,8 +426,16 @@ class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         ike_policies[1].proposals.add(ike_proposals[1])
         ike_policies[2].proposals.add(ike_proposals[2])
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['IKE Policy 1', 'IKE Policy 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_version(self):
@@ -429,27 +466,38 @@ class IPSecProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
                 encryption_algorithm=EncryptionAlgorithmChoices.ENCRYPTION_AES128_CBC,
                 authentication_algorithm=AuthenticationAlgorithmChoices.AUTH_HMAC_SHA1,
                 sa_lifetime_seconds=1000,
-                sa_lifetime_data=1000
+                sa_lifetime_data=1000,
+                description='foobar1'
             ),
             IPSecProposal(
                 name='IPSec Proposal 2',
                 encryption_algorithm=EncryptionAlgorithmChoices.ENCRYPTION_AES192_CBC,
                 authentication_algorithm=AuthenticationAlgorithmChoices.AUTH_HMAC_SHA256,
                 sa_lifetime_seconds=2000,
-                sa_lifetime_data=2000
+                sa_lifetime_data=2000,
+                description='foobar2'
             ),
             IPSecProposal(
                 name='IPSec Proposal 3',
                 encryption_algorithm=EncryptionAlgorithmChoices.ENCRYPTION_AES256_CBC,
                 authentication_algorithm=AuthenticationAlgorithmChoices.AUTH_HMAC_SHA512,
                 sa_lifetime_seconds=3000,
-                sa_lifetime_data=3000
+                sa_lifetime_data=3000,
+                description='foobar3'
             ),
         )
         IPSecProposal.objects.bulk_create(ipsec_proposals)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['IPSec Proposal 1', 'IPSec Proposal 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_encryption_algorithm(self):
@@ -501,15 +549,18 @@ class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         ipsec_policies = (
             IPSecPolicy(
                 name='IPSec Policy 1',
-                pfs_group=DHGroupChoices.GROUP_1
+                pfs_group=DHGroupChoices.GROUP_1,
+                description='foobar1'
             ),
             IPSecPolicy(
                 name='IPSec Policy 2',
-                pfs_group=DHGroupChoices.GROUP_2
+                pfs_group=DHGroupChoices.GROUP_2,
+                description='foobar2'
             ),
             IPSecPolicy(
                 name='IPSec Policy 3',
-                pfs_group=DHGroupChoices.GROUP_5
+                pfs_group=DHGroupChoices.GROUP_5,
+                description='foobar3'
             ),
         )
         IPSecPolicy.objects.bulk_create(ipsec_policies)
@@ -517,8 +568,16 @@ class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         ipsec_policies[1].proposals.add(ipsec_proposals[1])
         ipsec_policies[2].proposals.add(ipsec_proposals[2])
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['IPSec Policy 1', 'IPSec Policy 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_pfs_group(self):
@@ -596,25 +655,36 @@ class IPSecProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
                 name='IPSec Profile 1',
                 mode=IPSecModeChoices.ESP,
                 ike_policy=ike_policies[0],
-                ipsec_policy=ipsec_policies[0]
+                ipsec_policy=ipsec_policies[0],
+                description='foobar1'
             ),
             IPSecProfile(
                 name='IPSec Profile 2',
                 mode=IPSecModeChoices.ESP,
                 ike_policy=ike_policies[1],
-                ipsec_policy=ipsec_policies[1]
+                ipsec_policy=ipsec_policies[1],
+                description='foobar2'
             ),
             IPSecProfile(
                 name='IPSec Profile 3',
                 mode=IPSecModeChoices.AH,
                 ike_policy=ike_policies[2],
-                ipsec_policy=ipsec_policies[2]
+                ipsec_policy=ipsec_policies[2],
+                description='foobar3'
             ),
         )
         IPSecProfile.objects.bulk_create(ipsec_profiles)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['IPSec Profile 1', 'IPSec Profile 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_mode(self):

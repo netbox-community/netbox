@@ -182,18 +182,21 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
                 payload_url='http://example.com/?1',
                 http_method='GET',
                 ssl_verification=True,
+                description='foobar1'
             ),
             Webhook(
                 name='Webhook 2',
                 payload_url='http://example.com/?2',
                 http_method='POST',
                 ssl_verification=True,
+                description='foobar2'
             ),
             Webhook(
                 name='Webhook 3',
                 payload_url='http://example.com/?3',
                 http_method='PATCH',
                 ssl_verification=False,
+                description='foobar3'
             ),
             Webhook(
                 name='Webhook 4',
@@ -211,11 +214,15 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
         Webhook.objects.bulk_create(webhooks)
 
     def test_q(self):
-        params = {'q': 'Webhook 1'}
+        params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Webhook 1', 'Webhook 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_http_method(self):
@@ -276,6 +283,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 type_job_start=False,
                 type_job_end=False,
                 action_type=EventRuleActionChoices.WEBHOOK,
+                description='foobar1'
             ),
             EventRule(
                 name='Event Rule 2',
@@ -287,6 +295,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 type_job_start=False,
                 type_job_end=False,
                 action_type=EventRuleActionChoices.WEBHOOK,
+                description='foobar2'
             ),
             EventRule(
                 name='Event Rule 3',
@@ -298,6 +307,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
                 type_job_start=False,
                 type_job_end=False,
                 action_type=EventRuleActionChoices.WEBHOOK,
+                description='foobar3'
             ),
             EventRule(
                 name='Event Rule 4',
@@ -329,8 +339,16 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         event_rules[3].content_types.add(content_types[3])
         event_rules[4].content_types.add(content_types[4])
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Event Rule 1', 'Event Rule 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_content_types(self):
