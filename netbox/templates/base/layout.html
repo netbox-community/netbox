@@ -1,6 +1,7 @@
 {# Base layout for the core NetBox UI w/navbar and page content #}
 {% extends 'base/base.html' %}
 {% load helpers %}
+{% load navigation %}
 {% load static %}
 {% load i18n %}
 
@@ -14,96 +15,151 @@ Blocks:
 
 {% block layout %}
 
-  <div class="container-fluid px-0">
-    <main class="layout">
+  <div class="page">
+
     {# Sidebar #}
-    {% include 'base/sidenav.html' %}
+    <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+      <div class="container-fluid">
 
-      {# Body #}
-      <div class="content-container" tabindex="-2">
+        {# Header icon #}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <h1 class="navbar-brand navbar-brand-autodark">
+          <a href="{% url 'home' %}">
+            <img src="{% static 'netbox_logo.svg' %}" height="32" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image">
+          </a>
+        </h1>
 
-        {# NetBox Logo, only visible when printing #}
-        <div class="p-2 printonly">
-          <img src="{% static 'netbox_logo.svg' %}" alt="{% trans "NetBox logo" %}" width="200px" />
+        {# Navigation menu #}
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+          {% nav %}
         </div>
 
-        {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-1 mb-3 search container-fluid noprint">
+      </div>
+    </aside>
 
-            {# Mobile Navigation #}
-            <div class="nav-mobile">
-              <div class="nav-mobile-top">
-                <a class="sidebar-logo p-2 d-block" href="{% url 'home' %}">
-                  <img src="{% static 'netbox_logo.svg' %}" alt="{% trans "NetBox logo" %}" height="40" />
-                </a>
-                <button type="button" aria-label="Toggle Navigation" class="navbar-toggler sidenav-toggle-mobile">
-                  <span class="navbar-toggler-icon"></span>
-                </button>
-              </div>
-              <div class="d-flex my-1 flex-grow-1 justify-content-center w-100">
-                {% include 'inc/searchbar.html' %}
+    {# Top menu #}
+    <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none">
+      <div class="container-xl">
+
+        {# Toggle button #}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="navbar-nav flex-row order-md-last">
+          <div class="d-none d-md-flex">
+            <a href="?theme=dark" class="nav-link px-0 hide-theme-dark" title="Enable dark mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+              <!-- Download SVG icon from http://tabler-icons.io/i/moon -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+            </a>
+            <a href="?theme=light" class="nav-link px-0 hide-theme-light" title="Enable light mode" data-bs-toggle="tooltip" data-bs-placement="bottom">
+              <!-- Download SVG icon from http://tabler-icons.io/i/sun -->
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
+            </a>
+            <div class="nav-item dropdown d-none d-md-flex me-3">
+              <a href="#" class="nav-link px-0" data-bs-toggle="dropdown" tabindex="-1" aria-label="Show notifications">
+                <!-- Download SVG icon from http://tabler-icons.io/i/bell -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
+                <span class="badge bg-red"></span>
+              </a>
+              <div class="dropdown-menu dropdown-menu-arrow dropdown-menu-end dropdown-menu-card">
+                <div class="card">
+                  <div class="card-header">
+                    <h3 class="card-title">Last updates</h3>
+                  </div>
+                  <div class="list-group list-group-flush list-group-hoverable">
+                    <div class="list-group-item">
+                      Item 1
+                    </div>
+                    <div class="list-group-item">
+                      Item 2
+                    </div>
+                    <div class="list-group-item">
+                      Item 3
+                    </div>
+                    <div class="list-group-item">
+                      Item 4
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
+          </div>
+          {# User menu #}
+          {% include 'inc/profile_button.html' %}
+        </div>
 
-            {# Desktop Navigation #}
-            <div class="row search-container">
+        {# Search box #}
+        <div class="collapse navbar-collapse" id="navbar-menu">
+          <form action="{% url 'search' %}" method="get" autocomplete="off" novalidate>
+            <div class="input-icon">
+              <span class="input-icon-addon">
+                <!-- Download SVG icon from http://tabler-icons.io/i/search -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+                  <path d="M21 21l-6 -6" />
+                </svg>
+              </span>
+              <input type="text" value="" class="form-control" placeholder="Search…" aria-label="Search NetBox">
+            </div>
+          </form>
+        </div>
 
-              {# Empty spacer column to ensure search is centered. #}
-              <div class="col-3 d-flex flex-grow-1 ps-0"></div>
+      </div>
+    </header>
 
-              {# Search bar #}
-              <div class="col-6 d-flex flex-grow-1 justify-content-center">
-                {% include 'inc/searchbar.html' %}
+    {# Page content #}
+    <div class="page-wrapper">
+
+      {# Page header #}
+      <div class="page-header d-print-none">
+        <div class="container-xl">
+
+          {% if config.BANNER_TOP %}
+            <div class="text-center mx-3">
+              {{ config.BANNER_TOP|safe }}
+            </div>
+          {% endif %}
+
+          {% if settings.DEBUG and not settings.DEVELOPER %}
+            <div class="alert alert-warning text-center mx-3" role="alert">
+              <strong><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</strong>
+              {% trans "Performance may be limited. Debugging should never be enabled on a production system" %}.
+            </div>
+          {% endif %}
+
+          {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
+            <div class="alert alert-warning text-center mx-3" role="alert">
+              <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
+              {{ config.BANNER_MAINTENANCE|escape }}
+            </div>
+          {% endif %}
+
+          {% block header %}
+            <div class="title-container px-3 pb-3">
+
+              {# Title #}
+              <div id="content-title">
+                {# Center-align title in object-edit views #}
+                <h1 class="h2 w-100">{% block title %}{% endblock title %}</h1>
+                {% block subtitle %}{% endblock %}
               </div>
 
-              {# Proflie/login button #}
-              <div class="col-3 d-flex flex-grow-1 pe-0 justify-content-end">
-                {% include 'inc/profile_button.html' %}
-              </div>
+              {# Controls #}
+              {% block controls %}{% endblock controls %}
 
             </div>
+          {% endblock header %}
+        </div>
+      </div>
+      {# /Page header #}
 
-        </nav>
-
-        {% if config.BANNER_TOP %}
-          <div class="text-center mx-3">
-            {{ config.BANNER_TOP|safe }}
-          </div>
-        {% endif %}
-
-        {% if settings.DEBUG and not settings.DEVELOPER %}
-          <div class="alert alert-warning text-center mx-3" role="alert">
-            <strong><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</strong>
-            {% trans "Performance may be limited. Debugging should never be enabled on a production system" %}.
-          </div>
-        {% endif %}
-
-        {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-          <div class="alert alert-warning text-center mx-3" role="alert">
-            <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
-            {{ config.BANNER_MAINTENANCE|escape }}
-          </div>
-        {% endif %}
-
-        {# Page header #}
-        {% block header %}
-          <div class="title-container px-3 pb-3">
-
-            {# Title #}
-            <div id="content-title">
-              {# Center-align title in object-edit views #}
-              <h1 class="h2 w-100">{% block title %}{% endblock title %}</h1>
-              {% block subtitle %}{% endblock %}
-            </div>
-
-            {# Controls #}
-            {% block controls %}{% endblock controls %}
-
-          </div>
-        {% endblock header %}
-
-        {# Page content #}
-        <div id="content" class="container-fluid content px-0 m-0">
+      {# Page body #}
+      <div class="page-body">
+        <div class="container-xl">
           {% block tabs %}{% endblock %}
           {% block content-wrapper %}
             <div class="px-3">
@@ -117,64 +173,81 @@ Blocks:
             </div>
           {% endif %}
         </div>
+      </div>
+      {# /Page body #}
 
-        {# BS5 pop-up modals #}
-        {% block modals %}{% endblock %}
-
-        {# Page footer #}
-        <footer class="footer container-fluid">
+      {# Page footer #}
+      <footer class="footer footer-transparent d-print-none">
+        <div class="container-xl">
           {% block footer %}
-            <div class="row align-items-center justify-content-between mx-0">
-
-              <div class="col-sm-12 col-md-auto fs-4 noprint">
-                <nav class="nav justify-content-center justify-content-lg-start">
+            <div class="row text-center align-items-center flex-row-reverse">
+              <div class="col-lg-auto ms-lg-auto">
+                <ul class="list-inline list-inline-dots mb-0">
                   {% block footer_links %}
                     {# Documentation #}
-                    <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
-                      <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
+                    <li class="list-inline-item">
+                      <a href="{% static 'docs/' %}" target="_blank" class="link-secondary" rel="noopener">
+                        <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                      </a>
+                    </li>
                     {# REST API #}
-                    <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
-                      <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
+                    <li class="list-inline-item">
+                      <a href="{% url 'api-root' %}" target="_blank" class="link-secondary" rel="noopener">
+                        <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                      </a>
+                    </li>
                     {# API docs #}
-                    <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
-                      <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
+                    <li class="list-inline-item">
+                      <a href="{% url 'api_docs' %}" target="_blank" class="link-secondary" rel="noopener">
+                        <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                      </a>
+                    </li>
                     {# GraphQL API #}
                     {% if config.GRAPHQL_ENABLED %}
-                    <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
-                      <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
+                      <li class="list-inline-item">
+                        <a href="{% url 'graphql' %}" target="_blank" class="link-secondary" rel="noopener">
+                          <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                        </a>
+                      </li>
                     {% endif %}
-
                     {# GitHub #}
-                    <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
-                      <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
+                    <li class="list-inline-item">
+                      <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
+                        <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                      </a>
+                    </li>
                     {# NetDev Slack #}
-                    <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
-                      <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
+                    <li class="list-inline-item">
+                      <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
+                        <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                      </a>
+                    </li>
                   {% endblock footer_links %}
-                </nav>
+                </ul>
               </div>
-
-              <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
-                <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
-                <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
+              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
+                <ul class="list-inline list-inline-dots mb-0">
+                  <li class="list-inline-item">
+                    {% annotated_now %} {% now 'T' %}
+                  </li>
+                  <li class="list-inline-item">
+                    <a href="./changelog.html" class="link-secondary" rel="noopener">
+                      {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+                    </a>
+                  </li>
+                </ul>
               </div>
-
             </div>
           {% endblock footer %}
-        </footer>
+        </div>
+      </footer>
+      {# /Page footer #}
 
-      </div>
+    {# /Page content #}
+    </div>
 
-    </main>
+    {# BS5 pop-up modals #}
+    {% block modals %}{% endblock %}
+
   </div>
 {% endblock layout %}
