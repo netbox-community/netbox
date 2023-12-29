@@ -32,6 +32,7 @@ $darker: #1b1f22;
 $darkest: #171b1d;
 
 @import '../node_modules/bootstrap/scss/variables';
+@import '../node_modules/bootstrap/scss/variables-dark';
 
 // This is the same value as the default from Bootstrap, but it needs to be in scope prior to
 // importing _variables.scss from Bootstrap.

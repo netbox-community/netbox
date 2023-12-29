@@ -389,7 +389,7 @@ nav.search {
     // Object Selector Dropdown Button
     .dropdown-toggle {
       // Generate the same styles as a regular Bootstrap button.
-      @include button-variant($input-group-addon-bg, $input-border-color);
+      //@include button-variant($input-group-addon-bg, $input-border-color);
       margin-left: 0;
       font-weight: $input-group-addon-font-weight;
       line-height: $input-line-height;

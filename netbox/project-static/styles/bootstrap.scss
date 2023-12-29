@@ -1,4 +1,6 @@
 // Import the rest of bootstrap.
+@import '../node_modules/bootstrap/scss/maps';
+@import '../node_modules/bootstrap/scss/mixins';
 @import '../node_modules/bootstrap/scss/utilities';
 @import './extensions';
 @import '../node_modules/bootstrap/scss/mixins';
@@ -30,6 +32,9 @@
 @import '../node_modules/bootstrap/scss/tooltip';
 @import '../node_modules/bootstrap/scss/popover';
 @import '../node_modules/bootstrap/scss/carousel';
+@import '../node_modules/bootstrap/scss/spinners';
+@import '../node_modules/bootstrap/scss/offcanvas';
+@import '../node_modules/bootstrap/scss/placeholders';
 @import '../node_modules/bootstrap/scss/spinners';
 @import '../node_modules/bootstrap/scss/helpers';
 @import '../node_modules/bootstrap/scss/utilities/api';
