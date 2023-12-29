@@ -420,6 +420,11 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         widget=BulkEditNullBooleanSelect(),
         label=_('Is full depth')
     )
+    exclude_from_utilization = forms.NullBooleanField(
+        required=False,
+        widget=BulkEditNullBooleanSelect(),
+        label=_('Exclude from utilization')
+    )
     airflow = forms.ChoiceField(
         label=_('Airflow'),
         choices=add_blank_choice(DeviceAirflowChoices),
@@ -445,7 +450,10 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = DeviceType
     fieldsets = (
-        (_('Device Type'), ('manufacturer', 'default_platform', 'part_number', 'u_height', 'is_full_depth', 'airflow', 'description')),
+        (_('Device Type'), (
+            'manufacturer', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization', 'is_full_depth',
+            'airflow', 'description',
+        )),
         (_('Weight'), ('weight', 'weight_unit')),
     )
     nullable_fields = ('part_number', 'airflow', 'weight', 'weight_unit', 'description', 'comments')

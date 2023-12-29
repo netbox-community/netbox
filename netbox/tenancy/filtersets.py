@@ -3,10 +3,9 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from extras.filters import TagFilter
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
-
 
 __all__ = (
     'ContactAssignmentFilterSet',
@@ -82,7 +81,7 @@ class ContactFilterSet(NetBoxModelFilterSet):
         )
 
 
-class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
+class ContactAssignmentFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),

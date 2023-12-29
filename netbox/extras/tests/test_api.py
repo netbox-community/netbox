@@ -8,6 +8,7 @@ from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
+from extras.choices import *
 from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
@@ -32,53 +33,119 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
             'name': 'Webhook 4',
-            'type_create': True,
             'payload_url': 'http://example.com/?4',
         },
         {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
             'name': 'Webhook 5',
-            'type_update': True,
             'payload_url': 'http://example.com/?5',
         },
         {
-            'content_types': ['dcim.device', 'dcim.devicetype'],
             'name': 'Webhook 6',
-            'type_delete': True,
             'payload_url': 'http://example.com/?6',
         },
     ]
     bulk_update_data = {
+        'description': 'New description',
         'ssl_verification': False,
     }
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
-        rack_ct = ContentType.objects.get_for_model(Rack)
 
         webhooks = (
             Webhook(
                 name='Webhook 1',
-                type_create=True,
                 payload_url='http://example.com/?1',
             ),
             Webhook(
                 name='Webhook 2',
-                type_update=True,
                 payload_url='http://example.com/?1',
             ),
             Webhook(
                 name='Webhook 3',
-                type_delete=True,
                 payload_url='http://example.com/?1',
             ),
         )
         Webhook.objects.bulk_create(webhooks)
-        for webhook in webhooks:
-            webhook.content_types.add(site_ct, rack_ct)
+
+
+class EventRuleTest(APIViewTestCases.APIViewTestCase):
+    model = EventRule
+    brief_fields = ['display', 'id', 'name', 'url']
+    bulk_update_data = {
+        'enabled': False,
+        'description': 'New description',
+    }
+    update_data = {
+        'name': 'Event Rule X',
+        'enabled': False,
+        'description': 'New description',
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        webhooks = (
+            Webhook(
+                name='Webhook 1',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 2',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 3',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 4',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 5',
+                payload_url='http://example.com/?1',
+            ),
+            Webhook(
+                name='Webhook 6',
+                payload_url='http://example.com/?1',
+            ),
+        )
+        Webhook.objects.bulk_create(webhooks)
+
+        event_rules = (
+            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
+            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
+            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+        )
+        EventRule.objects.bulk_create(event_rules)
+
+        cls.create_data = [
+            {
+                'name': 'EventRule 4',
+                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'type_create': True,
+                'action_type': EventRuleActionChoices.WEBHOOK,
+                'action_object_type': 'extras.webhook',
+                'action_object_id': webhooks[3].pk,
+            },
+            {
+                'name': 'EventRule 5',
+                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'type_create': True,
+                'action_type': EventRuleActionChoices.WEBHOOK,
+                'action_object_type': 'extras.webhook',
+                'action_object_id': webhooks[4].pk,
+            },
+            {
+                'name': 'EventRule 6',
+                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'type_create': True,
+                'action_type': EventRuleActionChoices.WEBHOOK,
+                'action_object_type': 'extras.webhook',
+                'action_object_id': webhooks[5].pk,
+            },
+        ]
 
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):

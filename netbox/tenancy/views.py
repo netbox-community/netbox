@@ -2,14 +2,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
-from circuits.models import Circuit
-from dcim.models import Cable, Device, Location, PowerFeed, Rack, RackReservation, Site, VirtualDeviceContext
-from ipam.models import Aggregate, ASN, IPAddress, IPRange, L2VPN, Prefix, VLAN, VRF
 from netbox.views import generic
-from utilities.utils import count_related
+from utilities.utils import count_related, get_related_models
 from utilities.views import register_model_view, ViewTab
-from virtualization.models import VirtualMachine, Cluster
-from wireless.models import WirelessLAN, WirelessLink
 from . import filtersets, forms, tables
 from .models import *
 
@@ -132,32 +127,8 @@ class TenantView(generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         related_models = [
-            # DCIM
-            (Site.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Rack.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (RackReservation.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Location.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Device.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (VirtualDeviceContext.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Cable.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (PowerFeed.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            # IPAM
-            (VRF.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Aggregate.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Prefix.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (IPRange.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (IPAddress.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (ASN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (VLAN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (L2VPN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            # Circuits
-            (Circuit.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            # Virtualization
-            (VirtualMachine.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (Cluster.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            # Wireless
-            (WirelessLAN.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
-            (WirelessLink.objects.restrict(request.user, 'view').filter(tenant=instance), 'tenant_id'),
+            (model.objects.restrict(request.user, 'view').filter(tenant=instance), f'{field}_id')
+            for model, field in get_related_models(Tenant)
         ]
 
         return {
@@ -386,7 +357,12 @@ class ContactAssignmentListView(generic.ObjectListView):
     filterset = filtersets.ContactAssignmentFilterSet
     filterset_form = forms.ContactAssignmentFilterForm
     table = tables.ContactAssignmentTable
-    actions = ('export', 'bulk_edit', 'bulk_delete', 'import')
+    actions = {
+        'import': {'add'},
+        'export': {'view'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+    }
 
 
 @register_model_view(ContactAssignment, 'edit')

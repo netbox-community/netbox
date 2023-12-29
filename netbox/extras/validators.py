@@ -6,11 +6,33 @@ from django.utils.translation import gettext_lazy as _
 # anything from NetBox itself.
 
 
+class IsEqualValidator(validators.BaseValidator):
+    """
+    Employed by CustomValidator to require a specific value.
+    """
+    message = _("Ensure this value is equal to %(limit_value)s.")
+    code = "is_equal"
+
+    def compare(self, a, b):
+        return a != b
+
+
+class IsNotEqualValidator(validators.BaseValidator):
+    """
+    Employed by CustomValidator to exclude a specific value.
+    """
+    message = _("Ensure this value does not equal %(limit_value)s.")
+    code = "is_not_equal"
+
+    def compare(self, a, b):
+        return a == b
+
+
 class IsEmptyValidator:
     """
     Employed by CustomValidator to enforce required fields.
     """
-    message = "This field must be empty."
+    message = _("This field must be empty.")
     code = 'is_empty'
 
     def __init__(self, enforce=True):
@@ -25,7 +47,7 @@ class IsNotEmptyValidator:
     """
     Employed by CustomValidator to enforce prohibited fields.
     """
-    message = "This field must not be empty."
+    message = _("This field must not be empty.")
     code = 'not_empty'
 
     def __init__(self, enforce=True):
@@ -51,6 +73,8 @@ class CustomValidator:
     :param validation_rules: A dictionary mapping object attributes to validation rules
     """
     VALIDATORS = {
+        'eq': IsEqualValidator,
+        'neq': IsNotEqualValidator,
         'min': validators.MinValueValidator,
         'max': validators.MaxValueValidator,
         'min_length': validators.MinLengthValidator,

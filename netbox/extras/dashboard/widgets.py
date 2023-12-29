@@ -7,15 +7,13 @@ import feedparser
 import requests
 from django import forms
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, resolve, reverse
 from django.utils.translation import gettext as _
 
+from core.models import ContentType
 from extras.choices import BookmarkOrderingChoices
-from extras.utils import FeatureQuery
 from utilities.choices import ButtonColorChoices
 from utilities.forms import BootstrapMixin
 from utilities.permissions import get_permission_for_model
@@ -34,13 +32,17 @@ __all__ = (
 )
 
 
-def get_content_type_labels():
+def get_object_type_choices():
     return [
         (content_type_identifier(ct), content_type_name(ct))
-        for ct in ContentType.objects.filter(
-            FeatureQuery('export_templates').get_query() | Q(app_label='extras', model='objectchange') |
-            Q(app_label='extras', model='configcontext')
-        ).order_by('app_label', 'model')
+        for ct in ContentType.objects.public().order_by('app_label', 'model')
+    ]
+
+
+def get_bookmarks_object_type_choices():
+    return [
+        (content_type_identifier(ct), content_type_name(ct))
+        for ct in ContentType.objects.with_feature('bookmarks').order_by('app_label', 'model')
     ]
 
 
@@ -163,7 +165,7 @@ class ObjectCountsWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         models = forms.MultipleChoiceField(
-            choices=get_content_type_labels
+            choices=get_object_type_choices
         )
         filters = forms.JSONField(
             required=False,
@@ -212,7 +214,7 @@ class ObjectListWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         model = forms.ChoiceField(
-            choices=get_content_type_labels
+            choices=get_object_type_choices
         )
         page_size = forms.IntegerField(
             required=False,
@@ -348,8 +350,7 @@ class BookmarksWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         object_types = forms.MultipleChoiceField(
-            # TODO: Restrict the choices by FeatureQuery('bookmarks')
-            choices=get_content_type_labels,
+            choices=get_bookmarks_object_type_choices,
             required=False
         )
         order_by = forms.ChoiceField(

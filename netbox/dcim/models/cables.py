@@ -2,7 +2,6 @@ import itertools
 from collections import defaultdict
 
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -10,12 +9,12 @@ from django.dispatch import Signal
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.models import ChangeLoggedModel, PrimaryModel
-
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import to_meters
@@ -258,7 +257,7 @@ class CableTermination(ChangeLoggedModel):
         verbose_name=_('end')
     )
     termination_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=CABLE_TERMINATION_MODELS,
         on_delete=models.PROTECT,
         related_name='+'
@@ -299,6 +298,9 @@ class CableTermination(ChangeLoggedModel):
 
     class Meta:
         ordering = ('cable', 'cable_end', 'pk')
+        indexes = (
+            models.Index(fields=('termination_type', 'termination_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('termination_type', 'termination_id'),
@@ -441,6 +443,8 @@ class CablePath(models.Model):
         default=False
     )
     _nodes = PathField()
+
+    _netbox_private = True
 
     class Meta:
         verbose_name = _('cable path')

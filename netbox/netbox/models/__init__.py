@@ -30,7 +30,7 @@ class NetBoxFeatureSet(
     ExportTemplatesMixin,
     JournalingMixin,
     TagsMixin,
-    WebhooksMixin
+    EventRulesMixin
 ):
     class Meta:
         abstract = True
@@ -44,7 +44,7 @@ class NetBoxFeatureSet(
 # Base model classes
 #
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, WebhooksMixin, models.Model):
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, EventRulesMixin, models.Model):
     """
     Base model for ancillary models; provides limited functionality for models which don't
     support NetBox's full feature set.

@@ -45,6 +45,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
     )
 
     objects = RestrictedQuerySet.as_manager()
+    _netbox_private = True
 
     class Meta:
         ordering = ('file_root', 'file_path')

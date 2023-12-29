@@ -3,12 +3,12 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
-from extras.choices import CustomFieldFilterLogicChoices, CustomFieldTypeChoices, CustomFieldVisibilityChoices
-from extras.forms.mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
+from extras.choices import *
 from extras.models import CustomField, Tag
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.mixins import BootstrapMixin, CheckLastUpdatedMixin
+from .mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 
 __all__ = (
     'NetBoxModelForm',
@@ -87,11 +87,9 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     )
 
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(content_types=content_type).filter(
-            ui_visibility__in=[
-                CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
-                CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET,
-            ]
+        return CustomField.objects.filter(
+            content_types=content_type,
+            ui_editable=CustomFieldUIEditableChoices.YES
         )
 
     def _get_form_field(self, customfield):
@@ -142,7 +140,8 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
 
     def _extend_nullable_fields(self):
         nullable_custom_fields = [
-            name for name, customfield in self.custom_fields.items() if (not customfield.required and customfield.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE)
+            name for name, customfield in self.custom_fields.items()
+            if (not customfield.required and customfield.ui_editable == CustomFieldUIEditableChoices.YES)
         ]
         self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 

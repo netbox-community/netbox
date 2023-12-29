@@ -53,8 +53,7 @@ django-tables2
 
 # User-defined tags for objects
 # https://github.com/jazzband/django-taggit/blob/master/CHANGELOG.rst
-# TODO: Upgrade to v5.0 for NetBox v3.7 beta
-django-taggit<5.0
+django-taggit
 
 # A Django field for representing time zones
 # https://github.com/mfogel/django-timezone-field/
@@ -90,9 +89,8 @@ gunicorn
 Jinja2
 
 # Simple markup language for rendering HTML
-# https://python-markdown.github.io/change_log/
-# mkdocs currently requires Markdown v3.3
-Markdown<3.4
+# https://python-markdown.github.io/changelog/
+Markdown
 
 # File inclusion plugin for Python-Markdown
 # https://github.com/cmacmackin/markdown-include
@@ -125,10 +123,6 @@ PyYAML
 # Requests
 # https://github.com/psf/requests/blob/main/HISTORY.md
 requests
-
-# Sentry SDK
-# https://github.com/getsentry/sentry-python/blob/master/CHANGELOG.md
-sentry-sdk
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md

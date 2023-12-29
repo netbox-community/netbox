@@ -240,6 +240,40 @@ class RackTestCase(TestCase):
         # Check that Device1 is now assigned to Site B
         self.assertEqual(Device.objects.get(pk=device1.pk).site, site_b)
 
+    def test_utilization(self):
+        site = Site.objects.first()
+        rack = Rack.objects.first()
+
+        Device(
+            name='Device 1',
+            role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.first(),
+            site=site,
+            rack=rack,
+            position=1
+        ).save()
+        rack.refresh_from_db()
+        self.assertEqual(rack.get_utilization(), 1 / 42 * 100)
+
+        # create device excluded from utilization calculations
+        dt = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.first(),
+            model='Device Type 4',
+            slug='device-type-4',
+            u_height=1,
+            exclude_from_utilization=True
+        )
+        Device(
+            name='Device 2',
+            role=DeviceRole.objects.first(),
+            device_type=dt,
+            site=site,
+            rack=rack,
+            position=5
+        ).save()
+        rack.refresh_from_db()
+        self.assertEqual(rack.get_utilization(), 1 / 42 * 100)
+
 
 class DeviceTestCase(TestCase):
 

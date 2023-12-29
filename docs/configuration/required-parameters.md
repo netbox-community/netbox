@@ -59,10 +59,7 @@ DATABASE = {
 
 ## REDIS
 
-[Redis](https://redis.io/) is an in-memory data store similar to memcached. While Redis has been an optional component of
-NetBox since the introduction of webhooks in version 2.4, it is required starting in 2.6 to support NetBox's caching
-functionality (as well as other planned features). In 2.7, the connection settings were broken down into two sections for
-task queuing and caching, allowing the user to connect to different Redis instances/databases per feature.
+[Redis](https://redis.io/) is a lightweight in-memory data store similar to memcached. NetBox employs Redis for background task queuing and other features.
 
 Redis is configured using a configuration setting similar to `DATABASE` and these settings are the same for both of the `tasks` and `caching` subsections:
 
@@ -81,7 +78,7 @@ REDIS = {
     'tasks': {
         'HOST': 'redis.example.com',
         'PORT': 1234,
-        'USERNAME': 'netbox'
+        'USERNAME': 'netbox',
         'PASSWORD': 'foobar',
         'DATABASE': 0,
         'SSL': False,
@@ -89,7 +86,7 @@ REDIS = {
     'caching': {
         'HOST': 'localhost',
         'PORT': 6379,
-        'USERNAME': ''
+        'USERNAME': '',
         'PASSWORD': '',
         'DATABASE': 1,
         'SSL': False,

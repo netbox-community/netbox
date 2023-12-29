@@ -35,6 +35,12 @@
               <th scope="row">{% trans "Status" %}</th>
               <td>{% badge object.get_status_display object.get_status_color %}</td>
             </tr>
+            {% if object.error %}
+              <tr>
+                <th scope="row">{% trans "Error" %}</th>
+                <td>{{ object.error }}</td>
+              </tr>
+            {% endif %}
             <tr>
               <th scope="row">{% trans "Created By" %}</th>
               <td>{{ object.user|placeholder }}</td>

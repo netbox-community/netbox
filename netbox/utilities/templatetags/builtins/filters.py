@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from markdown import markdown
+from markdown.extensions.tables import TableExtension
 
 from netbox.config import get_config
 from utilities.markdown import StrikethroughExtension
@@ -163,7 +164,12 @@ def render_markdown(value):
         return ''
 
     # Render Markdown
-    html = markdown(value, extensions=['def_list', 'fenced_code', 'tables', StrikethroughExtension()])
+    html = markdown(value, extensions=[
+        'def_list',
+        'fenced_code',
+        StrikethroughExtension(),
+        TableExtension(use_align_attribute=True),
+    ])
 
     # If the string is not empty wrap it in rendered-markdown to style tables
     if html:

@@ -4,10 +4,12 @@ from django.utils.translation import gettext as _
 import django_filters
 
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
+from netbox.utils import get_data_backend_choices
 from .choices import *
 from .models import *
 
 __all__ = (
+    'ConfigRevisionFilterSet',
     'DataFileFilterSet',
     'DataSourceFilterSet',
     'JobFilterSet',
@@ -16,7 +18,7 @@ __all__ = (
 
 class DataSourceFilterSet(NetBoxModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
-        choices=DataSourceTypeChoices,
+        choices=get_data_backend_choices,
         null_value=None
     )
     status = django_filters.MultipleChoiceFilter(
@@ -121,4 +123,24 @@ class JobFilterSet(BaseFilterSet):
         return queryset.filter(
             Q(user__username__icontains=value) |
             Q(name__icontains=value)
+        )
+
+
+class ConfigRevisionFilterSet(BaseFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+
+    class Meta:
+        model = ConfigRevision
+        fields = [
+            'id',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(comment__icontains=value)
         )

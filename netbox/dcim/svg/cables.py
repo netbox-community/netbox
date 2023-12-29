@@ -159,6 +159,7 @@ class CableTraceSVG:
             labels.append(location_label)
         elif instance._meta.model_name == 'circuit':
             labels[0] = f'Circuit {instance}'
+            labels.append(instance.type)
             labels.append(instance.provider)
             if instance.description:
                 labels.append(instance.description)
@@ -181,6 +182,8 @@ class CableTraceSVG:
         if hasattr(instance, 'role'):
             # Device
             return instance.role.color
+        elif instance._meta.model_name == 'circuit' and instance.type.color:
+            return instance.type.color
         else:
             # Other parent object
             return 'e0e0e0'

@@ -116,17 +116,17 @@ class ModuleCommonForm(forms.Form):
                 # It is not possible to adopt components already belonging to a module
                 if adopt_components and existing_item and existing_item.module:
                     raise forms.ValidationError(
-                        _("Cannot adopt {name} '{resolved_name}' as it already belongs to a module").format(
-                            name=template.component_model.__name__,
-                            resolved_name=resolved_name
+                        _("Cannot adopt {model} {name} as it already belongs to a module").format(
+                            model=template.component_model.__name__,
+                            name=resolved_name
                         )
                     )
 
                 # If we are not adopting components we error if the component exists
                 if not adopt_components and resolved_name in installed_components:
                     raise forms.ValidationError(
-                        _("{name} - {resolved_name} already exists").format(
-                            name=template.component_model.__name__,
-                            resolved_name=resolved_name
+                        _("A {model} named {name} already exists").format(
+                            model=template.component_model.__name__,
+                            name=resolved_name
                         )
                     )

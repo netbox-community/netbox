@@ -139,7 +139,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ['id', 'name', 'slug', 'color', 'description']
 
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
@@ -156,12 +156,12 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
     provider_account_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account',
         queryset=ProviderAccount.objects.all(),
-        label=_('ProviderAccount (ID)'),
+        label=_('Provider account (ID)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__provider_network',
         queryset=ProviderNetwork.objects.all(),
-        label=_('ProviderNetwork (ID)'),
+        label=_('Provider network (ID)'),
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitType.objects.all(),

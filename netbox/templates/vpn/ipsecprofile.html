@@ -1,0 +1,108 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "IPSec Profile" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Mode" %}</th>
+              <td>{{ object.get_mode_display }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "IKE Policy" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ object.ike_policy|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.ike_policy.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Version" %}</th>
+              <td>{{ object.ike_policy.get_version_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Mode" %}</th>
+              <td>{{ object.ike_policy.get_mode_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Proposals" %}</th>
+              <td>
+                <ul class="list-unstyled mb-0">
+                  {% for proposal in object.ike_policy.proposals.all %}
+                    <li>
+                      <a href="{{ proposal.get_absolute_url }}">{{ proposal }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h5 class="card-header">{% trans "IPSec Policy" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ object.ipsec_policy|linkify }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.ipsec_policy.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Proposals" %}</th>
+              <td>
+                <ul class="list-unstyled mb-0">
+                  {% for proposal in object.ipsec_policy.proposals.all %}
+                    <li>
+                      <a href="{{ proposal.get_absolute_url }}">{{ proposal }}</a>
+                    </li>
+                  {% endfor %}
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "PFS Group" %}</th>
+              <td>{{ object.ipsec_policy.get_pfs_group_display }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

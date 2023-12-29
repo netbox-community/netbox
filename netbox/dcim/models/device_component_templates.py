@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -534,14 +533,16 @@ class FrontPortTemplate(ModularComponentTemplateModel):
             # Validate rear port assignment
             if self.rear_port.device_type != self.device_type:
                 raise ValidationError(
-                    _("Rear port ({}) must belong to the same device type").format(self.rear_port)
+                    _("Rear port ({name}) must belong to the same device type").format(name=self.rear_port)
                 )
 
             # Validate rear port position assignment
             if self.rear_port_position > self.rear_port.positions:
                 raise ValidationError(
-                    _("Invalid rear port position ({}); rear port {} has only {} positions").format(
-                        self.rear_port_position, self.rear_port.name, self.rear_port.positions
+                    _("Invalid rear port position ({position}); rear port {name} has only {count} positions").format(
+                        position=self.rear_port_position,
+                        name=self.rear_port.name,
+                        count=self.rear_port.positions
                     )
                 )
 
@@ -707,7 +708,7 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
         db_index=True
     )
     component_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=MODULAR_COMPONENT_TEMPLATE_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
@@ -748,6 +749,9 @@ class InventoryItemTemplate(MPTTModel, ComponentTemplateModel):
 
     class Meta:
         ordering = ('device_type__id', 'parent__id', '_name')
+        indexes = (
+            models.Index(fields=('component_type', 'component_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device_type', 'parent', 'name'),

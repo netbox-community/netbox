@@ -4,7 +4,6 @@ from django.conf import settings
 import django.core.validators
 from django.db import migrations, models
 import django.db.models.deletion
-import extras.utils
 
 
 class Migration(migrations.Migration):
@@ -30,7 +29,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(default='pending', max_length=30)),
                 ('data', models.JSONField(blank=True, null=True)),
                 ('job_id', models.UUIDField(unique=True)),
-                ('object_type', models.ForeignKey(limit_choices_to=extras.utils.FeatureQuery('jobs'), on_delete=django.db.models.deletion.CASCADE, related_name='jobs', to='contenttypes.contenttype')),
+                ('object_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='jobs', to='contenttypes.contenttype')),
                 ('user', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to=settings.AUTH_USER_MODEL)),
             ],
             options={

@@ -16,7 +16,6 @@ from circuits.models import Provider
 from dcim.models import Site
 from ipam import filtersets
 from ipam.models import *
-from ipam.models import L2VPN, L2VPNTermination
 from ipam.utils import get_next_available_prefix
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
@@ -178,18 +177,6 @@ class ServiceViewSet(NetBoxModelViewSet):
     )
     serializer_class = serializers.ServiceSerializer
     filterset_class = filtersets.ServiceFilterSet
-
-
-class L2VPNViewSet(NetBoxModelViewSet):
-    queryset = L2VPN.objects.prefetch_related('import_targets', 'export_targets', 'tenant', 'tags')
-    serializer_class = serializers.L2VPNSerializer
-    filterset_class = filtersets.L2VPNFilterSet
-
-
-class L2VPNTerminationViewSet(NetBoxModelViewSet):
-    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
-    serializer_class = serializers.L2VPNTerminationSerializer
-    filterset_class = filtersets.L2VPNTerminationFilterSet
 
 
 #

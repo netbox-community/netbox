@@ -1,14 +1,12 @@
 from django import forms
-from extras.forms.mixins import SavedFiltersMixin
-from utilities.forms import FilterForm
-from users.models import Token
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelFilterSetForm
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission
-from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
+from netbox.forms.mixins import SavedFiltersMixin
+from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DateTimePicker
 

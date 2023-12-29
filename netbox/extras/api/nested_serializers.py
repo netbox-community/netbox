@@ -10,13 +10,23 @@ __all__ = [
     'NestedCustomFieldChoiceSetSerializer',
     'NestedCustomFieldSerializer',
     'NestedCustomLinkSerializer',
+    'NestedEventRuleSerializer',
     'NestedExportTemplateSerializer',
     'NestedImageAttachmentSerializer',
     'NestedJournalEntrySerializer',
     'NestedSavedFilterSerializer',
+    'NestedScriptSerializer',
     'NestedTagSerializer',  # Defined in netbox.api.serializers
     'NestedWebhookSerializer',
 ]
+
+
+class NestedEventRuleSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
+
+    class Meta:
+        model = models.EventRule
+        fields = ['id', 'url', 'display', 'name']
 
 
 class NestedWebhookSerializer(WritableNestedSerializer):
@@ -105,3 +115,20 @@ class NestedJournalEntrySerializer(WritableNestedSerializer):
     class Meta:
         model = models.JournalEntry
         fields = ['id', 'url', 'display', 'created']
+
+
+class NestedScriptSerializer(WritableNestedSerializer):
+    url = serializers.HyperlinkedIdentityField(
+        view_name='extras-api:script-detail',
+        lookup_field='full_name',
+        lookup_url_kwarg='pk'
+    )
+    name = serializers.CharField(read_only=True)
+    display = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = models.Script
+        fields = ['id', 'url', 'display', 'name']
+
+    def get_display(self, obj):
+        return f'{obj.name} ({obj.module})'

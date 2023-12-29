@@ -7,18 +7,6 @@ from utilities.choices import ChoiceSet
 # Data sources
 #
 
-class DataSourceTypeChoices(ChoiceSet):
-    LOCAL = 'local'
-    GIT = 'git'
-    AMAZON_S3 = 'amazon-s3'
-
-    CHOICES = (
-        (LOCAL, _('Local'), 'gray'),
-        (GIT, 'Git', 'blue'),
-        (AMAZON_S3, 'Amazon S3', 'blue'),
-    )
-
-
 class DataSourceStatusChoices(ChoiceSet):
     NEW = 'new'
     QUEUED = 'queued'

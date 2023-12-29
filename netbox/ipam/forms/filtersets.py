@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from dcim.models import Location, Rack, Region, Site, SiteGroup, Device
@@ -9,10 +8,9 @@ from ipam.models import *
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
-from utilities.forms.fields import (
-    ContentTypeMultipleChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
-)
+from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from virtualization.models import VirtualMachine
+from vpn.models import L2VPN
 
 __all__ = (
     'AggregateFilterForm',
@@ -21,8 +19,6 @@ __all__ = (
     'FHRPGroupFilterForm',
     'IPAddressFilterForm',
     'IPRangeFilterForm',
-    'L2VPNFilterForm',
-    'L2VPNTerminationFilterForm',
     'PrefixFilterForm',
     'RIRFilterForm',
     'RoleFilterForm',
@@ -541,90 +537,3 @@ class ServiceFilterForm(ServiceTemplateFilterForm):
         label=_('Virtual Machine'),
     )
     tag = TagFilterField(model)
-
-
-class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
-    model = L2VPN
-    fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('type', 'import_target_id', 'export_target_id')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-    )
-    type = forms.ChoiceField(
-        label=_('Type'),
-        choices=add_blank_choice(L2VPNTypeChoices),
-        required=False
-    )
-    import_target_id = DynamicModelMultipleChoiceField(
-        queryset=RouteTarget.objects.all(),
-        required=False,
-        label=_('Import targets')
-    )
-    export_target_id = DynamicModelMultipleChoiceField(
-        queryset=RouteTarget.objects.all(),
-        required=False,
-        label=_('Export targets')
-    )
-    tag = TagFilterField(model)
-
-
-class L2VPNTerminationFilterForm(NetBoxModelFilterSetForm):
-    model = L2VPNTermination
-    fieldsets = (
-        (None, ('filter_id', 'l2vpn_id',)),
-        (_('Assigned Object'), (
-            'assigned_object_type_id', 'region_id', 'site_id', 'device_id', 'virtual_machine_id', 'vlan_id',
-        )),
-    )
-    l2vpn_id = DynamicModelChoiceField(
-        queryset=L2VPN.objects.all(),
-        required=False,
-        label=_('L2VPN')
-    )
-    assigned_object_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.filter(L2VPN_ASSIGNMENT_MODELS),
-        required=False,
-        label=_('Assigned Object Type'),
-        limit_choices_to=L2VPN_ASSIGNMENT_MODELS
-    )
-    region_id = DynamicModelMultipleChoiceField(
-        queryset=Region.objects.all(),
-        required=False,
-        label=_('Region')
-    )
-    site_id = DynamicModelMultipleChoiceField(
-        queryset=Site.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'region_id': '$region_id'
-        },
-        label=_('Site')
-    )
-    device_id = DynamicModelMultipleChoiceField(
-        queryset=Device.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'site_id': '$site_id'
-        },
-        label=_('Device')
-    )
-    vlan_id = DynamicModelMultipleChoiceField(
-        queryset=VLAN.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'site_id': '$site_id'
-        },
-        label=_('VLAN')
-    )
-    virtual_machine_id = DynamicModelMultipleChoiceField(
-        queryset=VirtualMachine.objects.all(),
-        required=False,
-        null_option='None',
-        query_params={
-            'site_id': '$site_id'
-        },
-        label=_('Virtual Machine')
-    )

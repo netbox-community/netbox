@@ -1,7 +1,6 @@
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -537,7 +536,7 @@ class BaseInterface(models.Model):
     )
     parent = models.ForeignKey(
         to='self',
-        on_delete=models.SET_NULL,
+        on_delete=models.RESTRICT,
         related_name='child_interfaces',
         null=True,
         blank=True,
@@ -566,6 +565,10 @@ class BaseInterface(models.Model):
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
+
+    @property
+    def tunnel_termination(self):
+        return self.tunnel_terminations.first()
 
     @property
     def count_ipaddresses(self):
@@ -720,8 +723,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         object_id_field='interface_id',
         related_query_name='+'
     )
+    tunnel_terminations = GenericRelation(
+        to='vpn.TunnelTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='interface'
+    )
     l2vpn_terminations = GenericRelation(
-        to='ipam.L2VPNTermination',
+        to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface',
@@ -1181,7 +1190,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         db_index=True
     )
     component_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=MODULAR_COMPONENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
@@ -1241,6 +1250,9 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
+        indexes = (
+            models.Index(fields=('component_type', 'component_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'parent', 'name'),

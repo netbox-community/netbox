@@ -4,26 +4,14 @@
 
 ### Enabling Error Reporting
 
-NetBox supports native integration with [Sentry](https://sentry.io/) for automatic error reporting. To enable this functionality, simply set `SENTRY_ENABLED` to True in `configuration.py`. Errors will be sent to a Sentry ingestor maintained by the NetBox team for analysis.
-
-```python
-SENTRY_ENABLED = True
-```
-
-### Using a Custom DSN
-
-If you prefer instead to use your own Sentry ingestor, you'll need to first create a new project under your Sentry account to represent your NetBox deployment and obtain its corresponding data source name (DSN). This looks like a URL similar to the example below:
-
-```
-https://examplePublicKey@o0.ingest.sentry.io/0
-```
-
-Once you have obtained a DSN, configure Sentry in NetBox's `configuration.py` file with the following parameters:
+NetBox supports native integration with [Sentry](https://sentry.io/) for automatic error reporting. To enable this functionality, set `SENTRY_ENABLED` to True and define your unique [data source name (DSN)](https://docs.sentry.io/product/sentry-basics/concepts/dsn-explainer/) in `configuration.py`.
 
 ```python
 SENTRY_ENABLED = True
 SENTRY_DSN = "https://examplePublicKey@o0.ingest.sentry.io/0"
 ```
+
+Setting `SENTRY_ENABLED` to False will disable the Sentry integration.
 
 ### Assigning Tags
 

@@ -16,6 +16,9 @@ The interface's name. Must be unique to the assigned VM.
 
 Identifies the parent interface of a subinterface (e.g. used to employ encapsulation).
 
+!!! note
+    An interface with one or more child interfaces assigned cannot be deleted until all its child interfaces have been deleted or reassigned.
+
 ### Bridged Interface
 
 An interface on the same VM with which this interface is bridged.

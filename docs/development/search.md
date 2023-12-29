@@ -17,6 +17,7 @@ class MyModelIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('site', 'device', 'status', 'description')
 ```
 
 A SearchIndex subclass defines both its model and a list of two-tuples specifying which model fields to be indexed and the weight (precedence) associated with each. Guidance on weight assignment for fields is provided below.

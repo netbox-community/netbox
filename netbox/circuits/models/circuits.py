@@ -7,6 +7,7 @@ from circuits.choices import *
 from dcim.models import CabledObjectModel
 from netbox.models import ChangeLoggedModel, OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, CustomFieldsMixin, CustomLinksMixin, ImageAttachmentsMixin, TagsMixin
+from utilities.fields import ColorField
 
 __all__ = (
     'Circuit',
@@ -20,6 +21,11 @@ class CircuitType(OrganizationalModel):
     Circuits can be organized by their functional role. For example, a user might wish to define CircuitTypes named
     "Long Haul," "Metro," or "Out-of-Band".
     """
+    color = ColorField(
+        verbose_name=_('color'),
+        blank=True
+    )
+
     def get_absolute_url(self):
         return reverse('circuits:circuittype', args=[self.pk])
 

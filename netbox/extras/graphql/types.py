@@ -8,6 +8,7 @@ __all__ = (
     'CustomFieldChoiceSetType',
     'CustomFieldType',
     'CustomLinkType',
+    'EventRuleType',
     'ExportTemplateType',
     'ImageAttachmentType',
     'JournalEntryType',
@@ -110,5 +111,12 @@ class WebhookType(OrganizationalObjectType):
 
     class Meta:
         model = models.Webhook
-        exclude = ('content_types', )
         filterset_class = filtersets.WebhookFilterSet
+
+
+class EventRuleType(OrganizationalObjectType):
+
+    class Meta:
+        model = models.EventRule
+        exclude = ('content_types', )
+        filterset_class = filtersets.EventRuleFilterSet

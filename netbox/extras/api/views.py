@@ -38,6 +38,17 @@ class ExtrasRootView(APIRootView):
 
 
 #
+# EventRules
+#
+
+class EventRuleViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = EventRule.objects.all()
+    serializer_class = serializers.EventRuleSerializer
+    filterset_class = filtersets.EventRuleFilterSet
+
+
+#
 # Webhooks
 #
 

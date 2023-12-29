@@ -48,7 +48,7 @@ class JobTable(NetBoxTable):
         model = Job
         fields = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'scheduled', 'interval', 'started',
-            'completed', 'user', 'job_id',
+            'completed', 'user', 'error', 'job_id',
         )
         default_columns = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'user',

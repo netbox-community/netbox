@@ -64,16 +64,25 @@ Defines how filters are evaluated against custom field values.
 | Loose    | Match any occurrence of the value   |
 | Exact    | Match only the complete field value |
 
-### UI Visibility
+### UI Visible
 
-Controls how and whether the custom field is displayed within the NetBox user interface.
+Controls whether the custom field is displayed for objects within the NetBox user interface.
 
-| Option            | Description                                      |
-|-------------------|--------------------------------------------------|
-| Read/write        | Display and permit editing (default)             |
-| Read-only         | Display field but disallow editing               |
-| Hidden            | Do not display field in the UI                   |
-| Hidden (if unset) | Display in the UI only when a value has been set |
+| Option | Description                                                    |
+|--------|----------------------------------------------------------------|
+| Always | The field is always displayed when viewing an object (default) |
+| If set | The field is displayed only if a value has been defined        |
+| Hidden | The field is not displayed when viewing an object              |
+
+### UI Editable
+
+Controls whether the custom field is editable on objects within the NetBox user interface.
+
+| Option | Description                                                                  |
+|--------|------------------------------------------------------------------------------|
+| Yes    | The field's value may be changed when editing an object (default)            |
+| No     | The field's value is displayed when editing an object but may not be altered |
+| Hidden | The field is not displayed when editing an object                            |
 
 ### Default
 
