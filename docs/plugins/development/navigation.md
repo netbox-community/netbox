@@ -5,7 +5,7 @@
 A plugin can register its own submenu as part of NetBox's navigation menu. This is done by defining a variable named `menu` in `navigation.py`, pointing to an instance of the `PluginMenu` class. Each menu must define a label and grouped menu items (discussed below), and may optionally specify an icon. An example is shown below.
 
 ```python title="navigation.py"
-from extras.plugins import PluginMenu
+from netbox.plugins import PluginMenu
 
 menu = PluginMenu(
     label='My Plugin',
@@ -49,7 +49,7 @@ menu_items = (item1, item2, item3)
 Each menu item represents a link and (optionally) a set of buttons comprising one entry in NetBox's navigation menu. Menu items are defined as PluginMenuItem instances. An example is shown below.
 
 ```python title="navigation.py"
-from extras.plugins import PluginMenuButton, PluginMenuItem
+from netbox.plugins import PluginMenuButton, PluginMenuItem
 from utilities.choices import ButtonColorChoices
 
 item1 = PluginMenuItem(

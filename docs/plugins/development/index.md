@@ -69,7 +69,7 @@ The plugin source directory contains all the actual Python code and other resour
 The `PluginConfig` class is a NetBox-specific wrapper around Django's built-in [`AppConfig`](https://docs.djangoproject.com/en/stable/ref/applications/) class. It is used to declare NetBox plugin functionality within a Python package. Each plugin should provide its own subclass, defining its name, metadata, and default and required configuration parameters. An example is below:
 
 ```python
-from extras.plugins import PluginConfig
+from netbox.plugins import PluginConfig
 
 class FooBarConfig(PluginConfig):
     name = 'foo_bar'
@@ -121,7 +121,7 @@ All required settings must be configured by the user. If a configuration paramet
     Plugin configuration parameters can be accessed using the `get_plugin_config()` function. For example:
     
     ```python
-    from extras.plugins import get_plugin_config
+    from netbox.plugins import get_plugin_config
     get_plugin_config('my_plugin', 'verbose_name')
     ```
 
