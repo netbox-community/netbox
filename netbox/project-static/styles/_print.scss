@@ -7,9 +7,7 @@
     --nbx-body-color: #000 !important;
   }
 
-  html,
-  html[data-netbox-color-mode='dark'],
-  html[data-netbox-color-mode='light'] {
+  html {
     @import './theme-light';
     @import './bootstrap';
     @import './select';

@@ -53,11 +53,6 @@
     />
     <link
       rel="stylesheet"
-      href="{% static 'netbox-dark.css'%}?v={{ settings.VERSION }}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox-dark.css'"
-    />
-    <link
-      rel="stylesheet"
       media="print"
       href="{% static 'netbox-print.css'%}?v={{ settings.VERSION }}"
       onerror="window.location='{% url 'media_failure' %}?filename=netbox-print.css'"
