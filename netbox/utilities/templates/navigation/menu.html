@@ -19,11 +19,11 @@
         <div class="dropdown-menu-columns">
           <div class="dropdown-menu-column">
             {% for group, items in groups %}
-              <div class="hr-text dropdown-item m-0 ps-2">
+              <div class="hr-text dropdown-item m-0 px-2">
                 <span>{{ group.label }}</span>
               </div>
               {% for item, buttons in items %}
-                <a class="dropdown-item ps-2" href="{% url item.link %}">
+                <a class="dropdown-item ps-3" href="{% url item.link %}">
                   {{ item.link_text }}
                 </a>
               {% endfor %}
