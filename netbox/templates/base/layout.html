@@ -115,7 +115,7 @@ Blocks:
     <div class="page-wrapper">
 
       {# Page header #}
-      <div class="page-header d-print-none">
+      <div class="page-header mt-2 d-print-none">
         <div class="container-xl">
 
           {% if config.BANNER_TOP %}
@@ -139,17 +139,18 @@ Blocks:
           {% endif %}
 
           {% block header %}
-            <div class="title-container px-3 pb-3">
+            <div class="row align-items-center">
 
               {# Title #}
-              <div id="content-title">
-                {# Center-align title in object-edit views #}
-                <h1 class="h2 w-100">{% block title %}{% endblock title %}</h1>
+              <div class="col">
+                <h2 class="page-title">{% block title %}{% endblock title %}</h2>
                 {% block subtitle %}{% endblock %}
               </div>
 
               {# Controls #}
-              {% block controls %}{% endblock controls %}
+              <div class="col-auto ms-auto d-print-none">
+                {% block controls %}{% endblock controls %}
+              </div>
 
             </div>
           {% endblock header %}
@@ -161,10 +162,9 @@ Blocks:
       <div class="page-body">
         <div class="container-xl">
           {% block tabs %}{% endblock %}
+          {# TODO: Remove content-wrapper block #}
           {% block content-wrapper %}
-            <div class="px-3">
               {% block content %}{% endblock %}
-            </div>
           {% endblock %}
           {# Bottom banner #}
           {% if config.BANNER_BOTTOM %}
