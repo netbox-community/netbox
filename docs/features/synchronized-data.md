@@ -1,6 +1,6 @@
 # Synchronized Data
 
-Several models in NetBox support the automatic synchronization of local data from a designated remote source. For example, [configuration templates](./configuration-rendering.md) defined in NetBox can source their content from text files stored in a remote git repository. This accomplished using the core [data source](../models/core/datasource.md) and [data file](../models/core/datafile.md) models.
+Several models in NetBox support the automatic synchronization of local data from a designated remote source. For example, [configuration templates](./configuration-rendering.md) defined in NetBox can source their content from text files stored in a remote git repository. This is accomplished using the core [data source](../models/core/datasource.md) and [data file](../models/core/datafile.md) models.
 
 To enable remote data synchronization, the NetBox administrator first designates one or more remote data sources. NetBox currently supports the following source types:
 
