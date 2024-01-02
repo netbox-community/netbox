@@ -115,46 +115,43 @@ Blocks:
     <div class="page-wrapper">
 
       {# Page header #}
-      <div class="page-header mt-2 d-print-none">
-        <div class="container-xl">
+      <div class="container-xl mt-2 d-print-none">
+        {% if config.BANNER_TOP %}
+          <div class="text-center mx-3">
+            {{ config.BANNER_TOP|safe }}
+          </div>
+        {% endif %}
 
-          {% if config.BANNER_TOP %}
-            <div class="text-center mx-3">
-              {{ config.BANNER_TOP|safe }}
+        {% if settings.DEBUG and not settings.DEVELOPER %}
+          <div class="alert alert-warning text-center mx-3" role="alert">
+            <strong><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</strong>
+            {% trans "Performance may be limited. Debugging should never be enabled on a production system" %}.
+          </div>
+        {% endif %}
+
+        {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
+          <div class="alert alert-warning text-center mx-3" role="alert">
+            <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
+            {{ config.BANNER_MAINTENANCE|escape }}
+          </div>
+        {% endif %}
+
+        {% block header %}
+          <div class="row align-items-center">
+
+            {# Title #}
+            <div class="col">
+              <h2 class="page-title">{% block title %}{% endblock title %}</h2>
+              {% block subtitle %}{% endblock %}
             </div>
-          {% endif %}
 
-          {% if settings.DEBUG and not settings.DEVELOPER %}
-            <div class="alert alert-warning text-center mx-3" role="alert">
-              <strong><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</strong>
-              {% trans "Performance may be limited. Debugging should never be enabled on a production system" %}.
+            {# Controls #}
+            <div class="col-auto ms-auto d-print-none">
+              {% block controls %}{% endblock controls %}
             </div>
-          {% endif %}
 
-          {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-            <div class="alert alert-warning text-center mx-3" role="alert">
-              <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
-              {{ config.BANNER_MAINTENANCE|escape }}
-            </div>
-          {% endif %}
-
-          {% block header %}
-            <div class="row align-items-center">
-
-              {# Title #}
-              <div class="col">
-                <h2 class="page-title">{% block title %}{% endblock title %}</h2>
-                {% block subtitle %}{% endblock %}
-              </div>
-
-              {# Controls #}
-              <div class="col-auto ms-auto d-print-none">
-                {% block controls %}{% endblock controls %}
-              </div>
-
-            </div>
-          {% endblock header %}
-        </div>
+          </div>
+        {% endblock header %}
       </div>
       {# /Page header #}
 
