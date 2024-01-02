@@ -108,4 +108,6 @@ Content-Type: application/x-www-form-urlencoded
 
 Note that `webhook_receiver` does not actually _do_ anything with the information received: It merely prints the request headers and body for inspection.
 
-Now, when the NetBox webhook is triggered and processed, you should see its headers and content appear in the terminal where the webhook receiver is listening. If you don't, check that the `rqworker` process is running and that webhook events are being placed into the queue (visible under the NetBox admin UI).
+Now, when the NetBox webhook is triggered and processed, you should see its headers and content appear in the terminal where the webhook receiver is listening. If you don't, check that the `rqworker` process is running and that webhook events are being placed into the queue.
+Webhook results can be found in the NetBox admin UI under the Background Tasks section.
+You can see any finished or failed runs, as well as the error stack if the webhook failed.
