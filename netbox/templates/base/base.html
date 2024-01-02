@@ -33,12 +33,6 @@
       href="{% static 'netbox.css'%}?v={{ settings.VERSION }}"
       onerror="window.location='{% url 'media_failure' %}?filename=netbox.css'"
     />
-    <link
-      rel="stylesheet"
-      media="print"
-      href="{% static 'netbox-print.css'%}?v={{ settings.VERSION }}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox-print.css'"
-    />
     <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
     <link rel="apple-touch-icon" type="image/png" href="{% static 'netbox_touch-icon-180.png' %}" />
 
