@@ -3,17 +3,18 @@ import importlib
 import importlib.util
 import os
 import platform
-import requests
 import sys
 import warnings
 from urllib.parse import urlencode, urlsplit
 
 import django
+import requests
 from django.contrib.messages import constants as messages
 from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import URLValidator
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
+
 try:
     import sentry_sdk
 except ModuleNotFoundError:
@@ -37,9 +38,9 @@ HOSTNAME = platform.node()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Validate Python version
-if sys.version_info < (3, 8):
+if sys.version_info < (3, 10):
     raise RuntimeError(
-        f"NetBox requires Python 3.8 or later. (Currently installed: Python {platform.python_version()})"
+        f"NetBox requires Python 3.10 or later. (Currently installed: Python {platform.python_version()})"
     )
 
 #

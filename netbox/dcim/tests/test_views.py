@@ -1,9 +1,5 @@
 from decimal import Decimal
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # Python 3.8
-    from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.auth import get_user_model
