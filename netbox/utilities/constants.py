@@ -20,7 +20,8 @@ FILTER_NUMERIC_BASED_LOOKUP_MAP = dict(
     lte='lte',
     lt='lt',
     gte='gte',
-    gt='gt'
+    gt='gt',
+    empty='isnull',
 )
 
 FILTER_NEGATION_LOOKUP_MAP = dict(
@@ -45,6 +46,10 @@ HTTP_REQUEST_META_SAFE_COPY = [
     'HTTP_REFERER',
     'HTTP_USER_AGENT',
     'HTTP_X_FORWARDED_FOR',
+    'HTTP_X_FORWARDED_HOST',
+    'HTTP_X_FORWARDED_PORT',
+    'HTTP_X_FORWARDED_PROTO',
+    'HTTP_X_REAL_IP',
     'QUERY_STRING',
     'REMOTE_ADDR',
     'REMOTE_HOST',
@@ -53,3 +58,14 @@ HTTP_REQUEST_META_SAFE_COPY = [
     'SERVER_NAME',
     'SERVER_PORT',
 ]
+
+
+#
+# CSV-style format delimiters
+#
+
+CSV_DELIMITERS = {
+    'comma': ',',
+    'semicolon': ';',
+    'tab': '\t',
+}

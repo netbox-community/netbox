@@ -4,6 +4,7 @@ from urllib.parse import quote
 
 import django_tables2 as tables
 from django.conf import settings
+from django.contrib.auth.context_processors import auth
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
@@ -482,8 +483,10 @@ class CustomFieldColumn(tables.Column):
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
+            return self.customfield.get_choice_label(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            return ', '.join(v for v in value)
+            return ', '.join(self.customfield.get_choice_label(v) for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)
@@ -517,24 +520,32 @@ class CustomLinkColumn(tables.Column):
 
         super().__init__(*args, **kwargs)
 
-    def render(self, record):
-        try:
-            rendered = self.customlink.render({
-                'object': record,
+    def _render_customlink(self, record, table):
+        context = {
+            'object': record,
+            'debug': settings.DEBUG,
+        }
+        if request := getattr(table, 'context', {}).get('request'):
+            # If the request is available, include it as context
+            context.update({
+                'request': request,
+                **auth(request),
             })
-            if rendered:
+
+        return self.customlink.render(context)
+
+    def render(self, record, table, **kwargs):
+        try:
+            if rendered := self._render_customlink(record, table):
                 return mark_safe(f'<a href="{rendered["link"]}"{rendered["link_target"]}>{rendered["text"]}</a>')
         except Exception as e:
             error_text = _('Error')
             return mark_safe(f'<span class="text-danger" title="{e}"><i class="mdi mdi-alert"></i> {error_text}</span>')
         return ''
 
-    def value(self, record):
+    def value(self, record, table, **kwargs):
         try:
-            rendered = self.customlink.render({
-                'object': record,
-            })
-            if rendered:
+            if rendered := self._render_customlink(record, table):
                 return rendered['link']
         except Exception:
             pass

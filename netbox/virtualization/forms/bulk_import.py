@@ -14,6 +14,7 @@ __all__ = (
     'ClusterImportForm',
     'ClusterGroupImportForm',
     'ClusterTypeImportForm',
+    'VirtualDiskImportForm',
     'VirtualMachineImportForm',
     'VMInterfaceImportForm',
 )
@@ -199,3 +200,17 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
             return True
         else:
             return self.cleaned_data['enabled']
+
+
+class VirtualDiskImportForm(NetBoxModelImportForm):
+    virtual_machine = CSVModelChoiceField(
+        label=_('Virtual machine'),
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name'
+    )
+
+    class Meta:
+        model = VirtualDisk
+        fields = (
+            'virtual_machine', 'name', 'size', 'description', 'tags'
+        )

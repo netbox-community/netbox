@@ -8,6 +8,7 @@ __all__ = (
     'CustomFieldFilter',
     'CustomFieldChoiceSetFilter',
     'CustomLinkFilter',
+    'EventRuleFilter',
     'ExportTemplateFilter',
     'ImageAttachmentFilter',
     'JournalEntryFilter',
@@ -43,7 +44,6 @@ class CustomFieldFilter(filtersets.CustomFieldFilterSet):
     required: auto
     search_weight: auto
     filter_logic: auto
-    ui_visibility: auto
     weight: auto
     is_cloneable: auto
     description: auto
@@ -135,15 +135,21 @@ class TagFilter(filtersets.TagFilterSet):
 class WebhookFilter(filtersets.WebhookFilterSet):
     id: auto
     name: auto
-    type_create: auto
-    type_update: auto
-    type_delete: auto
-    type_job_start: auto
-    type_job_end: auto
     payload_url: auto
-    enabled: auto
     http_method: auto
     http_content_type: auto
     secret: auto
     ssl_verification: auto
     ca_file_path: auto
+
+
+@strawberry.django.filter(models.EventRule, lookups=True)
+class EventRuleFilter(filtersets.EventRuleFilterSet):
+    id: auto
+    name: auto
+    enabled: auto
+    type_create: auto
+    type_update: auto
+    type_delete: auto
+    type_job_start: auto
+    type_job_end: auto

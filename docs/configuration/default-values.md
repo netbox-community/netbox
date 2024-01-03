@@ -20,7 +20,7 @@ DEFAULT_DASHBOARD = [
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
-        'height': 2,
+        'height': 3,
         'title': 'Organization',
         'config': {
             'models': [
@@ -32,6 +32,8 @@ DEFAULT_DASHBOARD = [
     },
     {
         'widget': 'extras.ObjectCountsWidget',
+        'width': 4,
+        'height': 3,
         'title': 'IPAM',
         'color': 'blue',
         'config': {

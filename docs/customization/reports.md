@@ -111,7 +111,7 @@ The following methods are available to log results within a report:
 
 The recording of one or more failure messages will automatically flag a report as failed. It is advised to log a success for each object that is evaluated so that the results will reflect how many objects are being reported on. (The inclusion of a log message is optional for successes.) Messages recorded with `log()` will appear in a report's results but are not associated with a particular object or status. Log messages also support using markdown syntax and will be rendered on the report result page.
 
-To perform additional tasks, such as sending an email or calling a webhook, before or after a report is run, extend the `pre_run()` and/or `post_run()` methods, respectively. The status of a completed report is available as `self.failed` and the results object is `self.result`.
+To perform additional tasks, such as sending an email or calling a webhook, before or after a report is run, extend the `pre_run()` and/or `post_run()` methods, respectively.
 
 By default, reports within a module are ordered alphabetically in the reports list page. To return reports in a specific order, you can define the `report_order` variable at the end of your module. The `report_order` variable is a tuple which contains each Report class in the desired order. Any reports that are omitted from this list will be listed last.
 
@@ -132,7 +132,7 @@ Once you have created a report, it will appear in the reports list. Initially, r
 ## Running Reports
 
 !!! note
-    To run a report, a user must be assigned the `extras.run_report` permission. This is achieved by assigning the user (or group) a permission on the Report object and specifying the `run` action in the admin UI as shown below.
+    To run a report, a user must be assigned via permissions for `Extras > Report`, `Extras > ReportModule`, and `Core > ManagedFile` objects. They must also be assigned the `extras.run_report` permission. This is achieved by assigning the user (or group) a permission on the Report object and specifying the `run` action in the admin UI as shown below.
 
     ![Adding the run action to a permission](../media/admin_ui_run_permission.png)
 

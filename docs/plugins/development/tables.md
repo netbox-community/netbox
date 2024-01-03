@@ -87,3 +87,28 @@ The table column classes listed below are supported for use in plugins. These cl
     options:
       members:
         - __init__
+
+## Extending Core Tables
+
+!!! info "This feature was introduced in NetBox v3.7."
+
+Plugins can register their own custom columns on core tables using the `register_table_column()` utility function. This allows a plugin to attach additional information, such as relationships to its own models, to built-in object lists.
+
+```python
+import django_tables2
+from django.utils.translation import gettext_lazy as _
+
+from dcim.tables import SiteTable
+from utilities.tables import register_table_column
+
+mycol = django_tables2.Column(
+    verbose_name=_('My Column'),
+    accessor=django_tables2.A('description')
+)
+
+register_table_column(mycol, 'foo', SiteTable)
+```
+
+You'll typically want to define an accessor identifying the desired model field or relationship when defining a custom column. See the [django-tables2 documentation](https://django-tables2.readthedocs.io/) for more information on creating custom columns.
+
+::: utilities.tables.register_table_column

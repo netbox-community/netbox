@@ -12,6 +12,7 @@ from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
+from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 
@@ -426,6 +427,97 @@ class CustomFieldTest(TestCase):
         site.refresh_from_db()
         self.assertNotIn('field1', site.custom_field_data)
         self.assertEqual(site.custom_field_data['field2'], FIELD_DATA)
+
+    def test_default_value_validation(self):
+        choiceset = CustomFieldChoiceSet.objects.create(
+            name="Test Choice Set",
+            extra_choices=(
+                ('choice1', 'Choice 1'),
+                ('choice2', 'Choice 2'),
+            )
+        )
+        site = Site.objects.create(name='Site 1', slug='site-1')
+        object_type = ContentType.objects.get_for_model(Site)
+
+        # Text
+        CustomField(name='test', type='text', required=True, default="Default text").full_clean()
+
+        # Integer
+        CustomField(name='test', type='integer', required=True, default=1).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='integer', required=True, default='xxx').full_clean()
+
+        # Boolean
+        CustomField(name='test', type='boolean', required=True, default=True).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='boolean', required=True, default='xxx').full_clean()
+
+        # Date
+        CustomField(name='test', type='date', required=True, default="2023-02-25").full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='date', required=True, default='xxx').full_clean()
+
+        # Datetime
+        CustomField(name='test', type='datetime', required=True, default="2023-02-25 02:02:02").full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='datetime', required=True, default='xxx').full_clean()
+
+        # URL
+        CustomField(name='test', type='url', required=True, default="https://www.netbox.dev").full_clean()
+
+        # JSON
+        CustomField(name='test', type='json', required=True, default='{"test": "object"}').full_clean()
+
+        # Selection
+        CustomField(name='test', type='select', required=True, choice_set=choiceset, default='choice1').full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='select', required=True, choice_set=choiceset, default='xxx').full_clean()
+
+        # Multi-select
+        CustomField(
+            name='test',
+            type='multiselect',
+            required=True,
+            choice_set=choiceset,
+            default=['choice1']  # Single default choice
+        ).full_clean()
+        CustomField(
+            name='test',
+            type='multiselect',
+            required=True,
+            choice_set=choiceset,
+            default=['choice1', 'choice2']  # Multiple default choices
+        ).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(
+                name='test',
+                type='multiselect',
+                required=True,
+                choice_set=choiceset,
+                default=['xxx']
+            ).full_clean()
+
+        # Object
+        CustomField(name='test', type='object', required=True, object_type=object_type, default=site.pk).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(name='test', type='object', required=True, object_type=object_type, default="xxx").full_clean()
+
+        # Multi-object
+        CustomField(
+            name='test',
+            type='multiobject',
+            required=True,
+            object_type=object_type,
+            default=[site.pk]
+        ).full_clean()
+        with self.assertRaises(ValidationError):
+            CustomField(
+                name='test',
+                type='multiobject',
+                required=True,
+                object_type=object_type,
+                default=["xxx"]
+            ).full_clean()
 
 
 class CustomFieldManagerTest(TestCase):
@@ -1085,7 +1177,11 @@ class CustomFieldImportTest(TestCase):
         )
         csv_data = '\n'.join(','.join(row) for row in data)
 
-        response = self.client.post(reverse('dcim:site_import'), {'data': csv_data, 'format': 'csv'})
+        response = self.client.post(reverse('dcim:site_import'), {
+            'data': csv_data,
+            'format': ImportFormatChoices.CSV,
+            'csv_delimiter': CSVDelimiterChoices.AUTO,
+        })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Site.objects.count(), 3)
 
@@ -1233,7 +1329,7 @@ class CustomFieldModelFilterTest(TestCase):
 
         choice_set = CustomFieldChoiceSet.objects.create(
             name='Custom Field Choice Set 1',
-            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'), ('x', 'X'))
+            extra_choices=(('a', 'A'), ('b', 'B'), ('c', 'C'))
         )
 
         # Integer filtering
@@ -1339,7 +1435,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://a.example.com',
                 'cf8': 'http://a.example.com',
                 'cf9': 'A',
-                'cf10': ['A', 'X'],
+                'cf10': ['A', 'B'],
                 'cf11': manufacturers[0].pk,
                 'cf12': [manufacturers[0].pk, manufacturers[3].pk],
             }),
@@ -1353,7 +1449,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://b.example.com',
                 'cf8': 'http://b.example.com',
                 'cf9': 'B',
-                'cf10': ['B', 'X'],
+                'cf10': ['B', 'C'],
                 'cf11': manufacturers[1].pk,
                 'cf12': [manufacturers[1].pk, manufacturers[3].pk],
             }),
@@ -1367,7 +1463,7 @@ class CustomFieldModelFilterTest(TestCase):
                 'cf7': 'http://c.example.com',
                 'cf8': 'http://c.example.com',
                 'cf9': 'C',
-                'cf10': ['C', 'X'],
+                'cf10': None,
                 'cf11': manufacturers[2].pk,
                 'cf12': [manufacturers[2].pk, manufacturers[3].pk],
             }),
@@ -1435,8 +1531,9 @@ class CustomFieldModelFilterTest(TestCase):
         self.assertEqual(self.filterset({'cf_cf9': ['A', 'B']}, self.queryset).qs.count(), 2)
 
     def test_filter_multiselect(self):
-        self.assertEqual(self.filterset({'cf_cf10': ['A', 'B']}, self.queryset).qs.count(), 2)
-        self.assertEqual(self.filterset({'cf_cf10': ['X']}, self.queryset).qs.count(), 3)
+        self.assertEqual(self.filterset({'cf_cf10': ['A']}, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset({'cf_cf10': ['A', 'C']}, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset({'cf_cf10': ['null']}, self.queryset).qs.count(), 1)
 
     def test_filter_object(self):
         manufacturer_ids = Manufacturer.objects.values_list('id', flat=True)

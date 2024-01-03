@@ -1,6 +1,8 @@
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
+from .constants import CSV_DELIMITERS
+
 
 class ChoiceSetMeta(type):
     """
@@ -229,4 +231,18 @@ class ImportFormatChoices(ChoiceSet):
         (CSV, 'CSV'),
         (JSON, 'JSON'),
         (YAML, 'YAML'),
+    ]
+
+
+class CSVDelimiterChoices(ChoiceSet):
+    AUTO = 'auto'
+    COMMA = CSV_DELIMITERS['comma']
+    SEMICOLON = CSV_DELIMITERS['semicolon']
+    TAB = CSV_DELIMITERS['tab']
+
+    CHOICES = [
+        (AUTO, _('Auto-detect')),
+        (COMMA, _('Comma')),
+        (SEMICOLON, _('Semicolon')),
+        (TAB, _('Tab')),
     ]

@@ -10,61 +10,24 @@ from django import forms
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from netbox.registry import registry
-from .choices import DataSourceTypeChoices
+from netbox.data_backends import DataBackend
+from netbox.utils import register_data_backend
 from .exceptions import SyncError
 
 __all__ = (
-    'LocalBackend',
     'GitBackend',
+    'LocalBackend',
     'S3Backend',
 )
 
 logger = logging.getLogger('netbox.data_backends')
 
 
-def register_backend(name):
-    """
-    Decorator for registering a DataBackend class.
-    """
-
-    def _wrapper(cls):
-        registry['data_backends'][name] = cls
-        return cls
-
-    return _wrapper
-
-
-class DataBackend:
-    parameters = {}
-    sensitive_parameters = []
-
-    # Prevent Django's template engine from calling the backend
-    # class when referenced via DataSource.backend_class
-    do_not_call_in_templates = True
-
-    def __init__(self, url, **kwargs):
-        self.url = url
-        self.params = kwargs
-        self.config = self.init_config()
-
-    def init_config(self):
-        """
-        Hook to initialize the instance's configuration.
-        """
-        return
-
-    @property
-    def url_scheme(self):
-        return urlparse(self.url).scheme.lower()
-
-    @contextmanager
-    def fetch(self):
-        raise NotImplemented()
-
-
-@register_backend(DataSourceTypeChoices.LOCAL)
+@register_data_backend()
 class LocalBackend(DataBackend):
+    name = 'local'
+    label = _('Local')
+    is_local = True
 
     @contextmanager
     def fetch(self):
@@ -74,20 +37,22 @@ class LocalBackend(DataBackend):
         yield local_path
 
 
-@register_backend(DataSourceTypeChoices.GIT)
+@register_data_backend()
 class GitBackend(DataBackend):
+    name = 'git'
+    label = 'Git'
     parameters = {
         'username': forms.CharField(
             required=False,
             label=_('Username'),
             widget=forms.TextInput(attrs={'class': 'form-control'}),
-            help_text=_("Only used for cloning with HTTP / HTTPS"),
+            help_text=_("Only used for cloning with HTTP(S)"),
         ),
         'password': forms.CharField(
             required=False,
             label=_('Password'),
             widget=forms.TextInput(attrs={'class': 'form-control'}),
-            help_text=_("Only used for cloning with HTTP / HTTPS"),
+            help_text=_("Only used for cloning with HTTP(S)"),
         ),
         'branch': forms.CharField(
             required=False,
@@ -125,12 +90,13 @@ class GitBackend(DataBackend):
         }
 
         if self.url_scheme in ('http', 'https'):
-            clone_args.update(
-                {
-                    "username": self.params.get('username'),
-                    "password": self.params.get('password'),
-                }
-            )
+            if self.params.get('username'):
+                clone_args.update(
+                    {
+                        "username": self.params.get('username'),
+                        "password": self.params.get('password'),
+                    }
+                )
 
         logger.debug(f"Cloning git repo: {self.url}")
         try:
@@ -143,8 +109,10 @@ class GitBackend(DataBackend):
         local_path.cleanup()
 
 
-@register_backend(DataSourceTypeChoices.AMAZON_S3)
+@register_data_backend()
 class S3Backend(DataBackend):
+    name = 'amazon-s3'
+    label = 'Amazon S3'
     parameters = {
         'aws_access_key_id': forms.CharField(
             label=_('AWS access key ID'),

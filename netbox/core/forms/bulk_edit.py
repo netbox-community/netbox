@@ -1,10 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from core.choices import DataSourceTypeChoices
 from core.models import *
 from netbox.forms import NetBoxModelBulkEditForm
-from utilities.forms import add_blank_choice
+from netbox.utils import get_data_backend_choices
 from utilities.forms.fields import CommentField
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
@@ -16,9 +15,8 @@ __all__ = (
 class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
     type = forms.ChoiceField(
         label=_('Type'),
-        choices=add_blank_choice(DataSourceTypeChoices),
-        required=False,
-        initial=''
+        choices=get_data_backend_choices,
+        required=False
     )
     enabled = forms.NullBooleanField(
         required=False,

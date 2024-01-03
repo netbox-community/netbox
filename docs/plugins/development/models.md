@@ -60,6 +60,10 @@ class MyModel(NetBoxModel):
 
 This attribute specifies the URL at which the documentation for this model can be reached. By default, it will return `/static/docs/models/<app_label>/<model_name>/`. Plugin models can override this to return a custom URL. For example, you might direct the user to your plugin's documentation hosted on [ReadTheDocs](https://readthedocs.org/).
 
+#### `_netbox_private`
+
+By default, any model introduced by a plugin will appear in the list of available object types e.g. when creating a custom field or certain dashboard widgets. If your model is intended only for "behind the scenes use" and should not be exposed to end users, set `_netbox_private` to True. This will omit it from the list of general-purpose object types.
+
 ### Enabling Features Individually
 
 If you prefer instead to enable only a subset of these features for a plugin model, NetBox provides a discrete "mix-in" class for each feature. You can subclass each of these individually when defining your model. (Your model will also need to inherit from Django's built-in `Model` class.)
@@ -119,13 +123,16 @@ For more information about database migrations, see the [Django documentation](h
 
 ::: netbox.models.features.CustomValidationMixin
 
+::: netbox.models.features.EventRulesMixin
+
+!!! note
+    `EventRulesMixin` was renamed from `WebhooksMixin` in NetBox v3.7.
+
 ::: netbox.models.features.ExportTemplatesMixin
 
 ::: netbox.models.features.JournalingMixin
 
 ::: netbox.models.features.TagsMixin
-
-::: netbox.models.features.WebhooksMixin
 
 ## Choice Sets
 

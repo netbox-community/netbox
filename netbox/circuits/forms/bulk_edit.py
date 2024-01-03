@@ -7,7 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -91,6 +91,10 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
     description = forms.CharField(
         label=_('Description'),
         max_length=200,
@@ -99,9 +103,9 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = CircuitType
     fieldsets = (
-        (None, ('description',)),
+        (None, ('color', 'description')),
     )
-    nullable_fields = ('description',)
+    nullable_fields = ('color', 'description')
 
 
 class CircuitBulkEditForm(NetBoxModelBulkEditForm):

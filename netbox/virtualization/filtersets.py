@@ -6,16 +6,18 @@ from dcim.filtersets import CommonInterfaceFilterSet
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.filtersets import LocalConfigContextFilterSet
 from extras.models import ConfigTemplate
+from ipam.filtersets import PrimaryIPFilterSet
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet, ContactModelFilterSet
 from utilities.filters import MultiValueCharFilter, MultiValueMACAddressFilter, TreeNodeMultipleChoiceFilter
 from .choices import *
-from .models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from .models import *
 
 __all__ = (
     'ClusterFilterSet',
     'ClusterGroupFilterSet',
     'ClusterTypeFilterSet',
+    'VirtualDiskFilterSet',
     'VirtualMachineFilterSet',
     'VMInterfaceFilterSet',
 )
@@ -99,13 +101,14 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name']
+        fields = ['id', 'name', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
 
@@ -114,7 +117,8 @@ class VirtualMachineFilterSet(
     NetBoxModelFilterSet,
     TenancyFilterSet,
     ContactModelFilterSet,
-    LocalConfigContextFilterSet
+    LocalConfigContextFilterSet,
+    PrimaryIPFilterSet,
 ):
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualMachineStatusChoices,
@@ -236,13 +240,14 @@ class VirtualMachineFilterSet(
 
     class Meta:
         model = VirtualMachine
-        fields = ['id', 'cluster', 'vcpus', 'memory', 'disk']
+        fields = ['id', 'cluster', 'vcpus', 'memory', 'disk', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value) |
             Q(primary_ip4__address__startswith=value) |
             Q(primary_ip6__address__startswith=value)
@@ -295,6 +300,32 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
     class Meta:
         model = VMInterface
         fields = ['id', 'name', 'enabled', 'mtu', 'description']
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value)
+        )
+
+
+class VirtualDiskFilterSet(NetBoxModelFilterSet):
+    virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine',
+        queryset=VirtualMachine.objects.all(),
+        label=_('Virtual machine (ID)'),
+    )
+    virtual_machine = django_filters.ModelMultipleChoiceFilter(
+        field_name='virtual_machine__name',
+        queryset=VirtualMachine.objects.all(),
+        to_field_name='name',
+        label=_('Virtual machine'),
+    )
+
+    class Meta:
+        model = VirtualDisk
+        fields = ['id', 'name', 'size', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():

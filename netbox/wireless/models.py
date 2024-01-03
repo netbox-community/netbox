@@ -2,7 +2,6 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from mptt.models import MPTTModel
 
 from dcim.choices import LinkStatusChoices
 from dcim.constants import WIRELESS_IFACE_TYPES
@@ -214,14 +213,14 @@ class WirelessLink(WirelessAuthenticationBase, PrimaryModel):
         if self.interface_a.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
                 'interface_a': _(
-                    "{type_display} is not a wireless interface."
-                ).format(type_display=self.interface_a.get_type_display())
+                    "{type} is not a wireless interface."
+                ).format(type=self.interface_a.get_type_display())
             })
         if self.interface_b.type not in WIRELESS_IFACE_TYPES:
             raise ValidationError({
                 'interface_a': _(
-                    "{type_display} is not a wireless interface."
-                ).format(type_display=self.interface_b.get_type_display())
+                    "{type} is not a wireless interface."
+                ).format(type=self.interface_b.get_type_display())
             })
 
     def save(self, *args, **kwargs):

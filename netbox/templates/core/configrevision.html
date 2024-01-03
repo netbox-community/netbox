@@ -1,0 +1,229 @@
+{% extends 'generic/object.html' %}
+{% load buttons %}
+{% load custom_links %}
+{% load helpers %}
+{% load perms %}
+{% load plugins %}
+{% load static %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% plugin_buttons object %}
+      {% if not object.pk or object.is_active and perms.core.add_configrevision %}
+        {% url 'core:configrevision_add' as edit_url %}
+        {% include "buttons/edit.html" with url=edit_url %}
+      {% endif %}
+      {% if object.pk and not object.is_active and perms.core.delete_configrevision %}
+        {% delete_button object %}
+      {% endif %}
+    </div>
+    <div class="control-group">
+      {% custom_links object %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block subtitle %}
+  {% if object.created %}
+    <div class="object-subtitle">
+      <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
+    </div>
+  {% endif %}
+{% endblock subtitle %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Rack Elevations" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Default unit height" %}</th>
+              <td>{{ object.data.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Default unit width" %}</th>
+              <td>{{ object.data.RACK_ELEVATION_DEFAULT_UNIT_WIDTH }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Power Feeds" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Default voltage" %}</th>
+              <td>{{ object.data.POWERFEED_DEFAULT_VOLTAGE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Default amperage" %}</th>
+              <td>{{ object.data.POWERFEED_DEFAULT_AMPERAGE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Default max utilization" %}</th>
+              <td>{{ object.data.POWERFEED_DEFAULT_MAX_UTILIZATION }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "IPAM" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Enforce global unique" %}</th>
+              <td>{{ object.data.ENFORCE_GLOBAL_UNIQUE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Prefer IPv4" %}</th>
+              <td>{{ object.data.PREFER_IPV4 }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Security" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Allowed URL schemes" %}</th>
+              <td>{{ object.data.ALLOWED_URL_SCHEMES|join:", "|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Banners" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Login banner" %}</th>
+              <td>{{ object.data.BANNER_LOGIN }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Maintenance banner" %}</th>
+              <td>{{ object.data.BANNER_MAINTENANCE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Top banner" %}</th>
+              <td>{{ object.data.BANNER_TOP }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Bottom banner" %}</th>
+              <td>{{ object.data.BANNER_BOTTOM }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Pagination" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Paginate count" %}</th>
+              <td>{{ object.data.PAGINATE_COUNT }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Max page size" %}</th>
+              <td>{{ object.data.MAX_PAGE_SIZE }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Validation" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Custom validators" %}</th>
+              {% if object.data.CUSTOM_VALIDATORS %}
+                <td class="font-monospace">
+                  <pre>{{ object.data.CUSTOM_VALIDATORS|json }}</pre>
+                </td>
+              {% else %}
+                <td>{{ ''|placeholder }}</td>
+              {% endif %}
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Protection rules" %}</th>
+              {% if object.data.PROTECTION_RULES %}
+                <td>
+                  <pre>{{ object.data.PROTECTION_RULES|json }}</pre>
+                </td>
+              {% else %}
+                <td>{{ ''|placeholder }}</td>
+              {% endif %}
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "User Preferences" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Default user preferences" %}</th>
+              {% if object.data.DEFAULT_USER_PREFERENCES %}
+                <td>
+                  <pre>{{ object.data.DEFAULT_USER_PREFERENCES|json }}</pre>
+                </td>
+              {% else %}
+                <td>{{ ''|placeholder }}</td>
+              {% endif %}
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Miscellaneous" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Maintenance mode" %}</th>
+              <td>{{ object.data.MAINTENANCE_MODE }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "GraphQL enabled" %}</th>
+              <td>{{ object.data.GRAPHQL_ENABLED }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Changelog retention" %}</th>
+              <td>{{ object.data.CHANGELOG_RETENTION }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Job retention" %}</th>
+              <td>{{ object.data.JOB_RETENTION }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Maps URL" %}</th>
+              <td>{{ object.data.MAPS_URL }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h5 class="card-header">{% trans "Comment" %}</h5>
+        <div class="card-body">
+          {{ object.comment|placeholder }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+{% endblock %}

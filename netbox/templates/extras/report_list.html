@@ -68,10 +68,18 @@
                           </td>
                         {% else %}
                           <td class="text-muted">{% trans "Never" %}</td>
-                          <td>{{ ''|placeholder }}</td>
+                          <td>
+                            {% if report.is_valid %}
+                              {{ ''|placeholder }}
+                            {% else %}
+                              <span class="badge bg-danger" title="{% trans "Report has no test methods" %}">
+                                {% trans "Invalid" %}
+                              </span>
+                            {% endif %}
+                          </td>
                         {% endif %}
                         <td>
-                          {% if perms.extras.run_report %}
+                          {% if perms.extras.run_report and report.is_valid %}
                             <div class="float-end noprint">
                               <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
                                 {% csrf_token %}
@@ -117,7 +125,7 @@
         <h4 class="alert-heading">{% trans "No Reports Found" %}</h4>
         {% if perms.extras.add_reportmodule %}
           {% url 'extras:reportmodule_add' as create_report_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
             Get started by <a href="{{ create_report_url }}">creating a report</a> from an uploaded file or data source.
           {% endblocktrans %}
         {% endif %}

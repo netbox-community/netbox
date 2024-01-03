@@ -1,10 +1,8 @@
 # Webhooks
 
-NetBox can be configured to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
+NetBox can be configured via [Event Rules](../features/event-rules.md) to transmit outgoing webhooks to remote systems in response to internal object changes. The receiver can act on the data in these webhook messages to perform related tasks.
 
 For example, suppose you want to automatically configure a monitoring system to start monitoring a device when its operational status is changed to active, and remove it from monitoring for any other status. You can create a webhook in NetBox for the device model and craft its content and destination URL to effect the desired change on the receiving system. Webhooks will be sent automatically by NetBox whenever the configured constraints are met.
-
-Each webhook must be associated with at least one NetBox object type and at least one event (create, update, or delete). Users can specify the receiver URL, HTTP request type (`GET`, `POST`, etc.), content type, and headers. A request body can also be specified; if left blank, this will default to a serialized representation of the affected object.
 
 !!! warning "Security Notice"
     Webhooks support the inclusion of user-submitted code to generate the URL, custom headers, and payloads, which may pose security risks under certain conditions. Only grant permission to create or modify webhooks to trusted users.
@@ -70,26 +68,12 @@ If no body template is specified, the request body will be populated with a JSON
 }
 ```
 
-## Conditional Webhooks
-
-A webhook may include a set of conditional logic expressed in JSON used to control whether a webhook triggers for a specific object. For example, you may wish to trigger a webhook for devices only when the `status` field of an object is "active":
-
-```json
-{
-  "and": [
-    {
-      "attr": "status.value",
-      "value": "active"
-    }
-  ]
-}
-```
-
-For more detail, see the reference documentation for NetBox's [conditional logic](../reference/conditions.md).
+!!! note
+    The setting of conditional webhooks has been moved to [Event Rules](../features/event-rules.md) since NetBox 3.7
 
 ## Webhook Processing
 
-When a change is detected, any resulting webhooks are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing webhook(s) to be processed. The webhooks are then extracted from the queue by the `rqworker` process and HTTP requests are sent to their respective destinations. The current webhook queue and any failed webhooks can be inspected in the admin UI under System > Background Tasks.
+Using [Event Rules](../features/event-rules.md), when a change is detected, any resulting webhooks are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing webhook(s) to be processed. The webhooks are then extracted from the queue by the `rqworker` process and HTTP requests are sent to their respective destinations. The current webhook queue and any failed webhooks can be inspected in the admin UI under System > Background Tasks.
 
 A request is considered successful if the response has a 2XX status code; otherwise, the request is marked as having failed. Failed requests may be retried manually via the admin UI.
 

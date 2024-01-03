@@ -2,17 +2,13 @@ from django.db import migrations
 from django.db.models import Count
 
 import utilities.fields
+from utilities.counters import update_counts
 
 
 def populate_virtualchassis_members(apps, schema_editor):
     VirtualChassis = apps.get_model('dcim', 'VirtualChassis')
 
-    vcs = list(VirtualChassis.objects.annotate(_member_count=Count('members', distinct=True)))
-
-    for vc in vcs:
-        vc.member_count = vc._member_count
-
-    VirtualChassis.objects.bulk_update(vcs, ['member_count'])
+    update_counts(VirtualChassis, 'member_count', 'members')
 
 
 class Migration(migrations.Migration):

@@ -1,6 +1,5 @@
 import netaddr
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import F
@@ -9,6 +8,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -140,8 +140,11 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
             if covering_aggregates:
                 raise ValidationError({
                     'prefix': _(
-                        "Aggregates cannot overlap. {} is already covered by an existing aggregate ({})."
-                    ).format(self.prefix, covering_aggregates[0])
+                        "Aggregates cannot overlap. {prefix} is already covered by an existing aggregate ({aggregate})."
+                    ).format(
+                        prefix=self.prefix,
+                        aggregate=covering_aggregates[0]
+                    )
                 })
 
             # Ensure that the aggregate being added does not cover an existing aggregate
@@ -150,8 +153,11 @@ class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
                 covered_aggregates = covered_aggregates.exclude(pk=self.pk)
             if covered_aggregates:
                 raise ValidationError({
-                    'prefix': _("Aggregates cannot overlap. {} covers an existing aggregate ({}).").format(
-                        self.prefix, covered_aggregates[0]
+                    'prefix': _(
+                        "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate ({aggregate})."
+                    ).format(
+                        prefix=self.prefix,
+                        aggregate=covered_aggregates[0]
                     )
                 })
 
@@ -290,8 +296,8 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original prefix and VRF so we can check if they have changed on post_save
-        self._prefix = self.prefix
-        self._vrf_id = self.vrf_id
+        self._prefix = self.__dict__.get('prefix')
+        self._vrf_id = self.__dict__.get('vrf_id')
 
     def __str__(self):
         return str(self.prefix)
@@ -314,10 +320,11 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
             if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_prefixes = self.get_duplicates()
                 if duplicate_prefixes:
+                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
                     raise ValidationError({
-                        'prefix': _("Duplicate prefix found in {}: {}").format(
-                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
-                            duplicate_prefixes.first(),
+                        'prefix': _("Duplicate prefix found in {table}: {prefix}").format(
+                            table=table,
+                            prefix=duplicate_prefixes.first(),
                         )
                     })
 
@@ -554,25 +561,13 @@ class IPRange(PrimaryModel):
             # Check that start & end IP versions match
             if self.start_address.version != self.end_address.version:
                 raise ValidationError({
-                    'end_address': _(
-                        "Ending address version (IPv{end_address_version}) does not match starting address "
-                        "(IPv{start_address_version})"
-                    ).format(
-                        end_address_version=self.end_address.version,
-                        start_address_version=self.start_address.version
-                    )
+                    'end_address': _("Starting and ending IP address versions must match")
                 })
 
             # Check that the start & end IP prefix lengths match
             if self.start_address.prefixlen != self.end_address.prefixlen:
                 raise ValidationError({
-                    'end_address': _(
-                        "Ending address mask (/{end_address_prefixlen}) does not match starting address mask "
-                        "(/{start_address_prefixlen})"
-                    ).format(
-                        end_address_prefixlen=self.end_address.prefixlen,
-                        start_address_prefixlen=self.start_address.prefixlen
-                    )
+                    'end_address': _("Starting and ending IP address masks must match")
                 })
 
             # Check that the ending address is greater than the starting address
@@ -745,7 +740,7 @@ class IPAddress(PrimaryModel):
         help_text=_('The functional role of this IP')
     )
     assigned_object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=IPADDRESS_ASSIGNMENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
@@ -785,14 +780,22 @@ class IPAddress(PrimaryModel):
 
     class Meta:
         ordering = ('address', 'pk')  # address may be non-unique
-        indexes = [
+        indexes = (
             models.Index(Cast(Host('address'), output_field=IPAddressField()), name='ipam_ipaddress_host'),
-        ]
+            models.Index(fields=('assigned_object_type', 'assigned_object_id')),
+        )
         verbose_name = _('IP address')
         verbose_name_plural = _('IP addresses')
 
     def __str__(self):
         return str(self.address)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Denote the original assigned object (if any) for validation in clean()
+        self._original_assigned_object_id = self.__dict__.get('assigned_object_id')
+        self._original_assigned_object_type_id = self.__dict__.get('assigned_object_type_id')
 
     def get_absolute_url(self):
         return reverse('ipam:ipaddress', args=[self.pk])
@@ -848,12 +851,31 @@ class IPAddress(PrimaryModel):
                         self.role not in IPADDRESS_ROLES_NONUNIQUE or
                         any(dip.role not in IPADDRESS_ROLES_NONUNIQUE for dip in duplicate_ips)
                 ):
+                    table = _("VRF {vrf}").format(vrf=self.vrf) if self.vrf else _("global table")
                     raise ValidationError({
-                        'address': _("Duplicate IP address found in {}: {}").format(
-                            _("VRF {}").format(self.vrf) if self.vrf else _("global table"),
-                            duplicate_ips.first(),
+                        'address': _("Duplicate IP address found in {table}: {ipaddress}").format(
+                            table=table,
+                            ipaddress=duplicate_ips.first(),
                         )
                     })
+
+        if self._original_assigned_object_id and self._original_assigned_object_type_id:
+            parent = getattr(self.assigned_object, 'parent_object', None)
+            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
+            original_parent = getattr(original_assigned_object, 'parent_object', None)
+
+            # can't use is_primary_ip as self.assigned_object might be changed
+            is_primary = False
+            if self.family == 4 and hasattr(original_parent, 'primary_ip4') and original_parent.primary_ip4_id == self.pk:
+                is_primary = True
+            if self.family == 6 and hasattr(original_parent, 'primary_ip6') and original_parent.primary_ip6_id == self.pk:
+                is_primary = True
+
+            if is_primary and (parent != original_parent):
+                raise ValidationError(
+                    _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
+                )
 
         # Validate IP status selection
         if self.status == IPAddressStatusChoices.STATUS_SLAAC and self.family != 6:
@@ -892,7 +914,7 @@ class IPAddress(PrimaryModel):
     def is_oob_ip(self):
         if self.assigned_object:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            if parent.oob_ip_id == self.pk:
+            if hasattr(parent, 'oob_ip') and parent.oob_ip_id == self.pk:
                 return True
         return False
 
@@ -900,9 +922,9 @@ class IPAddress(PrimaryModel):
     def is_primary_ip(self):
         if self.assigned_object:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            if self.family == 4 and parent.primary_ip4_id == self.pk:
+            if self.family == 4 and hasattr(parent, 'primary_ip4') and parent.primary_ip4_id == self.pk:
                 return True
-            if self.family == 6 and parent.primary_ip6_id == self.pk:
+            if self.family == 6 and hasattr(parent, 'primary_ip6') and parent.primary_ip6_id == self.pk:
                 return True
         return False
 

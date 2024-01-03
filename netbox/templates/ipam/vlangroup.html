@@ -59,15 +59,4 @@
     {% plugin_right_page object %}
   </div>
 </div>
-<div class="row mb-3">
-	<div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">{% trans "VLANs" %}</h5>
-      <div class="card-body table-responsive">
-        {% render_table vlans_table 'inc/table.html' %}
-        {% include 'inc/paginator.html' with paginator=vlans_table.paginator page=vlans_table.page %}
-      </div>
-    </div>
-  </div>
-</div>
 {% endblock %}

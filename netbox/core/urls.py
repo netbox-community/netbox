@@ -25,4 +25,14 @@ urlpatterns = (
     path('jobs/<int:pk>/', views.JobView.as_view(), name='job'),
     path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
+    # Config revisions
+    path('config-revisions/', views.ConfigRevisionListView.as_view(), name='configrevision_list'),
+    path('config-revisions/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
+    path('config-revisions/delete/', views.ConfigRevisionBulkDeleteView.as_view(), name='configrevision_bulk_delete'),
+    path('config-revisions/<int:pk>/restore/', views.ConfigRevisionRestoreView.as_view(), name='configrevision_restore'),
+    path('config-revisions/<int:pk>/', include(get_model_urls('core', 'configrevision'))),
+
+    # Configuration
+    path('config/', views.ConfigView.as_view(), name='config'),
+
 )

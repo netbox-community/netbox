@@ -1,4 +1,4 @@
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
 from utilities.choices import ButtonColorChoices
@@ -195,15 +195,33 @@ IPAM_MENU = Menu(
     ),
 )
 
-OVERLAY_MENU = Menu(
-    label=_('Overlay'),
+VPN_MENU = Menu(
+    label=_('VPN'),
     icon_class='mdi mdi-graph-outline',
     groups=(
         MenuGroup(
-            label='L2VPNs',
+            label=_('Tunnels'),
             items=(
-                get_model_item('ipam', 'l2vpn', _('L2VPNs')),
-                get_model_item('ipam', 'l2vpntermination', _('Terminations')),
+                get_model_item('vpn', 'tunnel', _('Tunnels')),
+                get_model_item('vpn', 'tunnelgroup', _('Tunnel Groups')),
+                get_model_item('vpn', 'tunneltermination', _('Tunnel Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('L2VPNs'),
+            items=(
+                get_model_item('vpn', 'l2vpn', _('L2VPNs')),
+                get_model_item('vpn', 'l2vpntermination', _('Terminations')),
+            ),
+        ),
+        MenuGroup(
+            label=_('Security'),
+            items=(
+                get_model_item('vpn', 'ikeproposal', _('IKE Proposals')),
+                get_model_item('vpn', 'ikepolicy', _('IKE Policies')),
+                get_model_item('vpn', 'ipsecproposal', _('IPSec Proposals')),
+                get_model_item('vpn', 'ipsecpolicy', _('IPSec Policies')),
+                get_model_item('vpn', 'ipsecprofile', _('IPSec Profiles')),
             ),
         ),
     ),
@@ -218,6 +236,7 @@ VIRTUALIZATION_MENU = Menu(
             items=(
                 get_model_item('virtualization', 'virtualmachine', _('Virtual Machines')),
                 get_model_item('virtualization', 'vminterface', _('Interfaces')),
+                get_model_item('virtualization', 'virtualdisk', _('Virtual Disks')),
             ),
         ),
         MenuGroup(
@@ -325,6 +344,7 @@ OPERATIONS_MENU = Menu(
             label=_('Integrations'),
             items=(
                 get_model_item('core', 'datasource', _('Data Sources')),
+                get_model_item('extras', 'eventrule', _('Event Rules')),
                 get_model_item('extras', 'webhook', _('Webhooks')),
             ),
         ),
@@ -360,6 +380,7 @@ ADMIN_MENU = Menu(
                     link=f'users:netboxuser_list',
                     link_text=_('Users'),
                     permissions=[f'auth.view_user'],
+                    staff_only=True,
                     buttons=(
                         MenuItemButton(
                             link=f'users:netboxuser_add',
@@ -382,6 +403,7 @@ ADMIN_MENU = Menu(
                     link=f'users:netboxgroup_list',
                     link_text=_('Groups'),
                     permissions=[f'auth.view_group'],
+                    staff_only=True,
                     buttons=(
                         MenuItemButton(
                             link=f'users:netboxgroup_add',
@@ -399,17 +421,36 @@ ADMIN_MENU = Menu(
                         )
                     )
                 ),
-                get_model_item('users', 'token', _('API Tokens')),
-                get_model_item('users', 'objectpermission', _('Permissions'), actions=['add']),
+                MenuItem(
+                    link=f'users:token_list',
+                    link_text=_('API Tokens'),
+                    permissions=[f'users.view_token'],
+                    staff_only=True,
+                    buttons=get_model_buttons('users', 'token')
+                ),
+                MenuItem(
+                    link=f'users:objectpermission_list',
+                    link_text=_('Permissions'),
+                    permissions=[f'users.view_objectpermission'],
+                    staff_only=True,
+                    buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
+                ),
             ),
         ),
         MenuGroup(
             label=_('Configuration'),
             items=(
                 MenuItem(
-                    link='extras:configrevision_list',
+                    link='core:config',
+                    link_text=_('Current Config'),
+                    permissions=['core.view_configrevision'],
+                    staff_only=True
+                ),
+                MenuItem(
+                    link='core:configrevision_list',
                     link_text=_('Config Revisions'),
-                    permissions=['extras.view_configrevision']
+                    permissions=['core.view_configrevision'],
+                    staff_only=True
                 ),
             ),
         ),
@@ -422,7 +463,7 @@ MENUS = [
     CONNECTIONS_MENU,
     WIRELESS_MENU,
     IPAM_MENU,
-    OVERLAY_MENU,
+    VPN_MENU,
     VIRTUALIZATION_MENU,
     CIRCUITS_MENU,
     POWER_MENU,

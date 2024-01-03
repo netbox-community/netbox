@@ -7,15 +7,14 @@ import feedparser
 import requests
 from django import forms
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
-from django.db.models import Q
 from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, resolve, reverse
 from django.utils.translation import gettext as _
 
+from core.models import ContentType
 from extras.choices import BookmarkOrderingChoices
-from extras.utils import FeatureQuery
+from utilities.choices import ButtonColorChoices
 from utilities.forms import BootstrapMixin
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
@@ -33,13 +32,17 @@ __all__ = (
 )
 
 
-def get_content_type_labels():
+def get_object_type_choices():
     return [
         (content_type_identifier(ct), content_type_name(ct))
-        for ct in ContentType.objects.filter(
-            FeatureQuery('export_templates').get_query() | Q(app_label='extras', model='objectchange') |
-            Q(app_label='extras', model='configcontext')
-        ).order_by('app_label', 'model')
+        for ct in ContentType.objects.public().order_by('app_label', 'model')
+    ]
+
+
+def get_bookmarks_object_type_choices():
+    return [
+        (content_type_identifier(ct), content_type_name(ct))
+        for ct in ContentType.objects.with_feature('bookmarks').order_by('app_label', 'model')
     ]
 
 
@@ -116,6 +119,22 @@ class DashboardWidget:
         return f'{self.__class__.__module__.split(".")[0]}.{self.__class__.__name__}'
 
     @property
+    def fg_color(self):
+        """
+        Return the appropriate foreground (text) color for the widget's color.
+        """
+        if self.color in (
+            ButtonColorChoices.CYAN,
+            ButtonColorChoices.GRAY,
+            ButtonColorChoices.GREY,
+            ButtonColorChoices.TEAL,
+            ButtonColorChoices.WHITE,
+            ButtonColorChoices.YELLOW,
+        ):
+            return ButtonColorChoices.BLACK
+        return ButtonColorChoices.WHITE
+
+    @property
     def form_data(self):
         return {
             'title': self.title,
@@ -146,7 +165,7 @@ class ObjectCountsWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         models = forms.MultipleChoiceField(
-            choices=get_content_type_labels
+            choices=get_object_type_choices
         )
         filters = forms.JSONField(
             required=False,
@@ -195,7 +214,7 @@ class ObjectListWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         model = forms.ChoiceField(
-            choices=get_content_type_labels
+            choices=get_object_type_choices
         )
         page_size = forms.IntegerField(
             required=False,
@@ -331,8 +350,7 @@ class BookmarksWidget(DashboardWidget):
 
     class ConfigForm(WidgetConfigForm):
         object_types = forms.MultipleChoiceField(
-            # TODO: Restrict the choices by FeatureQuery('bookmarks')
-            choices=get_content_type_labels,
+            choices=get_bookmarks_object_type_choices,
             required=False
         )
         order_by = forms.ChoiceField(
@@ -346,13 +364,16 @@ class BookmarksWidget(DashboardWidget):
     def render(self, request):
         from extras.models import Bookmark
 
-        bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
-        if object_types := self.config.get('object_types'):
-            models = get_models_from_content_types(object_types)
-            conent_types = ContentType.objects.get_for_models(*models).values()
-            bookmarks = bookmarks.filter(object_type__in=conent_types)
-        if max_items := self.config.get('max_items'):
-            bookmarks = bookmarks[:max_items]
+        if request.user.is_anonymous:
+            bookmarks = list()
+        else:
+            bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
+            if object_types := self.config.get('object_types'):
+                models = get_models_from_content_types(object_types)
+                conent_types = ContentType.objects.get_for_models(*models).values()
+                bookmarks = bookmarks.filter(object_type__in=conent_types)
+            if max_items := self.config.get('max_items'):
+                bookmarks = bookmarks[:max_items]
 
         return render_to_string(self.template_name, {
             'bookmarks': bookmarks,

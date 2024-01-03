@@ -38,6 +38,17 @@ class ExtrasRootView(APIRootView):
 
 
 #
+# EventRules
+#
+
+class EventRuleViewSet(NetBoxModelViewSet):
+    metadata_class = ContentTypeMetadata
+    queryset = EventRule.objects.all()
+    serializer_class = serializers.EventRuleSerializer
+    filterset_class = filtersets.EventRuleFilterSet
+
+
+#
 # Webhooks
 #
 
@@ -82,7 +93,10 @@ class CustomFieldChoiceSetViewSet(NetBoxModelViewSet):
             data = [
                 {'id': c[0], 'display': c[1]} for c in page
             ]
-            return self.get_paginated_response(data)
+        else:
+            data = []
+
+        return self.get_paginated_response(data)
 
 
 #
@@ -280,7 +294,7 @@ class ReportViewSet(ViewSet):
 
         # Retrieve and run the Report. This will create a new Job.
         module, report_cls = self._get_report(pk)
-        report = report_cls()
+        report = report_cls
         input_serializer = serializers.ReportInputSerializer(
             data=request.data,
             context={'report': report}

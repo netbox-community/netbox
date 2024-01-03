@@ -2,12 +2,12 @@ import logging
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models, transaction
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
+from netbox.models.features import *
 from utilities.utils import deserialize_object
 
 __all__ = (
@@ -55,7 +55,7 @@ class Branch(ChangeLoggedModel):
         self.staged_changes.all().delete()
 
 
-class StagedChange(ChangeLoggedModel):
+class StagedChange(CustomValidationMixin, EventRulesMixin, models.Model):
     """
     The prepared creation, modification, or deletion of an object to be applied to the active database at a
     future point.
@@ -71,7 +71,7 @@ class StagedChange(ChangeLoggedModel):
         choices=ChangeActionChoices
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='+'
     )
@@ -91,6 +91,9 @@ class StagedChange(ChangeLoggedModel):
 
     class Meta:
         ordering = ('pk',)
+        indexes = (
+            models.Index(fields=('object_type', 'object_id')),
+        )
         verbose_name = _('staged change')
         verbose_name_plural = _('staged changes')
 

@@ -1,9 +1,11 @@
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from circuits.models import *
 from dcim.choices import *
 from dcim.models import *
+from extras.models import CustomField
 from tenancy.models import Tenant
 from utilities.utils import drange
 
@@ -238,6 +240,40 @@ class RackTestCase(TestCase):
         # Check that Device1 is now assigned to Site B
         self.assertEqual(Device.objects.get(pk=device1.pk).site, site_b)
 
+    def test_utilization(self):
+        site = Site.objects.first()
+        rack = Rack.objects.first()
+
+        Device(
+            name='Device 1',
+            role=DeviceRole.objects.first(),
+            device_type=DeviceType.objects.first(),
+            site=site,
+            rack=rack,
+            position=1
+        ).save()
+        rack.refresh_from_db()
+        self.assertEqual(rack.get_utilization(), 1 / 42 * 100)
+
+        # create device excluded from utilization calculations
+        dt = DeviceType.objects.create(
+            manufacturer=Manufacturer.objects.first(),
+            model='Device Type 4',
+            slug='device-type-4',
+            u_height=1,
+            exclude_from_utilization=True
+        )
+        Device(
+            name='Device 2',
+            role=DeviceRole.objects.first(),
+            device_type=dt,
+            site=site,
+            rack=rack,
+            position=5
+        ).save()
+        rack.refresh_from_db()
+        self.assertEqual(rack.get_utilization(), 1 / 42 * 100)
+
 
 class DeviceTestCase(TestCase):
 
@@ -255,6 +291,23 @@ class DeviceTestCase(TestCase):
         )
         DeviceRole.objects.bulk_create(roles)
 
+        # Create a CustomField with a default value & assign it to all component models
+        cf1 = CustomField.objects.create(name='cf1', default='foo')
+        cf1.content_types.set(
+            ContentType.objects.filter(app_label='dcim', model__in=[
+                'consoleport',
+                'consoleserverport',
+                'powerport',
+                'poweroutlet',
+                'interface',
+                'rearport',
+                'frontport',
+                'modulebay',
+                'devicebay',
+                'inventoryitem',
+            ])
+        )
+
         # Create DeviceType components
         ConsolePortTemplate(
             device_type=device_type,
@@ -266,18 +319,18 @@ class DeviceTestCase(TestCase):
             name='Console Server Port 1'
         ).save()
 
-        ppt = PowerPortTemplate(
+        powerport = PowerPortTemplate(
             device_type=device_type,
             name='Power Port 1',
             maximum_draw=1000,
             allocated_draw=500
         )
-        ppt.save()
+        powerport.save()
 
         PowerOutletTemplate(
             device_type=device_type,
             name='Power Outlet 1',
-            power_port=ppt,
+            power_port=powerport,
             feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         ).save()
 
@@ -288,19 +341,19 @@ class DeviceTestCase(TestCase):
             mgmt_only=True
         ).save()
 
-        rpt = RearPortTemplate(
+        rearport = RearPortTemplate(
             device_type=device_type,
             name='Rear Port 1',
             type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
-        rpt.save()
+        rearport.save()
 
         FrontPortTemplate(
             device_type=device_type,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
-            rear_port=rpt,
+            rear_port=rearport,
             rear_port_position=2
         ).save()
 
@@ -314,73 +367,93 @@ class DeviceTestCase(TestCase):
             name='Device Bay 1'
         ).save()
 
+        InventoryItemTemplate(
+            device_type=device_type,
+            name='Inventory Item 1'
+        ).save()
+
     def test_device_creation(self):
         """
         Ensure that all Device components are copied automatically from the DeviceType.
         """
-        d = Device(
+        device = Device(
             site=Site.objects.first(),
             device_type=DeviceType.objects.first(),
             role=DeviceRole.objects.first(),
             name='Test Device 1'
         )
-        d.save()
+        device.save()
 
-        ConsolePort.objects.get(
-            device=d,
+        consoleport = ConsolePort.objects.get(
+            device=device,
             name='Console Port 1'
         )
+        self.assertEqual(consoleport.cf['cf1'], 'foo')
 
-        ConsoleServerPort.objects.get(
-            device=d,
+        consoleserverport = ConsoleServerPort.objects.get(
+            device=device,
             name='Console Server Port 1'
         )
+        self.assertEqual(consoleserverport.cf['cf1'], 'foo')
 
-        pp = PowerPort.objects.get(
-            device=d,
+        powerport = PowerPort.objects.get(
+            device=device,
             name='Power Port 1',
             maximum_draw=1000,
             allocated_draw=500
         )
+        self.assertEqual(powerport.cf['cf1'], 'foo')
 
-        PowerOutlet.objects.get(
-            device=d,
+        poweroutlet = PowerOutlet.objects.get(
+            device=device,
             name='Power Outlet 1',
-            power_port=pp,
+            power_port=powerport,
             feed_leg=PowerOutletFeedLegChoices.FEED_LEG_A
         )
+        self.assertEqual(poweroutlet.cf['cf1'], 'foo')
 
-        Interface.objects.get(
-            device=d,
+        interface = Interface.objects.get(
+            device=device,
             name='Interface 1',
             type=InterfaceTypeChoices.TYPE_1GE_FIXED,
             mgmt_only=True
         )
+        self.assertEqual(interface.cf['cf1'], 'foo')
 
-        rp = RearPort.objects.get(
-            device=d,
+        rearport = RearPort.objects.get(
+            device=device,
             name='Rear Port 1',
             type=PortTypeChoices.TYPE_8P8C,
             positions=8
         )
+        self.assertEqual(rearport.cf['cf1'], 'foo')
 
-        FrontPort.objects.get(
-            device=d,
+        frontport = FrontPort.objects.get(
+            device=device,
             name='Front Port 1',
             type=PortTypeChoices.TYPE_8P8C,
-            rear_port=rp,
+            rear_port=rearport,
             rear_port_position=2
         )
+        self.assertEqual(frontport.cf['cf1'], 'foo')
 
-        ModuleBay.objects.get(
-            device=d,
+        modulebay = ModuleBay.objects.get(
+            device=device,
             name='Module Bay 1'
         )
+        self.assertEqual(modulebay.cf['cf1'], 'foo')
 
-        DeviceBay.objects.get(
-            device=d,
+        devicebay = DeviceBay.objects.get(
+            device=device,
             name='Device Bay 1'
         )
+        self.assertEqual(devicebay.cf['cf1'], 'foo')
+
+        inventoryitem = InventoryItem.objects.get(
+            device=device,
+            name='Inventory Item 1'
+        )
+        self.assertEqual(inventoryitem.cf['cf1'], 'foo')
 
     def test_multiple_unnamed_devices(self):
 

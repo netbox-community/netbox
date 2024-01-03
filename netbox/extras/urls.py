@@ -61,6 +61,14 @@ urlpatterns = [
     path('webhooks/delete/', views.WebhookBulkDeleteView.as_view(), name='webhook_bulk_delete'),
     path('webhooks/<int:pk>/', include(get_model_urls('extras', 'webhook'))),
 
+    # Event rules
+    path('event-rules/', views.EventRuleListView.as_view(), name='eventrule_list'),
+    path('event-rules/add/', views.EventRuleEditView.as_view(), name='eventrule_add'),
+    path('event-rules/import/', views.EventRuleBulkImportView.as_view(), name='eventrule_import'),
+    path('event-rules/edit/', views.EventRuleBulkEditView.as_view(), name='eventrule_bulk_edit'),
+    path('event-rules/delete/', views.EventRuleBulkDeleteView.as_view(), name='eventrule_bulk_delete'),
+    path('event-rules/<int:pk>/', include(get_model_urls('extras', 'eventrule'))),
+
     # Tags
     path('tags/', views.TagListView.as_view(), name='tag_list'),
     path('tags/add/', views.TagEditView.as_view(), name='tag_add'),
@@ -97,13 +105,6 @@ urlpatterns = [
     path('journal-entries/delete/', views.JournalEntryBulkDeleteView.as_view(), name='journalentry_bulk_delete'),
     path('journal-entries/import/', views.JournalEntryBulkImportView.as_view(), name='journalentry_import'),
     path('journal-entries/<int:pk>/', include(get_model_urls('extras', 'journalentry'))),
-
-    # Config revisions
-    path('config-revisions/', views.ConfigRevisionListView.as_view(), name='configrevision_list'),
-    path('config-revisions/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),
-    path('config-revisions/delete/', views.ConfigRevisionBulkDeleteView.as_view(), name='configrevision_bulk_delete'),
-    path('config-revisions/<int:pk>/restore/', views.ConfigRevisionRestoreView.as_view(), name='configrevision_restore'),
-    path('config-revisions/<int:pk>/', include(get_model_urls('extras', 'configrevision'))),
 
     # Change logging
     path('changelog/', views.ObjectChangeListView.as_view(), name='objectchange_list'),

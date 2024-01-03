@@ -1,5 +1,4 @@
 from django.db import migrations, models
-import extras.utils
 
 
 class Migration(migrations.Migration):
@@ -13,7 +12,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tag',
             name='object_types',
-            field=models.ManyToManyField(blank=True, limit_choices_to=extras.utils.FeatureQuery('tags'), related_name='+', to='contenttypes.contenttype'),
+            field=models.ManyToManyField(blank=True, related_name='+', to='contenttypes.contenttype'),
         ),
         migrations.RenameIndex(
             model_name='taggeditem',

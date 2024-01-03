@@ -90,3 +90,28 @@ class VirtualMachineTestCase(TestCase):
         # Uniqueness validation for name should ignore case
         with self.assertRaises(ValidationError):
             vm2.full_clean()
+
+    def test_disk_size(self):
+        vm = VirtualMachine(
+            cluster=Cluster.objects.first(),
+            name='Virtual Machine 1'
+        )
+        vm.save()
+        vm.refresh_from_db()
+        self.assertEqual(vm.disk, None)
+
+        # Create two VirtualDisks
+        VirtualDisk.objects.create(virtual_machine=vm, name='Virtual Disk 1', size=10)
+        VirtualDisk.objects.create(virtual_machine=vm, name='Virtual Disk 2', size=10)
+        vm.refresh_from_db()
+        self.assertEqual(vm.disk, 20)
+
+        # Delete one VirtualDisk
+        VirtualDisk.objects.first().delete()
+        vm.refresh_from_db()
+        self.assertEqual(vm.disk, 10)
+
+        # Attempt to manually overwrite the aggregate disk size
+        vm.disk = 30
+        with self.assertRaises(ValidationError):
+            vm.full_clean()

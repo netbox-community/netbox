@@ -174,8 +174,13 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
 
         # Rack must belong to same Site as PowerPanel
         if self.rack and self.rack.site != self.power_panel.site:
-            raise ValidationError(_("Rack {} ({}) and power panel {} ({}) are in different sites").format(
-                self.rack, self.rack.site, self.power_panel, self.power_panel.site
+            raise ValidationError(_(
+                "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) are in different sites."
+            ).format(
+                rack=self.rack,
+                rack_site=self.rack.site,
+                powerpanel=self.power_panel,
+                powerpanel_site=self.power_panel.site
             ))
 
         # AC voltage cannot be negative

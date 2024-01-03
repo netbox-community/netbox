@@ -45,6 +45,7 @@ Context:
             <input type="hidden" name="import_method" value="direct" />
             {% render_field form.data %}
             {% render_field form.format %}
+            {% render_field form.csv_delimiter %}
             <div class="form-group">
               <div class="col col-md-12 text-end">
                 <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
@@ -66,6 +67,7 @@ Context:
           <input type="hidden" name="import_method" value="upload" />
           {% render_field form.upload_file %}
           {% render_field form.format %}
+          {% render_field form.csv_delimiter %}
           <div class="form-group">
             <div class="col col-md-12 text-end">
               <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
@@ -87,6 +89,7 @@ Context:
           {% render_field form.data_source %}
           {% render_field form.data_file %}
           {% render_field form.format %}
+          {% render_field form.csv_delimiter %}
           <div class="form-group">
             <div class="col col-md-12 text-end">
               <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
@@ -177,7 +180,7 @@ Context:
                                     {% if field|widget_type == 'dateinput' %}
                                         <small class="text-muted">{% trans "Format: YYYY-MM-DD" %}</small>
                                     {% elif field|widget_type == 'checkboxinput' %}
-                                        <small class="text-muted">{% trans "Specify \"true\" or \"false" %}"</small>
+                                        <small class="text-muted">{% trans "Specify true or false" %}</small>
                                     {% endif %}
                                 </td>
                             </tr>
@@ -189,11 +192,15 @@ Context:
     </div>
     <p class="small text-muted">
       <i class="mdi mdi-check-bold text-success"></i>
-      {% blocktrans %}Required fields <strong>must</strong> be specified for all objects.{% endblocktrans %}
+      {% blocktrans trimmed %}
+        Required fields <strong>must</strong> be specified for all objects.
+      {% endblocktrans %}
     </p>
     <p class="small text-muted">
       <i class="mdi mdi-information-outline"></i>
-      {% blocktrans with example="vrf.rd" %}Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.{% endblocktrans %}
+      {% blocktrans trimmed with example="vrf.rd" %}
+        Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.
+      {% endblocktrans %}
     </p>
     {% endif %}
 

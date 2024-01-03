@@ -1,6 +1,6 @@
 from django.apps import apps
-from django.db.models import F
-from django.db.models.signals import post_delete, post_save
+from django.db.models import F, Count, OuterRef, Subquery
+from django.db.models.signals import post_delete, post_save, pre_delete
 
 from netbox.registry import registry
 from .fields import CounterCacheField
@@ -23,27 +23,52 @@ def update_counter(model, pk, counter_name, value):
     )
 
 
+def update_counts(model, field_name, related_query):
+    """
+    Perform a bulk update for the given model and counter field. For example,
+
+        update_counts(Device, '_interface_count', 'interfaces')
+
+    will effectively set
+
+        Device.objects.update(_interface_count=Count('interfaces'))
+    """
+    subquery = Subquery(
+        model.objects.filter(pk=OuterRef('pk')).annotate(_count=Count(related_query)).values('_count')
+    )
+    return model.objects.update(**{
+        field_name: subquery
+    })
+
+
 #
 # Signal handlers
 #
 
-def post_save_receiver(sender, instance, **kwargs):
+def post_save_receiver(sender, instance, created, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is created or modified.
     """
     for field_name, counter_name in get_counters_for_model(sender):
         parent_model = sender._meta.get_field(field_name).related_model
         new_pk = getattr(instance, field_name, None)
-        old_pk = instance.tracker.get(field_name) if field_name in instance.tracker else None
+        has_old_field = field_name in instance.tracker
+        old_pk = instance.tracker.get(field_name) if has_old_field else None
 
         # Update the counters on the old and/or new parents as needed
         if old_pk is not None:
             update_counter(parent_model, old_pk, counter_name, -1)
-        if new_pk is not None:
+        if new_pk is not None and (has_old_field or created):
             update_counter(parent_model, new_pk, counter_name, 1)
 
 
-def post_delete_receiver(sender, instance, **kwargs):
+def pre_delete_receiver(sender, instance, origin, **kwargs):
+    model = instance._meta.model
+    if not model.objects.filter(pk=instance.pk).exists():
+        instance._previously_removed = True
+
+
+def post_delete_receiver(sender, instance, origin, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is deleted.
     """
@@ -52,7 +77,7 @@ def post_delete_receiver(sender, instance, **kwargs):
         parent_pk = getattr(instance, field_name, None)
 
         # Decrement the parent's counter by one
-        if parent_pk is not None:
+        if parent_pk is not None and not hasattr(instance, "_previously_removed"):
             update_counter(parent_model, parent_pk, counter_name, -1)
 
 
@@ -81,6 +106,12 @@ def connect_counters(*models):
             # Connect the post_save and post_delete handlers
             post_save.connect(
                 post_save_receiver,
+                sender=to_model,
+                weak=False,
+                dispatch_uid=f'{model._meta.label}.{field.name}'
+            )
+            pre_delete.connect(
+                pre_delete_receiver,
                 sender=to_model,
                 weak=False,
                 dispatch_uid=f'{model._meta.label}.{field.name}'

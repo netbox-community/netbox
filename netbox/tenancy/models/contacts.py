@@ -1,11 +1,12 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from netbox.models import ChangeLoggedModel, NestedGroupModel, OrganizationalModel, PrimaryModel
-from netbox.models.features import TagsMixin
+from netbox.models.features import CustomFieldsMixin, ExportTemplatesMixin, TagsMixin
 from tenancy.choices import *
 
 __all__ = (
@@ -109,9 +110,9 @@ class Contact(PrimaryModel):
         return reverse('tenancy:contact', args=[self.pk])
 
 
-class ContactAssignment(ChangeLoggedModel, TagsMixin):
+class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     content_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE
     )
     object_id = models.PositiveBigIntegerField()
@@ -140,6 +141,9 @@ class ContactAssignment(ChangeLoggedModel, TagsMixin):
 
     class Meta:
         ordering = ('priority', 'contact')
+        indexes = (
+            models.Index(fields=('content_type', 'object_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('content_type', 'object_id', 'contact', 'role'),
@@ -156,6 +160,15 @@ class ContactAssignment(ChangeLoggedModel, TagsMixin):
 
     def get_absolute_url(self):
         return reverse('tenancy:contact', args=[self.contact.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Validate the assigned object type
+        if self.content_type not in ContentType.objects.with_feature('contacts'):
+            raise ValidationError(
+                _("Contacts cannot be assigned to this object type ({type}).").format(type=self.content_type)
+            )
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

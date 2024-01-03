@@ -302,7 +302,8 @@ class DeviceTypeForm(NetBoxModelForm):
     fieldsets = (
         (_('Device Type'), ('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags')),
         (_('Chassis'), (
-            'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
+            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
+            'weight', 'weight_unit',
         )),
         (_('Images'), ('front_image', 'rear_image')),
     )
@@ -310,9 +311,9 @@ class DeviceTypeForm(NetBoxModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
-            'comments', 'tags',
+            'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
+            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
+            'description', 'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={
@@ -421,12 +422,13 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Position'),
         required=False,
         help_text=_("The lowest-numbered unit occupied by the device"),
+        localize=True,
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
                 'disabled-indicator': 'device',
                 'data-dynamic-params': '[{"fieldName":"face","queryParam":"face"}]'
-            }
+            },
         )
     )
     device_type = DynamicModelChoiceField(
@@ -441,7 +443,8 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        selector=True
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),
@@ -1110,7 +1113,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('Parent interface'),
         query_params={
-            'device_id': '$device',
+            'virtual_chassis_member_id': '$device',
         }
     )
     bridge = DynamicModelChoiceField(
@@ -1118,7 +1121,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('Bridged interface'),
         query_params={
-            'device_id': '$device',
+            'virtual_chassis_member_id': '$device',
         }
     )
     lag = DynamicModelChoiceField(
@@ -1126,7 +1129,7 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
         required=False,
         label=_('LAG interface'),
         query_params={
-            'device_id': '$device',
+            'virtual_chassis_member_id': '$device',
             'type': 'lag',
         }
     )

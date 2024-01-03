@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
@@ -60,31 +61,24 @@ class TokenProvisionView(APIView):
     """
     permission_classes = []
 
-    # @extend_schema(methods=["post"], responses={201: serializers.TokenSerializer})
+    @extend_schema(
+        request=serializers.TokenProvisionSerializer,
+        responses={
+            201: serializers.TokenProvisionSerializer,
+            401: OpenApiTypes.OBJECT,
+        }
+    )
     def post(self, request):
-        serializer = serializers.TokenProvisionSerializer(data=request.data)
-        serializer.is_valid()
+        serializer = serializers.TokenProvisionSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=HTTP_201_CREATED)
 
-        # Authenticate the user account based on the provided credentials
-        username = serializer.data.get('username')
-        password = serializer.data.get('password')
-        if not username or not password:
-            raise AuthenticationFailed("Username and password must be provided to provision a token.")
-        user = authenticate(request=request, username=username, password=password)
-        if user is None:
-            raise AuthenticationFailed("Invalid username/password")
-
-        # Create a new Token for the User
-        token = Token(user=user)
-        token.save()
-        data = serializers.TokenSerializer(token, context={'request': request}).data
-        # Manually append the token key, which is normally write-only
-        data['key'] = token.key
-
-        return Response(data, status=HTTP_201_CREATED)
-
-    def get_serializer_class(self):
-        return serializers.TokenSerializer
+    def perform_create(self, serializer):
+        model = serializer.Meta.model
+        logger = logging.getLogger(f'netbox.api.views.TokenProvisionView')
+        logger.info(f"Creating new {model._meta.verbose_name}")
+        serializer.save()
 
 
 #

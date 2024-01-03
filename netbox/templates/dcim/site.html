@@ -3,6 +3,7 @@
 {% load plugins %}
 {% load tz %}
 {% load i18n %}
+{% load mptt %}
 
 {% block breadcrumbs %}
   {{ block.super }}
@@ -29,27 +30,13 @@
           <tr>
             <th scope="row">{% trans "Region" %}</th>
             <td>
-              {% if object.region %}
-                {% for region in object.region.get_ancestors %}
-                  {{ region|linkify }} /
-                {% endfor %}
-                {{ object.region|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
+              {% nested_tree object.region %}
             </td>
           </tr>
           <tr>
             <th scope="row">{% trans "Group" %}</th>
             <td>
-              {% if object.group %}
-                {% for group in object.group.get_ancestors %}
-                  {{ group|linkify }} /
-                {% endfor %}
-                {{ object.group|linkify }}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
+              {% nested_tree object.group %}
             </td>
           </tr>
           <tr>
@@ -132,56 +119,40 @@
     </div>
     <div class="col col-md-6">
       {% include 'inc/panels/related_objects.html' with filter_name='site_id' %}
-      <div class="card">
-        <h5 class="card-header">{% trans "Locations" %}</h5>
-        <div class='card-body'>
-          {% if locations %}
-            <table class="table table-hover">
-              <tr>
-                <th>{% trans "Location" %}</th>
-                <th>{% trans "Racks" %}</th>
-                <th>{% trans "Devices" %}</th>
-                <th></th>
-              </tr>
-              {% for location in locations %}
-                <tr>
-                  <td>
-                    {% for i in location.level|as_range %}<i class="mdi mdi-circle-small"></i>{% endfor %}
-                    {{ location|linkify }}
-                  </td>
-                  <td>
-                    <a href="{% url 'dcim:rack_list' %}?location_id={{ location.pk }}">{{ location.rack_count }}</a>
-                  </td>
-                  <td>
-                    <a href="{% url 'dcim:device_list' %}?location_id={{ location.pk }}">{{ location.device_count }}</a>
-                  </td>
-                  <td class="text-end noprint">
-                    <a href="{% url 'dcim:rack_elevation_list' %}?location_id={{ location.pk }}" class="btn btn-sm btn-primary" title="{% trans "View Elevations" %}">
-                      <i class="mdi mdi-server"></i>
-                    </a>
-                  </td>
-                </tr>
-              {% endfor %}
-            </table>
-          {% else %}
-            <span class="text-muted">{% trans "None" %}</span>
-          {% endif %}
-        </div>
-        {% if perms.dcim.add_location %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'dcim:location_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a location" %}
-            </a>
-          </div>
-        {% endif %}
-      </div>
       {% include 'inc/panels/image_attachments.html' %}
       {% plugin_right_page object %}
 	</div>
 </div>
 <div class="row">
   <div class="col col-md-12">
-    {% include 'dcim/inc/nonracked_devices.html' %}
+    <div class="card">
+      <h5 class="card-header">Locations</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:location_list' %}?site_id={{ object.pk }}"
+        hx-trigger="load"
+      ></div>
+      {% if perms.dcim.add_location %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'dcim:location_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
+          </a>
+        </div>
+      {% endif %}
+    </div>
+    <div class="card">
+      <h5 class="card-header">Non-Racked Devices</h5>
+      <div class="card-body htmx-container table-responsive"
+        hx-get="{% url 'dcim:device_list' %}?site_id={{ object.pk }}&rack_id=null&parent_bay_id=null"
+        hx-trigger="load"
+      ></div>
+      {% if perms.dcim.add_device %}
+        <div class="card-footer text-end noprint">
+          <a href="{% url 'dcim:device_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
+          </a>
+        </div>
+      {% endif %}
+    </div>
     {% plugin_full_width_page object %}
   </div>
 </div>

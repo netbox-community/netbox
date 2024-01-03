@@ -12,13 +12,13 @@
   <div class="alert alert-danger" role="alert">
     <h4 class="alert-heading">{% trans "Confirm Bulk Removal" %}</h4>
     <p>
-      {% blocktrans with count=table.rows|length %}
+      {% blocktrans trimmed with count=table.rows|length %}
         <strong>Warning:</strong> The following operation will remove {{ count }} {{ obj_type_plural }} from {{ parent_obj }}.
       {% endblocktrans %}
     </p>
     <hr />
     <p class="mb-0">
-      {% blocktrans %}
+      {% blocktrans trimmed %}
         Please carefully review the {{ obj_type_plural }} to be removed and confirm below.
       {% endblocktrans %}
     </p>
@@ -35,7 +35,7 @@
     {% endfor %}
     <div class="text-center">
       <button type="submit" name="_confirm" class="btn btn-danger">
-        {% blocktrans with count=table.rows|length %}
+        {% blocktrans trimmed with count=table.rows|length %}
           Delete these {{ count }} {{ obj_type_plural }}
         {% endblocktrans %}
       </button>

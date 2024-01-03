@@ -3,7 +3,6 @@ from collections import defaultdict
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.validators import ValidationError
 from django.db import models
 from django.db.models.signals import class_prepared
@@ -13,8 +12,10 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
-from extras.choices import CustomFieldVisibilityChoices, ObjectChangeActionChoices
+from core.models import ContentType
+from extras.choices import *
 from extras.utils import is_taggable, register_features
+from netbox.config import get_config
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
@@ -35,7 +36,7 @@ __all__ = (
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
-    'WebhooksMixin',
+    'EventRulesMixin',
 )
 
 
@@ -63,19 +64,26 @@ class ChangeLoggingMixin(models.Model):
     class Meta:
         abstract = True
 
-    def serialize_object(self):
+    def serialize_object(self, exclude=None):
         """
         Return a JSON representation of the instance. Models can override this method to replace or extend the default
         serialization logic provided by the `serialize_object()` utility function.
+
+        Args:
+            exclude: An iterable of attribute names to omit from the serialized output
         """
-        return serialize_object(self)
+        return serialize_object(self, exclude=exclude or [])
 
     def snapshot(self):
         """
         Save a snapshot of the object's current state in preparation for modification. The snapshot is saved as
         `_prechange_snapshot` on the instance.
         """
-        self._prechange_snapshot = self.serialize_object()
+        exclude_fields = []
+        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
+            exclude_fields = ['last_updated',]
+
+        self._prechange_snapshot = self.serialize_object(exclude=exclude_fields)
     snapshot.alters_data = True
 
     def to_objectchange(self, action):
@@ -84,6 +92,11 @@ class ChangeLoggingMixin(models.Model):
         by ChangeLoggingMiddleware.
         """
         from extras.models import ObjectChange
+
+        exclude = []
+        if get_config().CHANGELOG_SKIP_EMPTY_CHANGES:
+            exclude = ['last_updated']
+
         objectchange = ObjectChange(
             changed_object=self,
             object_repr=str(self)[:200],
@@ -92,7 +105,7 @@ class ChangeLoggingMixin(models.Model):
         if hasattr(self, '_prechange_snapshot'):
             objectchange.prechange_data = self._prechange_snapshot
         if action in (ObjectChangeActionChoices.ACTION_CREATE, ObjectChangeActionChoices.ACTION_UPDATE):
-            objectchange.postchange_data = self.serialize_object()
+            objectchange.postchange_data = self.serialize_object(exclude=exclude)
 
         return objectchange
 
@@ -205,12 +218,11 @@ class CustomFieldsMixin(models.Model):
         for field in CustomField.objects.get_for_model(self):
             value = self.custom_field_data.get(field.name)
 
-            # Skip fields that are hidden if 'omit_hidden' is set
-            if omit_hidden:
-                if field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN:
-                    continue
-                if field.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET and not value:
-                    continue
+            # Skip hidden fields if 'omit_hidden' is True
+            if omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.HIDDEN:
+                continue
+            elif omit_hidden and field.ui_visible == CustomFieldUIVisibleChoices.IF_SET and not value:
+                continue
 
             data[field] = field.deserialize(value)
 
@@ -232,12 +244,12 @@ class CustomFieldsMixin(models.Model):
         from extras.models import CustomField
         groups = defaultdict(dict)
         visible_custom_fields = CustomField.objects.get_for_model(self).exclude(
-            ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN
+            ui_visible=CustomFieldUIVisibleChoices.HIDDEN
         )
 
         for cf in visible_custom_fields:
             value = self.custom_field_data.get(cf.name)
-            if value in (None, []) and cf.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_HIDDEN_IFUNSET:
+            if value in (None, '', []) and cf.ui_visible == CustomFieldUIVisibleChoices.IF_SET:
                 continue
             value = cf.deserialize(value)
             groups[cf.group_name][cf] = value
@@ -401,9 +413,9 @@ class TagsMixin(models.Model):
         abstract = True
 
 
-class WebhooksMixin(models.Model):
+class EventRulesMixin(models.Model):
     """
-    Enables support for webhooks.
+    Enables support for event rules, which can be used to transmit webhooks or execute scripts automatically.
     """
     class Meta:
         abstract = True
@@ -556,7 +568,7 @@ FEATURES_MAP = {
     'journaling': JournalingMixin,
     'synced_data': SyncedDataMixin,
     'tags': TagsMixin,
-    'webhooks': WebhooksMixin,
+    'event_rules': EventRulesMixin,
 }
 
 registry['model_features'].update({

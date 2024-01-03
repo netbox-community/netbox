@@ -1,10 +1,16 @@
 from jinja2.exceptions import TemplateError
+from rest_framework.decorators import action
+from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
+from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from netbox.api.renderers import TextRenderer
 from .nested_serializers import NestedConfigTemplateSerializer
 
 __all__ = (
     'ConfigContextQuerySetMixin',
+    'ConfigTemplateRenderMixin',
+    'RenderConfigMixin',
 )
 
 
@@ -31,7 +37,9 @@ class ConfigContextQuerySetMixin:
 
 
 class ConfigTemplateRenderMixin:
-
+    """
+    Provides a method to return a rendered ConfigTemplate as REST API data.
+    """
     def render_configtemplate(self, request, configtemplate, context):
         try:
             output = configtemplate.render(context=context)
@@ -50,3 +58,28 @@ class ConfigTemplateRenderMixin:
             'configtemplate': template_serializer.data,
             'content': output
         })
+
+
+class RenderConfigMixin(ConfigTemplateRenderMixin):
+    """
+    Provides a /render-config/ endpoint for REST API views whose model may have a ConfigTemplate assigned.
+    """
+    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
+    def render_config(self, request, pk):
+        """
+        Resolve and render the preferred ConfigTemplate for this Device.
+        """
+        instance = self.get_object()
+        object_type = instance._meta.model_name
+        configtemplate = instance.get_config_template()
+        if not configtemplate:
+            return Response({
+                'error': f'No config template found for this {object_type}.'
+            }, status=HTTP_400_BAD_REQUEST)
+
+        # Compile context data
+        context_data = instance.get_config_context()
+        context_data.update(request.data)
+        context_data.update({object_type: instance})
+
+        return self.render_configtemplate(request, configtemplate, context_data)

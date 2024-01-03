@@ -2,7 +2,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from utilities.testing import APITestCase, APIViewTestCases
-from ..choices import *
 from ..models import *
 
 
@@ -26,26 +25,26 @@ class DataSourceTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
         data_sources = (
-            DataSource(name='Data Source 1', type=DataSourceTypeChoices.LOCAL, source_url='file:///var/tmp/source1/'),
-            DataSource(name='Data Source 2', type=DataSourceTypeChoices.LOCAL, source_url='file:///var/tmp/source2/'),
-            DataSource(name='Data Source 3', type=DataSourceTypeChoices.LOCAL, source_url='file:///var/tmp/source3/'),
+            DataSource(name='Data Source 1', type='local', source_url='file:///var/tmp/source1/'),
+            DataSource(name='Data Source 2', type='local', source_url='file:///var/tmp/source2/'),
+            DataSource(name='Data Source 3', type='local', source_url='file:///var/tmp/source3/'),
         )
         DataSource.objects.bulk_create(data_sources)
 
         cls.create_data = [
             {
                 'name': 'Data Source 4',
-                'type': DataSourceTypeChoices.GIT,
+                'type': 'git',
                 'source_url': 'https://example.com/git/source4'
             },
             {
                 'name': 'Data Source 5',
-                'type': DataSourceTypeChoices.GIT,
+                'type': 'git',
                 'source_url': 'https://example.com/git/source5'
             },
             {
                 'name': 'Data Source 6',
-                'type': DataSourceTypeChoices.GIT,
+                'type': 'git',
                 'source_url': 'https://example.com/git/source6'
             },
         ]
@@ -63,7 +62,7 @@ class DataFileTest(
     def setUpTestData(cls):
         datasource = DataSource.objects.create(
             name='Data Source 1',
-            type=DataSourceTypeChoices.LOCAL,
+            type='local',
             source_url='file:///var/tmp/source1/'
         )
 

@@ -1,0 +1,64 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "IKE Proposal" %}</h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Authentication method" %}</th>
+              <td>{{ object.get_authentication_method_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Encryption algorithm" %}</th>
+              <td>{{ object.get_encryption_algorithm_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Authentication algorithm" %}</th>
+              <td>{{ object.get_authentication_algorithm_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "DH group" %}</th>
+              <td>{{ object.get_group_display }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "SA lifetime (seconds)" %}</th>
+              <td>{{ object.sa_lifetime|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "IKE Policies" %}</th>
+              <td>
+                <a href="{% url 'vpn:ikepolicy_list' %}?proposal_id={{ object.pk }}">{{ object.ike_policies.count }}</a>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

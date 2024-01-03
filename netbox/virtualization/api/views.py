@@ -1,11 +1,12 @@
 from rest_framework.routers import APIRootView
 
 from dcim.models import Device
-from extras.api.mixins import ConfigContextQuerySetMixin
+from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.viewsets import NetBoxModelViewSet
+from utilities.query_functions import CollateAsChar
 from utilities.utils import count_related
 from virtualization import filtersets
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import *
 from . import serializers
 
 
@@ -52,9 +53,10 @@ class ClusterViewSet(NetBoxModelViewSet):
 # Virtual machines
 #
 
-class VirtualMachineViewSet(ConfigContextQuerySetMixin, NetBoxModelViewSet):
+class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBoxModelViewSet):
     queryset = VirtualMachine.objects.prefetch_related(
-        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'tags'
+        'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'primary_ip4', 'primary_ip6', 'config_template',
+        'tags', 'virtualdisks',
     )
     filterset_class = filtersets.VirtualMachineFilterSet
 
@@ -86,4 +88,17 @@ class VMInterfaceViewSet(NetBoxModelViewSet):
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filtersets.VMInterfaceFilterSet
+    brief_prefetch_fields = ['virtual_machine']
+
+    def get_bulk_destroy_queryset(self):
+        # Ensure child interfaces are deleted prior to their parents
+        return self.get_queryset().order_by('virtual_machine', 'parent', CollateAsChar('_name'))
+
+
+class VirtualDiskViewSet(NetBoxModelViewSet):
+    queryset = VirtualDisk.objects.prefetch_related(
+        'virtual_machine', 'tags',
+    )
+    serializer_class = serializers.VirtualDiskSerializer
+    filterset_class = filtersets.VirtualDiskFilterSet
     brief_prefetch_fields = ['virtual_machine']

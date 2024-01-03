@@ -1,11 +1,9 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from extras.models import Tag
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
-from utilities.forms import BootstrapMixin
-from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
 
 __all__ = (
     'ContactAssignmentForm',
@@ -121,7 +119,7 @@ class ContactForm(NetBoxModelForm):
         }
 
 
-class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
+class ContactAssignmentForm(NetBoxModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=ContactGroup.objects.all(),
@@ -140,11 +138,6 @@ class ContactAssignmentForm(BootstrapMixin, forms.ModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=ContactRole.objects.all()
-    )
-    tags = DynamicModelMultipleChoiceField(
-        queryset=Tag.objects.all(),
-        required=False,
-        label=_('Tags')
     )
 
     class Meta:

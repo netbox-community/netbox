@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -29,7 +30,7 @@ class NetBoxFeatureSet(
     ExportTemplatesMixin,
     JournalingMixin,
     TagsMixin,
-    WebhooksMixin
+    EventRulesMixin
 ):
     class Meta:
         abstract = True
@@ -43,7 +44,7 @@ class NetBoxFeatureSet(
 # Base model classes
 #
 
-class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, WebhooksMixin, models.Model):
+class ChangeLoggedModel(ChangeLoggingMixin, CustomValidationMixin, EventRulesMixin, models.Model):
     """
     Base model for ancillary models; provides limited functionality for models which don't
     support NetBox's full feature set.
@@ -85,10 +86,15 @@ class NetBoxModel(NetBoxFeatureSet, models.Model):
 
                 if ct_value and fk_value:
                     klass = getattr(self, field.ct_field).model_class()
-                    if not klass.objects.filter(pk=fk_value).exists():
+                    try:
+                        obj = klass.objects.get(pk=fk_value)
+                    except ObjectDoesNotExist:
                         raise ValidationError({
                             field.fk_field: f"Related object not found using the provided value: {fk_value}."
                         })
+
+                    # update the GFK field value
+                    setattr(self, field.name, obj)
 
 
 #

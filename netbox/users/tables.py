@@ -52,7 +52,7 @@ class UserTable(NetBoxTable):
         model = NetBoxUser
         fields = (
             'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'groups', 'is_active', 'is_staff',
-            'is_superuser',
+            'is_superuser', 'last_login',
         )
         default_columns = ('pk', 'username', 'first_name', 'last_name', 'email', 'is_active')
 

@@ -36,6 +36,8 @@ NetBox users are welcome to participate in either role, on stage or in the crowd
 
 ## :bug: Reporting Bugs
 
+:warning: Bug reports are used to call attention to some unintended or unexpected behavior in NetBox, such as when an error occurs or when the result of taking some action is inconsistent with the documentation. **Bug reports may not be used to suggest new functionality**; please see "feature requests" below if that is your goal.
+
 * First, ensure that you're running the [latest stable version](https://github.com/netbox-community/netbox/releases) of NetBox. If you're running an older version, it's likely that the bug has already been fixed.
 
 * Next, search our [issues list](https://github.com/netbox-community/netbox/issues?q=is%3Aissue) to see if the bug you've found has already been reported. If you come across a bug report that seems to match, please click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This will help draw more attention to it. Any comments you can add to provide additional information or context would also be much appreciated.

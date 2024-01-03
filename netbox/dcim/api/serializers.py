@@ -2,8 +2,8 @@ import decimal
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 from timezone_field.rest_framework import TimeZoneSerializerField
 
@@ -12,8 +12,7 @@ from dcim.constants import *
 from dcim.models import *
 from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import (
-    NestedASNSerializer, NestedIPAddressSerializer, NestedL2VPNTerminationSerializer, NestedVLANSerializer,
-    NestedVRFSerializer,
+    NestedASNSerializer, NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer,
 )
 from ipam.models import ASN, VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
@@ -27,6 +26,7 @@ from tenancy.api.nested_serializers import NestedTenantSerializer
 from users.api.nested_serializers import NestedUserSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedClusterSerializer
+from vpn.api.nested_serializers import NestedL2VPNTerminationSerializer
 from wireless.api.nested_serializers import NestedWirelessLANSerializer, NestedWirelessLinkSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
@@ -343,9 +343,9 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         model = DeviceType
         fields = [
             'id', 'url', 'display', 'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height',
-            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'device_count',
-            'console_port_template_count', 'console_server_port_template_count', 'power_port_template_count',
+            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
+            'front_image', 'rear_image', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'device_count', 'console_port_template_count', 'console_server_port_template_count', 'power_port_template_count',
             'power_outlet_template_count', 'interface_template_count', 'front_port_template_count',
             'rear_port_template_count', 'device_bay_template_count', 'module_bay_template_count',
             'inventory_item_template_count',
@@ -738,12 +738,12 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
     class Meta(DeviceSerializer.Meta):
         fields = [
             'id', 'url', 'display', 'name', 'device_type', 'role', 'device_role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'parent_device', 'status', 'airflow',
-            'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
-            'vc_priority', 'description', 'comments', 'local_context_data', 'tags', 'custom_fields', 'config_context',
-            'config_template', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
-            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
-            'device_bay_count', 'module_bay_count', 'inventory_item_count',
+            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
+            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
+            'vc_position', 'vc_priority', 'description', 'comments', 'config_template', 'config_context',
+            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
+            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
+            'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -758,6 +758,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
+    status = ChoiceField(choices=VirtualDeviceContextStatusChoices)
 
     # Related object counts
     interface_count = serializers.IntegerField(read_only=True)
@@ -784,10 +785,6 @@ class ModuleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-
-
-class DeviceNAPALMSerializer(serializers.Serializer):
-    method = serializers.JSONField()
 
 
 #

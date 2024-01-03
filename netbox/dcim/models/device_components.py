@@ -1,7 +1,6 @@
 from functools import cached_property
 
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -86,7 +85,7 @@ class ComponentModel(NetBoxModel):
         super().__init__(*args, **kwargs)
 
         # Cache the original Device ID for reference under clean()
-        self._original_device = self.device_id
+        self._original_device = self.__dict__.get('device_id')
 
     def __str__(self):
         if self.label:
@@ -537,7 +536,7 @@ class BaseInterface(models.Model):
     )
     parent = models.ForeignKey(
         to='self',
-        on_delete=models.SET_NULL,
+        on_delete=models.RESTRICT,
         related_name='child_interfaces',
         null=True,
         blank=True,
@@ -566,6 +565,10 @@ class BaseInterface(models.Model):
             self.tagged_vlans.clear()
 
         return super().save(*args, **kwargs)
+
+    @property
+    def tunnel_termination(self):
+        return self.tunnel_terminations.first()
 
     @property
     def count_ipaddresses(self):
@@ -720,8 +723,14 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         object_id_field='interface_id',
         related_query_name='+'
     )
+    tunnel_terminations = GenericRelation(
+        to='vpn.TunnelTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='interface'
+    )
     l2vpn_terminations = GenericRelation(
-        to='ipam.L2VPNTermination',
+        to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='interface',
@@ -799,9 +808,9 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         if self.bridge and self.bridge.device != self.device:
             if self.device.virtual_chassis is None:
                 raise ValidationError({
-                    'bridge': _("""
-                    The selected bridge interface ({bridge}) belongs to a different device
-                    ({device}).""").format(bridge=self.bridge, device=self.bridge.device)
+                    'bridge': _(
+                        "The selected bridge interface ({bridge}) belongs to a different device ({device})."
+                    ).format(bridge=self.bridge, device=self.bridge.device)
                 })
             elif self.bridge.device.virtual_chassis != self.device.virtual_chassis:
                 raise ValidationError({
@@ -889,10 +898,10 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         # Validate untagged VLAN
         if self.untagged_vlan and self.untagged_vlan.site not in [self.device.site, None]:
             raise ValidationError({
-                'untagged_vlan': _("""
-                    The untagged VLAN ({untagged_vlan}) must belong to the same site as the
-                    interface's parent device, or it must be global.
-                    """).format(untagged_vlan=self.untagged_vlan)
+                'untagged_vlan': _(
+                    "The untagged VLAN ({untagged_vlan}) must belong to the same site as the interface's parent "
+                    "device, or it must be global."
+                ).format(untagged_vlan=self.untagged_vlan)
             })
 
     def save(self, *args, **kwargs):
@@ -1067,9 +1076,10 @@ class RearPort(ModularComponentModel, CabledObjectModel, TrackingModelMixin):
             frontport_count = self.frontports.count()
             if self.positions < frontport_count:
                 raise ValidationError({
-                    "positions": _("""
-                        The number of positions cannot be less than the number of mapped front ports
-                        ({frontport_count})""").format(frontport_count=frontport_count)
+                    "positions": _(
+                        "The number of positions cannot be less than the number of mapped front ports "
+                        "({frontport_count})"
+                    ).format(frontport_count=frontport_count)
                 })
 
 
@@ -1180,7 +1190,7 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
         db_index=True
     )
     component_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=MODULAR_COMPONENT_MODELS,
         on_delete=models.PROTECT,
         related_name='+',
@@ -1240,6 +1250,9 @@ class InventoryItem(MPTTModel, ComponentModel, TrackingModelMixin):
 
     class Meta:
         ordering = ('device__id', 'parent__id', '_name')
+        indexes = (
+            models.Index(fields=('component_type', 'component_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('device', 'parent', 'name'),

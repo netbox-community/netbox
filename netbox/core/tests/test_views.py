@@ -1,7 +1,6 @@
 from django.utils import timezone
 
 from utilities.testing import ViewTestCases, create_tags
-from ..choices import *
 from ..models import *
 
 
@@ -11,9 +10,9 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
         data_sources = (
-            DataSource(name='Data Source 1', type=DataSourceTypeChoices.LOCAL, source_url='file:///var/tmp/source1/'),
-            DataSource(name='Data Source 2', type=DataSourceTypeChoices.LOCAL, source_url='file:///var/tmp/source2/'),
-            DataSource(name='Data Source 3', type=DataSourceTypeChoices.LOCAL, source_url='file:///var/tmp/source3/'),
+            DataSource(name='Data Source 1', type='local', source_url='file:///var/tmp/source1/'),
+            DataSource(name='Data Source 2', type='local', source_url='file:///var/tmp/source2/'),
+            DataSource(name='Data Source 3', type='local', source_url='file:///var/tmp/source3/'),
         )
         DataSource.objects.bulk_create(data_sources)
 
@@ -21,7 +20,7 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.form_data = {
             'name': 'Data Source X',
-            'type': DataSourceTypeChoices.GIT,
+            'type': 'git',
             'source_url': 'http:///exmaple/com/foo/bar/',
             'description': 'Something',
             'comments': 'Foo bar baz',
@@ -29,10 +28,10 @@ class DataSourceTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            f"name,type,source_url,enabled",
-            f"Data Source 4,{DataSourceTypeChoices.LOCAL},file:///var/tmp/source4/,true",
-            f"Data Source 5,{DataSourceTypeChoices.LOCAL},file:///var/tmp/source4/,true",
-            f"Data Source 6,{DataSourceTypeChoices.GIT},http:///exmaple/com/foo/bar/,false",
+            "name,type,source_url,enabled",
+            "Data Source 4,local,file:///var/tmp/source4/,true",
+            "Data Source 5,local,file:///var/tmp/source4/,true",
+            "Data Source 6,git,http:///exmaple/com/foo/bar/,false",
         )
 
         cls.csv_update_data = (
@@ -60,7 +59,7 @@ class DataFileTestCase(
     def setUpTestData(cls):
         datasource = DataSource.objects.create(
             name='Data Source 1',
-            type=DataSourceTypeChoices.LOCAL,
+            type='local',
             source_url='file:///var/tmp/source1/'
         )
 

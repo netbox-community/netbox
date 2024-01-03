@@ -17,13 +17,13 @@ from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import LogLevelChoices
 from extras.models import ScriptModule
-from extras.signals import clear_webhooks
+from extras.signals import clear_events
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
 from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from .context_managers import change_logging
+from .context_managers import event_tracking
 from .forms import ScriptForm
 
 __all__ = (
@@ -401,23 +401,23 @@ class BaseScript:
 
     def log_debug(self, message):
         self.logger.log(logging.DEBUG, message)
-        self.log.append((LogLevelChoices.LOG_DEFAULT, message))
+        self.log.append((LogLevelChoices.LOG_DEFAULT, str(message)))
 
     def log_success(self, message):
         self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LogLevelChoices.LOG_SUCCESS, message))
+        self.log.append((LogLevelChoices.LOG_SUCCESS, str(message)))
 
     def log_info(self, message):
         self.logger.log(logging.INFO, message)
-        self.log.append((LogLevelChoices.LOG_INFO, message))
+        self.log.append((LogLevelChoices.LOG_INFO, str(message)))
 
     def log_warning(self, message):
         self.logger.log(logging.WARNING, message)
-        self.log.append((LogLevelChoices.LOG_WARNING, message))
+        self.log.append((LogLevelChoices.LOG_WARNING, str(message)))
 
     def log_failure(self, message):
         self.logger.log(logging.ERROR, message)
-        self.log.append((LogLevelChoices.LOG_FAILURE, message))
+        self.log.append((LogLevelChoices.LOG_FAILURE, str(message)))
 
     # Convenience functions
 
@@ -472,10 +472,16 @@ def get_module_and_script(module_name, script_name):
     return module, script
 
 
-def run_script(data, request, job, commit=True, **kwargs):
+def run_script(data, job, request=None, commit=True, **kwargs):
     """
     A wrapper for calling Script.run(). This performs error handling and provides a hook for committing changes. It
     exists outside the Script class to ensure it cannot be overridden by a script author.
+
+    Args:
+        data: A dictionary of data to be passed to the script upon execution
+        job: The Job associated with this execution
+        request: The WSGI request associated with this execution (if any)
+        commit: Passed through to Script.run()
     """
     job.start()
 
@@ -486,9 +492,10 @@ def run_script(data, request, job, commit=True, **kwargs):
     logger.info(f"Running script (commit={commit})")
 
     # Add files to form data
-    files = request.FILES
-    for field_name, fileobj in files.items():
-        data[field_name] = fileobj
+    if request:
+        files = request.FILES
+        for field_name, fileobj in files.items():
+            data[field_name] = fileobj
 
     # Add the current request as a property of the script
     script.request = request
@@ -496,7 +503,7 @@ def run_script(data, request, job, commit=True, **kwargs):
     def _run_script():
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
-        the change_logging context manager (which is bypassed if commit == False).
+        the event_tracking context manager (which is bypassed if commit == False).
         """
         try:
             try:
@@ -506,7 +513,8 @@ def run_script(data, request, job, commit=True, **kwargs):
                         raise AbortTransaction()
             except AbortTransaction:
                 script.log_info("Database changes have been reverted automatically.")
-                clear_webhooks.send(request)
+                if request:
+                    clear_events.send(request)
             job.data = ScriptOutputSerializer(script).data
             job.terminate()
         except Exception as e:
@@ -519,15 +527,16 @@ def run_script(data, request, job, commit=True, **kwargs):
                 logger.error(f"Exception raised during script execution: {e}")
             script.log_info("Database changes have been reverted due to error.")
             job.data = ScriptOutputSerializer(script).data
-            job.terminate(status=JobStatusChoices.STATUS_ERRORED)
-            clear_webhooks.send(request)
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
+            if request:
+                clear_events.send(request)
 
         logger.info(f"Script completed in {job.duration}")
 
-    # Execute the script. If commit is True, wrap it with the change_logging context manager to ensure we process
-    # change logging, webhooks, etc.
+    # Execute the script. If commit is True, wrap it with the event_tracking context manager to ensure we process
+    # change logging, event rules, etc.
     if commit:
-        with change_logging(request):
+        with event_tracking(request):
             _run_script()
     else:
         _run_script()

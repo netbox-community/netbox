@@ -41,8 +41,8 @@
           {% if not module.scripts %}
             <div class="alert alert-warning d-flex align-items-center" role="alert">
               <i class="mdi mdi-alert"></i>
-              {% blocktrans with file_path=module.full_path %}
-                Script file at <code>{{ file_path }}</code> could not be loaded.
+              {% blocktrans trimmed with file_path=module.full_path %}
+                Script file at <code class="mx-1">{{ file_path }}</code> could not be loaded.
               {% endblocktrans %}
             </div>
           {% else %}
@@ -91,7 +91,7 @@
         <h4 class="alert-heading">{% trans "No Scripts Found" %}</h4>
         {% if perms.extras.add_scriptmodule %}
           {% url 'extras:scriptmodule_add' as create_script_url %}
-          {% blocktrans %}
+          {% blocktrans trimmed %}
             Get started by <a href="{{ create_script_url }}">creating a script</a> from an uploaded file or data source.
           {% endblocktrans %}
         {% endif %}

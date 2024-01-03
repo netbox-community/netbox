@@ -12,6 +12,7 @@ __all__ = (
     'CustomFieldChoiceSetType',
     'CustomFieldType',
     'CustomLinkType',
+    'EventRuleType',
     'ExportTemplateType',
     'ImageAttachmentType',
     'JournalEntryType',
@@ -127,4 +128,13 @@ class TagType(ObjectType):
     filters=WebhookFilter
 )
 class WebhookType(OrganizationalObjectType):
+    pass
+
+
+@strawberry.django.type(
+    models.EventRule,
+    exclude=['content_types',],
+    filters=EventRuleFilter
+)
+class EventRuleType(OrganizationalObjectType):
     pass

@@ -2,7 +2,7 @@ from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.db.models.functions import Lower
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -21,6 +21,7 @@ from utilities.tracking import TrackingModelMixin
 from virtualization.choices import *
 
 __all__ = (
+    'VirtualDisk',
     'VirtualMachine',
     'VMInterface',
 )
@@ -130,6 +131,10 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
         to_model='virtualization.VMInterface',
         to_field='virtual_machine'
     )
+    virtual_disk_count = CounterCacheField(
+        to_model='virtualization.VirtualDisk',
+        to_field='virtual_machine'
+    )
 
     objects = ConfigContextModelQuerySet.as_manager()
 
@@ -192,6 +197,19 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
                 ).format(device=self.device, cluster=self.cluster)
             })
 
+        # Validate aggregate disk size
+        if self.pk:
+            total_disk = self.virtualdisks.aggregate(Sum('size', default=0))['size__sum']
+            if total_disk and self.disk is None:
+                self.disk = total_disk
+            elif total_disk and self.disk != total_disk:
+                raise ValidationError({
+                    'disk': _(
+                        "The specified disk size ({size}) must match the aggregate size of assigned virtual disks "
+                        "({total_size})."
+                    ).format(size=self.disk, total_size=total_disk)
+                })
+
         # Validate primary IP addresses
         interfaces = self.interfaces.all() if self.pk else None
         for family in (4, 6):
@@ -236,11 +254,19 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
             return None
 
 
-class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
+#
+# VM components
+#
+
+
+class ComponentModel(NetBoxModel):
+    """
+    An abstract model inherited by any model which has a parent VirtualMachine.
+    """
     virtual_machine = models.ForeignKey(
         to='virtualization.VirtualMachine',
         on_delete=models.CASCADE,
-        related_name='interfaces'
+        related_name='%(class)ss'
     )
     name = models.CharField(
         verbose_name=_('name'),
@@ -255,6 +281,42 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
     description = models.CharField(
         verbose_name=_('description'),
         max_length=200,
+        blank=True
+    )
+
+    class Meta:
+        abstract = True
+        ordering = ('virtual_machine', CollateAsChar('_name'))
+        constraints = (
+            models.UniqueConstraint(
+                fields=('virtual_machine', 'name'),
+                name='%(app_label)s_%(class)s_unique_virtual_machine_name'
+            ),
+        )
+
+    def __str__(self):
+        return self.name
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+        objectchange.related_object = self.virtual_machine
+        return objectchange
+
+    @property
+    def parent_object(self):
+        return self.virtual_machine
+
+
+class VMInterface(ComponentModel, BaseInterface, TrackingModelMixin):
+    virtual_machine = models.ForeignKey(
+        to='virtualization.VirtualMachine',
+        on_delete=models.CASCADE,
+        related_name='interfaces'  # Override ComponentModel
+    )
+    _name = NaturalOrderingField(
+        target_field='name',
+        naturalize_function=naturalize_interface,
+        max_length=100,
         blank=True
     )
     untagged_vlan = models.ForeignKey(
@@ -291,26 +353,22 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
         object_id_field='interface_id',
         related_query_name='+'
     )
+    tunnel_terminations = GenericRelation(
+        to='vpn.TunnelTermination',
+        content_type_field='termination_type',
+        object_id_field='termination_id',
+        related_query_name='vminterface',
+    )
     l2vpn_terminations = GenericRelation(
-        to='ipam.L2VPNTermination',
+        to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='vminterface',
     )
 
-    class Meta:
-        ordering = ('virtual_machine', CollateAsChar('_name'))
-        constraints = (
-            models.UniqueConstraint(
-                fields=('virtual_machine', 'name'),
-                name='%(app_label)s_%(class)s_unique_virtual_machine_name'
-            ),
-        )
+    class Meta(ComponentModel.Meta):
         verbose_name = _('interface')
         verbose_name_plural = _('interfaces')
-
-    def __str__(self):
-        return self.name
 
     def get_absolute_url(self):
         return reverse('virtualization:vminterface', kwargs={'pk': self.pk})
@@ -359,15 +417,19 @@ class VMInterface(NetBoxModel, BaseInterface, TrackingModelMixin):
                 ).format(untagged_vlan=self.untagged_vlan)
             })
 
-    def to_objectchange(self, action):
-        objectchange = super().to_objectchange(action)
-        objectchange.related_object = self.virtual_machine
-        return objectchange
-
-    @property
-    def parent_object(self):
-        return self.virtual_machine
-
     @property
     def l2vpn_termination(self):
         return self.l2vpn_terminations.first()
+
+
+class VirtualDisk(ComponentModel, TrackingModelMixin):
+    size = models.PositiveIntegerField(
+        verbose_name=_('size (GB)'),
+    )
+
+    class Meta(ComponentModel.Meta):
+        verbose_name = _('virtual disk')
+        verbose_name_plural = _('virtual disks')
+
+    def get_absolute_url(self):
+        return reverse('virtualization:virtualdisk', args=[self.pk])

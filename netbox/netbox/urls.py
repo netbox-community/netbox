@@ -6,9 +6,10 @@ from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from account.views import LoginView, LogoutView
-from extras.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
+from netbox.graphql.views import GraphQLView
+from netbox.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
 from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
 from strawberry.django.views import GraphQLView
 from .admin import admin_site
@@ -33,6 +34,7 @@ _patterns = [
     path('tenancy/', include('tenancy.urls')),
     path('users/', include('users.urls')),
     path('virtualization/', include('virtualization.urls')),
+    path('vpn/', include('vpn.urls')),
     path('wireless/', include('wireless.urls')),
 
     # Current user views
@@ -51,6 +53,7 @@ _patterns = [
     path('api/tenancy/', include('tenancy.api.urls')),
     path('api/users/', include('users.api.urls')),
     path('api/virtualization/', include('virtualization.api.urls')),
+    path('api/vpn/', include('vpn.api.urls')),
     path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
 

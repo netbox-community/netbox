@@ -11,11 +11,11 @@ from .template_code import *
 __all__ = (
     'BookmarkTable',
     'ConfigContextTable',
-    'ConfigRevisionTable',
     'ConfigTemplateTable',
     'CustomFieldChoiceSetTable',
     'CustomFieldTable',
     'CustomLinkTable',
+    'EventRuleTable',
     'ExportTemplateTable',
     'ImageAttachmentTable',
     'JournalEntryTable',
@@ -34,31 +34,6 @@ IMAGEATTACHMENT_IMAGE = '''
 {% endif %}
 '''
 
-REVISION_BUTTONS = """
-{% if not record.is_active %}
-<a href="{% url 'extras:configrevision_restore' pk=record.pk %}" class="btn btn-sm btn-primary" title="Restore config">
-    <i class="mdi mdi-file-restore"></i>
-</a>
-{% endif %}
-"""
-
-
-class ConfigRevisionTable(NetBoxTable):
-    is_active = columns.BooleanColumn(
-        verbose_name=_('Is Active'),
-    )
-    actions = columns.ActionsColumn(
-        actions=('delete',),
-        extra_buttons=REVISION_BUTTONS
-    )
-
-    class Meta(NetBoxTable.Meta):
-        model = ConfigRevision
-        fields = (
-            'pk', 'id', 'is_active', 'created', 'comment',
-        )
-        default_columns = ('pk', 'id', 'is_active', 'created', 'comment')
-
 
 class CustomFieldTable(NetBoxTable):
     name = tables.Column(
@@ -71,8 +46,11 @@ class CustomFieldTable(NetBoxTable):
     required = columns.BooleanColumn(
         verbose_name=_('Required')
     )
-    ui_visibility = columns.ChoiceFieldColumn(
-        verbose_name=_('UI Visibility')
+    ui_visible = columns.ChoiceFieldColumn(
+        verbose_name=_('Visible')
+    )
+    ui_editable = columns.ChoiceFieldColumn(
+        verbose_name=_('Editable')
     )
     description = columns.MarkdownColumn(
         verbose_name=_('Description')
@@ -94,8 +72,8 @@ class CustomFieldTable(NetBoxTable):
         model = CustomField
         fields = (
             'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
-            'search_weight', 'filter_logic', 'ui_visibility', 'is_cloneable', 'weight', 'choice_set', 'choices',
-            'created', 'last_updated',
+            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable', 'weight', 'choice_set',
+            'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
 
@@ -273,6 +251,36 @@ class WebhookTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    ssl_validation = columns.BooleanColumn(
+        verbose_name=_('SSL Validation')
+    )
+    tags = columns.TagColumn(
+        url_name='extras:webhook_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = Webhook
+        fields = (
+            'pk', 'id', 'name', 'http_method', 'payload_url', 'http_content_type', 'secret', 'ssl_verification',
+            'ca_file_path', 'description', 'tags', 'created', 'last_updated',
+        )
+        default_columns = (
+            'pk', 'name', 'http_method', 'payload_url', 'description',
+        )
+
+
+class EventRuleTable(NetBoxTable):
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    action_type = tables.Column(
+        verbose_name=_('Type'),
+    )
+    action_object = tables.Column(
+        linkify=True,
+        verbose_name=_('Object'),
+    )
     content_types = columns.ContentTypesColumn(
         verbose_name=_('Content Types'),
     )
@@ -294,23 +302,20 @@ class WebhookTable(NetBoxTable):
     type_job_end = columns.BooleanColumn(
         verbose_name=_('Job End')
     )
-    ssl_validation = columns.BooleanColumn(
-        verbose_name=_('SSL Validation')
-    )
     tags = columns.TagColumn(
         url_name='extras:webhook_list'
     )
 
     class Meta(NetBoxTable.Meta):
-        model = Webhook
+        model = EventRule
         fields = (
-            'pk', 'id', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete',
-            'type_job_start', 'type_job_end', 'http_method', 'payload_url', 'secret', 'ssl_validation', 'ca_file_path',
-            'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'enabled', 'description', 'action_type', 'action_object', 'content_types',
+            'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'tags', 'created',
+            'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'enabled', 'type_create', 'type_update', 'type_delete', 'type_job_start',
-            'type_job_end', 'http_method', 'payload_url',
+            'pk', 'name', 'enabled', 'action_type', 'action_object', 'content_types', 'type_create', 'type_update',
+            'type_delete', 'type_job_start', 'type_job_end',
         )
 
 

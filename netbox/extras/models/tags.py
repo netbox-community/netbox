@@ -1,13 +1,10 @@
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.models import TagBase, GenericTaggedItemBase
 
-from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from utilities.choices import ColorChoices
@@ -37,9 +34,8 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         blank=True,
     )
     object_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='+',
-        limit_choices_to=FeatureQuery('tags'),
         blank=True,
         help_text=_("The object type(s) to which this this tag can be applied.")
     )
@@ -74,6 +70,8 @@ class TaggedItem(GenericTaggedItemBase):
         related_name="%(app_label)s_%(class)s_items",
         on_delete=models.CASCADE
     )
+
+    _netbox_private = True
 
     class Meta:
         indexes = [models.Index(fields=["content_type", "object_id"])]

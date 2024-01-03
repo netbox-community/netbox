@@ -80,19 +80,41 @@ changes in the database indefinitely.
 
 ---
 
+## CHANGELOG_SKIP_EMPTY_CHANGES
+
+Default: True
+
+If enabled, a change log record will not be created when an object is updated without any changes to its existing field values.
+
+!!! note
+    The object's `last_updated` field will always reflect the time of the most recent update, regardless of this parameter.
+
+---
+
+## DATA_UPLOAD_MAX_MEMORY_SIZE
+
+Default: `2621440` (2.5 MB)
+
+The maximum size (in bytes) of an incoming HTTP request (i.e. `GET` or `POST` data). Requests which exceed this size will raise a `RequestDataTooBig` exception.
+
+---
+
 ## ENFORCE_GLOBAL_UNIQUE
 
 !!! tip "Dynamic Configuration Parameter"
 
-Default: False
+Default: True
 
-By default, NetBox will permit users to create duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This behavior can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to True.
+By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to False.
+
+!!! info "Changed in v3.7"
+    The default value for this parameter was changed from False to True in NetBox v3.7.
 
 ---
 
-## `FILE_UPLOAD_MAX_MEMORY_SIZE`
+## FILE_UPLOAD_MAX_MEMORY_SIZE
 
-Default: `2621440` (2.5 MB).
+Default: `2621440` (2.5 MB)
 
 The maximum amount (in bytes) of uploaded data that will be held in memory before being written to the filesystem. Changing this setting can be useful for example to be able to upload files bigger than 2.5MB to custom scripts for processing.
 

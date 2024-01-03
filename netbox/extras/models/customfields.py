@@ -5,18 +5,16 @@ from datetime import datetime, date
 import django_filters
 from django import forms
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.validators import RegexValidator, ValidationError
 from django.db import models
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ContentType
 from extras.choices import *
 from extras.data import CHOICE_SETS
-from extras.utils import FeatureQuery
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
 from netbox.search import FieldTypes
@@ -28,6 +26,7 @@ from utilities.forms.fields import (
 from utilities.forms.utils import add_blank_choice
 from utilities.forms.widgets import APISelect, APISelectMultiple, DatePicker, DateTimePicker
 from utilities.querysets import RestrictedQuerySet
+from utilities.templatetags.builtins.filters import render_markdown
 from utilities.validators import validate_regex
 
 __all__ = (
@@ -56,12 +55,20 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         content_type = ContentType.objects.get_for_model(model._meta.concrete_model)
         return self.get_queryset().filter(content_types=content_type)
 
+    def get_defaults_for_model(self, model):
+        """
+        Return a dictionary of serialized default values for all CustomFields applicable to the given model.
+        """
+        custom_fields = self.get_for_model(model).filter(default__isnull=False)
+        return {
+            cf.name: cf.default for cf in custom_fields
+        }
+
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     content_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         related_name='custom_fields',
-        limit_choices_to=FeatureQuery('custom_fields'),
         help_text=_('The object(s) to which this field applies.')
     )
     type = models.CharField(
@@ -72,7 +79,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of data this custom field holds')
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,
@@ -149,13 +156,13 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         verbose_name=_('display weight'),
         help_text=_('Fields with higher weights appear lower in a form.')
     )
-    validation_minimum = models.IntegerField(
+    validation_minimum = models.BigIntegerField(
         blank=True,
         null=True,
         verbose_name=_('minimum value'),
         help_text=_('Minimum allowed value (for numeric fields)')
     )
-    validation_maximum = models.IntegerField(
+    validation_maximum = models.BigIntegerField(
         blank=True,
         null=True,
         verbose_name=_('maximum value'),
@@ -179,12 +186,19 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         blank=True,
         null=True
     )
-    ui_visibility = models.CharField(
+    ui_visible = models.CharField(
         max_length=50,
-        choices=CustomFieldVisibilityChoices,
-        default=CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
-        verbose_name=_('UI visibility'),
-        help_text=_('Specifies the visibility of custom field in the UI')
+        choices=CustomFieldUIVisibleChoices,
+        default=CustomFieldUIVisibleChoices.ALWAYS,
+        verbose_name=_('UI visible'),
+        help_text=_('Specifies whether the custom field is displayed in the UI')
+    )
+    ui_editable = models.CharField(
+        max_length=50,
+        choices=CustomFieldUIEditableChoices,
+        default=CustomFieldUIEditableChoices.YES,
+        verbose_name=_('UI editable'),
+        help_text=_('Specifies whether the custom field value can be edited in the UI')
     )
     is_cloneable = models.BooleanField(
         default=False,
@@ -197,7 +211,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     clone_fields = (
         'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-        'choice_set', 'ui_visibility', 'is_cloneable',
+        'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
 
     class Meta:
@@ -219,7 +233,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         super().__init__(*args, **kwargs)
 
         # Cache instance's original name so we can check later whether it has changed
-        self._name = self.name
+        self._name = self.__dict__.get('name')
 
     @property
     def search_type(self):
@@ -230,6 +244,17 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         if self.choice_set:
             return self.choice_set.choices
         return []
+
+    def get_ui_visible_color(self):
+        return CustomFieldUIVisibleChoices.colors.get(self.ui_visible)
+
+    def get_ui_editable_color(self):
+        return CustomFieldUIEditableChoices.colors.get(self.ui_editable)
+
+    def get_choice_label(self, value):
+        if not hasattr(self, '_choice_map'):
+            self._choice_map = dict(self.choices)
+        return self._choice_map.get(value, value)
 
     def populate_initial_data(self, content_types):
         """
@@ -281,8 +306,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             except ValidationError as err:
                 raise ValidationError({
                     'default': _(
-                        'Invalid default value "{default}": {message}'
-                    ).format(default=self.default, message=self.message)
+                        'Invalid default value "{value}": {error}'
+                    ).format(value=self.default, error=err.message)
                 })
 
         # Minimum/maximum values can be set only for numeric fields
@@ -317,14 +342,6 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
                 'choice_set': _("Choices may be set only on selection fields.")
             })
 
-        # A selection field's default (if any) must be present in its available choices
-        if self.type == CustomFieldTypeChoices.TYPE_SELECT and self.default and self.default not in self.choices:
-            raise ValidationError({
-                'default': _(
-                    "The specified default value ({default}) is not listed as an available choice."
-                ).format(default=self.default)
-            })
-
         # Object fields must define an object_type; other fields must not
         if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
             if not self.object_type:
@@ -334,8 +351,8 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         elif self.object_type:
             raise ValidationError({
                 'object_type': _(
-                    "{type_display} fields may not define an object type.")
-                .format(type_display=self.get_type_display())
+                    "{type} fields may not define an object type.")
+                .format(type=self.get_type_display())
             })
 
     def serialize(self, value):
@@ -384,7 +401,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         set_initial: Set initial data for the field. This should be False when generating a field for bulk editing.
         enforce_required: Honor the value of CustomField.required. Set to False for filtering/bulk editing.
-        enforce_visibility: Honor the value of CustomField.ui_visibility. Set to False for filtering.
+        enforce_visibility: Honor the value of CustomField.ui_visible. Set to False for filtering.
         for_csv_import: Return a form field suitable for bulk import of objects in CSV format.
         """
         initial = self.default if set_initial else None
@@ -506,13 +523,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         field.model = self
         field.label = str(self)
         if self.description:
-            field.help_text = escape(self.description)
+            field.help_text = render_markdown(self.description)
 
         # Annotate read-only fields
-        if enforce_visibility and self.ui_visibility == CustomFieldVisibilityChoices.VISIBILITY_READ_ONLY:
+        if enforce_visibility and self.ui_editable != CustomFieldUIEditableChoices.YES:
             field.disabled = True
-            prepend = '<br />' if field.help_text else ''
-            field.help_text += f'{prepend}<i class="mdi mdi-alert-circle-outline"></i> ' + _('Field is set to read-only.')
 
         return field
 
@@ -564,8 +579,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Multiselect
         elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            filter_class = filters.MultiValueCharFilter
-            kwargs['lookup_expr'] = 'has_key'
+            filter_class = filters.MultiValueArrayFilter
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
@@ -650,19 +664,22 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
             # Validate selected choice
             elif self.type == CustomFieldTypeChoices.TYPE_SELECT:
-                if value not in [c[0] for c in self.choices]:
+                if value not in self.choice_set.values:
                     raise ValidationError(
-                        _("Invalid choice ({value}). Available choices are: {choices}").format(
-                            value=value, choices=', '.join(self.choices)
+                        _("Invalid choice ({value}) for choice set {choiceset}.").format(
+                            value=value,
+                            choiceset=self.choice_set
                         )
                     )
 
             # Validate all selected choices
             elif self.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-                if not set(value).issubset([c[0] for c in self.choices]):
+                if not set(value).issubset(self.choice_set.values):
                     raise ValidationError(
-                        _("Invalid choice(s) ({invalid_choices}). Available choices are: {available_choices}").format(
-                            invalid_choices=', '.join(value), available_choices=', '.join(self.choices))
+                        _("Invalid choice(s) ({value}) for choice set {choiceset}.").format(
+                            value=value,
+                            choiceset=self.choice_set
+                        )
                     )
 
             # Validate selected object
@@ -746,6 +763,13 @@ class CustomFieldChoiceSet(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel
     @property
     def choices_count(self):
         return len(self.choices)
+
+    @property
+    def values(self):
+        """
+        Returns an iterator of the valid choice values.
+        """
+        return (x[0] for x in self.choices)
 
     def clean(self):
         if not self.base_choices and not self.extra_choices:

@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_device %}
-    <a href="{% url 'dcim:device_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:device_add' %}?platform={{ object.pk }}" class="btn btn-sm btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Device" %}
     </a>
   {% endif %}
@@ -43,17 +43,6 @@
           <tr>
             <th scope="row">{% trans "Config Template" %}</th>
             <td>{{ object.config_template|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">
-              {% trans "NAPALM Driver" %}
-              <i
-                class="mdi mdi-alert-box text-warning"
-                data-bs-toggle="tooltip"
-                data-bs-placement="right"
-                title="{% trans "This field has been deprecated, and will be removed in NetBox v3.6" %}."
-              ></i>
-            </th>
           </tr>
         </table>
       </div>

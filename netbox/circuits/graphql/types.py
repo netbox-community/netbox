@@ -64,7 +64,8 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
 
 @strawberry.django.type(
     models.CircuitType,
-    fields='__all__',
+    # fields='__all__',
+    exclude=['color',],  # bug - remove color from exclude
     filters=CircuitTypeFilter
 )
 class CircuitTypeType(OrganizationalObjectType):

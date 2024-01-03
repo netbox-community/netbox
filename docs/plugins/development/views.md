@@ -206,7 +206,7 @@ For example, accessing `{{ request.user }}` within a template will return the cu
 Declared subclasses should be gathered into a list or tuple for integration with NetBox. By default, NetBox looks for an iterable named `template_extensions` within a `template_content.py` file. (This can be overridden by setting `template_extensions` to a custom value on the plugin's PluginConfig.) An example is below.
 
 ```python
-from extras.plugins import PluginTemplateExtension
+from netbox.plugins import PluginTemplateExtension
 from .models import Animal
 
 class SiteAnimalCount(PluginTemplateExtension):

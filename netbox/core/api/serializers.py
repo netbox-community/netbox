@@ -4,6 +4,7 @@ from core.choices import *
 from core.models import *
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer
+from netbox.utils import get_data_backend_choices
 from users.api.nested_serializers import NestedUserSerializer
 from .nested_serializers import *
 
@@ -19,7 +20,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
         view_name='core-api:datasource-detail'
     )
     type = ChoiceField(
-        choices=DataSourceTypeChoices
+        choices=get_data_backend_choices()
     )
     status = ChoiceField(
         choices=DataSourceStatusChoices,
@@ -68,5 +69,5 @@ class JobSerializer(BaseModelSerializer):
         model = Job
         fields = [
             'id', 'url', 'display', 'object_type', 'object_id', 'name', 'status', 'created', 'scheduled', 'interval',
-            'started', 'completed', 'user', 'data', 'job_id',
+            'started', 'completed', 'user', 'data', 'error', 'job_id',
         ]

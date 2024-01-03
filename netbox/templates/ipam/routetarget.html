@@ -59,7 +59,7 @@
       <div class="card">
         <h5 class="card-header">{% trans "Importing L2VPNs" %}</h5>
         <div class="card-body htmx-container table-responsive"
-          hx-get="{% url 'ipam:l2vpn_list' %}?import_target_id={{ object.pk }}"
+          hx-get="{% url 'vpn:l2vpn_list' %}?import_target_id={{ object.pk }}"
           hx-trigger="load"
         ></div>
       </div>
@@ -68,7 +68,7 @@
       <div class="card">
         <h5 class="card-header">{% trans "Exporting L2VPNs" %}</h5>
         <div class="card-body htmx-container table-responsive"
-          hx-get="{% url 'ipam:l2vpn_list' %}?export_target_id={{ object.pk }}"
+          hx-get="{% url 'vpn:l2vpn_list' %}?export_target_id={{ object.pk }}"
           hx-trigger="load"
         ></div>
       </div>

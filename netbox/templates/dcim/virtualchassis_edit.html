@@ -4,7 +4,7 @@
 {% load i18n %}
 
 {% block title %}
-  {% blocktrans with name=vc_form.instance %}
+  {% blocktrans trimmed with name=vc_form.instance %}
     Editing Virtual Chassis {{ name }}
   {% endblocktrans %}
 {% endblock %}

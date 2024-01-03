@@ -11,6 +11,7 @@ class DataSourceIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('type', 'status', 'description')
 
 
 @register_search
@@ -19,3 +20,4 @@ class DataFileIndex(SearchIndex):
     fields = (
         ('path', 200),
     )
+    display_attrs = ('source',)

@@ -1,7 +1,8 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
-from dcim.models import Region, Site, SiteGroup
+from dcim.models import Location, Rack, Region, Site, SiteGroup
 from ipam.choices import *
 from ipam.constants import *
 from ipam.models import *
@@ -10,9 +11,10 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
-    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
+    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
 )
 from utilities.forms.widgets import BulkEditNullBooleanSelect
+from virtualization.models import Cluster, ClusterGroup
 
 __all__ = (
     'AggregateBulkEditForm',
@@ -21,8 +23,6 @@ __all__ = (
     'FHRPGroupBulkEditForm',
     'IPAddressBulkEditForm',
     'IPRangeBulkEditForm',
-    'L2VPNBulkEditForm',
-    'L2VPNTerminationBulkEditForm',
     'PrefixBulkEditForm',
     'RIRBulkEditForm',
     'RoleBulkEditForm',
@@ -407,11 +407,6 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
 
 
 class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
-    site = DynamicModelChoiceField(
-        label=_('Site'),
-        queryset=Site.objects.all(),
-        required=False
-    )
     min_vid = forms.IntegerField(
         min_value=VLAN_VID_MIN,
         max_value=VLAN_VID_MAX,
@@ -429,12 +424,84 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
         max_length=200,
         required=False
     )
+    scope_type = ContentTypeChoiceField(
+        label=_('Scope type'),
+        queryset=ContentType.objects.filter(model__in=VLANGROUP_SCOPE_TYPES),
+        required=False
+    )
+    scope_id = forms.IntegerField(
+        required=False,
+        widget=forms.HiddenInput()
+    )
+    region = DynamicModelChoiceField(
+        label=_('Region'),
+        queryset=Region.objects.all(),
+        required=False
+    )
+    sitegroup = DynamicModelChoiceField(
+        queryset=SiteGroup.objects.all(),
+        required=False,
+        label=_('Site group')
+    )
+    site = DynamicModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region',
+            'group_id': '$sitegroup',
+        }
+    )
+    location = DynamicModelChoiceField(
+        label=_('Location'),
+        queryset=Location.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site',
+        }
+    )
+    rack = DynamicModelChoiceField(
+        label=_('Rack'),
+        queryset=Rack.objects.all(),
+        required=False,
+        query_params={
+            'site_id': '$site',
+            'location_id': '$location',
+        }
+    )
+    clustergroup = DynamicModelChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        label=_('Cluster group')
+    )
+    cluster = DynamicModelChoiceField(
+        label=_('Cluster'),
+        queryset=Cluster.objects.all(),
+        required=False,
+        query_params={
+            'group_id': '$clustergroup',
+        }
+    )
 
     model = VLANGroup
     fieldsets = (
         (None, ('site', 'min_vid', 'max_vid', 'description')),
+        (_('Scope'), ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
     )
-    nullable_fields = ('site', 'description')
+    nullable_fields = ('description',)
+
+    def clean(self):
+        super().clean()
+
+        # Assign scope based on scope_type
+        if self.cleaned_data.get('scope_type'):
+            scope_field = self.cleaned_data['scope_type'].model
+            if scope_obj := self.cleaned_data.get(scope_field):
+                self.cleaned_data['scope_id'] = scope_obj.pk
+                self.changed_data.append('scope_id')
+            else:
+                self.cleaned_data.pop('scope_type')
+                self.changed_data.remove('scope_type')
 
 
 class VLANBulkEditForm(NetBoxModelBulkEditForm):
@@ -527,32 +594,3 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
 
 class ServiceBulkEditForm(ServiceTemplateBulkEditForm):
     model = Service
-
-
-class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
-    type = forms.ChoiceField(
-        label=_('Type'),
-        choices=add_blank_choice(L2VPNTypeChoices),
-        required=False
-    )
-    tenant = DynamicModelChoiceField(
-        label=_('Tenant'),
-        queryset=Tenant.objects.all(),
-        required=False
-    )
-    description = forms.CharField(
-        label=_('Description'),
-        max_length=200,
-        required=False
-    )
-    comments = CommentField()
-
-    model = L2VPN
-    fieldsets = (
-        (None, ('type', 'tenant', 'description')),
-    )
-    nullable_fields = ('tenant', 'description', 'comments')
-
-
-class L2VPNTerminationBulkEditForm(NetBoxModelBulkEditForm):
-    model = L2VPN

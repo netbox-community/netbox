@@ -171,23 +171,23 @@ Some text to show that the reference links can follow later.
 Here's the NetBox logo (hover to see the title text):
 
 Inline-style: 
-![alt text](/static/netbox_logo.png "Logo Title Text 1")
+![alt text](/media/misc/netbox_logo.png "Logo Title Text 1")
 
 Reference-style: 
 ![alt text][logo]
 
-[logo]: /static/netbox_logo.png "Logo Title Text 2"
+[logo]: /media/misc/netbox_logo.png "Logo Title Text 2"
 ```
 
 Here's the NetBox logo (hover to see the title text):
 
 Inline-style: 
-![alt text](/static/netbox_logo.png "Logo Title Text 1")
+![alt text](../media/misc/netbox_logo.png "Logo Title Text 1")
 
 Reference-style: 
 ![alt text][logo]
 
-[logo]: /static/netbox_logo.png "Logo Title Text 2"
+[logo]: ../media/misc/netbox_logo.png "Logo Title Text 2"
 
 <a name="code"></a>
 
