@@ -61,7 +61,7 @@
       ></div>
       {% if perms.vpn.add_l2vpntermination %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'vpn:l2vpntermination_add' %}?l2vpn={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm{% if not object.can_add_termination %} disabled" aria-disabled="true{% endif %}">
+          <a href="{% url 'vpn:l2vpntermination_add' %}?l2vpn={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary{% if not object.can_add_termination %} disabled" aria-disabled="true{% endif %}">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
           </a>
         </div>

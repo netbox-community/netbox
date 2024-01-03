@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_location %}
-    <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Child Location" %}
     </a>
   {% endif %}
@@ -80,7 +80,7 @@
       ></div>
       {% if perms.dcim.add_location %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
           </a>
         </div>
@@ -94,7 +94,7 @@
       ></div>
       {% if perms.dcim.add_device %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+          <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
           </a>
         </div>

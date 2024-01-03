@@ -30,7 +30,7 @@
         <h5 class="card-header" id="module{{ module.pk }}">
           {% if perms.extras.delete_reportmodule %}
             <div class="float-end">
-              <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+              <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger">
                 <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
               </a>
             </div>
@@ -83,7 +83,7 @@
                             <div class="float-end noprint">
                               <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" name="_run" class="btn btn-primary btn-sm" style="width: 110px">
+                                <button type="submit" name="_run" class="btn btn-primary" style="width: 110px">
                                   {% if last_job %}
                                     <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
                                   {% else %}

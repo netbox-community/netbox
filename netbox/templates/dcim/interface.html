@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_interface and not object.is_virtual %}
-    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success">
+    <a href="{% url 'dcim:interface_add' %}?device={{ object.device.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-success">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Child Interface" %}
     </a>
   {% endif %}
@@ -157,7 +157,7 @@
                   <th scope="row">{% trans "Wireless Link" %}</th>
                   <td>
                     {{ object.wireless_link|linkify }}
-                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary btn-sm lh-1" title="{% trans "Trace" %}">
+                    <a href="{% url 'dcim:interface_trace' pk=object.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
                       <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i>
                     </a>
                   </td>
@@ -182,7 +182,7 @@
                 {% trans "Not Connected" %}
                 {% if object.is_wired and perms.dcim.add_cable %}
                   <div class="dropdown float-end">
-                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end">
@@ -202,7 +202,7 @@
                   </div>
                 {% elif object.is_wireless and perms.wireless.add_wirelesslink %}
                   <div class="dropdown float-end">
-                    <a href="{% url 'wireless:wirelesslink_add' %}?interface_a={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+                    <a href="{% url 'wireless:wirelesslink_add' %}?interface_a={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
                       <span class="mdi mdi-wifi-plus" aria-hidden="true"></span> {% trans "Connect" %}
                     </a>
                   </div>
@@ -355,7 +355,7 @@
         ></div>
         {% if perms.ipam.add_ipaddress %}
           <div class="card-footer text-end noprint">
-            <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+            <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
               <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add IP Address" %}
             </a>
           </div>

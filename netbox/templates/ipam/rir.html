@@ -6,7 +6,7 @@
 
 {% block extra_controls %}
   {% if perms.ipam.add_aggregate %}
-    <a href="{% url 'ipam:aggregate_add' %}?rir={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'ipam:aggregate_add' %}?rir={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Aggregate" %}
     </a>
   {% endif %}

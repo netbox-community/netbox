@@ -72,7 +72,7 @@
                 <div class="text-muted">
                   {% trans "Not Connected" %}
                   {% if perms.dcim.add_cable %}
-                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="{% trans "Connect" %}" class="btn btn-primary btn-sm float-end">
+                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="{% trans "Connect" %}" class="btn btn-primary float-end">
                       <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
                     </a>
                   {% endif %}

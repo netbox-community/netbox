@@ -6,7 +6,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_rack %}
-    <a href="{% url 'dcim:rack_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:rack_add' %}?role={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Rack" %}
     </a>
   {% endif %}

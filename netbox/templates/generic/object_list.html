@@ -116,17 +116,15 @@ Context:
           </div>
 
           {# Form buttons #}
-          <div class="bulk-buttons mt-2 d-print-none">
-            <div class="bulk-button-group">
-              {% block bulk_buttons %}
-                {% if 'bulk_edit' in actions %}
-                  {% bulk_edit_button model query_params=request.GET %}
-                {% endif %}
-                {% if 'bulk_delete' in actions %}
-                  {% bulk_delete_button model query_params=request.GET %}
-                {% endif %}
-              {% endblock %}
-            </div>
+          <div class="btn-list d-print-none mt-2">
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                {% bulk_edit_button model query_params=request.GET %}
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                {% bulk_delete_button model query_params=request.GET %}
+              {% endif %}
+            {% endblock %}
           </div>
         </div>
       </form>

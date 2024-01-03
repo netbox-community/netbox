@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.tenancy.add_tenant %}
-    <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant" %}
     </a>
   {% endif %}
@@ -62,7 +62,7 @@
       ></div>
       {% if perms.tenancy.add_tenantgroup %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'tenancy:tenantgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
+          <a href="{% url 'tenancy:tenantgroup_add' %}?parent={{ object.pk }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant Group" %}
           </a>
         </div>

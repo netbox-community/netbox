@@ -77,7 +77,7 @@
               {% if object.physical_address %}
                 {% if config.MAPS_URL %}
                   <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                    <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm">
+                    <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary">
                       <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
                     </a>
                   </div>
@@ -98,7 +98,7 @@
               {% if object.latitude and object.longitude %}
                 {% if config.MAPS_URL %}
                   <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                    <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
+                    <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary">
                       <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
                     </a>
                   </div>
@@ -133,7 +133,7 @@
       ></div>
       {% if perms.dcim.add_location %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:location_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+          <a href="{% url 'dcim:location_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
           </a>
         </div>
@@ -147,7 +147,7 @@
       ></div>
       {% if perms.dcim.add_device %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:device_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+          <a href="{% url 'dcim:device_add' %}?site={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
           </a>
         </div>

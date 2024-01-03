@@ -10,7 +10,7 @@
 
 {% block extra_controls %}
   {% if perms.vpn.add_tunnel %}
-    <a href="{% url 'vpn:tunnel_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'vpn:tunnel_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tunnel" %}
     </a>
   {% endif %}

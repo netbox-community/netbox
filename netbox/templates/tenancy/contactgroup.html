@@ -53,7 +53,7 @@
       ></div>
       {% if perms.tenancy.add_contactgroup %}
         <div class="card-footer text-end noprint">
-          <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
+          <a href="{% url 'tenancy:contactgroup_add' %}?parent={{ object.pk }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Contact Group" %}
           </a>
         </div>

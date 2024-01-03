@@ -8,11 +8,11 @@
 {% block controls %}
   <div class="controls">
     <div class="control-group">
-      <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-sm btn-primary">
+      <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-primary">
         <i class="mdi mdi-format-list-checkbox"></i> {% trans "View List" %}
       </a>
       <div class="btn-group btn-group-sm" role="group">
-        <select class="btn btn-sm btn-outline-secondary rack-view">
+        <select class="btn btn-outline-secondary rack-view">
           <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
           <option value="images-only">{% trans "Images only" %}</option>
           <option value="labels-only">{% trans "Labels only" %}</option>
@@ -23,7 +23,7 @@
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>
       </div>
       <div class="dropdown">
-        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="mdi mdi-sort"></i> {% trans "Sort By" %} {{ sort_display_name }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">

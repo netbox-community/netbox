@@ -132,7 +132,7 @@
         {% if not object.mark_connected and not object.cable %}
         <div class="card-footer">
           {% if perms.dcim.add_cable %}
-            <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm float-end">
+            <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" class="btn btn-primary float-end">
               <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
             </a>
           {% endif %}

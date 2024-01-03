@@ -5,7 +5,7 @@
 
 {% block extra_controls %}
   {% if perms.vpn.add_tunneltermination %}
-    <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
       <i class="mdi mdi-plus-thick"></i> {% trans "Add Termination" %}
     </a>
   {% endif %}
@@ -77,7 +77,7 @@
         ></div>
         {% if perms.vpn.add_tunneltermination %}
           <div class="card-footer text-end noprint">
-            <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
+            <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
               <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
             </a>
           </div>

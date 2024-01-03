@@ -33,7 +33,7 @@
   <div class="collapse multi-collapse show">
     <div class="d-flex px-3">
       <div class="flex-grow-1">
-        <button type="button" id="unlock_dashboard" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
+        <button type="button" id="unlock_dashboard" class="btn btn-light" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
           <i class="mdi mdi-lock-open-outline"></i> {% trans "Unlock Dashboard" %}
         </button>
       </div>
@@ -42,7 +42,7 @@
   <div class="collapse multi-collapse">
     <div class="d-flex px-3">
       <div class="flex-grow-1">
-        <button type="button" id="lock_dashboard" class="btn btn-light btn-sm" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
+        <button type="button" id="lock_dashboard" class="btn btn-light" data-bs-toggle="collapse" data-bs-target=".multi-collapse">
           <i class="mdi mdi-lock-outline"></i> {% trans "Lock Dashboard" %}
         </button>
       </div>
@@ -52,14 +52,14 @@
           hx-target="#htmx-modal-content"
           data-bs-toggle="modal"
           data-bs-target="#htmx-modal"
-          class="btn btn-success btn-sm"
+          class="btn btn-success"
         >
           <i class="mdi mdi-plus"></i> {% trans "Add Widget" %}
         </a>
-        <button id="save_dashboard" class="btn btn-primary btn-sm" data-url="{% url 'extras-api:dashboard' %}">
+        <button id="save_dashboard" class="btn btn-primary" data-url="{% url 'extras-api:dashboard' %}">
           <i class="mdi mdi-content-save-outline"></i> {% trans "Save Layout" %}
         </button>
-        <a href="{% url 'extras:dashboard_reset' %}" class="btn btn-danger btn-sm">
+        <a href="{% url 'extras:dashboard_reset' %}" class="btn btn-danger">
           <i class="mdi mdi-backspace"></i>  {% trans "Reset Dashboard" %}
         </a>
       </div>

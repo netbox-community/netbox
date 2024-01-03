@@ -6,7 +6,7 @@
 
 {% block extra_controls %}
   {% if perms.circuits.add_circuit %}
-    <a href="{% url 'circuits:circuit_add' %}?type={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'circuits:circuit_add' %}?type={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Circuit" %}
     </a>
   {% endif %}

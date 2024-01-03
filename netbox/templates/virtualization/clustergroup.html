@@ -6,7 +6,7 @@
 
 {% block extra_controls %}
   {% if perms.virtualization.add_cluster %}
-    <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'virtualization:cluster_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Cluster" %}
     </a>
   {% endif %}

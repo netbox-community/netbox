@@ -29,7 +29,7 @@
         <h5 class="card-header" id="module{{ module.pk }}">
           {% if perms.extras.delete_scriptmodule %}
             <div class="float-end">
-              <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+              <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger">
                 <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
               </a>
             </div>

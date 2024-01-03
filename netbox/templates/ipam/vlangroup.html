@@ -14,7 +14,7 @@
 
 {% block extra_controls %}
   {% if perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add VLAN" %}
     </a>
   {% endif %}
