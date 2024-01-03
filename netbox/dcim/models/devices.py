@@ -222,7 +222,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     @property
     def get_full_name(self):
-        return f"{ self.manufacturer } { self.model }"
+        return f"{self.manufacturer} {self.model}"
 
     def to_yaml(self):
         data = {

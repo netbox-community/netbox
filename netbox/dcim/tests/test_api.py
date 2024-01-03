@@ -2105,7 +2105,7 @@ class VirtualChassisTest(APIViewTestCases.APIViewTestCase):
             for j in range(0, 13):
                 interfaces.append(
                     # Interface name starts with parent device's position in VC; e.g. 1/1, 1/2, 1/3...
-                    Interface(device=device, name=f'{i%3+1}/{j}', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
+                    Interface(device=device, name=f'{i % 3 + 1}/{j}', type=InterfaceTypeChoices.TYPE_1GE_FIXED)
                 )
         Interface.objects.bulk_create(interfaces)
 
