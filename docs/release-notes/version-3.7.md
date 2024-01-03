@@ -10,6 +10,7 @@
 * The internal ConfigRevision model has moved from `extras` to `core`. Configuration history will be retained throughout the upgrade process.
 * The [L2VPN](../models/vpn/l2vpn.md) and [L2VPNTermination](../models/vpn/l2vpntermination.md) models have moved from the `ipam` app to the new `vpn` app. All object data will be retained, however please note that the relevant API endpoints have likewise moved to `/api/vpn/`.
 * The `CustomFieldsMixin`, `SavedFiltersMixin`, and `TagsMixin` classes have moved from the `extras.forms.mixins` module to `netbox.forms.mixins`.
+* The `netbox.models.features.WebhooksMixin` class has been renamed to `EventRulesMixin`.
 
 ### New Features
 

@@ -30,13 +30,13 @@ __all__ = (
     'CustomFieldsMixin',
     'CustomLinksMixin',
     'CustomValidationMixin',
+    'EventRulesMixin',
     'ExportTemplatesMixin',
     'ImageAttachmentsMixin',
     'JobsMixin',
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
-    'EventRulesMixin',
 )
 
 
