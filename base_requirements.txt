@@ -4,7 +4,7 @@ bleach
 
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
-Django<5.0
+Django<5.1
 
 # Django middleware which permits cross-domain API requests
 # https://github.com/adamchainz/django-cors-headers/blob/main/CHANGELOG.rst
