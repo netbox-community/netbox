@@ -9,7 +9,7 @@
         {% csrf_token %}
         <div class="card">
             <h5 class="card-header">{{ title }}</h5>
-            <div class="card-body htmx-container table-responsive" id="object_list">
+            <div class="htmx-container table-responsive" id="object_list">
               {% include 'htmx/table.html' %}
             </div>
             <div class="card-footer noprint">
@@ -37,7 +37,7 @@
   {% else %}
     <div class="card">
       <h5 class="card-header">{{ title }}</h5>
-      <div class="card-body htmx-container table-responsive" id="object_list">
+      <div class="htmx-container table-responsive" id="object_list">
         {% include 'htmx/table.html' %}
       </div>
     </div>

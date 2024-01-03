@@ -162,7 +162,7 @@ class ToggleColumn(tables.CheckBoxColumn):
         if 'attrs' not in kwargs:
             kwargs['attrs'] = {
                 'td': {
-                    'class': 'min-width',
+                    'class': 'w-1',
                 },
                 'input': {
                     'class': 'form-check-input'
