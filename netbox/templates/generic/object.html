@@ -19,24 +19,25 @@ Context:
 {% endcomment %}
 
 {% block header %}
-  <div class="d-flex justify-content-between align-items-center">
+  <div class="d-flex justify-content-between align-items-center mb-2">
+
     {# Breadcrumbs #}
-    <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        {% block breadcrumbs %}
-          <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a></li>
-        {% endblock breadcrumbs %}
-      </ol>
-    </nav>
+    <ol class="breadcrumb" aria-label="breadcrumbs">
+      {% block breadcrumbs %}
+        <li class="breadcrumb-item">
+          <a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a>
+        </li>
+      {% endblock breadcrumbs %}
+    </ol>
+
     {# Object identifier #}
-    <div class="float-end px-3">
-        <code class="text-muted">
-          {% block object_identifier %}
-            {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
-            {% if object.slug %}({{ object.slug }}){% endif %}
-          {% endblock object_identifier %}
-        </code>
-    </div>
+    <code class="d-block text-muted px-0">
+      {% block object_identifier %}
+        {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
+        {% if object.slug %}({{ object.slug }}){% endif %}
+      {% endblock object_identifier %}
+    </code>
+
   </div>
   {{ block.super }}
 {% endblock header %}
@@ -44,7 +45,7 @@ Context:
 {% block title %}{{ object }}{% endblock %}
 
 {% block subtitle %}
-  <div class="object-subtitle">
+  <div class="text-secondary fs-5">
     <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
     {% if object.last_updated %}
       <span class="separator">&middot;</span>
@@ -55,8 +56,7 @@ Context:
 
 {% block controls %}
   {# Clone/Edit/Delete Buttons #}
-  <div class="controls">
-    <div class="control-group">
+  <div class="btn-list">
       {% plugin_buttons object %}
 
       {# Extra buttons #}
@@ -75,15 +75,12 @@ Context:
         {% delete_button object %}
       {% endif %}
 
-    </div>
-    <div class="control-group">
       {% custom_links object %}
-    </div>
   </div>
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs mb-2 px-3">
     {# Primary tab #}
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if not tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
