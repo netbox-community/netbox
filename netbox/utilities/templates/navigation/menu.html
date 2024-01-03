@@ -23,9 +23,18 @@
                 <span>{{ group.label }}</span>
               </div>
               {% for item, buttons in items %}
-                <a class="dropdown-item ps-3" href="{% url item.link %}">
-                  {{ item.link_text }}
-                </a>
+                <div class="dropdown-item d-flex justify-content-between ps-3">
+                  <a href="{% url item.link %}" class="d-inline-flex flex-fill">{{ item.link_text }}</a>
+                  {% if buttons %}
+                    <div class="btn-group ms-1">
+                      {% for button in buttons %}
+                        <a href="{% url button.link %}" class="btn btn-sm btn-{{ button.color }} lh-2" title="{{ button.title }}">
+                          <i class="{{ button.icon_class }}"></i>
+                        </a>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
               {% endfor %}
             {% endfor %}
           </div>
