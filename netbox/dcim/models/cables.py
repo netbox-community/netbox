@@ -317,7 +317,7 @@ class CableTermination(ChangeLoggedModel):
         super().clean()
 
         # Check for existing termination
-        qs = existing_termination = CableTermination.objects.filter(
+        qs = CableTermination.objects.filter(
             termination_type=self.termination_type,
             termination_id=self.termination_id
         )
