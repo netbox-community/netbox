@@ -1,5 +1,10 @@
 @import 'variables';
+
+// Tabler
 @import '../node_modules/@tabler/core/src/scss/_core.scss';
-//@import './theme-light.scss';
-//@import './select.scss';
-//@import './netbox.scss';
+
+// slim-select
+@import './select.scss';
+
+// Temporary overrides
+@import './temp.scss';
