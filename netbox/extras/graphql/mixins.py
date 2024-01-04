@@ -1,4 +1,5 @@
 import strawberry
+import strawberry_django
 from typing import TYPE_CHECKING, Annotated, List
 
 from django.contrib.contenttypes.models import ContentType
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 @strawberry.type
 class ChangelogMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def changelog(self) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
         content_type = ContentType.objects.get_for_model(self)
         object_changes = ObjectChange.objects.filter(
@@ -35,7 +36,7 @@ class ChangelogMixin:
 @strawberry.type
 class ConfigContextMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def config_context(self) -> strawberry.scalars.JSON:
         return self.get_config_context()
 
@@ -43,7 +44,7 @@ class ConfigContextMixin:
 @strawberry.type
 class CustomFieldsMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def custom_fields(self) -> strawberry.scalars.JSON:
         return self.custom_field_data
 
@@ -51,7 +52,7 @@ class CustomFieldsMixin:
 @strawberry.type
 class ImageAttachmentsMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def image_attachments(self) -> List[Annotated["ImageAttachmentType", strawberry.lazy('.types')]]:
         return self.images.restrict(info.context.user, 'view')
 
@@ -59,7 +60,7 @@ class ImageAttachmentsMixin:
 @strawberry.type
 class JournalEntriesMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def journal_entries(self) -> List[Annotated["JournalEntryType", strawberry.lazy('.types')]]:
         return self.journal_entries.restrict(info.context.user, 'view')
 
@@ -67,7 +68,7 @@ class JournalEntriesMixin:
 @strawberry.type
 class TagsMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def tags(self) -> List[Annotated["TagType", strawberry.lazy('.types')]]:
         return self.tags.all()
 
@@ -75,6 +76,6 @@ class TagsMixin:
 @strawberry.type
 class ContactsMixin:
 
-    @strawberry.django.field
+    @strawberry_django.field
     def contacts(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
         return list(self.contacts.all())

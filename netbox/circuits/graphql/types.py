@@ -1,4 +1,5 @@
 import strawberry
+import strawberry_django
 
 from circuits import filtersets, models
 from dcim.graphql.mixins import CabledObjectMixin
@@ -17,7 +18,7 @@ __all__ = (
 )
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     models.Provider,
     fields='__all__',
     filters=ProviderFilter
@@ -26,7 +27,7 @@ class ProviderType(NetBoxObjectType, ContactsMixin):
     pass
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     models.ProviderAccount,
     fields='__all__',
     filters=ProviderAccountFilter
@@ -35,7 +36,7 @@ class ProviderAccountType(NetBoxObjectType):
     pass
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     models.ProviderNetwork,
     fields='__all__',
     filters=ProviderNetworkFilter
@@ -44,7 +45,7 @@ class ProviderNetworkType(NetBoxObjectType):
     pass
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     models.CircuitTermination,
     fields='__all__',
     filters=CircuitTerminationFilter
@@ -53,7 +54,7 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
     pass
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     models.Circuit,
     fields='__all__',
     filters=CircuitFilter
@@ -62,7 +63,7 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     provider: ProviderType
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     models.CircuitType,
     # fields='__all__',
     exclude=['color',],  # bug - remove color from exclude

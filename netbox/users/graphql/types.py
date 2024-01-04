@@ -1,4 +1,5 @@
 import strawberry
+import strawberry_django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from strawberry import auto
@@ -12,7 +13,7 @@ __all__ = (
 )
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     Group,
     fields=['id', 'name'],
     filters=GroupFilter
@@ -23,7 +24,7 @@ class GroupType:
         return RestrictedQuerySet(model=Group).restrict(info.context.request.user, 'view')
 
 
-@strawberry.django.type(
+@strawberry_django.type(
     get_user_model(),
     fields=[
         'id', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff',

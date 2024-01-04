@@ -1,5 +1,6 @@
 import strawberry
 from strawberry import auto
+import strawberry_django
 
 from django.contrib.contenttypes.models import ContentType
 from extras.graphql.mixins import (
@@ -32,11 +33,11 @@ class BaseObjectType:
         # Enforce object permissions on the queryset
         return queryset.restrict(info.context.request.user, 'view')
 
-    @strawberry.django.field
+    @strawberry_django.field
     def display(self) -> str:
         return str(self)
 
-    @strawberry.django.field
+    @strawberry_django.field
     def class_type(self) -> str:
         return self.__class__.__name__
 
@@ -80,7 +81,7 @@ class NetBoxObjectType(
 # Miscellaneous types
 #
 
-@strawberry.django.type(
+@strawberry_django.type(
     ContentType,
     fields=['id', 'app_label', 'model'],
 )
