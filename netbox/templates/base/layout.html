@@ -175,67 +175,66 @@ Blocks:
       {# /Page body #}
 
       {# Page footer #}
-      <footer class="footer footer-transparent d-print-none">
-        <div class="container-xl">
+      <footer class="footer d-print-none py-3">
+        <div class="container-xl d-flex justify-content-between align-items-center">
           {% block footer %}
-            <div class="row text-center align-items-center flex-row-reverse">
-              <div class="col-lg-auto ms-lg-auto">
-                <ul class="list-inline list-inline-dots mb-0">
-                  {% block footer_links %}
-                    {# Documentation #}
-                    <li class="list-inline-item">
-                      <a href="{% static 'docs/' %}" target="_blank" class="link-secondary" rel="noopener">
-                        <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                    {# REST API #}
-                    <li class="list-inline-item">
-                      <a href="{% url 'api-root' %}" target="_blank" class="link-secondary" rel="noopener">
-                        <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                    {# API docs #}
-                    <li class="list-inline-item">
-                      <a href="{% url 'api_docs' %}" target="_blank" class="link-secondary" rel="noopener">
-                        <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                    {# GraphQL API #}
-                    {% if config.GRAPHQL_ENABLED %}
-                      <li class="list-inline-item">
-                        <a href="{% url 'graphql' %}" target="_blank" class="link-secondary" rel="noopener">
-                          <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                        </a>
-                      </li>
-                    {% endif %}
-                    {# GitHub #}
-                    <li class="list-inline-item">
-                      <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
-                        <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                    {# NetDev Slack #}
-                    <li class="list-inline-item">
-                      <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
-                        <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                      </a>
-                    </li>
-                  {% endblock footer_links %}
-                </ul>
-              </div>
-              <div class="col-12 col-lg-auto mt-3 mt-lg-0">
-                <ul class="list-inline list-inline-dots mb-0">
+
+            {# Footer links #}
+            <ul class="list-inline mb-0 fs-2">
+              {% block footer_links %}
+                {# Documentation #}
+                <li class="list-inline-item">
+                  <a href="{% static 'docs/' %}" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# REST API #}
+                <li class="list-inline-item">
+                  <a href="{% url 'api-root' %}" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# API docs #}
+                <li class="list-inline-item">
+                  <a href="{% url 'api_docs' %}" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# GraphQL API #}
+                {% if config.GRAPHQL_ENABLED %}
                   <li class="list-inline-item">
-                    {% annotated_now %} {% now 'T' %}
-                  </li>
-                  <li class="list-inline-item">
-                    <a href="./changelog.html" class="link-secondary" rel="noopener">
-                      {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+                    <a href="{% url 'graphql' %}" target="_blank" class="link-secondary" rel="noopener">
+                      <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
                     </a>
                   </li>
-                </ul>
-              </div>
-            </div>
+                {% endif %}
+                {# GitHub #}
+                <li class="list-inline-item">
+                  <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# NetDev Slack #}
+                <li class="list-inline-item">
+                  <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+              {% endblock footer_links %}
+            </ul>
+            {# /Footer links #}
+
+            {# Footer text #}
+            <ul class="list-inline list-inline-dots mb-0">
+              <li class="list-inline-item">
+                {% annotated_now %} {% now 'T' %}
+              </li>
+              <li class="list-inline-item">
+                {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+              </li>
+            </ul>
+            {# /Footer text #}
+
           {% endblock footer %}
         </div>
       </footer>
