@@ -1,11 +1,11 @@
 {% load helpers %}
 
-<ul class="navbar-nav pt-lg-3">
+<ul class="navbar-nav pt-lg-2">
   {% for menu, groups in nav_items %}
     <li class="nav-item dropdown">
 
       {# Menu heading #}
-      <a class="nav-link dropdown-toggle" href="#navbar-base" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
         <span class="nav-link-icon d-md-none d-lg-inline-block">
           <i class="{{ menu.icon_class }}"></i>
         </span>
@@ -17,13 +17,13 @@
       {# Menu groups #}
       <div class="dropdown-menu">
         <div class="dropdown-menu-columns">
-          <div class="dropdown-menu-column">
+          <div class="dropdown-menu-column pb-2">
             {% for group, items in groups %}
-              <div class="hr-text dropdown-item m-0 px-2">
-                <span>{{ group.label }}</span>
+              <div class="dropdown-item text-uppercase fw-bold fs-5 ps-3 pt-3 pb-1">
+                {{ group.label }}
               </div>
               {% for item, buttons in items %}
-                <div class="dropdown-item d-flex justify-content-between ps-3">
+                <div class="dropdown-item d-flex justify-content-between ps-3 py-1">
                   <a href="{% url item.link %}" class="d-inline-flex flex-fill">{{ item.link_text }}</a>
                   {% if buttons %}
                     <div class="btn-group ms-1">
