@@ -7,7 +7,7 @@ from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.utils import add_blank_choice
+from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import VirtualMachine, VMInterface
 from vpn.choices import *
@@ -157,7 +157,7 @@ class TunnelCreateForm(TunnelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
-        if initial and initial.get('termination1_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+        if get_field_value(self, 'termination1_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
             self.fields['termination1_parent'].label = _('Virtual Machine')
             self.fields['termination1_parent'].queryset = VirtualMachine.objects.all()
             self.fields['termination1_termination'].queryset = VMInterface.objects.all()
@@ -168,7 +168,7 @@ class TunnelCreateForm(TunnelForm):
                 'virtual_machine_id': '$termination1_parent',
             })
 
-        if initial and initial.get('termination2_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+        if get_field_value(self, 'termination2_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
             self.fields['termination2_parent'].label = _('Virtual Machine')
             self.fields['termination2_parent'].queryset = VirtualMachine.objects.all()
             self.fields['termination2_termination'].queryset = VMInterface.objects.all()
