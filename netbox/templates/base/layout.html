@@ -118,22 +118,26 @@ Blocks:
       {# Page header #}
       <div class="container-xl mt-2 d-print-none">
         {% if config.BANNER_TOP %}
-          <div class="text-center mx-3">
+          <div class="text-center mx-3 mb-2">
             {{ config.BANNER_TOP|safe }}
           </div>
         {% endif %}
 
         {% if settings.DEBUG and not settings.DEVELOPER %}
-          <div class="alert alert-warning text-center mx-3" role="alert">
-            <strong><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</strong>
-            {% trans "Performance may be limited. Debugging should never be enabled on a production system" %}.
+          <div class="alert alert-warning bg-warning-subtle text-center mx-3" role="alert">
+            <h4 class="alert-title"><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</h4>
+            <div class="text-secondary">
+              {% trans "Performance may be limited. Debugging should never be enabled on a production system." %}
+            </div>
           </div>
         {% endif %}
 
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-          <div class="alert alert-warning text-center mx-3" role="alert">
-            <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
-            {{ config.BANNER_MAINTENANCE|escape }}
+          <div class="alert alert-warning bg-warning-subtle text-center mx-3" role="alert">
+            <h4 class="alert-title"><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h4>
+            <div class="text-secondary">
+              {{ config.BANNER_MAINTENANCE|escape }}
+            </div>
           </div>
         {% endif %}
 
@@ -166,7 +170,7 @@ Blocks:
           {% endblock %}
           {# Bottom banner #}
           {% if config.BANNER_BOTTOM %}
-            <div class="text-center mx-3">
+            <div class="text-center mx-3 mt-2">
               {{ config.BANNER_BOTTOM|safe }}
             </div>
           {% endif %}
@@ -175,7 +179,7 @@ Blocks:
       {# /Page body #}
 
       {# Page footer #}
-      <footer class="footer d-print-none py-3">
+      <footer class="footer footer-transparent d-print-none py-2">
         <div class="container-xl d-flex justify-content-between align-items-center">
           {% block footer %}
 
