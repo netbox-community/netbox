@@ -1098,7 +1098,7 @@ class Device(
 
         :param if_master: If True, return VC member interfaces only if this Device is the VC master.
         """
-        filter = Q(device=self)
+        filter = Q(device=self) if self.pk else Q()
         if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)

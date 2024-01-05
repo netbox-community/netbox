@@ -317,10 +317,14 @@ class CableTermination(ChangeLoggedModel):
         super().clean()
 
         # Check for existing termination
-        existing_termination = CableTermination.objects.exclude(cable=self.cable).filter(
+        qs = CableTermination.objects.filter(
             termination_type=self.termination_type,
             termination_id=self.termination_id
-        ).first()
+        )
+        if self.cable.pk:
+            qs = qs.exclude(cable=self.cable)
+
+        existing_termination = qs.first()
         if existing_termination is not None:
             raise ValidationError(
                 f"Duplicate termination found for {self.termination_type.app_label}.{self.termination_type.model} "

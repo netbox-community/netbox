@@ -1,8 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.test import TestCase
-from django.utils import timezone
-
 from utilities.testing import ChangeLoggedFilterSetTests
 from ..choices import *
 from ..filtersets import *
