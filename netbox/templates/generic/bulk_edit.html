@@ -38,7 +38,7 @@ Context:
 
       {# Edit form #}
       <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="edit-form-tab">
-        <form action="" method="post" class="form form-horizontal">
+        <form action="" method="post" class="form form-horizontal mt-5">
 
           {% csrf_token %}
           {% if request.POST.return_url %}
@@ -48,83 +48,75 @@ Context:
             {{ field }}
           {% endfor %}
 
-          <div class="row">
-            <div class="col col-md-12 col-lg-10 offset-lg-1">
-              <div class="card">
-                <div class="card-body">
-                  {% if form.fieldsets %}
+          {% if form.fieldsets %}
 
-                    {# Render grouped fields according to declared fieldsets #}
-                    {% for group, fields in form.fieldsets %}
-                      <div class="field-group mb-5">
-                        <div class="row">
-                          <h5 class="col-9 offset-3">
-                            {% if group %}{{ group }}{% else %}{{ model|meta:"verbose_name"|bettertitle }}{% endif %}
-                          </h5>
-                        </div>
-                        {% for name in fields %}
-                          {% with field=form|getfield:name %}
-                            {% if field.name in form.nullable_fields %}
-                              {% render_field field bulk_nullable=True %}
-                            {% else %}
-                              {% render_field field %}
-                            {% endif %}
-                          {% endwith %}
-                        {% endfor %}
-                      </div>
-                    {% endfor %}
-
-                    {# Render tag add/remove fields #}
-                    {% if form.add_tags and form.remove_tags %}
-                      <div class="field-group mb-5">
-                        <div class="row">
-                          <h5 class="col-9 offset-3">{% trans "Tags" %}</h5>
-                        </div>
-                        {% render_field form.add_tags %}
-                        {% render_field form.remove_tags %}
-                      </div>
-                    {% endif %}
-
-                    {# Render custom fields #}
-                    {% if form.custom_fields %}
-                      <div class="field-group mb-5">
-                        <div class="row">
-                          <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
-                        </div>
-                        {% render_custom_fields form %}
-                      </div>
-                    {% endif %}
-
-                    {# Render comments #}
-                    {% if form.comments %}
-                      <div class="field-group mb-5">
-                        <div class="row">
-                          <h5 class="col-9 offset-3">{% trans "Comments" %}</h5>
-                        </div>
-                        {% render_field form.comments bulk_nullable=True %}
-                      </div>
-                    {% endif %}
-
-                  {% else %}
-
-                    {# Render all fields #}
-                    {% for field in form.visible_fields %}
-                      {% if field.name in form.nullable_fields %}
-                        {% render_field field bulk_nullable=True %}
-                      {% else %}
-                        {% render_field field %}
-                      {% endif %}
-                    {% endfor %}
-
-                  {% endif %}
+            {# Render grouped fields according to declared fieldsets #}
+            {% for group, fields in form.fieldsets %}
+              <div class="field-group mb-5">
+                <div class="row">
+                  <h5 class="col-9 offset-3">
+                    {% if group %}{{ group }}{% else %}{{ model|meta:"verbose_name"|bettertitle }}{% endif %}
+                  </h5>
                 </div>
+                {% for name in fields %}
+                  {% with field=form|getfield:name %}
+                    {% if field.name in form.nullable_fields %}
+                      {% render_field field bulk_nullable=True %}
+                    {% else %}
+                      {% render_field field %}
+                    {% endif %}
+                  {% endwith %}
+                {% endfor %}
               </div>
+            {% endfor %}
 
-              <div class="text-end">
-                <button type="submit" name="_apply" class="btn btn-primary">{% trans "Apply" %}</button>
-                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+            {# Render tag add/remove fields #}
+            {% if form.add_tags and form.remove_tags %}
+              <div class="field-group mb-5">
+                <div class="row">
+                  <h5 class="col-9 offset-3">{% trans "Tags" %}</h5>
+                </div>
+                {% render_field form.add_tags %}
+                {% render_field form.remove_tags %}
               </div>
-            </div>
+            {% endif %}
+
+            {# Render custom fields #}
+            {% if form.custom_fields %}
+              <div class="field-group mb-5">
+                <div class="row">
+                  <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
+                </div>
+                {% render_custom_fields form %}
+              </div>
+            {% endif %}
+
+            {# Render comments #}
+            {% if form.comments %}
+              <div class="field-group mb-5">
+                <div class="row">
+                  <h5 class="col-9 offset-3">{% trans "Comments" %}</h5>
+                </div>
+                {% render_field form.comments bulk_nullable=True %}
+              </div>
+            {% endif %}
+
+          {% else %}
+
+            {# Render all fields #}
+            {% for field in form.visible_fields %}
+              {% if field.name in form.nullable_fields %}
+                {% render_field field bulk_nullable=True %}
+              {% else %}
+                {% render_field field %}
+              {% endif %}
+            {% endfor %}
+
+          {% endif %}
+
+          <div class="text-end">
+            <button type="submit" name="_apply" class="btn btn-primary">{% trans "Apply" %}</button>
+            <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
           </div>
 
         </form>
