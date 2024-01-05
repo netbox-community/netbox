@@ -3,3 +3,9 @@
 .mdi {
   padding-right: 4px;
 }
+// Omit padding inside small buttons (no text)
+.btn-sm {
+  .mdi {
+    padding-right: 0;
+  }
+}
