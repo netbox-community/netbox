@@ -6,5 +6,9 @@
 // slim-select
 @import './select.scss';
 
+// Transitional styling
+@import './transitional/cards.scss';
+@import './transitional/tables.scss';
+
 // Temporary overrides
 @import './temp.scss';

@@ -1,0 +1,20 @@
+table.attr-table {
+
+  // Restyle row header
+  th {
+    color: $gray-700;
+    font-weight: normal;
+    padding-left: 0;
+  }
+
+  // Restyle row border
+  th, td {
+    border-bottom-style: dashed;
+  }
+
+  // Hide border of last row in table
+  tr:last-child {
+    border-bottom-style: hidden;
+  }
+
+}
