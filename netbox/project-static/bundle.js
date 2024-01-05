@@ -73,8 +73,8 @@ async function bundleScripts() {
 async function bundleStyles() {
   try {
     const entryPoints = {
-      'netbox-external': 'styles/_external.scss',
-      'netbox': 'styles/_netbox.scss',
+      'netbox-external': 'styles/external.scss',
+      'netbox': 'styles/netbox.scss',
       rack_elevation: 'styles/svg/rack_elevation.scss',
       cable_trace: 'styles/svg/cable_trace.scss',
       graphiql: 'netbox-graphiql/graphiql.scss',

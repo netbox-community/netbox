@@ -184,3 +184,14 @@ $spacing-s: $input-padding-x;
     }
   }
 }
+
+// Fix slim-select 1.x placeholder styling
+.ss-main {
+	.ss-single-selected {
+		.placeholder {
+			cursor: pointer;
+			opacity: 1;
+			background-color: transparent !important;
+		}
+	}
+}

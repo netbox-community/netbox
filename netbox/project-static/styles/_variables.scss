@@ -1,4 +1,8 @@
-// NetBox CSS Variables
+// Global variables
+
+// Set base fonts
+$font-google: 'Inter';
+$font-google-monospaced: 'Roboto Mono';
 
 // Set the navigation sidebar width
 $sidebar-width: 18rem;
@@ -10,6 +14,3 @@ $btn-padding-y: 0.25rem;
 // Reduce the default table cell padding
 $table-cell-padding-x: 0.5rem;
 $table-cell-padding-y: 0.5rem;
-
-$font-google: 'Inter';
-$font-google-monospaced: 'Roboto Mono';
