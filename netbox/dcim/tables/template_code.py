@@ -21,16 +21,16 @@ WEIGHT = """
 """
 
 DEVICE_LINK = """
-{{ value|default:'<span class="badge bg-info">Unnamed device</span>' }}
+{{ value|default:'<span class="badge text-bg-info">Unnamed device</span>' }}
 """
 
 DEVICEBAY_STATUS = """
 {% if record.installed_device_id %}
-    <span class="badge bg-{{ record.installed_device.get_status_color }}">
+    <span class="badge text-bg-{{ record.installed_device.get_status_color }}">
         {{ record.installed_device.get_status_display }}
     </span>
 {% else %}
-    <span class="badge bg-secondary">Vacant</span>
+    <span class="badge text-bg-secondary">Vacant</span>
 {% endif %}
 """
 
@@ -38,7 +38,7 @@ INTERFACE_IPADDRESSES = """
 <div class="table-badge-group">
   {% for ip in value.all %}
     {% if ip.status != 'active' %}
-      <a href="{{ ip.get_absolute_url }}" class="table-badge badge bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
+      <a href="{{ ip.get_absolute_url }}" class="table-badge badge text-bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
     {% else %}
       <a href="{{ ip.get_absolute_url }}" class="table-badge">{{ ip }}</a>
     {% endif %}
