@@ -24,10 +24,10 @@
           <tr>
             <td class="font-monospace"><a href="#{{ method }}">{{ method }}</a></td>
             <td class="text-end report-stats">
-              <span class="badge bg-success">{{ data.success }}</span>
-              <span class="badge bg-info">{{ data.info }}</span>
-              <span class="badge bg-warning">{{ data.warning }}</span>
-              <span class="badge bg-danger">{{ data.failure }}</span>
+              <span class="badge text-bg-success">{{ data.success }}</span>
+              <span class="badge text-bg-info">{{ data.info }}</span>
+              <span class="badge text-bg-warning">{{ data.warning }}</span>
+              <span class="badge text-bg-danger">{{ data.failure }}</span>
             </td>
           </tr>
         {% endfor %}
@@ -57,7 +57,7 @@
               <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
                 <td>{{ time }}</td>
                 <td>
-                  <label class="badge bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
+                  <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
                 </td>
                 <td>
                   {% if obj and url %}

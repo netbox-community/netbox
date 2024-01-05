@@ -54,7 +54,7 @@
                                 {% elif object.rack and object.position %}
                                     <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
                                 {% elif object.rack and object.device_type.u_height %}
-                                    <span class="badge bg-warning">{% trans "Not racked" %}</span>
+                                    <span class="badge text-bg-warning">{% trans "Not racked" %}</span>
                                 {% else %}
                                     {{ ''|placeholder }}
                                 {% endif %}

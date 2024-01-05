@@ -72,7 +72,7 @@
                             {% if report.is_valid %}
                               {{ ''|placeholder }}
                             {% else %}
-                              <span class="badge bg-danger" title="{% trans "Report has no test methods" %}">
+                              <span class="badge text-bg-danger" title="{% trans "Report has no test methods" %}">
                                 {% trans "Invalid" %}
                               </span>
                             {% endif %}
@@ -101,10 +101,10 @@
                             <span class="ps-3">{{ method }}</span>
                           </td>
                           <td class="text-end text-nowrap report-stats">
-                            <span class="badge bg-success">{{ stats.success }}</span>
-                            <span class="badge bg-info">{{ stats.info }}</span>
-                            <span class="badge bg-warning">{{ stats.warning }}</span>
-                            <span class="badge bg-danger">{{ stats.failure }}</span>
+                            <span class="badge text-bg-success">{{ stats.success }}</span>
+                            <span class="badge text-bg-info">{{ stats.info }}</span>
+                            <span class="badge text-bg-warning">{{ stats.warning }}</span>
+                            <span class="badge text-bg-danger">{{ stats.failure }}</span>
                           </td>
                         </tr>
                       {% endfor %}

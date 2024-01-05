@@ -13,9 +13,9 @@
     <th scope="row">{% trans "Path Status" %}</th>
     <td>
       {% if object.path.is_complete and object.path.is_active %}
-        <span class="badge bg-success">{% trans "Reachable" %}</span>
+        <span class="badge text-bg-success">{% trans "Reachable" %}</span>
       {% else %}
-        <span class="badge bg-danger">{% trans "Not Reachable" %}</span>
+        <span class="badge text-bg-danger">{% trans "Not Reachable" %}</span>
       {% endif %}
     </td>
   </tr>

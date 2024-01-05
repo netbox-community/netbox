@@ -89,9 +89,9 @@
                             <th scope="row">{% trans "Connection Status" %}</th>
                             <td>
                                 {% if object.cable.status %}
-                                    <span class="badge bg-success">{{ object.cable.get_status_display }}</span>
+                                    <span class="badge text-bg-success">{{ object.cable.get_status_display }}</span>
                                 {% else %}
-                                    <span class="badge bg-info">{{ object.cable.get_status_display }}</span>
+                                    <span class="badge text-bg-info">{{ object.cable.get_status_display }}</span>
                                 {% endif %}
                             </td>
                         </tr>
