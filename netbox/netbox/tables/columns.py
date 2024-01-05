@@ -161,6 +161,9 @@ class ToggleColumn(tables.CheckBoxColumn):
         visible = kwargs.pop('visible', False)
         if 'attrs' not in kwargs:
             kwargs['attrs'] = {
+                'th': {
+                    'class': 'w-1',
+                },
                 'td': {
                     'class': 'w-1',
                 },
