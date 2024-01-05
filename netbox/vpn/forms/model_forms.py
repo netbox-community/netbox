@@ -157,7 +157,7 @@ class TunnelCreateForm(TunnelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
-        if get_field_value(self, 'termination1_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+        if get_field_value(self, 'termination1_type') == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
             self.fields['termination1_parent'].label = _('Virtual Machine')
             self.fields['termination1_parent'].queryset = VirtualMachine.objects.all()
             self.fields['termination1_termination'].queryset = VMInterface.objects.all()
@@ -168,7 +168,7 @@ class TunnelCreateForm(TunnelForm):
                 'virtual_machine_id': '$termination1_parent',
             })
 
-        if get_field_value(self, 'termination2_type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+        if get_field_value(self, 'termination2_type') == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
             self.fields['termination2_parent'].label = _('Virtual Machine')
             self.fields['termination2_parent'].queryset = VirtualMachine.objects.all()
             self.fields['termination2_termination'].queryset = VMInterface.objects.all()
@@ -265,7 +265,7 @@ class TunnelTerminationForm(NetBoxModelForm):
     def __init__(self, *args, initial=None, **kwargs):
         super().__init__(*args, initial=initial, **kwargs)
 
-        if initial and initial.get('type') == TunnelTerminationTypeChoices.TYPE_VIRUTALMACHINE:
+        if initial and initial.get('type') == TunnelTerminationTypeChoices.TYPE_VIRTUALMACHINE:
             self.fields['parent'].label = _('Virtual Machine')
             self.fields['parent'].queryset = VirtualMachine.objects.all()
             self.fields['termination'].queryset = VMInterface.objects.all()
