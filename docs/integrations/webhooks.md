@@ -86,6 +86,8 @@ $ python netbox/manage.py webhook_receiver
 Listening on port http://localhost:9000. Stop with CONTROL-C.
 ```
 
+If you have deployed NetBox via Docker, you should run the webhook receiver on the `netbox-worker` container.
+
 You can test the receiver itself by sending any HTTP request to it. For example:
 
 ```no-highlight
