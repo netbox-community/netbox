@@ -116,7 +116,9 @@ Blocks:
     <div class="page-wrapper">
 
       {# Page header #}
-      <div class="container-xl mt-2 d-print-none">
+      <div class="page-header m-0">
+
+        {# Banners #}
         {% if config.BANNER_TOP %}
           <div class="text-center mx-3 mb-2">
             {{ config.BANNER_TOP|safe }}
@@ -140,30 +142,39 @@ Blocks:
             </div>
           </div>
         {% endif %}
+        {# /Banners #}
 
         {% block header %}
-          <div class="row align-items-center">
+          <div class="container-xl mt-2 d-print-none">
+            <div class="row align-items-center">
 
-            {# Title #}
-            <div class="col">
-              <h2 class="page-title mb-1">{% block title %}{% endblock title %}</h2>
-              {% block subtitle %}{% endblock %}
+              {# Title #}
+              <div class="col">
+                <h2 class="page-title mb-1">{% block title %}{% endblock title %}</h2>
+                {% block subtitle %}{% endblock %}
+              </div>
+
+              {# Controls #}
+              <div class="col-auto d-print-none">
+                {% block controls %}{% endblock controls %}
+              </div>
+
             </div>
-
-            {# Controls #}
-            <div class="col-auto d-print-none">
-              {% block controls %}{% endblock controls %}
-            </div>
-
           </div>
+
+          {# Tabs #}
+          <div class="page-tabs mt-3">
+            {% block tabs %}{% endblock %}
+          </div>
+
         {% endblock header %}
       </div>
       {# /Page header #}
 
+
       {# Page body #}
       <div class="page-body">
-        <div class="container-xl">
-          {% block tabs %}{% endblock %}
+        <div class="container-xl tab-content py-3">
           {# TODO: Remove content-wrapper block #}
           {% block content-wrapper %}
               {% block content %}{% endblock %}

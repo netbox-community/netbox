@@ -1,0 +1,21 @@
+// In-page content tabs
+.page-tabs {
+  .nav-tabs {
+    position: relative;
+
+    .nav-link {
+      &.active,
+      &:active,
+      &:hover {
+        border-color: $card-border-color;
+        border-bottom-color: transparent;
+      }
+
+      &.active {
+        color: $headings-color;
+        background: var(--#{$prefix}bg-surface-secondary);
+        border-bottom-color: transparent;
+      }
+    }
+  }
+}

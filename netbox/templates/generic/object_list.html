@@ -40,7 +40,7 @@ Context:
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs page-header-tabs px-3 mb-2" role="tablist">
+  <ul class="nav nav-tabs px-3" role="tablist">
     <li class="nav-item" role="presentation">
       <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
         {% trans "Results" %} {% badge table.page.paginator.count %}
@@ -57,8 +57,7 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
+{% block content %}
 
     {# Object list #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
@@ -137,9 +136,8 @@ Context:
         {% include 'inc/filter_list.html' %}
       </div>
     {% endif %}
-  </div>
 
-{% endblock content-wrapper %}
+{% endblock content %}
 
 {% block modals %}
   {% table_config_form table table_name="ObjectTable" %}
