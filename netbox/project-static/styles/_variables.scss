@@ -1,8 +1,9 @@
 // Global variables
 
 // Set base fonts
-$font-google: 'Inter';
-$font-google-monospaced: 'Roboto Mono';
+$font-family-base: 'Inter';
+// See https://github.com/tabler/tabler/issues/1812
+$font-family-monospace: 'Roboto Mono';
 
 // Set the navigation sidebar width
 $sidebar-width: 18rem;
