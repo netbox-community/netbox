@@ -173,20 +173,28 @@ Blocks:
 
 
       {# Page body #}
-      <div class="page-body">
-        <div class="container-xl tab-content py-3">
-          {# TODO: Remove content-wrapper block #}
-          {% block content-wrapper %}
+      {% block page %}
+        <div class="page-body">
+          <div class="container-xl tab-content py-3">
+
+            {# Page content #}
+            {# TODO: Remove content-wrapper block #}
+            {% block content-wrapper %}
               {% block content %}{% endblock %}
-          {% endblock %}
-          {# Bottom banner #}
-          {% if config.BANNER_BOTTOM %}
-            <div class="text-center mx-3 mt-2">
-              {{ config.BANNER_BOTTOM|safe }}
-            </div>
-          {% endif %}
+            {% endblock %}
+            {# /Page content #}
+
+            {# Bottom banner #}
+            {% if config.BANNER_BOTTOM %}
+              <div class="text-center mx-3 mt-2">
+                {{ config.BANNER_BOTTOM|safe }}
+              </div>
+            {% endif %}
+            {# /Bottom banner #}
+
+          </div>
         </div>
-      </div>
+      {% endblock page %}
       {# /Page body #}
 
       {# Page footer #}

@@ -23,9 +23,9 @@
 
 {% block title %}{% trans "Home" %}{% endblock %}
 
-{% block content-wrapper %}
+{% block page %}
   {# Render the user's customized dashboard #}
-  <div class="grid-stack" id="dashboard">
+  <div class="grid-stack m-2" id="dashboard">
     {% for widget in dashboard %}
       {% include 'extras/dashboard/widget.html' %}
     {% endfor %}
@@ -65,7 +65,7 @@
       </div>
     </div>
   </div>
-{% endblock content-wrapper %}
+{% endblock page %}
 
 {% block modals %}
   {% include 'inc/htmx_modal.html' %}
