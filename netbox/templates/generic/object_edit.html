@@ -45,46 +45,43 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
+{% block content %}
+  <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
 
-      {# Warn about missing prerequisite objects #}
-      {% if prerequisite_model %}
-        {% include 'inc/missing_prerequisites.html' %}
-      {% endif %}
+    {# Warn about missing prerequisite objects #}
+    {% if prerequisite_model %}
+      {% include 'inc/missing_prerequisites.html' %}
+    {% endif %}
 
-      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
-        {% csrf_token %}
+    <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
+      {% csrf_token %}
 
-        <div id="form_fields">
-          {% block form %}
-            {% include 'htmx/form.html' %}
-          {% endblock form %}
-        </div>
+      <div id="form_fields">
+        {% block form %}
+          {% include 'htmx/form.html' %}
+        {% endblock form %}
+      </div>
 
-        <div class="text-end my-3">
-          {% block buttons %}
-            <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-            {% if object.pk %}
-              <button type="submit" name="_update" class="btn btn-primary">
-                {% trans "Save" %}
-              </button>
-            {% else %}
-              <button type="submit" name="_create" class="btn btn-primary">
-                {% trans "Create" %}
-              </button>
-              <button type="submit" name="_addanother" class="btn btn-outline-primary">
-                {% trans "Create & Add Another" %}
-              </button>
-            {% endif %}
-          {% endblock buttons %}
-        </div>
-      </form>
-    </div>
+      <div class="text-end my-3">
+        {% block buttons %}
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          {% if object.pk %}
+            <button type="submit" name="_update" class="btn btn-primary">
+              {% trans "Save" %}
+            </button>
+          {% else %}
+            <button type="submit" name="_create" class="btn btn-primary">
+              {% trans "Create" %}
+            </button>
+            <button type="submit" name="_addanother" class="btn btn-outline-primary">
+              {% trans "Create & Add Another" %}
+            </button>
+          {% endif %}
+        {% endblock buttons %}
+      </div>
+    </form>
   </div>
-
-{% endblock content-wrapper %}
+{% endblock content %}
 
 {% block modals %}
   {% include 'inc/htmx_modal.html' with size='lg' %}

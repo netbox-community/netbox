@@ -5,8 +5,7 @@
 
 {% block title %}{{ title }}{% endblock %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
+{% block content %}
 
     {# Connections list #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
@@ -25,5 +24,4 @@
       </div>
     {% endif %}
 
-  </div>
-{% endblock content-wrapper %}
+{% endblock content %}

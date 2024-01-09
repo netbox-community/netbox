@@ -171,17 +171,13 @@ Blocks:
       </div>
       {# /Page header #}
 
-
       {# Page body #}
       {% block page %}
         <div class="page-body">
           <div class="container-xl tab-content py-3">
 
             {# Page content #}
-            {# TODO: Remove content-wrapper block #}
-            {% block content-wrapper %}
-              {% block content %}{% endblock %}
-            {% endblock %}
+            {% block content %}{% endblock %}
             {# /Page content #}
 
             {# Bottom banner #}
