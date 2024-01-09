@@ -59,7 +59,7 @@ Context:
 
 {% block content %}
 
-    {# Object list #}
+    {# Object list tab #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
 
       {# Applied filters #}
@@ -102,17 +102,18 @@ Context:
           {% csrf_token %}
           <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
-          {# Object table #}
+          {# Warn of any missing prerequisite objects #}
+          {% if prerequisite_model %}
+            {% include 'inc/missing_prerequisites.html' %}
+          {% endif %}
 
-              {% if prerequisite_model %}
-                {% include 'inc/missing_prerequisites.html' %}
-              {% endif %}
-
+          {# Objects table #}
           <div class="card">
             <div class="htmx-container table-responsive" id="object_list">
               {% include 'htmx/table.html' %}
             </div>
           </div>
+          {# /Objects table #}
 
           {# Form buttons #}
           <div class="btn-list d-print-none mt-2">
@@ -125,17 +126,20 @@ Context:
               {% endif %}
             {% endblock %}
           </div>
+          {# /Form buttons #}
+
         </div>
       </form>
-
     </div>
+    {# /Object list tab #}
 
-    {# Filter form #}
+    {# Filters tab #}
     {% if filter_form %}
       <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
         {% include 'inc/filter_list.html' %}
       </div>
     {% endif %}
+    {# /Filters tab #}
 
 {% endblock content %}
 
