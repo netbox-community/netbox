@@ -37,11 +37,11 @@
                 </div>
             </div>
             <div class="col col-md-12 my-3 text-end">
+                <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                 <button type="submit" name="_preview" class="btn btn-primary">{% trans "Preview" %}</button>
                 {% if '_preview' in request.POST and not form.errors %}
                     <button type="submit" name="_apply" class="btn btn-primary">{% trans "Apply" %}</button>
                 {% endif %}
-                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
             </div>
         </form>
     </div>

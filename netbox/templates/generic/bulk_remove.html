@@ -33,13 +33,13 @@
     {% for field in form.hidden_fields %}
       {{ field }}
     {% endfor %}
-    <div class="text-center">
+    <div class="text-end">
+      <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       <button type="submit" name="_confirm" class="btn btn-danger">
         {% blocktrans trimmed with count=table.rows|length %}
           Delete these {{ count }} {{ obj_type_plural }}
         {% endblocktrans %}
       </button>
-      <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
     </div>
   </form>
 </div>

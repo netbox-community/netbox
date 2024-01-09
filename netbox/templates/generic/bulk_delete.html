@@ -56,8 +56,8 @@ Context:
           {{ field }}
         {% endfor %}
         <div class="text-end">
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           <button type="submit" name="_confirm" class="btn btn-danger">{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
-          <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>

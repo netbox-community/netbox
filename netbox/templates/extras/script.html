@@ -33,7 +33,7 @@
           {% endfor %}
         </div>
         <div class="float-end">
-          <a href="{% url 'extras:script_list' %}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+          <a href="{% url 'extras:script_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> {% trans "Run Script" %}</button>
         </div>
       </form>

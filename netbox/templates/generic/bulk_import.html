@@ -47,10 +47,10 @@ Context:
           {% render_field form.csv_delimiter %}
           <div class="form-group">
             <div class="col col-md-12 text-end">
-              <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
               {% if return_url %}
-                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+                <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
               {% endif %}
+              <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
             </div>
           </div>
         </form>
@@ -69,10 +69,10 @@ Context:
         {% render_field form.csv_delimiter %}
         <div class="form-group">
           <div class="col col-md-12 text-end">
-            <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
             {% if return_url %}
-              <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+              <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
             {% endif %}
+            <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
           </div>
         </div>
       </form>
@@ -91,10 +91,10 @@ Context:
         {% render_field form.csv_delimiter %}
         <div class="form-group">
           <div class="col col-md-12 text-end">
-            <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
             {% if return_url %}
-              <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+              <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
             {% endif %}
+            <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
           </div>
         </div>
       </form>

@@ -21,9 +21,11 @@
             </div>
         </div>
         <div class="text-end my-3">
-            <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-            <button type="submit" name="_addanother" class="btn btn-outline-primary">{% trans "Add Another" %}</button>
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          <div class="btn-group" role="group" aria-label="{% trans "Actions" %}">
             <button type="submit" name="_save" class="btn btn-primary">{% trans "Save" %}</button>
+            <button type="submit" name="_addanother" class="btn btn-outline-primary">{% trans "Save & Add Another" %}</button>
+          </div>
         </div>
     </form>
 {% endblock %}
