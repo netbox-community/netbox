@@ -10,12 +10,14 @@
   <p></p>
 </div>
 
-NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central _source of truth_ for the modern network.
+NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central source of truth for the modern network.
 
-<img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
+<div align="center">
+  <img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
+</div>
 
 <p align="center">
-  <a href="#features">Features</a> |
+  <a href="#why-netbox">Why NetBox?</a> |
   <a href="#getting-started">Getting Started</a> |
   <a href="#get-involved">Get Involved</a> |
   <a href="#project-stats">Project Stats</a> |
