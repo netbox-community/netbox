@@ -249,10 +249,6 @@ class CableTraceSVG:
         for parent in parent_object_nodes:
             parent_terms = [term for term in terminations if term.parent_object == parent.object]
 
-            if len(parent_terms) == 0:
-                self.logger.warn(f"No Parent Terminations? {parent.object.name}")
-                continue
-
             # Width and offset(position) for each termination box
             width = parent.box['width'] / len(parent_terms)
             offset_x = parent.box['x']
