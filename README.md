@@ -65,15 +65,8 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 
 ## Getting Started
 
-<div align="center">
-
-  [![NetBox logo](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/deploy/deploy1.png)](https://github.com/netbox-community/netbox)
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![Docker logo](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/deploy/deploy2.png)](https://github.com/netbox-community/netbox-docker)
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  [![NetBox Labs logo](https://raw.githubusercontent.com/wiki/netbox-community/netbox/images/deploy/deploy3.png)](https://netboxlabs.com/netbox-cloud/)
-
-</div>
+> [!TIP]
+> Are you looking for an enterprise solution? Check out **[NetBox Cloud](https://netboxlabs.com/netbox-cloud/)**!
 
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
 * The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
