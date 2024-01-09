@@ -1,24 +1,12 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/netbox-community/netbox/develop/docs/netbox_logo.svg" width="400" alt="NetBox logo" />
   <p><strong>The cornerstone of every automated network</strong></p>
-  <a href="https://github.com/netbox-community/netbox/releases">
-    <img src="https://img.shields.io/github/v/release/netbox-community/netbox" alt="Latest release" />
-  </a>
-  <a href="https://github.com/netbox-community/netbox/blob/master/LICENSE.txt">
-    <img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" />
-  </a>
-  <a href="https://github.com/netbox-community/netbox/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/netbox-community/netbox?color=blue" alt="Contributors" />
-  </a>
-  <a href="https://github.com/netbox-community/netbox/stargazers">
-    <img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" />
-  </a>
-  <a href="https://docs.netbox.dev/en/stable/features/translations/">
-    <img src="https://img.shields.io/badge/languages-4-blue" alt="Languages supported" />
-  </a>
-  <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml">
-    <img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" />
-  </a>
+  <a href="https://github.com/netbox-community/netbox/releases"><img src="https://img.shields.io/github/v/release/netbox-community/netbox" alt="Latest release" /></a>
+  <a href="https://github.com/netbox-community/netbox/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" /></a>
+  <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://img.shields.io/github/contributors/netbox-community/netbox?color=blue" alt="Contributors" /></a>
+  <a href="https://github.com/netbox-community/netbox/stargazers"><img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" /></a>
+  <a href="https://docs.netbox.dev/en/stable/features/translations/"><img src="https://img.shields.io/badge/languages-4-blue" alt="Languages supported" /></a>
+  <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" /></a>
   <p></p>
 </div>
 
@@ -26,6 +14,7 @@ NetBox exists to empower network engineers. Since its release in 2016, it has be
 
 <div align="center">
   <img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
+  <p></p>
 </div>
 
 <p align="center">
