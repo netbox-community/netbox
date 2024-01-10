@@ -132,7 +132,7 @@ Once you have created a report, it will appear in the reports list. Initially, r
 ## Running Reports
 
 !!! note
-    To run a report, a user must be assigned via permissions for `Extras > Report`, `Extras > Report Module`, and `Core > Managed File` objects. They must also be assigned the `extras.run_report` permission. This is achieved by assigning the user (or group) a permission on the Report object and specifying the `run` action in "Permissions" as shown below.
+    To run a report, a user must be assigned permissions for `Extras > Report`, `Extras > Report Module`, and `Core > Managed File` objects. They must also be assigned the `extras.run_report` permission. This is achieved by assigning the user (or group) a permission on the Report object and specifying the `run` action in "Permissions" as shown below.
 
     ![Adding the run action to a permission](../media/run_permission.png)
 
