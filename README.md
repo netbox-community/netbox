@@ -106,15 +106,23 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 
 ## Screenshots
 
-<div align="center">
-  <p><strong>NetBox Dashboard (Light Mode)</strong></p>
+<p align="center">
+  <strong>NetBox Dashboard (Light Mode)</strong><br />
   <img src="docs/media/screenshots/home-light.png" width="600" alt="NetBox dashboard (light mode)" />
-  <p><strong>NetBox Dashboard (Dark Mode)</strong></p>
+</p>
+<p align="center">
+  <strong>NetBox Dashboard (Dark Mode)</strong><br />
   <img src="docs/media/screenshots/home-dark.png" width="600" alt="NetBox dashboard (dark mode)" />
-  <p><strong>Prefixes List</strong></p>
+</p>
+<p align="center">
+  <strong>Prefixes List</strong><br />
   <img src="docs/media/screenshots/prefixes-list.png" width="600" alt="Prefixes list" />
-  <p><strong>Rack View</strong></p>
+</p>
+<p align="center">
+  <strong>Rack View</strong><br />
   <img src="docs/media/screenshots/rack.png" width="600" alt="Rack view" />
-  <p><strong>Cable trace</strong></p>
+</p>
+<p align="center">
+  <strong>Cable trace</strong><br />
   <img src="docs/media/screenshots/cable-trace.png" width="600" alt="Cable trace" />
-</div>
+</p>
