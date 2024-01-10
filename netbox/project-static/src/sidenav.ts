@@ -204,7 +204,7 @@ class SideNav {
    * @param link Active nav link
    * @param action Expand or Collapse
    */
-  private activateLink(link: HTMLAnchorElement, action: 'expand' | 'collapse'): void {
+  private activateLink(link: HTMLDivElement, action: 'expand' | 'collapse'): void {
     // Find the closest .collapse element, which should contain `link`.
     const collapse = link.closest('.collapse') as Nullable<HTMLDivElement>;
     if (isElement(collapse)) {
@@ -232,13 +232,16 @@ class SideNav {
    * Find any nav links with `href` attributes matching the current path, to determine which nav
    * link should be considered active.
    */
-  private *getActiveLinks(): Generator<HTMLAnchorElement> {
-    for (const link of this.base.querySelectorAll<HTMLAnchorElement>(
-      '.navbar-nav .nav .nav-item a.nav-link',
+  private *getActiveLinks(): Generator<HTMLDivElement> {
+    for (const menuitem of this.base.querySelectorAll<HTMLDivElement>(
+      'ul.navbar-nav .nav-item .dropdown-item',
     )) {
-      const href = new RegExp(link.href, 'gi');
-      if (window.location.href.match(href)) {
-        yield link;
+      const link = menuitem.querySelector<HTMLAnchorElement>('a')
+      if (link) {
+        const href = new RegExp(link.href, 'gi');
+        if (window.location.href.match(href)) {
+          yield menuitem;
+        }
       }
     }
   }
@@ -309,7 +312,7 @@ class SideNav {
 }
 
 export function initSideNav(): void {
-  for (const sidenav of getElements<HTMLDivElement>('.sidenav')) {
+  for (const sidenav of getElements<HTMLDivElement>('.navbar')) {
     new SideNav(sidenav);
   }
 }

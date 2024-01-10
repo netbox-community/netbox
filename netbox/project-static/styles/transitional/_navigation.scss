@@ -1,0 +1,23 @@
+// Navbar styling
+.navbar-vertical.navbar-expand-lg {
+  .navbar-collapse {
+    .dropdown-menu {
+      .dropdown-item {
+
+        // Remove underline from nav menu items
+        a:hover {
+          text-decoration: none;
+        }
+
+        // Style active menu item
+        &.active {
+          background-color: $gray-700;
+          a {
+            color: white;
+          }
+        }
+
+      }
+    }
+  }
+}
