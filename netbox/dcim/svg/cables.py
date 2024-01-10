@@ -373,33 +373,31 @@ class CableTraceSVG:
                     color = '000000'
                     if cable.description:
                         description.append(f"{cable.description}")
-                    if cable is Cable:
+                    if isinstance(cable, Cable):
                         labels = [f"{cable}"] if len(links) > 2 else [f"Cable {cable}", cable.get_status_display()]
-                        if cable.label:
-                            description.append(f"NetBox ID: {cable.id}")
                         if cable.type:
-                            description.append(f"Type: {cable.get_type_display()}")
-                        if cable.length:
-                            description.append(f"Length: {cable.length} {cable.length_unit}")
+                            description.append(cable.get_type_display())
+                        if cable.length and cable.length_unit:
+                            description.append(f"{cable.length} {cable.get_length_unit_display()}")
                         color = cable.color or '000000'
 
                         # Collect all connected nodes to this cable
                         near = [term for term in near_terminations if term.object in cable.a_terminations]
                         far = [term for term in far_terminations if term.object in cable.b_terminations]
-                    elif cable is WirelessLink:
+                        if not (near and far):
+                            # a and b terminations may be swapped
+                            near = [term for term in near_terminations if term.object in cable.b_terminations]
+                            far = [term for term in far_terminations if term.object in cable.a_terminations]
+                    elif isinstance(cable, WirelessLink):
                         labels = [f"{cable}"] if len(links) > 2 else [f"Wireless {cable}", cable.get_status_display()]
                         if cable.ssid:
-                            description.append(f"SSID: {cable.ssid}")
-                        if cable.auth_type:
-                            description.append(f"AuthType: {cable.auth_type}")
-                        if cable.auth_cipher:
-                            description.append(f"AuthCipher: {cable.auth_cipher}")
-                        if cable.auth_psk:
-                            description.append(f"PSK is set")
+                            description.append(f"{cable.ssid}")
                         near = [term for term in near_terminations if term.object == cable.interface_a]
                         far = [term for term in far_terminations if term.object == cable.interface_b]
-                    if cable.tenant:
-                        description.append(f"Tenant: {cable.tenant}")
+                        if not (near and far):
+                            # a and b terminations may be swapped
+                            near = [term for term in near_terminations if term.object == cable.interface_b]
+                            far = [term for term in far_terminations if term.object == cable.interface_a]
 
                     # Select most-probable start and end position
                     start = near[0].bottom_center
@@ -422,7 +420,7 @@ class CableTraceSVG:
                         start=start,
                         end=end,
                         color=color,
-                        wireless=cable is WirelessLink,
+                        wireless=isinstance(cable, WirelessLink),
                         url=f'{self.base_url}{cable.get_absolute_url()}',
                         text_offset=text_offset,
                         labels=labels,
