@@ -12,12 +12,8 @@
 
 NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central source of truth for the modern network.
 
-<div align="center">
-  <img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
-  <p></p>
-</div>
-
 <p align="center">
+  <a href="#netboxs-role">NetBox's Role</a> |
   <a href="#why-netbox">Why NetBox?</a> |
   <a href="#getting-started">Getting Started</a> |
   <a href="#get-involved">Get Involved</a> |
@@ -25,7 +21,12 @@ NetBox exists to empower network engineers. Since its release in 2016, it has be
   <a href="#screenshots">Screenshots</a>
 </p>
 
-## Where Does NetBox Fit In?
+<div align="center">
+  <img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
+  <p></p>
+</div>
+
+## NetBox's Role
 
 <p align="center">
   <img src="docs/media/misc/reference_architecture.png" alt="Reference network automation architecture" />
@@ -71,14 +72,17 @@ Users can define event rules to automatically trigger a custom script or outboun
 
 NetBox automatically logs the creation, modification, and deletion of all managed objects, providing a thorough change history. Changes can be attributed to the executing user, and related changes are grouped automatically by request ID.
 
-## Getting Started
+> [!INFO]
+> A complete list of NetBox's myriad features can be found in [the introductory documentation](https://docs.netbox.dev/en/stable/introduction/).
 
-> [!TIP]
-> Are you looking for an enterprise solution? Check out **[NetBox Cloud](https://netboxlabs.com/netbox-cloud/)**!
+## Getting Started
 
 * Just want to explore? Check out [our public demo](https://demo.netbox.dev/) right now!
 * The [official documentation](https://docs.netbox.dev) offers a comprehensive introduction.
 * Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
+
+> [!TIP]
+> Are you looking for an enterprise solution? Check out **[NetBox Cloud](https://netboxlabs.com/netbox-cloud/)**!
 
 ## Get Involved
 
