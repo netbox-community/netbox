@@ -104,8 +104,10 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 
 ## Screenshots
 
-<img src="docs/media/screenshots/home-light.png" width="300" />
-<img src="docs/media/screenshots/home-dark.png" width="300" />
-<img src="docs/media/screenshots/prefixes-list.png" width="300" />
-<img src="docs/media/screenshots/rack.png" width="300" />
-<img src="docs/media/screenshots/cable-trace.png" width="300" />
+<div align="center">
+  <img src="docs/media/screenshots/home-light.png" width="600" alt="NetBox UI (light mode)" />
+  <img src="docs/media/screenshots/home-dark.png" width="600" alt="NetBox UI (dark mode)" />
+  <img src="docs/media/screenshots/prefixes-list.png" width="600" alt="Prefixes list" />
+  <img src="docs/media/screenshots/rack.png" width="600" alt="Rack view" />
+  <img src="docs/media/screenshots/cable-trace.png" width="600" alt="Cable trace" />
+</div>
