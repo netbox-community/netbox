@@ -5,7 +5,7 @@
   <a href="https://github.com/netbox-community/netbox/blob/master/LICENSE.txt"><img src="https://img.shields.io/badge/license-Apache_2.0-blue.svg" alt="License" /></a>
   <a href="https://github.com/netbox-community/netbox/graphs/contributors"><img src="https://img.shields.io/github/contributors/netbox-community/netbox?color=blue" alt="Contributors" /></a>
   <a href="https://github.com/netbox-community/netbox/stargazers"><img src="https://img.shields.io/github/stars/netbox-community/netbox?style=flat" alt="GitHub stars" /></a>
-  <a href="https://docs.netbox.dev/en/stable/features/translations/"><img src="https://img.shields.io/badge/languages-4-blue" alt="Languages supported" /></a>
+  <a href="https://explore.transifex.com/netbox-community/netbox/"><img src="https://img.shields.io/badge/languages-4-blue" alt="Languages supported" /></a>
   <a href="https://github.com/netbox-community/netbox/actions/workflows/ci.yml"><img src="https://github.com/netbox-community/netbox/workflows/CI/badge.svg?branch=master" alt="CI status" /></a>
   <p></p>
 </div>
@@ -33,21 +33,21 @@ NetBox functions as the **source of truth** for your network infrastructure. Its
   <img src="docs/media/misc/reference_architecture.png" alt="Reference network automation architecture" />
 </p>
 
-The diagram above illustrates the recommended deployment architecture for an automated network, leveraging NetBox as the central authority for network state. This approach allows for individual tools to be swapped out to meet the user's changing needs while retaining an easy-to-follow workflow.
+The diagram above illustrates the recommended deployment architecture for an automated network, leveraging NetBox as the central authority for network state. This approach allows your team to swap out individual tools to meet changing needs while retaining a predictable, modular workflow.
 
 ## Why NetBox?
 
 ### Comprehensive Data Model
 
-Racks, devices, cables, IP addresses, VLANs, circuits, power, VPNs, and lots more: NetBox is built for networks. Its comprehensive and thoroughly inter-linked data model provides for natural and robust modeling of myriad network primitives that just can't be matched by general-purpose tools. And there's no need to waste time contemplating how to set up your database: Everything is ready to go upon installation.
+Racks, devices, cables, IP addresses, VLANs, circuits, power, VPNs, and lots more: NetBox is built for networks. Its comprehensive and thoroughly inter-linked data model provides for natural and highly structured modeling of myriad network primitives that just isn't possible using general-purpose tools. And there's no need to waste time contemplating how to build out a database: Everything is ready to go upon installation.
 
 ### Focused Development
 
-NetBox strives to meet a singular goal: Provide the best available solution for making network infrastructure programmatically accessible. Unlike "all-in-one" tools which awkwardly bolt on half-baked features in an attempt to check every box, NetBox is committed to its central focus. NetBox provides the best possible solution for modeling network infrastructure, and provides rich APIs for integrating with tools that excel in other areas of network automation.
+NetBox strives to meet a singular goal: Provide the best available solution for making network infrastructure programmatically accessible. Unlike "all-in-one" tools which awkwardly bolt on half-baked features in an attempt to check every box, NetBox is committed to its core function. NetBox provides the best possible solution for modeling network infrastructure, and provides rich APIs for integrating with tools that excel in other areas of network automation.
 
 ### Extensible and Customizable
 
-Of course, no two networks are exactly the same. Users are empowered to extend NetBox's native data model with custom fields and tags to best suit their unique needs. You can even write your own plugins to introduce entirely new models and functionality!
+No two networks are exactly the same. Users are empowered to extend NetBox's native data model with custom fields and tags to best suit their unique needs. You can even write your own plugins to introduce entirely new objects and functionality!
 
 ### Flexible Permissions
 
@@ -55,15 +55,15 @@ NetBox includes a fully customizable permission system, which affords administra
 
 ### Custom Validation & Protection Rules
 
-The data you put into NetBox is crucial. In addition to its robust native validation rules, NetBox provides mechanisms for administrators to define their own custom validation rules for objects. Custom validation can be used both to ensure new or modified objects adhere to a set of rules, and to prevent the deletion of objects which don't meet certain criteria. (For example, you might want to prevent the deletion of a device with an "active" status.)
+The data you put into NetBox is crucial to network operations. In addition to its robust native validation rules, NetBox provides mechanisms for administrators to define their own custom validation rules for objects. Custom validation can be used both to ensure new or modified objects adhere to a set of rules, and to prevent the deletion of objects which don't meet certain criteria. (For example, you might want to prevent the deletion of a device with an "active" status.)
 
 ### Device Configuration Rendering
 
-NetBox can render user-created Jinja2 templates to generate device configurations from its own data. Templates can be uploaded individually or pulled automatically from an external source, such as a git repository. Rendered templates can be retrieved via the REST API for application directly to network devices via a provisioning tool such as Ansible or Salt.
+NetBox can render user-created Jinja2 templates to generate device configurations from its own data. Configuration templates can be uploaded individually or pulled automatically from an external source, such as a git repository. Rendered configurations can be retrieved via the REST API for application directly to network devices via a provisioning tool such as Ansible or Salt.
 
 ### Custom Scripts
 
-Complex workflows, such as provisioning a new branch office or allocating a new address block, can be tedious to carry out via the user interface. NetBox allows you to write and upload custom scripts that can be run directly from the UI. Scripts prompt users for input and then automate the necessary tasks to greatly simplify otherwise burdensome processes.
+Complex workflows, such as provisioning a new branch office, can be tedious to carry out via the user interface. NetBox allows you to write and upload custom scripts that can be run directly from the UI. Scripts prompt users for input and then automate the necessary tasks to greatly simplify otherwise burdensome processes.
 
 ### Automated Events
 
@@ -123,6 +123,6 @@ NetBox automatically logs the creation, modification, and deletion of all manage
   <img src="docs/media/screenshots/rack.png" width="600" alt="Rack view" />
 </p>
 <p align="center">
-  <strong>Cable trace</strong><br />
+  <strong>Cable Trace</strong><br />
   <img src="docs/media/screenshots/cable-trace.png" width="600" alt="Cable trace" />
 </p>
