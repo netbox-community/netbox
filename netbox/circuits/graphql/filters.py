@@ -2,6 +2,8 @@ import strawberry
 import strawberry_django
 from strawberry import auto
 from circuits import models, filtersets
+from netbox.graphql import filters
+
 
 __all__ = (
     'CircuitTerminationFilter',
@@ -30,7 +32,17 @@ class CircuitTerminationFilter(filtersets.CircuitTerminationFilterSet):
 
 
 @strawberry_django.filter(models.Circuit, lookups=True)
-class CircuitFilter(filtersets.CircuitFilterSet):
+class CircuitFilter(filtersets.CircuitFilterSet, filters.NetBoxModelFilter):
+    # NetBoxModelFilterSet
+    q: str | None
+    # tag:
+    # ChangeLoggedModelFilterSet
+    created: auto
+    last_updated: auto
+    created_by_request: str | None
+    updated_by_request: str | None
+    modified_by_request: str | None
+
     id: auto
     cid: auto
     description: auto
@@ -41,7 +53,16 @@ class CircuitFilter(filtersets.CircuitFilterSet):
     provider: auto
     provider_account_id: auto
     type_id: auto
+    # provider_network_id: auto
+    type_id: auto
+    type: auto
     status: auto
+    # region_id: auto
+    # region: auto
+    # site_group_id: auto
+    # site_group: auto
+    # site_id: auto
+    # site: auto
 
 
 # @strawberry_django.filter(models.Circuit, lookups=True)
