@@ -13,16 +13,16 @@
 NetBox exists to empower network engineers. Since its release in 2016, it has become the go-to solution for modeling and documenting network infrastructure for thousands of organizations worldwide. As a successor to legacy IPAM and DCIM applications, NetBox provides a cohesive, extensive, and accessible data model for all things networked. By providing a single robust user interface and programmable APIs for everything from cable maps to device configurations, NetBox serves as the central source of truth for the modern network.
 
 <p align="center">
-  <img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
-</p>
-
-<p align="center">
   <a href="#netboxs-role">NetBox's Role</a> |
   <a href="#why-netbox">Why NetBox?</a> |
   <a href="#getting-started">Getting Started</a> |
   <a href="#get-involved">Get Involved</a> |
   <a href="#project-stats">Project Stats</a> |
   <a href="#screenshots">Screenshots</a>
+</p>
+
+<p align="center">
+  <img src="docs/media/screenshots/home-light.png" width="600" alt="NetBox user interface screenshot" />
 </p>
 
 ## NetBox's Role
@@ -104,10 +104,8 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 
 ## Screenshots
 
-![Screenshot of main page (dark mode)](docs/media/screenshots/home-dark.png "Main page (dark mode)")
-
-![Screenshot of rack elevation](docs/media/screenshots/rack.png "Rack elevation")
-
-![Screenshot of prefixes hierarchy](docs/media/screenshots/prefixes-list.png "Prefixes hierarchy")
-
-![Screenshot of cable trace](docs/media/screenshots/cable-trace.png "Cable tracing")
+<img src="docs/media/screenshots/home-light.png" width="400" />
+<img src="docs/media/screenshots/home-dark.png" width="400" />
+<img src="docs/media/screenshots/prefixes-list.png" width="400" />
+<img src="docs/media/screenshots/rack.png" width="400" />
+<img src="docs/media/screenshots/cable-trace.png" width="400" />
