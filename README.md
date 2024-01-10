@@ -93,6 +93,7 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 * Join the conversation on [the discussion forum](https://github.com/netbox-community/netbox/discussions) and [Slack](https://netdev.chat/)!
 * Already a power user? You can [suggest a feature](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+feature&template=feature_request.yaml) or [report a bug](https://github.com/netbox-community/netbox/issues/new?assignees=&labels=type%3A+bug&template=bug_report.yaml) on GitHub.
 * Contributions from the community are encouraged and appreciated! Check out our [contributing guide](CONTRIBUTING.md) to get started.
+* [Share your idea](https://plugin-ideas.netbox.dev/) for a new plugin, or [learn how to build one](https://github.com/netbox-community/netbox-plugin-tutorial) yourself!
 
 ## Project Stats
 
