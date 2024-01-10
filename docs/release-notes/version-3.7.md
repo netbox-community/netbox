@@ -2,6 +2,13 @@
 
 ## v3.7.1 (FUTURE)
 
+### Bug Fixes
+
+* [#14663](https://github.com/netbox-community/netbox/issues/14663) - Fix tunnel creation when setting initial termination to a VM interface
+* [#14706](https://github.com/netbox-community/netbox/issues/14706) - Relax one-to-one mapping of tunnel termination to IP address
+* [#14709](https://github.com/netbox-community/netbox/issues/14709) - Fix typo in tunnel termination type choice name
+* [#14749](https://github.com/netbox-community/netbox/issues/14749) - Remove errant translation wrapper from `installed_device` on DeviceBay
+
 ---
 
 ## v3.7.0 (2023-12-29)
