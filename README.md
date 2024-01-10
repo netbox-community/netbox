@@ -83,7 +83,7 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 * Check out [our wiki](https://github.com/netbox-community/netbox/wiki/Community-Contributions) for even more projects to get the most out of NetBox!
 
 <p align="center">
-  <img src="docs/media/misc/netbox_cloud.png" alt="NetBox Cloud" />
+  <a href="https://netboxlabs.com/netbox-cloud/"><img src="docs/media/misc/netbox_cloud.png" alt="NetBox Cloud" /></a><br />
   Looking for an enterprise solution? Check out <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong>!
 </p>
 
