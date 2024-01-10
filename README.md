@@ -21,18 +21,19 @@ NetBox exists to empower network engineers. Since its release in 2016, it has be
   <a href="#screenshots">Screenshots</a>
 </p>
 
-<div align="center">
+<p align="center">
   <img src="docs/media/screenshots/netbox-ui.png" width="600" alt="NetBox user interface screenshot" />
-  <p></p>
-</div>
+</p>
 
 ## NetBox's Role
+
+NetBox functions as the **source of truth** for your network infrastructure. Its job is to define and validate the _intended state_ of all network components and resources. NetBox does not interact with network nodes directly; rather, it makes this data available programmatically to purpose-built automation, monitoring, and assurance tools. This separation of duties enables the construction of a robust yet flexible automation system.
+
+The diagram below illustrates the recommended deployment architecture for an automated network, leveraging NetBox as the central authority for network state. This approach allows for individual tools to be swapped out to meet the user's needs while retaining an easy-to-follow workflow.
 
 <p align="center">
   <img src="docs/media/misc/reference_architecture.png" alt="Reference network automation architecture" />
 </p>
-
-NetBox functions as the **source of truth** for your network infrastructure. Its job is to define and validate the _intended state_ of all network components and resources. NetBox does not interact with network nodes directly; rather, it makes this data available programmatically to purpose-built automation, monitoring, and assurance tools. This separation of duties enables the construction of a robust yet flexible automation system.
 
 ## Why NetBox?
 
