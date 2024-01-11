@@ -205,22 +205,22 @@ class SideNav {
    * @param action Expand or Collapse
    */
   private activateLink(link: HTMLDivElement, action: 'expand' | 'collapse'): void {
-    // Find the closest .collapse element, which should contain `link`.
-    const collapse = link.closest('.collapse') as Nullable<HTMLDivElement>;
-    if (isElement(collapse)) {
-      // Find the closest `.nav-link`, which should be adjacent to the `.collapse` element.
-      const groupLink = collapse.parentElement?.querySelector('.nav-link');
+    // Find the closest .dropdown-menu element, which should contain `link`.
+    const dropdownMenu = link.closest('.dropdown-menu') as Nullable<HTMLDivElement>;
+    if (isElement(dropdownMenu)) {
+      // Find the closest `.nav-link`, which should be adjacent to the `.dropdown-menu` element.
+      const groupLink = dropdownMenu.parentElement?.querySelector('.nav-link');
       if (isElement(groupLink)) {
         groupLink.classList.add('active');
         switch (action) {
           case 'expand':
             groupLink.setAttribute('aria-expanded', 'true');
-            collapse.classList.add('show');
+            dropdownMenu.classList.add('show');
             link.classList.add('active');
             break;
           case 'collapse':
             groupLink.setAttribute('aria-expanded', 'false');
-            collapse.classList.remove('show');
+            dropdownMenu.classList.remove('show');
             link.classList.remove('active');
             break;
         }
