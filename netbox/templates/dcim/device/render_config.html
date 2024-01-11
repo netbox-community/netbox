@@ -51,14 +51,12 @@
   <div class="row">
     <div class="col">
       <div class="card">
-        <div class="card-header">
-          <div class="float-end">
-            <a href="?export=True" class="btn btn-primary" role="button">
+        <h5 class="card-header d-flex justify-content-between">
+          {% trans "Rendered Config" %}
+            <a href="?export=True" class="btn btn-primary lh-1" role="button">
               <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
             </a>
-          </div>
-          <h5>{% trans "Rendered Config" %}</h5>
-        </div>
+        </h5>
         {% if config_template %}
           <pre class="card-body">{{ rendered_config }}</pre>
         {% else %}

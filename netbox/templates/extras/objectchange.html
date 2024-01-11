@@ -80,17 +80,17 @@
     </div>
     <div class="col col-md-7">
         <div class="card">
-            <div class="card-header">
-                <h5 class="d-inline">{% trans "Difference" %}</h5>
-                <div class="btn-group btn-group-sm float-end noprint">
-                    <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
-                        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
-                    </a>
-                    <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
-                        {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
-                    </a>
-                </div>
-            </div>
+            <h5 class="card-header d-flex justify-content-between">
+              {% trans "Difference" %}
+              <div class="btn-group btn-group-sm d-print-none">
+                <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+                  <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
+                </a>
+                <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+                  {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </h5>
             <div class="card-body">
                 {% if diff_added == diff_removed %}
                     <span class="text-muted" style="margin-left: 10px;">
