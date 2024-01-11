@@ -12,17 +12,6 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 
-class InstalledPluginsAdminView(View):
-    """
-    Admin view for listing all installed plugins
-    """
-    def get(self, request):
-        plugins = [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
-        return render(request, 'extras/admin/plugins_list.html', {
-            'plugins': plugins,
-        })
-
-
 @extend_schema(exclude=True)
 class InstalledPluginsAPIView(APIView):
     """
