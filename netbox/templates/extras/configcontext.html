@@ -82,10 +82,10 @@
     </div>
     <div class="col col-md-7">
       <div class="card">
-        <div class="card-header">
-          <h5>{% trans "Data" %}</h5>
+        <h5 class="card-header d-flex justify-content-between">
+          {% trans "Data" %}
           {% include 'extras/inc/configcontext_format.html' %}
-        </div>
+        </h5>
         <div class="card-body">
           {% include 'inc/sync_warning.html' %}
           {% include 'extras/inc/configcontext_data.html' with data=object.data format=format %}
