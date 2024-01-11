@@ -14,7 +14,7 @@ Context:
 {% block title %}{{ model|meta:"verbose_name"|bettertitle }} {% trans "Bulk Import" %}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="import-form-tab" data-bs-toggle="tab" data-bs-target="#import-form" data-href="#tab_import-form" type="button" role="tab" aria-controls="import-form" aria-selected="true">
         {% trans "Direct Import" %}

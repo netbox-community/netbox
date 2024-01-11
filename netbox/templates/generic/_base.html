@@ -10,7 +10,7 @@
 
           {# Title #}
           <div class="col">
-            <h2 class="page-title mb-1">{% block title %}{% endblock title %}</h2>
+            <h2 class="page-title my-1">{% block title %}{% endblock title %}</h2>
             {% block subtitle %}{% endblock %}
           </div>
 
@@ -25,7 +25,9 @@
 
     {# Tabs #}
     <div class="page-tabs mt-3">
-      {% block tabs %}{% endblock %}
+      <div class="container-xl">
+        {% block tabs %}{% endblock %}
+      </div>
     </div>
 
   </div>
