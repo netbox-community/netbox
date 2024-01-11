@@ -126,21 +126,11 @@ Blocks:
         {% endif %}
 
         {% if settings.DEBUG and not settings.DEVELOPER %}
-          <div class="alert alert-warning bg-warning-subtle text-center mx-3" role="alert">
-            <h4 class="alert-title"><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</h4>
-            <div class="text-secondary">
-              {% trans "Performance may be limited. Debugging should never be enabled on a production system." %}
-            </div>
-          </div>
+          {% include 'inc/alerts/warning.html' with title="Debug mode is enabled" message="Performance may be limited. Debugging should never be enabled on a production system." %}
         {% endif %}
 
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-          <div class="alert alert-warning bg-warning-subtle text-center mx-3" role="alert">
-            <h4 class="alert-title"><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h4>
-            <div class="text-secondary">
-              {{ config.BANNER_MAINTENANCE|escape }}
-            </div>
-          </div>
+          {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|escape %}
         {% endif %}
         {# /Banners #}
 

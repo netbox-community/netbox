@@ -8,20 +8,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="container-md px-0">
-  <div class="alert alert-danger" role="alert">
-    <h4 class="alert-heading">{% trans "Confirm Bulk Removal" %}</h4>
-    <p>
+<div class="alert alert-danger bg-danger-subtle" role="alert">
+  <div class="d-flex">
+    <div>
+      <i class="mdi mdi-alert-octagon p-2"></i>
+    </div>
+    <div>
+      <h4 class="alert-title">{% trans "Confirm Bulk Removal" %}</h4>
       {% blocktrans trimmed with count=table.rows|length %}
-        <strong>Warning:</strong> The following operation will remove {{ count }} {{ obj_type_plural }} from {{ parent_obj }}.
+        The following operation will remove {{ count }} {{ obj_type_plural }} from {{ parent_obj }}. Please
+        carefully review the {{ obj_type_plural }} to be removed and confirm below.
       {% endblocktrans %}
-    </p>
-    <hr />
-    <p class="mb-0">
-      {% blocktrans trimmed %}
-        Please carefully review the {{ obj_type_plural }} to be removed and confirm below.
-      {% endblocktrans %}
-    </p>
+    </div>
   </div>
 </div>
 <div class="container-xl px-0">

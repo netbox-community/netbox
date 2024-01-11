@@ -38,15 +38,19 @@ Context:
 
   {# Confirmation form #}
   <div class="tab-pane show active" id="delete-form" role="tabpanel" aria-labelledby="delete-form-tab">
-    <div class="alert alert-danger mb-3" role="alert">
-      <h4 class="alert-heading">{% trans "Confirm Bulk Deletion" %}</h4>
-      <hr />
-      <strong>{% trans "Warning" context "Noun" %}:</strong>
-      {% blocktrans trimmed with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
-        The following operation will delete <strong>{{ count }}</strong> {{ type_plural }}. Please
-        carefully review the selected objects and confirm this action.
-      {% endblocktrans %}
-      {% block message_extra %}{% endblock %}
+    <div class="alert alert-danger bg-danger-subtle" role="alert">
+      <div class="d-flex">
+        <div>
+          <i class="mdi mdi-alert-octagon p-2"></i>
+        </div>
+        <div>
+          <h4 class="alert-title">{% trans "Confirm Bulk Deletion" %}</h4>
+          {% blocktrans trimmed with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
+            The following operation will delete <strong>{{ count }}</strong> {{ type_plural }}. Please
+            carefully review the selected objects and confirm this action.
+          {% endblocktrans %}
+        </div>
+      </div>
     </div>
 
     <div class="row mt-3">
