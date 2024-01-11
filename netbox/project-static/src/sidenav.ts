@@ -209,17 +209,19 @@ class SideNav {
     const dropdownMenu = link.closest('.dropdown-menu') as Nullable<HTMLDivElement>;
     if (isElement(dropdownMenu)) {
       // Find the closest `.nav-link`, which should be adjacent to the `.dropdown-menu` element.
+      const groupItem = dropdownMenu.parentElement;
       const groupLink = dropdownMenu.parentElement?.querySelector('.nav-link');
-      if (isElement(groupLink)) {
-        groupLink.classList.add('active');
+      if (isElement(groupLink) && isElement(groupItem)) {
         switch (action) {
           case 'expand':
             groupLink.setAttribute('aria-expanded', 'true');
+            groupItem.classList.add('active');
             dropdownMenu.classList.add('show');
             link.classList.add('active');
             break;
           case 'collapse':
             groupLink.setAttribute('aria-expanded', 'false');
+            groupItem.classList.remove('active');
             dropdownMenu.classList.remove('show');
             link.classList.remove('active');
             break;
