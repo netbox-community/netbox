@@ -3,10 +3,16 @@
   .navbar-collapse {
     .dropdown-menu {
       .dropdown-item {
+        a {
+          color: inherit;
+        }
 
-        // Remove underline from nav menu items
-        a:hover {
-          text-decoration: none;
+        // Adjust hover color & style for menu items
+        &:hover {
+          background-color: $gray-700;
+          a {
+            text-decoration: none;
+          }
         }
 
         // Style active menu item
