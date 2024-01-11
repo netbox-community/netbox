@@ -24,6 +24,7 @@ from netbox.config import get_config
 from netbox.plugins import PluginConfig
 from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
+from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
 
 
 def title(value):
@@ -511,29 +512,10 @@ def clean_html(html, schemes):
     Sanitizes HTML based on a whitelist of allowed tags and attributes.
     Also takes a list of allowed URI schemes.
     """
-
-    ALLOWED_TAGS = {
-        "div", "pre", "code", "blockquote", "del",
-        "hr", "h1", "h2", "h3", "h4", "h5", "h6",
-        "ul", "ol", "li", "p", "br",
-        "strong", "em", "a", "b", "i", "img",
-        "table", "thead", "tbody", "tr", "th", "td",
-        "dl", "dt", "dd",
-    }
-
-    ALLOWED_ATTRIBUTES = {
-        "div": {'class'},
-        "h1": {"id"}, "h2": {"id"}, "h3": {"id"}, "h4": {"id"}, "h5": {"id"}, "h6": {"id"},
-        "a": {"href", "title"},
-        "img": {"src", "title", "alt"},
-        "th": {"align"},
-        "td": {"align"},
-    }
-
     return nh3.clean(
         html,
-        tags=ALLOWED_TAGS,
-        attributes=ALLOWED_ATTRIBUTES,
+        tags=HTML_ALLOWED_TAGS,
+        attributes=HTML_ALLOWED_ATTRIBUTES,
         url_schemes=set(schemes)
     )
 
