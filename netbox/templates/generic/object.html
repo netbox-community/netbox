@@ -19,25 +19,27 @@ Context:
 {% endcomment %}
 
 {% block page-header %}
-  <div class="d-flex justify-content-between align-items-center mx-3 my-2">
+  <div class="container-xl">
+    <div class="d-flex justify-content-between align-items-center my-2">
 
-    {# Breadcrumbs #}
-    <ol class="breadcrumb" aria-label="breadcrumbs">
-      {% block breadcrumbs %}
-        <li class="breadcrumb-item">
-          <a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a>
-        </li>
-      {% endblock breadcrumbs %}
-    </ol>
+      {# Breadcrumbs #}
+      <ol class="breadcrumb" aria-label="breadcrumbs">
+        {% block breadcrumbs %}
+          <li class="breadcrumb-item">
+            <a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a>
+          </li>
+        {% endblock breadcrumbs %}
+      </ol>
 
-    {# Object identifier #}
-    <code class="d-block text-muted px-0">
-      {% block object_identifier %}
-        {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
-        {% if object.slug %}({{ object.slug }}){% endif %}
-      {% endblock object_identifier %}
-    </code>
+      {# Object identifier #}
+      <code class="d-block text-muted px-0">
+        {% block object_identifier %}
+          {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
+          {% if object.slug %}({{ object.slug }}){% endif %}
+        {% endblock object_identifier %}
+      </code>
 
+    </div>
   </div>
   {{ block.super }}
 {% endblock page-header %}
