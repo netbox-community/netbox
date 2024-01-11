@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
@@ -18,7 +18,7 @@ Context:
   object: The object instance being viewed
 {% endcomment %}
 
-{% block header %}
+{% block page-header %}
   <div class="d-flex justify-content-between align-items-center mx-3 my-2">
 
     {# Breadcrumbs #}
@@ -40,7 +40,7 @@ Context:
 
   </div>
   {{ block.super }}
-{% endblock header %}
+{% endblock page-header %}
 
 {% block title %}{{ object }}{% endblock %}
 

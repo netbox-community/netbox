@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 {% load buttons %}
 {% load perms %}
@@ -12,20 +12,6 @@
     <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
   </div>
 {% endblock %}
-
-{% block header %}
-  <div class="row noprint">
-    <div class="col col-md-12">
-      <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'core:configrevision_list' %}">{% trans "Config revisions" %}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'core:configrevision' pk=object.pk %}">{{ object }}</a></li>
-        </ol>
-      </nav>
-    </div>
-  </div>
-  {{ block.super }}
-{% endblock header %}
 
 {% block controls %}
   <div class="controls">
@@ -76,8 +62,8 @@
     <div class="submit-row" style="margin-top: 20px">
       <div class="controls">
         <div class="control-group">
-          <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
           <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
         </div>
       </div>
     </div>

@@ -4,6 +4,7 @@
 {% load i18n %}
 
 {% block header %}
+  {{ block.super }}
   {% if new_release %}
     <div class="alert alert-info bg-info-subtle mx-3" role="alert">
       <div class="d-flex">

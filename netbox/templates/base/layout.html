@@ -116,15 +116,15 @@ Blocks:
     <div class="page-wrapper">
 
       {# Page header #}
-      <div class="page-header m-0">
+      {% block header %}
 
-        {# Banners #}
+        {# Top banner #}
         {% if config.BANNER_TOP %}
-          <div class="text-center mx-3 mb-2">
-            {{ config.BANNER_TOP|safe }}
-          </div>
+          {% include 'inc/banner.html' with content=config.BANNER_TOP %}
         {% endif %}
+        {# /Top banner #}
 
+        {# Alerts #}
         {% if settings.DEBUG and not settings.DEVELOPER %}
           {% include 'inc/alerts/warning.html' with title="Debug mode is enabled" message="Performance may be limited. Debugging should never be enabled on a production system." %}
         {% endif %}
@@ -132,56 +132,30 @@ Blocks:
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
           {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|escape %}
         {% endif %}
-        {# /Banners #}
+        {# /Alerts #}
 
-        {% block header %}
-          <div class="container-xl mt-2 d-print-none">
-            <div class="row align-items-center">
-
-              {# Title #}
-              <div class="col">
-                <h2 class="page-title mb-1">{% block title %}{% endblock title %}</h2>
-                {% block subtitle %}{% endblock %}
-              </div>
-
-              {# Controls #}
-              <div class="col-auto d-print-none">
-                {% block controls %}{% endblock controls %}
-              </div>
-
-            </div>
-          </div>
-
-          {# Tabs #}
-          <div class="page-tabs mt-3">
-            {% block tabs %}{% endblock %}
-          </div>
-
-        {% endblock header %}
-      </div>
+      {% endblock header %}
       {# /Page header #}
 
       {# Page body #}
       {% block page %}
-        <div class="page-body">
+        <div class="page-body my-1">
           <div class="container-xl tab-content py-3">
 
             {# Page content #}
             {% block content %}{% endblock %}
             {# /Page content #}
 
-            {# Bottom banner #}
-            {% if config.BANNER_BOTTOM %}
-              <div class="text-center mx-3 mt-2">
-                {{ config.BANNER_BOTTOM|safe }}
-              </div>
-            {% endif %}
-            {# /Bottom banner #}
-
           </div>
         </div>
       {% endblock page %}
       {# /Page body #}
+
+      {# Bottom banner #}
+      {% if config.BANNER_BOTTOM %}
+        {% include 'inc/banner.html' with content=config.BANNER_BOTTOM %}
+      {% endif %}
+      {# /Bottom banner #}
 
       {# Page footer #}
       <footer class="footer footer-transparent d-print-none py-2">
