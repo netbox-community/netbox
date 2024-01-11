@@ -32,7 +32,7 @@ Context:
       </ol>
 
       {# Object identifier #}
-      <code class="d-block text-muted px-0">
+      <code class="d-block text-muted bg-transparent px-0">
         {% block object_identifier %}
           {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
           {% if object.slug %}({{ object.slug }}){% endif %}
