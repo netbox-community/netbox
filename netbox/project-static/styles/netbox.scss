@@ -8,6 +8,7 @@
 @import 'overrides/tabler';
 
 // Transitional styling to ease migration of templates from NetBox v3.x
+@import 'transitional/badges';
 @import 'transitional/cards';
 @import 'transitional/layout';
 @import 'transitional/navigation';
