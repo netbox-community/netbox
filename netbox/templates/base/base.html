@@ -5,9 +5,6 @@
 <!DOCTYPE html>
 <html
   lang="en"
-  {% if preferences|get_key:'ui.colormode' == 'dark' %}
-    data-bs-theme="dark"
-  {% endif %}
   data-netbox-url-name="{{ request.resolver_match.url_name }}"
   data-netbox-base-path="{{ settings.BASE_PATH }}"
   >
@@ -47,7 +44,11 @@
     {% block head %}{% endblock %}
   </head>
 
-  <body>
+  <body
+    {% if preferences|get_key:'ui.colormode' == 'dark' %}
+      data-bs-theme="dark"
+    {% endif %}
+  >
 
     {# Page layout #}
     {% block layout %}{% endblock %}
