@@ -8,8 +8,8 @@
 {% block title %}{% trans "Restore" %}: {{ object }}{% endblock %}
 
 {% block subtitle %}
-  <div class="object-subtitle">
-    <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
+  <div class="text-secondary fs-5">
+    {% trans "Created" %} {{ object.created|annotated_date }}
   </div>
 {% endblock %}
 
