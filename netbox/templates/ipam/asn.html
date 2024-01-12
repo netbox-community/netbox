@@ -21,17 +21,17 @@
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>{% trans "AS Number" %}</td>
+              <th scope="row">{% trans "AS Number" %}</th>
               <td>{{ object.asn_with_asdot }}</td>
             </tr>
             <tr>
-              <td>{% trans "RIR" %}</td>
+              <th scope="row">{% trans "RIR" %}</th>
               <td>
                 <a href="{% url 'ipam:asn_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
               </td>
             </tr>
             <tr>
-              <td>{% trans "Tenant" %}</td>
+              <th scope="row">{% trans "Tenant" %}</th>
               <td>
                 {% if object.tenant.group %}
                   {{ object.tenant.group|linkify }} /
@@ -40,7 +40,7 @@
               </td>
             </tr>
             <tr>
-              <td>{% trans "Description" %}</td>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>

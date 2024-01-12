@@ -16,11 +16,11 @@
             <td>{{ object.ssid }}</td>
           </tr>
           <tr>
-            <td>{% trans "Group" %}</td>
+            <th scope="row">{% trans "Group" %}</th>
             <td>{{ object.group|linkify|placeholder }}</td>
           </tr>
           <tr>
-            <td>{% trans "Status" %}</td>
+            <th scope="row">{% trans "Status" %}</th>
             <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
           </tr>
           <tr>

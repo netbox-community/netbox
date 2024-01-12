@@ -30,7 +30,7 @@
         <table class="table table-hover attr-table">
           {% if termination.site %}
             <tr>
-              <td>{% trans "Site" %}</td>
+              <th scope="row">{% trans "Site" %}</th>
               <td>
                 {% if termination.site.region %}
                   {{ termination.site.region|linkify }} /
@@ -39,7 +39,7 @@
               </td>
             </tr>
             <tr>
-              <td>{% trans "Termination" %}</td>
+              <th scope="row">{% trans "Termination" %}</th>
               <td>
                 {% if termination.mark_connected %}
                   <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
@@ -86,12 +86,12 @@
             </tr>
           {% else %}
             <tr>
-              <td>{% trans "Provider Network" %}</td>
+              <th scope="row">{% trans "Provider Network" %}</th>
               <td>{{ termination.provider_network.provider|linkify }} / {{ termination.provider_network|linkify }}</td>
             </tr>
           {% endif %}
             <tr>
-                <td>{% trans "Speed" %}</td>
+                <th scope="row">{% trans "Speed" %}</th>
                 <td>
                 {% if termination.port_speed and termination.upstream_speed %}
                     <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
@@ -104,19 +104,19 @@
                 </td>
             </tr>
             <tr>
-                <td>{% trans "Cross-Connect" %}</td>
+                <th scope="row">{% trans "Cross-Connect" %}</th>
                 <td>{{ termination.xconnect_id|placeholder }}</td>
             </tr>
             <tr>
-                <td>{% trans "Patch Panel/Port" %}</td>
+                <th scope="row">{% trans "Patch Panel/Port" %}</th>
                 <td>{{ termination.pp_info|placeholder }}</td>
             </tr>
             <tr>
-                <td>{% trans "Description" %}</td>
+                <th scope="row">{% trans "Description" %}</th>
                 <td>{{ termination.description|placeholder }}</td>
             </tr>
             <tr>
-              <td>{% trans "Tags" %}</td>
+              <th scope="row">{% trans "Tags" %}</th>
               <td>
                 {% for tag in termination.tags.all %}
                   {% tag tag %}

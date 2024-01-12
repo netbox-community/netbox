@@ -13,21 +13,21 @@
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>{% trans "Name" %}</td>
+              <th scope="row">{% trans "Name" %}</th>
               <td>{{ object.name }}</td>
             </tr>
             <tr>
-              <td>{% trans "RIR" %}</td>
+              <th scope="row">{% trans "RIR" %}</th>
               <td>
                 <a href="{% url 'ipam:asnrange_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
               </td>
             </tr>
             <tr>
-              <td>{% trans "Range" %}</td>
+              <th scope="row">{% trans "Range" %}</th>
               <td>{{ object.range_as_string }}</td>
             </tr>
             <tr>
-              <td>{% trans "Tenant" %}</td>
+              <th scope="row">{% trans "Tenant" %}</th>
               <td>
                 {% if object.tenant.group %}
                   {{ object.tenant.group|linkify }} /
@@ -36,7 +36,7 @@
               </td>
             </tr>
             <tr>
-              <td>{% trans "Description" %}</td>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>

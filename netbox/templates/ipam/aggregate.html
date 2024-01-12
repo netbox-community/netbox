@@ -12,23 +12,23 @@
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>{% trans "Family" %}</td>
+              <th scope="row">{% trans "Family" %}</th>
               <td>IPv{{ object.family }}</td>
             </tr>
             <tr>
-              <td>{% trans "RIR" %}</td>
+              <th scope="row">{% trans "RIR" %}</th>
               <td>
                 <a href="{% url 'ipam:aggregate_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
               </td>
             </tr>
             <tr>
-              <td>{% trans "Utilization" %}</td>
+              <th scope="row">{% trans "Utilization" %}</th>
               <td>
                 {% utilization_graph object.get_utilization %}
               </td>
             </tr>
             <tr>
-              <td>{% trans "Tenant" %}</td>
+              <th scope="row">{% trans "Tenant" %}</th>
               <td>
                 {% if object.tenant.group %}
                   {{ object.tenant.group|linkify }} /
@@ -37,11 +37,11 @@
               </td>
             </tr>
             <tr>
-              <td>{% trans "Date Added" %}</td>
+              <th scope="row">{% trans "Date Added" %}</th>
               <td>{{ object.date_added|annotated_date|placeholder }}</td>
             </tr>
             <tr>
-              <td>{% trans "Description" %}</td>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>

@@ -18,11 +18,11 @@
         <div class="card-body">
           <table class="table table-hover attr-table">
             <tr>
-              <td>{% trans "Group" %}</td>
+              <th scope="row">{% trans "Group" %}</th>
               <td>{{ object.group|linkify|placeholder }}</td>
             </tr>
             <tr>
-              <td>{% trans "Description" %}</td>
+              <th scope="row">{% trans "Description" %}</th>
               <td>{{ object.description|placeholder }}</td>
             </tr>
           </table>
