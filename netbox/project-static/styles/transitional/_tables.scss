@@ -6,6 +6,16 @@ table.object-list {
     border-bottom-width: 0;
   }
 
+  // Append up/down arrow to header of column used for sorting
+  th.asc > a::after {
+    content: '\f0140';
+    font-family: 'Material Design Icons';
+  }
+  th.desc > a::after {
+    content: '\f0143';
+    font-family: 'Material Design Icons';
+  }
+
 }
 
 // Object attribute tables
@@ -15,6 +25,7 @@ table.attr-table {
   th {
     color: $gray-700;
     font-weight: normal;
+    width: min-content;
   }
 
   // Restyle row border

@@ -244,13 +244,15 @@
                 <div class="card">
                     <h5 class="card-header">{% trans "Power Utilization" %}</h5>
                     <table class="table table-hover">
-                        <tr>
+                        <thead>
+                          <tr>
                             <th>{% trans "Input" %}</th>
                             <th>{% trans "Outlets" %}</th>
                             <th>{% trans "Allocated" %}</th>
                             <th>{% trans "Available" %}</th>
                             <th>{% trans "Utilization" %}</th>
-                        </tr>
+                          </tr>
+                        </thead>
                         {% for powerport in object.powerports.all %}
                             {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoints.0 %}
                                 <tr>
