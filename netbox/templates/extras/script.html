@@ -13,7 +13,7 @@
           {% trans "You do not have permission to run scripts" %}.
         </div>
       {% endif %}
-      <form action="" method="post" enctype="multipart/form-data" class="form form-object-edit">
+      <form action="" method="post" enctype="multipart/form-data" class="object-edit">
         {% csrf_token %}
         <div class="field-group my-4">
           {# Render grouped fields according to declared fieldsets #}

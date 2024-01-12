@@ -11,7 +11,7 @@
 
 {% block content %}
   <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
-    <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
+    <form action="" method="post" enctype="multipart/form-data" class="object-edit">
       {% for form in formset %}
         {% render_errors form %}
       {% endfor %}
