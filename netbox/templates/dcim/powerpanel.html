@@ -51,7 +51,7 @@
       {% csrf_token %}
       <div class="card">
         <h5 class="card-header">{% trans "Power Feeds" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'dcim:powerfeed_list' %}?power_panel_id={{ object.pk }}"
           hx-trigger="load"
         ></div>

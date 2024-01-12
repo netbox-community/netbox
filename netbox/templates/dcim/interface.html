@@ -349,7 +349,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "IP Addresses" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'ipam:ipaddress_list' %}?interface_id={{ object.pk }}"
           hx-trigger="load"
         ></div>

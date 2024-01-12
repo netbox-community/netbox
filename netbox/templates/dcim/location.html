@@ -74,7 +74,7 @@
 	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">{% trans "Child Locations" %}</h5>
-      <div class="card-body htmx-container table-responsive"
+      <div class="card-body htmx-container table-responsive p-0"
         hx-get="{% url 'dcim:location_list' %}?parent_id={{ object.pk }}"
         hx-trigger="load"
       ></div>
@@ -88,7 +88,7 @@
     </div>
     <div class="card">
       <h5 class="card-header">Non-Racked Devices</h5>
-      <div class="card-body htmx-container table-responsive"
+      <div class="card-body htmx-container table-responsive p-0"
         hx-get="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null&parent_bay_id=null"
         hx-trigger="load"
       ></div>

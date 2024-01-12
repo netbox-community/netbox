@@ -155,7 +155,7 @@
         </div>
         <div class="card">
           <h5 class="card-header">{% trans "Services" %}</h5>
-          <div class="card-body htmx-container table-responsive"
+          <div class="card-body htmx-container table-responsive p-0"
             hx-get="{% url 'ipam:service_list' %}?virtual_machine_id={{ object.pk }}"
             hx-trigger="load"
           ></div>
@@ -175,7 +175,7 @@
   <div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">{% trans "Virtual Disks" %}</h5>
-      <div class="card-body htmx-container table-responsive"
+      <div class="card-body htmx-container table-responsive p-0"
         hx-get="{% url 'virtualization:virtualdisk_list' %}?virtual_machine_id={{ object.pk }}"
         hx-trigger="load"
       ></div>

@@ -160,7 +160,7 @@
             {% include 'inc/panels/comments.html' %}
             <div class="card">
               <h5 class="card-header">{% trans "Virtual Device Contexts" %}</h5>
-              <div class="card-body htmx-container table-responsive"
+              <div class="card-body htmx-container table-responsive p-0"
                 hx-get="{% url 'dcim:virtualdevicecontext_list' %}?device_id={{ object.pk }}"
                 hx-trigger="load"
               ></div>
@@ -302,7 +302,7 @@
             {% endif %}
             <div class="card">
               <h5 class="card-header">{% trans "Services" %}</h5>
-              <div class="card-body htmx-container table-responsive"
+              <div class="card-body htmx-container table-responsive p-0"
                 hx-get="{% url 'ipam:service_list' %}?device_id={{ object.pk }}"
                 hx-trigger="load"
               ></div>
