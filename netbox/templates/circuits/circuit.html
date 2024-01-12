@@ -13,55 +13,53 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Circuit" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Provider" %}</th>
-              <td>{{ object.provider|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Account" %}</th>
-              <td>{{ object.provider_account|linkify|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Circuit ID" %}</th>
-              <td>{{ object.cid }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Type" %}</th>
-              <td>{{ object.type|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Status" %}</th>
-              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Tenant" %}</th>
-              <td>
-                {% if object.tenant.group %}
-                  {{ object.tenant.group|linkify }} /
-                {% endif %}
-                {{ object.tenant|linkify|placeholder }}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Install Date" %}</th>
-              <td>{{ object.install_date|annotated_date|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Termination Date" %}</th>
-              <td>{{ object.termination_date|annotated_date|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Commit Rate" %}</th>
-              <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Provider" %}</th>
+            <td>{{ object.provider|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Account" %}</th>
+            <td>{{ object.provider_account|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Circuit ID" %}</th>
+            <td>{{ object.cid }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Type" %}</th>
+            <td>{{ object.type|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Install Date" %}</th>
+            <td>{{ object.install_date|annotated_date|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Termination Date" %}</th>
+            <td>{{ object.termination_date|annotated_date|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Commit Rate" %}</th>
+            <td>{{ object.commit_rate|humanize_speed|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}

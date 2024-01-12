@@ -18,43 +18,39 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Service" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Name" %}</th>
-                        <td>{{ object.name }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Parent" %}</th>
-                        <td>{{ object.parent|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Protocol" %}</th>
-                        <td>{{ object.get_protocol_display }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Ports" %}</th>
-                        <td>{{ object.port_list }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "IP Addresses" %}</th>
-                        <td>
-                            {% for ipaddress in object.ipaddresses.all %}
-                                {{ ipaddress|linkify }}<br />
-                            {% empty %}
-                                {{ ''|placeholder }}
-                            {% endfor %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Description" %}</th>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Service" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Name" %}</th>
+                    <td>{{ object.name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Parent" %}</th>
+                    <td>{{ object.parent|linkify }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Protocol" %}</th>
+                    <td>{{ object.get_protocol_display }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Ports" %}</th>
+                    <td>{{ object.port_list }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "IP Addresses" %}</th>
+                    <td>
+                        {% for ipaddress in object.ipaddresses.all %}
+                            {{ ipaddress|linkify }}<br />
+                        {% empty %}
+                            {{ ''|placeholder }}
+                        {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Description" %}</th>
+                    <td>{{ object.description|placeholder }}</td>
+                </tr>
+            </table>
         </div>
         {% plugin_left_page object %}
     </div>

@@ -14,51 +14,47 @@
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Rear Port" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Device" %}</th>
-                            <td>{{ object.device|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Module" %}</th>
-                            <td>{{ object.module|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Name" %}</th>
-                            <td>{{ object.name }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Label" %}</th>
-                            <td>{{ object.label|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Type" %}</th>
-                            <td>{{ object.get_type_display }}</td>
-                        </tr>
-                        <tr>
-                          <th scope="row">{% trans "Color" %}</th>
-                          <td>
-                            {% if object.color %}
-                              <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
-                            {% else %}
-                              {{ ''|placeholder }}
-                            {% endif %}
-                          </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Positions" %}</th>
-                            <td>{{ object.positions }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Description" %}</th>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                    </table>
-                </div>
+                <h5 class="card-header">{% trans "Rear Port" %}</h5>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Device" %}</th>
+                        <td>{{ object.device|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Module" %}</th>
+                        <td>{{ object.module|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Name" %}</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Label" %}</th>
+                        <td>{{ object.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Type" %}</th>
+                        <td>{{ object.get_type_display }}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">{% trans "Color" %}</th>
+                      <td>
+                        {% if object.color %}
+                          <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Positions" %}</th>
+                        <td>{{ object.positions }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
             {% include 'inc/panels/custom_fields.html' %}
             {% include 'inc/panels/tags.html' %}
@@ -66,12 +62,9 @@
         </div>
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Connection" %}
-                </h5>
-                <div class="card-body">
+                <h5 class="card-header">{% trans "Connection" %}</h5>
                 {% if object.mark_connected %}
-                    <div class="text-muted">
+                    <div class="card-body text-muted">
                       <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as Connected" %}
                     </div>
                 {% elif object.cable %}
@@ -97,7 +90,7 @@
                         </tr>
                     </table>
                 {% else %}
-                    <div class="text-muted">
+                    <div class="card-body text-muted">
                         {% trans "Not connected" %}
                         {% if perms.dcim.add_cable %}
                             <span class="dropdown float-end">
@@ -122,7 +115,6 @@
                         {% endif %}
                     </div>
                 {% endif %}
-                </div>
             </div>
             {% include 'dcim/inc/panels/inventory_items.html' %}
             {% plugin_right_page object %}

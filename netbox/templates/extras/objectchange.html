@@ -25,57 +25,53 @@
 <div class="row mb-3">
     <div class="col col-md-5">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Change" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Time" %}</th>
-                        <td>
-                            {{ object.time|annotated_date }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "User" %}</th>
-                        <td>
-                            {% if object.user.get_full_name %}
-                              {{ object.user.get_full_name }} ({{ object.user_name }})
-                            {% else %}
-                              {{ object.user_name }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Action" %}</th>
-                        <td>
-                            {{ object.get_action_display }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Object Type" %}</th>
-                        <td>
-                            {{ object.changed_object_type }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Object" %}</th>
-                        <td>
-                            {% if object.changed_object and object.changed_object.get_absolute_url %}
-                                {{ object.changed_object|linkify }}
-                            {% else %}
-                                {{ object.object_repr }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Request ID" %}</th>
-                        <td>
-                            {{ object.request_id }}
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Change" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Time" %}</th>
+                    <td>
+                        {{ object.time|annotated_date }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "User" %}</th>
+                    <td>
+                        {% if object.user.get_full_name %}
+                          {{ object.user.get_full_name }} ({{ object.user_name }})
+                        {% else %}
+                          {{ object.user_name }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Action" %}</th>
+                    <td>
+                        {{ object.get_action_display }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Object Type" %}</th>
+                    <td>
+                        {{ object.changed_object_type }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Object" %}</th>
+                    <td>
+                        {% if object.changed_object and object.changed_object.get_absolute_url %}
+                            {{ object.changed_object|linkify }}
+                        {% else %}
+                            {{ object.object_repr }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Request ID" %}</th>
+                    <td>
+                        {{ object.request_id }}
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
     <div class="col col-md-7">

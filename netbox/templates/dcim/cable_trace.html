@@ -79,43 +79,39 @@
         {# Related paths #}
         <div class="col col-md-7">
             <div class="card">
-                <h5 class="card-header">
-                  {% trans "Related Paths" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>{% trans "Origin" %}</th>
-                                <th>{% trans "Destination" %}</th>
-                                <th>{% trans "Segments" %}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for cablepath in related_paths %}
-                                <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
-                                    <td>
-                                        <a href="?cablepath_id={{ cablepath.pk }}">{{ cablepath.origins|join:", " }}</a>
-                                    </td>
-                                    <td>
-                                        {% if cablepath.destinations %}
-                                            {{ cablepath.destinations|join:", " }}
-                                        {% else %}
-                                            <span class="text-muted">{% trans "Incomplete" %}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {{ cablepath.segment_count }}
-                                    </td>
-                                </tr>
-                            {% empty %}
-                                <td colspan="3" class="text-muted">
-                                    {% trans "None found" %}
+                <h5 class="card-header">{% trans "Related Paths" %}</h5>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>{% trans "Origin" %}</th>
+                            <th>{% trans "Destination" %}</th>
+                            <th>{% trans "Segments" %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cablepath in related_paths %}
+                            <tr{% if cablepath.pk == path.pk %} class="info"{% endif %}>
+                                <td>
+                                    <a href="?cablepath_id={{ cablepath.pk }}">{{ cablepath.origins|join:", " }}</a>
                                 </td>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+                                <td>
+                                    {% if cablepath.destinations %}
+                                        {{ cablepath.destinations|join:", " }}
+                                    {% else %}
+                                        <span class="text-muted">{% trans "Incomplete" %}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {{ cablepath.segment_count }}
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <td colspan="3" class="text-muted">
+                                {% trans "None found" %}
+                            </td>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
 

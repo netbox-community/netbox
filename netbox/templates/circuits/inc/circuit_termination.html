@@ -25,7 +25,6 @@
         {% endif %}
       </div>
     </h5>
-    <div class="card-body">
       {% if termination %}
         <table class="table table-hover attr-table">
           {% if termination.site %}
@@ -151,7 +150,8 @@
           {% endfor %}
         </table>
     {% else %}
+      <div class="card-body">
         <span class="text-muted">{% trans "None" %}</span>
+      </div>
     {% endif %}
-    </div>
 </div>
