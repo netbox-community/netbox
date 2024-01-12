@@ -4,15 +4,11 @@
 {% load perms %}
 {% load i18n %}
 
-{% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:object %}
-        {% delete_button object %}
-      {% endif %}
-    </div>
-  </div>
-{% endblock controls %}
+{% block control-buttons %}
+  {% if request.user|can_delete:object %}
+    {% delete_button object %}
+  {% endif %}
+{% endblock control-buttons %}
 
 {% block content %}
   <div class="row mb-3">

@@ -13,15 +13,11 @@
   </div>
 {% endblock %}
 
-{% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:job %}
-        {% delete_button job %}
-      {% endif %}
-    </div>
-  </div>
-{% endblock controls %}
+{% block control-buttons %}
+  {% if request.user|can_delete:job %}
+    {% delete_button job %}
+  {% endif %}
+{% endblock control-buttons %}
 
 {% block tabs %}
   <ul class="nav nav-tabs" role="tablist">
@@ -59,13 +55,9 @@
 
   <form method="post">
     {% csrf_token %}
-    <div class="submit-row" style="margin-top: 20px">
-      <div class="controls">
-        <div class="control-group">
-          <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-          <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
-        </div>
-      </div>
+    <div class="text-end my-3">
+      <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
     </div>
   </form>
 

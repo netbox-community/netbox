@@ -57,13 +57,16 @@ Context:
 {% endblock subtitle %}
 
 {% block controls %}
-  {# Clone/Edit/Delete Buttons #}
-  <div class="btn-list">
-      {% plugin_buttons object %}
+  <div class="btn-list mb-2">
+    {% plugin_buttons object %}
+
+    {# Add/edit/delete/etc. buttons #}
+    {% block control-buttons %}
 
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
+      {# Default buttons #}
       {% if perms.extras.add_bookmark and object.bookmarks %}
         {% bookmark_button object %}
       {% endif %}
@@ -76,8 +79,16 @@ Context:
       {% if request.user|can_delete:object %}
         {% delete_button object %}
       {% endif %}
+    {% endblock control-buttons %}
+  </div>
 
-      {% custom_links object %}
+  {# Custom links #}
+  <div class="d-flex justify-content-end">
+    <div class="btn-list">
+      {% block custom-links %}
+        {% custom_links object %}
+      {% endblock custom-links %}
+    </div>
   </div>
 {% endblock controls %}
 

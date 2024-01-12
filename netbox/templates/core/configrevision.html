@@ -10,23 +10,15 @@
 {% block breadcrumbs %}
 {% endblock %}
 
-{% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% plugin_buttons object %}
-      {% if not object.pk or object.is_active and perms.core.add_configrevision %}
-        {% url 'core:configrevision_add' as edit_url %}
-        {% include "buttons/edit.html" with url=edit_url %}
-      {% endif %}
-      {% if object.pk and not object.is_active and perms.core.delete_configrevision %}
-        {% delete_button object %}
-      {% endif %}
-    </div>
-    <div class="control-group">
-      {% custom_links object %}
-    </div>
-  </div>
-{% endblock controls %}
+{% block control-buttons %}
+  {% if not object.pk or object.is_active and perms.core.add_configrevision %}
+    {% url 'core:configrevision_add' as edit_url %}
+    {% include "buttons/edit.html" with url=edit_url %}
+  {% endif %}
+  {% if object.pk and not object.is_active and perms.core.delete_configrevision %}
+    {% delete_button object %}
+  {% endif %}
+{% endblock control-buttons %}
 
 {% block subtitle %}
   {% if object.created %}

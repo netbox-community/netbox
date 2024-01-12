@@ -16,7 +16,11 @@
 
           {# Controls #}
           <div class="col-auto d-print-none">
-            {% block controls %}{% endblock controls %}
+            {% block controls %}
+              <div class="btn-list">
+                {% block control-buttons %}{% endblock %}
+              </div>
+            {% endblock controls %}
           </div>
 
         </div>

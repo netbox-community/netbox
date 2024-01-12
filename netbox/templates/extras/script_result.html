@@ -27,13 +27,9 @@
 {% endblock header %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:job %}
-        {% delete_button job %}
-      {% endif %}
-    </div>
-  </div>
+  {% if request.user|can_delete:job %}
+    {% delete_button job %}
+  {% endif %}
 {% endblock controls %}
 
 {% block tabs %}

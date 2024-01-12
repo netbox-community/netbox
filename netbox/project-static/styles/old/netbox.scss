@@ -7,45 +7,6 @@
 @import './utilities';
 //@import './variables';
 
-// Object list control buttons (Add/Clone/Import/Export)
-.controls {
-  margin-bottom: map.get($spacers, 2);
-
-  @media print {
-    // Never print controls. Use this over the .noprint utility so plugin authors don't need to
-    // remember to add the class.
-    display: none !important;
-  }
-
-  // Each group of buttons.
-  .control-group {
-    display: flex;
-    flex-wrap: wrap;
-    // Left-align controls on mobile.
-    justify-content: flex-start;
-
-    // Right-align controls on larger screens.
-    @include media-breakpoint-up(lg) {
-      justify-content: flex-end;
-    }
-
-    > * {
-      // Pad each control button.
-      margin: map.get($spacers, 1);
-
-      &:first-child {
-        // Don't pad the left side of the first control button.
-        margin-left: 0;
-      }
-
-      &:last-child {
-        // Don't pad the right side of the last control button.
-        margin-right: 0;
-      }
-    }
-  }
-}
-
 // Global Search
 nav.search {
   // Don't overtake dropdowns

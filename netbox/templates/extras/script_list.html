@@ -6,12 +6,7 @@
 {% block title %}{% trans "Scripts" %}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% block extra_controls %}{% endblock %}
-      {% add_button model %}
-    </div>
-  </div>
+  {% add_button model %}
 {% endblock controls %}
 
 {% block tabs %}

@@ -6,19 +6,19 @@
 {% block title %}{% trans "Rack Elevations" %}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
+  <div class="col-auto d-print-none">
+    <div class="btn-list">
       <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-primary">
         <i class="mdi mdi-format-list-checkbox"></i> {% trans "View List" %}
       </a>
-      <div class="btn-group btn-group-sm" role="group">
+      <div class="btn-group" role="group">
         <select class="btn btn-outline-secondary rack-view">
           <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
           <option value="images-only">{% trans "Images only" %}</option>
           <option value="labels-only">{% trans "Labels only" %}</option>
         </select>
       </div>
-      <div class="btn-group btn-group-sm" role="group">
+      <div class="btn-group" role="group">
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">{% trans "Front" %}</a>
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>
       </div>
