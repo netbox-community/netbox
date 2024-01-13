@@ -19,3 +19,8 @@ class BackgroundTasksTable(tables.Table):
     port = tables.Column(accessor="connection_kwargs__port")
     db = tables.Column(accessor="connection_kwargs__db")
     pid = tables.Column(accessor="scheduler__pid")
+
+    class Meta:
+        attrs = {
+            'class': 'table table-hover object-list',
+        }
