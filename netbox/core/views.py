@@ -1,6 +1,9 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
+from django_rq.utils import get_scheduler_statistics, get_statistics
+
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 
@@ -232,3 +235,17 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
         messages.success(request, f"Restored configuration revision #{pk}")
 
         return redirect(candidate_config.get_absolute_url())
+
+#
+# Background Tasks (RQ)
+#
+
+
+class BackgroundTasksView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        table = tables.BackgroundTasksTable(get_statistics(run_maintenance_tasks=True)["queues"])
+        return render(request, 'core/background_tasks.html', {
+            'active_tab': 'api-tokens',
+            'table': table,
+        })

@@ -356,6 +356,11 @@ OPERATIONS_MENU = Menu(
                     link_text=_('Jobs'),
                     permissions=['core.view_job'],
                 ),
+                MenuItem(
+                    link='core:background_tasks',
+                    link_text=_('Background Tasks'),
+                    permissions=['core.view_job'],
+                ),
             ),
         ),
         MenuGroup(
