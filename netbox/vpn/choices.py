@@ -179,6 +179,7 @@ class DHGroupChoices(ChoiceSet):
         (GROUP_2, _('Group {n}').format(n=2)),
         (GROUP_5, _('Group {n}').format(n=5)),
         (GROUP_14, _('Group {n}').format(n=14)),
+        (GROUP_15, _('Group {n}').format(n=15)),
         (GROUP_16, _('Group {n}').format(n=16)),
         (GROUP_17, _('Group {n}').format(n=17)),
         (GROUP_18, _('Group {n}').format(n=18)),
