@@ -179,6 +179,15 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
             'choices_count', 'created', 'last_updated',
         ]
 
+    def validate_extra_choices(self, value):
+        for choice in value:
+            if isinstance(choice, list):
+                if len(choice) < 2:
+                    raise serializers.ValidationError('Each choice must have 2 elements.')
+            else:
+                raise serializers.ValidationError('Extra choice must be a list of two elements.')
+        return value
+
 
 #
 # Custom links
@@ -374,7 +383,8 @@ class JournalEntrySerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(),
+                                              prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.assigned_object, context=context).data
 

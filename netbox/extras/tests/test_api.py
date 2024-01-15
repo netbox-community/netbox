@@ -14,14 +14,12 @@ from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
-
 User = get_user_model()
 
 
 class AppTest(APITestCase):
 
     def test_root(self):
-
         url = reverse('extras-api:api-root')
         response = self.client.get('{}?format=api'.format(url), **self.header)
 
@@ -52,7 +50,6 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         webhooks = (
             Webhook(
                 name='Webhook 1',
@@ -505,7 +502,6 @@ class TagTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         tags = (
             Tag(name='Tag 1', slug='tag-1'),
             Tag(name='Tag 2', slug='tag-2'),
@@ -632,7 +628,6 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-
         config_contexts = (
             ConfigContext(name='Config Context 1', weight=100, data={'foo': 123}),
             ConfigContext(name='Config Context 2', weight=200, data={'bar': 456}),
@@ -731,7 +726,6 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
 
 
 class ReportTest(APITestCase):
-
     class TestReport(Report):
 
         def test_foo(self):
@@ -762,9 +756,7 @@ class ReportTest(APITestCase):
 
 
 class ScriptTest(APITestCase):
-
     class TestScript(Script):
-
         class Meta:
             name = "Test script"
 
@@ -773,7 +765,6 @@ class ScriptTest(APITestCase):
         var3 = BooleanVar()
 
         def run(self, data, commit=True):
-
             self.log_info(data['var1'])
             self.log_success(data['var2'])
             self.log_failure(data['var3'])
@@ -798,7 +789,6 @@ class ScriptTest(APITestCase):
         ScriptViewSet._get_script = self.get_test_script
 
     def test_get_script(self):
-
         url = reverse('extras-api:script-detail', kwargs={'pk': None})
         response = self.client.get(url, **self.header)
 
