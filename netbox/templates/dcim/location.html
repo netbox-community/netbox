@@ -75,7 +75,7 @@
         hx-trigger="load"
       ></div>
       {% if perms.dcim.add_location %}
-        <div class="card-footer text-end noprint">
+        <div class="card-footer text-end d-print-none">
           <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
           </a>
@@ -89,7 +89,7 @@
         hx-trigger="load"
       ></div>
       {% if perms.dcim.add_device %}
-        <div class="card-footer text-end noprint">
+        <div class="card-footer text-end d-print-none">
           <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
           </a>

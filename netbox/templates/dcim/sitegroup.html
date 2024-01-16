@@ -57,7 +57,7 @@
         hx-trigger="load"
       ></div>
       {% if perms.dcim.add_sitegroup %}
-        <div class="card-footer text-end noprint">
+        <div class="card-footer text-end d-print-none">
           <a href="{% url 'dcim:sitegroup_add' %}?parent={{ object.pk }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Site Group" %}
           </a>

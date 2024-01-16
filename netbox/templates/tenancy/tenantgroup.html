@@ -57,7 +57,7 @@
         hx-trigger="load"
       ></div>
       {% if perms.tenancy.add_tenantgroup %}
-        <div class="card-footer text-end noprint">
+        <div class="card-footer text-end d-print-none">
           <a href="{% url 'tenancy:tenantgroup_add' %}?parent={{ object.pk }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant Group" %}
           </a>

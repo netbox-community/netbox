@@ -57,7 +57,7 @@
         hx-trigger="load"
       ></div>
       {% if perms.wireless.add_wirelesslangroup %}
-        <div class="card-footer text-end noprint">
+        <div class="card-footer text-end d-print-none">
           <a href="{% url 'wireless:wirelesslangroup_add' %}?parent={{ object.pk }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Wireless LAN Group" %}
           </a>

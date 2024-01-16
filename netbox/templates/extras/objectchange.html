@@ -109,36 +109,38 @@
 <div class="row mb-3">
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Pre-Change Data" %}
-            </h5>
+            <h5 class="card-header">{% trans "Pre-Change Data" %}</h5>
             <div class="card-body">
             {% if object.prechange_data %}
-                <pre class="change-data">{% for k, v in object.prechange_data.items %}{% spaceless %}
+              {% spaceless %}
+                <pre class="change-data">
+                  {% for k, v in object.prechange_data.items %}
                     <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
-                {% endspaceless %}{% endfor %}
+                  {% endfor %}
                 </pre>
+              {% endspaceless %}
             {% elif non_atomic_change %}
-                {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
+              {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
             {% else %}
-                <span class="text-muted">{% trans "None" %}</span>
+              <span class="text-muted">{% trans "None" %}</span>
             {% endif %}
             </div>
         </div>
     </div>
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Post-Change Data" %}
-            </h5>
+            <h5 class="card-header">{% trans "Post-Change Data" %}</h5>
             <div class="card-body">
                 {% if object.postchange_data %}
-                    <pre class="change-data">{% for k, v in object.postchange_data.items %}{% spaceless %}
+                  {% spaceless %}
+                    <pre class="change-data">
+                      {% for k, v in object.postchange_data.items %}
                         <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
-                        {% endspaceless %}{% endfor %}
+                      {% endfor %}
                     </pre>
+                  {% endspaceless %}
                 {% else %}
-                    <span class="text-muted">{% trans "None" %}</span>
+                  <span class="text-muted">{% trans "None" %}</span>
                 {% endif %}
             </div>
         </div>

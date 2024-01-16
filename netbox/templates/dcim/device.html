@@ -30,7 +30,7 @@
                         <td class="position-relative">
                             {% if object.rack %}
                                 {{ object.rack|linkify }}
-                                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
+                                <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
                                   <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary" title="{% trans "Highlight device" %}">
                                     <i class="mdi mdi-view-day-outline"></i>
                                   </a>
@@ -64,7 +64,7 @@
                       <td class="position-relative">
                         {% if object.latitude and object.longitude %}
                           {% if config.MAPS_URL %}
-                            <div class="position-absolute top-50 end-0 translate-middle-y noprint">
+                            <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
                               <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary">
                                 <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
                               </a>
@@ -142,7 +142,7 @@
                             </tr>
                         {% endfor %}
                     </table>
-                    <div class="card-footer text-end noprint">
+                    <div class="card-footer text-end d-print-none">
                         <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary">
                             <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> {% trans "View Virtual Chassis" %}
                         </a>
@@ -159,7 +159,7 @@
                 hx-trigger="load"
               ></div>
               {% if perms.dcim.add_virtualdevicecontext %}
-                <div class="card-footer text-end noprint">
+                <div class="card-footer text-end d-print-none">
                   <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-primary">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Create VDC" %}
                   </a>
@@ -297,7 +297,7 @@
                 hx-trigger="load"
               ></div>
               {% if perms.ipam.add_service %}
-                <div class="card-footer text-end noprint">
+                <div class="card-footer text-end d-print-none">
                   <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-primary">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
                   </a>

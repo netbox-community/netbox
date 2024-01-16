@@ -39,3 +39,8 @@ table.attr-table {
   }
 
 }
+
+// Remove bottom margin from <pre> elements inside table cells
+td pre {
+  margin-bottom: 0;
+}

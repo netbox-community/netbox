@@ -24,7 +24,7 @@
             {% endfor %}
           </td>
           <td>{{ assignment.priority }}</td>
-          <td class="text-end noprint">
+          <td class="text-end d-print-none">
             {% if perms.ipam.change_fhrpgroupassignment %}
               <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning lh-1" title="{% trans "Edit" %}">
                 <i class="mdi mdi-pencil" aria-hidden="true"></i>
@@ -44,7 +44,7 @@
       {% endfor %}
     </tbody>
   </table>
-  <div class="card-footer text-end noprint">
+  <div class="card-footer text-end d-print-none">
     {% if perms.ipam.add_fhrpgroup %}
       <a href="{% url 'ipam:fhrpgroup_add' %}?return_url={% url 'ipam:fhrpgroupassignment_add' %}%3Finterface_type={{ object|content_type_id }}%26interface_id={{ object.pk }}" class="btn btn-primary">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Create Group" %}

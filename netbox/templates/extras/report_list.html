@@ -74,7 +74,7 @@
                       {% endif %}
                       <td>
                         {% if perms.extras.run_report and report.is_valid %}
-                          <div class="float-end noprint">
+                          <div class="float-end d-print-none">
                             <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post">
                               {% csrf_token %}
                               <button type="submit" name="_run" class="btn btn-primary" style="width: 110px">

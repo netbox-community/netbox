@@ -35,23 +35,19 @@ DEVICEBAY_STATUS = """
 """
 
 INTERFACE_IPADDRESSES = """
-<div class="table-badge-group">
   {% for ip in value.all %}
     {% if ip.status != 'active' %}
-      <a href="{{ ip.get_absolute_url }}" class="table-badge badge text-bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
+      <a href="{{ ip.get_absolute_url }}" class="badge text-bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
     {% else %}
-      <a href="{{ ip.get_absolute_url }}" class="table-badge">{{ ip }}</a>
+      <a href="{{ ip.get_absolute_url }}">{{ ip }}</a>
     {% endif %}
   {% endfor %}
-</div>
 """
 
 INTERFACE_FHRPGROUPS = """
-<div class="table-badge-group">
   {% for assignment in value.all %}
     <a href="{{ assignment.group.get_absolute_url }}">{{ assignment.group.get_protocol_display }}: {{ assignment.group.group_id }}</a>
   {% endfor %}
-</div>
 """
 
 INTERFACE_TAGGED_VLANS = """

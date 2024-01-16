@@ -152,7 +152,7 @@
             hx-trigger="load"
           ></div>
           {% if perms.ipam.add_service %}
-            <div class="card-footer text-end noprint">
+            <div class="card-footer text-end d-print-none">
               <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-primary">
                 <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
               </a>
@@ -172,7 +172,7 @@
         hx-trigger="load"
       ></div>
       {% if perms.virtualization.add_virtualdisk %}
-        <div class="card-footer text-end noprint">
+        <div class="card-footer text-end d-print-none">
           <a href="{% url 'virtualization:virtualdisk_add' %}?device={{ object.device.pk }}&virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Virtual Disk" %}
           </a>

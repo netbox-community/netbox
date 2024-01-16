@@ -12,7 +12,7 @@
             <div class="htmx-container table-responsive" id="object_list">
               {% include 'htmx/table.html' %}
             </div>
-            <div class="card-footer noprint">
+            <div class="card-footer d-print-none">
                 {% if table.rows %}
                     <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-warning">
                         <span class="mdi mdi-pencil-outline" aria-hidden="true"></span> {% trans "Rename" %}

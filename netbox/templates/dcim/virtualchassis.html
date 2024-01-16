@@ -79,7 +79,7 @@
           {% endfor %}
         </table>
         {% if perms.dcim.change_virtualchassis %}
-          <div class="card-footer text-end noprint">
+          <div class="card-footer text-end d-print-none">
             <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
               <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Member" %}
             </a>
