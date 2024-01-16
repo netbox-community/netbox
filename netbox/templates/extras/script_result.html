@@ -10,21 +10,18 @@
   {{ script.Meta.description|markdown }}
 {% endblock %}
 
-{% block header %}
-  <div class="row d-print-none">
-    <div class="col col-md-12">
-      <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
-          <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
-        </ol>
-      </nav>
-    </div>
+{% block page-header %}
+  <div class="container-xl mt-2">
+    <nav class="breadcrumb-container" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
+        <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
+      </ol>
+    </nav>
   </div>
-  {{ block.super }}
-{% endblock header %}
+{% endblock page-header %}
 
 {% block controls %}
   {% if request.user|can_delete:job %}

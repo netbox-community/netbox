@@ -3,12 +3,15 @@
 {% load i18n %}
 
 {% block title %}
-  {% blocktrans trimmed with object_type=object|meta:"verbose_name"|bettertitle %}
-    Cable Trace for {{ object_type }} {{ object }}
-  {% endblocktrans %}
 {% endblock %}
 
 {% block content %}
+    <h2>
+      {% blocktrans trimmed with object_type=object|meta:"verbose_name"|bettertitle %}
+        Cable Trace for {{ object_type }} {{ object }}
+      {% endblocktrans %}
+    </h2>
+
     <div class="row">
 
         {# Cable trace SVG & options #}
