@@ -21,15 +21,15 @@
 {% block content %}
   {% for module in report_modules %}
     <div class="card">
-      <h5 class="card-header" id="module{{ module.pk }}">
+      <h5 class="card-header justify-content-between" id="module{{ module.pk }}">
+        <div>
+          <i class="mdi mdi-file-document-outline"></i> {{ module }}
+        </div>
         {% if perms.extras.delete_reportmodule %}
-          <div class="float-end">
-            <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger">
-              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-            </a>
-          </div>
+          <a href="{% url 'extras:reportmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
+          </a>
         {% endif %}
-        <i class="mdi mdi-file-document-outline"></i> {{ module }}
       </h5>
       <div class="card-body">
         {% include 'inc/sync_warning.html' with object=module %}

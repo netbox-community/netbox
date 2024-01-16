@@ -20,15 +20,17 @@
 {% block content %}
   {% for module in script_modules %}
     <div class="card">
-      <h5 class="card-header" id="module{{ module.pk }}">
+      <h5 class="card-header justify-content-between" id="module{{ module.pk }}">
+        <div>
+          <i class="mdi mdi-file-document-outline"></i> {{ module }}
+        </div>
         {% if perms.extras.delete_scriptmodule %}
           <div class="float-end">
-            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger">
+            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
               <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
             </a>
           </div>
         {% endif %}
-        <i class="mdi mdi-file-document-outline"></i> {{ module }}
       </h5>
       <div class="card-body">
         {% include 'inc/sync_warning.html' with object=module %}
