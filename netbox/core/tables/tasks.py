@@ -1,5 +1,7 @@
 import django_tables2 as tables
 from django_tables2.utils import A  # alias for Accessor
+from django.urls import reverse
+from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import NetBoxTable, columns
@@ -29,7 +31,7 @@ class BackgroundTasksTable(tables.Table):
 
 class BackgroundTasksQueueTable(tables.Table):
     # id = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("ID"))
-    id = tables.Column(verbose_name=_("ID"))
+    id = tables.Column(empty_values=(), verbose_name=_("ID"))
     created_at = tables.Column(verbose_name=_("Created"))
     enqueued_at = tables.Column(verbose_name=_("Enqueued"))
     ended_at = tables.Column(verbose_name=_("Ended"))
@@ -41,6 +43,12 @@ class BackgroundTasksQueueTable(tables.Table):
             'class': 'table table-hover object-list',
         }
 
+    def render_id(self, value, record):
+        return mark_safe('<a href=' + reverse(
+            "core:background_tasks_job_detail",
+            args=[self.queue_index, value]) + '>' + value + '</a>'
+        )
+
     def render_status(self, value, record):
         return record.get_status
 
@@ -49,3 +57,7 @@ class BackgroundTasksQueueTable(tables.Table):
             return record.func_name
         except Exception as e:
             return repr(e)
+
+    def __init__(self, queue_index, *args, **kwargs):
+        self.queue_index = queue_index
+        super().__init__(*args, **kwargs)

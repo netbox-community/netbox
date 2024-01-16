@@ -1,16 +1,17 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, Http404
 from django_rq.queues import get_queue_by_index
 from django_rq.utils import get_scheduler_statistics, get_statistics
-
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
+from rq.exceptions import NoSuchJobError
+from rq.job import Job as RQ_Job
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -262,8 +263,25 @@ class BackgroundTasksQueueListView(LoginRequiredMixin, View):
         else:
             jobs = []
 
-        table = tables.BackgroundTasksQueueTable(jobs)
+        table = tables.BackgroundTasksQueueTable(data=jobs, queue_index=queue_index)
         return render(request, 'core/background_tasks_queue.html', {
             'table': table,
             'queue': queue,
+        })
+
+
+class BackgroundTasksJobDetailView(LoginRequiredMixin, View):
+
+    def get(self, request, queue_index, job_id):
+        queue_index = int(queue_index)
+        queue = get_queue_by_index(queue_index)
+
+        try:
+            job = RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer)
+        except NoSuchJobError:
+            raise Http404("Couldn't find job with this ID: %s" % job_id)
+
+        return render(request, 'core/background_tasks_job.html', {
+            'queue': queue,
+            'job': job,
         })
