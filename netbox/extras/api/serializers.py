@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import ListField
 
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from core.api.serializers import JobSerializer
@@ -171,6 +172,7 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
     )
+    extra_choices = serializers.ListField(child=serializers.ListField(min_length=2))
 
     class Meta:
         model = CustomFieldChoiceSet
@@ -383,8 +385,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(),
-                                              prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(instance.assigned_object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.assigned_object, context=context).data
 
