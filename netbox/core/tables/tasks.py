@@ -7,9 +7,9 @@ from ..models import Job
 
 class BackgroundTasksTable(tables.Table):
     name = tables.Column()
-    jobs = tables.Column()
-    oldest_job_timestamp = tables.Column()
-    started_jobs = tables.Column()
+    jobs = tables.Column(verbose_name=_("Queued Jobs"))
+    oldest_job_timestamp = tables.Column(verbose_name=_("Oldest Queued Job"))
+    started_jobs = tables.Column(verbose_name=_("Active Jobs"))
     deferred_jobs = tables.Column()
     finished_jobs = tables.Column()
     failed_jobs = tables.Column()
@@ -18,7 +18,7 @@ class BackgroundTasksTable(tables.Table):
     host = tables.Column(accessor="connection_kwargs__host")
     port = tables.Column(accessor="connection_kwargs__port")
     db = tables.Column(accessor="connection_kwargs__db")
-    pid = tables.Column(accessor="scheduler__pid")
+    pid = tables.Column(accessor="scheduler__pid", verbose_name=_("Scheduler PID"))
 
     class Meta:
         attrs = {
