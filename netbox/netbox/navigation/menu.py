@@ -357,7 +357,7 @@ OPERATIONS_MENU = Menu(
                     permissions=['core.view_job'],
                 ),
                 MenuItem(
-                    link='core:background_tasks',
+                    link='core:background_tasks_list',
                     link_text=_('Background Tasks'),
                     permissions=['core.view_job'],
                 ),

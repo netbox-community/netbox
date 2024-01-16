@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
+from django_rq.queues import get_queue_by_index
 from django_rq.utils import get_scheduler_statistics, get_statistics
 
 from django.shortcuts import get_object_or_404, redirect, render
@@ -241,11 +242,28 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 #
 
 
-class BackgroundTasksView(LoginRequiredMixin, View):
+class BackgroundTasksListView(LoginRequiredMixin, View):
 
     def get(self, request):
         table = tables.BackgroundTasksTable(get_statistics(run_maintenance_tasks=True)["queues"])
         return render(request, 'core/background_tasks.html', {
-            'active_tab': 'api-tokens',
             'table': table,
+        })
+
+
+class BackgroundTasksQueueListView(LoginRequiredMixin, View):
+
+    def get(self, request, queue_index):
+        queue_index = int(queue_index)
+        queue = get_queue_by_index(queue_index)
+
+        if queue.count > 0:
+            jobs = queue.get_jobs()
+        else:
+            jobs = []
+
+        table = tables.BackgroundTasksQueueTable(jobs)
+        return render(request, 'core/background_tasks_queue.html', {
+            'table': table,
+            'queue': queue,
         })
