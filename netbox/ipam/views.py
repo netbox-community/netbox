@@ -604,7 +604,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        if not get_table_ordering(request, self.table):
+        if not request.GET.get('q') and not get_table_ordering(request, self.table):
             return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
         return queryset
 
