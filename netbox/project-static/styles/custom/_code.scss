@@ -35,6 +35,6 @@ pre.change-diff {
 // <pre> elements displayed with a border
 pre.block {
   padding: $spacer;
-  border: 1px;
+  border: 1px solid $border-color;
   border-radius: $border-radius;
 }

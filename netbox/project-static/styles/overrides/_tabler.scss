@@ -1,3 +1,9 @@
+// Restore default foreground & background colors for <pre> blocks
+pre {
+  background-color: transparent;
+  color: inherit;
+}
+
 // Buttons
 .btn {
   // Tabler sets display: flex
