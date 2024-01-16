@@ -4,10 +4,14 @@
 
 ### Bug Fixes
 
+* [#13844](https://github.com/netbox-community/netbox/issues/13844) - Use `available_at_site` filter when filtering VLANs under prefix form
 * [#14663](https://github.com/netbox-community/netbox/issues/14663) - Fix tunnel creation when setting initial termination to a VM interface
 * [#14706](https://github.com/netbox-community/netbox/issues/14706) - Relax one-to-one mapping of tunnel termination to IP address
 * [#14709](https://github.com/netbox-community/netbox/issues/14709) - Fix typo in tunnel termination type choice name
 * [#14749](https://github.com/netbox-community/netbox/issues/14749) - Remove errant translation wrapper from `installed_device` on DeviceBay
+* [#14778](https://github.com/netbox-community/netbox/issues/14778) - Custom field API serializer should accept null values for all optional fields
+* [#14791](https://github.com/netbox-community/netbox/issues/14791) - Hide available prefixes when searching within a parent prefix
+* [#14793](https://github.com/netbox-community/netbox/issues/14793) - Add missing Diffie-Hellman group 15
 
 ---
 
