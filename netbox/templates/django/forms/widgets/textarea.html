@@ -1,0 +1,2 @@
+<textarea name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %} class="{{ widget.attrs.class }} form-control">
+{% if widget.value %}{{ widget.value }}{% endif %}</textarea>

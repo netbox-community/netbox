@@ -32,18 +32,18 @@ class BootstrapMixin:
             if field.widget.__class__ in exempt_widgets:
                 continue
 
-            elif isinstance(field.widget, forms.CheckboxInput):
-                field.widget.attrs['class'] = f'{css} form-check-input'
-
-            elif isinstance(field.widget, forms.SelectMultiple) and 'size' in field.widget.attrs:
-                # Use native Bootstrap class for multi-line <select> widgets
-                field.widget.attrs['class'] = f'{css} form-select form-select-sm'
-
-            elif isinstance(field.widget, (forms.Select, forms.SelectMultiple)):
-                field.widget.attrs['class'] = f'{css} netbox-static-select'
-
-            else:
-                field.widget.attrs['class'] = f'{css} form-control'
+            # elif isinstance(field.widget, forms.CheckboxInput):
+            #     field.widget.attrs['class'] = f'{css} form-check-input'
+            #
+            # elif isinstance(field.widget, forms.SelectMultiple) and 'size' in field.widget.attrs:
+            #     # Use native Bootstrap class for multi-line <select> widgets
+            #     field.widget.attrs['class'] = f'{css} form-select form-select-sm'
+            #
+            # elif isinstance(field.widget, (forms.Select, forms.SelectMultiple)):
+            #     field.widget.attrs['class'] = f'{css} netbox-static-select'
+            #
+            # else:
+            #     field.widget.attrs['class'] = f'{css} form-control'
 
             if field.required and not isinstance(field.widget, forms.FileInput):
                 field.widget.attrs['required'] = 'required'
