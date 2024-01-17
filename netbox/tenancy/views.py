@@ -25,7 +25,7 @@ class ObjectContactsView(generic.ObjectChildrenView):
         return ContactAssignment.objects.restrict(request.user, 'view').filter(
             content_type=ContentType.objects.get_for_model(parent),
             object_id=parent.pk
-        )
+        ).order_by('priority', 'contact', 'role')
 
     def get_table(self, *args, **kwargs):
         table = super().get_table(*args, **kwargs)
