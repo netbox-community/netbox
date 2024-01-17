@@ -4,8 +4,8 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Renato Almeida de Oliveira, 2023
 # Jeremy Stretch, 2023
+# Renato Almeida de Oliveira, 2024
 # 
 #, fuzzy
 msgid ""
@@ -14,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-12-21 17:54+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2023\n"
+"Last-Translator: Renato Almeida de Oliveira, 2024\n"
 "Language-Team: Portuguese (https://app.transifex.com/netbox-community/teams/178115/pt/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -30,7 +30,7 @@ msgstr "Chave"
 
 #: account/tables.py:31 users/forms/filtersets.py:133
 msgid "Write Enabled"
-msgstr "Gravação ativada"
+msgstr "Escrita permitida"
 
 #: account/tables.py:34 core/tables/jobs.py:29 extras/choices.py:135
 #: extras/tables/tables.py:469 templates/account/token.html:44
@@ -2041,7 +2041,7 @@ msgstr "Grupo (ID)"
 
 #: dcim/filtersets.py:138
 msgid "Group (slug)"
-msgstr "Grupo (lesma)"
+msgstr "Grupo (slug)"
 
 #: dcim/filtersets.py:144 dcim/filtersets.py:149
 msgid "AS (ID)"
@@ -2055,7 +2055,7 @@ msgstr "Localização (ID)"
 #: dcim/filtersets.py:224 dcim/filtersets.py:299 dcim/filtersets.py:397
 #: dcim/filtersets.py:1219 extras/filtersets.py:447
 msgid "Location (slug)"
-msgstr "Localização (lesma)"
+msgstr "Localização (slug)"
 
 #: dcim/filtersets.py:313 dcim/filtersets.py:764 dcim/filtersets.py:854
 #: dcim/filtersets.py:1619 ipam/filtersets.py:347 ipam/filtersets.py:459
@@ -2068,7 +2068,7 @@ msgstr "Função (ID)"
 #: ipam/filtersets.py:465 ipam/filtersets.py:946
 #: virtualization/filtersets.py:215
 msgid "Role (slug)"
-msgstr "Papel (lesma)"
+msgstr "Papel (slug)"
 
 #: dcim/filtersets.py:347 dcim/filtersets.py:922 dcim/filtersets.py:1224
 #: dcim/filtersets.py:1942
@@ -2095,7 +2095,7 @@ msgstr "Fabricante (ID)"
 #: dcim/filtersets.py:811 dcim/filtersets.py:839 dcim/filtersets.py:1122
 #: dcim/filtersets.py:1615
 msgid "Manufacturer (slug)"
-msgstr "Fabricante (lesma)"
+msgstr "Fabricante (slug)"
 
 #: dcim/filtersets.py:445
 msgid "Default platform (ID)"
@@ -2180,7 +2180,7 @@ msgstr "Modelo de configuração (ID)"
 
 #: dcim/filtersets.py:845
 msgid "Device type (slug)"
-msgstr "Tipo de dispositivo (lesma)"
+msgstr "Tipo de dispositivo (slug)"
 
 #: dcim/filtersets.py:865
 msgid "Parent Device (ID)"
@@ -2193,7 +2193,7 @@ msgstr "Plataforma (ID)"
 #: dcim/filtersets.py:875 extras/filtersets.py:474
 #: virtualization/filtersets.py:225
 msgid "Platform (slug)"
-msgstr "Plataforma (lesma)"
+msgstr "Plataforma (slug)"
 
 #: dcim/filtersets.py:911 dcim/filtersets.py:1208 dcim/filtersets.py:1703
 #: dcim/filtersets.py:1875 dcim/filtersets.py:1933
@@ -3634,7 +3634,7 @@ msgstr "Reserva"
 #: dcim/forms/model_forms.py:297 dcim/forms/model_forms.py:380
 #: utilities/forms/fields/fields.py:47
 msgid "Slug"
-msgstr "Lesma"
+msgstr "Slug"
 
 #: dcim/forms/model_forms.py:304 templates/dcim/devicetype.html:12
 msgid "Chassis"
@@ -5198,7 +5198,7 @@ msgstr "Já existe uma região de nível superior com esse nome."
 
 #: dcim/models/sites.py:59
 msgid "A top-level region with this slug already exists."
-msgstr "Já existe uma região de alto nível com essa lesma."
+msgstr "Já existe uma região de alto nível com essa slug."
 
 #: dcim/models/sites.py:62
 msgid "region"
@@ -6029,7 +6029,7 @@ msgstr "Tipo de cluster"
 #: extras/filtersets.py:485 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:146
 msgid "Cluster type (slug)"
-msgstr "Tipo de cluster (lesma)"
+msgstr "Tipo de cluster (slug)"
 
 #: extras/filtersets.py:490 ipam/forms/bulk_edit.py:475
 #: ipam/forms/model_forms.py:585 virtualization/forms/filtersets.py:108
@@ -6038,7 +6038,7 @@ msgstr "Grupo de clusters"
 
 #: extras/filtersets.py:496 virtualization/filtersets.py:135
 msgid "Cluster group (slug)"
-msgstr "Grupo de clusters (lesma)"
+msgstr "Grupo de clusters (slug)"
 
 #: extras/filtersets.py:506 tenancy/forms/forms.py:16
 #: tenancy/forms/forms.py:39
@@ -6056,7 +6056,7 @@ msgstr "Tag"
 
 #: extras/filtersets.py:534
 msgid "Tag (slug)"
-msgstr "Tag (lesma)"
+msgstr "Tag (slug)"
 
 #: extras/filtersets.py:594 extras/forms/filtersets.py:438
 msgid "Has local config context data"
@@ -7630,7 +7630,7 @@ msgstr "RIR (ID)"
 
 #: ipam/filtersets.py:142 ipam/filtersets.py:181 ipam/filtersets.py:204
 msgid "RIR (slug)"
-msgstr "RIR (lesma)"
+msgstr "RIR (slug)"
 
 #: ipam/filtersets.py:251
 msgid "Within prefix"
@@ -12175,7 +12175,7 @@ msgstr "Função de contato (ID)"
 
 #: tenancy/filtersets.py:114
 msgid "Contact role (slug)"
-msgstr "Função de contato (lesma)"
+msgstr "Função de contato (slug)"
 
 #: tenancy/filtersets.py:146
 msgid "Contact group"
@@ -12191,7 +12191,7 @@ msgstr "Grupo de inquilinos (ID)"
 
 #: tenancy/filtersets.py:216
 msgid "Tenant Group (slug)"
-msgstr "Grupo de inquilinos (lesma)"
+msgstr "Grupo de inquilinos (slug)"
 
 #: tenancy/forms/bulk_edit.py:65
 msgid "Desciption"
@@ -13147,7 +13147,7 @@ msgstr "Grupo de túneis (ID)"
 
 #: vpn/filtersets.py:47
 msgid "Tunnel group (slug)"
-msgstr "Grupo de túneis (lesma)"
+msgstr "Grupo de túneis (slug)"
 
 #: vpn/filtersets.py:54
 msgid "IPSec profile (ID)"

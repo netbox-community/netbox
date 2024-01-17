@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Jeremy Stretch, 2023
+# Jonathan Senecal, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-12-21 17:54+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2023\n"
+"Last-Translator: Jonathan Senecal, 2024\n"
 "Language-Team: French (https://app.transifex.com/netbox-community/teams/178115/fr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,7 +111,7 @@ msgstr "Région (ID)"
 #: virtualization/filtersets.py:52 virtualization/filtersets.py:179
 #: vpn/filtersets.py:325
 msgid "Region (slug)"
-msgstr "Région (limace)"
+msgstr "Région (slug)"
 
 #: circuits/filtersets.py:42 circuits/filtersets.py:195 dcim/filtersets.py:194
 #: dcim/filtersets.py:269 dcim/filtersets.py:377 dcim/filtersets.py:894
@@ -188,11 +189,11 @@ msgstr "Site"
 #: virtualization/filtersets.py:75 virtualization/filtersets.py:202
 #: vpn/filtersets.py:335
 msgid "Site (slug)"
-msgstr "Site (limace)"
+msgstr "Site (slug)"
 
 #: circuits/filtersets.py:65
 msgid "ASN (ID)"
-msgstr "ASN (IDENTIFIANT)"
+msgstr "ASN (ID)"
 
 #: circuits/filtersets.py:86 circuits/filtersets.py:112
 #: circuits/filtersets.py:146
@@ -210,7 +211,7 @@ msgstr "Compte fournisseur (ID)"
 
 #: circuits/filtersets.py:162
 msgid "Provider network (ID)"
-msgstr "Réseau de fournisseurs (ID)"
+msgstr "Réseau fournisseur (ID)"
 
 #: circuits/filtersets.py:166
 msgid "Circuit type (ID)"
@@ -256,7 +257,7 @@ msgstr "Circuit"
 
 #: circuits/filtersets.py:254
 msgid "ProviderNetwork (ID)"
-msgstr "Réseau de fournisseurs (ID)"
+msgstr "Réseau fournisseur (ID)"
 
 #: circuits/forms/bulk_edit.py:25 circuits/forms/filtersets.py:56
 #: circuits/forms/model_forms.py:26 circuits/tables/providers.py:33
@@ -266,7 +267,7 @@ msgstr "Réseau de fournisseurs (ID)"
 #: netbox/navigation/menu.py:160 netbox/navigation/menu.py:163
 #: templates/circuits/provider.html:24
 msgid "ASNs"
-msgstr "SAN"
+msgstr "Numéros d'AS"
 
 #: circuits/forms/bulk_edit.py:29 circuits/forms/bulk_edit.py:51
 #: circuits/forms/bulk_edit.py:78 circuits/forms/bulk_edit.py:99
@@ -363,7 +364,7 @@ msgstr "SAN"
 #: vpn/forms/bulk_edit.py:277 wireless/forms/bulk_edit.py:28
 #: wireless/forms/bulk_edit.py:81 wireless/forms/bulk_edit.py:128
 msgid "Description"
-msgstr "Descriptif"
+msgstr "Description"
 
 #: circuits/forms/bulk_edit.py:46 circuits/forms/bulk_edit.py:68
 #: circuits/forms/bulk_edit.py:118 circuits/forms/bulk_import.py:35
@@ -449,7 +450,7 @@ msgstr "Type"
 #: circuits/forms/bulk_edit.py:123 circuits/forms/bulk_import.py:82
 #: circuits/forms/filtersets.py:139 circuits/forms/model_forms.py:97
 msgid "Provider account"
-msgstr "Compte du fournisseur"
+msgstr "Identifiant de compte du prestataire"
 
 #: circuits/forms/bulk_edit.py:131 circuits/forms/bulk_import.py:95
 #: circuits/forms/filtersets.py:150 core/forms/filtersets.py:34
@@ -504,7 +505,7 @@ msgstr "Compte du fournisseur"
 #: wireless/forms/filtersets.py:82 wireless/tables/wirelesslan.py:52
 #: wireless/tables/wirelesslink.py:19
 msgid "Status"
-msgstr "État"
+msgstr "Statut"
 
 #: circuits/forms/bulk_edit.py:137 circuits/forms/bulk_import.py:100
 #: circuits/forms/filtersets.py:119 dcim/forms/bulk_edit.py:120
@@ -575,7 +576,7 @@ msgstr "Date de résiliation"
 
 #: circuits/forms/bulk_edit.py:153 circuits/forms/filtersets.py:186
 msgid "Commit rate (Kbps)"
-msgstr "Taux de validation (Kbits/s)"
+msgstr "Débit engagé (Kbits/s)"
 
 #: circuits/forms/bulk_edit.py:168 circuits/forms/model_forms.py:111
 msgid "Service Parameters"
@@ -597,7 +598,7 @@ msgstr "Paramètres du service"
 #: vpn/forms/model_forms.py:146 vpn/forms/model_forms.py:404
 #: wireless/forms/model_forms.py:55 wireless/forms/model_forms.py:160
 msgid "Tenancy"
-msgstr "Location"
+msgstr "Utilisateur"
 
 #: circuits/forms/bulk_import.py:38 circuits/forms/bulk_import.py:53
 #: circuits/forms/bulk_import.py:79
@@ -608,11 +609,11 @@ msgstr "Prestataire assigné"
 #: dcim/forms/bulk_import.py:380 dcim/forms/bulk_import.py:1092
 #: dcim/forms/bulk_import.py:1171 extras/forms/bulk_import.py:229
 msgid "RGB color in hexadecimal. Example:"
-msgstr "Couleur RGB en hexadécimal. Exemple :"
+msgstr "Couleur RVB en hexadécimal. Exemple :"
 
 #: circuits/forms/bulk_import.py:85
 msgid "Assigned provider account"
-msgstr "Compte fournisseur attribué"
+msgstr "Compte prestataire attribué"
 
 #: circuits/forms/bulk_import.py:92
 msgid "Type of circuit"
@@ -1174,7 +1175,7 @@ msgstr "Courir"
 
 #: core/choices.py:58 extras/choices.py:211
 msgid "Errored"
-msgstr "Errulé"
+msgstr "En erreur"
 
 #: core/data_backends.py:29 templates/dcim/interface.html:224
 msgid "Local"
@@ -1188,7 +1189,7 @@ msgstr "Nom d'utilisateur"
 
 #: core/data_backends.py:49 core/data_backends.py:55
 msgid "Only used for cloning with HTTP(S)"
-msgstr "Utilisé uniquement pour le clonage avec HTTP (S)"
+msgstr "Utilisé uniquement pour le clonage avec HTTP(S)"
 
 #: core/data_backends.py:53 templates/account/base.html:17
 #: templates/account/password.html:11 users/forms/model_forms.py:171
@@ -1343,7 +1344,7 @@ msgstr "Paramètres du backend"
 
 #: core/forms/model_forms.py:94
 msgid "File Upload"
-msgstr "Téléchargement de fichiers"
+msgstr "Téléversement de fichiers"
 
 #: core/forms/model_forms.py:147 templates/core/configrevision.html:43
 #: templates/dcim/rack_elevation_list.html:6
@@ -1394,7 +1395,7 @@ msgstr "Divers"
 
 #: core/forms/model_forms.py:158
 msgid "Config Revision"
-msgstr "Révision de la configuration"
+msgstr "Révision de configuration"
 
 #: core/forms/model_forms.py:197
 msgid "This parameter has been defined statically and cannot be modified."
@@ -1426,7 +1427,7 @@ msgstr "données de configuration"
 
 #: core/models/config.py:36
 msgid "config revision"
-msgstr "révision de la configuration"
+msgstr "révision de configuration"
 
 #: core/models/config.py:37
 msgid "config revisions"
@@ -7596,7 +7597,7 @@ msgstr "Secondaire"
 
 #: ipam/choices.py:91
 msgid "Anycast"
-msgstr "N'importe quel cast"
+msgstr "Anycast"
 
 #: ipam/choices.py:115
 msgid "Standard"
@@ -7791,8 +7792,8 @@ msgstr "C'est une piscine"
 #: ipam/forms/bulk_edit.py:257 ipam/forms/bulk_edit.py:301
 #: ipam/models/ip.py:271 ipam/models/ip.py:538
 #, python-format
-msgid "Treat as 100% utilized"
-msgstr "Traiter comme utilisé à 100 %"
+msgid "Treat as 100%% utilized"
+msgstr "Traiter comme utilisé à 100%%"
 
 #: ipam/forms/bulk_edit.py:349 ipam/models/ip.py:771
 msgid "DNS name"
@@ -8009,7 +8010,7 @@ msgstr "Famille d'adresses"
 
 #: ipam/forms/filtersets.py:118 templates/ipam/asnrange.html:26
 msgid "Range"
-msgstr "Gamme"
+msgstr "Plage"
 
 #: ipam/forms/filtersets.py:127
 msgid "Start"
@@ -8029,8 +8030,8 @@ msgstr "Présent en VRF"
 
 #: ipam/forms/filtersets.py:243 ipam/forms/filtersets.py:282
 #, python-format
-msgid "Marked as 100% utilized"
-msgstr "Marqué comme étant utilisé à 100 %"
+msgid "Marked as 100%% utilized"
+msgstr "Marqué comme étant utilisé à 100%%"
 
 #: ipam/forms/filtersets.py:297
 msgid "Device/VM"
@@ -8094,7 +8095,7 @@ msgstr "Agrégat"
 
 #: ipam/forms/model_forms.py:134 templates/ipam/asnrange.html:12
 msgid "ASN Range"
-msgstr "Gamme ASN"
+msgstr "Plage ASN"
 
 #: ipam/forms/model_forms.py:230
 msgid "Site/VLAN Assignment"
@@ -8102,7 +8103,7 @@ msgstr "Affectation de site/VLAN"
 
 #: ipam/forms/model_forms.py:256 templates/ipam/iprange.html:11
 msgid "IP Range"
-msgstr "Gamme IP"
+msgstr "Plage IP"
 
 #: ipam/forms/model_forms.py:285 ipam/forms/model_forms.py:454
 #: templates/ipam/fhrpgroup.html:19 templates/ipam/ipaddress_edit.html:52
@@ -8184,11 +8185,11 @@ msgstr "démarrer"
 
 #: ipam/models/asns.py:51
 msgid "ASN range"
-msgstr "Gamme ASN"
+msgstr "Plage ASN"
 
 #: ipam/models/asns.py:52
 msgid "ASN ranges"
-msgstr "Gammes ASN"
+msgstr "Plages ASN"
 
 #: ipam/models/asns.py:72
 #, python-brace-format
@@ -8380,7 +8381,7 @@ msgstr "plage IP"
 
 #: ipam/models/ip.py:548
 msgid "IP ranges"
-msgstr "Gammes IP"
+msgstr "Plages IP"
 
 #: ipam/models/ip.py:564
 msgid "Starting and ending IP address versions must match"
@@ -8636,7 +8637,7 @@ msgstr "Utilisation"
 
 #: ipam/tables/ip.py:170 netbox/navigation/menu.py:149
 msgid "IP Ranges"
-msgstr "Gammes d'adresses IP"
+msgstr "Plages d'adresses IP"
 
 #: ipam/tables/ip.py:220
 msgid "Prefix (Flat)"
@@ -8706,7 +8707,7 @@ msgstr "Préfixes pour enfants"
 
 #: ipam/views.py:571
 msgid "Child Ranges"
-msgstr "Gammes pour enfants"
+msgstr "Plages pour enfants"
 
 #: ipam/views.py:868
 msgid "Related IPs"
@@ -9050,7 +9051,7 @@ msgstr "Préfixes et rôles VLAN"
 
 #: netbox/navigation/menu.py:162
 msgid "ASN Ranges"
-msgstr "Gammes ASN"
+msgstr "Plages ASN"
 
 #: netbox/navigation/menu.py:184
 msgid "VLAN Groups"
@@ -9457,7 +9458,7 @@ msgstr "Annuler"
 #: utilities/templates/helpers/applied_filters.html:16
 #: utilities/templates/helpers/table_config_form.html:40
 msgid "Save"
-msgstr "Sauver"
+msgstr "Sauvegarder"
 
 #: templates/account/preferences.html:41
 msgid "Table Configurations"
@@ -9598,11 +9599,11 @@ msgid ""
 "production system"
 msgstr ""
 "Les performances peuvent être limitées. Le débogage ne doit jamais être "
-"activé sur un système de production"
+"activé sur un système en production"
 
 #: templates/base/layout.html:83
 msgid "Maintenance Mode"
-msgstr "Mode de maintenance"
+msgstr "Mode Maintenance"
 
 #: templates/base/layout.html:134
 msgid "Docs"
@@ -9642,16 +9643,16 @@ msgstr "Date de résiliation"
 
 #: templates/circuits/circuit_terminations_swap.html:4
 msgid "Swap Circuit Terminations"
-msgstr "Terminaisons du circuit d'échange"
+msgstr "Échanger les terminaisons du circuit"
 
 #: templates/circuits/circuit_terminations_swap.html:8
 #, python-format
 msgid "Swap these terminations for circuit %(circuit)s?"
-msgstr "Remplacez ces terminaisons par un circuit %(circuit)s?"
+msgstr "Échanger les terminaisons du circuit %(circuit)s?"
 
 #: templates/circuits/circuit_terminations_swap.html:14
 msgid "A side"
-msgstr "Un côté"
+msgstr "Coté A"
 
 #: templates/circuits/circuit_terminations_swap.html:22
 msgid "Z side"
@@ -9662,11 +9663,11 @@ msgstr "Côté Z"
 #: templates/dcim/frontport.html:128 templates/dcim/interface.html:199
 #: templates/dcim/rearport.html:118
 msgid "Circuit Termination"
-msgstr "Terminaison du circuit"
+msgstr "Terminaison de circuit"
 
 #: templates/circuits/circuittermination_edit.html:41
 msgid "Termination Details"
-msgstr "Détails de résiliation"
+msgstr "Détails de terminaison"
 
 #: templates/circuits/circuittype.html:10
 msgid "Add Circuit"

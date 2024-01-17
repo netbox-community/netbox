@@ -1,6 +1,6 @@
 # NetBox v3.7
 
-## v3.7.1 (FUTURE)
+## v3.7.1 (2024-01-17)
 
 ### Bug Fixes
 
@@ -12,6 +12,9 @@
 * [#14778](https://github.com/netbox-community/netbox/issues/14778) - Custom field API serializer should accept null values for all optional fields
 * [#14791](https://github.com/netbox-community/netbox/issues/14791) - Hide available prefixes when searching within a parent prefix
 * [#14793](https://github.com/netbox-community/netbox/issues/14793) - Add missing Diffie-Hellman group 15
+* [#14816](https://github.com/netbox-community/netbox/issues/14816) - Ensure default contact assignment ordering is consistent
+* [#14817](https://github.com/netbox-community/netbox/issues/14817) - Relax required fields for IKE & IPSec models on bulk import
+* [#14827](https://github.com/netbox-community/netbox/issues/14827) - Ensure all matching event rules are processed in response to an event
 
 ---
 
