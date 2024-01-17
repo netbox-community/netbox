@@ -51,12 +51,12 @@ Blocks:
         <div class="navbar-nav flex-row align-items-center order-md-last">
           {# Dark/light mode toggle #}
           <div class="d-none d-md-flex">
-            <a href="#" class="nav-link px-0 hide-theme-dark" title="{% trans "Enable dark mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
+            <button class="btn color-mode-toggle hide-theme-dark" title="{% trans "Enable dark mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
               <i class="mdi mdi-lightbulb"></i>
-            </a>
-            <a href="#" class="nav-link px-0 hide-theme-light" title="{% trans "Enable light mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
+            </button>
+            <button class="btn color-mode-toggle hide-theme-light" title="{% trans "Enable light mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
               <i class="mdi mdi-lightbulb-on"></i>
-            </a>
+            </button>
           </div>
           {# User menu #}
           {% include 'inc/user_menu.html' %}
