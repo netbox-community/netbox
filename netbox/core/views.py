@@ -281,8 +281,15 @@ class BackgroundTasksJobDetailView(LoginRequiredMixin, View):
         except NoSuchJobError:
             raise Http404("Couldn't find job with this ID: %s" % job_id)
 
+        try:
+            job.func_name
+            data_is_valid = True
+        except Exception:
+            data_is_valid = False
+
         return render(request, 'core/background_tasks_job.html', {
             'queue': queue,
             'job': job,
             'queue_index': queue_index,
+            'data_is_valid': data_is_valid,
         })

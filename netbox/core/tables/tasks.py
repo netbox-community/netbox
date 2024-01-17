@@ -5,6 +5,7 @@ from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from netbox.tables import NetBoxTable, columns
+from utilities.templatetags.helpers import annotated_date
 from ..models import Job
 
 
@@ -48,6 +49,15 @@ class BackgroundTasksQueueTable(tables.Table):
             "core:background_tasks_job_detail",
             args=[self.queue_index, value]) + '>' + value + '</a>'
         )
+
+    def render_created_at(self, value, record):
+        return annotated_date(value)
+
+    def render_enqueued_at(self, value, record):
+        return annotated_date(value)
+
+    def render_ended_at(self, value, record):
+        return annotated_date(value)
 
     def render_status(self, value, record):
         return record.get_status
