@@ -17,7 +17,7 @@
   {{ block.super }}
 {% endblock header %}
 
-{% block title %}{% trans "Job" %}{% endblock %}
+{% block title %}{% trans "Job" %} {{ job.id }}{% endblock %}
 
 {% block controls %}
   <div class="controls">
