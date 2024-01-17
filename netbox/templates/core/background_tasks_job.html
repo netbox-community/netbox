@@ -1,0 +1,92 @@
+{% extends 'base/layout.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block header %}
+  <div class="d-flex justify-content-between align-items-center">
+    {# Breadcrumbs #}
+    <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:background_tasks_list' %}">{% trans 'Background Tasks' %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'core:background_tasks_queues' queue_index=queue_index %}">{{ queue.name }}</a></li>
+      </ol>
+    </nav>
+  </div>
+  {{ block.super }}
+{% endblock header %}
+
+{% block title %}{% trans "Job" %}{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% block extra_controls %}{% endblock %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Job" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Job" %}</h5>
+          <div class="card-body">
+            <table class="table table-hover attr-table">
+              <tr>
+                <th scope="row">{% trans "Queue" %}</th>
+                <td>{{ job.origin|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Timeout" %}</th>
+                <td>{{ job.timeout|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Result TTL" %}</th>
+                <td>{{ job.result_ttl|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Created" %}</th>
+                <td>{{ job.created_at|annotated_date }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Queued" %}</th>
+                <td>{{ job.enqueued_at|annotated_date }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Status" %}</th>
+                <td>{{ job.get_status|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Callable" %}</th>
+                <td>{{ object.get_type_display|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Meta" %}</th>
+                <td>{{ job.meta|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Args" %}</th>
+                <td>{{ job.args|placeholder }}</td>
+              </tr>
+              <tr>
+                <th scope="row">{% trans "Kwargs" %}</th>
+                <td>{{ job.kwargs|placeholder }}</td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content-wrapper %}

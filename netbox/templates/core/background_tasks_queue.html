@@ -1,0 +1,42 @@
+{% extends 'base/layout.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block header %}
+  <div class="d-flex justify-content-between align-items-center">
+    {# Breadcrumbs #}
+    <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'core:background_tasks_list' %}">{% trans 'Background Tasks' %}</a></li>
+      </ol>
+    </nav>
+  </div>
+  {{ block.super }}
+{% endblock header %}
+
+{% block title %}{% trans "Queued Jobs in " %}{{ queue.name }}{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% block extra_controls %}{% endblock %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Queued Jobs" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content-wrapper %}
+  <div class="tab-content">
+    {% render_table table %}
+
+  </div>
+{% endblock content-wrapper %}
