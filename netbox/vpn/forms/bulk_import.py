@@ -151,7 +151,8 @@ class IKEProposalImportForm(NetBoxModelImportForm):
     )
     authentication_algorithm = CSVChoiceField(
         label=_('Authentication algorithm'),
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        required=False
     )
     group = CSVChoiceField(
         label=_('Group'),
@@ -191,11 +192,13 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
 class IPSecProposalImportForm(NetBoxModelImportForm):
     encryption_algorithm = CSVChoiceField(
         label=_('Encryption algorithm'),
-        choices=EncryptionAlgorithmChoices
+        choices=EncryptionAlgorithmChoices,
+        required=False
     )
     authentication_algorithm = CSVChoiceField(
         label=_('Authentication algorithm'),
-        choices=AuthenticationAlgorithmChoices
+        choices=AuthenticationAlgorithmChoices,
+        required=False
     )
 
     class Meta:
@@ -209,7 +212,8 @@ class IPSecProposalImportForm(NetBoxModelImportForm):
 class IPSecPolicyImportForm(NetBoxModelImportForm):
     pfs_group = CSVChoiceField(
         label=_('Diffie-Hellman group for Perfect Forward Secrecy'),
-        choices=DHGroupChoices
+        choices=DHGroupChoices,
+        required=False
     )
     proposals = CSVModelMultipleChoiceField(
         queryset=IPSecProposal.objects.all(),
