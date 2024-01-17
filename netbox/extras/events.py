@@ -81,7 +81,7 @@ def process_event_rules(event_rules, model_name, event, data, username, snapshot
 
         # Evaluate event rule conditions (if any)
         if not event_rule.eval_conditions(data):
-            return
+            continue
 
         # Webhooks
         if event_rule.action_type == EventRuleActionChoices.WEBHOOK:
