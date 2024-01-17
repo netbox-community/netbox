@@ -39,7 +39,7 @@ When rendered for a specific NetBox device, the template's `device` variable wil
 
 ### Context Data
 
-The objet for which the configuration is being rendered is made available as template context as `device` or `virtualmachine` for devices and virtual machines, respectively. Additionally, NetBox model classes can be accessed by the app or plugin in which they reside. For example:
+The object for which the configuration is being rendered is made available as template context as `device` or `virtualmachine` for devices and virtual machines, respectively. Additionally, NetBox model classes can be accessed by the app or plugin in which they reside. For example:
 
 ```
 There are {{ dcim.Site.objects.count() }} sites.
@@ -69,6 +69,11 @@ This request will trigger resolution of the device's preferred config template i
 * The config template assigned to the device's platform
 
 If no config template has been assigned to any of these three objects, the request will fail.
+
+The configuration can be rendered as JSON or as plaintext by setting the `Accept:` HTTP header. For example:
+
+* `Accept: application/json`
+* `Accept: text/plain`
 
 ### General Purpose Use
 
