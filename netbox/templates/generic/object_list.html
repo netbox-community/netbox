@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
@@ -24,29 +24,27 @@ Context:
 {% block title %}{{ model|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% plugin_list_buttons model %}
-      {% block extra_controls %}{% endblock %}
-      {% if 'add' in actions %}
-        {% add_button model %}
-      {% endif %}
-      {% if 'import' in actions %}
-        {% import_button model %}
-      {% endif %}
-      {% if 'export' in actions %}
-        {% export_button model %}
-      {% endif %}
-    </div>
+  <div class="btn-list">
+    {% plugin_list_buttons model %}
+    {% block extra_controls %}{% endblock %}
+    {% if 'add' in actions %}
+      {% add_button model %}
+    {% endif %}
+    {% if 'import' in actions %}
+      {% import_button model %}
+    {% endif %}
+    {% if 'export' in actions %}
+      {% export_button model %}
+    {% endif %}
   </div>
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+      <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
         {% trans "Results" %} {% badge table.page.paginator.count %}
-      </button>
+      </a>
     </li>
     {% if filter_form %}
       <li class="nav-item" role="presentation">
@@ -59,10 +57,9 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
+{% block content %}
 
-    {# Object list #}
+    {# Object list tab #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
 
       {# Applied filters #}
@@ -77,7 +74,7 @@ Context:
         {% csrf_token %}
         {# "Select all" form #}
         {% if table.paginator.num_pages > 1 %}
-          <div id="select-all-box" class="d-none card noprint">
+          <div id="select-all-box" class="d-none card d-print-none">
             <div class="form col-md-12">
               <div class="card-body">
                 <div class="float-end">
@@ -105,45 +102,46 @@ Context:
           {% csrf_token %}
           <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
-          {# Object table #}
+          {# Warn of any missing prerequisite objects #}
+          {% if prerequisite_model %}
+            {% include 'inc/missing_prerequisites.html' %}
+          {% endif %}
 
-              {% if prerequisite_model %}
-                {% include 'inc/missing_prerequisites.html' %}
-              {% endif %}
-
+          {# Objects table #}
           <div class="card">
-            <div class="card-body htmx-container table-responsive" id="object_list">
+            <div class="htmx-container table-responsive" id="object_list">
               {% include 'htmx/table.html' %}
             </div>
           </div>
+          {# /Objects table #}
 
           {# Form buttons #}
-          <div class="noprint bulk-buttons">
-            <div class="bulk-button-group">
-              {% block bulk_buttons %}
-                {% if 'bulk_edit' in actions %}
-                  {% bulk_edit_button model query_params=request.GET %}
-                {% endif %}
-                {% if 'bulk_delete' in actions %}
-                  {% bulk_delete_button model query_params=request.GET %}
-                {% endif %}
-              {% endblock %}
-            </div>
+          <div class="btn-list d-print-none mt-2">
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                {% bulk_edit_button model query_params=request.GET %}
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                {% bulk_delete_button model query_params=request.GET %}
+              {% endif %}
+            {% endblock %}
           </div>
+          {# /Form buttons #}
+
         </div>
       </form>
-
     </div>
+    {# /Object list tab #}
 
-    {# Filter form #}
+    {# Filters tab #}
     {% if filter_form %}
       <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
         {% include 'inc/filter_list.html' %}
       </div>
     {% endif %}
-  </div>
+    {# /Filters tab #}
 
-{% endblock content-wrapper %}
+{% endblock content %}
 
 {% block modals %}
   {% table_config_form table table_name="ObjectTable" %}

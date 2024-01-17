@@ -15,71 +15,67 @@
     <div class="col col-md-5">
       <div class="card">
         <h5 class="card-header">{% trans "Export Template" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "MIME Type" %}</th>
+            <td>{{ object.mime_type|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "File Extension" %}</th>
+            <td>{{ object.file_extension|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Attachment" %}</th>
+            <td>{% checkmark object.as_attachment %}</td>
+          </tr>
             <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
+              <th scope="row">{% trans "Data Source" %}</th>
+              <td>
+                {% if object.data_source %}
+                  <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
+              <th scope="row">{% trans "Data File" %}</th>
+              <td>
+                {% if object.data_file %}
+                  <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
+                {% elif object.data_path %}
+                  <div class="float-end text-warning">
+                    <i class="mdi mdi-alert" title="{% trans "The data file associated with this object has been deleted" %}."></i>
+                  </div>
+                  {{ object.data_path }}
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
             </tr>
             <tr>
-              <th scope="row">{% trans "MIME Type" %}</th>
-              <td>{{ object.mime_type|placeholder }}</td>
+              <th scope="row">{% trans "Data Synced" %}</th>
+              <td>{{ object.data_synced|placeholder }}</td>
             </tr>
-            <tr>
-              <th scope="row">{% trans "File Extension" %}</th>
-              <td>{{ object.file_extension|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Attachment" %}</th>
-              <td>{% checkmark object.as_attachment %}</td>
-            </tr>
-              <tr>
-                <th scope="row">{% trans "Data Source" %}</th>
-                <td>
-                  {% if object.data_source %}
-                    <a href="{{ object.data_source.get_absolute_url }}">{{ object.data_source }}</a>
-                  {% else %}
-                    {{ ''|placeholder }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">{% trans "Data File" %}</th>
-                <td>
-                  {% if object.data_file %}
-                    <a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>
-                  {% elif object.data_path %}
-                    <div class="float-end text-warning">
-                      <i class="mdi mdi-alert" title="{% trans "The data file associated with this object has been deleted" %}."></i>
-                    </div>
-                    {{ object.data_path }}
-                  {% else %}
-                    {{ ''|placeholder }}
-                  {% endif %}
-                </td>
-              </tr>
-              <tr>
-                <th scope="row">{% trans "Data Synced" %}</th>
-                <td>{{ object.data_synced|placeholder }}</td>
-              </tr>
-          </table>
-        </div>
+        </table>
       </div>
       <div class="card">
         <h5 class="card-header">{% trans "Assigned Models" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            {% for ct in object.content_types.all %}
-              <tr>
-                <td>{{ ct }}</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          {% for ct in object.content_types.all %}
+            <tr>
+              <td>{{ ct }}</td>
+            </tr>
+          {% endfor %}
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>

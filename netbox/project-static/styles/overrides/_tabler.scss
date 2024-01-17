@@ -1,0 +1,25 @@
+// Restore default foreground & background colors for <pre> blocks
+pre {
+  background-color: transparent;
+  color: inherit;
+}
+
+// Buttons
+.btn {
+  // Tabler sets display: flex
+  display: inline-block;
+}
+
+// Tabs
+.nav-tabs {
+  .nav-link {
+    // Tabler sets display: flex
+    display: inline-block;
+  }
+}
+
+// Dropdown items
+.dropdown-item {
+  // Tabler sets display: flex
+  display: inline-block;;
+}

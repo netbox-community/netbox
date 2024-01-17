@@ -12,8 +12,8 @@
   {% for group, fields in form.fieldsets %}
     <div class="field-group mb-5">
       {% if group %}
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{{ group }}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{{ group }}</h5>
         </div>
       {% endif %}
       {% for name in fields %}
@@ -28,8 +28,8 @@
 
   {% if form.custom_fields %}
     <div class="field-group mb-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

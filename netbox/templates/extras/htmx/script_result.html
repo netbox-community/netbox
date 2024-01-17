@@ -19,28 +19,26 @@
 {% if job.completed %}
   <div class="card mb-3">
     <h5 class="card-header">{% trans "Script Log" %}</h5>
-    <div class="card-body">
-      <table class="table table-hover panel-body">
+    <table class="table table-hover">
+      <tr>
+        <th>{% trans "Line" %}</th>
+        <th>{% trans "Level" %}</th>
+        <th>{% trans "Message" %}</th>
+      </tr>
+      {% for log in job.data.log %}
         <tr>
-          <th>{% trans "Line" %}</th>
-          <th>{% trans "Level" %}</th>
-          <th>{% trans "Message" %}</th>
+          <td>{{ forloop.counter }}</td>
+          <td>{% log_level log.status %}</td>
+          <td class="rendered-markdown">{{ log.message|markdown }}</td>
         </tr>
-        {% for log in job.data.log %}
-          <tr>
-            <td>{{ forloop.counter }}</td>
-            <td>{% log_level log.status %}</td>
-            <td class="rendered-markdown">{{ log.message|markdown }}</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="3" class="text-center text-muted">
-              {% trans "No log output" %}
-            </td>
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
+      {% empty %}
+        <tr>
+          <td colspan="3" class="text-center text-muted">
+            {% trans "No log output" %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
     {% if execution_time %}
       <div class="card-footer text-end text-muted">
         <small>{% trans "Exec Time" %}: {{ execution_time|floatformat:3 }} {% trans "seconds" context "Unit of time" %}</small>

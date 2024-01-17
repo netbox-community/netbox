@@ -10,7 +10,7 @@
     {% endif %}
     {% if 'bulk_rename' in actions %}
       {% with bulk_rename_view=model|validated_viewname:"bulk_rename" %}
-        <button type="submit" name="_rename" formaction="{% url bulk_rename_view %}" class="btn btn-outline-warning btn-sm">
+        <button type="submit" name="_rename" formaction="{% url bulk_rename_view %}" class="btn btn-outline-warning">
           <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> {% trans "Rename Selected" %}
         </button>
       {% endwith %}

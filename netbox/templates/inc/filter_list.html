@@ -12,7 +12,9 @@
       {% for heading, fields in filter_form.fieldsets %}
         <div class="col col-12">
           {% if heading %}
-            <h6>{{ heading }}</h6>
+            <div class="hr-text">
+              <span>{{ heading }}</span>
+            </div>
           {% endif %}
           {% for name in fields %}
             {% with field=filter_form|get_item:name %}
@@ -20,9 +22,6 @@
             {% endwith %}
           {% endfor %}
         </div>
-        {% if not forloop.last %}
-          <hr class="card-divider mt-0" />
-        {% endif %}
       {% empty %}
         {# List all non-customfield filters as declared in the form class #}
         {% for field in filter_form.visible_fields %}
@@ -35,21 +34,23 @@
       {% endfor %}
       {% if filter_form.custom_fields %}
         {# List all custom field filters #}
-        <hr class="card-divider mt-0" />
-        {% for name in filter_form.custom_fields %}
-          <div class="col col-12">
+        <div class="col col-12">
+          <div class="hr-text">
+            <span>{% trans "Custom Fields" %}</span>
+          </div>
+          {% for name in filter_form.custom_fields %}
             {% with field=filter_form|get_item:name %}
               {% render_field field %}
             {% endwith %}
-          </div>
-        {% endfor %}
+          {% endfor %}
+        </div>
       {% endif %}
     </div>
-    <div class="card-footer text-end noprint border-0">
-      <button type="button" class="btn btn-sm btn-outline-danger m-1" data-reset-select>
+    <div class="card-footer text-end d-print-none border-0">
+      <button type="button" class="btn btn-outline-danger m-1" data-reset-select>
         <i class="mdi mdi-backspace"></i> {% trans "Reset" %}
       </button>
-      <button type="submit" class="btn btn-sm btn-primary m-1">
+      <button type="submit" class="btn btn-primary m-1">
         <i class="mdi mdi-magnify"></i> {% trans "Search" %}
       </button>
     </div>

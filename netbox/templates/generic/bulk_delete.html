@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 {% load i18n %}
@@ -18,23 +18,41 @@ Context:
   {% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural"|bettertitle }}?
 {% endblock %}
 
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" id="delete-form-tab" data-bs-toggle="tab" data-bs-target="#delete-form" type="button" role="tab" aria-controls="delete-form" aria-selected="true">
+        {% trans "Bulk Delete" %}
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="object-list" aria-selected="false">
+        {% trans "Selected Objects" %}
+        {% badge table.rows|length %}
+      </button>
+    </li>
+  </ul>
+{% endblock tabs %}
+
 {% block content %}
-  <div class="container-md px-0">
-    <div class="alert alert-danger mb-3" role="alert">
-      <h4 class="alert-heading">{% trans "Confirm Bulk Deletion" %}</h4>
-      <hr />
-      <strong>{% trans "Warning" context "Noun" %}:</strong>
-      {% blocktrans trimmed with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
-        The following operation will delete <strong>{{ count }}</strong> {{ type_plural }}. Please
-        carefully review the objects to be deleted and confirm below.
-      {% endblocktrans %}
-      {% block message_extra %}{% endblock %}
+
+  {# Confirmation form #}
+  <div class="tab-pane show active" id="delete-form" role="tabpanel" aria-labelledby="delete-form-tab">
+    <div class="alert alert-danger bg-danger-subtle" role="alert">
+      <div class="d-flex">
+        <div>
+          <i class="mdi mdi-alert-octagon p-2"></i>
+        </div>
+        <div>
+          <h4 class="alert-title">{% trans "Confirm Bulk Deletion" %}</h4>
+          {% blocktrans trimmed with count=table.rows|length type_plural=model|meta:"verbose_name_plural" %}
+            The following operation will delete <strong>{{ count }}</strong> {{ type_plural }}. Please
+            carefully review the selected objects and confirm this action.
+          {% endblocktrans %}
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="container-xl px-0">
-    <div class="table-responsive">
-      {% render_table table 'inc/table.html' %}
-    </div>
+
     <div class="row mt-3">
       <form action="" method="post">
         {% csrf_token %}
@@ -42,10 +60,22 @@ Context:
           {{ field }}
         {% endfor %}
         <div class="text-end">
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
           <button type="submit" name="_confirm" class="btn btn-danger">{% trans "Delete" %} {{ table.rows|length }} {{ model|meta:"verbose_name_plural" }}</button>
-          <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
         </div>
       </form>
     </div>
   </div>
+  {# /Confirmation form #}
+
+  {# Selected objects list #}
+  <div class="tab-pane" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+    <div class="card">
+      <div class="card-body table-responsive">
+        {% render_table table 'inc/table.html' %}
+      </div>
+    </div>
+  </div>
+  {# /Selected objects list #}
+
 {% endblock content %}

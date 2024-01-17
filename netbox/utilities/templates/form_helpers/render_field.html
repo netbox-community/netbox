@@ -17,7 +17,7 @@
     {% if field|widget_type == 'slugwidget' %}
       <div class="input-group">
         {{ field }}
-        <button id="reslug" type="button" title="{% trans "Regenerate Slug" %}" class="btn btn-outline-dark border-input">
+        <button id="reslug" type="button" title="{% trans "Regenerate Slug" %}" class="btn">
           <i class="mdi mdi-reload"></i>
         </button>
       </div>
@@ -33,7 +33,7 @@
     {% elif 'data-clipboard' in field.field.widget.attrs %}
       <div class="input-group">
         {{ field }}
-        <button type="button" title="{% trans "Copy to clipboard" %}" class="btn btn-outline-dark border-input copy-content" data-clipboard-target="#{{ field.id_for_label }}">
+        <button type="button" title="{% trans "Copy to clipboard" %}" class="btn btn-outline-dark copy-content" data-clipboard-target="#{{ field.id_for_label }}">
           <i class="mdi mdi-content-copy"></i>
         </button>
       </div>

@@ -3,57 +3,55 @@
 
 <div class="card">
   <h5 class="card-header">{% trans "FHRP Groups" %}</h5>
-  <div class="card-body">
-    <table class="table table-hover table-headings">
-      <thead>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>{% trans "Group" %}</th>
+        <th>{% trans "Protocol" %}</th>
+        <th>{% trans "Virtual IPs" %}</th>
+        <th>{% trans "Priority" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for assignment in object.fhrp_group_assignments.all %}
         <tr>
-          <th>{% trans "Group" %}</th>
-          <th>{% trans "Protocol" %}</th>
-          <th>{% trans "Virtual IPs" %}</th>
-          <th>{% trans "Priority" %}</th>
-          <th></th>
+          <td>{{ assignment.group|linkify:"group_id" }}</td>
+          <td>{{ assignment.group.get_protocol_display }}</td>
+          <td>
+            {% for ipaddress in assignment.group.ip_addresses.all %}
+              {{ ipaddress|linkify }}{% if not forloop.last %}<br />{% endif %}
+            {% endfor %}
+          </td>
+          <td>{{ assignment.priority }}</td>
+          <td class="text-end d-print-none">
+            {% if perms.ipam.change_fhrpgroupassignment %}
+              <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning lh-1" title="{% trans "Edit" %}">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+            {% if perms.ipam.delete_fhrpgroupassignment %}
+              <a href="{% url 'ipam:fhrpgroupassignment_delete' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger lh-1" title="{% trans "Delete" %}">
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {% for assignment in object.fhrp_group_assignments.all %}
-          <tr>
-            <td>{{ assignment.group|linkify:"group_id" }}</td>
-            <td>{{ assignment.group.get_protocol_display }}</td>
-            <td>
-              {% for ipaddress in assignment.group.ip_addresses.all %}
-                {{ ipaddress|linkify }}{% if not forloop.last %}<br />{% endif %}
-              {% endfor %}
-            </td>
-            <td>{{ assignment.priority }}</td>
-            <td class="text-end noprint">
-              {% if perms.ipam.change_fhrpgroupassignment %}
-                <a href="{% url 'ipam:fhrpgroupassignment_edit' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="{% trans "Edit" %}">
-                  <i class="mdi mdi-pencil" aria-hidden="true"></i>
-                </a>
-              {% endif %}
-              {% if perms.ipam.delete_fhrpgroupassignment %}
-                <a href="{% url 'ipam:fhrpgroupassignment_delete' pk=assignment.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="{% trans "Delete" %}">
-                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
-                </a>
-              {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="5" class="text-muted">{% trans "None" %}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="card-footer text-end noprint">
+      {% empty %}
+        <tr>
+          <td colspan="5" class="text-muted">{% trans "None" %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="card-footer text-end d-print-none">
     {% if perms.ipam.add_fhrpgroup %}
-      <a href="{% url 'ipam:fhrpgroup_add' %}?return_url={% url 'ipam:fhrpgroupassignment_add' %}%3Finterface_type={{ object|content_type_id }}%26interface_id={{ object.pk }}" class="btn btn-sm btn-primary">
+      <a href="{% url 'ipam:fhrpgroup_add' %}?return_url={% url 'ipam:fhrpgroupassignment_add' %}%3Finterface_type={{ object|content_type_id }}%26interface_id={{ object.pk }}" class="btn btn-primary">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Create Group" %}
       </a>
     {% endif %}
     {% if perms.ipam.add_fhrpgroupassignment %}
-      <a href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ object|content_type_id }}&interface_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+      <a href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ object|content_type_id }}&interface_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Assign Group" %}
       </a>
     {% endif %}

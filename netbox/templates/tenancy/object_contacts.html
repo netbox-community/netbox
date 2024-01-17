@@ -5,7 +5,7 @@
 {% block extra_controls %}
   {% if perms.tenancy.add_contactassignment %}
     {% with viewname=object|viewname:"contacts" %}
-      <a href="{% url 'tenancy:contactassignment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={% url viewname pk=object.pk %}" class="btn btn-primary btn-sm">
+      <a href="{% url 'tenancy:contactassignment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}&return_url={% url viewname pk=object.pk %}" class="btn btn-primary">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a contact" %}
       </a>
     {% endwith %}

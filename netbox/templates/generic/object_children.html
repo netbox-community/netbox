@@ -9,46 +9,42 @@
     <form method="post">
         {% csrf_token %}
         <div class="card">
-            <div class="card-body htmx-container table-responsive" id="object_list">
+            <div class="htmx-container table-responsive" id="object_list">
                 {% include 'htmx/table.html' %}
             </div>
         </div>
-        <div class="noprint bulk-buttons">
+        <div class="d-print-none mt-2">
             {% block bulk_controls %}
-                <div class="bulk-button-group">
-                    <div class="btn-group" role="group">
-                        {# Bulk edit buttons #}
-                        {% block bulk_edit_controls %}
-                            {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
-                                {% if 'bulk_edit' in actions and bulk_edit_view %}
-                                    <button type="submit" name="_edit"
-                                            formaction="{% url bulk_edit_view %}?return_url={{ return_url }}"
-                                            class="btn btn-warning btn-sm">
-                                        <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
-                                    </button>
-                                {% endif %}
-                            {% endwith %}
-                        {% endblock bulk_edit_controls %}
-                    </div>
-                    <div class="btn-group" role="group">
-                        {# Bulk delete buttons #}
-                        {% block bulk_delete_controls %}
-                            {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
-                                {% if 'bulk_delete' in actions and bulk_delete_view %}
-                                    <button type="submit"
-                                            formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
-                                            class="btn btn-danger btn-sm">
-                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete Selected" %}
-                                    </button>
-                                {% endif %}
-                            {% endwith %}
-                        {% endblock bulk_delete_controls %}
-                    </div>
+                <div class="btn-group" role="group">
+                    {# Bulk edit buttons #}
+                    {% block bulk_edit_controls %}
+                        {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
+                            {% if 'bulk_edit' in actions and bulk_edit_view %}
+                                <button type="submit" name="_edit"
+                                        formaction="{% url bulk_edit_view %}?return_url={{ return_url }}"
+                                        class="btn btn-warning">
+                                    <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
+                                </button>
+                            {% endif %}
+                        {% endwith %}
+                    {% endblock bulk_edit_controls %}
                 </div>
-                <div class="bulk-button-group">
-                    {# Other bulk action buttons #}
-                    {% block bulk_extra_controls %}{% endblock %}
+                <div class="btn-group" role="group">
+                    {# Bulk delete buttons #}
+                    {% block bulk_delete_controls %}
+                        {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
+                            {% if 'bulk_delete' in actions and bulk_delete_view %}
+                                <button type="submit"
+                                        formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
+                                        class="btn btn-danger">
+                                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete Selected" %}
+                                </button>
+                            {% endif %}
+                        {% endwith %}
+                    {% endblock bulk_delete_controls %}
                 </div>
+                {# Other bulk action buttons #}
+                {% block bulk_extra_controls %}{% endblock %}
             {% endblock bulk_controls %}
         </div>
     </form>

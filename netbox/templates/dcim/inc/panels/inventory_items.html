@@ -3,46 +3,44 @@
 
 <div class="card">
   <h5 class="card-header">{% trans "Inventory Items" %}</h5>
-  <div class="card-body">
-    <table class="table table-hover table-headings">
-      <thead>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th>{% trans "Name" %}</th>
+        <th>{% trans "Label" %}</th>
+        <th>{% trans "Role" %}</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in object.inventory_items.all %}
         <tr>
-          <th>{% trans "Name" %}</th>
-          <th>{% trans "Label" %}</th>
-          <th>{% trans "Role" %}</th>
-          <th></th>
+          <td>{{ item|linkify:"name" }}</td>
+          <td>{{ item.label|placeholder }}</td>
+          <td>{{ item.role|linkify|placeholder }}</td>
+          <td class="text-end d-print-none">
+            {% if perms.dcim.change_inventoryitem %}
+              <a href="{% url 'dcim:inventoryitem_edit' pk=item.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning lh-1" title="{% trans "Edit" %}">
+                <i class="mdi mdi-pencil" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+            {% if perms.ipam.delete_inventoryitem %}
+              <a href="{% url 'dcim:inventoryitem_delete' pk=item.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger lh-1" title="{% trans "Delete" %}">
+                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
+              </a>
+            {% endif %}
+          </td>
         </tr>
-      </thead>
-      <tbody>
-        {% for item in object.inventory_items.all %}
-          <tr>
-            <td>{{ item|linkify:"name" }}</td>
-            <td>{{ item.label|placeholder }}</td>
-            <td>{{ item.role|linkify|placeholder }}</td>
-            <td class="text-end noprint">
-              {% if perms.dcim.change_inventoryitem %}
-                <a href="{% url 'dcim:inventoryitem_edit' pk=item.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning btn-sm lh-1" title="{% trans "Edit" %}">
-                  <i class="mdi mdi-pencil" aria-hidden="true"></i>
-                </a>
-              {% endif %}
-              {% if perms.ipam.delete_inventoryitem %}
-                <a href="{% url 'dcim:inventoryitem_delete' pk=item.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger btn-sm lh-1" title="{% trans "Delete" %}">
-                  <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i>
-                </a>
-              {% endif %}
-            </td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td colspan="5" class="text-muted">{% trans "None" %}</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  <div class="card-footer text-end noprint">
+      {% empty %}
+        <tr>
+          <td colspan="5" class="text-muted">{% trans "None" %}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <div class="card-footer text-end d-print-none">
     {% if perms.dcim.add_inventoryitem %}
-      <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ object|content_type_id }}&component_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+      <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ object|content_type_id }}&component_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Inventory Item" %}
       </a>
     {% endif %}

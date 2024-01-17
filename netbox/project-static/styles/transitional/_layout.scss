@@ -1,0 +1,8 @@
+// Tweak layout section colors
+.page {
+  background-color: var(--#{$prefix}bg-surface-secondary);
+}
+.page-header {
+  background-color: var(--#{$prefix}bg-surface);
+  min-height: 0;
+}

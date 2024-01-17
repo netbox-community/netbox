@@ -1,0 +1,46 @@
+// Object list tables
+table.object-list {
+
+  // Hide border of last row
+  tbody > tr:last-child > td {
+    border-bottom-width: 0;
+  }
+
+  // Append up/down arrow to header of column used for sorting
+  th.asc > a::after {
+    content: '\f0140';
+    font-family: 'Material Design Icons';
+  }
+  th.desc > a::after {
+    content: '\f0143';
+    font-family: 'Material Design Icons';
+  }
+
+}
+
+// Object attribute tables
+table.attr-table {
+
+  // Restyle row header
+  th {
+    color: $gray-700;
+    font-weight: normal;
+    width: min-content;
+  }
+
+  // Restyle row border
+  th, td {
+    border-bottom-style: dashed;
+  }
+
+  // Hide border of last row in table
+  tr:last-child {
+    border-bottom-style: hidden;
+  }
+
+}
+
+// Remove bottom margin from <pre> elements inside table cells
+td pre {
+  margin-bottom: 0;
+}

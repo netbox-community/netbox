@@ -1,6 +1,6 @@
 SEARCH_RESULT_ATTRS = """
 {% for name, value in record.display_attrs.items %}
-  <span class="badge bg-secondary"
+  <span class="badge text-bg-secondary"
       {% if value|length > 40 %} data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ value }}"{% endif %}
     >
     {{ name|bettertitle }}:

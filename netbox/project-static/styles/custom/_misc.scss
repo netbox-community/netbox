@@ -1,0 +1,60 @@
+@use 'sass:map';
+
+// Color labels
+span.color-label {
+  display: block;
+  width: 5rem;
+  height: 1rem;
+  padding: $badge-padding-y $badge-padding-x;
+  border: 1px solid #303030;
+  border-radius: $border-radius;
+}
+
+// Rendered Markdown
+.rendered-markdown {
+
+  table {
+    width: 100%;
+
+    // Apply a border
+    th {
+      border-bottom: 2px solid #dddddd;
+      padding: 8px;
+    }
+    td {
+      border-top: 1px solid #dddddd;
+      padding: 8px;
+    }
+
+    // Map "align" attr of column headings
+    th[align="left"] {
+      text-align: left;
+    }
+    th[align="center"] {
+      text-align: center;
+    }
+    th[align="right"] {
+      text-align: right;
+    }
+  }
+
+}
+
+// Object hierarchy depth indicators
+.record-depth {
+  display: inline;
+  user-select: none;
+  opacity: 33%;
+
+  // Add spacing to the last or only dot.
+  span:only-of-type,
+  span:last-of-type {
+    margin-right: map.get($spacers, 1);
+  }
+}
+
+// Hides the last child of an element
+.hide-last-child :last-child {
+  visibility: hidden;
+  opacity: 0;
+}

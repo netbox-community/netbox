@@ -4,11 +4,16 @@
 
 {% if object.data_file and object.data_file.last_updated > object.data_synced %}
   <div class="alert alert-warning" role="alert">
-    <i class="mdi mdi-alert"></i> {% trans "Data is out of sync with upstream file" %} (<a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>).
-    {% if request.user|can_sync:object %}
-      <div class="float-end">
-        {% sync_button object %}
+    <div class="d-flex justify-content-between">
+      <div>
+        <i class="mdi mdi-alert"></i>
+        {% trans "Data is out of sync with upstream file" %} (<a href="{{ object.data_file.get_absolute_url }}">{{ object.data_file }}</a>).
       </div>
-    {% endif %}
+      {% if request.user|can_sync:object %}
+        <div>
+          {% sync_button object %}
+        </div>
+      {% endif %}
+    </div>
   </div>
 {% endif %}

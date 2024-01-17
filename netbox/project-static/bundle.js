@@ -73,12 +73,10 @@ async function bundleScripts() {
 async function bundleStyles() {
   try {
     const entryPoints = {
-      'netbox-external': 'styles/_external.scss',
-      'netbox-light': 'styles/_light.scss',
-      'netbox-dark': 'styles/_dark.scss',
-      'netbox-print': 'styles/_print.scss',
-      rack_elevation: 'styles/_rack_elevation.scss',
-      cable_trace: 'styles/_cable_trace.scss',
+      'netbox-external': 'styles/external.scss',
+      'netbox': 'styles/netbox.scss',
+      rack_elevation: 'styles/svg/rack_elevation.scss',
+      cable_trace: 'styles/svg/cable_trace.scss',
       graphiql: 'netbox-graphiql/graphiql.scss',
     };
     const pluginOptions = { outputStyle: 'compressed' };
@@ -102,8 +100,7 @@ async function bundleStyles() {
     });
     if (result.errors.length === 0) {
       for (const [targetName, sourceName] of Object.entries(entryPoints)) {
-        const source = sourceName.split('/')[1];
-        console.log(`✅ Bundled source file '${source}' to '${targetName}.css'`);
+        console.log(`✅ Bundled source file '${sourceName}' to '${targetName}.css'`);
       }
     }
   } catch (err) {

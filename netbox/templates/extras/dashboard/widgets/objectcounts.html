@@ -1,20 +1,20 @@
 {% load i18n %}
+
 {% if counts %}
   <div class="list-group list-group-flush">
     {% for model, count, url in counts %}
-      {% if count != None %}
-        <a href="{{ url }}" class="list-group-item list-group-item-action">
-          <div class="d-flex w-100 justify-content-between align-items-center">
-            {{ model|meta:"verbose_name_plural"|bettertitle }}
-            <h6 class="mb-1">{{ count }}</h6>
-          </div>
-        </a>
-      {% else %}
-        <div class="list-group-item list-group-item-action d-flex w-100 justify-content-between align-items-center">
+      <a href="{{ url }}" class="list-group-item list-group-item-action px-1 py-2">
+        <div class="d-flex w-100 justify-content-between align-items-center">
           {{ model|meta:"verbose_name_plural"|bettertitle }}
-          <h6 class="mb-1" title="{% trans "No permission" %}"><i class="mdi mdi-lock-outline"></i></h6>
+          {% if count is None %}
+            <span title="{% trans "No permission" %}">
+              <i class="mdi mdi-lock-outline"></i>
+            </span>
+          {% else %}
+            <strong>{{ count }}</strong>
+          {% endif %}
         </div>
-      {% endif %}
+      </a>
     {% endfor %}
   </div>
 {% endif %}

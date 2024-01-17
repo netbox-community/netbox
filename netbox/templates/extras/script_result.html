@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load buttons %}
 {% load perms %}
@@ -10,34 +10,27 @@
   {{ script.Meta.description|markdown }}
 {% endblock %}
 
-{% block header %}
-  <div class="row noprint">
-    <div class="col col-md-12">
-      <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
-          <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
-        </ol>
-      </nav>
-    </div>
+{% block page-header %}
+  <div class="container-xl mt-2">
+    <nav class="breadcrumb-container" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
+        <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
+      </ol>
+    </nav>
   </div>
-  {{ block.super }}
-{% endblock header %}
+{% endblock page-header %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:job %}
-        {% delete_button job %}
-      {% endif %}
-    </div>
-  </div>
+  {% if request.user|can_delete:job %}
+    {% delete_button job %}
+  {% endif %}
 {% endblock controls %}
 
-{% block content-wrapper %}
-  <ul class="nav nav-tabs px-3" role="tablist">
+{% block tabs %}
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
       <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Log" %}</a>
     </li>
@@ -45,20 +38,21 @@
       <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">{% trans "Source" %}</a>
     </li>
   </ul>
-  <div class="tab-content mb-3">
-    <div role="tabpanel" class="tab-pane active" id="log">
-      <div class="row">
-        <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="load delay:0.5s, every 5s"{% endif %}>
-          {% include 'extras/htmx/script_result.html' %}
-        </div>
+{% endblock %}
+
+{% block content %}
+  <div role="tabpanel" class="tab-pane active" id="log">
+    <div class="row">
+      <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="load delay:0.5s, every 5s"{% endif %}>
+        {% include 'extras/htmx/script_result.html' %}
       </div>
     </div>
-    <div role="tabpanel" class="tab-pane" id="source">
-      <p><code>{{ script.filename }}</code></p>
-      <pre class="block">{{ script.source }}</pre>
-    </div>
   </div>
-{% endblock content-wrapper %}
+  <div role="tabpanel" class="tab-pane" id="source">
+    <p><code>{{ script.filename }}</code></p>
+    <pre class="block">{{ script.source }}</pre>
+  </div>
+{% endblock content %}
 
 {% block modals %}
   {% include 'inc/htmx_modal.html' %}

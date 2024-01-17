@@ -1,0 +1,18 @@
+// Limit the width of object edit forms
+form.object-edit {
+  margin: auto;
+  max-width: 800px;
+}
+
+// Set bond font & append an asterisk to labels for required fields
+.col-form-label.required {
+  font-weight: bold;
+  &:after {
+    position: absolute;
+    display: inline-block;
+    margin-left: 0;
+    font-family: 'Material Design Icons';
+    font-size: 8px;
+    content: '\f06C4';
+  }
+}

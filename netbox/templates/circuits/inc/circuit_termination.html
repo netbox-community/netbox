@@ -2,35 +2,34 @@
 {% load i18n %}
 
 <div class="card">
-    <div class="card-header">
-        <div class="float-md-end">
-            {% if not termination and perms.circuits.add_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-success lh-1">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add" %}
-                </a>
-            {% endif %}
-            {% if termination and perms.circuits.change_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-warning lh-1">
-                    <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
-                </a>
-                <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary lh-1">
-                    <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> {% trans "Swap" %}
-                </a>
-            {% endif %}
-            {% if termination and perms.circuits.delete_circuittermination %}
-                <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-danger lh-1">
-                    <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> {% trans "Delete" %}
-                </a>
-            {% endif %}
-        </div>
-        <h5>{% blocktrans %}Termination {{ side }}{% endblocktrans %}</h5>
-    </div>
-    <div class="card-body">
+    <h5 class="card-header d-flex justify-content-between">
+      {% blocktrans %}Termination{% endblocktrans %} {{ side }}
+      <div>
+        {% if not termination and perms.circuits.add_circuittermination %}
+            <a href="{% url 'circuits:circuittermination_add' %}?circuit={{ object.pk }}&term_side={{ side }}&return_url={{ object.get_absolute_url }}" class="btn btn-success lh-1">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add" %}
+            </a>
+        {% endif %}
+        {% if termination and perms.circuits.change_circuittermination %}
+            <a href="{% url 'circuits:circuittermination_edit' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-warning lh-1">
+                <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
+            </a>
+            <a href="{% url 'circuits:circuit_terminations_swap' pk=object.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-primary lh-1">
+                <span class="mdi mdi-swap-vertical" aria-hidden="true"></span> {% trans "Swap" %}
+            </a>
+        {% endif %}
+        {% if termination and perms.circuits.delete_circuittermination %}
+            <a href="{% url 'circuits:circuittermination_delete' pk=termination.pk %}?return_url={{ object.get_absolute_url }}" class="btn btn-danger lh-1">
+                <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> {% trans "Delete" %}
+            </a>
+        {% endif %}
+      </div>
+    </h5>
       {% if termination %}
         <table class="table table-hover attr-table">
           {% if termination.site %}
             <tr>
-              <td>{% trans "Site" %}</td>
+              <th scope="row">{% trans "Site" %}</th>
               <td>
                 {% if termination.site.region %}
                   {{ termination.site.region|linkify }} /
@@ -39,7 +38,7 @@
               </td>
             </tr>
             <tr>
-              <td>{% trans "Termination" %}</td>
+              <th scope="row">{% trans "Termination" %}</th>
               <td>
                 {% if termination.mark_connected %}
                   <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
@@ -55,23 +54,23 @@
                     {{ peer|linkify }}{% if not forloop.last %},{% endif %}
                   {% endfor %}
                   <div class="mt-1">
-                    <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary btn-sm lh-1" title="{% trans "Trace" %}">
+                    <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
                       <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i> {% trans "Trace" %}
                     </a>
                     {% if perms.dcim.change_cable %}
-                      <a href="{% url 'dcim:cable_edit' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Edit cable" %}" class="btn btn-warning btn-sm">
+                      <a href="{% url 'dcim:cable_edit' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Edit cable" %}" class="btn btn-warning lh-1">
                         <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Edit" %}
                       </a>
                     {% endif %}
                     {% if perms.dcim.delete_cable %}
-                      <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Remove cable" %}" class="btn btn-danger btn-sm lh-1">
+                      <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Remove cable" %}" class="btn btn-danger lh-1">
                         <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> {% trans "Disconnect" %}
                       </a>
                     {% endif %}
                   </div>
                 {% elif perms.dcim.add_cable %}
                   <div class="dropdown">
-                    <button type="button" class="btn btn-success btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                       <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
                     </button>
                     <ul class="dropdown-menu">
@@ -86,12 +85,12 @@
             </tr>
           {% else %}
             <tr>
-              <td>{% trans "Provider Network" %}</td>
+              <th scope="row">{% trans "Provider Network" %}</th>
               <td>{{ termination.provider_network.provider|linkify }} / {{ termination.provider_network|linkify }}</td>
             </tr>
           {% endif %}
             <tr>
-                <td>{% trans "Speed" %}</td>
+                <th scope="row">{% trans "Speed" %}</th>
                 <td>
                 {% if termination.port_speed and termination.upstream_speed %}
                     <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
@@ -104,19 +103,19 @@
                 </td>
             </tr>
             <tr>
-                <td>{% trans "Cross-Connect" %}</td>
+                <th scope="row">{% trans "Cross-Connect" %}</th>
                 <td>{{ termination.xconnect_id|placeholder }}</td>
             </tr>
             <tr>
-                <td>{% trans "Patch Panel/Port" %}</td>
+                <th scope="row">{% trans "Patch Panel/Port" %}</th>
                 <td>{{ termination.pp_info|placeholder }}</td>
             </tr>
             <tr>
-                <td>{% trans "Description" %}</td>
+                <th scope="row">{% trans "Description" %}</th>
                 <td>{{ termination.description|placeholder }}</td>
             </tr>
             <tr>
-              <td>{% trans "Tags" %}</td>
+              <th scope="row">{% trans "Tags" %}</th>
               <td>
                 {% for tag in termination.tags.all %}
                   {% tag tag %}
@@ -151,7 +150,8 @@
           {% endfor %}
         </table>
     {% else %}
+      <div class="card-body">
         <span class="text-muted">{% trans "None" %}</span>
+      </div>
     {% endif %}
-    </div>
 </div>

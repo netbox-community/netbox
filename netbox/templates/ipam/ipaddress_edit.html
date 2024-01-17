@@ -10,8 +10,8 @@
 
 {% block form %}
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "IP Address" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "IP Address" %}</h5>
       </div>
       {% render_field form.address %}
       {% render_field form.status %}
@@ -23,19 +23,19 @@
     </div>
 
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
       </div>
       {% render_field form.tenant_group %}
       {% render_field form.tenant %}
     </div>
 
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Interface Assignment" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Interface Assignment" %}</h5>
       </div>
-      <div class="row mb-2">
-        <div class="offset-sm-3">
+      <div class="row">
+        <div class="col-9 offset-3">
           <ul class="nav nav-pills" role="tablist">
             <li role="presentation" class="nav-item">
               <button role="tab" type="button" id="device_tab" data-bs-toggle="tab" aria-controls="device" data-bs-target="#device" class="nav-link {% if not form.initial.vminterface and not form.initial.fhrpgroup %}active{% endif %}">
@@ -70,10 +70,10 @@
     </div>
 
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "NAT IP (Inside" %})</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "NAT IP (Inside" %})</h5>
       </div>
-      <div class="row mb-2">
+      <div class="row">
           {% render_field form.nat_inside %}
       </div>
     </div>
@@ -84,8 +84,8 @@
 
     {% if form.custom_fields %}
       <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
         </div>
         {% render_custom_fields form %}
       </div>
