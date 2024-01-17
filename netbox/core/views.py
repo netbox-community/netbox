@@ -284,4 +284,5 @@ class BackgroundTasksJobDetailView(LoginRequiredMixin, View):
         return render(request, 'core/background_tasks_job.html', {
             'queue': queue,
             'job': job,
+            'queue_index': queue_index,
         })
