@@ -8,8 +8,8 @@
 
   {# A side termination #}
   <div class="field-group mb-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "A Side" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "A Side" %}</h5>
     </div>
     {% if 'termination_a_device' in form.fields %}
       {% render_field form.termination_a_device %}
@@ -25,8 +25,8 @@
 
   {# B side termination #}
   <div class="field-group mb-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "B Side" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "B Side" %}</h5>
     </div>
     {% if 'termination_b_device' in form.fields %}
       {% render_field form.termination_b_device %}
@@ -42,8 +42,8 @@
 
   {# Cable attributes #}
   <div class="field-group mb-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Cable" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Cable" %}</h5>
     </div>
     {% render_field form.status %}
     {% render_field form.type %}
@@ -64,8 +64,8 @@
   </div>
 
   <div class="field-group mb-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
     </div>
     {% render_field form.tenant_group %}
     {% render_field form.tenant %}
@@ -73,8 +73,8 @@
 
   {% if form.custom_fields %}
     <div class="field-group mb-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

@@ -16,61 +16,53 @@
 <div class="row mb-3">
 	<div class="col col-12 col-xl-5">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Rack" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Region" %}</th>
-                        <td>
-                            {% nested_tree object.rack.site.region %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Site" %}</th>
-                        <td>{{ object.rack.site|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Location" %}</th>
-                        <td>{{ object.rack.location|linkify|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Rack" %}</th>
-                        <td>{{ object.rack|linkify }}</td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Rack" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Region" %}</th>
+                    <td>
+                        {% nested_tree object.rack.site.region %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Site" %}</th>
+                    <td>{{ object.rack.site|linkify }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Location" %}</th>
+                    <td>{{ object.rack.location|linkify|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Rack" %}</th>
+                    <td>{{ object.rack|linkify }}</td>
+                </tr>
+            </table>
         </div>
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Reservation Details" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Units" %}</th>
-                        <td>{{ object.unit_list }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Tenant" %}</th>
-                        <td>
-                            {% if object.tenant.group %}
-                                {{ object.tenant.group|linkify }} /
-                            {% endif %}
-                            {{ object.tenant|linkify|placeholder }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "User" %}</th>
-                        <td>{{ object.user }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Description" %}</th>
-                        <td>{{ object.description }}</td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Reservation Details" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Units" %}</th>
+                    <td>{{ object.unit_list }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Tenant" %}</th>
+                    <td>
+                        {% if object.tenant.group %}
+                            {{ object.tenant.group|linkify }} /
+                        {% endif %}
+                        {{ object.tenant|linkify|placeholder }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "User" %}</th>
+                    <td>{{ object.user }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Description" %}</th>
+                    <td>{{ object.description }}</td>
+                </tr>
+            </table>
         </div>
         {% include 'inc/panels/custom_fields.html' %}
         {% include 'inc/panels/tags.html' %}

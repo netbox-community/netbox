@@ -16,8 +16,8 @@
 
 {% block subtitle %}
   {% if report.description %}
-    <div class="object-subtitle">
-      <div class="text-muted">{{ report.description|markdown }}</div>
+    <div class="text-secondary fs-5">
+      {{ report.description|markdown }}
     </div>
   {% endif %}
 {% endblock subtitle %}
@@ -25,7 +25,7 @@
 {% block controls %}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if not tab %} active{% endif %}" href="{% url 'extras:report' module=report.module name=report.class_name %}">{% trans "Report" %}</a>
     </li>

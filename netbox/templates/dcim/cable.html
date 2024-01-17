@@ -10,55 +10,53 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Cable" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Type" %}</th>
-              <td>{{ object.get_type_display|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Status" %}</th>
-              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Tenant" %}</th>
-              <td>
-                {% if object.tenant.group %}
-                  {{ object.tenant.group|linkify }} /
-                {% endif %}
-                {{ object.tenant|linkify|placeholder }}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Label" %}</th>
-              <td>{{ object.label|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Color" %}</th>
-              <td>
-                {% if object.color %}
-                  <span class="color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Length" %}</th>
-              <td>
-                {% if object.length is not None %}
-                  {{ object.length|floatformat }} {{ object.get_length_unit_display }}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Type" %}</th>
+            <td>{{ object.get_type_display|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Label" %}</th>
+            <td>{{ object.label|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Color" %}</th>
+            <td>
+              {% if object.color %}
+                <span class="color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Length" %}</th>
+            <td>
+              {% if object.length is not None %}
+                {{ object.length|floatformat }} {{ object.get_length_unit_display }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}
@@ -68,15 +66,11 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Termination" %} A</h5>
-        <div class="card-body">
-          {% include 'dcim/inc/cable_termination.html' with terminations=object.a_terminations %}
-        </div>
+        {% include 'dcim/inc/cable_termination.html' with terminations=object.a_terminations %}
       </div>
       <div class="card">
         <h5 class="card-header">{% trans "Termination" %} B</h5>
-        <div class="card-body">
-          {% include 'dcim/inc/cable_termination.html' with terminations=object.b_terminations %}
-        </div>
+        {% include 'dcim/inc/cable_termination.html' with terminations=object.b_terminations %}
       </div>
       {% plugin_right_page object %}
     </div>

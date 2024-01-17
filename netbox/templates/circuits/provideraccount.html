@@ -15,22 +15,20 @@
 	  <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Provider Account" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Provider" %}</th>
-              <td>{{ object.provider|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Account" %}</th>
-              <td>{{ object.account }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Provider" %}</th>
+            <td>{{ object.provider|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Account" %}</th>
+            <td>{{ object.account }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}
@@ -44,7 +42,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Circuits" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'circuits:circuit_list' %}?provider_account_id={{ object.pk }}"
           hx-trigger="load"
         ></div>

@@ -2,17 +2,17 @@
 {% if applied_filters %}
   <div class="mb-3">
     {% for filter in applied_filters %}
-      <a href="{{ filter.link_url }}" class="badge rounded-pill bg-primary text-decoration-none me-1">
+      <a href="{{ filter.link_url }}" class="badge rounded-pill text-bg-primary text-decoration-none me-1">
         <i class="mdi mdi-close"></i> {{ filter.link_text }}
       </a>
     {% endfor %}
     {% if applied_filters|length > 1 %}
-      <a href="?" class="badge rounded-pill bg-danger text-decoration-none me-1">
+      <a href="?" class="badge rounded-pill text-bg-danger text-decoration-none me-1">
         <i class="mdi mdi-tag-off"></i> {% trans "Clear all" %}
       </a>
     {% endif %}
     {% if save_link %}
-      <a href="{{ save_link }}" class="badge rounded-pill bg-success text-decoration-none me-1">
+      <a href="{{ save_link }}" class="badge rounded-pill text-bg-success text-decoration-none me-1">
         <i class="mdi mdi-content-save"></i> {% trans "Save" %}
       </a>
     {% endif %}

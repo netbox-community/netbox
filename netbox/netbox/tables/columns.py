@@ -161,8 +161,11 @@ class ToggleColumn(tables.CheckBoxColumn):
         visible = kwargs.pop('visible', False)
         if 'attrs' not in kwargs:
             kwargs['attrs'] = {
+                'th': {
+                    'class': 'w-1',
+                },
                 'td': {
-                    'class': 'min-width',
+                    'class': 'w-1',
                 },
                 'input': {
                     'class': 'form-check-input'
@@ -322,7 +325,7 @@ class ChoiceFieldColumn(tables.Column):
         except AttributeError:
             bg_color = self.DEFAULT_BG_COLOR
 
-        return mark_safe(f'<span class="badge bg-{bg_color}">{value}</span>')
+        return mark_safe(f'<span class="badge text-bg-{bg_color}">{value}</span>')
 
     def value(self, value):
         return value

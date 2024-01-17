@@ -5,82 +5,78 @@
 
 {% block content %}
 <div class="row">
-    <div class="col col-md-6">
-        <div class="card">
-            <h5 class="card-header">
-              {% trans "IP Range" %}
-            </h5>
-            <div class="card-body">
-              <table class="table table-hover attr-table">
-                <tr>
-                    <th scope="row">{% trans "Family" %}</th>
-                    <td>IPv{{ object.family }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Starting Address" %}</th>
-                    <td>{{ object.start_address }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Ending Address" %}</th>
-                    <td>{{ object.end_address }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Size" %}</th>
-                    <td>{{ object.size }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Utilization" %}</th>
-                    <td>
-                      {% if object.mark_utilized %}
-                        {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
-                        <small>({% trans "Marked fully utilized" %})</small>
-                      {% else %}
-                        {% utilization_graph object.utilization %}
-                      {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "VRF" %}</th>
-                    <td>
-                        {% if object.vrf %}
-                            {{ object.vrf|linkify }} ({{ object.vrf.rd }})
-                        {% else %}
-                            <span>{% trans "Global" %}</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Role" %}</th>
-                    <td>{{ object.role|linkify|placeholder }}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Status" %}</th>
-                    <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Tenant" %}</th>
-                    <td>
-                        {% if object.tenant.group %}
-                            {{ object.tenant.group|linkify }} /
-                        {% endif %}
-                        {{ object.tenant|linkify|placeholder }}
-                    </td>
-                </tr>
-                <tr>
-                    <th scope="row">{% trans "Description" %}</th>
-                    <td>{{ object.description|placeholder }}</td>
-                </tr>
-              </table>
-            </div>
-        </div>
-        {% plugin_left_page object %}
+  <div class="col col-md-6">
+    <div class="card">
+      <h5 class="card-header">{% trans "IP Range" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+            <th scope="row">{% trans "Family" %}</th>
+            <td>IPv{{ object.family }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Starting Address" %}</th>
+            <td>{{ object.start_address }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Ending Address" %}</th>
+            <td>{{ object.end_address }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Size" %}</th>
+            <td>{{ object.size }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Utilization" %}</th>
+            <td>
+              {% if object.mark_utilized %}
+                {% utilization_graph 100 warning_threshold=0 danger_threshold=0 %}
+                <small>({% trans "Marked fully utilized" %})</small>
+              {% else %}
+                {% utilization_graph object.utilization %}
+              {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "VRF" %}</th>
+            <td>
+                {% if object.vrf %}
+                    {{ object.vrf|linkify }} ({{ object.vrf.rd }})
+                {% else %}
+                    <span>{% trans "Global" %}</span>
+                {% endif %}
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Role" %}</th>
+            <td>{{ object.role|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+                {% if object.tenant.group %}
+                    {{ object.tenant.group|linkify }} /
+                {% endif %}
+                {{ object.tenant|linkify|placeholder }}
+            </td>
+        </tr>
+        <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+        </tr>
+      </table>
     </div>
-    <div class="col col-md-6">
-      {% include 'inc/panels/tags.html' %}
-      {% include 'inc/panels/custom_fields.html' %}
-      {% include 'inc/panels/comments.html' %}
-      {% plugin_right_page object %}
-    </div>
+    {% plugin_left_page object %}
+  </div>
+  <div class="col col-md-6">
+    {% include 'inc/panels/tags.html' %}
+    {% include 'inc/panels/custom_fields.html' %}
+    {% include 'inc/panels/comments.html' %}
+    {% plugin_right_page object %}
+  </div>
 </div>
 <div class="row">
   <div class="col col-md-12">
@@ -88,8 +84,8 @@
   </div>
 </div>
 <div class="row">
-    <div class="col col-md-12">
-        {% plugin_full_width_page object %}
-    </div>
+  <div class="col col-md-12">
+    {% plugin_full_width_page object %}
+  </div>
 </div>
 {% endblock %}

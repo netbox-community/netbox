@@ -386,15 +386,13 @@ ADMIN_MENU = Menu(
                             link=f'users:netboxuser_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_user'],
-                            color=ButtonColorChoices.GREEN
+                            permissions=[f'auth.add_user']
                         ),
                         MenuItemButton(
                             link=f'users:netboxuser_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_user'],
-                            color=ButtonColorChoices.CYAN
+                            permissions=[f'auth.add_user']
                         )
                     )
                 ),
@@ -409,15 +407,13 @@ ADMIN_MENU = Menu(
                             link=f'users:netboxgroup_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_group'],
-                            color=ButtonColorChoices.GREEN
+                            permissions=[f'auth.add_group']
                         ),
                         MenuItemButton(
                             link=f'users:netboxgroup_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_group'],
-                            color=ButtonColorChoices.CYAN
+                            permissions=[f'auth.add_group']
                         )
                     )
                 ),

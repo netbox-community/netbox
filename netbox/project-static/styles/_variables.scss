@@ -1,0 +1,20 @@
+// Global variables
+
+// Set base fonts
+$font-family-base: 'Inter';
+// See https://github.com/tabler/tabler/issues/1812
+$font-family-monospace: 'Roboto Mono';
+
+// Set the navigation sidebar width
+$sidebar-width: 18rem;
+
+// Reduce the default button padding
+$btn-padding-x: 0.5rem;
+$btn-padding-y: 0.25rem;
+
+// Reduce the default table cell padding
+$table-cell-padding-x: 0.5rem;
+$table-cell-padding-y: 0.5rem;
+
+// Fix Tabler bug #1694 in 1.0.0-beta20
+$hover-bg: rgba(var(--tblr-secondary-rgb), 0.08);

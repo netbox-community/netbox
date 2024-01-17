@@ -1,0 +1,119 @@
+// Base NetBox Theme Overrides and Settings - color mode agnostic.
+
+@import '../../node_modules/bootstrap/scss/functions';
+
+$card-cap-bg: 'unset';
+
+$border-radius-md: 0.375rem;
+$border-radius-lg: 0.5rem;
+$border-radius-xl: 0.75rem;
+$border-radius-2xl: 1.5rem;
+
+$border-radius: $border-radius-md;
+
+$border-radius-sm: $border-radius;
+$border-radius-lg: $border-radius-xl;
+
+$badge-border-radius: $border-radius-md;
+$progress-border-radius: $border-radius-md;
+
+$font-weight-lighter: 200;
+$font-weight-medium: 600;
+$font-weight-bolder: 800;
+
+$font-size-xs: 0.75rem;
+
+$line-height-base: 1.5;
+$line-height-xs: 1;
+$line-height-sm: 1.25;
+$line-height-lg: 1.75;
+
+$darker: #1b1f22;
+$darkest: #171b1d;
+
+@import '../../node_modules/bootstrap/scss/variables';
+@import '../../node_modules/bootstrap/scss/variables-dark';
+
+// This is the same value as the default from Bootstrap, but it needs to be in scope prior to
+// importing _variables.scss from Bootstrap.
+$btn-close-width: 1em;
+
+$accordion-padding-y: 0.8125rem;
+$accordion-padding-x: 0.8125rem;
+
+$sidebar-width: 280px;
+$sidebar-bottom-height: 4rem;
+
+$transition-100ms-ease-in-out: all 0.1s ease-in-out;
+
+// Sidebar/Sidenav
+$sidenav-width-closed: 3rem;
+$sidenav-width-open: 16rem;
+$sidenav-icon-width: 2rem;
+$sidenav-spacing-x: 1.5rem;
+$sidenav-link-spacing-x: 1rem;
+$sidenav-link-spacing-y: 0.5rem;
+
+// Theme colors (BS5 classes)
+$primary: #337ab7;
+$secondary: $gray-600;
+$success: $green-500;
+$info: #54d6f0;
+$warning: $yellow-500;
+$danger: $red-500;
+$light: $gray-200;
+$dark: $gray-800;
+
+$theme-colors: (
+  // BS5 theme colors
+  'primary': $primary,
+  'secondary': $secondary,
+  'success': $success,
+  'info': $info,
+  'warning': $warning,
+  'danger': $danger,
+  'light': $light,
+  'dark': $dark,
+  // General-purpose palette
+  'blue': $blue-500,
+  'indigo': $indigo-500,
+  'purple': $purple-500,
+  'pink': $pink-500,
+  'red': $red-500,
+  'orange': $orange-500,
+  'yellow': $yellow-500,
+  'green': $green-500,
+  'teal': $teal-500,
+  'cyan': $cyan-500,
+  'gray': $gray-500,
+  'black': $black,
+  'white': $white
+);
+
+$light: $gray-200;
+
+$navbar-light-color: $gray-100;
+
+$card-cap-color: $gray-800;
+
+$accordion-bg: transparent;
+$accordion-button-bg: $accordion-bg;
+$accordion-body-active-bg: $gray-100;
+$accordion-border-color: $border-color;
+$accordion-button-active-bg: $blue-100;
+$accordion-button-active-color: $gray-800;
+
+$breadcrumb-divider: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Cpath d='M2.5 0L1 1.5 3.5 4 1 6.5 2.5 8l4-4-4-4z' fill='currentColor'/%3E%3C/svg%3E");
+
+$code-color: $gray-900;
+
+$list-group-color: $gray-700;
+$list-group-disabled-color: $gray-500;
+
+$table-flush-header-bg: $gray-100;
+
+$input-placeholder-color: $gray-500;
+$form-select-disabled-color: $gray-600;
+
+// Tabbed content
+$tab-content-bg: $gray-100;

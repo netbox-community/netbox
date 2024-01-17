@@ -14,45 +14,41 @@
     <div class="row mb-3">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Power Outlet" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Device" %}</th>
-                            <td>{{ object.device|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Module" %}</th>
-                            <td>{{ object.module|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Name" %}</th>
-                            <td>{{ object.name }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Label" %}</th>
-                            <td>{{ object.label|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Type" %}</th>
-                            <td>{{ object.get_type_display }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Description" %}</th>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Power Port" %}</th>
-                            <td>{{ object.power_port|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Feed Leg" %}</th>
-                            <td>{{ object.get_feed_leg_display|placeholder }}</td>
-                        </tr>
-                    </table>
-                </div>
+                <h5 class="card-header">{% trans "Power Outlet" %}</h5>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Device" %}</th>
+                        <td>{{ object.device|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Module" %}</th>
+                        <td>{{ object.module|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Name" %}</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Label" %}</th>
+                        <td>{{ object.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Type" %}</th>
+                        <td>{{ object.get_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Power Port" %}</th>
+                        <td>{{ object.power_port|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Feed Leg" %}</th>
+                        <td>{{ object.get_feed_leg_display|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
             {% include 'inc/panels/custom_fields.html' %}
             {% include 'inc/panels/tags.html' %}
@@ -61,24 +57,23 @@
         <div class="col col-md-6">
           <div class="card">
             <h5 class="card-header">{% trans "Connection" %}</h5>
-            <div class="card-body">
-              {% if object.mark_connected %}
-                <div class="text-muted">
-                  <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as Connected" %}
-                </div>
-              {% elif object.cable %}
-                {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:poweroutlet_trace' %}
-              {% else %}
-                <div class="text-muted">
-                  {% trans "Not Connected" %}
-                  {% if perms.dcim.add_cable %}
-                    <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="{% trans "Connect" %}" class="btn btn-primary btn-sm float-end">
-                      <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
-                    </a>
-                  {% endif %}
-                </div>
-              {% endif %}
-            </div>
+            {% if object.mark_connected %}
+              <div class="card-body">
+                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                {% trans "Marked as Connected" %}
+              </div>
+            {% elif object.cable %}
+              {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:poweroutlet_trace' %}
+            {% else %}
+              <div class="card-body text-muted">
+                {% trans "Not Connected" %}
+                {% if perms.dcim.add_cable %}
+                  <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.poweroutlet&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" title="{% trans "Connect" %}" class="btn btn-primary float-end">
+                    <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
+                  </a>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
           {% include 'dcim/inc/panels/inventory_items.html' %}
           {% plugin_right_page object %}

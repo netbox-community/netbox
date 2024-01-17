@@ -4,8 +4,8 @@
 
 {% block form %}
     <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Rack" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Rack" %}</h5>
         </div>
         {% render_field form.site %}
         {% render_field form.location %}
@@ -17,8 +17,8 @@
     </div>
 
     <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Inventory Control" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Inventory Control" %}</h5>
         </div>
         {% render_field form.facility_id %}
         {% render_field form.serial %}
@@ -26,16 +26,16 @@
     </div>
 
     <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
         </div>
         {% render_field form.tenant_group %}
         {% render_field form.tenant %}
     </div>
 
     <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Dimensions" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Dimensions" %}</h5>
         </div>
         {% render_field form.type %}
         {% render_field form.width %}
@@ -77,8 +77,8 @@
 
     {% if form.custom_fields %}
       <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
         </div>
           {% render_custom_fields form %}
       </div>

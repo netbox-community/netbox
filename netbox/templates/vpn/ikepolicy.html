@@ -8,41 +8,39 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "IKE Policy" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "IKE Version" %}</th>
-              <td>{{ object.get_version_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Mode" %}</th>
-              <td>{{ object.get_mode_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Pre-Shared Key" %}</th>
-              <td>
-                <span id="secret" class="font-monospace" data-secret="{{ object.preshared_key }}">{{ object.preshared_key|placeholder }}</span>
-                {% if object.preshared_key %}
-                  <button type="button" class="btn btn-sm btn-primary toggle-secret float-end" data-bs-toggle="button">{% trans "Show Secret" %}</button>
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "IPSec Profiles" %}</th>
-              <td>
-                <a href="{% url 'vpn:ipsecprofile_list' %}?ike_policy_id={{ object.pk }}">{{ object.ipsec_profiles.count }}</a>
-              </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "IKE Version" %}</th>
+            <td>{{ object.get_version_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Mode" %}</th>
+            <td>{{ object.get_mode_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Pre-Shared Key" %}</th>
+            <td>
+              <span id="secret" class="font-monospace" data-secret="{{ object.preshared_key }}">{{ object.preshared_key|placeholder }}</span>
+              {% if object.preshared_key %}
+                <button type="button" class="btn btn-primary toggle-secret float-end" data-bs-toggle="button">{% trans "Show Secret" %}</button>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "IPSec Profiles" %}</th>
+            <td>
+              <a href="{% url 'vpn:ipsecprofile_list' %}?ike_policy_id={{ object.pk }}">{{ object.ipsec_profiles.count }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>
@@ -57,7 +55,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Proposals" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'vpn:ikeproposal_list' %}?ike_policy_id={{ object.pk }}"
           hx-trigger="load"
         ></div>

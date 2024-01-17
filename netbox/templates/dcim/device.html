@@ -12,144 +12,138 @@
         <div class="col col-12 col-xl-6">
             <div class="card">
                 <h5 class="card-header">{% trans "Device" %}</h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Region" %}</th>
-                            <td>{% nested_tree object.site.region %}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Site" %}</th>
-                            <td>{{ object.site|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Location" %}</th>
-                            <td>{% nested_tree object.location %}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Rack" %}</th>
-                            <td class="position-relative">
-                                {% if object.rack %}
-                                    {{ object.rack|linkify }}
-                                    <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                                      <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary btn-sm" title="{% trans "Highlight device" %}">
-                                        <i class="mdi mdi-view-day-outline"></i>
-                                      </a>
-                                    </div>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Position" %}</th>
-                            <td>
-                                {% if object.parent_bay %}
-                                    {% with object.parent_bay.device as parent %}
-                                        {{ parent|linkify }} / {{ object.parent_bay }}
-                                        {% if parent.position %}
-                                            (U{{ parent.position|floatformat }} / {{ parent.get_face_display }})
-                                        {% endif %}
-                                    {% endwith %}
-                                {% elif object.rack and object.position %}
-                                    <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
-                                {% elif object.rack and object.device_type.u_height %}
-                                    <span class="badge bg-warning">{% trans "Not racked" %}</span>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                          <th scope="row">{% trans "GPS Coordinates" %}</th>
-                          <td class="position-relative">
-                            {% if object.latitude and object.longitude %}
-                              {% if config.MAPS_URL %}
-                                <div class="position-absolute top-50 end-0 translate-middle-y noprint">
-                                  <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary btn-sm">
-                                    <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Region" %}</th>
+                        <td>{% nested_tree object.site.region %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Site" %}</th>
+                        <td>{{ object.site|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Location" %}</th>
+                        <td>{% nested_tree object.location %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Rack" %}</th>
+                        <td class="position-relative">
+                            {% if object.rack %}
+                                {{ object.rack|linkify }}
+                                <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
+                                  <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary" title="{% trans "Highlight device" %}">
+                                    <i class="mdi mdi-view-day-outline"></i>
                                   </a>
                                 </div>
-                                {% endif %}
-                              <span>{{ object.latitude }}, {{ object.longitude }}</span>
                             {% else %}
-                              {{ ''|placeholder }}
+                                {{ ''|placeholder }}
                             {% endif %}
-                          </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Tenant" %}</th>
-                            <td>
-                                {% if object.tenant.group %}
-                                    {{ object.tenant.group|linkify }} /
-                                {% endif %}
-                                {{ object.tenant|linkify|placeholder }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Device Type" %}</th>
-                            <td>
-                                {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}U)
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Description" %}</th>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Airflow" %}</th>
-                            <td>
-                                {{ object.get_airflow_display|placeholder }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Serial Number" %}</th>
-                            <td class="font-monospace">{{ object.serial|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Asset Tag" %}</th>
-                            <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Config Template" %}</th>
-                            <td>{{ object.config_template|linkify|placeholder }}</td>
-                        </tr>
-                    </table>
-                </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Position" %}</th>
+                        <td>
+                            {% if object.parent_bay %}
+                                {% with object.parent_bay.device as parent %}
+                                    {{ parent|linkify }} / {{ object.parent_bay }}
+                                    {% if parent.position %}
+                                        (U{{ parent.position|floatformat }} / {{ parent.get_face_display }})
+                                    {% endif %}
+                                {% endwith %}
+                            {% elif object.rack and object.position %}
+                                <span>U{{ object.position|floatformat }} / {{ object.get_face_display }}</span>
+                            {% elif object.rack and object.device_type.u_height %}
+                                <span class="badge text-bg-warning">{% trans "Not racked" %}</span>
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">{% trans "GPS Coordinates" %}</th>
+                      <td class="position-relative">
+                        {% if object.latitude and object.longitude %}
+                          {% if config.MAPS_URL %}
+                            <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
+                              <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary">
+                                <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
+                              </a>
+                            </div>
+                            {% endif %}
+                          <span>{{ object.latitude }}, {{ object.longitude }}</span>
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                      </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Tenant" %}</th>
+                        <td>
+                            {% if object.tenant.group %}
+                                {{ object.tenant.group|linkify }} /
+                            {% endif %}
+                            {{ object.tenant|linkify|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Device Type" %}</th>
+                        <td>
+                            {{ object.device_type|linkify:"get_full_name" }} ({{ object.device_type.u_height|floatformat }}U)
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Airflow" %}</th>
+                        <td>
+                            {{ object.get_airflow_display|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Serial Number" %}</th>
+                        <td class="font-monospace">{{ object.serial|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Asset Tag" %}</th>
+                        <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Config Template" %}</th>
+                        <td>{{ object.config_template|linkify|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
             {% if vc_members %}
                 <div class="card">
-                    <h5 class="card-header">
-                        {% trans "Virtual Chassis" %}
-                    </h5>
-                    <div class="card-body">
-                        <table class="table table-hover attr-table">
-                            <tr>
-                                <th>{% trans "Device" %}</th>
-                                <th>{% trans "Position" %}</th>
-                                <th>{% trans "Master" %}</th>
-                                <th>{% trans "Priority" %}</th>
+                    <h5 class="card-header">{% trans "Virtual Chassis" %}</h5>
+                    <table class="table table-hover attr-table">
+                        <tr>
+                            <th>{% trans "Device" %}</th>
+                            <th>{% trans "Position" %}</th>
+                            <th>{% trans "Master" %}</th>
+                            <th>{% trans "Priority" %}</th>
+                        </tr>
+                        {% for vc_member in vc_members %}
+                            <tr{% if vc_member == object %} class="info"{% endif %}>
+                                <td>
+                                    {{ vc_member|linkify }}
+                                </td>
+                                <td>
+                                  {% badge vc_member.vc_position show_empty=True %}
+                                </td>
+                                <td>
+                                  {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}
+                                </td>
+                                <td>
+                                  {{ vc_member.vc_priority|placeholder }}
+                                </td>
                             </tr>
-                            {% for vc_member in vc_members %}
-                                <tr{% if vc_member == object %} class="info"{% endif %}>
-                                    <td>
-                                        {{ vc_member|linkify }}
-                                    </td>
-                                    <td>
-                                      {% badge vc_member.vc_position show_empty=True %}
-                                    </td>
-                                    <td>
-                                      {% if object.virtual_chassis.master == vc_member %}<i class="mdi mdi-check-bold"></i>{% endif %}
-                                    </td>
-                                    <td>
-                                      {{ vc_member.vc_priority|placeholder }}
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </table>
-                    </div>
-                    <div class="card-footer text-end noprint">
-                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary btn-sm">
+                        {% endfor %}
+                    </table>
+                    <div class="card-footer text-end d-print-none">
+                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary">
                             <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> {% trans "View Virtual Chassis" %}
                         </a>
                     </div>
@@ -160,13 +154,13 @@
             {% include 'inc/panels/comments.html' %}
             <div class="card">
               <h5 class="card-header">{% trans "Virtual Device Contexts" %}</h5>
-              <div class="card-body htmx-container table-responsive"
+              <div class="card-body htmx-container table-responsive p-0"
                 hx-get="{% url 'dcim:virtualdevicecontext_list' %}?device_id={{ object.pk }}"
                 hx-trigger="load"
               ></div>
               {% if perms.dcim.add_virtualdevicecontext %}
-                <div class="card-footer text-end noprint">
-                  <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-sm btn-primary">
+                <div class="card-footer text-end d-print-none">
+                  <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-primary">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Create VDC" %}
                   </a>
                 </div>
@@ -177,138 +171,134 @@
         <div class="col col-12 col-xl-6">
             <div class="card">
                 <h5 class="card-header">{% trans "Management" %}</h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Status" %}</th>
+                        <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Role" %}</th>
+                        <td>{{ object.role|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Platform" %}</th>
+                        <td>{{ object.platform|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Primary IPv4" %}</th>
+                        <td>
+                          {% if object.primary_ip4 %}
+                            <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4.address.ip }}</a>
+                            {% if object.primary_ip4.nat_inside %}
+                              ({% trans "NAT for" %} <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
+                            {% elif object.primary_ip4.nat_outside.exists %}
+                              ({% trans "NAT" %}: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            {% copy_content "primary_ip4" %}
+                          {% else %}
+                            {{ ''|placeholder }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Primary IPv6" %}</th>
+                        <td>
+                          {% if object.primary_ip6 %}
+                            <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6.address.ip }}</a>
+                            {% if object.primary_ip6.nat_inside %}
+                              ({% trans "NAT for" %} <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
+                            {% elif object.primary_ip6.nat_outside.exists %}
+                              ({% trans "NAT" %}: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                            {% endif %}
+                            {% copy_content "primary_ip6" %}
+                          {% else %}
+                            {{ ''|placeholder }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Out-of-band IP</th>
+                        <td>
+                          {% if object.oob_ip %}
+                            <a href="{{ object.oob_ip.get_absolute_url }}" id="oob_ip">{{ object.oob_ip.address.ip }}</a>
+                            {% copy_content "oob_ip" %}
+                          {% else %}
+                            {{ ''|placeholder }}
+                          {% endif %}
+                        </td>
+                    </tr>
+                    {% if object.cluster %}
                         <tr>
-                            <th scope="row">{% trans "Status" %}</th>
-                            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Role" %}</th>
-                            <td>{{ object.role|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Platform" %}</th>
-                            <td>{{ object.platform|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Primary IPv4" %}</th>
+                            <th>{% trans "Cluster" %}</th>
                             <td>
-                              {% if object.primary_ip4 %}
-                                <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4.address.ip }}</a>
-                                {% if object.primary_ip4.nat_inside %}
-                                  ({% trans "NAT for" %} <a href="{{ object.primary_ip4.nat_inside.get_absolute_url }}">{{ object.primary_ip4.nat_inside.address.ip }}</a>)
-                                {% elif object.primary_ip4.nat_outside.exists %}
-                                  ({% trans "NAT" %}: {% for nat in object.primary_ip4.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
+                                {% if object.cluster.group %}
+                                    {{ object.cluster.group|linkify }} /
                                 {% endif %}
-                                {% copy_content "primary_ip4" %}
-                              {% else %}
-                                {{ ''|placeholder }}
-                              {% endif %}
+                                {{ object.cluster|linkify }}
                             </td>
                         </tr>
-                        <tr>
-                            <th scope="row">{% trans "Primary IPv6" %}</th>
-                            <td>
-                              {% if object.primary_ip6 %}
-                                <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6.address.ip }}</a>
-                                {% if object.primary_ip6.nat_inside %}
-                                  ({% trans "NAT for" %} <a href="{{ object.primary_ip6.nat_inside.get_absolute_url }}">{{ object.primary_ip6.nat_inside.address.ip }}</a>)
-                                {% elif object.primary_ip6.nat_outside.exists %}
-                                  ({% trans "NAT" %}: {% for nat in object.primary_ip6.nat_outside.all %}<a href="{{ nat.get_absolute_url }}">{{ nat.address.ip }}</a>{% if not forloop.last %}, {% endif %}{% endfor %})
-                                {% endif %}
-                                {% copy_content "primary_ip6" %}
-                              {% else %}
-                                {{ ''|placeholder }}
-                              {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">Out-of-band IP</th>
-                            <td>
-                              {% if object.oob_ip %}
-                                <a href="{{ object.oob_ip.get_absolute_url }}" id="oob_ip">{{ object.oob_ip.address.ip }}</a>
-                                {% copy_content "oob_ip" %}
-                              {% else %}
-                                {{ ''|placeholder }}
-                              {% endif %}
-                            </td>
-                        </tr>
-                        {% if object.cluster %}
-                            <tr>
-                                <th>{% trans "Cluster" %}</th>
-                                <td>
-                                    {% if object.cluster.group %}
-                                        {{ object.cluster.group|linkify }} /
-                                    {% endif %}
-                                    {{ object.cluster|linkify }}
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </table>
-                </div>
+                    {% endif %}
+                </table>
             </div>
             {% if object.powerports.exists and object.poweroutlets.exists %}
                 <div class="card">
-                    <h5 class="card-header">
-                        {% trans "Power Utilization" %}
-                    </h5>
-                    <div class="card-body">
-                        <table class="table table-hover">
-                            <tr>
-                                <th>{% trans "Input" %}</th>
-                                <th>{% trans "Outlets" %}</th>
-                                <th>{% trans "Allocated" %}</th>
-                                <th>{% trans "Available" %}</th>
-                                <th>{% trans "Utilization" %}</th>
-                            </tr>
-                            {% for powerport in object.powerports.all %}
-                                {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoints.0 %}
+                    <h5 class="card-header">{% trans "Power Utilization" %}</h5>
+                    <table class="table table-hover">
+                        <thead>
+                          <tr>
+                            <th>{% trans "Input" %}</th>
+                            <th>{% trans "Outlets" %}</th>
+                            <th>{% trans "Allocated" %}</th>
+                            <th>{% trans "Available" %}</th>
+                            <th>{% trans "Utilization" %}</th>
+                          </tr>
+                        </thead>
+                        {% for powerport in object.powerports.all %}
+                            {% with utilization=powerport.get_power_draw powerfeed=powerport.connected_endpoints.0 %}
+                                <tr>
+                                    <td>{{ powerport }}</td>
+                                    <td>{{ utilization.outlet_count }}</td>
+                                    <td>{{ utilization.allocated }}{% trans "VA" %}</td>
+                                    {% if powerfeed.available_power %}
+                                        <td>{{ powerfeed.available_power }}{% trans "VA" %}</td>
+                                        <td>{% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}</td>
+                                    {% else %}
+                                        <td class="text-muted">&mdash;</td>
+                                        <td class="text-muted">&mdash;</td>
+                                    {% endif %}
+                                </tr>
+                                {% for leg in utilization.legs %}
                                     <tr>
-                                        <td>{{ powerport }}</td>
-                                        <td>{{ utilization.outlet_count }}</td>
-                                        <td>{{ utilization.allocated }}{% trans "VA" %}</td>
+                                        <td style="padding-left: 20px">
+                                          {% trans "Leg" context "Leg of a power feed" %} {{ leg.name }}
+                                        </td>
+                                        <td>{{ leg.outlet_count }}</td>
+                                        <td>{{ leg.allocated }}</td>
                                         {% if powerfeed.available_power %}
-                                            <td>{{ powerfeed.available_power }}{% trans "VA" %}</td>
-                                            <td>{% utilization_graph utilization.allocated|percentage:powerfeed.available_power %}</td>
+                                            {% with phase_available=powerfeed.available_power|divide:3 %}
+                                                <td>{{ phase_available }}{% trans "VA" %}</td>
+                                                <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
+                                            {% endwith %}
                                         {% else %}
                                             <td class="text-muted">&mdash;</td>
                                             <td class="text-muted">&mdash;</td>
                                         {% endif %}
                                     </tr>
-                                    {% for leg in utilization.legs %}
-                                        <tr>
-                                            <td style="padding-left: 20px">
-                                              {% trans "Leg" context "Leg of a power feed" %} {{ leg.name }}
-                                            </td>
-                                            <td>{{ leg.outlet_count }}</td>
-                                            <td>{{ leg.allocated }}</td>
-                                            {% if powerfeed.available_power %}
-                                                {% with phase_available=powerfeed.available_power|divide:3 %}
-                                                    <td>{{ phase_available }}{% trans "VA" %}</td>
-                                                    <td>{% utilization_graph leg.allocated|percentage:phase_available %}</td>
-                                                {% endwith %}
-                                            {% else %}
-                                                <td class="text-muted">&mdash;</td>
-                                                <td class="text-muted">&mdash;</td>
-                                            {% endif %}
-                                        </tr>
-                                    {% endfor %}
-                                {% endwith %}
-                            {% endfor %}
-                        </table>
-                    </div>
+                                {% endfor %}
+                            {% endwith %}
+                        {% endfor %}
+                    </table>
                 </div>
             {% endif %}
             <div class="card">
               <h5 class="card-header">{% trans "Services" %}</h5>
-              <div class="card-body htmx-container table-responsive"
+              <div class="card-body htmx-container table-responsive p-0"
                 hx-get="{% url 'ipam:service_list' %}?device_id={{ object.pk }}"
                 hx-trigger="load"
               ></div>
               {% if perms.ipam.add_service %}
-                <div class="card-footer text-end noprint">
-                  <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-sm btn-primary">
+                <div class="card-footer text-end d-print-none">
+                  <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-primary">
                     <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
                   </a>
                 </div>
@@ -317,26 +307,24 @@
             {% include 'inc/panels/image_attachments.html' %}
             <div class="card">
                 <h5 class="card-header">{% trans "Dimensions" %}</h5>
-                <div class="card-body table-responsive">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Height" %}</th>
-                            <td>
-                                {{ object.device_type.u_height }}U
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Weight" %}</th>
-                            <td>
-                                {% if object.total_weight %}
-                                    {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Height" %}</th>
+                        <td>
+                            {{ object.device_type.u_height }}U
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Weight" %}</th>
+                        <td>
+                            {% if object.total_weight %}
+                                {{ object.total_weight|floatformat }} {% trans "Kilograms" %}
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
             {% if object.rack and object.position %}
               <div class="row" style="margin-bottom: 20px">

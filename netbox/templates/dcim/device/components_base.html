@@ -6,7 +6,7 @@
         {% if 'bulk_edit' in actions and bulk_edit_view %}
             <button type="submit" name="_edit"
                     formaction="{% url bulk_edit_view %}?device={{ object.pk }}&return_url={{ return_url }}"
-                    class="btn btn-warning btn-sm">
+                    class="btn btn-warning">
                 <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
             </button>
         {% endif %}
@@ -15,7 +15,7 @@
         {% if 'bulk_rename' in actions and bulk_rename_view %}
             <button type="submit" name="_rename"
                     formaction="{% url bulk_rename_view %}?return_url={{ return_url }}"
-                    class="btn btn-outline-warning btn-sm">
+                    class="btn btn-outline-warning">
                 <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
             </button>
         {% endif %}

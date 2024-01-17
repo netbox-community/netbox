@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object.html' %}
 {% load helpers %}
 {% load buttons %}
 {% load perms %}
@@ -8,37 +8,19 @@
 {% block title %}{% trans "Restore" %}: {{ object }}{% endblock %}
 
 {% block subtitle %}
-  <div class="object-subtitle">
-    <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
+  <div class="text-secondary fs-5">
+    {% trans "Created" %} {{ object.created|annotated_date }}
   </div>
 {% endblock %}
 
-{% block header %}
-  <div class="row noprint">
-    <div class="col col-md-12">
-      <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'core:configrevision_list' %}">{% trans "Config revisions" %}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'core:configrevision' pk=object.pk %}">{{ object }}</a></li>
-        </ol>
-      </nav>
-    </div>
-  </div>
-  {{ block.super }}
-{% endblock header %}
-
-{% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:job %}
-        {% delete_button job %}
-      {% endif %}
-    </div>
-  </div>
-{% endblock controls %}
+{% block control-buttons %}
+  {% if request.user|can_delete:job %}
+    {% delete_button job %}
+  {% endif %}
+{% endblock control-buttons %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3" role="tablist">
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
       <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Restore" %}</a>
     </li>
@@ -73,13 +55,9 @@
 
   <form method="post">
     {% csrf_token %}
-    <div class="submit-row" style="margin-top: 20px">
-      <div class="controls">
-        <div class="control-group">
-          <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
-          <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-        </div>
-      </div>
+    <div class="text-end my-3">
+      <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
     </div>
   </form>
 

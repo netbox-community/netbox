@@ -7,68 +7,56 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">
-          {% trans "Event Rule" %}
-        </h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Enabled" %}</th>
-              <td>{% checkmark object.enabled %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <h5 class="card-header">{% trans "Event Rule" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Enabled" %}</th>
+            <td>{% checkmark object.enabled %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       <div class="card">
-        <h5 class="card-header">
-          {% trans "Object Types" %}
-        </h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            {% for ct in object.content_types.all %}
-              <tr>
-                <td>{{ ct }}</td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
+        <h5 class="card-header">{% trans "Object Types" %}</h5>
+        <table class="table table-hover attr-table">
+          {% for ct in object.content_types.all %}
+            <tr>
+              <td>{{ ct }}</td>
+            </tr>
+          {% endfor %}
+        </table>
       </div>
       <div class="card">
-        <h5 class="card-header">
-          {% trans "Events" %}
-        </h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Create" %}</th>
-              <td>{% checkmark object.type_create %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Update" %}</th>
-              <td>{% checkmark object.type_update %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Delete" %}</th>
-              <td>{% checkmark object.type_delete %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Job start" %}</th>
-              <td>{% checkmark object.type_job_start %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Job end" %}</th>
-              <td>{% checkmark object.type_job_end %}</td>
-            </tr>
-          </table>
-        </div>
+        <h5 class="card-header">{% trans "Events" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Create" %}</th>
+            <td>{% checkmark object.type_create %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Update" %}</th>
+            <td>{% checkmark object.type_update %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Delete" %}</th>
+            <td>{% checkmark object.type_delete %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Job start" %}</th>
+            <td>{% checkmark object.type_job_start %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Job end" %}</th>
+            <td>{% checkmark object.type_job_end %}</td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>
@@ -86,39 +74,35 @@
         </div>
       </div>
       <div class="card">
-        <h5 class="card-header">
-          {% trans "Action" %}
-        </h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Type" %}</th>
-              <td>{{ object.get_action_type_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Object" %}</th>
-              <td>
-                {% if object.action_type == 'script' %}
-                  <a href="{% url 'extras:script' module=object.action_object.python_name name=object.action_parameters.script_name %}">
-                   {{ object.action_object }} / {{ object.action_parameters.script_name }}
-                  </a>
-                {% else %}
-                  {{ object.action_object|linkify }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Data" %}</th>
-              <td>
-                {% if object.action_data %}
-                  <pre>{{ object.action_data|json }}</pre>
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-          </table>
-        </div>
+        <h5 class="card-header">{% trans "Action" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Type" %}</th>
+            <td>{{ object.get_action_type_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Object" %}</th>
+            <td>
+              {% if object.action_type == 'script' %}
+                <a href="{% url 'extras:script' module=object.action_object.python_name name=object.action_parameters.script_name %}">
+                 {{ object.action_object }} / {{ object.action_parameters.script_name }}
+                </a>
+              {% else %}
+                {{ object.action_object|linkify }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Data" %}</th>
+            <td>
+              {% if object.action_data %}
+                <pre>{{ object.action_data|json }}</pre>
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/custom_fields.html' %}
       {% include 'inc/panels/tags.html' %}

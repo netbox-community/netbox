@@ -11,6 +11,6 @@
     {% if utilization >= 35 %}{{ utilization|floatformat:1 }}%{% endif %}
   </div>
   {% if utilization < 35 %}
-    <span class="ps-1">{{ utilization|floatformat:1 }}%</span>
+    <span class="progress-label">{{ utilization|floatformat:1 }}%</span>
   {% endif %}
 </div>

@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.wireless.add_wirelesslan %}
-    <a href="{% url 'wireless:wirelesslan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'wireless:wirelesslan_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Wireless LAN" %}
     </a>
   {% endif %}
@@ -24,22 +24,20 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Wireless LAN Group" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Parent" %}</th>
-            <td>{{ object.parent|linkify|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Parent" %}</th>
+          <td>{{ object.parent|linkify|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
@@ -54,13 +52,13 @@
 	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">{% trans "Child Groups" %}</h5>
-      <div class="card-body htmx-container table-responsive"
+      <div class="card-body htmx-container table-responsive p-0"
         hx-get="{% url 'wireless:wirelesslangroup_list' %}?parent_id={{ object.pk }}"
         hx-trigger="load"
       ></div>
       {% if perms.wireless.add_wirelesslangroup %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'wireless:wirelesslangroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
+        <div class="card-footer text-end d-print-none">
+          <a href="{% url 'wireless:wirelesslangroup_add' %}?parent={{ object.pk }}" class="btn btn-primary">
             <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Wireless LAN Group" %}
           </a>
         </div>

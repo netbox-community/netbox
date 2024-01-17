@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load i18n %}
@@ -14,7 +14,7 @@ Context:
 {% block title %}{{ model|meta:"verbose_name"|bettertitle }} {% trans "Bulk Import" %}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="import-form-tab" data-bs-toggle="tab" data-bs-target="#import-form" data-href="#tab_import-form" type="button" role="tab" aria-controls="import-form" aria-selected="true">
         {% trans "Direct Import" %}
@@ -33,176 +33,170 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
+{% block content %}
 
-    {# Data Import Form #}
-    <div class="tab-pane show active" id="import-form" role="tabpanel" aria-labelledby="import-form-tab">
-      <div class="row">
-        <div class="col col-md-12 col-lg-10 offset-lg-1">
-          <form action="" method="post" enctype="multipart/form-data" class="form">
-            {% csrf_token %}
-            <input type="hidden" name="import_method" value="direct" />
-            {% render_field form.data %}
-            {% render_field form.format %}
-            {% render_field form.csv_delimiter %}
-            <div class="form-group">
-              <div class="col col-md-12 text-end">
-                <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
-                {% if return_url %}
-                  <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-                {% endif %}
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    {# File Upload Form #}
-    <div class="tab-pane show" id="upload-form" role="tabpanel" aria-labelledby="upload-form-tab">
+  {# Data Import Form #}
+  <div class="tab-pane show active" id="import-form" role="tabpanel" aria-labelledby="import-form-tab">
+    <div class="row">
       <div class="col col-md-12 col-lg-10 offset-lg-1">
         <form action="" method="post" enctype="multipart/form-data" class="form">
           {% csrf_token %}
-          <input type="hidden" name="import_method" value="upload" />
-          {% render_field form.upload_file %}
+          <input type="hidden" name="import_method" value="direct" />
+          {% render_field form.data %}
           {% render_field form.format %}
           {% render_field form.csv_delimiter %}
           <div class="form-group">
             <div class="col col-md-12 text-end">
-              <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
               {% if return_url %}
-                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+                <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
               {% endif %}
+              <button type="submit" name="data_submit" class="btn btn-primary">{% trans "Submit" %}</button>
             </div>
           </div>
         </form>
       </div>
     </div>
-
-    {# DataFile Form #}
-    <div class="tab-pane show" id="datafile-form" role="tabpanel" aria-labelledby="datafile-form-tab">
-      <div class="col col-md-12 col-lg-10 offset-lg-1">
-        <form action="" method="post" enctype="multipart/form-data" class="form">
-          {% csrf_token %}
-          <input type="hidden" name="import_method" value="datafile" />
-          {% render_field form.data_source %}
-          {% render_field form.data_file %}
-          {% render_field form.format %}
-          {% render_field form.csv_delimiter %}
-          <div class="form-group">
-            <div class="col col-md-12 text-end">
-              <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
-              {% if return_url %}
-                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-              {% endif %}
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-
-    {% if fields %}
-    <div class="row my-3">
-        <div class="col col-md-12">
-            <div class="card">
-                <h5 class="card-header">
-                    {% trans "Field Options" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table">
-                        <tr>
-                            <th>{% trans "Field" %}</th>
-                            <th>{% trans "Required" %}</th>
-                            <th>{% trans "Accessor" %}</th>
-                            <th>{% trans "Description" %}</th>
-                        </tr>
-                        {% for name, field in fields.items %}
-                            <tr>
-                                <td>
-                                    <code>{% if field.required %}<strong>{% endif %}{{ name }}{% if field.required %}</strong>{% endif %}</code>
-                                </td>
-                                <td>
-                                    {% if field.required %}
-                                        {% checkmark True true="Required" %}
-                                    {% else %}
-                                        {{ ''|placeholder }}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if field.to_field_name %}
-                                        <code>{{ field.to_field_name }}</code>
-                                    {% else %}
-                                        {{ ''|placeholder }}
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if field.STATIC_CHOICES %}
-                                        <button type="button" class="btn btn-link btn-sm float-end" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices">
-                                            <i class="mdi mdi-help-circle"></i>
-                                        </button>
-                                        <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
-                                            <div class="modal-dialog" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title"><code>{{ name }}</code> {% trans "Choices" %}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <table class="table table-striped">
-                                                            <tr>
-                                                                <th>{% trans "Import Value" %}</th>
-                                                                <th>{% trans "Label" %}</th>
-                                                            </tr>
-                                                            {% for value, label in field.choices %}
-                                                            {% if value %}
-                                                            <tr>
-                                                                <td>
-                                                                    <samp>{{ value }}</samp>
-                                                                </td>
-                                                                <td>
-                                                                    {{ label }}
-                                                                </td>
-                                                            </tr>
-                                                            {% endif %}
-                                                            {% endfor %}
-                                                        </table>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    {% endif %}
-                                    {% if field.help_text %}
-                                        {{ field.help_text }}<br />
-                                    {% elif field.label %}
-                                        {{ field.label }}<br />
-                                    {% endif %}
-                                    {% if field|widget_type == 'dateinput' %}
-                                        <small class="text-muted">{% trans "Format: YYYY-MM-DD" %}</small>
-                                    {% elif field|widget_type == 'checkboxinput' %}
-                                        <small class="text-muted">{% trans "Specify true or false" %}</small>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    <p class="small text-muted">
-      <i class="mdi mdi-check-bold text-success"></i>
-      {% blocktrans trimmed %}
-        Required fields <strong>must</strong> be specified for all objects.
-      {% endblocktrans %}
-    </p>
-    <p class="small text-muted">
-      <i class="mdi mdi-information-outline"></i>
-      {% blocktrans trimmed with example="vrf.rd" %}
-        Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.
-      {% endblocktrans %}
-    </p>
-    {% endif %}
-
   </div>
-{% endblock content-wrapper %}
+
+  {# File Upload Form #}
+  <div class="tab-pane show" id="upload-form" role="tabpanel" aria-labelledby="upload-form-tab">
+    <div class="col col-md-12 col-lg-10 offset-lg-1">
+      <form action="" method="post" enctype="multipart/form-data" class="form">
+        {% csrf_token %}
+        <input type="hidden" name="import_method" value="upload" />
+        {% render_field form.upload_file %}
+        {% render_field form.format %}
+        {% render_field form.csv_delimiter %}
+        <div class="form-group">
+          <div class="col col-md-12 text-end">
+            {% if return_url %}
+              <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+            {% endif %}
+            <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {# DataFile Form #}
+  <div class="tab-pane show" id="datafile-form" role="tabpanel" aria-labelledby="datafile-form-tab">
+    <div class="col col-md-12 col-lg-10 offset-lg-1">
+      <form action="" method="post" enctype="multipart/form-data" class="form">
+        {% csrf_token %}
+        <input type="hidden" name="import_method" value="datafile" />
+        {% render_field form.data_source %}
+        {% render_field form.data_file %}
+        {% render_field form.format %}
+        {% render_field form.csv_delimiter %}
+        <div class="form-group">
+          <div class="col col-md-12 text-end">
+            {% if return_url %}
+              <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+            {% endif %}
+            <button type="submit" name="file_submit" class="btn btn-primary">{% trans "Submit" %}</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if fields %}
+  <div class="row my-3">
+      <div class="col col-md-12">
+          <div class="card">
+              <h5 class="card-header">{% trans "Field Options" %}</h5>
+              <table class="table">
+                  <tr>
+                      <th>{% trans "Field" %}</th>
+                      <th>{% trans "Required" %}</th>
+                      <th>{% trans "Accessor" %}</th>
+                      <th>{% trans "Description" %}</th>
+                  </tr>
+                  {% for name, field in fields.items %}
+                      <tr>
+                          <td>
+                              <code>{% if field.required %}<strong>{% endif %}{{ name }}{% if field.required %}</strong>{% endif %}</code>
+                          </td>
+                          <td>
+                              {% if field.required %}
+                                  {% checkmark True true="Required" %}
+                              {% else %}
+                                  {{ ''|placeholder }}
+                              {% endif %}
+                          </td>
+                          <td>
+                              {% if field.to_field_name %}
+                                  <code>{{ field.to_field_name }}</code>
+                              {% else %}
+                                  {{ ''|placeholder }}
+                              {% endif %}
+                          </td>
+                          <td>
+                              {% if field.STATIC_CHOICES %}
+                                  <button type="button" class="btn btn-link float-end" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices">
+                                      <i class="mdi mdi-help-circle"></i>
+                                  </button>
+                                  <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
+                                      <div class="modal-dialog" role="document">
+                                          <div class="modal-content">
+                                              <div class="modal-header">
+                                                  <h5 class="modal-title"><code>{{ name }}</code> {% trans "Choices" %}</h5>
+                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                              </div>
+                                              <div class="modal-body">
+                                                  <table class="table table-striped">
+                                                      <tr>
+                                                          <th>{% trans "Import Value" %}</th>
+                                                          <th>{% trans "Label" %}</th>
+                                                      </tr>
+                                                      {% for value, label in field.choices %}
+                                                      {% if value %}
+                                                      <tr>
+                                                          <td>
+                                                              <samp>{{ value }}</samp>
+                                                          </td>
+                                                          <td>
+                                                              {{ label }}
+                                                          </td>
+                                                      </tr>
+                                                      {% endif %}
+                                                      {% endfor %}
+                                                  </table>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+                              {% endif %}
+                              {% if field.help_text %}
+                                  {{ field.help_text }}<br />
+                              {% elif field.label %}
+                                  {{ field.label }}<br />
+                              {% endif %}
+                              {% if field|widget_type == 'dateinput' %}
+                                  <small class="text-muted">{% trans "Format: YYYY-MM-DD" %}</small>
+                              {% elif field|widget_type == 'checkboxinput' %}
+                                  <small class="text-muted">{% trans "Specify true or false" %}</small>
+                              {% endif %}
+                          </td>
+                      </tr>
+                  {% endfor %}
+              </table>
+          </div>
+      </div>
+  </div>
+  <p class="small text-muted">
+    <i class="mdi mdi-check-bold text-success"></i>
+    {% blocktrans trimmed %}
+      Required fields <strong>must</strong> be specified for all objects.
+    {% endblocktrans %}
+  </p>
+  <p class="small text-muted">
+    <i class="mdi mdi-information-outline"></i>
+    {% blocktrans trimmed with example="vrf.rd" %}
+      Related objects may be referenced by any unique attribute. For example, <code>{{ example }}</code> would identify a VRF by its route distinguisher.
+    {% endblocktrans %}
+  </p>
+  {% endif %}
+
+{% endblock content %}

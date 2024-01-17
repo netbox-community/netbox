@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 {% load i18n %}
@@ -7,40 +7,50 @@
   {% trans "Remove" %} {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?
 {% endblock %}
 
-{% block content %}
-<div class="container-md px-0">
-  <div class="alert alert-danger" role="alert">
-    <h4 class="alert-heading">{% trans "Confirm Bulk Removal" %}</h4>
-    <p>
-      {% blocktrans trimmed with count=table.rows|length %}
-        <strong>Warning:</strong> The following operation will remove {{ count }} {{ obj_type_plural }} from {{ parent_obj }}.
-      {% endblocktrans %}
-    </p>
-    <hr />
-    <p class="mb-0">
-      {% blocktrans trimmed %}
-        Please carefully review the {{ obj_type_plural }} to be removed and confirm below.
-      {% endblocktrans %}
-    </p>
-  </div>
-</div>
-<div class="container-xl px-0">
-  <div class="table-responsive">
-    {% render_table table 'inc/table.html' %}
-  </div>
-  <form action="." method="post" class="form">
-    {% csrf_token %}
-    {% for field in form.hidden_fields %}
-      {{ field }}
-    {% endfor %}
-    <div class="text-center">
-      <button type="submit" name="_confirm" class="btn btn-danger">
-        {% blocktrans trimmed with count=table.rows|length %}
-          Delete these {{ count }} {{ obj_type_plural }}
-        {% endblocktrans %}
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        {% trans "Bulk Remove" %}
       </button>
-      <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  <div class="tab-pane show active" role="tabpanel">
+    <div class="alert alert-danger bg-danger-subtle" role="alert">
+      <div class="d-flex">
+        <div>
+          <i class="mdi mdi-alert-octagon p-2"></i>
+        </div>
+        <div>
+          <h4 class="alert-title">{% trans "Confirm Bulk Removal" %}</h4>
+          {% blocktrans trimmed with count=table.rows|length %}
+            The following operation will remove {{ count }} {{ obj_type_plural }} from {{ parent_obj }}. Please
+            carefully review the {{ obj_type_plural }} to be removed and confirm below.
+          {% endblocktrans %}
+        </div>
+      </div>
     </div>
-  </form>
-</div>
+    <div class="container-xl px-0">
+      <div class="table-responsive">
+        {% render_table table 'inc/table.html' %}
+      </div>
+      <form action="." method="post" class="form">
+        {% csrf_token %}
+        {% for field in form.hidden_fields %}
+          {{ field }}
+        {% endfor %}
+        <div class="text-end">
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          <button type="submit" name="_confirm" class="btn btn-danger">
+            {% blocktrans trimmed with count=table.rows|length %}
+              Remove these {{ count }} {{ obj_type_plural }}
+            {% endblocktrans %}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 {% endblock content %}

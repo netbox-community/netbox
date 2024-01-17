@@ -5,16 +5,16 @@
 
 {% block form %}
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Circuit Termination" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Circuit Termination" %}</h5>
     </div>
     {% render_field form.circuit %}
     {% render_field form.term_side %}
     {% render_field form.tags %}
     {% render_field form.mark_connected %}
     {% with providernetwork_tab_active=form.initial.provider_network %}
-      <div class="row mb-2">
-        <div class="offset-sm-3">
+      <div class="row">
+        <div class="col-9 offset-3">
           <ul class="nav nav-pills" role="tablist">
             <li class="nav-item" role="presentation">
               <button class="nav-link{% if not providernetwork_tab_active %} active{% endif %}" role="tab" type="button" data-bs-target="#site" data-bs-toggle="tab">{% trans "Site" %}</button>
@@ -37,8 +37,8 @@
   </div>
 
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Termination Details" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Termination Details" %}</h5>
     </div>
     {% render_field form.port_speed %}
     {% render_field form.upstream_speed %}
@@ -49,8 +49,8 @@
 
   {% if form.custom_fields %}
     <div class="field-group mb-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

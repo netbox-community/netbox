@@ -14,29 +14,25 @@
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Device Bay" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Device" %}</th>
-                            <td>{{ object.device|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Name" %}</th>
-                            <td>{{ object.name }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Label" %}</th>
-                            <td>{{ object.label|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Description" %}</th>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                    </table>
-                </div>
+                <h5 class="card-header">{% trans "Device Bay" %}</h5>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Device" %}</th>
+                        <td>{{ object.device|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Name" %}</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Label" %}</th>
+                        <td>{{ object.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
         {% include 'inc/panels/custom_fields.html' %}
         {% include 'inc/panels/tags.html' %}
@@ -44,10 +40,7 @@
         </div>
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Installed Device" %}
-                </h5>
-                <div class="card-body">
+                <h5 class="card-header">{% trans "Installed Device" %}</h5>
                 {% if object.installed_device %}
                     {% with device=object.installed_device %}
                         <table class="table table-hover attr-table">
@@ -62,11 +55,10 @@
                         </table>
                     {% endwith %}
                 {% else %}
-                    <div class="text-muted">
+                    <div class="card-body text-muted">
                         {% trans "None" %}
                     </div>
                 {% endif %}
-                </div>
             </div>
             {% plugin_right_page object %}
         </div>

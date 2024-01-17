@@ -1,5 +1,5 @@
 {% load i18n %}
-<table class="table panel-body">
+<table class="table">
     <tr>
         <th>{% trans "VID" %}</th>
         <th>{% trans "Name" %}</th>
@@ -41,10 +41,10 @@
             <tr>
                 <td colspan="2"></td>
                 <td>
-                    <a href="#" id="clear_untagged_vlan" class="btn btn-outline-warning btn-sm">{% trans "Clear" %}</a>
+                    <a href="#" id="clear_untagged_vlan" class="btn btn-outline-warning">{% trans "Clear" %}</a>
                 </td>
                 <td>
-                    <a href="#" id="clear_tagged_vlans" class="btn btn-warning btn-sm">{% trans "Clear All" %}</a>
+                    <a href="#" id="clear_tagged_vlans" class="btn btn-warning">{% trans "Clear All" %}</a>
                 </td>
             </tr>
         {% endif %}

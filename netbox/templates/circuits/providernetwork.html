@@ -11,53 +11,49 @@
 {% endblock %}
 
 {% block content %}
-<div class="row mb-3">
-	  <div class="col col-md-6">
-        <div class="card">
-            <h5 class="card-header">
-                {% trans "Provider Network" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Provider" %}</th>
-                        <td>{{ object.provider|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Name" %}</th>
-                        <td>{{ object.name }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Service ID" %}</th>
-                        <td>{{ object.service_id|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Description" %}</th>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                </table>
-            </div>
-        </div>
-        {% include 'inc/panels/tags.html' %}
-        {% plugin_left_page object %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">{% trans "Provider Network" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Provider" %}</th>
+            <td>{{ object.provider|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Service ID" %}</th>
+            <td>{{ object.service_id|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
-        {% include 'inc/panels/related_objects.html' %}
-        {% include 'inc/panels/comments.html' %}
-        {% include 'inc/panels/custom_fields.html' %}
-        {% plugin_right_page object %}
+      {% include 'inc/panels/related_objects.html' %}
+      {% include 'inc/panels/comments.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
     </div>
-</div>
-<div class="row mb-3">
-  <div class="col col-md-12">
-    <div class="card">
-      <h5 class="card-header">{% trans "Circuits" %}</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'circuits:circuit_list' %}?provider_network_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-    </div>
-    {% plugin_full_width_page object %}
   </div>
-</div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Circuits" %}</h5>
+        <div class="card-body htmx-container table-responsive p-0"
+          hx-get="{% url 'circuits:circuit_list' %}?provider_network_id={{ object.pk }}"
+          hx-trigger="load"
+        ></div>
+      </div>
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
 {% endblock %}

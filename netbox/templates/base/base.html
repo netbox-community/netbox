@@ -19,24 +19,12 @@
   >
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, viewport-fit=cover"
-    />
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width, viewport-fit=cover" />
 
     {# Page title #}
     <title>{% block title %}{% trans "Home" %}{% endblock %} | NetBox</title>
 
-    <script
-      type="text/javascript"
-      src="{% static 'setmode.js' %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=setmode.js'">
-    </script>
-
     <script type="text/javascript">
-      (function () {
-          initMode()
-      })();
       window.CSRF_TOKEN = "{{ csrf_token }}";
     </script>
 
@@ -48,19 +36,8 @@
     />
     <link
       rel="stylesheet"
-      href="{% static 'netbox-light.css'%}?v={{ settings.VERSION }}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox-light.css'"
-    />
-    <link
-      rel="stylesheet"
-      href="{% static 'netbox-dark.css'%}?v={{ settings.VERSION }}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox-dark.css'"
-    />
-    <link
-      rel="stylesheet"
-      media="print"
-      href="{% static 'netbox-print.css'%}?v={{ settings.VERSION }}"
-      onerror="window.location='{% url 'media_failure' %}?filename=netbox-print.css'"
+      href="{% static 'netbox.css'%}?v={{ settings.VERSION }}"
+      onerror="window.location='{% url 'media_failure' %}?filename=netbox.css'"
     />
     <link rel="icon" type="image/png" href="{% static 'netbox.ico' %}" />
     <link rel="apple-touch-icon" type="image/png" href="{% static 'netbox_touch-icon-180.png' %}" />
@@ -76,33 +53,11 @@
     {% block head %}{% endblock %}
   </head>
 
-  <body>
-    <script type="text/javascript">
-      function checkSideNav() {
-        // Check localStorage to see if the sidebar should be pinned.
-        var sideNavRaw = localStorage.getItem('netbox-sidenav');
-        // Determine if the device has a small screeen. This media query is equivalent to
-        // bootstrap's media-breakpoint-down(lg) breakpoint mixin, which is what the sidenav's
-        // CSS uses.
-        var isSmallScreen = window.matchMedia('(max-width: 991.98px)').matches;
-        if (typeof sideNavRaw === 'string') {
-          var sideNavState = JSON.parse(sideNavRaw);
-          if (sideNavState.pinned === true && !isSmallScreen) {
-            // If the sidebar should be pinned and this is not a small screen, set the appropriate
-            // body attributes prior to the rest of the content rendering. This prevents
-            // jumpy/glitchy behavior on page reloads.
-            document.body.setAttribute('data-sidenav-pinned', '');
-            document.body.setAttribute('data-sidenav-show', '');
-            document.body.removeAttribute('data-sidenav-hidden');
-          } else {
-            document.body.removeAttribute('data-sidenav-pinned');
-            document.body.setAttribute('data-sidenav-hidden', '');
-          }
-        }
-      }
-      window.addEventListener('resize', function(){ checkSideNav() });
-      checkSideNav();
-    </script>
+  <body
+    {% if preferences|get_key:'ui.colormode' == 'dark' %}
+      data-bs-theme="dark"
+    {% endif %}
+  >
 
     {# Page layout #}
     {% block layout %}{% endblock %}

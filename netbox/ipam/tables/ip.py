@@ -18,7 +18,7 @@ __all__ = (
     'RoleTable',
 )
 
-AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
+AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
 
 AGGREGATE_COPY_BUTTON = """
 {% copy_content record.pk prefix="aggregate_" %}

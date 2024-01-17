@@ -12,62 +12,58 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Virtual Device Context" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Device" %}</th>
-            <td>{{ object.device|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Identifier" %}</th>
-            <td>{{ object.identifier|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Primary IPv4" %}</th>
-            <td>
-              {% if object.primary_ip4 %}
-                <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4 }}</a>
-                {% copy_content "primary_ip4" %}
-             {% else %}
-                <span class="text-muted">—</span>
-             {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Primary IPv6" %}</th>
-            <td>
-              {% if object.primary_ip6 %}
-                <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6 }}</a>
-                {% copy_content "primary_ip6" %}
-             {% else %}
-                <span class="text-muted">—</span>
-             {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Tenant" %}</th>
-            <td>
-              {% if object.tenant.group %}
-                {{ object.tenant.group|linkify }} /
-              {% endif %}
-              {{ object.tenant|linkify|placeholder }}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Interfaces" %}</th>
-            <td>
-              <a href="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}">{{ object.interfaces.count }}</a>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "Virtual Device Context" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Device" %}</th>
+          <td>{{ object.device|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Identifier" %}</th>
+          <td>{{ object.identifier|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Primary IPv4" %}</th>
+          <td>
+            {% if object.primary_ip4 %}
+              <a href="{{ object.primary_ip4.get_absolute_url }}" id="primary_ip4">{{ object.primary_ip4 }}</a>
+              {% copy_content "primary_ip4" %}
+           {% else %}
+              <span class="text-muted">—</span>
+           {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Primary IPv6" %}</th>
+          <td>
+            {% if object.primary_ip6 %}
+              <a href="{{ object.primary_ip6.get_absolute_url }}" id="primary_ip6">{{ object.primary_ip6 }}</a>
+              {% copy_content "primary_ip6" %}
+           {% else %}
+              <span class="text-muted">—</span>
+           {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Tenant" %}</th>
+          <td>
+            {% if object.tenant.group %}
+              {{ object.tenant.group|linkify }} /
+            {% endif %}
+            {{ object.tenant|linkify|placeholder }}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Interfaces" %}</th>
+          <td>
+            <a href="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}">{{ object.interfaces.count }}</a>
+          </td>
+        </tr>
+      </table>
     </div>
     {% plugin_left_page object %}
     {% include 'inc/panels/tags.html' %}
@@ -83,7 +79,7 @@
   <div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">{% trans "Interfaces" %}</h5>
-      <div class="card-body htmx-container table-responsive"
+      <div class="card-body htmx-container table-responsive p-0"
         hx-get="{% url 'dcim:interface_list' %}?vdc_id={{ object.pk }}"
         hx-trigger="load"
       ></div>

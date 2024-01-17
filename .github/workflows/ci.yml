@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ['3.10', '3.11', '3.12']
-        node-version: ['14.x']
+        node-version: ['18.x']
     services:
       redis:
         image: redis
