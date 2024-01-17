@@ -8,28 +8,26 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "IPSec Policy" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "PFS group" %}</th>
-              <td>{{ object.get_pfs_group_display|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "IPSec Profiles" %}</th>
-              <td>
-                <a href="{% url 'vpn:ipsecprofile_list' %}?ipsec_policy_id={{ object.pk }}">{{ object.ipsec_profiles.count }}</a>
-              </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "PFS group" %}</th>
+            <td>{{ object.get_pfs_group_display|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "IPSec Profiles" %}</th>
+            <td>
+              <a href="{% url 'vpn:ipsecprofile_list' %}?ipsec_policy_id={{ object.pk }}">{{ object.ipsec_profiles.count }}</a>
+            </td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>
@@ -45,7 +43,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Proposals" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'vpn:ipsecproposal_list' %}?ipsec_policy_id={{ object.pk }}"
           hx-trigger="load"
         ></div>

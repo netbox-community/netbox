@@ -7,63 +7,51 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Webhook" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "Webhook" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     <div class="card">
-      <h5 class="card-header">
-        {% trans "HTTP Request" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "HTTP Method" %}</th>
-            <td>{{ object.get_http_method_display }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Payload URL" %}</th>
-            <td class="font-monospace">{{ object.payload_url }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "HTTP Content Type" %}</th>
-            <td>{{ object.http_content_type }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Secret" %}</th>
-            <td>{{ object.secret|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "HTTP Request" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "HTTP Method" %}</th>
+          <td>{{ object.get_http_method_display }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Payload URL" %}</th>
+          <td class="font-monospace">{{ object.payload_url }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "HTTP Content Type" %}</th>
+          <td>{{ object.http_content_type }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Secret" %}</th>
+          <td>{{ object.secret|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     <div class="card">
-      <h5 class="card-header">
-        {% trans "SSL" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "SSL Verification" %}</th>
-            <td>{% checkmark object.ssl_verification %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "CA File Path" %}</th>
-            <td>{{ object.ca_file_path|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "SSL" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "SSL Verification" %}</th>
+          <td>{% checkmark object.ssl_verification %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "CA File Path" %}</th>
+          <td>{{ object.ca_file_path|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% plugin_left_page object %}
 	</div>

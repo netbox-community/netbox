@@ -8,22 +8,20 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Route Target" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td class="font-monospace">{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th  scope="row">{% trans "Tenant" %}</th>
-              <td>{{ object.tenant|linkify|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td class="font-monospace">{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th  scope="row">{% trans "Tenant" %}</th>
+            <td>{{ object.tenant|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}
@@ -38,7 +36,7 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Importing VRFs" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'ipam:vrf_list' %}?import_target_id={{ object.pk }}"
           hx-trigger="load"
         ></div>
@@ -47,7 +45,7 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Exporting VRFs" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'ipam:vrf_list' %}?export_target_id={{ object.pk }}"
           hx-trigger="load"
         ></div>
@@ -58,7 +56,7 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Importing L2VPNs" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'vpn:l2vpn_list' %}?import_target_id={{ object.pk }}"
           hx-trigger="load"
         ></div>
@@ -67,7 +65,7 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Exporting L2VPNs" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'vpn:l2vpn_list' %}?export_target_id={{ object.pk }}"
           hx-trigger="load"
         ></div>

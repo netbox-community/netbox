@@ -1,0 +1,25 @@
+// In-page content tabs
+.page-tabs {
+  // Set the border on page-tabs to ensure it expands the full page width
+  border-bottom: 1px solid $card-border-color;
+
+  .nav-tabs {
+    position: relative;
+    border: none;
+
+    .nav-link {
+      &.active,
+      &:active,
+      &:hover {
+        border-color: $card-border-color;
+        border-bottom-color: transparent;
+      }
+
+      &.active {
+        color: $headings-color;
+        background: var(--#{$prefix}bg-surface-secondary);
+        border-bottom-color: transparent;
+      }
+    }
+  }
+}

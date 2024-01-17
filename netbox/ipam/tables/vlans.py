@@ -18,7 +18,7 @@ __all__ = (
     'VLANVirtualMachinesTable',
 )
 
-AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
+AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
 
 VLAN_LINK = """
 {% if record.pk %}

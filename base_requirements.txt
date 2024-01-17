@@ -1,7 +1,3 @@
-# HTML sanitizer
-# https://github.com/mozilla/bleach/blob/main/CHANGES
-bleach
-
 # The Python web framework on which NetBox is built
 # https://docs.djangoproject.com/en/stable/releases/
 Django<5.1
@@ -107,6 +103,10 @@ mkdocstrings[python-legacy]
 # Library for manipulating IP prefixes and addresses
 # https://github.com/netaddr/netaddr/blob/master/CHANGELOG
 netaddr
+
+# Python bindings to the ammonia HTML sanitization library.
+# https://github.com/messense/nh3
+nh3
 
 # Fork of PIL (Python Imaging Library) for image processing
 # https://github.com/python-pillow/Pillow/blob/main/CHANGES.rst

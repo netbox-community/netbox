@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load form_helpers %}
 {% load i18n %}
 
@@ -16,8 +16,8 @@
             {% block message %}<p>{% trans "Are you sure" %}?</p>{% endblock %}
           </div>
           <div class="card-footer text-end">
+            <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
             <button type="submit" name="_confirm" class="btn btn-{{ button_class|default:"danger" }}">{% trans "Confirm" %}</button>
-            <a href="{{ return_url }}" class="btn btn-outline-dark">{% trans "Cancel" %}</a>
           </div>
         </div>
       </form>

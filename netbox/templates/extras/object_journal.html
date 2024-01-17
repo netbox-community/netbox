@@ -7,15 +7,15 @@
 
 {% block content %}
   <div class="card">
-    <div class="card-body table-responsive">
+    <div class="table-responsive">
       {% render_table table 'inc/table.html' %}
       {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
     </div>
   </div>
   {% if perms.extras.add_journalentry %}
     <div class="card">
-      <div class="card-body table-responsive">
-        <h4 class="card-header">{% trans "New Journal Entry" %}</h4>
+      <h4 class="card-header">{% trans "New Journal Entry" %}</h4>
+      <div class="card-body">
         <form action="{% url 'extras:journalentry_add' %}" method="post" enctype="multipart/form-data">
           <div class="container">
             <div class="field-group">
@@ -23,7 +23,7 @@
               {% render_form form %}
             </div>
             <div class="col col-md-12 text-end my-3">
-              <a href="{{ object.get_absolute_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+              <a href="{{ object.get_absolute_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
               <button type="submit" class="btn btn-primary">{% trans "Save" %}</button>
             </div>
           </div>

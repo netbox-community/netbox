@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="border rounded markdown-widget"> 
+<div class="border rounded">
     <ul class="nav nav-tabs px-3 pt-2 rounded-top border-0">
         <li class="nav-item" role="presentation">
           <button class="nav-link active " id="{{ widget.name }}-input-tab" data-bs-toggle="tab" data-bs-target="#{{ widget.name }}-input" type="button" role="tab" aria-controls="{{ widget.name }}-input" aria-selected="true">
@@ -12,7 +12,7 @@
             </button>
           </li>
       </ul>
-      <div class="tab-content bg-body rounded-bottom border-top">
+      <div class="tab-content text-bg-body rounded-bottom border-top">
         <div class="tab-pane show active" id="{{ widget.name }}-input" role="tabpanel" aria-labelledby="{{ widget.name }}-input-tab">
         {% include "django/forms/widgets/textarea.html" %}
         </div>

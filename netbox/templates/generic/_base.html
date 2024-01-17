@@ -1,0 +1,38 @@
+{% extends 'base/layout.html' %}
+
+{% block header %}
+  <div class="page-header m-0">
+    {{ block.super }}
+
+    {% block page-header %}
+      <div class="container-xl mt-2 d-print-none">
+        <div class="row align-items-center">
+
+          {# Title #}
+          <div class="col">
+            <h2 class="page-title my-1">{% block title %}{% endblock title %}</h2>
+            {% block subtitle %}{% endblock %}
+          </div>
+
+          {# Controls #}
+          <div class="col-auto d-print-none">
+            {% block controls %}
+              <div class="btn-list">
+                {% block control-buttons %}{% endblock %}
+              </div>
+            {% endblock controls %}
+          </div>
+
+        </div>
+      </div>
+    {% endblock %}
+
+    {# Tabs #}
+    <div class="page-tabs mt-3">
+      <div class="container-xl">
+        {% block tabs %}{% endblock %}
+      </div>
+    </div>
+
+  </div>
+{% endblock header %}

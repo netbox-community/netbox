@@ -3353,6 +3353,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         formset = VCMemberFormSet(queryset=members_queryset)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
+            'object': virtual_chassis,
             'vc_form': vc_form,
             'formset': formset,
             'return_url': self.get_return_url(request, virtual_chassis),

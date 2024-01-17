@@ -204,23 +204,25 @@ class SideNav {
    * @param link Active nav link
    * @param action Expand or Collapse
    */
-  private activateLink(link: HTMLAnchorElement, action: 'expand' | 'collapse'): void {
-    // Find the closest .collapse element, which should contain `link`.
-    const collapse = link.closest('.collapse') as Nullable<HTMLDivElement>;
-    if (isElement(collapse)) {
-      // Find the closest `.nav-link`, which should be adjacent to the `.collapse` element.
-      const groupLink = collapse.parentElement?.querySelector('.nav-link');
-      if (isElement(groupLink)) {
-        groupLink.classList.add('active');
+  private activateLink(link: HTMLDivElement, action: 'expand' | 'collapse'): void {
+    // Find the closest .dropdown-menu element, which should contain `link`.
+    const dropdownMenu = link.closest('.dropdown-menu') as Nullable<HTMLDivElement>;
+    if (isElement(dropdownMenu)) {
+      // Find the closest `.nav-link`, which should be adjacent to the `.dropdown-menu` element.
+      const groupItem = dropdownMenu.parentElement;
+      const groupLink = dropdownMenu.parentElement?.querySelector('.nav-link');
+      if (isElement(groupLink) && isElement(groupItem)) {
         switch (action) {
           case 'expand':
             groupLink.setAttribute('aria-expanded', 'true');
-            collapse.classList.add('show');
+            groupItem.classList.add('active');
+            dropdownMenu.classList.add('show');
             link.classList.add('active');
             break;
           case 'collapse':
             groupLink.setAttribute('aria-expanded', 'false');
-            collapse.classList.remove('show');
+            groupItem.classList.remove('active');
+            dropdownMenu.classList.remove('show');
             link.classList.remove('active');
             break;
         }
@@ -232,13 +234,16 @@ class SideNav {
    * Find any nav links with `href` attributes matching the current path, to determine which nav
    * link should be considered active.
    */
-  private *getActiveLinks(): Generator<HTMLAnchorElement> {
-    for (const link of this.base.querySelectorAll<HTMLAnchorElement>(
-      '.navbar-nav .nav .nav-item a.nav-link',
+  private *getActiveLinks(): Generator<HTMLDivElement> {
+    for (const menuitem of this.base.querySelectorAll<HTMLDivElement>(
+      'ul.navbar-nav .nav-item .dropdown-item',
     )) {
-      const href = new RegExp(link.href, 'gi');
-      if (window.location.href.match(href)) {
-        yield link;
+      const link = menuitem.querySelector<HTMLAnchorElement>('a')
+      if (link) {
+        const href = new RegExp(link.href, 'gi');
+        if (window.location.href.match(href)) {
+          yield menuitem;
+        }
       }
     }
   }
@@ -309,7 +314,7 @@ class SideNav {
 }
 
 export function initSideNav(): void {
-  for (const sidenav of getElements<HTMLDivElement>('.sidenav')) {
+  for (const sidenav of getElements<HTMLDivElement>('.navbar')) {
     new SideNav(sidenav);
   }
 }

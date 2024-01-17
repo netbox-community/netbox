@@ -15,63 +15,59 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Interface" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Virtual Machine" %}</th>
-                        <td>{{ object.virtual_machine|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Name" %}</th>
-                        <td>{{ object.name }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Enabled" %}</th>
-                        <td>
-                            {% if object.enabled %}
-                                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
-                            {% else %}
-                                <span class="text-danger"><i class="mdi mdi-close"></i></span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Parent" %}</th>
-                        <td>{{ object.parent|linkify|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Bridge" %}</th>
-                        <td>{{ object.bridge|linkify|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "VRF" %}</th>
-                        <td>{{ object.vrf|linkify|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Description" %}</th>
-                        <td>{{ object.description|placeholder }} </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "MTU" %}</th>
-                        <td>{{ object.mtu|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "MAC Address" %}</th>
-                        <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "802.1Q Mode" %}</th>
-                        <td>{{ object.get_mode_display|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Tunnel" %}</th>
-                        <td>{{ object.tunnel_termination.tunnel|linkify|placeholder }}</td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Interface" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Virtual Machine" %}</th>
+                    <td>{{ object.virtual_machine|linkify }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Name" %}</th>
+                    <td>{{ object.name }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Enabled" %}</th>
+                    <td>
+                        {% if object.enabled %}
+                            <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                        {% else %}
+                            <span class="text-danger"><i class="mdi mdi-close"></i></span>
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Parent" %}</th>
+                    <td>{{ object.parent|linkify|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Bridge" %}</th>
+                    <td>{{ object.bridge|linkify|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "VRF" %}</th>
+                    <td>{{ object.vrf|linkify|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Description" %}</th>
+                    <td>{{ object.description|placeholder }} </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "MTU" %}</th>
+                    <td>{{ object.mtu|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "MAC Address" %}</th>
+                    <td><span class="font-monospace">{{ object.mac_address|placeholder }}</span></td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "802.1Q Mode" %}</th>
+                    <td>{{ object.get_mode_display|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Tunnel" %}</th>
+                    <td>{{ object.tunnel_termination.tunnel|linkify|placeholder }}</td>
+                </tr>
+            </table>
         </div>
         {% include 'inc/panels/tags.html' %}
         {% plugin_left_page object %}
@@ -86,13 +82,13 @@
     <div class="col col-md-12">
         <div class="card">
             <h5 class="card-header">{% trans "IP Addresses" %}</h5>
-            <div class="card-body htmx-container table-responsive"
+            <div class="card-body htmx-container table-responsive p-0"
               hx-get="{% url 'ipam:ipaddress_list' %}?vminterface_id={{ object.pk }}"
               hx-trigger="load"
             ></div>
             {% if perms.ipam.add_ipaddress %}
-                <div class="card-footer text-end noprint">
-                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+                <div class="card-footer text-end d-print-none">
+                    <a href="{% url 'ipam:ipaddress_add' %}?virtual_machine={{ object.virtual_machine.pk }}&vminterface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
                         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add IP Address" %}
                     </a>
                 </div>

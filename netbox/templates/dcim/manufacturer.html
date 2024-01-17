@@ -7,7 +7,7 @@
 {% block extra_controls %}
   {% if perms.dcim.add_devicetype or perms.dcim.add_moduletype %}
     <div class="dropdown">
-      <button id="add-components" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+      <button id="add-components" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add" %}
       </button>
       <ul class="dropdown-menu" aria-labeled-by="add-components">
@@ -30,21 +30,17 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Manufacturer" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "Manufacturer" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}

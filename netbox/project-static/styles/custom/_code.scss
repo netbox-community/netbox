@@ -1,0 +1,40 @@
+// Serialized data from change records
+pre.change-data {
+  padding-right: 0;
+  padding-left: 0;
+
+  // Display each line individually for highlighting
+  > span {
+    display: block;
+    padding-right: $spacer;
+    padding-left: $spacer;
+
+    &.added {
+      background-color: $green;
+    }
+
+    &.removed {
+      background-color: $red;
+    }
+  }
+}
+
+// Change data diff w/added & removed data
+pre.change-diff {
+  border-color: transparent;
+
+  &.change-added {
+    background-color: $green;
+  }
+
+  &.change-removed {
+    background-color: $red;
+  }
+}
+
+// <pre> elements displayed with a border
+pre.block {
+  padding: $spacer;
+  border: 1px solid $border-color;
+  border-radius: $border-radius;
+}

@@ -12,8 +12,8 @@
     {# Built-in preferences #}
     {% for group, fields in form.fieldsets %}
       <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{{ group }}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{{ group }}</h5>
         </div>
         {% for name in fields %}
           {% render_field form|getfield:name %}
@@ -25,8 +25,8 @@
     {% with plugin_fields=form.plugin_fields %}
       {% if plugin_fields %}
         <div class="field-group my-5">
-          <div class="row mb-2">
-            <h5 class="offset-sm-3">{% trans "Plugins" %}</h5>
+          <div class="row">
+            <h5 class="col-9 offset-3">{% trans "Plugins" %}</h5>
           </div>
           {% for name in plugin_fields %}
             {% render_field form|getfield:name %}
@@ -37,8 +37,8 @@
 
     {# Table configurations #}
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Table Configurations" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Table Configurations" %}</h5>
       </div>
       <div class="row">
         {% if request.user.config.data.tables %}
@@ -72,14 +72,14 @@
             </table>
           </div>
         {% else %}
-          <div class="offset-sm-3">
+          <div class="col-9 offset-3">
             <p class="text-muted">{% trans "None found" %}</p>
           </div>
         {% endif %}
       </div>
     </div>
     <div class="text-end my-3">
-      <a class="btn btn-outline-secondary" href="{% url 'account:preferences' %}">{% trans "Cancel" %}</a>
+      <a href="{% url 'account:preferences' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
       <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
     </div>
   </form>

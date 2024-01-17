@@ -8,36 +8,34 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Tunnel Termination" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Tunnel" %}</th>
-              <td>{{ object.tunnel|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Role" %}</th>
-              <td>{% badge object.get_role_display bg_color=object.get_role_color %}</td>
-            </tr>
-            <tr>
-              <th scope="row">
-                {% if object.termination.device %}
-                  {% trans "Device" %}
-                {% elif object.termination.virtual_machine %}
-                  {% trans "Virtual Machine" %}
-                {% endif %}
-              </th>
-              <td>{{ object.termination.parent_object|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Interface" %}</th>
-              <td>{{ object.termination|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Outside IP" %}</th>
-              <td>{{ object.outside_ip|linkify|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Tunnel" %}</th>
+            <td>{{ object.tunnel|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Role" %}</th>
+            <td>{% badge object.get_role_display bg_color=object.get_role_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">
+              {% if object.termination.device %}
+                {% trans "Device" %}
+              {% elif object.termination.virtual_machine %}
+                {% trans "Virtual Machine" %}
+              {% endif %}
+            </th>
+            <td>{{ object.termination.parent_object|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Interface" %}</th>
+            <td>{{ object.termination|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Outside IP" %}</th>
+            <td>{{ object.outside_ip|linkify|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>
@@ -51,7 +49,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Peer Terminations" %}</h5>
-        <div class="card-body htmx-container table-responsive"
+        <div class="card-body htmx-container table-responsive p-0"
           hx-get="{% url 'vpn:tunneltermination_list' %}?tunnel_id={{ object.tunnel.pk }}&id__n={{ object.pk }}"
           hx-trigger="load"
         ></div>

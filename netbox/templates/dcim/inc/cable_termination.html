@@ -1,23 +1,23 @@
 {% load helpers %}
 {% load i18n %}
 {% if terminations.0 %}
-  <table class="table table-hover panel-body attr-table">
+  <table class="table table-hover attr-table">
     {% if terminations.0.device %}
       {# Device component #}
       <tr>
-        <td>{% trans "Site" %}</td>
+        <th scope="row">{% trans "Site" %}</th>
         <td>{{ terminations.0.device.site|linkify }}</td>
       </tr>
       <tr>
-        <td>{% trans "Location" %}</td>
+        <th scope="row">{% trans "Location" %}</th>
         <td>{{ terminations.0.device.location|linkify|placeholder }}</td>
       </tr>
       <tr>
-        <td>{% trans "Rack" %}</td>
+        <th scope="row">{% trans "Rack" %}</th>
         <td>{{ terminations.0.device.rack|linkify|placeholder }}</td>
       </tr>
       <tr>
-        <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
+        <th scope="row">{{ terminations.0|meta:"verbose_name"|capfirst }}</th>
         <td>
           {% for term in terminations %}
 	    {{term.device|linkify}}
@@ -30,15 +30,15 @@
     {% elif terminations.0.power_panel %}
       {# Power feed #}
       <tr>
-        <td>{% trans "Site" %}</td>
+        <th scope="row">{% trans "Site" %}</th>
         <td>{{ terminations.0.power_panel.site|linkify }}</td>
       </tr>
       <tr>
-        <td>{% trans "Power Panel" %}</td>
+        <th scope="row">{% trans "Power Panel" %}</th>
         <td>{{ terminations.0.power_panel|linkify }}</td>
       </tr>
       <tr>
-        <td>{{ terminations.0|meta:"verbose_name"|capfirst }}</td>
+        <th scope="row">{{ terminations.0|meta:"verbose_name"|capfirst }}</th>
         <td>
           {% for term in terminations %}
             {{ term|linkify }}{% if not forloop.last %},{% endif %}
@@ -48,11 +48,11 @@
     {% elif terminations.0.circuit %}
       {# Circuit termination #}
       <tr>
-        <td>{% trans "Provider" %}</td>
+        <th scope="row">{% trans "Provider" %}</th>
         <td>{{ terminations.0.circuit.provider|linkify }}</td>
       </tr>
       <tr>
-        <td>{% trans "Circuit" %}</td>
+        <th scope="row">{% trans "Circuit" %}</th>
         <td>
           {% for term in terminations %}
             {{ term.circuit|linkify }} ({{ term }}){% if not forloop.last %},{% endif %}

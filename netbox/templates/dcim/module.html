@@ -14,7 +14,7 @@
 {% block extra_controls %}
   {% if perms.dcim.change_module %}
     <div class="dropdown">
-      <button id="add-components" type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+      <button id="add-components" type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Components" %}
       </button>
       <ul class="dropdown-menu" aria-labeled-by="add-components">
@@ -49,38 +49,36 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Module" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Device" %}</th>
-            <td>{{ object.device|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Device Type" %}</th>
-            <td>{{ object.device.device_type|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Module Type" %}</th>
-            <td>{{ object.module_type|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Status" %}</th>
-            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Serial Number" %}</th>
-            <td class="font-monospace">{{ object.serial|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Asset Tag" %}</th>
-            <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Device" %}</th>
+          <td>{{ object.device|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Device Type" %}</th>
+          <td>{{ object.device.device_type|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Module Type" %}</th>
+          <td>{{ object.module_type|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Status" %}</th>
+          <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Serial Number" %}</th>
+          <td class="font-monospace">{{ object.serial|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Asset Tag" %}</th>
+          <td class="font-monospace">{{ object.asset_tag|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/comments.html' %}
