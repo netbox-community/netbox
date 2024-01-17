@@ -1,5 +1,23 @@
 # NetBox v3.7
 
+## v3.7.1 (2024-01-17)
+
+### Bug Fixes
+
+* [#13844](https://github.com/netbox-community/netbox/issues/13844) - Use `available_at_site` filter when filtering VLANs under prefix form
+* [#14663](https://github.com/netbox-community/netbox/issues/14663) - Fix tunnel creation when setting initial termination to a VM interface
+* [#14706](https://github.com/netbox-community/netbox/issues/14706) - Relax one-to-one mapping of tunnel termination to IP address
+* [#14709](https://github.com/netbox-community/netbox/issues/14709) - Fix typo in tunnel termination type choice name
+* [#14749](https://github.com/netbox-community/netbox/issues/14749) - Remove errant translation wrapper from `installed_device` on DeviceBay
+* [#14778](https://github.com/netbox-community/netbox/issues/14778) - Custom field API serializer should accept null values for all optional fields
+* [#14791](https://github.com/netbox-community/netbox/issues/14791) - Hide available prefixes when searching within a parent prefix
+* [#14793](https://github.com/netbox-community/netbox/issues/14793) - Add missing Diffie-Hellman group 15
+* [#14816](https://github.com/netbox-community/netbox/issues/14816) - Ensure default contact assignment ordering is consistent
+* [#14817](https://github.com/netbox-community/netbox/issues/14817) - Relax required fields for IKE & IPSec models on bulk import
+* [#14827](https://github.com/netbox-community/netbox/issues/14827) - Ensure all matching event rules are processed in response to an event
+
+---
+
 ## v3.7.0 (2023-12-29)
 
 ### Breaking Changes
@@ -10,6 +28,7 @@
 * The internal ConfigRevision model has moved from `extras` to `core`. Configuration history will be retained throughout the upgrade process.
 * The [L2VPN](../models/vpn/l2vpn.md) and [L2VPNTermination](../models/vpn/l2vpntermination.md) models have moved from the `ipam` app to the new `vpn` app. All object data will be retained, however please note that the relevant API endpoints have likewise moved to `/api/vpn/`.
 * The `CustomFieldsMixin`, `SavedFiltersMixin`, and `TagsMixin` classes have moved from the `extras.forms.mixins` module to `netbox.forms.mixins`.
+* The `netbox.models.features.WebhooksMixin` class has been renamed to `EventRulesMixin`.
 
 ### New Features
 

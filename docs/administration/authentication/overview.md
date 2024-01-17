@@ -2,9 +2,9 @@
 
 ## Local Authentication
 
-Local user accounts and groups can be created in NetBox under the "Authentication and Authorization" section of the administrative user interface. This interface is available only to users with the "staff" permission enabled.
+Local user accounts and groups can be created in NetBox under the "Authentication" section in the "Admin" menu. This section is available only to users with the "staff" permission enabled.
 
-At a minimum, each user account must have a username and password set. User accounts may also denote a first name, last name, and email address. [Permissions](../permissions.md) may also be assigned to users and/or groups within the admin UI.
+At a minimum, each user account must have a username and password set. User accounts may also denote a first name, last name, and email address. [Permissions](../permissions.md) may also be assigned to users and/or groups under Admin > Permissions.
 
 ## Remote Authentication
 

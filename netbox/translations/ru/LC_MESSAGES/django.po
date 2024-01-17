@@ -5,6 +5,8 @@
 # 
 # Translators:
 # Jeremy Stretch, 2023
+# Vladyslav V. Prodan, 2024
+# Artem Kotik, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-12-21 17:54+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2023\n"
+"Last-Translator: Artem Kotik, 2024\n"
 "Language-Team: Russian (https://app.transifex.com/netbox-community/teams/178115/ru/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -110,7 +112,7 @@ msgstr "Регион (ID)"
 #: virtualization/filtersets.py:52 virtualization/filtersets.py:179
 #: vpn/filtersets.py:325
 msgid "Region (slug)"
-msgstr "Регион (пуля)"
+msgstr "Регион (подстрока)"
 
 #: circuits/filtersets.py:42 circuits/filtersets.py:195 dcim/filtersets.py:194
 #: dcim/filtersets.py:269 dcim/filtersets.py:377 dcim/filtersets.py:894
@@ -127,7 +129,7 @@ msgstr "Группа сайтов (ID)"
 #: ipam/filtersets.py:916 virtualization/filtersets.py:65
 #: virtualization/filtersets.py:192
 msgid "Site group (slug)"
-msgstr "Группа сайтов (слизень)"
+msgstr "Группа сайтов (подстрока)"
 
 #: circuits/filtersets.py:54 circuits/forms/bulk_import.py:117
 #: circuits/forms/filtersets.py:47 circuits/forms/filtersets.py:171
@@ -188,37 +190,37 @@ msgstr "Сайт"
 #: virtualization/filtersets.py:75 virtualization/filtersets.py:202
 #: vpn/filtersets.py:335
 msgid "Site (slug)"
-msgstr "Сайт (слизень)"
+msgstr "Сайт (подстрока)"
 
 #: circuits/filtersets.py:65
 msgid "ASN (ID)"
-msgstr "ЯСЕНЬ (РЕБЕНОК)"
+msgstr "ASN (ID)"
 
 #: circuits/filtersets.py:86 circuits/filtersets.py:112
 #: circuits/filtersets.py:146
 msgid "Provider (ID)"
-msgstr "Поставщик (ID)"
+msgstr "Провайдер (ID)"
 
 #: circuits/filtersets.py:92 circuits/filtersets.py:118
 #: circuits/filtersets.py:152
 msgid "Provider (slug)"
-msgstr "Поставщик (пуля)"
+msgstr "Провайдер (подстрока)"
 
 #: circuits/filtersets.py:157
 msgid "Provider account (ID)"
-msgstr "Учетная запись поставщика (ID)"
+msgstr "Аккаунт провайдера (ID)"
 
 #: circuits/filtersets.py:162
 msgid "Provider network (ID)"
-msgstr "Сеть провайдеров (ID)"
+msgstr "Сеть провайдера (ID)"
 
 #: circuits/filtersets.py:166
 msgid "Circuit type (ID)"
-msgstr "Тип цепи (ID)"
+msgstr "Тип канала связи (ID)"
 
 #: circuits/filtersets.py:172
 msgid "Circuit type (slug)"
-msgstr "Тип цепи (заглушка)"
+msgstr "Тип канала связи (подстрока)"
 
 #: circuits/filtersets.py:207 circuits/filtersets.py:244
 #: dcim/filtersets.py:205 dcim/filtersets.py:280 dcim/filtersets.py:352
@@ -252,11 +254,11 @@ msgstr "Поиск"
 #: templates/dcim/inc/cable_termination.html:55
 #: templates/dcim/trace/circuit.html:4
 msgid "Circuit"
-msgstr "Цепь"
+msgstr "Канал связи"
 
 #: circuits/filtersets.py:254
 msgid "ProviderNetwork (ID)"
-msgstr "Сеть провайдеров (ID)"
+msgstr "Сеть провайдера (ID)"
 
 #: circuits/forms/bulk_edit.py:25 circuits/forms/filtersets.py:56
 #: circuits/forms/model_forms.py:26 circuits/tables/providers.py:33
@@ -266,7 +268,7 @@ msgstr "Сеть провайдеров (ID)"
 #: netbox/navigation/menu.py:160 netbox/navigation/menu.py:163
 #: templates/circuits/provider.html:24
 msgid "ASNs"
-msgstr "SAN"
+msgstr "ASN"
 
 #: circuits/forms/bulk_edit.py:29 circuits/forms/bulk_edit.py:51
 #: circuits/forms/bulk_edit.py:78 circuits/forms/bulk_edit.py:99
@@ -379,12 +381,12 @@ msgstr "Описание"
 #: templates/circuits/providernetwork.html:23
 #: templates/dcim/inc/cable_termination.html:51
 msgid "Provider"
-msgstr "Поставщик"
+msgstr "Провайдер"
 
 #: circuits/forms/bulk_edit.py:75 circuits/forms/filtersets.py:91
 #: templates/circuits/providernetwork.html:31
 msgid "Service ID"
-msgstr "Идентификатор услуги"
+msgstr "Идентификатор сервиса"
 
 #: circuits/forms/bulk_edit.py:95 circuits/forms/filtersets.py:107
 #: dcim/forms/bulk_edit.py:204 dcim/forms/bulk_edit.py:500
@@ -449,7 +451,7 @@ msgstr "Тип"
 #: circuits/forms/bulk_edit.py:123 circuits/forms/bulk_import.py:82
 #: circuits/forms/filtersets.py:139 circuits/forms/model_forms.py:97
 msgid "Provider account"
-msgstr "Учетная запись поставщика"
+msgstr "Аккаунт провайдера"
 
 #: circuits/forms/bulk_edit.py:131 circuits/forms/bulk_import.py:95
 #: circuits/forms/filtersets.py:150 core/forms/filtersets.py:34
@@ -563,7 +565,7 @@ msgstr "Статус"
 #: wireless/forms/bulk_import.py:55 wireless/forms/bulk_import.py:97
 #: wireless/forms/filtersets.py:34 wireless/forms/filtersets.py:74
 msgid "Tenant"
-msgstr "Арендатор"
+msgstr "Тенант"
 
 #: circuits/forms/bulk_edit.py:142 circuits/forms/filtersets.py:174
 msgid "Install date"
@@ -571,7 +573,7 @@ msgstr "Дата установки"
 
 #: circuits/forms/bulk_edit.py:147 circuits/forms/filtersets.py:179
 msgid "Termination date"
-msgstr "Дата увольнения"
+msgstr "Дата отключения"
 
 #: circuits/forms/bulk_edit.py:153 circuits/forms/filtersets.py:186
 msgid "Commit rate (Kbps)"
@@ -602,7 +604,7 @@ msgstr "Сдача в аренду"
 #: circuits/forms/bulk_import.py:38 circuits/forms/bulk_import.py:53
 #: circuits/forms/bulk_import.py:79
 msgid "Assigned provider"
-msgstr "Назначенный поставщик"
+msgstr "Назначенный провайдер"
 
 #: circuits/forms/bulk_import.py:70 dcim/forms/bulk_import.py:170
 #: dcim/forms/bulk_import.py:380 dcim/forms/bulk_import.py:1092
@@ -612,11 +614,11 @@ msgstr "Цвет RGB в шестнадцатеричном формате. Пр�
 
 #: circuits/forms/bulk_import.py:85
 msgid "Assigned provider account"
-msgstr "Учетная запись назначенного поставщика"
+msgstr "Назначенный аккаунт провайдера"
 
 #: circuits/forms/bulk_import.py:92
 msgid "Type of circuit"
-msgstr "Тип схемы"
+msgstr "Тип канала связи"
 
 #: circuits/forms/bulk_import.py:97 dcim/forms/bulk_import.py:89
 #: dcim/forms/bulk_import.py:148 dcim/forms/bulk_import.py:196
@@ -626,7 +628,7 @@ msgstr "Тип схемы"
 #: ipam/forms/bulk_import.py:460 virtualization/forms/bulk_import.py:56
 #: virtualization/forms/bulk_import.py:82 vpn/forms/bulk_import.py:39
 msgid "Operational status"
-msgstr "Эксплуатационный статус"
+msgstr "Операционный статус"
 
 #: circuits/forms/bulk_import.py:104 dcim/forms/bulk_import.py:110
 #: dcim/forms/bulk_import.py:155 dcim/forms/bulk_import.py:278
@@ -640,12 +642,12 @@ msgstr "Эксплуатационный статус"
 #: virtualization/forms/bulk_import.py:119 vpn/forms/bulk_import.py:63
 #: wireless/forms/bulk_import.py:59 wireless/forms/bulk_import.py:101
 msgid "Assigned tenant"
-msgstr "Назначение арендатора"
+msgstr "Назначенный тенант"
 
 #: circuits/forms/bulk_import.py:123 circuits/forms/filtersets.py:147
 #: circuits/forms/model_forms.py:143
 msgid "Provider network"
-msgstr "Сеть провайдеров"
+msgstr "Сеть провайдера"
 
 #: circuits/forms/filtersets.py:26 circuits/forms/filtersets.py:118
 #: dcim/forms/bulk_edit.py:247 dcim/forms/bulk_edit.py:345
@@ -679,13 +681,13 @@ msgstr "Сеть провайдеров"
 #: virtualization/forms/filtersets.py:45 virtualization/forms/filtersets.py:99
 #: wireless/forms/model_forms.py:88 wireless/forms/model_forms.py:128
 msgid "Location"
-msgstr "Местоположение"
+msgstr "Локация"
 
 #: circuits/forms/filtersets.py:27 ipam/forms/model_forms.py:158
 #: ipam/models/asns.py:108 ipam/models/asns.py:125 ipam/tables/asn.py:41
 #: templates/ipam/asn.html:20
 msgid "ASN"
-msgstr "ЗОЛ"
+msgstr "ASN"
 
 #: circuits/forms/filtersets.py:28 circuits/forms/filtersets.py:120
 #: dcim/forms/filtersets.py:136 dcim/forms/filtersets.py:150
@@ -740,7 +742,7 @@ msgstr "Регион"
 #: virtualization/forms/filtersets.py:134
 #: virtualization/forms/model_forms.py:101
 msgid "Site group"
-msgstr "Группа сайта"
+msgstr "Группа сайтов"
 
 #: circuits/forms/filtersets.py:51
 msgid "ASN (legacy)"
@@ -784,11 +786,11 @@ msgstr "Аккаунт"
 #: templates/circuits/inc/circuit_termination.html:89
 #: templates/circuits/providernetwork.html:18
 msgid "Provider Network"
-msgstr "Сеть провайдеров"
+msgstr "Сеть провайдера"
 
 #: circuits/forms/model_forms.py:78 templates/circuits/circuittype.html:20
 msgid "Circuit Type"
-msgstr "Тип цепи"
+msgstr "Тип канала связи"
 
 #: circuits/models/circuits.py:25 dcim/models/cables.py:67
 #: dcim/models/device_component_templates.py:491
@@ -801,19 +803,19 @@ msgstr "цвет"
 
 #: circuits/models/circuits.py:34
 msgid "circuit type"
-msgstr "тип схемы"
+msgstr "тип канала связи"
 
 #: circuits/models/circuits.py:35
 msgid "circuit types"
-msgstr "типы цепей"
+msgstr "типы каналов связи"
 
 #: circuits/models/circuits.py:46
 msgid "circuit ID"
-msgstr "идентификатор цепи"
+msgstr "идентификатор канала связи"
 
 #: circuits/models/circuits.py:47
 msgid "Unique circuit ID"
-msgstr "Уникальный идентификатор схемы"
+msgstr "Уникальный идентификатор канала связи"
 
 #: circuits/models/circuits.py:67 core/models/data.py:54
 #: core/models/jobs.py:85 dcim/models/cables.py:49 dcim/models/devices.py:641
@@ -829,7 +831,7 @@ msgstr "статус"
 
 #: circuits/models/circuits.py:82
 msgid "installed"
-msgstr "установлены"
+msgstr "установлен"
 
 #: circuits/models/circuits.py:87
 msgid "terminates"
@@ -845,11 +847,11 @@ msgstr "Подтвержденная ставка"
 
 #: circuits/models/circuits.py:135
 msgid "circuit"
-msgstr "схема"
+msgstr "канал связи"
 
 #: circuits/models/circuits.py:136
 msgid "circuits"
-msgstr "схемы"
+msgstr "каналы связи"
 
 #: circuits/models/circuits.py:169
 msgid "termination"
@@ -861,15 +863,15 @@ msgstr "скорость порта (Кбит/с)"
 
 #: circuits/models/circuits.py:189
 msgid "Physical circuit speed"
-msgstr "Физическая скорость цепи"
+msgstr "Физическая скорость канала связи"
 
 #: circuits/models/circuits.py:194
 msgid "upstream speed (Kbps)"
-msgstr "скорость восходящего потока (Кбит/с)"
+msgstr "скорость отдачи (Кбит/с)"
 
 #: circuits/models/circuits.py:195
 msgid "Upstream speed, if different from port speed"
-msgstr "Скорость восходящего потока, если она отличается от скорости порта"
+msgstr "Скорость отдачи, если она отличается от скорости порта"
 
 #: circuits/models/circuits.py:200
 msgid "cross-connect ID"
@@ -881,7 +883,7 @@ msgstr "Идентификатор локального кросс-соедин�
 
 #: circuits/models/circuits.py:206
 msgid "patch panel/port(s)"
-msgstr "патч-панель/порт (ы)"
+msgstr "патч-панель или порт(ы)"
 
 #: circuits/models/circuits.py:207
 msgid "Patch panel ID and port number(s)"
@@ -903,11 +905,11 @@ msgstr "описание"
 
 #: circuits/models/circuits.py:223
 msgid "circuit termination"
-msgstr "прекращение цепи"
+msgstr "точка подключение канала связи"
 
 #: circuits/models/circuits.py:224
 msgid "circuit terminations"
-msgstr "концевые разъемы"
+msgstr "точки подключения канала связи"
 
 #: circuits/models/providers.py:22 circuits/models/providers.py:66
 #: circuits/models/providers.py:104 core/models/data.py:41
@@ -945,11 +947,11 @@ msgstr "Полное имя провайдера"
 #: netbox/models/__init__.py:185 tenancy/models/tenants.py:25
 #: tenancy/models/tenants.py:49 vpn/models/l2vpn.py:27 wireless/models.py:55
 msgid "slug"
-msgstr "слизень"
+msgstr "подстрока"
 
 #: circuits/models/providers.py:42
 msgid "provider"
-msgstr "поставщика"
+msgstr "провайдер"
 
 #: circuits/models/providers.py:43
 msgid "providers"
@@ -957,15 +959,15 @@ msgstr "провайдеры"
 
 #: circuits/models/providers.py:63
 msgid "account ID"
-msgstr "идентификатор учетной записи"
+msgstr "идентификатор аккаунта"
 
 #: circuits/models/providers.py:86
 msgid "provider account"
-msgstr "учетная запись провайдера"
+msgstr "аккаунт провайдера"
 
 #: circuits/models/providers.py:87
 msgid "provider accounts"
-msgstr "учетные записи поставщиков"
+msgstr "аккаунты провайдера"
 
 #: circuits/models/providers.py:115
 msgid "service ID"
@@ -973,11 +975,11 @@ msgstr "идентификатор сервиса"
 
 #: circuits/models/providers.py:126
 msgid "provider network"
-msgstr "сеть провайдеров"
+msgstr "сеть провайдера"
 
 #: circuits/models/providers.py:127
 msgid "provider networks"
-msgstr "сети провайдеров"
+msgstr "сети провайдера"
 
 #: circuits/tables/circuits.py:29 circuits/tables/providers.py:18
 #: circuits/tables/providers.py:69 circuits/tables/providers.py:99
@@ -1073,11 +1075,11 @@ msgstr "Имя"
 #: templates/circuits/provideraccount.html:46
 #: templates/circuits/providernetwork.html:54
 msgid "Circuits"
-msgstr "Схемы"
+msgstr "Каналы связи"
 
 #: circuits/tables/circuits.py:52 templates/circuits/circuit.html:27
 msgid "Circuit ID"
-msgstr "Идентификатор цепи"
+msgstr "Идентификатор канала связи"
 
 #: circuits/tables/circuits.py:65 wireless/forms/model_forms.py:157
 msgid "Side A"
@@ -1089,7 +1091,7 @@ msgstr "Сторона Z"
 
 #: circuits/tables/circuits.py:72 templates/circuits/circuit.html:56
 msgid "Commit Rate"
-msgstr "Процент коммитов"
+msgstr "Гарантированная скорость"
 
 #: circuits/tables/circuits.py:75 circuits/tables/providers.py:48
 #: circuits/tables/providers.py:82 circuits/tables/providers.py:107
@@ -1114,11 +1116,11 @@ msgstr "Комментарии"
 
 #: circuits/tables/providers.py:23
 msgid "Accounts"
-msgstr "Счета"
+msgstr "Аккаунты"
 
 #: circuits/tables/providers.py:29
 msgid "Account Count"
-msgstr "Количество учетных записей"
+msgstr "Количество аккаунтов"
 
 #: circuits/tables/providers.py:39 dcim/tables/sites.py:100
 msgid "ASN Count"
@@ -1126,7 +1128,7 @@ msgstr "Количество ASN"
 
 #: core/choices.py:18
 msgid "New"
-msgstr "Новое"
+msgstr "Новый"
 
 #: core/choices.py:19
 msgid "Queued"
@@ -1134,7 +1136,7 @@ msgstr "В очереди"
 
 #: core/choices.py:20
 msgid "Syncing"
-msgstr "Синхронизация"
+msgstr "Синхронизируется"
 
 #: core/choices.py:21 core/choices.py:57 core/tables/jobs.py:41
 #: extras/choices.py:210 templates/core/job.html:75
@@ -1145,13 +1147,13 @@ msgstr "Завершено"
 #: dcim/choices.py:222 dcim/choices.py:1496 extras/choices.py:212
 #: virtualization/choices.py:47
 msgid "Failed"
-msgstr "Не удалось"
+msgstr "Потрачено"
 
 #: core/choices.py:35 netbox/navigation/menu.py:330
 #: templates/extras/script/base.html:14 templates/extras/script_list.html:6
 #: templates/extras/script_list.html:20 templates/extras/script_result.html:18
 msgid "Scripts"
-msgstr "Сценарии"
+msgstr "Скрипты"
 
 #: core/choices.py:36 netbox/navigation/menu.py:324
 #: templates/extras/report/base.html:13 templates/extras/report_list.html:7
@@ -1170,7 +1172,7 @@ msgstr "Запланировано"
 
 #: core/choices.py:56 extras/choices.py:209
 msgid "Running"
-msgstr "Бег"
+msgstr "Исполняется"
 
 #: core/choices.py:58 extras/choices.py:211
 msgid "Errored"
@@ -1178,7 +1180,7 @@ msgstr "Ошибка"
 
 #: core/data_backends.py:29 templates/dcim/interface.html:224
 msgid "Local"
-msgstr "Местный"
+msgstr "Локальный"
 
 #: core/data_backends.py:47 extras/tables/tables.py:431
 #: templates/account/profile.html:16 templates/users/user.html:18
@@ -1227,7 +1229,7 @@ msgstr "Обеспечьте уникальное пространство"
 #: vpn/forms/model_forms.py:315 vpn/forms/model_forms.py:329
 #: vpn/forms/model_forms.py:350 vpn/forms/model_forms.py:373
 msgid "Parameters"
-msgstr "параметры"
+msgstr "Параметры"
 
 #: core/forms/bulk_edit.py:37 templates/core/datasource.html:69
 msgid "Ignore rules"
@@ -1277,7 +1279,7 @@ msgstr "Источник данных"
 
 #: core/forms/filtersets.py:64 extras/forms/filtersets.py:449
 msgid "Creation"
-msgstr "Творчество"
+msgstr "Создание"
 
 #: core/forms/filtersets.py:70 extras/forms/filtersets.py:473
 #: extras/forms/filtersets.py:519 extras/tables/tables.py:474
@@ -1292,23 +1294,23 @@ msgstr "Создано после"
 
 #: core/forms/filtersets.py:85
 msgid "Created before"
-msgstr "Создано ранее"
+msgstr "Создано до"
 
 #: core/forms/filtersets.py:90
 msgid "Scheduled after"
-msgstr "Запланировано позже"
+msgstr "Запланировано после"
 
 #: core/forms/filtersets.py:95
 msgid "Scheduled before"
-msgstr "Запланировано ранее"
+msgstr "Запланировано до"
 
 #: core/forms/filtersets.py:100
 msgid "Started after"
-msgstr "Началось после"
+msgstr "Запустилось после"
 
 #: core/forms/filtersets.py:105
 msgid "Started before"
-msgstr "Начиналось раньше"
+msgstr "Запустилось до"
 
 #: core/forms/filtersets.py:110
 msgid "Completed after"
@@ -1316,7 +1318,7 @@ msgstr "Завершено после"
 
 #: core/forms/filtersets.py:115
 msgid "Completed before"
-msgstr "Выполнено ранее"
+msgstr "Завершено до"
 
 #: core/forms/filtersets.py:122 dcim/forms/bulk_edit.py:359
 #: dcim/forms/filtersets.py:352 dcim/forms/filtersets.py:396
@@ -1348,7 +1350,7 @@ msgstr "Загрузка файла"
 #: core/forms/model_forms.py:147 templates/core/configrevision.html:43
 #: templates/dcim/rack_elevation_list.html:6
 msgid "Rack Elevations"
-msgstr "Высота стеллажей"
+msgstr "Фасады стоек"
 
 #: core/forms/model_forms.py:148 dcim/choices.py:1407
 #: dcim/forms/bulk_edit.py:859 dcim/forms/bulk_edit.py:1242
@@ -1360,14 +1362,14 @@ msgstr "Мощность"
 #: core/forms/model_forms.py:149 netbox/navigation/menu.py:142
 #: templates/core/configrevision.html:79
 msgid "IPAM"
-msgstr "ИПАМ"
+msgstr "IPAM"
 
 #: core/forms/model_forms.py:150 netbox/navigation/menu.py:218
 #: templates/core/configrevision.html:95 vpn/forms/bulk_edit.py:76
 #: vpn/forms/filtersets.py:42 vpn/forms/model_forms.py:60
 #: vpn/forms/model_forms.py:145
 msgid "Security"
-msgstr "Охрана"
+msgstr "Безопасность"
 
 #: core/forms/model_forms.py:151 templates/core/configrevision.html:107
 msgid "Banners"
@@ -1385,7 +1387,7 @@ msgstr "Валидация"
 #: core/forms/model_forms.py:154 templates/account/preferences.html:6
 #: templates/core/configrevision.html:175
 msgid "User Preferences"
-msgstr "Пользовательские предпочтения"
+msgstr "Пользовательские настройки"
 
 #: core/forms/model_forms.py:155 dcim/forms/filtersets.py:658
 #: templates/core/configrevision.html:193 users/forms/model_forms.py:63
@@ -1413,7 +1415,7 @@ msgstr " (по умолчанию)"
 #: core/models/jobs.py:50 extras/models/models.py:760
 #: netbox/models/features.py:52 users/models.py:248
 msgid "created"
-msgstr "созданный"
+msgstr "создан(а)"
 
 #: core/models/config.py:22
 msgid "comment"
@@ -1460,7 +1462,7 @@ msgstr "Версия конфигурации #{id}"
 #: extras/models/search.py:43 virtualization/models/clusters.py:61
 #: vpn/models/l2vpn.py:32
 msgid "type"
-msgstr "типа"
+msgstr "тип"
 
 #: core/models/data.py:51 extras/choices.py:34 extras/models/models.py:194
 #: templates/core/datasource.html:59
@@ -1511,7 +1513,7 @@ msgstr "последнее обновление"
 
 #: core/models/data.py:273 dcim/models/cables.py:430
 msgid "path"
-msgstr "дорожка"
+msgstr "путь"
 
 #: core/models/data.py:276
 msgid "File path relative to the data source's root"
@@ -1523,7 +1525,7 @@ msgstr "размер"
 
 #: core/models/data.py:283
 msgid "hash"
-msgstr "нарубить"
+msgstr "хэш"
 
 #: core/models/data.py:287
 msgid "Length must be 64 hexadecimal characters."
@@ -1531,7 +1533,7 @@ msgstr "Длина должна быть 64 шестнадцатеричных �
 
 #: core/models/data.py:289
 msgid "SHA256 hash of the file data"
-msgstr "Хэш SHA256 данных файла"
+msgstr "SHA256 хэш данных файла"
 
 #: core/models/data.py:306
 msgid "data file"
@@ -1632,7 +1634,7 @@ msgstr "Последнее обновление"
 #: netbox/tables/tables.py:184 templates/dcim/virtualchassis_edit.html:53
 #: wireless/tables/wirelesslink.py:16
 msgid "ID"
-msgstr "ИДЕНТИФИКАТОР"
+msgstr "ID"
 
 #: core/tables/jobs.py:21 extras/choices.py:38 extras/tables/tables.py:236
 #: extras/tables/tables.py:350 extras/tables/tables.py:448
@@ -1812,11 +1814,11 @@ msgstr "Смешанный"
 
 #: dcim/choices.py:443 dcim/choices.py:680
 msgid "NEMA (Non-locking)"
-msgstr "NEMA (без блокировки)"
+msgstr "NEMA (не блокирующий)"
 
 #: dcim/choices.py:465 dcim/choices.py:702
 msgid "NEMA (Locking)"
-msgstr "NEMA (блокировка)"
+msgstr "NEMA (блокирующий)"
 
 #: dcim/choices.py:488 dcim/choices.py:725
 msgid "California Style"
@@ -1853,7 +1855,7 @@ msgstr "Виртуальный"
 #: dcim/forms/model_forms.py:1190 netbox/navigation/menu.py:128
 #: netbox/navigation/menu.py:132 templates/dcim/interface.html:217
 msgid "Wireless"
-msgstr "Беспроводная"
+msgstr "Беспроводной"
 
 #: dcim/choices.py:947
 msgid "Virtual interfaces"
@@ -1871,11 +1873,11 @@ msgstr "Мост"
 
 #: dcim/choices.py:951
 msgid "Link Aggregation Group (LAG)"
-msgstr "Группа агрегации каналов (LAG)"
+msgstr "Группа агрегации линков (LAG)"
 
 #: dcim/choices.py:955
 msgid "Ethernet (fixed)"
-msgstr "Ethernet (стационарный)"
+msgstr "Ethernet (фиксированный)"
 
 #: dcim/choices.py:969
 msgid "Ethernet (modular)"
@@ -1914,7 +1916,7 @@ msgstr "Полный"
 
 #: dcim/choices.py:1164 wireless/choices.py:480
 msgid "Auto"
-msgstr "авто"
+msgstr "Авто"
 
 #: dcim/choices.py:1175
 msgid "Access"
@@ -1923,11 +1925,11 @@ msgstr "Доступ"
 #: dcim/choices.py:1176 ipam/tables/vlans.py:168 ipam/tables/vlans.py:213
 #: templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
-msgstr "Помеченные"
+msgstr "Тегированный"
 
 #: dcim/choices.py:1177
 msgid "Tagged (All)"
-msgstr "С метками (все)"
+msgstr "Тегированный (все)"
 
 #: dcim/choices.py:1206
 msgid "IEEE Standard"
@@ -1971,7 +1973,7 @@ msgstr "Километры"
 
 #: dcim/choices.py:1438 templates/dcim/cable_trace.html:62
 msgid "Meters"
-msgstr "Счетчики"
+msgstr "Метры"
 
 #: dcim/choices.py:1439
 msgid "Centimeters"
@@ -1983,7 +1985,7 @@ msgstr "Мили"
 
 #: dcim/choices.py:1441 templates/dcim/cable_trace.html:63
 msgid "Feet"
-msgstr "Ноги"
+msgstr "Футы"
 
 #: dcim/choices.py:1457 templates/dcim/device.html:332
 #: templates/dcim/rack.html:157
@@ -2024,7 +2026,7 @@ msgstr "Родительский регион (ID)"
 
 #: dcim/filtersets.py:86
 msgid "Parent region (slug)"
-msgstr "Родительский регион (пуля)"
+msgstr "Родительский регион (подстрока)"
 
 #: dcim/filtersets.py:97
 msgid "Parent site group (ID)"
@@ -2032,7 +2034,7 @@ msgstr "Родительская группа сайтов (ID)"
 
 #: dcim/filtersets.py:103
 msgid "Parent site group (slug)"
-msgstr "Родительская группа сайтов (slug)"
+msgstr "Родительская группа сайтов (подстрока)"
 
 #: dcim/filtersets.py:132 ipam/filtersets.py:797 ipam/filtersets.py:930
 msgid "Group (ID)"
@@ -2040,39 +2042,39 @@ msgstr "Группа (ID)"
 
 #: dcim/filtersets.py:138
 msgid "Group (slug)"
-msgstr "Группа (слизень)"
+msgstr "Группа (подстрока)"
 
 #: dcim/filtersets.py:144 dcim/filtersets.py:149
 msgid "AS (ID)"
-msgstr "КАК (ID)"
+msgstr "Автономная система (ID)"
 
 #: dcim/filtersets.py:217 dcim/filtersets.py:292 dcim/filtersets.py:390
 #: dcim/filtersets.py:917 dcim/filtersets.py:1213 dcim/filtersets.py:1881
 msgid "Location (ID)"
-msgstr "Местонахождение (ID)"
+msgstr "Локация (ID)"
 
 #: dcim/filtersets.py:224 dcim/filtersets.py:299 dcim/filtersets.py:397
 #: dcim/filtersets.py:1219 extras/filtersets.py:447
 msgid "Location (slug)"
-msgstr "Местоположение (пуля)"
+msgstr "Локация (подстрока)"
 
 #: dcim/filtersets.py:313 dcim/filtersets.py:764 dcim/filtersets.py:854
 #: dcim/filtersets.py:1619 ipam/filtersets.py:347 ipam/filtersets.py:459
 #: ipam/filtersets.py:940 virtualization/filtersets.py:209
 msgid "Role (ID)"
-msgstr "Роль (идентификатор)"
+msgstr "Роль (ID)"
 
 #: dcim/filtersets.py:319 dcim/filtersets.py:770 dcim/filtersets.py:860
 #: dcim/filtersets.py:1625 extras/filtersets.py:463 ipam/filtersets.py:353
 #: ipam/filtersets.py:465 ipam/filtersets.py:946
 #: virtualization/filtersets.py:215
 msgid "Role (slug)"
-msgstr "Роль (пуля)"
+msgstr "Роль (подстрока)"
 
 #: dcim/filtersets.py:347 dcim/filtersets.py:922 dcim/filtersets.py:1224
 #: dcim/filtersets.py:1942
 msgid "Rack (ID)"
-msgstr "Стеллаж (ID)"
+msgstr "Стойка (ID)"
 
 #: dcim/filtersets.py:401 extras/filtersets.py:234 extras/filtersets.py:278
 #: extras/filtersets.py:318 extras/filtersets.py:613
@@ -2094,7 +2096,7 @@ msgstr "Производитель (ID)"
 #: dcim/filtersets.py:811 dcim/filtersets.py:839 dcim/filtersets.py:1122
 #: dcim/filtersets.py:1615
 msgid "Manufacturer (slug)"
-msgstr "Производитель (slug)"
+msgstr "Производитель (подстрока)"
 
 #: dcim/filtersets.py:445
 msgid "Default platform (ID)"
@@ -2102,7 +2104,7 @@ msgstr "Платформа по умолчанию (ID)"
 
 #: dcim/filtersets.py:451
 msgid "Default platform (slug)"
-msgstr "Платформа по умолчанию (slug)"
+msgstr "Платформа по умолчанию (подстрока)"
 
 #: dcim/filtersets.py:454 dcim/forms/filtersets.py:452
 msgid "Has a front image"
@@ -2122,7 +2124,7 @@ msgstr "Имеет консольные порты"
 #: dcim/forms/filtersets.py:473 dcim/forms/filtersets.py:570
 #: dcim/forms/filtersets.py:782
 msgid "Has console server ports"
-msgstr "Имеет порты консольного сервера"
+msgstr "Имеет серверные консольные порты"
 
 #: dcim/filtersets.py:471 dcim/filtersets.py:579 dcim/filtersets.py:983
 #: dcim/forms/filtersets.py:480 dcim/forms/filtersets.py:577
@@ -2179,7 +2181,7 @@ msgstr "Шаблон конфигурации (ID)"
 
 #: dcim/filtersets.py:845
 msgid "Device type (slug)"
-msgstr "Тип устройства (заглушка)"
+msgstr "Тип устройства (подстрока)"
 
 #: dcim/filtersets.py:865
 msgid "Parent Device (ID)"
@@ -2192,12 +2194,12 @@ msgstr "Платформа (ID)"
 #: dcim/filtersets.py:875 extras/filtersets.py:474
 #: virtualization/filtersets.py:225
 msgid "Platform (slug)"
-msgstr "Платформа (пуля)"
+msgstr "Платформа (подстрока)"
 
 #: dcim/filtersets.py:911 dcim/filtersets.py:1208 dcim/filtersets.py:1703
 #: dcim/filtersets.py:1875 dcim/filtersets.py:1933
 msgid "Site name (slug)"
-msgstr "Название сайта (slug)"
+msgstr "Имя сайта (подстрока)"
 
 #: dcim/filtersets.py:926
 msgid "VM cluster (ID)"
@@ -2205,7 +2207,7 @@ msgstr "Кластер виртуальных машин (ID)"
 
 #: dcim/filtersets.py:932
 msgid "Device model (slug)"
-msgstr "Модель устройства (заглушка)"
+msgstr "Модель устройства (подстрока)"
 
 #: dcim/filtersets.py:943 dcim/forms/bulk_edit.py:421
 msgid "Is full depth"
@@ -2235,11 +2237,11 @@ msgstr "Виртуальное шасси (ID)"
 
 #: dcim/filtersets.py:967
 msgid "Is a virtual chassis member"
-msgstr "Является виртуальным членом шасси"
+msgstr "Является членом виртуального шасси"
 
 #: dcim/filtersets.py:1008
 msgid "OOB IP (ID)"
-msgstr "ПОДГУЗНИК (ID)"
+msgstr "Сервисный порт (ID)"
 
 #: dcim/filtersets.py:1133
 msgid "Module type (model)"
@@ -2274,7 +2276,7 @@ msgstr "Роль устройства (ID)"
 
 #: dcim/filtersets.py:1262 dcim/filtersets.py:1285
 msgid "Device role (slug)"
-msgstr "Роль устройства (slug)"
+msgstr "Роль устройства (подстрока)"
 
 #: dcim/filtersets.py:1267
 msgid "Virtual Chassis (ID)"
@@ -2381,7 +2383,7 @@ msgstr "Мастер (удостоверение личности)"
 
 #: dcim/filtersets.py:1666
 msgid "Master (name)"
-msgstr "Мастер (имя)"
+msgstr "Хозяин (имя)"
 
 #: dcim/filtersets.py:1708 tenancy/filtersets.py:220
 msgid "Tenant (ID)"
@@ -2389,7 +2391,7 @@ msgstr "Арендатор (ID)"
 
 #: dcim/filtersets.py:1714 extras/filtersets.py:523 tenancy/filtersets.py:226
 msgid "Tenant (slug)"
-msgstr "Арендатор (пуля)"
+msgstr "Тенант (подстрока)"
 
 #: dcim/filtersets.py:1749 dcim/forms/filtersets.py:990
 msgid "Unterminated"
@@ -3450,7 +3452,7 @@ msgstr "Однофазный или трехфазный"
 #: templates/virtualization/vminterface.html:58
 #: virtualization/forms/bulk_edit.py:224
 msgid "MTU"
-msgstr "МАТУ"
+msgstr "MTU"
 
 #: dcim/forms/common.py:65
 #, python-brace-format
@@ -3635,7 +3637,7 @@ msgstr "Резервирование"
 #: dcim/forms/model_forms.py:297 dcim/forms/model_forms.py:380
 #: utilities/forms/fields/fields.py:47
 msgid "Slug"
-msgstr "Пуля"
+msgstr "Подстрока"
 
 #: dcim/forms/model_forms.py:304 templates/dcim/devicetype.html:12
 msgid "Chassis"
@@ -5193,7 +5195,7 @@ msgstr "Регион верхнего уровня с таким названи�
 
 #: dcim/models/sites.py:59
 msgid "A top-level region with this slug already exists."
-msgstr "Регион верхнего уровня с этим слагнем уже существует."
+msgstr "Регион верхнего уровня с этой подстрокой уже существует."
 
 #: dcim/models/sites.py:62
 msgid "region"
@@ -5209,7 +5211,7 @@ msgstr "Группа сайтов верхнего уровня с таким и
 
 #: dcim/models/sites.py:112
 msgid "A top-level site group with this slug already exists."
-msgstr "Группа сайтов верхнего уровня с этим слайгом уже существует."
+msgstr "Группа сайтов верхнего уровня с этой подстрокой уже существует."
 
 #: dcim/models/sites.py:115
 msgid "site group"
@@ -5261,7 +5263,7 @@ msgstr "Местоположение с таким именем уже суще�
 
 #: dcim/models/sites.py:313
 msgid "A location with this slug already exists within the specified site."
-msgstr "Местоположение с этим слайгом уже существует на указанном сайте."
+msgstr "Локация с этой подстрокой уже существует на указанном сайте."
 
 #: dcim/models/sites.py:316
 msgid "location"
@@ -5884,15 +5886,15 @@ msgstr "Удалить"
 
 #: extras/choices.py:280 utilities/choices.py:143 utilities/choices.py:191
 msgid "Blue"
-msgstr "голубой"
+msgstr "Синий"
 
 #: extras/choices.py:281 utilities/choices.py:142 utilities/choices.py:192
 msgid "Indigo"
-msgstr "Индиго"
+msgstr "Темно-синий"
 
 #: extras/choices.py:282 utilities/choices.py:140 utilities/choices.py:193
 msgid "Purple"
-msgstr "Пурпурный"
+msgstr "Фиолетовый"
 
 #: extras/choices.py:283 utilities/choices.py:137 utilities/choices.py:194
 msgid "Pink"
@@ -5904,7 +5906,7 @@ msgstr "Красный"
 
 #: extras/choices.py:285 utilities/choices.py:154 utilities/choices.py:196
 msgid "Orange"
-msgstr "оранжевый"
+msgstr "Оранжевый"
 
 #: extras/choices.py:286 utilities/choices.py:152 utilities/choices.py:197
 msgid "Yellow"
@@ -5916,7 +5918,7 @@ msgstr "Зелёный"
 
 #: extras/choices.py:288 utilities/choices.py:146 utilities/choices.py:199
 msgid "Teal"
-msgstr "чирок"
+msgstr "Cине-зеленый"
 
 #: extras/choices.py:289 utilities/choices.py:145 utilities/choices.py:200
 msgid "Cyan"
@@ -5932,7 +5934,7 @@ msgstr "Черный"
 
 #: extras/choices.py:292 utilities/choices.py:161 utilities/choices.py:203
 msgid "White"
-msgstr "белый"
+msgstr "Белый"
 
 #: extras/choices.py:306 extras/forms/model_forms.py:233
 #: extras/forms/model_forms.py:321 templates/extras/webhook.html:11
@@ -6024,7 +6026,7 @@ msgstr "Тип кластера"
 #: extras/filtersets.py:485 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:146
 msgid "Cluster type (slug)"
-msgstr "Тип кластера (слизень)"
+msgstr "Тип кластера (подстрока)"
 
 #: extras/filtersets.py:490 ipam/forms/bulk_edit.py:475
 #: ipam/forms/model_forms.py:585 virtualization/forms/filtersets.py:108
@@ -6033,7 +6035,7 @@ msgstr "Кластерная группа"
 
 #: extras/filtersets.py:496 virtualization/filtersets.py:135
 msgid "Cluster group (slug)"
-msgstr "Кластерная группа (slug)"
+msgstr "Группа кластеров (подстрока)"
 
 #: extras/filtersets.py:506 tenancy/forms/forms.py:16
 #: tenancy/forms/forms.py:39
@@ -6043,7 +6045,7 @@ msgstr "Группа арендаторов"
 #: extras/filtersets.py:512 tenancy/filtersets.py:163
 #: tenancy/filtersets.py:183
 msgid "Tenant group (slug)"
-msgstr "Группа арендаторов (slug)"
+msgstr "Группа тенантов (подстрока)"
 
 #: extras/filtersets.py:528 templates/extras/tag.html:12
 msgid "Tag"
@@ -6051,7 +6053,7 @@ msgstr "Тег"
 
 #: extras/filtersets.py:534
 msgid "Tag (slug)"
-msgstr "Тег (пуля)"
+msgstr "Тег (подстрока)"
 
 #: extras/filtersets.py:594 extras/forms/filtersets.py:438
 msgid "Has local config context data"
@@ -6416,12 +6418,16 @@ msgid ""
 "Jinja2 template code for the link text. Reference the object as <code>{{ "
 "object }}</code>. Links which render as empty text will not be displayed."
 msgstr ""
+"Код шаблона Jinja2 для текста ссылки. Ссылайтесь на объект как <code>{{ "
+"object }}</code>. Ссылки с пустым текстом отображаться не будут."
 
 #: extras/forms/model_forms.py:148
 msgid ""
 "Jinja2 template code for the link URL. Reference the object as <code>{{ "
 "object }}</code>."
 msgstr ""
+"Код шаблона Jinja2 для URL-адреса. Ссылайтесь на объект как <code>{{ object "
+"}}</code>"
 
 #: extras/forms/model_forms.py:158 extras/forms/model_forms.py:500
 msgid "Template code"
@@ -6736,7 +6742,7 @@ msgstr ""
 
 #: extras/models/customfields.py:147
 msgid "default"
-msgstr "дефолт"
+msgstr "по умолчанию"
 
 #: extras/models/customfields.py:151
 msgid ""
@@ -6856,11 +6862,11 @@ msgstr "{type} поля не могут определять тип объект
 
 #: extras/models/customfields.py:434
 msgid "True"
-msgstr "Верно"
+msgstr "Истинно"
 
 #: extras/models/customfields.py:435
 msgid "False"
-msgstr "Ложь"
+msgstr "Ложно"
 
 #: extras/models/customfields.py:517
 #, python-brace-format
@@ -6965,7 +6971,7 @@ msgstr "макет"
 
 #: extras/models/dashboard.py:23
 msgid "config"
-msgstr "конфигурации"
+msgstr "конфигурация"
 
 #: extras/models/dashboard.py:28
 msgid "dashboard"
@@ -6973,7 +6979,7 @@ msgstr "панель управления"
 
 #: extras/models/dashboard.py:29
 msgid "dashboards"
-msgstr "щитки"
+msgstr "панели управления"
 
 #: extras/models/models.py:49
 msgid "object types"
@@ -7621,7 +7627,7 @@ msgstr "RIR (ID)"
 
 #: ipam/filtersets.py:142 ipam/filtersets.py:181 ipam/filtersets.py:204
 msgid "RIR (slug)"
-msgstr "RIR (пуля)"
+msgstr "RIR (подстрока)"
 
 #: ipam/filtersets.py:251
 msgid "Within prefix"
@@ -7755,8 +7761,8 @@ msgstr "Это бассейн"
 #: ipam/forms/bulk_edit.py:257 ipam/forms/bulk_edit.py:301
 #: ipam/models/ip.py:271 ipam/models/ip.py:538
 #, python-format
-msgid "Treat as 100% utilized"
-msgstr "Отнестись к использованию на 100%"
+msgid "Treat as 100%% utilized"
+msgstr "Отнестись к использованию на 100%%"
 
 #: ipam/forms/bulk_edit.py:349 ipam/models/ip.py:771
 msgid "DNS name"
@@ -7996,8 +8002,8 @@ msgstr "Присутствует в VRF"
 
 #: ipam/forms/filtersets.py:243 ipam/forms/filtersets.py:282
 #, python-format
-msgid "Marked as 100% utilized"
-msgstr "Отмечено как использовано на 100%"
+msgid "Marked as 100%% utilized"
+msgstr "Отмечено как использовано на 100%%"
 
 #: ipam/forms/filtersets.py:297
 msgid "Device/VM"
@@ -10134,7 +10140,7 @@ msgstr "Родительский залив"
 #: templates/dcim/device_edit.html:48
 #: utilities/templates/form_helpers/render_field.html:20
 msgid "Regenerate Slug"
-msgstr "Регенерирующий слизень"
+msgstr "Сгенерировать подстроку"
 
 #: templates/dcim/device_edit.html:49 templates/generic/bulk_remove.html:7
 #: utilities/templates/helpers/table_config_form.html:23
@@ -11508,7 +11514,7 @@ msgstr "Настроить таблицу"
 #: templates/ipam/aggregate.html:15 templates/ipam/ipaddress.html:17
 #: templates/ipam/iprange.html:16 templates/ipam/prefix.html:16
 msgid "Family"
-msgstr "Семья"
+msgstr "Семейство"
 
 #: templates/ipam/aggregate.html:40
 msgid "Date Added"
@@ -11618,7 +11624,7 @@ msgstr "Отмечено как полностью использованное"
 
 #: templates/ipam/prefix.html:112
 msgid "Child IPs"
-msgstr "Детские IP-адреса"
+msgstr "Зависимые IP-адреса"
 
 #: templates/ipam/prefix.html:120
 msgid "Available IPs"
@@ -11707,7 +11713,7 @@ msgstr "Обычай"
 
 #: templates/ipam/service_edit.html:37
 msgid "Port(s)"
-msgstr "Порт (ы)"
+msgstr "Порт(ы)"
 
 #: templates/ipam/vlan.html:95
 msgid "Add a Prefix"
@@ -12158,7 +12164,7 @@ msgstr "Контактная группа (ID)"
 
 #: tenancy/filtersets.py:35 tenancy/filtersets.py:62 tenancy/filtersets.py:104
 msgid "Contact group (slug)"
-msgstr "Контактная группа (slug)"
+msgstr "Группа контактов (подстрока)"
 
 #: tenancy/filtersets.py:91
 msgid "Contact (ID)"
@@ -12170,7 +12176,7 @@ msgstr "Роль контакта (ID)"
 
 #: tenancy/filtersets.py:114
 msgid "Contact role (slug)"
-msgstr "Контактная роль (пуля)"
+msgstr "Роль контакта (подстрока)"
 
 #: tenancy/filtersets.py:146
 msgid "Contact group"
@@ -12186,7 +12192,7 @@ msgstr "Группа арендаторов (ID)"
 
 #: tenancy/filtersets.py:216
 msgid "Tenant Group (slug)"
-msgstr "Группа арендаторов (slug)"
+msgstr "Группа тенантов (подстрока)"
 
 #: tenancy/forms/bulk_edit.py:65
 msgid "Desciption"
@@ -12263,7 +12269,7 @@ msgstr "Имя арендатора должно быть уникальным �
 
 #: tenancy/models/tenants.py:80
 msgid "Tenant slug must be unique per group."
-msgstr "Заголовок арендатора должен быть уникальным для каждой группы."
+msgstr "Подстрока тенанта должна быть уникальной для каждой группы."
 
 #: tenancy/models/tenants.py:88
 msgid "tenant"
@@ -12852,7 +12858,7 @@ msgstr "Родительская группа (ID)"
 
 #: virtualization/filtersets.py:85
 msgid "Parent group (slug)"
-msgstr "Родительская группа (слизень)"
+msgstr "Родительская группа (подстрока)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:140
 msgid "Cluster type (ID)"
@@ -13140,7 +13146,7 @@ msgstr "Группа туннелей (ID)"
 
 #: vpn/filtersets.py:47
 msgid "Tunnel group (slug)"
-msgstr "Туннельная группа (пуля)"
+msgstr "Группа туннелей (подстрока)"
 
 #: vpn/filtersets.py:54
 msgid "IPSec profile (ID)"
@@ -13180,7 +13186,7 @@ msgstr "Политика IPsec (имя)"
 
 #: vpn/filtersets.py:320
 msgid "L2VPN (slug)"
-msgstr "L2VPN (слаггер)"
+msgstr "L2VPN (подстрока)"
 
 #: vpn/filtersets.py:384
 msgid "VM Interface (ID)"

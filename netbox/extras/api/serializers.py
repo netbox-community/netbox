@@ -126,11 +126,15 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     type = ChoiceField(choices=CustomFieldTypeChoices)
     object_type = ContentTypeField(
         queryset=ContentType.objects.all(),
-        required=False
+        required=False,
+        allow_null=True
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
-    choice_set = NestedCustomFieldChoiceSetSerializer(required=False)
+    choice_set = NestedCustomFieldChoiceSetSerializer(
+        required=False,
+        allow_null=True
+    )
     ui_visible = ChoiceField(choices=CustomFieldUIVisibleChoices, required=False)
     ui_editable = ChoiceField(choices=CustomFieldUIEditableChoices, required=False)
 
