@@ -4,20 +4,20 @@ from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import BaseTable, NetBoxTable, columns
 from utilities.templatetags.helpers import annotated_date
 from ..models import Job
 
 
-class BackgroundTasksTable(tables.Table):
+class BackgroundQueueTable(BaseTable):
     name = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("Name"))
-    jobs = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("Queued Jobs"))
-    oldest_job_timestamp = tables.Column(verbose_name=_("Oldest Queued Job"))
-    started_jobs = tables.Column(verbose_name=_("Active Jobs"))
-    deferred_jobs = tables.Column(verbose_name=_("Deferred Jobs"))
-    finished_jobs = tables.Column(verbose_name=_("Finished Jobs"))
-    failed_jobs = tables.Column(verbose_name=_("Failed Jobs"))
-    scheduled_jobs = tables.Column(verbose_name=_("Scheduled Jobs"))
+    jobs = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("Queued"))
+    oldest_job_timestamp = tables.Column(verbose_name=_("Oldest Queued"))
+    started_jobs = tables.Column(verbose_name=_("Active"))
+    deferred_jobs = tables.Column(verbose_name=_("Deferred"))
+    finished_jobs = tables.Column(verbose_name=_("Finished"))
+    failed_jobs = tables.Column(verbose_name=_("Failed"))
+    scheduled_jobs = tables.Column(verbose_name=_("Scheduled"))
     workers = tables.Column(verbose_name=_("Workers"))
     host = tables.Column(accessor="connection_kwargs__host", verbose_name=_("Host"))
     port = tables.Column(accessor="connection_kwargs__port", verbose_name=_("Port"))
@@ -25,13 +25,19 @@ class BackgroundTasksTable(tables.Table):
     pid = tables.Column(accessor="scheduler__pid", verbose_name=_("Scheduler PID"))
 
     class Meta:
+        empty_text = _('No tasks found')
+        fields = (
+            'name', 'jobs', 'oldest_job_timestamp', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers', 'host', 'port', 'db', 'pid',
+        )
+        default_columns = (
+            'name', 'jobs', 'oldest_job_timestamp', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers', 'host', 'port', 'db', 'pid',
+        )
         attrs = {
             'class': 'table table-hover object-list',
         }
 
 
-class BackgroundTasksQueueTable(tables.Table):
-    # id = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("ID"))
+class BackgroundTaskTable(BaseTable):
     id = tables.Column(empty_values=(), verbose_name=_("ID"))
     created_at = tables.Column(verbose_name=_("Created"))
     enqueued_at = tables.Column(verbose_name=_("Enqueued"))
@@ -40,6 +46,13 @@ class BackgroundTasksQueueTable(tables.Table):
     callable = tables.Column(empty_values=(), verbose_name=_("Callable"))
 
     class Meta:
+        empty_text = _('No queues found')
+        fields = (
+            'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',
+        )
+        default_columns = (
+            'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',
+        )
         attrs = {
             'class': 'table table-hover object-list',
         }

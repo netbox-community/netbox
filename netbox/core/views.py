@@ -243,16 +243,16 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 #
 
 
-class BackgroundTasksListView(LoginRequiredMixin, View):
+class BackgroundQueuesListView(LoginRequiredMixin, View):
 
     def get(self, request):
-        table = tables.BackgroundTasksTable(get_statistics(run_maintenance_tasks=True)["queues"])
+        table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"])
         return render(request, 'core/background_tasks.html', {
             'table': table,
         })
 
 
-class BackgroundTasksQueueListView(LoginRequiredMixin, View):
+class BackgroundTasksListView(LoginRequiredMixin, View):
 
     def get(self, request, queue_index):
         queue_index = int(queue_index)
@@ -263,14 +263,14 @@ class BackgroundTasksQueueListView(LoginRequiredMixin, View):
         else:
             jobs = []
 
-        table = tables.BackgroundTasksQueueTable(data=jobs, queue_index=queue_index)
+        table = tables.BackgroundTaskTable(data=jobs, queue_index=queue_index)
         return render(request, 'core/background_tasks_queue.html', {
             'table': table,
             'queue': queue,
         })
 
 
-class BackgroundTasksJobDetailView(LoginRequiredMixin, View):
+class BackgroundTaskDetailView(LoginRequiredMixin, View):
 
     def get(self, request, queue_index, job_id):
         queue_index = int(queue_index)
