@@ -51,19 +51,6 @@ class BootstrapMixin:
             # if 'placeholder' not in field.widget.attrs and field.label is not None:
             #     field.widget.attrs['placeholder'] = field.label
 
-    def is_valid(self):
-        is_valid = super().is_valid()
-
-        # Apply is-invalid CSS class to fields with errors
-        if not is_valid:
-            for field_name in self.errors:
-                # Ignore e.g. __all__
-                if field := self.fields.get(field_name):
-                    css = field.widget.attrs.get('class', '')
-                    field.widget.attrs['class'] = f'{css} is-invalid'
-
-        return is_valid
-
 
 class CheckLastUpdatedMixin(forms.Form):
     """

@@ -37,16 +37,6 @@ $spacing-s: $input-padding-x;
 .ss-main {
   color: $form-select-color;
 
-  &.is-invalid .ss-single-selected,
-  &.is-invalid .ss-multi-selected {
-    border-color: $form-feedback-icon-invalid-color;
-  }
-
-  &.is-valid .ss-single-selected,
-  &.is-valid .ss-multi-selected {
-    border-color: $form-feedback-icon-valid-color;
-  }
-
   .ss-single-selected,
   .ss-multi-selected {
     padding: $form-select-padding-y $input-padding-x $form-select-padding-y $form-select-padding-x;
@@ -194,4 +184,12 @@ $spacing-s: $input-padding-x;
 			background-color: transparent !important;
 		}
 	}
+}
+
+// Apply red border for fields inside a row with .has-errors
+.has-errors {
+  .ss-single-selected,
+  .ss-multi-selected {
+    border-color: $red;
+  }
 }

@@ -16,3 +16,12 @@ form.object-edit {
     content: '\f06C4';
   }
 }
+
+// Set red border on form fields inside a row with .has-errors
+.has-errors {
+  input,
+  select,
+  textarea {
+    border: 1px solid $red;
+  }
+}
