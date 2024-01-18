@@ -39,9 +39,9 @@ class BackgroundQueueTable(BaseTable):
 
 class BackgroundTaskTable(BaseTable):
     id = tables.Column(empty_values=(), verbose_name=_("ID"))
-    created_at = tables.Column(verbose_name=_("Created"))
-    enqueued_at = tables.Column(verbose_name=_("Enqueued"))
-    ended_at = tables.Column(verbose_name=_("Ended"))
+    created_at = tables.DateTimeColumn(verbose_name=_("Created"))
+    enqueued_at = tables.DateTimeColumn(verbose_name=_("Enqueued"))
+    ended_at = tables.DateTimeColumn(verbose_name=_("Ended"))
     status = tables.Column(empty_values=(), verbose_name=_("Status"))
     callable = tables.Column(empty_values=(), verbose_name=_("Callable"))
 
