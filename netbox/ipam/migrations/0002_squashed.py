@@ -13,8 +13,8 @@ class Migration(migrations.Migration):
     dependencies = [
         ('virtualization', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
-        ('extras', '0002_initial'),
-        ('dcim', '0003_initial'),
+        ('extras', '0002_squashed'),
+        ('dcim', '0003_squashed'),
         ('ipam', '0001_initial'),
         ('tenancy', '0001_initial'),
     ]

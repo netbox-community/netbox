@@ -10,10 +10,6 @@ class Migration(migrations.Migration):
     dependencies = [
     ]
 
-    replaces = [
-        ('circuits', '0001_initial'),
-    ]
-
     operations = [
         migrations.CreateModel(
             name='Circuit',

@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('extras', '0001_initial'),
         ('ipam', '0001_initial'),
-        ('dcim', '0002_initial'),
+        ('dcim', '0002_squashed'),
         ('tenancy', '0001_initial'),
     ]
 

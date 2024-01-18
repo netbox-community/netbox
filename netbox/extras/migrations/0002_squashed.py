@@ -8,12 +8,12 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('core', '0002_initial'),
+        ('core', '0002_squashed'),
         ('extras', '0001_initial'),
         ('virtualization', '0001_initial'),
         ('contenttypes', '0002_remove_content_type_name'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('dcim', '0003_initial'),
+        ('dcim', '0003_squashed'),
         ('tenancy', '0001_initial'),
     ]
 

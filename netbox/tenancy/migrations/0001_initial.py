@@ -16,7 +16,6 @@ class Migration(migrations.Migration):
 
     replaces = [
         # Squashed for v3.0
-        ('tenancy', '0001_initial'),
         ('tenancy', '0002_tenant_group_optional'),
         ('tenancy', '0003_unicode_literals'),
         ('tenancy', '0004_tags'),
