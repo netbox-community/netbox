@@ -23,11 +23,7 @@ __all__ = (
 # Component template import forms
 #
 
-class ComponentTemplateImportForm(forms.ModelForm):
-    pass
-
-
-class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
+class ConsolePortTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = ConsolePortTemplate
@@ -36,7 +32,7 @@ class ConsolePortTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
+class ConsoleServerPortTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = ConsoleServerPortTemplate
@@ -45,7 +41,7 @@ class ConsoleServerPortTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class PowerPortTemplateImportForm(ComponentTemplateImportForm):
+class PowerPortTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = PowerPortTemplate
@@ -54,7 +50,7 @@ class PowerPortTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
+class PowerOutletTemplateImportForm(forms.ModelForm):
     power_port = forms.ModelChoiceField(
         label=_('Power port'),
         queryset=PowerPortTemplate.objects.all(),
@@ -83,7 +79,7 @@ class PowerOutletTemplateImportForm(ComponentTemplateImportForm):
         return module_type
 
 
-class InterfaceTemplateImportForm(ComponentTemplateImportForm):
+class InterfaceTemplateImportForm(forms.ModelForm):
     type = forms.ChoiceField(
         label=_('Type'),
         choices=InterfaceTypeChoices.CHOICES
@@ -112,7 +108,7 @@ class InterfaceTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class FrontPortTemplateImportForm(ComponentTemplateImportForm):
+class FrontPortTemplateImportForm(forms.ModelForm):
     type = forms.ChoiceField(
         label=_('Type'),
         choices=PortTypeChoices.CHOICES
@@ -144,7 +140,7 @@ class FrontPortTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class RearPortTemplateImportForm(ComponentTemplateImportForm):
+class RearPortTemplateImportForm(forms.ModelForm):
     type = forms.ChoiceField(
         label=_('Type'),
         choices=PortTypeChoices.CHOICES
@@ -157,7 +153,7 @@ class RearPortTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class ModuleBayTemplateImportForm(ComponentTemplateImportForm):
+class ModuleBayTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = ModuleBayTemplate
@@ -166,7 +162,7 @@ class ModuleBayTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
+class DeviceBayTemplateImportForm(forms.ModelForm):
 
     class Meta:
         model = DeviceBayTemplate
@@ -175,7 +171,7 @@ class DeviceBayTemplateImportForm(ComponentTemplateImportForm):
         ]
 
 
-class InventoryItemTemplateImportForm(ComponentTemplateImportForm):
+class InventoryItemTemplateImportForm(forms.ModelForm):
     parent = forms.ModelChoiceField(
         label=_('Parent'),
         queryset=InventoryItemTemplate.objects.all(),
