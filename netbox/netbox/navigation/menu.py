@@ -454,7 +454,7 @@ ADMIN_MENU = Menu(
             label=_('Plugins'),
             items=(
                 MenuItem(
-                    link='extras:plugin_list',
+                    link='core:plugin_list',
                     link_text=_('Plugins'),
                     staff_only=True
                 ),

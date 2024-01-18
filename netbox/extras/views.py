@@ -1375,21 +1375,3 @@ class RenderMarkdownView(View):
         rendered = render_markdown(form.cleaned_data['text'])
 
         return HttpResponse(rendered)
-
-
-#
-# Plugins
-#
-
-class PluginListView(LoginRequiredMixin, View):
-
-    def get(self, request):
-        plugins = [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
-        table = tables.PluginTable(plugins)
-        # table.configure(request)
-
-        return render(request, 'extras/plugin_list.html', {
-            'plugins': plugins,
-            'active_tab': 'api-tokens',
-            'table': table,
-        })

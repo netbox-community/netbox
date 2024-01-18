@@ -1,4 +1,7 @@
+from django.apps import apps
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -232,3 +235,21 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
         messages.success(request, f"Restored configuration revision #{pk}")
 
         return redirect(candidate_config.get_absolute_url())
+
+
+#
+# Plugins
+#
+
+class PluginListView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        plugins = [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
+        table = tables.PluginTable(plugins)
+        # table.configure(request)
+
+        return render(request, 'extras/plugin_list.html', {
+            'plugins': plugins,
+            'active_tab': 'api-tokens',
+            'table': table,
+        })
