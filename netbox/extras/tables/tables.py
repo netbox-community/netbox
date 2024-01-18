@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import BaseTable, NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
@@ -510,7 +510,7 @@ class JournalEntryTable(NetBoxTable):
         )
 
 
-class PluginTable(tables.Table):
+class PluginTable(BaseTable):
     verbose_name = tables.Column()
     name = tables.Column()
     author = tables.Column()
@@ -519,6 +519,13 @@ class PluginTable(tables.Table):
     version = tables.Column()
 
     class Meta:
+        empty_text = _('No plugins found')
+        fields = (
+            'verbose_name', 'name', 'author', 'author_email', 'description', 'version',
+        )
+        default_columns = (
+            'verbose_name', 'name', 'author', 'author_email', 'description', 'version',
+        )
         attrs = {
             'class': 'table table-hover object-list',
         }
