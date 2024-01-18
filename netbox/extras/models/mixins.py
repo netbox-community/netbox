@@ -8,6 +8,11 @@ __all__ = (
 
 class PythonModuleMixin:
 
+    def get_jobs(self, name):
+        return self.jobs.filter(
+            name=name
+        )
+
     @property
     def path(self):
         return os.path.splitext(self.file_path)[0]
