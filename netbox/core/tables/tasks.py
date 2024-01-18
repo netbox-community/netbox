@@ -30,7 +30,7 @@ class BackgroundQueueTable(BaseTable):
             'name', 'jobs', 'oldest_job_timestamp', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers', 'host', 'port', 'db', 'pid',
         )
         default_columns = (
-            'name', 'jobs', 'oldest_job_timestamp', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers', 'host', 'port', 'db', 'pid',
+            'name', 'jobs', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs',
         )
         attrs = {
             'class': 'table table-hover object-list',
