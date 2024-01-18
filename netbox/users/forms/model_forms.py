@@ -213,9 +213,7 @@ class UserForm(forms.ModelForm):
 
             # Password fields are optional for existing Users
             self.fields['password'].required = False
-            self.fields['password'].widget.attrs.pop('required')
             self.fields['confirm_password'].required = False
-            self.fields['confirm_password'].widget.attrs.pop('required')
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
