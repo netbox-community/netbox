@@ -15,5 +15,12 @@
 {% endblock tabs %}
 
 {% block content %}
+  {# Object table controls #}
+  {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
+
   {% render_table table %}
 {% endblock content %}
+
+{% block modals %}
+  {% table_config_form table table_name="ObjectTable" %}
+{% endblock modals %}
