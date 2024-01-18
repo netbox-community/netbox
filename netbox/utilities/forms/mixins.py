@@ -45,11 +45,11 @@ class BootstrapMixin:
             # else:
             #     field.widget.attrs['class'] = f'{css} form-control'
 
-            if field.required and not isinstance(field.widget, forms.FileInput):
-                field.widget.attrs['required'] = 'required'
+            # if field.required and not isinstance(field.widget, forms.FileInput):
+            #     field.widget.attrs['required'] = 'required'
 
-            if 'placeholder' not in field.widget.attrs and field.label is not None:
-                field.widget.attrs['placeholder'] = field.label
+            # if 'placeholder' not in field.widget.attrs and field.label is not None:
+            #     field.widget.attrs['placeholder'] = field.label
 
     def is_valid(self):
         is_valid = super().is_valid()
