@@ -15,7 +15,6 @@ from django.utils.translation import gettext as _
 from core.models import ContentType
 from extras.choices import BookmarkOrderingChoices
 from utilities.choices import ButtonColorChoices
-from utilities.forms import BootstrapMixin
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, dict_to_querydict, get_viewname
@@ -58,7 +57,7 @@ def get_models_from_content_types(content_types):
     return models
 
 
-class WidgetConfigForm(BootstrapMixin, forms.Form):
+class WidgetConfigForm(forms.Form):
     pass
 
 

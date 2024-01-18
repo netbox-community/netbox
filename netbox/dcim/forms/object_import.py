@@ -3,7 +3,6 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import InterfacePoEModeChoices, InterfacePoETypeChoices, InterfaceTypeChoices, PortTypeChoices
 from dcim.models import *
-from utilities.forms import BootstrapMixin
 from wireless.choices import WirelessRoleChoices
 
 __all__ = (
@@ -24,7 +23,7 @@ __all__ = (
 # Component template import forms
 #
 
-class ComponentTemplateImportForm(BootstrapMixin, forms.ModelForm):
+class ComponentTemplateImportForm(forms.ModelForm):
     pass
 
 

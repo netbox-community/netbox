@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import *
 from extras.models import Tag
 from netbox.forms.mixins import CustomFieldsMixin
-from utilities.forms import BootstrapMixin, form_from_model
+from utilities.forms import form_from_model
 from utilities.forms.fields import DynamicModelMultipleChoiceField, ExpandableNameField
 from .object_create import ComponentCreateForm
 
@@ -26,7 +26,7 @@ __all__ = (
 # Device components
 #
 
-class DeviceBulkAddComponentForm(BootstrapMixin, CustomFieldsMixin, ComponentCreateForm):
+class DeviceBulkAddComponentForm(CustomFieldsMixin, ComponentCreateForm):
     pk = forms.ModelMultipleChoiceField(
         queryset=Device.objects.all(),
         widget=forms.MultipleHiddenInput()
