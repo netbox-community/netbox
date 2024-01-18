@@ -246,7 +246,7 @@ class PluginListView(LoginRequiredMixin, View):
     def get(self, request):
         plugins = [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
         table = tables.PluginTable(plugins)
-        # table.configure(request)
+        table.configure(request)
 
         return render(request, 'extras/plugin_list.html', {
             'plugins': plugins,
