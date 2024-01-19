@@ -376,3 +376,69 @@ class EventRuleTest(APITestCase):
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, 'send', dummy_send) as mock_send:
             send_webhook(**job.kwargs)
+
+    def test_event_rule_conditions_without_logic_operator(self):
+        """
+        Test evaluation of EventRule conditions without logic operator.
+        """
+        event_rule = EventRule(
+            name='Event Rule 1',
+            type_create=True,
+            type_update=True,
+            conditions={
+                'attr': 'status.value',
+                'value': 'active',
+            }
+        )
+
+        # Create a Site to evaluate - Status = active
+        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status='active')
+        self.assertTrue(event_rule.eval_conditions(data))
+
+    def test_event_rule_conditions_with_logical_operation(self):
+        """
+        Test evaluation of EventRule conditions without logic operator, but with logical operation (in).
+        """
+        event_rule = EventRule(
+            name='Event Rule 1',
+            type_create=True,
+            type_update=True,
+            conditions={
+                "attr": "status.value",
+                "value": ["planned", "staging"],
+                "op": "in",
+            }
+        )
+
+        # Create a Site to evaluate - Status = active
+        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status in ['planned, 'staging'])
+        self.assertFalse(event_rule.eval_conditions(data))
+
+    def test_event_rule_conditions_with_logical_operation_and_negate(self):
+        """
+        Test evaluation of EventRule with logical operation (in) and negate.
+        """
+        event_rule = EventRule(
+            name='Event Rule 1',
+            type_create=True,
+            type_update=True,
+            conditions={
+                "attr": "status.value",
+                "value": ["planned", "staging"],
+                "op": "in",
+                "negate": True,
+            }
+        )
+
+        # Create a Site to evaluate - Status = active
+        site = Site.objects.create(name='Site 1', slug='site-1', status=SiteStatusChoices.STATUS_ACTIVE)
+        data = serialize_for_event(site)
+
+        # Evaluate the conditions (status NOT in ['planned, 'staging'])
+        self.assertTrue(event_rule.eval_conditions(data))
