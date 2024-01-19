@@ -244,7 +244,10 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 class PluginListView(LoginRequiredMixin, View):
 
     def get(self, request):
-        plugins = [apps.get_app_config(plugin) for plugin in settings.PLUGINS]
+        plugins = [
+            # Look up app config by package name
+            apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
+        ]
         table = tables.PluginTable(plugins)
         table.configure(request)
 
