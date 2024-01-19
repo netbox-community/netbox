@@ -2,6 +2,15 @@
 
 ## v3.7.2 (FUTURE)
 
+### Enhancements
+
+* [#14645](https://github.com/netbox-community/netbox/issues/14645) - Limit the number of assigned IP addresses displayed under interfaces list
+
+### Bug Fixes
+
+* [#14755](https://github.com/netbox-community/netbox/issues/14755) - Fix validation of choice values & labels when creating a custom field choice set via the REST API
+* [#14851](https://github.com/netbox-community/netbox/issues/14851) - Automatically remove any associated bookmarks when deleting a user
+
 ---
 
 ## v3.7.1 (2024-01-17)
