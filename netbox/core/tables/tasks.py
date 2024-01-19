@@ -24,7 +24,7 @@ class BackgroundQueueTable(BaseTable):
     db = tables.Column(accessor="connection_kwargs__db", verbose_name=_("DB"))
     pid = tables.Column(accessor="scheduler__pid", verbose_name=_("Scheduler PID"))
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         empty_text = _('No tasks found')
         fields = (
             'name', 'jobs', 'oldest_job_timestamp', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers', 'host', 'port', 'db', 'pid',
@@ -45,7 +45,7 @@ class BackgroundTaskTable(BaseTable):
     status = tables.Column(empty_values=(), verbose_name=_("Status"))
     callable = tables.Column(empty_values=(), verbose_name=_("Callable"))
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         empty_text = _('No queues found')
         fields = (
             'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',

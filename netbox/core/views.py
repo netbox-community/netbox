@@ -252,7 +252,7 @@ class BackgroundQueuesListView(UserPassesTestMixin, View):
 
     def get(self, request):
         table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"])
-        table.configure(request)
+        table.configure(request, user=request.user)
         return render(request, 'core/background_tasks.html', {
             'table': table,
         })
@@ -273,7 +273,7 @@ class BackgroundTasksListView(UserPassesTestMixin, View):
             jobs = []
 
         table = tables.BackgroundTaskTable(data=jobs, queue_index=queue_index)
-        table.configure(request)
+        table.configure(request, user=request.user)
         return render(request, 'core/background_tasks_queue.html', {
             'table': table,
             'queue': queue,
