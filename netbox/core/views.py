@@ -248,7 +248,7 @@ class PluginListView(LoginRequiredMixin, View):
             # Look up app config by package name
             apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
         ]
-        table = tables.PluginTable(plugins)
+        table = tables.PluginTable(plugins, user=request.user)
         table.configure(request)
 
         return render(request, 'core/plugin_list.html', {
