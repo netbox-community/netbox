@@ -14,8 +14,9 @@ jobs:
   lock:
     runs-on: ubuntu-latest
     steps:
-      - uses: dessant/lock-threads@v4
+      - uses: dessant/lock-threads@v5
         with:
           issue-inactive-days: 90
           pr-inactive-days: 30
+          discussion-inactive-days: 180
           issue-lock-reason: 'resolved'
