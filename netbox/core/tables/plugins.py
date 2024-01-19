@@ -8,21 +8,32 @@ __all__ = (
 
 
 class PluginTable(BaseTable):
-    verbose_name = tables.Column()
-    name = tables.Column()
-    author = tables.Column()
-    author_email = tables.Column()
-    description = tables.Column()
-    version = tables.Column()
+    name = tables.Column(
+        accessor=tables.A('verbose_name'),
+        verbose_name=_('Name')
+    )
+    version = tables.Column(
+        verbose_name=_('Version')
+    )
+    package = tables.Column(
+        accessor=tables.A('name'),
+        verbose_name=_('Package')
+    )
+    author = tables.Column(
+        verbose_name=_('Author')
+    )
+    author_email = tables.Column(
+        verbose_name=_('Author Email')
+    )
+    description = tables.Column(
+        verbose_name=_('Description')
+    )
 
-    class Meta:
+    class Meta(BaseTable.Meta):
         empty_text = _('No plugins found')
         fields = (
-            'verbose_name', 'name', 'author', 'author_email', 'description', 'version',
+            'name', 'version', 'package', 'author', 'author_email', 'description',
         )
         default_columns = (
-            'verbose_name', 'name', 'author', 'author_email', 'description', 'version',
+            'name', 'version', 'package', 'author', 'author_email', 'description',
         )
-        attrs = {
-            'class': 'table table-hover object-list',
-        }
