@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import ListField
 
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from core.api.serializers import JobSerializer
@@ -174,6 +175,12 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
+    )
+    extra_choices = serializers.ListField(
+        child=serializers.ListField(
+            min_length=2,
+            max_length=2
+        )
     )
 
     class Meta:
