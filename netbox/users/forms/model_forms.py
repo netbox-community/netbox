@@ -13,7 +13,6 @@ from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
 from users.constants import *
 from users.models import *
-from utilities.forms import BootstrapMixin
 from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DateTimePicker
 from utilities.permissions import qs_filter_from_constraints
@@ -53,7 +52,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
         return super().__new__(mcs, name, bases, attrs)
 
 
-class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMetaclass):
+class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         (_('User Interface'), (
             'locale.language',
@@ -109,7 +108,7 @@ class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMe
         ]
 
 
-class UserTokenForm(BootstrapMixin, forms.ModelForm):
+class UserTokenForm(forms.ModelForm):
     key = forms.CharField(
         label=_('Key'),
         help_text=_(
@@ -167,7 +166,7 @@ class TokenForm(UserTokenForm):
         }
 
 
-class UserForm(BootstrapMixin, forms.ModelForm):
+class UserForm(forms.ModelForm):
     password = forms.CharField(
         label=_('Password'),
         widget=forms.PasswordInput(),
@@ -214,9 +213,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
 
             # Password fields are optional for existing Users
             self.fields['password'].required = False
-            self.fields['password'].widget.attrs.pop('required')
             self.fields['confirm_password'].required = False
-            self.fields['confirm_password'].widget.attrs.pop('required')
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
@@ -238,7 +235,7 @@ class UserForm(BootstrapMixin, forms.ModelForm):
             raise forms.ValidationError(_("Passwords do not match! Please check your input and try again."))
 
 
-class GroupForm(BootstrapMixin, forms.ModelForm):
+class GroupForm(forms.ModelForm):
     users = DynamicModelMultipleChoiceField(
         label=_('Users'),
         required=False,
@@ -281,7 +278,7 @@ class GroupForm(BootstrapMixin, forms.ModelForm):
         return instance
 
 
-class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
+class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ContentType.objects.all(),

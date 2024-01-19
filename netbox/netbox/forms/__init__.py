@@ -5,7 +5,6 @@ from django.utils.translation import gettext as _
 
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
-from utilities.forms import BootstrapMixin
 
 from .base import *
 
@@ -18,7 +17,7 @@ LOOKUP_CHOICES = (
 )
 
 
-class SearchForm(BootstrapMixin, forms.Form):
+class SearchForm(forms.Form):
     q = forms.CharField(
         label=_('Search'),
         widget=forms.TextInput(
