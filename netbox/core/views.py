@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden, Http404
+from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue_by_index
 from django_rq.utils import get_scheduler_statistics, get_statistics
 from django.shortcuts import get_object_or_404, redirect, render
@@ -253,7 +254,7 @@ class BackgroundQueuesListView(UserPassesTestMixin, View):
     def get(self, request):
         table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"], user=request.user)
         table.configure(request)
-        return render(request, 'core/background_tasks.html', {
+        return render(request, 'core/background_queues_list.html', {
             'table': table,
         })
 
@@ -264,7 +265,6 @@ class BackgroundTasksListView(UserPassesTestMixin, View):
         return self.request.user.is_staff
 
     def get(self, request, queue_index):
-        queue_index = int(queue_index)
         queue = get_queue_by_index(queue_index)
 
         if queue.count > 0:
@@ -274,7 +274,7 @@ class BackgroundTasksListView(UserPassesTestMixin, View):
 
         table = tables.BackgroundTaskTable(data=jobs, user=request.user, queue_index=queue_index)
         table.configure(request)
-        return render(request, 'core/background_tasks_queue.html', {
+        return render(request, 'core/background_tasks_list.html', {
             'table': table,
             'queue': queue,
         })
@@ -286,13 +286,12 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         return self.request.user.is_staff
 
     def get(self, request, queue_index, job_id):
-        queue_index = int(queue_index)
         queue = get_queue_by_index(queue_index)
 
         try:
             job = RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer)
         except NoSuchJobError:
-            raise Http404("Couldn't find job with this ID: %s" % job_id)
+            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
 
         try:
             job.func_name
@@ -300,7 +299,7 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         except Exception:
             data_is_valid = False
 
-        return render(request, 'core/background_tasks_job.html', {
+        return render(request, 'core/background_task.html', {
             'queue': queue,
             'job': job,
             'queue_index': queue_index,

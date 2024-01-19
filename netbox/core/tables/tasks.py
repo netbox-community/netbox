@@ -4,9 +4,8 @@ from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import BaseTable, NetBoxTable, columns
+from netbox.tables import BaseTable
 from utilities.templatetags.helpers import annotated_date
-from ..models import Job
 
 
 class BackgroundQueueTable(BaseTable):
@@ -32,9 +31,6 @@ class BackgroundQueueTable(BaseTable):
         default_columns = (
             'name', 'jobs', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs',
         )
-        attrs = {
-            'class': 'table table-hover object-list',
-        }
 
 
 class BackgroundTaskTable(BaseTable):
@@ -53,24 +49,12 @@ class BackgroundTaskTable(BaseTable):
         default_columns = (
             'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',
         )
-        attrs = {
-            'class': 'table table-hover object-list',
-        }
 
     def render_id(self, value, record):
         return mark_safe('<a href=' + reverse(
             "core:background_tasks_job_detail",
             args=[self.queue_index, value]) + '>' + value + '</a>'
         )
-
-    def render_created_at(self, value, record):
-        return annotated_date(value)
-
-    def render_enqueued_at(self, value, record):
-        return annotated_date(value)
-
-    def render_ended_at(self, value, record):
-        return annotated_date(value)
 
     def render_status(self, value, record):
         return record.get_status
