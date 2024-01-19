@@ -15,9 +15,6 @@ plugin_api_patterns = [
     path('', views.PluginsAPIRootView.as_view(), name='api-root'),
     path('installed-plugins/', views.InstalledPluginsAPIView.as_view(), name='plugins-list')
 ]
-plugin_admin_patterns = [
-    path('installed-plugins/', staff_member_required(views.InstalledPluginsAdminView.as_view()), name='plugins_list')
-]
 
 # Register base/API URL patterns for each plugin
 for plugin_path in settings.PLUGINS:

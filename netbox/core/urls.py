@@ -40,4 +40,6 @@ urlpatterns = (
     # Configuration
     path('config/', views.ConfigView.as_view(), name='config'),
 
+    # Plugins
+    path('plugins/', views.PluginListView.as_view(), name='plugin_list'),
 )

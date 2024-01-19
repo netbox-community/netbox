@@ -1,5 +1,7 @@
+from django.apps import apps
+from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden, Http404
 from django_rq.queues import get_queue_by_index
@@ -243,7 +245,10 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 #
 
 
-class BackgroundQueuesListView(LoginRequiredMixin, View):
+class BackgroundQueuesListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get(self, request):
         table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"])
@@ -253,7 +258,10 @@ class BackgroundQueuesListView(LoginRequiredMixin, View):
         })
 
 
-class BackgroundTasksListView(LoginRequiredMixin, View):
+class BackgroundTasksListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get(self, request, queue_index):
         queue_index = int(queue_index)
@@ -272,7 +280,10 @@ class BackgroundTasksListView(LoginRequiredMixin, View):
         })
 
 
-class BackgroundTaskDetailView(LoginRequiredMixin, View):
+class BackgroundTaskDetailView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get(self, request, queue_index, job_id):
         queue_index = int(queue_index)
@@ -294,4 +305,28 @@ class BackgroundTaskDetailView(LoginRequiredMixin, View):
             'job': job,
             'queue_index': queue_index,
             'data_is_valid': data_is_valid,
+        })
+
+
+#
+# Plugins
+#
+
+class PluginListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request):
+        plugins = [
+            # Look up app config by package name
+            apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
+        ]
+        table = tables.PluginTable(plugins, user=request.user)
+        table.configure(request)
+
+        return render(request, 'core/plugin_list.html', {
+            'plugins': plugins,
+            'active_tab': 'api-tokens',
+            'table': table,
         })
