@@ -5,7 +5,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden, Http404
 from django.utils.translation import gettext_lazy as _
-from django_rq.queues import get_queue_by_index
+from django_rq.queues import get_queue_by_index, get_redis_connection
+from django_rq.settings import QUEUES_MAP, QUEUES_LIST
 from django_rq.utils import get_scheduler_statistics, get_statistics
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
@@ -285,13 +286,16 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_staff
 
-    def get(self, request, queue_index, job_id):
-        queue = get_queue_by_index(queue_index)
-
+    def get(self, request, job_id):
+        # all the RQ queues should use the same connection
+        config = QUEUES_LIST[0]
         try:
-            job = RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer)
+            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
         except NoSuchJobError:
             raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+        queue_index = QUEUES_MAP[job.origin]
+        queue = get_queue_by_index(queue_index)
 
         try:
             job.func_name
