@@ -7,7 +7,7 @@ from extras.choices import *
 from extras.models import CustomField, Tag
 from utilities.forms import CSVModelForm
 from utilities.forms.fields import CSVModelMultipleChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.mixins import BootstrapMixin, CheckLastUpdatedMixin
+from utilities.forms.mixins import CheckLastUpdatedMixin
 from .mixins import CustomFieldsMixin, SavedFiltersMixin, TagsMixin
 
 __all__ = (
@@ -18,7 +18,7 @@ __all__ = (
 )
 
 
-class NetBoxModelForm(BootstrapMixin, CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms.ModelForm):
+class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms.ModelForm):
     """
     Base form for creating & editing NetBox models. Extends Django's ModelForm to add support for custom fields.
 
@@ -96,7 +96,7 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
         return customfield.to_form_field(for_csv_import=True)
 
 
-class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
+class NetBoxModelBulkEditForm(CustomFieldsMixin, forms.Form):
     """
     Base form for modifying multiple NetBox objects (of the same type) in bulk via the UI. Adds support for custom
     fields and adding/removing tags.
@@ -146,7 +146,7 @@ class NetBoxModelBulkEditForm(BootstrapMixin, CustomFieldsMixin, forms.Form):
         self.nullable_fields = (*self.nullable_fields, *nullable_custom_fields)
 
 
-class NetBoxModelFilterSetForm(BootstrapMixin, CustomFieldsMixin, SavedFiltersMixin, forms.Form):
+class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form):
     """
     Base form for FilerSet forms. These are used to filter object lists in the NetBox UI. Note that the
     corresponding FilterSet *must* provide a `q` filter.

@@ -2,7 +2,6 @@ import re
 
 from django import forms
 from django.utils.translation import gettext as _
-from .mixins import BootstrapMixin
 
 __all__ = (
     'BulkEditForm',
@@ -14,7 +13,7 @@ __all__ = (
 )
 
 
-class ConfirmationForm(BootstrapMixin, forms.Form):
+class ConfirmationForm(forms.Form):
     """
     A generic confirmation form. The form is not valid unless the `confirm` field is checked.
     """
@@ -29,14 +28,14 @@ class ConfirmationForm(BootstrapMixin, forms.Form):
     )
 
 
-class BulkEditForm(BootstrapMixin, forms.Form):
+class BulkEditForm(forms.Form):
     """
     Provides bulk edit support for objects.
     """
     nullable_fields = ()
 
 
-class BulkRenameForm(BootstrapMixin, forms.Form):
+class BulkRenameForm(forms.Form):
     """
     An extendable form to be used for renaming objects in bulk.
     """
@@ -90,7 +89,7 @@ class CSVModelForm(forms.ModelForm):
         return super().clean()
 
 
-class FilterForm(BootstrapMixin, forms.Form):
+class FilterForm(forms.Form):
     """
     Base Form class for FilterSet forms.
     """
@@ -100,7 +99,7 @@ class FilterForm(BootstrapMixin, forms.Form):
     )
 
 
-class TableConfigForm(BootstrapMixin, forms.Form):
+class TableConfigForm(forms.Form):
     """
     Form for configuring user's table preferences.
     """

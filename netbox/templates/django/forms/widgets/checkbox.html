@@ -4,4 +4,4 @@
   _selected_action to avoid breaking the admin UI.
 {% endcomment %}
 {% if widget.name != '_selected_action' %}<input type="hidden" name="{{ widget.name }}" value="">{% endif %}
-{% include "django/forms/widgets/input.html" %}
+<input type="checkbox" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %} {% include "django/forms/widgets/attrs.html" %} class="form-check-input{% if 'class' in widget.attrs %} {{ widget.attrs.class }}{% endif %}">

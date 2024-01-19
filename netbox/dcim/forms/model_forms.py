@@ -11,7 +11,7 @@ from extras.models import ConfigTemplate
 from ipam.models import ASN, IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
     NumericArrayField, SlugField,
@@ -748,7 +748,7 @@ class DeviceVCMembershipForm(forms.ModelForm):
         return vc_position
 
 
-class VCMemberSelectForm(BootstrapMixin, forms.Form):
+class VCMemberSelectForm(forms.Form):
     device = DynamicModelChoiceField(
         label=_('Device'),
         queryset=Device.objects.all(),
@@ -771,7 +771,7 @@ class VCMemberSelectForm(BootstrapMixin, forms.Form):
 # Device component templates
 #
 
-class ComponentTemplateForm(BootstrapMixin, forms.ModelForm):
+class ComponentTemplateForm(forms.ModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all()
@@ -1272,7 +1272,7 @@ class DeviceBayForm(DeviceComponentForm):
         ]
 
 
-class PopulateDeviceBayForm(BootstrapMixin, forms.Form):
+class PopulateDeviceBayForm(forms.Form):
     installed_device = forms.ModelChoiceField(
         queryset=Device.objects.all(),
         label=_('Child Device'),

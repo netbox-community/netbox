@@ -9,7 +9,7 @@ from extras.models import ConfigTemplate
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import BootstrapMixin, ConfirmationForm
+from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
@@ -90,7 +90,7 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         )
 
 
-class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
+class ClusterAddDevicesForm(forms.Form):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),

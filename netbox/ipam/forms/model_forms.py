@@ -11,7 +11,7 @@ from ipam.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.exceptions import PermissionsViolation
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     SlugField,
@@ -419,7 +419,7 @@ class IPAddressBulkAddForm(TenancyForm, NetBoxModelForm):
         ]
 
 
-class IPAddressAssignForm(BootstrapMixin, forms.Form):
+class IPAddressAssignForm(forms.Form):
     vrf_id = DynamicModelChoiceField(
         queryset=VRF.objects.all(),
         required=False,
@@ -504,7 +504,7 @@ class FHRPGroupForm(NetBoxModelForm):
                 })
 
 
-class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
+class FHRPGroupAssignmentForm(forms.ModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=FHRPGroup.objects.all()
@@ -738,7 +738,6 @@ class ServiceCreateForm(ServiceForm):
         # Fields which may be populated from a ServiceTemplate are not required
         for field in ('name', 'protocol', 'ports'):
             self.fields[field].required = False
-            del self.fields[field].widget.attrs['required']
 
     def clean(self):
         super().clean()

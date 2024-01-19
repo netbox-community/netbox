@@ -2,8 +2,8 @@ import logging
 
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import login as auth_login, logout as auth_logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import update_last_login
 from django.contrib.auth.signals import user_logged_in
@@ -72,7 +72,7 @@ class LoginView(View):
         return auth_backends
 
     def get(self, request):
-        form = forms.LoginForm(request)
+        form = AuthenticationForm(request)
 
         if request.user.is_authenticated:
             logger = logging.getLogger('netbox.auth.login')
@@ -85,7 +85,7 @@ class LoginView(View):
 
     def post(self, request):
         logger = logging.getLogger('netbox.auth.login')
-        form = forms.LoginForm(request, data=request.POST)
+        form = AuthenticationForm(request, data=request.POST)
 
         if form.is_valid():
             logger.debug("Login form validation was successful")
@@ -220,7 +220,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
             messages.warning(request, "LDAP-authenticated user credentials cannot be changed within NetBox.")
             return redirect('account:profile')
 
-        form = forms.PasswordChangeForm(user=request.user)
+        form = PasswordChangeForm(user=request.user)
 
         return render(request, self.template_name, {
             'form': form,
@@ -228,7 +228,7 @@ class ChangePasswordView(LoginRequiredMixin, View):
         })
 
     def post(self, request):
-        form = forms.PasswordChangeForm(user=request.user, data=request.POST)
+        form = PasswordChangeForm(user=request.user, data=request.POST)
         if form.is_valid():
             form.save()
             update_session_auth_hash(request, form.user)
