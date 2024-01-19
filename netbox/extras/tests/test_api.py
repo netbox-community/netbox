@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import make_aware
-from rest_framework import status, test
+from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
@@ -12,9 +12,7 @@ from extras.choices import *
 from extras.models import *
 from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
-from users.models import Token
 from utilities.testing import APITestCase, APIViewTestCases
-
 
 User = get_user_model()
 
