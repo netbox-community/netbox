@@ -9,8 +9,8 @@ from utilities.templatetags.helpers import annotated_date
 
 
 class BackgroundQueueTable(BaseTable):
-    name = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("Name"))
-    jobs = tables.LinkColumn("core:background_tasks_queues", args=[A("index")], verbose_name=_("Queued"))
+    name = tables.LinkColumn("core:background_task_list", args=[A("index")], verbose_name=_("Name"))
+    jobs = tables.LinkColumn("core:background_task_list", args=[A("index")], verbose_name=_("Queued"))
     oldest_job_timestamp = tables.Column(verbose_name=_("Oldest Queued"))
     started_jobs = tables.Column(verbose_name=_("Active"))
     deferred_jobs = tables.Column(verbose_name=_("Deferred"))
@@ -52,7 +52,7 @@ class BackgroundTaskTable(BaseTable):
 
     def render_id(self, value, record):
         return mark_safe('<a href=' + reverse(
-            "core:background_tasks_job_detail",
+            "core:background_task",
             args=[self.queue_index, value]) + '>' + value + '</a>'
         )
 

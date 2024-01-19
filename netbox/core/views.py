@@ -246,7 +246,7 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 #
 
 
-class BackgroundQueuesListView(UserPassesTestMixin, View):
+class BackgroundQueueListView(UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_staff
@@ -254,12 +254,12 @@ class BackgroundQueuesListView(UserPassesTestMixin, View):
     def get(self, request):
         table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"], user=request.user)
         table.configure(request)
-        return render(request, 'core/background_queues_list.html', {
+        return render(request, 'core/background_queue_list.html', {
             'table': table,
         })
 
 
-class BackgroundTasksListView(UserPassesTestMixin, View):
+class BackgroundTaskListView(UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_staff
@@ -274,7 +274,7 @@ class BackgroundTasksListView(UserPassesTestMixin, View):
 
         table = tables.BackgroundTaskTable(data=jobs, user=request.user, queue_index=queue_index)
         table.configure(request)
-        return render(request, 'core/background_tasks_list.html', {
+        return render(request, 'core/background_task_list.html', {
             'table': table,
             'queue': queue,
         })

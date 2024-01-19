@@ -26,9 +26,9 @@ urlpatterns = (
     path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
     # Background Tasks
-    path('background-queues/', views.BackgroundQueuesListView.as_view(), name='background_tasks_list'),
-    path('background-queues/<int:queue_index>/', views.BackgroundTasksListView.as_view(), name='background_tasks_queues'),
-    path('background-tasks/<int:queue_index>/<str:job_id>/', views.BackgroundTaskDetailView.as_view(), name='background_tasks_job_detail'),
+    path('background-queues/', views.BackgroundQueueListView.as_view(), name='background_queue_list'),
+    path('background-queues/<int:queue_index>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),
+    path('background-tasks/<int:queue_index>/<str:job_id>/', views.BackgroundTaskDetailView.as_view(), name='background_task'),
 
     # Config revisions
     path('config-revisions/', views.ConfigRevisionListView.as_view(), name='configrevision_list'),

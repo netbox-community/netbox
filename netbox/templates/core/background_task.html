@@ -4,8 +4,8 @@
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'core:background_tasks_list' %}">{% trans 'Background Tasks' %}</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'core:background_tasks_queues' queue_index=queue_index %}">{{ queue.name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Tasks' %}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'core:background_task_list' queue_index=queue_index %}">{{ queue.name }}</a></li>
 {% endblock breadcrumbs %}
 
 {% block title %}{% trans "Job" %} {{ job.id }}{% endblock %}
