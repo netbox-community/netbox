@@ -172,7 +172,12 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
     )
-    extra_choices = serializers.ListField(child=serializers.ListField(min_length=2))
+    extra_choices = serializers.ListField(
+        child=serializers.ListField(
+            min_length=2,
+            max_length=2
+        )
+    )
 
     class Meta:
         model = CustomFieldChoiceSet
@@ -180,15 +185,6 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
             'choices_count', 'created', 'last_updated',
         ]
-
-    def validate_extra_choices(self, value):
-        for choice in value:
-            if isinstance(choice, list):
-                if len(choice) < 2:
-                    raise serializers.ValidationError('Each choice must have 2 elements.')
-            else:
-                raise serializers.ValidationError('Extra choice must be a list of two elements.')
-        return value
 
 
 #
