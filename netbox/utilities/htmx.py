@@ -2,15 +2,7 @@ from urllib.parse import urlparse
 
 __all__ = (
     'is_embedded',
-    'is_htmx',
 )
-
-
-def is_htmx(request):
-    """
-    Returns True if the request was made by HTMX; False otherwise.
-    """
-    return 'Hx-Request' in request.headers
 
 
 def is_embedded(request):
