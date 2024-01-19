@@ -18,7 +18,9 @@
   {# Object table controls #}
   {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
 
-  {% render_table table %}
+  <div class="card">
+    {% render_table table %}
+  </div>
 {% endblock content %}
 
 {% block modals %}

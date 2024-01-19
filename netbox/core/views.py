@@ -251,7 +251,7 @@ class PluginListView(LoginRequiredMixin, View):
         table = tables.PluginTable(plugins)
         table.configure(request)
 
-        return render(request, 'extras/plugin_list.html', {
+        return render(request, 'core/plugin_list.html', {
             'plugins': plugins,
             'active_tab': 'api-tokens',
             'table': table,
