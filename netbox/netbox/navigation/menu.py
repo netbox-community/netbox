@@ -450,6 +450,16 @@ ADMIN_MENU = Menu(
                 ),
             ),
         ),
+        MenuGroup(
+            label=_('Plugins'),
+            items=(
+                MenuItem(
+                    link='core:plugin_list',
+                    link_text=_('Plugins'),
+                    staff_only=True
+                ),
+            ),
+        ),
     ),
 )
 

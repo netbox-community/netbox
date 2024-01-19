@@ -1,4 +1,7 @@
+from django.apps import apps
+from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -232,3 +235,27 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
         messages.success(request, f"Restored configuration revision #{pk}")
 
         return redirect(candidate_config.get_absolute_url())
+
+
+#
+# Plugins
+#
+
+class PluginListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request):
+        plugins = [
+            # Look up app config by package name
+            apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
+        ]
+        table = tables.PluginTable(plugins, user=request.user)
+        table.configure(request)
+
+        return render(request, 'core/plugin_list.html', {
+            'plugins': plugins,
+            'active_tab': 'api-tokens',
+            'table': table,
+        })
