@@ -1,7 +1,7 @@
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
@@ -241,7 +241,10 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 # Plugins
 #
 
-class PluginListView(LoginRequiredMixin, View):
+class PluginListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def get(self, request):
         plugins = [
