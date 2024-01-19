@@ -1,4 +1,5 @@
 {% extends 'generic/_base.html' %}
+{% load helpers %}
 {% load i18n %}
 {% load render_table from django_tables2 %}
 
@@ -25,5 +26,22 @@
 {% endblock tabs %}
 
 {% block content %}
-  {% render_table table %}
+  <div class="row mb-3">
+    <div class="col-auto ms-auto d-print-none">
+      {# Table configuration button #}
+      <div class="table-configure input-group">
+        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#ObjectTable_config" class="btn">
+          <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    {% render_table table %}
+  </div>
 {% endblock content %}
+
+{% block modals %}
+  {% table_config_form table table_name="ObjectTable" %}
+{% endblock modals %}
