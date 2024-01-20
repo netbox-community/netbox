@@ -305,7 +305,6 @@ class IKEPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         cls.form_data = {
             'name': 'IKE Policy X',
             'version': IKEVersionChoices.VERSION_2,
-            'mode': IKEModeChoices.AGGRESSIVE,
             'proposals': [p.pk for p in ike_proposals],
             'tags': [t.pk for t in tags],
         }
@@ -313,9 +312,9 @@ class IKEPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         ike_proposal_names = ','.join([p.name for p in ike_proposals])
         cls.csv_data = (
             "name,version,mode,proposals",
-            f"IKE Proposal 4,2,aggressive,\"{ike_proposal_names}\"",
-            f"IKE Proposal 5,2,aggressive,\"{ike_proposal_names}\"",
-            f"IKE Proposal 6,2,aggressive,\"{ike_proposal_names}\"",
+            f"IKE Proposal 4,1,main,\"{ike_proposal_names}\"",
+            f"IKE Proposal 5,1,aggressive,\"{ike_proposal_names}\"",
+            f"IKE Proposal 6,2,,\"{ike_proposal_names}\"",
         )
 
         cls.csv_update_data = (
@@ -327,7 +326,7 @@ class IKEPolicyTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
         cls.bulk_edit_data = {
             'description': 'New description',
-            'version': IKEVersionChoices.VERSION_2,
+            'version': IKEVersionChoices.VERSION_1,
             'mode': IKEModeChoices.AGGRESSIVE,
         }
 

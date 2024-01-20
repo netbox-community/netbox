@@ -16,6 +16,9 @@ The IKE version employed (v1 or v2).
 
 The IKE mode employed (main or aggressive).
 
+!!! note
+    IKE mode depends on the IKE version (IKEv1 required, IKEv2 not applicable).
+
 ### Proposals
 
 One or more [IKE proposals](./ikeproposal.md) supported for use by this policy.
