@@ -1059,7 +1059,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         report = module.reports[name]()
         jobs = module.get_jobs(name)
 
-        report.result = jobs.exclude(
+        report.result = jobs.filter(
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
