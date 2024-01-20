@@ -265,7 +265,7 @@ class BackgroundTaskListView(UserPassesTestMixin, View):
     def test_func(self):
         return self.request.user.is_staff
 
-    def get(self, request, queue_index):
+    def get(self, request, queue_index, status):
         queue = get_queue_by_index(queue_index)
 
         if queue.count > 0:
@@ -278,6 +278,7 @@ class BackgroundTaskListView(UserPassesTestMixin, View):
         return render(request, 'core/background_task_list.html', {
             'table': table,
             'queue': queue,
+            'status': status,
         })
 
 

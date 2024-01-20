@@ -9,14 +9,14 @@ from utilities.templatetags.helpers import annotated_date
 
 
 class BackgroundQueueTable(BaseTable):
-    name = tables.LinkColumn("core:background_task_list", args=[A("index")], verbose_name=_("Name"))
-    jobs = tables.LinkColumn("core:background_task_list", args=[A("index")], verbose_name=_("Queued"))
+    name = tables.LinkColumn("core:background_task_list", args=[A("index"), "queued"], verbose_name=_("Name"))
+    jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "queued"], verbose_name=_("Queued"))
     oldest_job_timestamp = tables.Column(verbose_name=_("Oldest Queued"))
-    started_jobs = tables.Column(verbose_name=_("Active"))
-    deferred_jobs = tables.Column(verbose_name=_("Deferred"))
-    finished_jobs = tables.Column(verbose_name=_("Finished"))
-    failed_jobs = tables.Column(verbose_name=_("Failed"))
-    scheduled_jobs = tables.Column(verbose_name=_("Scheduled"))
+    started_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "started"], verbose_name=_("Active"))
+    deferred_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "deferred"], verbose_name=_("Deferred"))
+    finished_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "finished"], verbose_name=_("Finished"))
+    failed_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "failed"], verbose_name=_("Failed"))
+    scheduled_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "scheduled"], verbose_name=_("Scheduled"))
     workers = tables.Column(verbose_name=_("Workers"))
     host = tables.Column(accessor="connection_kwargs__host", verbose_name=_("Host"))
     port = tables.Column(accessor="connection_kwargs__port", verbose_name=_("Port"))
@@ -34,7 +34,7 @@ class BackgroundQueueTable(BaseTable):
 
 
 class BackgroundTaskTable(BaseTable):
-    id = tables.Column(empty_values=(), verbose_name=_("ID"))
+    id = tables.LinkColumn("core:background_task", args=[A("id")], verbose_name=_("ID"))
     created_at = tables.DateTimeColumn(verbose_name=_("Created"))
     enqueued_at = tables.DateTimeColumn(verbose_name=_("Enqueued"))
     ended_at = tables.DateTimeColumn(verbose_name=_("Ended"))
@@ -48,12 +48,6 @@ class BackgroundTaskTable(BaseTable):
         )
         default_columns = (
             'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',
-        )
-
-    def render_id(self, value, record):
-        return mark_safe('<a href=' + reverse(
-            "core:background_task",
-            args=[value]) + '>' + value + '</a>'
         )
 
     def render_status(self, value, record):

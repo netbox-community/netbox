@@ -15,7 +15,7 @@
   {{ block.super }}
 {% endblock page-header %}
 
-{% block title %}{% trans "Queued Jobs in " %}{{ queue.name }}{% endblock %}
+{% block title %}{{ status|capfirst }} {% trans "Jobs in " %}{{ queue.name }}{% endblock %}
 
 {% block tabs %}
   <ul class="nav nav-tabs px-3">

@@ -27,7 +27,7 @@ urlpatterns = (
 
     # Background Tasks
     path('background-queues/', views.BackgroundQueueListView.as_view(), name='background_queue_list'),
-    path('background-queues/<int:queue_index>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),
+    path('background-queues/<int:queue_index>/<str:status>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),
     path('background-tasks/<str:job_id>/', views.BackgroundTaskDetailView.as_view(), name='background_task'),
 
     # Config revisions
