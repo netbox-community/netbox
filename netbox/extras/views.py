@@ -1138,7 +1138,6 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         report = module.reports[name]()
         jobs = module.get_jobs(name)
 
-        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
 
         jobs_table = JobTable(
             data=jobs,
