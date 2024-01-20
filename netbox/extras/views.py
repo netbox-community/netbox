@@ -1231,7 +1231,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
-        jobs = module.get_jobs(name)
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending Job (use the latest one by creation timestamp)
