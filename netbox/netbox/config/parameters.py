@@ -1,6 +1,13 @@
+import json
+
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
+
+
+class PrettyJSONEncoder(json.JSONEncoder):
+    def __init__(self, indent, sort_keys, *args, **kwargs):
+        super().__init__(indent=4, sort_keys=True, *args, **kwargs)
 
 
 class ConfigParam:
@@ -12,6 +19,7 @@ class ConfigParam:
         self.field = field or forms.CharField
         self.description = description
         self.field_kwargs = field_kwargs or {}
+        self.encoder = PrettyJSONEncoder if self.field == forms.JSONField else None
 
 
 PARAMS = (
