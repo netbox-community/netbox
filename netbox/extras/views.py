@@ -1057,7 +1057,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_report_module(module, request)
         report = module.reports[name]()
-        jobs = module.get_jobs(name)
+        jobs = module.get_jobs(report.class_name)
 
         report.result = jobs.filter(
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
@@ -1076,7 +1076,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
 
         module = get_report_module(module, request)
         report = module.reports[name]()
-        jobs = module.get_jobs(name)
+        jobs = module.get_jobs(report.class_name)
         form = ReportForm(request.POST, scheduling_enabled=report.scheduling_enabled)
 
         if form.is_valid():
@@ -1118,7 +1118,7 @@ class ReportSourceView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_report_module(module, request)
         report = module.reports[name]()
-        jobs = module.get_jobs(name)
+        jobs = module.get_jobs(report.class_name)
 
         return render(request, 'extras/report/source.html', {
             'job_count': jobs.count(),
@@ -1136,8 +1136,7 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_report_module(module, request)
         report = module.reports[name]()
-        jobs = module.get_jobs(name)
-
+        jobs = module.get_jobs(report.class_name)
 
         jobs_table = JobTable(
             data=jobs,
@@ -1235,7 +1234,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending Job (use the latest one by creation timestamp)
-        script.result = module.get_jobs(name).exclude(
+        script.result = module.get_jobs(script.class_name).exclude(
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
@@ -1252,7 +1251,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
 
         module = get_script_module(module, request)
         script = module.scripts[name]()
-        jobs = module.get_jobs(name)
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
@@ -1291,7 +1290,7 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
-        jobs = module.get_jobs(name)
+        jobs = module.get_jobs(script.class_name)
 
         return render(request, 'extras/script/source.html', {
             'job_count': jobs.count(),
