@@ -1,5 +1,3 @@
-from django.apps import apps
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -20,7 +18,6 @@ from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
-from utilities.htmx import is_htmx
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
@@ -892,7 +889,7 @@ class DashboardWidgetAddView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_add.html'
 
     def get(self, request):
-        if not is_htmx(request):
+        if not request.htmx:
             return redirect('home')
 
         initial = request.GET or {
@@ -942,7 +939,7 @@ class DashboardWidgetConfigView(LoginRequiredMixin, View):
     template_name = 'extras/dashboard/widget_config.html'
 
     def get(self, request, id):
-        if not is_htmx(request):
+        if not request.htmx:
             return redirect('home')
 
         widget = request.user.dashboard.get_widget(id)
@@ -983,7 +980,7 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
     template_name = 'generic/object_delete.html'
 
     def get(self, request, id):
-        if not is_htmx(request):
+        if not request.htmx:
             return redirect('home')
 
         widget = request.user.dashboard.get_widget(id)
@@ -1173,7 +1170,7 @@ class ReportResultView(ContentTypePermissionRequiredMixin, View):
         report = module.reports[job.name]
 
         # If this is an HTMX request, return only the result HTML
-        if is_htmx(request):
+        if request.htmx:
             response = render(request, 'extras/htmx/report_result.html', {
                 'report': report,
                 'job': job,
@@ -1347,7 +1344,7 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
         script = module.scripts[job.name]()
 
         # If this is an HTMX request, return only the result HTML
-        if is_htmx(request):
+        if request.htmx:
             response = render(request, 'extras/htmx/script_result.html', {
                 'script': script,
                 'job': job,
