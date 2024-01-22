@@ -8,8 +8,13 @@
 
 ### Bug Fixes
 
+* [#14572](https://github.com/netbox-community/netbox/issues/14572) - Correct the number of jobs listed for individual report & script modules
 * [#14755](https://github.com/netbox-community/netbox/issues/14755) - Fix validation of choice values & labels when creating a custom field choice set via the REST API
+* [#14847](https://github.com/netbox-community/netbox/issues/14847) - IKE policy mode may be set inly when IKEv1 is selected
 * [#14851](https://github.com/netbox-community/netbox/issues/14851) - Automatically remove any associated bookmarks when deleting a user
+* [#14879](https://github.com/netbox-community/netbox/issues/14879) - Include custom fields in REST API representation of data sources
+* [#14885](https://github.com/netbox-community/netbox/issues/14885) - Add missing "group" field to VPN tunnel creation form
+* [#14892](https://github.com/netbox-community/netbox/issues/14892) - Fix exception when running report/script via command line due to missing username
 
 ---
 
