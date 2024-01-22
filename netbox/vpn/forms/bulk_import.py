@@ -174,7 +174,8 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
     )
     mode = CSVChoiceField(
         label=_('Mode'),
-        choices=IKEModeChoices
+        choices=IKEModeChoices,
+        required=False
     )
     proposals = CSVModelMultipleChoiceField(
         queryset=IKEProposal.objects.all(),
