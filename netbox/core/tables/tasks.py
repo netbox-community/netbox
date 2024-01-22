@@ -59,10 +59,6 @@ class BackgroundTaskTable(BaseTable):
         except Exception as e:
             return repr(e)
 
-    def __init__(self, queue_index, *args, **kwargs):
-        self.queue_index = queue_index
-        super().__init__(*args, **kwargs)
-
 
 class WorkerTable(BaseTable):
     name = tables.Column(verbose_name=_("Name"))

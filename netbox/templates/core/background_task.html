@@ -5,7 +5,7 @@
 
 {% block breadcrumbs %}
   <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Tasks' %}</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'core:background_task_list' queue_index=queue_index %}">{{ queue.name }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'core:background_task_list' queue_index=queue_index status=job.get_status %}">{{ queue.name }}</a></li>
 {% endblock breadcrumbs %}
 
 {% block title %}{% trans "Job" %} {{ job.id }}{% endblock %}
@@ -75,6 +75,13 @@
                 <th scope="row">{% trans "Kwargs" %}</th>
                 <td>{{ job.kwargs|placeholder }}</td>
               </tr>
+              {% if exc_info %}
+              <tr>
+                <th scope="row">{% trans "Exception:" %}</th>
+                <td><pre>{% if job.exc_info %}{{ job.exc_info|linebreaks }}{% endif %}</pre></td>
+              </tr>
+              {% endif %}
+
             </table>
           </div>
         </div>

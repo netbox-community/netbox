@@ -1,4 +1,5 @@
 {% extends 'generic/_base.html' %}
+{% load buttons %}
 {% load helpers %}
 {% load i18n %}
 {% load render_table from django_tables2 %}
@@ -26,6 +27,7 @@
 {% endblock tabs %}
 
 {% block content %}
+  {% comment %}
   <div class="row mb-3">
     <div class="col-auto ms-auto d-print-none">
       {# Table configuration button #}
@@ -37,9 +39,81 @@
     </div>
   </div>
 
+  {# Objects table #}
   <div class="card">
-    {% render_table table %}
+    <div class="htmx-container table-responsive" id="object_list">
+      {% include 'htmx/table.html' %}
+    </div>
   </div>
+  {# /Objects table #}
+  {% endcomment %}
+
+
+
+    {# Object list tab #}
+    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+
+      {# Object table controls #}
+      {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
+
+      <form method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {# "Select all" form #}
+        {% if table.paginator.num_pages > 1 %}
+          <div id="select-all-box" class="d-none card d-print-none">
+            <div class="form col-md-12">
+              <div class="card-body">
+                <div class="float-end">
+                  {% if 'bulk_edit' in actions %}
+                    {% bulk_edit_button model query_params=request.GET %}
+                  {% endif %}
+                  {% if 'bulk_delete' in actions %}
+                    {% bulk_delete_button model query_params=request.GET %}
+                  {% endif %}
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                  <label for="select-all" class="form-check-label">
+                    {% blocktrans trimmed with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
+                      Select <strong>all {{ count }} {{ object_type_plural }}</strong> matching query
+                    {% endblocktrans %}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="form form-horizontal">
+          {% csrf_token %}
+          <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+
+          {# Objects table #}
+          <div class="card">
+            <div class="htmx-container table-responsive" id="object_list">
+              {% include 'htmx/table.html' %}
+            </div>
+          </div>
+          {# /Objects table #}
+
+          {# Form buttons #}
+          <div class="btn-list d-print-none mt-2">
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                {% bulk_edit_button model query_params=request.GET %}
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                {% bulk_delete_button model query_params=request.GET %}
+              {% endif %}
+            {% endblock %}
+          </div>
+          {# /Form buttons #}
+
+        </div>
+      </form>
+    </div>
+    {# /Object list tab #}
+
 {% endblock content %}
 
 {% block modals %}

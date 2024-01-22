@@ -14,6 +14,8 @@ from django.views.generic import View
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
+from netbox.views.generic.mixins import ActionsMixin, TableMixin
+
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job
 from rq.registry import (
@@ -25,6 +27,7 @@ from rq.registry import (
 )
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
+from utilities.htmx import is_embedded, is_htmx
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -256,6 +259,12 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 #
 
 
+class BaseTaskListView(UserPassesTestMixin, TableMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+
 class BackgroundQueueListView(UserPassesTestMixin, View):
 
     def test_func(self):
@@ -269,15 +278,12 @@ class BackgroundQueueListView(UserPassesTestMixin, View):
         })
 
 
-class BackgroundTaskListView(UserPassesTestMixin, View):
+class BackgroundTaskListView(BaseTaskListView):
+    table = tables.BackgroundTaskTable
 
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def get(self, request, queue_index, status):
+    def get_table_data(self, request, queue, status):
         registry = None
         jobs = []
-        queue = get_queue_by_index(queue_index)
 
         if status == 'queued':
             if queue.count > 0:
@@ -311,8 +317,27 @@ class BackgroundTaskListView(UserPassesTestMixin, View):
                 for job in jobs:
                     job.scheduled_at = registry.get_scheduled_time(job)
 
-        table = tables.BackgroundTaskTable(data=jobs, user=request.user, queue_index=queue_index)
-        table.configure(request)
+        return jobs
+
+    def get(self, request, queue_index, status):
+        queue = get_queue_by_index(queue_index)
+        data = self.get_table_data(request, queue, status)
+
+        table = self.get_table(data, request, False)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            if is_embedded(request):
+                table.embedded = True
+                # Hide selection checkboxes
+                if 'pk' in table.base_columns:
+                    table.columns.hide('pk')
+            return render(request, 'htmx/table.html', {
+                'table': table,
+                'queue': queue,
+                'status': status,
+            })
+
         return render(request, 'core/background_task_list.html', {
             'table': table,
             'queue': queue,
@@ -320,19 +345,36 @@ class BackgroundTaskListView(UserPassesTestMixin, View):
         })
 
 
-class WorkerListView(UserPassesTestMixin, View):
+class WorkerListView(BaseTaskListView):
+    table = tables.WorkerTable
 
     def test_func(self):
         return self.request.user.is_staff
 
-    def get(self, request, queue_index):
-        queue = get_queue_by_index(queue_index)
+    def get_table_data(self, request, queue):
         clean_worker_registry(queue)
         all_workers = Worker.all(queue.connection)
         workers = [worker for worker in all_workers if queue.name in worker.queue_names()]
+        return workers
 
-        table = tables.WorkerTable(data=workers, user=request.user)
-        table.configure(request)
+    def get(self, request, queue_index):
+        queue = get_queue_by_index(queue_index)
+        data = self.get_table_data(request, queue)
+
+        table = self.get_table(data, request, False)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if is_htmx(request):
+            if is_embedded(request):
+                table.embedded = True
+                # Hide selection checkboxes
+                if 'pk' in table.base_columns:
+                    table.columns.hide('pk')
+            return render(request, 'htmx/table.html', {
+                'table': table,
+                'queue': queue,
+            })
+
         return render(request, 'core/worker_list.html', {
             'table': table,
             'queue': queue,
@@ -361,11 +403,18 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         except Exception:
             data_is_valid = False
 
+        try:
+            exc_info = job._exc_info
+        except AttributeError:
+            exc_info = None
+
         return render(request, 'core/background_task.html', {
             'queue': queue,
             'job': job,
             'queue_index': queue_index,
             'data_is_valid': data_is_valid,
+            'dependency_id': job._dependency_id,
+            'exc_info': exc_info,
         })
 
 
