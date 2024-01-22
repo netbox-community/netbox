@@ -1,14 +1,10 @@
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from users.models import ObjectPermission, Token
+from users.models import ObjectPermission, Token, NetBoxUser
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
 from utilities.utils import deepmerge
-
-
-User = get_user_model()
 
 
 class AppTest(APITestCase):
@@ -22,7 +18,7 @@ class AppTest(APITestCase):
 
 
 class UserTest(APIViewTestCases.APIViewTestCase):
-    model = User
+    model = NetBoxUser
     view_namespace = 'users'
     brief_fields = ['display', 'id', 'url', 'username']
     validation_excluded_fields = ['password']
@@ -48,11 +44,11 @@ class UserTest(APIViewTestCases.APIViewTestCase):
     def setUpTestData(cls):
 
         users = (
-            User(username='User_1', password='password1'),
-            User(username='User_2', password='password2'),
-            User(username='User_3', password='password3'),
+            NetBoxUser(username='User_1', password='password1'),
+            NetBoxUser(username='User_2', password='password2'),
+            NetBoxUser(username='User_3', password='password3'),
         )
-        User.objects.bulk_create(users)
+        NetBoxUser.objects.bulk_create(users)
 
     def test_that_password_is_changed(self):
         """
@@ -71,7 +67,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
             'username': 'user1',
             'password': 'abc123',
         }
-        user = User.objects.create_user(**user_credentials)
+        user = NetBoxUser.objects.create_user(**user_credentials)
 
         data = {
             'password': 'newpassword'
@@ -82,7 +78,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
 
         self.assertEqual(response.status_code, 200)
 
-        updated_user = User.objects.get(id=user.id)
+        updated_user = NetBoxUser.objects.get(id=user.id)
 
         self.assertTrue(updated_user.check_password(data['password']))
 
@@ -177,7 +173,7 @@ class TokenTest(
             'username': 'user1',
             'password': 'abc123',
         }
-        user = User.objects.create_user(**user_credentials)
+        user = NetBoxUser.objects.create_user(**user_credentials)
 
         data = {
             **user_credentials,
@@ -216,7 +212,7 @@ class TokenTest(
         ObjectPermission.objects.filter(users=self.user).delete()
 
         self.add_permissions('users.add_token')
-        user2 = User.objects.create_user(username='testuser2')
+        user2 = NetBoxUser.objects.create_user(username='testuser2')
         data = {
             'user': user2.id,
         }
@@ -254,11 +250,11 @@ class ObjectPermissionTest(
         Group.objects.bulk_create(groups)
 
         users = (
-            User(username='User 1', is_active=True),
-            User(username='User 2', is_active=True),
-            User(username='User 3', is_active=True),
+            NetBoxUser(username='User 1', is_active=True),
+            NetBoxUser(username='User 2', is_active=True),
+            NetBoxUser(username='User 3', is_active=True),
         )
-        User.objects.bulk_create(users)
+        NetBoxUser.objects.bulk_create(users)
 
         object_type = ContentType.objects.get(app_label='dcim', model='device')
 
