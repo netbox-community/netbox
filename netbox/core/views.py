@@ -23,6 +23,8 @@ from rq.registry import (
     ScheduledJobRegistry,
     StartedJobRegistry,
 )
+from rq.worker import Worker
+from rq.worker_registration import clean_worker_registry
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -315,6 +317,25 @@ class BackgroundTaskListView(UserPassesTestMixin, View):
             'table': table,
             'queue': queue,
             'status': status,
+        })
+
+
+class WorkerListView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, queue_index):
+        queue = get_queue_by_index(queue_index)
+        clean_worker_registry(queue)
+        all_workers = Worker.all(queue.connection)
+        workers = [worker for worker in all_workers if queue.name in worker.queue_names()]
+
+        table = tables.WorkerTable(data=workers, user=request.user)
+        table.configure(request)
+        return render(request, 'core/worker_list.html', {
+            'table': table,
+            'queue': queue,
         })
 
 

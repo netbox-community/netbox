@@ -17,7 +17,7 @@ class BackgroundQueueTable(BaseTable):
     finished_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "finished"], verbose_name=_("Finished"))
     failed_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "failed"], verbose_name=_("Failed"))
     scheduled_jobs = tables.LinkColumn("core:background_task_list", args=[A("index"), "scheduled"], verbose_name=_("Scheduled"))
-    workers = tables.Column(verbose_name=_("Workers"))
+    workers = tables.LinkColumn("core:worker_list", args=[A("index")], verbose_name=_("Workers"))
     host = tables.Column(accessor="connection_kwargs__host", verbose_name=_("Host"))
     port = tables.Column(accessor="connection_kwargs__port", verbose_name=_("Port"))
     db = tables.Column(accessor="connection_kwargs__db", verbose_name=_("DB"))
@@ -29,7 +29,7 @@ class BackgroundQueueTable(BaseTable):
             'name', 'jobs', 'oldest_job_timestamp', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers', 'host', 'port', 'db', 'pid',
         )
         default_columns = (
-            'name', 'jobs', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs',
+            'name', 'jobs', 'started_jobs', 'deferred_jobs', 'finished_jobs', 'failed_jobs', 'scheduled_jobs', 'workers',
         )
 
 
@@ -62,3 +62,19 @@ class BackgroundTaskTable(BaseTable):
     def __init__(self, queue_index, *args, **kwargs):
         self.queue_index = queue_index
         super().__init__(*args, **kwargs)
+
+
+class WorkerTable(BaseTable):
+    name = tables.Column(verbose_name=_("Name"))
+    state = tables.Column(verbose_name=_("State"))
+    birth_date = tables.DateTimeColumn(verbose_name=_("Birth"))
+    pid = tables.Column(verbose_name=_("PID"))
+
+    class Meta(BaseTable.Meta):
+        empty_text = _('No workers found')
+        fields = (
+            'name', 'state', 'birth_date', 'pid',
+        )
+        default_columns = (
+            'name', 'state', 'birth_date', 'pid',
+        )
