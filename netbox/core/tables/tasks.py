@@ -42,7 +42,7 @@ class BackgroundTaskTable(BaseTable):
     callable = tables.Column(empty_values=(), verbose_name=_("Callable"))
 
     class Meta(BaseTable.Meta):
-        empty_text = _('No queues found')
+        empty_text = _('No jobs found')
         fields = (
             'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',
         )

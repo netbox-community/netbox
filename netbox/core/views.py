@@ -7,7 +7,7 @@ from django.http import HttpResponseForbidden, Http404
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
-from django_rq.utils import get_scheduler_statistics, get_statistics
+from django_rq.utils import get_jobs, get_scheduler_statistics, get_statistics
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 
@@ -16,6 +16,13 @@ from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job
+from rq.registry import (
+    DeferredJobRegistry,
+    FailedJobRegistry,
+    FinishedJobRegistry,
+    ScheduledJobRegistry,
+    StartedJobRegistry,
+)
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -266,12 +273,41 @@ class BackgroundTaskListView(UserPassesTestMixin, View):
         return self.request.user.is_staff
 
     def get(self, request, queue_index, status):
+        registry = None
+        jobs = []
         queue = get_queue_by_index(queue_index)
 
-        if queue.count > 0:
-            jobs = queue.get_jobs()
-        else:
-            jobs = []
+        if status == 'queued':
+            if queue.count > 0:
+                jobs = queue.get_jobs()
+        elif status == 'started':
+            registry = StartedJobRegistry(queue.name, queue.connection)
+        elif status == 'deferred':
+            registry = DeferredJobRegistry(queue.name, queue.connection)
+        elif status == 'finished':
+            registry = FinishedJobRegistry(queue.name, queue.connection)
+        elif status == 'failed':
+            registry = FailedJobRegistry(queue.name, queue.connection)
+        elif status == 'scheduled':
+            registry = ScheduledJobRegistry(queue.name, queue.connection)
+
+        if status != 'queued':
+            job_ids = registry.get_job_ids()
+            if status != 'deferred':
+                jobs = get_jobs(queue, job_ids, registry)
+            else:
+                # deferred jobs require special handling
+                job_ids = registry.get_job_ids()
+
+                for job_id in job_ids:
+                    try:
+                        jobs.append(Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
+                    except NoSuchJobError:
+                        pass
+
+            if jobs and status == 'scheduled':
+                for job in jobs:
+                    job.scheduled_at = registry.get_scheduled_time(job)
 
         table = tables.BackgroundTaskTable(data=jobs, user=request.user, queue_index=queue_index)
         table.configure(request)
