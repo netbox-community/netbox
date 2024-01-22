@@ -71,10 +71,10 @@ def enqueue_object(queue, instance, user, request_id, action):
     })
 
 
-def process_event_rules(event_rules, model_name, event, data, username, snapshots=None, request_id=None):
-    try:
+def process_event_rules(event_rules, model_name, event, data, username=None, snapshots=None, request_id=None):
+    if username:
         user = get_user_model().objects.get(username=username)
-    except ObjectDoesNotExist:
+    else:
         user = None
 
     for event_rule in event_rules:
