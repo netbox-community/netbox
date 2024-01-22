@@ -10,6 +10,7 @@ from django.http import HttpResponse
 from django.urls import reverse
 from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
 from extras.events import enqueue_object, flush_events, serialize_for_event
+from extras.forms import SavedFilterForm, EventRuleForm
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
 from requests import Session
@@ -442,3 +443,27 @@ class EventRuleTest(APITestCase):
 
         # Evaluate the conditions (status NOT in ['planned, 'staging'])
         self.assertTrue(event_rule.eval_conditions(data))
+
+    def test_event_rule_conditions_with_incorrect_key_must_return_false(self):
+        """
+        Test Event Rule with incorrect condition (key "foo" is wrong). Must return false.
+        """
+
+        ct = ContentType.objects.get(app_label='extras', model='webhook')
+        site_ct = ContentType.objects.get_for_model(Site)
+        webhook = Webhook.objects.create(name='Webhook 100', payload_url='http://example.com/?1', http_method='POST')
+        form = EventRuleForm({
+            "name": "Event Rule 1",
+            "type_create": True,
+            "type_update": True,
+            "action_object_type": ct.pk,
+            "action_type": "webhook",
+            "action_choice": webhook.pk,
+            "content_types": [site_ct.pk],
+            "conditions": {
+                "foo": "status.value",
+                "value": "active"
+            }
+        })
+
+        self.assertFalse(form.is_valid())

@@ -130,20 +130,19 @@ class ConditionSet:
     :param ruleset: A dictionary mapping a logical operator to a list of conditional rules
     """
     def __init__(self, ruleset):
+
         if type(ruleset) is not dict:
             raise ValueError(f"Ruleset must be a dictionary, not {type(ruleset)}.")
-        if len(ruleset) < 1:
-            raise ValueError(f"Ruleset must have exactly one logical operator (found {len(ruleset)})")
 
         self.logic = None
 
         # If logic type use it, else return the ruleset
         if len(ruleset) == 1:
             logic = list(ruleset.keys())[0]
-            if logic.lower() in (AND, OR):
-                self.logic = logic.lower()
-            else:
-                raise ValueError(f"Invalid logic type: {logic} (must be '{AND}' or '{OR}')")
+            if logic not in (AND, OR):
+                raise ValueError(
+                    f"Invalid logic type: {logic} (must be '{AND}' or '{OR}'). Please check documentation.")
+            self.logic = logic.lower()
 
             # Compile the set of Conditions
             self.conditions = [
@@ -151,7 +150,10 @@ class ConditionSet:
                 for rule in ruleset[self.logic]
             ]
         else:
-            self.conditions = [Condition(**ruleset)]
+            try:
+                self.conditions = [Condition(**ruleset)]
+            except TypeError:
+                raise ValueError(f"Incorrect key(s) informed. Please check documentation.")
 
     def eval(self, data):
         """
