@@ -141,7 +141,7 @@ class TunnelCreateForm(TunnelForm):
     )
 
     fieldsets = (
-        (_('Tunnel'), ('name', 'status', 'encapsulation', 'description', 'tunnel_id', 'tags')),
+        (_('Tunnel'), ('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags')),
         (_('Security'), ('ipsec_profile',)),
         (_('Tenancy'), ('tenant_group', 'tenant')),
         (_('First Termination'), (
