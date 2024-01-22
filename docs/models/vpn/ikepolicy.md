@@ -14,10 +14,7 @@ The IKE version employed (v1 or v2).
 
 ### Mode
 
-The IKE mode employed (main or aggressive).
-
-!!! note
-    IKE mode depends on the IKE version (IKEv1 required, IKEv2 not applicable).
+The mode employed (main or aggressive) when IKEv1 is in use. This setting is not supported for IKEv2.
 
 ### Proposals
 
