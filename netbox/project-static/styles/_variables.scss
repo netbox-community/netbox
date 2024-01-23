@@ -18,3 +18,6 @@ $table-cell-padding-y: 0.5rem;
 
 // Fix Tabler bug #1694 in 1.0.0-beta20
 $hover-bg: rgba(var(--tblr-secondary-rgb), 0.08);
+
+// Ensure active nav-pill has a background color in dark mode
+$nav-pills-link-active-bg: rgba(var(--tblr-secondary-rgb), 0.15);

@@ -33,7 +33,7 @@
 
       <div class="card card-md">
         <div class="card-body">
-          <h3 class="text-center mb-4">Log In</h3>
+          <h2 class="text-center mb-4">{% trans "Log In" %}</h2>
 
           {# Login form #}
           <form action="{% url 'login' %}" method="post">
@@ -46,25 +46,30 @@
               <input type="hidden" name="next" value="{{ request.POST.next }}" />
             {% endif %}
 
-            {{ form }}
+            {% render_form form %}
 
-            <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
-              {% trans "Sign In" %}
-            </button>
+            <div class="form-footer">
+              <button type="submit" class="btn btn-primary w-100">
+                {% trans "Sign In" %}
+              </button>
+            </div>
           </form>
         </div>
 
         {# SSO login #}
         {% if auth_backends %}
-          <div class="hr-text">or</div>
+          <div class="hr-text">{% trans "Or" context "Denotes an alternative option" %}</div>
           <div class="card-body">
-            <h6 class="mt-4 mb-3">{% trans "Or use a single sign-on (SSO) provider" %}:</h6>
-            {% for backend in auth_backends %}
-              <h5>
-                {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
-                <a href="{{ backend.url }}" class="my-2">{{ backend.display_name }}</a>
-              </h5>
-            {% endfor %}
+            <div class="row">
+              {% for backend in auth_backends %}
+                <div class="col">
+                  <a href="{{ backend.url }}" class="btn w-100">
+                    {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
+                    {{ backend.display_name }}
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
           </div>
         {% endif %}
 
