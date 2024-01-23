@@ -33,7 +33,7 @@
     </div>
   </div>
 {% else %}
-  <div class="btn-group">
+  <div class="btn-group ps-2">
     <a class="btn btn-primary" type="button" href="{% url 'login' %}?next={{ request.path }}">
       <i class="mdi mdi-login-variant"></i> {% trans "Log In" %}
     </a>

@@ -2956,7 +2956,6 @@ class InventoryItemBulkDeleteView(generic.BulkDeleteView):
     queryset = InventoryItem.objects.all()
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
-    template_name = 'dcim/inventoryitem_bulk_delete.html'
 
 
 @register_model_view(InventoryItem, 'children')

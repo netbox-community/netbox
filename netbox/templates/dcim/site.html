@@ -72,16 +72,14 @@
         </tr>
         <tr>
           <th scope="row">{% trans "Physical Address" %}</th>
-          <td class="position-relative">
+          <td class="d-flex justify-content-between">
             {% if object.physical_address %}
-              {% if config.MAPS_URL %}
-                <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
-                  <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary">
-                    <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
-                  </a>
-                </div>
-              {% endif %}
               <span>{{ object.physical_address|linebreaksbr }}</span>
+              {% if config.MAPS_URL %}
+                <a href="{{ config.MAPS_URL }}{{ object.physical_address|urlencode }}" target="_blank" class="btn btn-primary btn-sm d-print-none">
+                  <i class="mdi mdi-map-marker"></i> {% trans "Map" %}
+                </a>
+              {% endif %}
             {% else %}
               {{ ''|placeholder }}
             {% endif %}

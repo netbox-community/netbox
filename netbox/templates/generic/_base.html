@@ -6,16 +6,16 @@
 
     {% block page-header %}
       <div class="container-xl mt-2 d-print-none">
-        <div class="row align-items-center">
+        <div class="d-flex justify-content-between">
 
           {# Title #}
-          <div class="col">
+          <div>
             <h2 class="page-title my-1">{% block title %}{% endblock title %}</h2>
             {% block subtitle %}{% endblock %}
           </div>
 
           {# Controls #}
-          <div class="col-auto d-print-none">
+          <div class="d-print-none">
             {% block controls %}
               <div class="btn-list">
                 {% block control-buttons %}{% endblock %}

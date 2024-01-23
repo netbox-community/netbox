@@ -10,36 +10,6 @@ span.color-label {
   border-radius: $border-radius;
 }
 
-// Rendered Markdown
-.rendered-markdown {
-
-  table {
-    width: 100%;
-
-    // Apply a border
-    th {
-      border-bottom: 2px solid #dddddd;
-      padding: 8px;
-    }
-    td {
-      border-top: 1px solid #dddddd;
-      padding: 8px;
-    }
-
-    // Map "align" attr of column headings
-    th[align="left"] {
-      text-align: left;
-    }
-    th[align="center"] {
-      text-align: center;
-    }
-    th[align="right"] {
-      text-align: right;
-    }
-  }
-
-}
-
 // Object hierarchy depth indicators
 .record-depth {
   display: inline;

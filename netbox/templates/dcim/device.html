@@ -27,14 +27,12 @@
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Rack" %}</th>
-                        <td class="position-relative">
+                        <td class="d-flex justify-content-between">
                             {% if object.rack %}
                                 {{ object.rack|linkify }}
-                                <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
-                                  <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary" title="{% trans "Highlight device" %}">
-                                    <i class="mdi mdi-view-day-outline"></i>
-                                  </a>
-                                </div>
+                                <a href="{{ object.rack.get_absolute_url }}?device={{ object.pk }}" class="btn btn-primary btn-sm d-print-none" title="{% trans "Highlight device in rack" %}">
+                                  <i class="mdi mdi-view-day-outline"></i>
+                                </a>
                             {% else %}
                                 {{ ''|placeholder }}
                             {% endif %}

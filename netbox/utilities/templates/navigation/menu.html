@@ -28,7 +28,7 @@
                   {% if buttons %}
                     <div class="btn-group ms-1">
                       {% for button in buttons %}
-                        <a href="{% url button.link %}" class="btn btn-sm btn-{{ button.color|default:"outline-dark" }} lh-2" title="{{ button.title }}">
+                        <a href="{% url button.link %}" class="btn btn-sm btn-{{ button.color|default:"outline-dark" }} lh-2 px-2" title="{{ button.title }}">
                           <i class="{{ button.icon_class }}"></i>
                         </a>
                       {% endfor %}
