@@ -240,7 +240,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
-        label=_('Marked as 100% utilized'),
+        label=_('Treat as fully utilized'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -279,7 +279,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
-        label=_('Marked as 100% utilized'),
+        label=_('Treat as fully utilized'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

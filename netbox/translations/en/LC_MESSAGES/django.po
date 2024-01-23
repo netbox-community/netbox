@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-22 21:17+0000\n"
+"POT-Creation-Date: 2024-01-23 18:14+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1203,7 +1203,7 @@ msgstr ""
 msgid "Enforce unique space"
 msgstr ""
 
-#: core/forms/bulk_edit.py:33 extras/forms/model_forms.py:202
+#: core/forms/bulk_edit.py:33 extras/forms/model_forms.py:204
 #: templates/extras/savedfilter.html:57 vpn/forms/filtersets.py:95
 #: vpn/forms/filtersets.py:124 vpn/forms/filtersets.py:148
 #: vpn/forms/filtersets.py:167 vpn/forms/model_forms.py:294
@@ -1217,8 +1217,8 @@ msgid "Ignore rules"
 msgstr ""
 
 #: core/forms/filtersets.py:26 core/forms/model_forms.py:95
-#: extras/forms/model_forms.py:165 extras/forms/model_forms.py:462
-#: extras/forms/model_forms.py:515 extras/tables/tables.py:149
+#: extras/forms/model_forms.py:167 extras/forms/model_forms.py:464
+#: extras/forms/model_forms.py:517 extras/tables/tables.py:149
 #: extras/tables/tables.py:368 extras/tables/tables.py:403
 #: templates/core/datasource.html:31
 #: templates/dcim/device/render_config.html:19
@@ -2378,7 +2378,7 @@ msgid "Power panel (ID)"
 msgstr ""
 
 #: dcim/forms/bulk_create.py:40 extras/forms/filtersets.py:410
-#: extras/forms/model_forms.py:451 extras/forms/model_forms.py:502
+#: extras/forms/model_forms.py:453 extras/forms/model_forms.py:504
 #: netbox/forms/base.py:82 netbox/forms/mixins.py:79
 #: netbox/tables/columns.py:448
 #: templates/circuits/inc/circuit_termination.html:119
@@ -3519,7 +3519,7 @@ msgstr ""
 
 #: dcim/forms/filtersets.py:1248 extras/forms/bulk_edit.py:315
 #: extras/forms/bulk_import.py:239 extras/forms/filtersets.py:479
-#: extras/forms/model_forms.py:555 extras/tables/tables.py:487
+#: extras/forms/model_forms.py:557 extras/tables/tables.py:487
 #: templates/extras/journalentry.html:33
 msgid "Kind"
 msgstr ""
@@ -5194,7 +5194,7 @@ msgid "VMs"
 msgstr ""
 
 #: dcim/tables/devices.py:133 dcim/tables/devices.py:245
-#: extras/forms/model_forms.py:513 templates/dcim/device.html:114
+#: extras/forms/model_forms.py:515 templates/dcim/device.html:114
 #: templates/dcim/device/render_config.html:11
 #: templates/dcim/device/render_config.html:15
 #: templates/dcim/devicerole.html:47 templates/dcim/platform.html:44
@@ -5402,7 +5402,7 @@ msgid "Module Types"
 msgstr ""
 
 #: dcim/tables/devicetypes.py:53 extras/forms/filtersets.py:379
-#: extras/forms/model_forms.py:421 netbox/navigation/menu.py:66
+#: extras/forms/model_forms.py:423 netbox/navigation/menu.py:66
 msgid "Platforms"
 msgstr ""
 
@@ -5521,7 +5521,7 @@ msgid "Max Weight"
 msgstr ""
 
 #: dcim/tables/sites.py:30 dcim/tables/sites.py:57
-#: extras/forms/filtersets.py:359 extras/forms/model_forms.py:401
+#: extras/forms/filtersets.py:359 extras/forms/model_forms.py:403
 #: ipam/forms/bulk_edit.py:128 ipam/forms/model_forms.py:152
 #: ipam/tables/asn.py:66 netbox/navigation/menu.py:16
 #: netbox/navigation/menu.py:18
@@ -5541,7 +5541,7 @@ msgstr ""
 msgid "Non-Racked Devices"
 msgstr ""
 
-#: dcim/views.py:2032 extras/forms/model_forms.py:461
+#: dcim/views.py:2032 extras/forms/model_forms.py:463
 #: templates/extras/configcontext.html:10
 #: virtualization/forms/model_forms.py:228 virtualization/views.py:408
 msgid "Config Context"
@@ -5778,8 +5778,8 @@ msgstr ""
 msgid "White"
 msgstr ""
 
-#: extras/choices.py:306 extras/forms/model_forms.py:233
-#: extras/forms/model_forms.py:319 templates/extras/webhook.html:11
+#: extras/choices.py:306 extras/forms/model_forms.py:235
+#: extras/forms/model_forms.py:321 templates/extras/webhook.html:11
 msgid "Webhook"
 msgstr ""
 
@@ -6001,8 +6001,8 @@ msgstr ""
 #: extras/forms/bulk_import.py:177 extras/forms/filtersets.py:114
 #: extras/forms/filtersets.py:160 extras/forms/filtersets.py:201
 #: extras/forms/model_forms.py:43 extras/forms/model_forms.py:127
-#: extras/forms/model_forms.py:154 extras/forms/model_forms.py:195
-#: extras/forms/model_forms.py:251
+#: extras/forms/model_forms.py:156 extras/forms/model_forms.py:197
+#: extras/forms/model_forms.py:253
 msgid "Content types"
 msgstr ""
 
@@ -6018,7 +6018,7 @@ msgstr ""
 
 #: extras/forms/bulk_import.py:44 extras/forms/filtersets.py:48
 #: extras/forms/filtersets.py:259 extras/forms/model_forms.py:47
-#: extras/forms/model_forms.py:221 tenancy/forms/filtersets.py:91
+#: extras/forms/model_forms.py:223 tenancy/forms/filtersets.py:91
 msgid "Object type"
 msgstr ""
 
@@ -6078,7 +6078,7 @@ msgid "Choices"
 msgstr ""
 
 #: extras/forms/filtersets.py:141 extras/forms/filtersets.py:327
-#: extras/forms/filtersets.py:417 extras/forms/model_forms.py:456
+#: extras/forms/filtersets.py:417 extras/forms/model_forms.py:458
 #: templates/core/job.html:86 templates/extras/configcontext.html:86
 #: templates/extras/eventrule.html:111
 msgid "Data"
@@ -6098,7 +6098,7 @@ msgstr ""
 msgid "HTTP content type"
 msgstr ""
 
-#: extras/forms/filtersets.py:254 extras/forms/model_forms.py:269
+#: extras/forms/filtersets.py:254 extras/forms/model_forms.py:271
 #: templates/extras/eventrule.html:46
 msgid "Events"
 msgstr ""
@@ -6123,7 +6123,7 @@ msgstr ""
 msgid "Job starts"
 msgstr ""
 
-#: extras/forms/filtersets.py:306 extras/forms/model_forms.py:288
+#: extras/forms/filtersets.py:306 extras/forms/model_forms.py:290
 msgid "Job terminations"
 msgstr ""
 
@@ -6135,44 +6135,44 @@ msgstr ""
 msgid "Allowed object type"
 msgstr ""
 
-#: extras/forms/filtersets.py:349 extras/forms/model_forms.py:391
+#: extras/forms/filtersets.py:349 extras/forms/model_forms.py:393
 #: netbox/navigation/menu.py:19
 msgid "Regions"
 msgstr ""
 
-#: extras/forms/filtersets.py:354 extras/forms/model_forms.py:396
+#: extras/forms/filtersets.py:354 extras/forms/model_forms.py:398
 msgid "Site groups"
 msgstr ""
 
-#: extras/forms/filtersets.py:364 extras/forms/model_forms.py:406
+#: extras/forms/filtersets.py:364 extras/forms/model_forms.py:408
 #: netbox/navigation/menu.py:21
 msgid "Locations"
 msgstr ""
 
-#: extras/forms/filtersets.py:369 extras/forms/model_forms.py:411
+#: extras/forms/filtersets.py:369 extras/forms/model_forms.py:413
 msgid "Device types"
 msgstr ""
 
-#: extras/forms/filtersets.py:374 extras/forms/model_forms.py:416
+#: extras/forms/filtersets.py:374 extras/forms/model_forms.py:418
 msgid "Roles"
 msgstr ""
 
-#: extras/forms/filtersets.py:384 extras/forms/model_forms.py:426
+#: extras/forms/filtersets.py:384 extras/forms/model_forms.py:428
 msgid "Cluster types"
 msgstr ""
 
-#: extras/forms/filtersets.py:390 extras/forms/model_forms.py:431
+#: extras/forms/filtersets.py:390 extras/forms/model_forms.py:433
 msgid "Cluster groups"
 msgstr ""
 
-#: extras/forms/filtersets.py:395 extras/forms/model_forms.py:436
+#: extras/forms/filtersets.py:395 extras/forms/model_forms.py:438
 #: netbox/navigation/menu.py:243 netbox/navigation/menu.py:245
 #: templates/virtualization/clustertype.html:33
 #: virtualization/tables/clusters.py:23 virtualization/tables/clusters.py:45
 msgid "Clusters"
 msgstr ""
 
-#: extras/forms/filtersets.py:400 extras/forms/model_forms.py:441
+#: extras/forms/filtersets.py:400 extras/forms/model_forms.py:443
 msgid "Tenant groups"
 msgstr ""
 
@@ -6190,7 +6190,7 @@ msgstr ""
 msgid "Time"
 msgstr ""
 
-#: extras/forms/filtersets.py:504 extras/forms/model_forms.py:271
+#: extras/forms/filtersets.py:504 extras/forms/model_forms.py:273
 #: extras/tables/tables.py:445 templates/extras/eventrule.html:90
 #: templates/extras/objectchange.html:50
 msgid "Action"
@@ -6239,114 +6239,114 @@ msgid "Templates"
 msgstr ""
 
 #: extras/forms/model_forms.py:145
+#, python-brace-format
 msgid ""
-"Jinja2 template code for the link text. Reference the object as "
-"<code>{{ object }}</code>. Links which render as empty text will not be "
-"displayed."
+"Jinja2 template code for the link text. Reference the object as {example}. "
+"Links which render as empty text will not be displayed."
 msgstr ""
 
-#: extras/forms/model_forms.py:148
+#: extras/forms/model_forms.py:149
+#, python-brace-format
 msgid ""
-"Jinja2 template code for the link URL. Reference the object as "
-"<code>{{ object }}</code>."
+"Jinja2 template code for the link URL. Reference the object as {example}."
 msgstr ""
 
-#: extras/forms/model_forms.py:158 extras/forms/model_forms.py:507
+#: extras/forms/model_forms.py:160 extras/forms/model_forms.py:509
 msgid "Template code"
 msgstr ""
 
-#: extras/forms/model_forms.py:164 templates/extras/exporttemplate.html:17
+#: extras/forms/model_forms.py:166 templates/extras/exporttemplate.html:17
 msgid "Export Template"
 msgstr ""
 
-#: extras/forms/model_forms.py:166
+#: extras/forms/model_forms.py:168
 msgid "Rendering"
 msgstr ""
 
-#: extras/forms/model_forms.py:180 extras/forms/model_forms.py:532
+#: extras/forms/model_forms.py:182 extras/forms/model_forms.py:534
 msgid "Template content is populated from the remote source selected below."
 msgstr ""
 
-#: extras/forms/model_forms.py:187 extras/forms/model_forms.py:539
+#: extras/forms/model_forms.py:189 extras/forms/model_forms.py:541
 msgid "Must specify either local content or a data file"
 msgstr ""
 
-#: extras/forms/model_forms.py:201 netbox/forms/mixins.py:68
+#: extras/forms/model_forms.py:203 netbox/forms/mixins.py:68
 #: templates/extras/savedfilter.html:10
 msgid "Saved Filter"
 msgstr ""
 
-#: extras/forms/model_forms.py:234 templates/extras/webhook.html:28
+#: extras/forms/model_forms.py:236 templates/extras/webhook.html:28
 msgid "HTTP Request"
 msgstr ""
 
-#: extras/forms/model_forms.py:237 templates/extras/webhook.html:53
+#: extras/forms/model_forms.py:239 templates/extras/webhook.html:53
 msgid "SSL"
 msgstr ""
 
-#: extras/forms/model_forms.py:255
+#: extras/forms/model_forms.py:257
 msgid "Action choice"
 msgstr ""
 
-#: extras/forms/model_forms.py:260
+#: extras/forms/model_forms.py:262
 msgid "Enter conditions in <a href=\"https://json.org/\">JSON</a> format."
 msgstr ""
 
-#: extras/forms/model_forms.py:264
+#: extras/forms/model_forms.py:266
 msgid ""
 "Enter parameters to pass to the action in <a href=\"https://json.org/"
 "\">JSON</a> format."
 msgstr ""
 
-#: extras/forms/model_forms.py:268 templates/extras/eventrule.html:11
+#: extras/forms/model_forms.py:270 templates/extras/eventrule.html:11
 msgid "Event Rule"
 msgstr ""
 
-#: extras/forms/model_forms.py:270 templates/extras/eventrule.html:78
+#: extras/forms/model_forms.py:272 templates/extras/eventrule.html:78
 msgid "Conditions"
 msgstr ""
 
-#: extras/forms/model_forms.py:284
+#: extras/forms/model_forms.py:286
 msgid "Creations"
 msgstr ""
 
-#: extras/forms/model_forms.py:285
+#: extras/forms/model_forms.py:287
 msgid "Updates"
 msgstr ""
 
-#: extras/forms/model_forms.py:286
+#: extras/forms/model_forms.py:288
 msgid "Deletions"
 msgstr ""
 
-#: extras/forms/model_forms.py:287
+#: extras/forms/model_forms.py:289
 msgid "Job executions"
 msgstr ""
 
-#: extras/forms/model_forms.py:373 users/forms/model_forms.py:286
+#: extras/forms/model_forms.py:375 users/forms/model_forms.py:286
 msgid "Object types"
 msgstr ""
 
-#: extras/forms/model_forms.py:446 netbox/navigation/menu.py:40
+#: extras/forms/model_forms.py:448 netbox/navigation/menu.py:40
 #: tenancy/tables/tenants.py:22
 msgid "Tenants"
 msgstr ""
 
-#: extras/forms/model_forms.py:463 ipam/forms/filtersets.py:141
+#: extras/forms/model_forms.py:465 ipam/forms/filtersets.py:141
 #: ipam/forms/filtersets.py:527 templates/extras/configcontext.html:62
 #: templates/ipam/ipaddress.html:62 templates/ipam/vlan_edit.html:30
 #: tenancy/forms/filtersets.py:86 users/forms/model_forms.py:324
 msgid "Assignment"
 msgstr ""
 
-#: extras/forms/model_forms.py:489
+#: extras/forms/model_forms.py:491
 msgid "Data is populated from the remote source selected below."
 msgstr ""
 
-#: extras/forms/model_forms.py:495
+#: extras/forms/model_forms.py:497
 msgid "Must specify either local data or a data file"
 msgstr ""
 
-#: extras/forms/model_forms.py:514 templates/core/datafile.html:65
+#: extras/forms/model_forms.py:516 templates/core/datafile.html:65
 msgid "Content"
 msgstr ""
 
@@ -7515,9 +7515,9 @@ msgid "Is a pool"
 msgstr ""
 
 #: ipam/forms/bulk_edit.py:257 ipam/forms/bulk_edit.py:301
+#: ipam/forms/filtersets.py:243 ipam/forms/filtersets.py:282
 #: ipam/models/ip.py:271 ipam/models/ip.py:538
-#, python-format
-msgid "Treat as 100% utilized"
+msgid "Treat as fully utilized"
 msgstr ""
 
 #: ipam/forms/bulk_edit.py:349 ipam/models/ip.py:771
@@ -7746,11 +7746,6 @@ msgstr ""
 
 #: ipam/forms/filtersets.py:202 ipam/forms/filtersets.py:328
 msgid "Present in VRF"
-msgstr ""
-
-#: ipam/forms/filtersets.py:243 ipam/forms/filtersets.py:282
-#, python-format
-msgid "Marked as 100% utilized"
 msgstr ""
 
 #: ipam/forms/filtersets.py:297
@@ -9029,11 +9024,19 @@ msgid "French"
 msgstr ""
 
 #: netbox/settings.py:729
-msgid "Portuguese"
+msgid "Japanese"
 msgstr ""
 
 #: netbox/settings.py:730
+msgid "Portuguese"
+msgstr ""
+
+#: netbox/settings.py:731
 msgid "Russian"
+msgstr ""
+
+#: netbox/settings.py:732
+msgid "Turkish"
 msgstr ""
 
 #: netbox/tables/columns.py:175
