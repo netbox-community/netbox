@@ -4,7 +4,7 @@ from django.urls import reverse
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from netbox.tables import BaseTable
+from netbox.tables import BaseTable, columns
 from utilities.templatetags.helpers import annotated_date
 
 
@@ -38,7 +38,7 @@ class BackgroundTaskTable(BaseTable):
     created_at = tables.DateTimeColumn(verbose_name=_("Created"))
     enqueued_at = tables.DateTimeColumn(verbose_name=_("Enqueued"))
     ended_at = tables.DateTimeColumn(verbose_name=_("Ended"))
-    status = tables.Column(empty_values=(), verbose_name=_("Status"))
+    status = columns.ChoiceFieldColumn(verbose_name=_("Status"), accessor='get_status')
     callable = tables.Column(empty_values=(), verbose_name=_("Callable"))
 
     class Meta(BaseTable.Meta):
@@ -49,9 +49,6 @@ class BackgroundTaskTable(BaseTable):
         default_columns = (
             'id', 'created_at', 'enqueued_at', 'ended_at', 'status', 'callable',
         )
-
-    def render_status(self, value, record):
-        return record.get_status
 
     def render_callable(self, value, record):
         try:

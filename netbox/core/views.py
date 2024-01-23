@@ -400,12 +400,6 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         queue = get_queue_by_index(queue_index)
 
         try:
-            job.func_name
-            data_is_valid = True
-        except Exception:
-            data_is_valid = False
-
-        try:
             exc_info = job._exc_info
         except AttributeError:
             exc_info = None
@@ -414,7 +408,6 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
             'queue': queue,
             'job': job,
             'queue_index': queue_index,
-            'data_is_valid': data_is_valid,
             'dependency_id': job._dependency_id,
             'exc_info': exc_info,
         })
