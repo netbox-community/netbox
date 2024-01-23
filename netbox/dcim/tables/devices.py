@@ -6,7 +6,6 @@ from dcim import models
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
 from .template_code import *
-from dcim.choices import LinkStatusChoices
 
 __all__ = (
     'BaseInterfaceTable',
@@ -660,7 +659,6 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-cable-status': lambda record: record.cable.status if record.cable else "",
             'data-type': lambda record: record.type,
         }
-        cable_status_styles = [(slug, color) for slug, _, color in LinkStatusChoices.CHOICES]
 
 
 class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):

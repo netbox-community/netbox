@@ -34,11 +34,15 @@
 {% block head %}
     {{ block.super }}
     <style>
-        {% for status, color in table.Meta.cable_status_styles %}
-            tr[data-cable-status={{ status }}] {
-                background-color: var(--nbx-color-{{ color }}-a15);
-            }
-        {% endfor %}
+        tr[data-cable-status=connected] {
+            background-color: var(--nbx-color-green-a15);
+        }
+        tr[data-cable-status=planned] {
+            background-color: var(--nbx-color-blue-a15);
+        }
+        tr[data-cable-status=decommissioning] {
+            background-color: var(--nbx-color-yellow-a15);
+        }
         tr[data-mark-connected=true] {
             background-color: var(--nbx-color-success-a15);
         }
