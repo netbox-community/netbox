@@ -401,6 +401,9 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
     TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20'
@@ -522,6 +525,9 @@ class PowerPortTypeChoices(ChoiceSet):
         )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
         )),
         (_('Proprietary'), (
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
