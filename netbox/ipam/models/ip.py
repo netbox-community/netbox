@@ -268,7 +268,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as 100% utilized")
+        help_text=_("Treat as fully utilized")
     )
 
     # Cached depth & child counts
@@ -535,7 +535,7 @@ class IPRange(PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as 100% utilized")
+        help_text=_("Treat as fully utilized")
     )
 
     clone_fields = (

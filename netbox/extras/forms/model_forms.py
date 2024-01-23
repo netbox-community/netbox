@@ -142,10 +142,12 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         }
         help_texts = {
             'link_text': _(
-                "Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. Links "
+                "Jinja2 template code for the link text. Reference the object as {example}. Links "
                 "which render as empty text will not be displayed."
-            ),
-            'link_url': _("Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>."),
+            ).format(example="<code>{{ object }}</code>"),
+            'link_url': _(
+                "Jinja2 template code for the link URL. Reference the object as {example}."
+            ).format(example="<code>{{ object }}</code>"),
         }
 
 
