@@ -52,46 +52,6 @@ def get_cabletermination_row_class(record):
     return ''
 
 
-def get_interface_state_attribute(record):
-    """
-    Get interface enabled state as string to attach to <tr/> DOM element.
-    """
-    if record.enabled:
-        return "enabled"
-    else:
-        return "disabled"
-
-
-def get_interface_virtual_attribute(record):
-    """
-    Get interface virtual state as string to attach to <tr/> DOM element.
-    """
-    if record.is_virtual:
-        return "true"
-    else:
-        return "false"
-
-
-def get_interface_mark_connected_attribute(record):
-    """
-    Get interface enabled state as string to attach to <tr/> DOM element.
-    """
-    if record.mark_connected:
-        return "true"
-    else:
-        return "false"
-
-
-def get_interface_cable_status_attribute(record):
-    """
-    Get interface enabled state as string to attach to <tr/> DOM element.
-    """
-    if record.cable:
-        return record.cable.status
-    else:
-        return ""
-
-
 #
 # Device roles
 #
@@ -694,10 +654,10 @@ class DeviceInterfaceTable(InterfaceTable):
         )
         row_attrs = {
             'data-name': lambda record: record.name,
-            'data-enabled': get_interface_state_attribute,
-            'data-virtual': get_interface_virtual_attribute,
-            'data-mark-connected': get_interface_mark_connected_attribute,
-            'data-cable-status': get_interface_cable_status_attribute,
+            'data-enabled': lambda record: "enabled" if record.enabled else "disabled",
+            'data-virtual': lambda record: "true" if record.is_virtual else "false",
+            'data-mark-connected': lambda record: "true" if record.mark_connected else "false",
+            'data-cable-status': lambda record: record.cable.status if record.cable else "",
             'data-type': lambda record: record.type,
         }
         cable_status_styles = [(slug, color) for slug, _, color in LinkStatusChoices.CHOICES]
