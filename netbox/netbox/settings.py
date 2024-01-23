@@ -726,8 +726,10 @@ LANGUAGES = (
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
+    ('ja', _('Japanese')),
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
+    ('tr', _('Turkish')),
 )
 
 LOCALE_PATHS = (
