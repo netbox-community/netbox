@@ -418,6 +418,25 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         })
 
 
+class WorkerDetailView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, key):
+        # all the RQ queues should use the same connection
+        config = QUEUES_LIST[0]
+        worker = Worker.find_by_key('rq:worker:' + key, connection=get_redis_connection(config['connection_config']))
+        # Convert microseconds to milliseconds
+        worker.total_working_time = worker.total_working_time / 1000
+
+        return render(request, 'core/worker.html', {
+            'worker': worker,
+            'job': worker.get_current_job(),
+            'total_working_time': worker.total_working_time * 1000,
+        })
+
+
 #
 # Plugins
 #

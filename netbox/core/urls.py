@@ -30,6 +30,7 @@ urlpatterns = (
     path('background-queues/<int:queue_index>/<str:status>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),
     path('background-tasks/<str:job_id>/', views.BackgroundTaskDetailView.as_view(), name='background_task'),
     path('background-workers/<int:queue_index>/', views.WorkerListView.as_view(), name='worker_list'),
+    path('background-worker/<str:key>/', views.WorkerDetailView.as_view(), name='worker'),
 
     # Config revisions
     path('config-revisions/', views.ConfigRevisionListView.as_view(), name='configrevision_list'),

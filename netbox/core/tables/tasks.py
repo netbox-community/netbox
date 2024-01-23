@@ -61,7 +61,7 @@ class BackgroundTaskTable(BaseTable):
 
 
 class WorkerTable(BaseTable):
-    name = tables.Column(verbose_name=_("Name"))
+    name = tables.LinkColumn("core:worker", args=[A("name")], verbose_name=_("Name"))
     state = tables.Column(verbose_name=_("State"))
     birth_date = tables.DateTimeColumn(verbose_name=_("Birth"))
     pid = tables.Column(verbose_name=_("PID"))
