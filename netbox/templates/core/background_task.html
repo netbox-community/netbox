@@ -17,11 +17,23 @@
   <div class="btn-list mb-2">
     {% url 'core:background_task_delete' job_id=job.id as delete_url %}
     {% include "buttons/delete.html" with url=delete_url %}
-    <a href="{% url 'core:background_task_requeue' job.id %}"
-      class="btn btn-primary"
-    >
-      <i class="mdi mdi-sync"></i> {% trans "Requeue" %}
-    </a>
+
+    {% if job.is_started %}
+      <a href="{% url 'core:background_task_stop' job.id %}" class="btn btn-primary">
+        <i class="mdi mdi-stop-circle-outline"></i> {% trans "Stop" %}
+      </a>
+    {% endif %}
+    {% if job.is_failed %}
+      <a href="{% url 'core:background_task_requeue' job.id %}" class="btn btn-primary">
+        <i class="mdi mdi-sync"></i> {% trans "Requeue" %}
+      </a>
+    {% endif %}
+    {% if not job.is_queued and not job.is_failed %}
+      <a href="{% url 'core:background_task_enqueue' job.id %}" class="btn btn-primary">
+        <i class="mdi mdi-sync"></i> {% trans "Enqueue" %}
+      </a>
+    {% endif %}
+
   </div>
 {% endblock controls %}
 

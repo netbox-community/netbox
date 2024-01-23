@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
-from django_rq.utils import get_jobs, get_scheduler_statistics, get_statistics
+from django_rq.utils import get_jobs, get_scheduler_statistics, get_statistics, stop_jobs
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.generic import View
 
@@ -30,7 +30,6 @@ from rq.registry import (
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 from utilities.forms import ConfirmationForm
-from utilities.htmx import is_embedded, is_htmx
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -329,8 +328,8 @@ class BackgroundTaskListView(BaseTaskListView):
         table = self.get_table(data, request, False)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
-            if is_embedded(request):
+        if request.htmx:
+            if request.htmx.target != 'object_list':
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:
@@ -367,8 +366,8 @@ class WorkerListView(BaseTaskListView):
         table = self.get_table(data, request, False)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
-            if is_embedded(request):
+        if request.htmx:
+            if request.htmx.target != 'object_list':
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:
@@ -422,13 +421,12 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
 
 
 class BackgroundTaskDeleteView(UserPassesTestMixin, View):
-    template_name = 'core_background_task_delete.html'
 
     def test_func(self):
         return self.request.user.is_staff
 
     def get(self, request, job_id):
-        if not is_htmx(request):
+        if not request.htmx:
             return redirect(reverse('core:background_queue_list'))
 
         form = ConfirmationForm(initial=request.GET)
@@ -465,7 +463,6 @@ class BackgroundTaskDeleteView(UserPassesTestMixin, View):
 
 
 class BackgroundTaskRequeueView(UserPassesTestMixin, View):
-    template_name = 'core_background_task_delete.html'
 
     def test_func(self):
         return self.request.user.is_staff
@@ -483,6 +480,68 @@ class BackgroundTaskRequeueView(UserPassesTestMixin, View):
 
         requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
         messages.success(request, f'You have successfully requeued: {job_id}')
+        return redirect(reverse('core:background_task', args=[job_id]))
+
+
+class BackgroundTaskEnqueueView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, job_id):
+        # all the RQ queues should use the same connection
+        config = QUEUES_LIST[0]
+        try:
+            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+        except NoSuchJobError:
+            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+        queue_index = QUEUES_MAP[job.origin]
+        queue = get_queue_by_index(queue_index)
+
+        try:
+            # _enqueue_job is new in RQ 1.14, this is used to enqueue
+            # job regardless of its dependencies
+            queue._enqueue_job(job)
+        except AttributeError:
+            queue.enqueue_job(job)
+
+        # Remove job from correct registry if needed
+        if job.get_status() == JobStatus.DEFERRED:
+            registry = DeferredJobRegistry(queue.name, queue.connection)
+            registry.remove(job)
+        elif job.get_status() == JobStatus.FINISHED:
+            registry = FinishedJobRegistry(queue.name, queue.connection)
+            registry.remove(job)
+        elif job.get_status() == JobStatus.SCHEDULED:
+            registry = ScheduledJobRegistry(queue.name, queue.connection)
+            registry.remove(job)
+
+        messages.success(request, f'You have successfully enqueued: {job_id}')
+        return redirect(reverse('core:background_task', args=[job_id]))
+
+
+class BackgroundTaskStopView(UserPassesTestMixin, View):
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, job_id):
+        # all the RQ queues should use the same connection
+        config = QUEUES_LIST[0]
+        try:
+            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+        except NoSuchJobError:
+            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+        queue_index = QUEUES_MAP[job.origin]
+        queue = get_queue_by_index(queue_index)
+
+        stopped, _ = stop_jobs(queue, job_id)
+        if len(stopped) == 1:
+            messages.success(request, f'You have successfully stopped {job_id}')
+        else:
+            messages.error(request, f'Failed to stop {job_id}')
 
         return redirect(reverse('core:background_task', args=[job_id]))
 
