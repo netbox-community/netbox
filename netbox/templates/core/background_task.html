@@ -17,11 +17,7 @@
   <div class="btn-list mb-2">
     {% url 'core:background_task_delete' job_id=job.id as delete_url %}
     {% include "buttons/delete.html" with url=delete_url %}
-    <a href="#"
-      hx-get="{% url 'extras:dashboardwidget_add' %}"
-      hx-target="#htmx-modal-content"
-      data-bs-toggle="modal"
-      data-bs-target="#htmx-modal"
+    <a href="{% url 'core:background_task_requeue' job.id %}"
       class="btn btn-primary"
     >
       <i class="mdi mdi-sync"></i> {% trans "Requeue" %}

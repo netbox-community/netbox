@@ -17,6 +17,7 @@ from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import ActionsMixin, TableMixin
 
+from rq import requeue_job
 from rq.exceptions import NoSuchJobError
 from rq.job import Job as RQ_Job
 from rq.registry import (
@@ -428,7 +429,7 @@ class BackgroundTaskDeleteView(UserPassesTestMixin, View):
 
     def get(self, request, job_id):
         if not is_htmx(request):
-            return redirect('home')
+            return redirect(reverse('core:background_queue_list'))
 
         form = ConfirmationForm(initial=request.GET)
 
@@ -461,6 +462,29 @@ class BackgroundTaskDeleteView(UserPassesTestMixin, View):
             messages.error(request, f'Error deleting job: {form.errors[0]}')
 
         return redirect(reverse('core:background_queue_list'))
+
+
+class BackgroundTaskRequeueView(UserPassesTestMixin, View):
+    template_name = 'core_background_task_delete.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, job_id):
+        # all the RQ queues should use the same connection
+        config = QUEUES_LIST[0]
+        try:
+            job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+        except NoSuchJobError:
+            raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+        queue_index = QUEUES_MAP[job.origin]
+        queue = get_queue_by_index(queue_index)
+
+        requeue_job(job_id, connection=queue.connection, serializer=queue.serializer)
+        messages.success(request, f'You have successfully requeued: {job_id}')
+
+        return redirect(reverse('core:background_task', args=[job_id]))
 
 
 class WorkerDetailView(UserPassesTestMixin, View):
