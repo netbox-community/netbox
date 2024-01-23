@@ -56,8 +56,12 @@ def clear_primary_ip(instance, **kwargs):
     """
     field_name = f'primary_ip{instance.family}'
     if device := Device.objects.filter(**{field_name: instance}).first():
+        device.snapshot()
+        setattr(device, field_name, None)
         device.save()
     if virtualmachine := VirtualMachine.objects.filter(**{field_name: instance}).first():
+        virtualmachine.snapshot()
+        setattr(virtualmachine, field_name, None)
         virtualmachine.save()
 
 
@@ -67,4 +71,6 @@ def clear_oob_ip(instance, **kwargs):
     When an IPAddress is deleted, trigger save() on any Devices for which it was a OOB IP.
     """
     if device := Device.objects.filter(oob_ip=instance).first():
+        device.snapshot()
+        device.oob_ip = None
         device.save()

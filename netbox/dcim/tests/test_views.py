@@ -2531,6 +2531,36 @@ class InterfaceTestCase(ViewTestCases.DeviceComponentViewTestCase):
         response = self.client.get(reverse('dcim:interface_trace', kwargs={'pk': interface1.pk}))
         self.assertHttpStatus(response, 200)
 
+    def test_bulk_delete_child_interfaces(self):
+        interface1 = Interface.objects.get(name='Interface 1')
+        device = interface1.device
+        self.add_permissions('dcim.delete_interface')
+
+        # Create a child interface
+        child = Interface.objects.create(
+            device=device,
+            name='Interface 1A',
+            type=InterfaceTypeChoices.TYPE_VIRTUAL,
+            parent=interface1
+        )
+        self.assertEqual(device.interfaces.count(), 6)
+
+        # Attempt to delete only the parent interface
+        data = {
+            'confirm': True,
+        }
+        self.client.post(self._get_url('delete', interface1), data)
+        self.assertEqual(device.interfaces.count(), 6)  # Parent was not deleted
+
+        # Attempt to bulk delete parent & child together
+        data = {
+            'pk': [interface1.pk, child.pk],
+            'confirm': True,
+            '_confirm': True,  # Form button
+        }
+        self.client.post(self._get_url('bulk_delete'), data)
+        self.assertEqual(device.interfaces.count(), 4)  # Child & parent were both deleted
+
 
 class FrontPortTestCase(ViewTestCases.DeviceComponentViewTestCase):
     model = FrontPort

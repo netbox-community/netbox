@@ -2,25 +2,31 @@ import importlib
 import logging
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
+from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from core.signals import job_end, job_start
+from extras.constants import EVENT_JOB_END, EVENT_JOB_START
+from extras.events import process_event_rules
+from extras.models import EventRule
 from extras.validators import CustomValidator
 from netbox.config import get_config
-from netbox.context import current_request, webhooks_queue
+from netbox.context import current_request, events_queue
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
-from .models import ConfigRevision, CustomField, ObjectChange, TaggedItem
-from .webhooks import enqueue_object, get_snapshots, serialize_for_webhook
+from .events import enqueue_object, get_snapshots, serialize_for_event
+from .models import CustomField, ObjectChange, TaggedItem
 
 #
 # Change logging/webhooks
 #
 
-# Define a custom signal that can be sent to clear any queued webhooks
-clear_webhooks = Signal()
+# Define a custom signal that can be sent to clear any queued events
+clear_events = Signal()
 
 
 def is_same_object(instance, webhook_data, request_id):
@@ -63,30 +69,30 @@ def handle_changed_object(sender, instance, **kwargs):
         return
 
     # Record an ObjectChange if applicable
-    if hasattr(instance, 'to_objectchange'):
-        if m2m_changed:
-            ObjectChange.objects.filter(
-                changed_object_type=ContentType.objects.get_for_model(instance),
-                changed_object_id=instance.pk,
-                request_id=request.id
-            ).update(
-                postchange_data=instance.to_objectchange(action).postchange_data
-            )
-        else:
-            objectchange = instance.to_objectchange(action)
+    if m2m_changed:
+        ObjectChange.objects.filter(
+            changed_object_type=ContentType.objects.get_for_model(instance),
+            changed_object_id=instance.pk,
+            request_id=request.id
+        ).update(
+            postchange_data=instance.to_objectchange(action).postchange_data
+        )
+    else:
+        objectchange = instance.to_objectchange(action)
+        if objectchange and objectchange.has_changes:
             objectchange.user = request.user
             objectchange.request_id = request.id
             objectchange.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
-    queue = webhooks_queue.get()
+    queue = events_queue.get()
     if m2m_changed and queue and is_same_object(instance, queue[-1], request.id):
         instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
-        queue[-1]['data'] = serialize_for_webhook(instance)
+        queue[-1]['data'] = serialize_for_event(instance)
         queue[-1]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
     else:
         enqueue_object(queue, instance, request.user, request.id, action)
-    webhooks_queue.set(queue)
+    events_queue.set(queue)
 
     # Increment metric counters
     if action == ObjectChangeActionChoices.ACTION_CREATE:
@@ -115,22 +121,22 @@ def handle_deleted_object(sender, instance, **kwargs):
         objectchange.save()
 
     # Enqueue webhooks
-    queue = webhooks_queue.get()
+    queue = events_queue.get()
     enqueue_object(queue, instance, request.user, request.id, ObjectChangeActionChoices.ACTION_DELETE)
-    webhooks_queue.set(queue)
+    events_queue.set(queue)
 
     # Increment metric counters
     model_deletes.labels(instance._meta.model_name).inc()
 
 
-@receiver(clear_webhooks)
-def clear_webhook_queue(sender, **kwargs):
+@receiver(clear_events)
+def clear_events_queue(sender, **kwargs):
     """
-    Delete any queued webhooks (e.g. because of an aborted bulk transaction)
+    Delete any queued events (e.g. because of an aborted bulk transaction)
     """
-    logger = logging.getLogger('webhooks')
-    logger.info(f"Clearing {len(webhooks_queue.get())} queued webhooks ({sender})")
-    webhooks_queue.set([])
+    logger = logging.getLogger('events')
+    logger.info(f"Clearing {len(events_queue.get())} queued events ({sender})")
+    events_queue.set([])
 
 
 #
@@ -178,11 +184,7 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_type
 # Custom validation
 #
 
-@receiver(post_clean)
-def run_custom_validators(sender, instance, **kwargs):
-    config = get_config()
-    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = config.CUSTOM_VALIDATORS.get(model_name, [])
+def run_validators(instance, validators):
 
     for validator in validators:
 
@@ -198,16 +200,27 @@ def run_custom_validators(sender, instance, **kwargs):
         validator(instance)
 
 
-#
-# Dynamic configuration
-#
+@receiver(post_clean)
+def run_save_validators(sender, instance, **kwargs):
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
 
-@receiver(post_save, sender=ConfigRevision)
-def update_config(sender, instance, **kwargs):
-    """
-    Update the cached NetBox configuration when a new ConfigRevision is created.
-    """
-    instance.activate()
+    run_validators(instance, validators)
+
+
+@receiver(pre_delete)
+def run_delete_validators(sender, instance, **kwargs):
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = get_config().PROTECTION_RULES.get(model_name, [])
+
+    try:
+        run_validators(instance, validators)
+    except ValidationError as e:
+        raise AbortRequest(
+            _("Deletion is prevented by a protection rule: {message}").format(
+                message=e
+            )
+        )
 
 
 #
@@ -226,3 +239,27 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
     for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
         if ct not in tag.object_types.all():
             raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")
+
+
+#
+# Event rules
+#
+
+@receiver(job_start)
+def process_job_start_event_rules(sender, **kwargs):
+    """
+    Process event rules for jobs starting.
+    """
+    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, content_types=sender.object_type)
+    username = sender.user.username if sender.user else None
+    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, username)
+
+
+@receiver(job_end)
+def process_job_end_event_rules(sender, **kwargs):
+    """
+    Process event rules for jobs terminating.
+    """
+    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, content_types=sender.object_type)
+    username = sender.user.username if sender.user else None
+    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, username)

@@ -3,7 +3,7 @@ from rest_framework.routers import APIRootView
 from circuits.models import Circuit
 from dcim.models import Device, Rack, Site
 from ipam.models import IPAddress, Prefix, VLAN, VRF
-from netbox.api.viewsets import NetBoxModelViewSet
+from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
 from tenancy import filtersets
 from tenancy.models import *
 from utilities.utils import count_related
@@ -23,7 +23,7 @@ class TenancyRootView(APIRootView):
 # Tenants
 #
 
-class TenantGroupViewSet(NetBoxModelViewSet):
+class TenantGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = TenantGroup.objects.add_related_count(
         TenantGroup.objects.all(),
         Tenant,
@@ -58,7 +58,7 @@ class TenantViewSet(NetBoxModelViewSet):
 # Contacts
 #
 
-class ContactGroupViewSet(NetBoxModelViewSet):
+class ContactGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = ContactGroup.objects.add_related_count(
         ContactGroup.objects.all(),
         Contact,
@@ -83,6 +83,6 @@ class ContactViewSet(NetBoxModelViewSet):
 
 
 class ContactAssignmentViewSet(NetBoxModelViewSet):
-    queryset = ContactAssignment.objects.prefetch_related('object', 'contact', 'role')
+    queryset = ContactAssignment.objects.prefetch_related('content_type', 'object', 'contact', 'role', 'tags')
     serializer_class = serializers.ContactAssignmentSerializer
     filterset_class = filtersets.ContactAssignmentFilterSet

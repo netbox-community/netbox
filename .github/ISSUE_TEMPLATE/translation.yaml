@@ -1,0 +1,37 @@
+---
+name: 🌍 Translation
+description: Request support for a new language in the user interface
+labels: ["type: translation"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        **NOTE:** This template is used only for proposing the addition of *new* languages. Please do
+        not use it to request changes to existing translations.
+  - type: input
+    attributes:
+      label: Language
+      description: What is the name of the language in English?
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: ISO 639-1 code
+      description: >
+        What is the two-letter [ISO 639-1 code](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
+        assigned to the language?
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Volunteer
+      description: Are you a fluent speaker of this language **and** willing to contribute a translation map?
+      options:
+        - "Yes"
+        - "No"
+    validations:
+      required: true
+  - type: textarea
+    attributes:
+      label: Comments
+      description: Any other notes you would like to share

@@ -65,5 +65,5 @@ class ChoicesWidget(forms.Textarea):
         if not value:
             return None
         if type(value) is list:
-            return '\n'.join([f'{k},{v}' for k, v in value])
+            return '\n'.join([f'{k}:{v}' for k, v in value])
         return value

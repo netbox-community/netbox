@@ -12,6 +12,40 @@
         Are you sure you want to <strong class="text-danger">delete</strong> {{ object_type }} <strong>{{ object }}</strong>?
       {% endblocktrans %}
     </p>
+    {% if dependent_objects %}
+      <p>
+        {% trans "The following objects will be deleted as a result of this action." %}
+      </p>
+      <div class="accordion" id="deleteAccordion">
+        {% for model, instances in dependent_objects.items %}
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="deleteheading{{ forloop.counter }}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}" aria-expanded="false" aria-controls="collapse{{ forloop.counter }}">
+                {% with object_count=instances|length %}
+                  {{ object_count }}
+                  {% if object_count == 1 %}
+                    {{ model|meta:"verbose_name" }}
+                  {% else %}
+                    {{ model|meta:"verbose_name_plural" }}
+                  {% endif %}
+                {% endwith %}
+              </button>
+            </h2>
+            <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" aria-labelledby="deleteheading{{ forloop.counter }}" data-bs-parent="#deleteAccordion">
+              <div class="accordion-body p-0">
+                <div class="list-group list-group-flush">
+                  {% for instance in instances %}
+                    {% with url=instance.get_absolute_url %}
+                      <a {% if url %}href="{{ url }}" {% endif %}class="list-group-item list-group-item-action">{{ instance }}</a>
+                    {% endwith %}
+                  {% endfor %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
     {% render_form form %}
   </div>
   <div class="modal-footer">

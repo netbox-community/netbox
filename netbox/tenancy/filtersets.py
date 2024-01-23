@@ -3,10 +3,9 @@ from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from extras.filters import TagFilter
-from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
+from netbox.filtersets import NetBoxModelFilterSet, OrganizationalModelFilterSet
 from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 from .models import *
-
 
 __all__ = (
     'ContactAssignmentFilterSet',
@@ -65,7 +64,7 @@ class ContactFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Contact
-        fields = ['id', 'name', 'title', 'phone', 'email', 'address', 'link']
+        fields = ['id', 'name', 'title', 'phone', 'email', 'address', 'link', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -77,11 +76,12 @@ class ContactFilterSet(NetBoxModelFilterSet):
             Q(email__icontains=value) |
             Q(address__icontains=value) |
             Q(link__icontains=value) |
+            Q(description__icontains=value) |
             Q(comments__icontains=value)
         )
 
 
-class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
+class ContactAssignmentFilterSet(NetBoxModelFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
@@ -90,6 +90,19 @@ class ContactAssignmentFilterSet(ChangeLoggedModelFilterSet):
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
         label=_('Contact (ID)'),
+    )
+    group_id = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='contact__group',
+        lookup_expr='in',
+        label=_('Contact group (ID)'),
+    )
+    group = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='contact__group',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Contact group (slug)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactRole.objects.all(),

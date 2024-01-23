@@ -1,0 +1,53 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load render_table from django_tables2 %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'vpn:tunnelgroup_list' %}">{% trans "Tunnel Groups" %}</a></li>
+{% endblock %}
+
+{% block extra_controls %}
+  {% if perms.vpn.add_tunnel %}
+    <a href="{% url 'vpn:tunnel_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tunnel" %}
+    </a>
+  {% endif %}
+{% endblock extra_controls %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col col-md-6">
+      <div class="card">
+        <h5 class="card-header">
+          {% trans "Tunnel Group" %}
+        </h5>
+        <div class="card-body">
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ object.name }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Description" %}</th>
+              <td>{{ object.description|placeholder }}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/related_objects.html' %}
+      {% include 'inc/panels/custom_fields.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

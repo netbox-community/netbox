@@ -19,10 +19,13 @@ NetBox was built specifically to serve the needs of network engineers and operat
 * Device modeling using pre-defined types
 * Virtual chassis and device contexts
 * Network, power, and console cabling with SVG traces
+* Breakout cables
 * Power distribution modeling
 * Data circuit and provider tracking
 * Wireless LAN and point-to-point links
-* L2 VPN overlays
+* VPN tunnels
+* IKE & IPSec policies
+* Layer 2 VPN overlays
 * FHRP groups (VRRP, HSRP, etc.)
 * Application service bindings
 * Virtual machines & clusters
@@ -30,13 +33,14 @@ NetBox was built specifically to serve the needs of network engineers and operat
 * Tenant ownership assignment
 * Device & VM configuration contexts for advanced configuration rendering
 * Custom fields for data model extension
-* Custom validation rules
+* Custom validation & protection rules
 * Custom reports & scripts executable directly within the UI
 * Extensive plugin framework for adding custom functionality
 * Single sign-on (SSO) authentication
 * Robust object-based permissions
 * Detailed, automatic change logging
 * Global search engine
+* Event-driven scripts & webhooks
 
 ## What NetBox Is Not
 

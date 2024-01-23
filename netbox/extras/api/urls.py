@@ -7,6 +7,7 @@ from . import views
 router = NetBoxRouter()
 router.APIRootView = views.ExtrasRootView
 
+router.register('event-rules', views.EventRuleViewSet)
 router.register('webhooks', views.WebhookViewSet)
 router.register('custom-fields', views.CustomFieldViewSet)
 router.register('custom-field-choice-sets', views.CustomFieldChoiceSetViewSet)

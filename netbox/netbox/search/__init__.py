@@ -33,10 +33,12 @@ class SearchIndex:
         category: The label of the group under which this indexer is categorized (for form field display). If none,
             the name of the model's app will be used.
         fields: An iterable of two-tuples defining the model fields to be indexed and the weight associated with each.
+        display_attrs: An iterable of additional object attributes to include when displaying search results.
     """
     model = None
     category = None
     fields = ()
+    display_attrs = ()
 
     @staticmethod
     def get_field_type(instance, field_name):

@@ -1,37 +1,34 @@
 import json
+import re
 
 from django import forms
-from django.conf import settings
-from django.db.models import Q
 from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
+from core.models import ContentType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
-from extras.utils import FeatureQuery
-from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import BootstrapMixin, add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
-from utilities.forms.widgets import ChoicesWidget
+from utilities.forms.widgets import ChoicesWidget, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, ClusterType
-
 
 __all__ = (
     'BookmarkForm',
     'ConfigContextForm',
-    'ConfigRevisionForm',
     'ConfigTemplateForm',
     'CustomFieldChoiceSetForm',
     'CustomFieldForm',
     'CustomLinkForm',
+    'EventRuleForm',
     'ExportTemplateForm',
     'ImageAttachmentForm',
     'JournalEntryForm',
@@ -44,14 +41,11 @@ __all__ = (
 class CustomFieldForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_fields'),
+        queryset=ContentType.objects.with_feature('custom_fields')
     )
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
-        queryset=ContentType.objects.all(),
-        # TODO: Come up with a canonical way to register suitable models
-        limit_choices_to=FeatureQuery('webhooks').get_query() | Q(app_label='auth', model__in=['user', 'group']),
+        queryset=ContentType.objects.public(),
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
@@ -64,7 +58,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
         (_('Custom Field'), (
             'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
         )),
-        (_('Behavior'), ('search_weight', 'filter_logic', 'ui_visibility', 'weight', 'is_cloneable')),
+        (_('Behavior'), ('search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable')),
         (_('Values'), ('default', 'choice_set')),
         (_('Validation'), ('validation_minimum', 'validation_maximum', 'validation_regex')),
     )
@@ -95,19 +89,33 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
         required=False,
         help_text=mark_safe(_(
             'Enter one choice per line. An optional label may be specified for each choice by appending it with a '
-            'comma. Example:'
-        ) + ' <code>choice1,First Choice</code>')
+            'colon. Example:'
+        ) + ' <code>choice1:First Choice</code>')
     )
 
     class Meta:
         model = CustomFieldChoiceSet
         fields = ('name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically')
 
+    def __init__(self, *args, initial=None, **kwargs):
+        super().__init__(*args, initial=initial, **kwargs)
+
+        # Escape colons in extra_choices
+        if 'extra_choices' in self.initial and self.initial['extra_choices']:
+            choices = []
+            for choice in self.initial['extra_choices']:
+                choice = (choice[0].replace(':', '\\:'), choice[1].replace(':', '\\:'))
+                choices.append(choice)
+
+            self.initial['extra_choices'] = choices
+
     def clean_extra_choices(self):
         data = []
         for line in self.cleaned_data['extra_choices'].splitlines():
             try:
-                value, label = line.split(',', maxsplit=1)
+                value, label = re.split(r'(?<!\\):', line, maxsplit=1)
+                value = value.replace('\\:', ':')
+                label = label.replace('\\:', ':')
             except ValueError:
                 value, label = line, line
             data.append((value, label))
@@ -117,8 +125,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
 class CustomLinkForm(BootstrapMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('custom_links')
+        queryset=ContentType.objects.with_feature('custom_links')
     )
 
     fieldsets = (
@@ -145,8 +152,7 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
 class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('export_templates')
+        queryset=ContentType.objects.with_feature('export_templates')
     )
     template_code = forms.CharField(
         label=_('Template code'),
@@ -213,8 +219,7 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
 class BookmarkForm(BootstrapMixin, forms.ModelForm):
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('bookmarks').get_query()
+        queryset=ContentType.objects.with_feature('bookmarks')
     )
 
     class Meta:
@@ -223,25 +228,58 @@ class BookmarkForm(BootstrapMixin, forms.ModelForm):
 
 
 class WebhookForm(NetBoxModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('webhooks')
-    )
 
     fieldsets = (
-        (_('Webhook'), ('name', 'content_types', 'enabled', 'tags')),
-        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        (_('Webhook'), ('name', 'description', 'tags',)),
         (_('HTTP Request'), (
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
         )),
-        (_('Conditions'), ('conditions',)),
         (_('SSL'), ('ssl_verification', 'ca_file_path')),
     )
 
     class Meta:
         model = Webhook
         fields = '__all__'
+        widgets = {
+            'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
+        }
+
+
+class EventRuleForm(NetBoxModelForm):
+    content_types = ContentTypeMultipleChoiceField(
+        label=_('Content types'),
+        queryset=ContentType.objects.with_feature('event_rules'),
+    )
+    action_choice = forms.ChoiceField(
+        label=_('Action choice'),
+        choices=[]
+    )
+    conditions = JSONField(
+        required=False,
+        help_text=_('Enter conditions in <a href="https://json.org/">JSON</a> format.')
+    )
+    action_data = JSONField(
+        required=False,
+        help_text=_('Enter parameters to pass to the action in <a href="https://json.org/">JSON</a> format.')
+    )
+
+    fieldsets = (
+        (_('Event Rule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
+        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        (_('Conditions'), ('conditions',)),
+        (_('Action'), (
+            'action_type', 'action_choice', 'action_object_type', 'action_object_id', 'action_data',
+        )),
+    )
+
+    class Meta:
+        model = EventRule
+        fields = (
+            'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
+            'action_data', 'comments', 'tags'
+        )
         labels = {
             'type_create': _('Creations'),
             'type_update': _('Updates'),
@@ -250,18 +288,90 @@ class WebhookForm(NetBoxModelForm):
             'type_job_end': _('Job terminations'),
         }
         widgets = {
-            'additional_headers': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'body_template': forms.Textarea(attrs={'class': 'font-monospace'}),
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),
+            'action_type': HTMXSelect(),
+            'action_object_type': forms.HiddenInput,
+            'action_object_id': forms.HiddenInput,
         }
+
+    def init_script_choice(self):
+        choices = []
+        for module in ScriptModule.objects.all():
+            scripts = []
+            for script_name in module.scripts.keys():
+                name = f"{str(module.pk)}:{script_name}"
+                scripts.append((name, script_name))
+            if scripts:
+                choices.append((str(module), scripts))
+        self.fields['action_choice'].choices = choices
+
+        if self.instance.action_type == EventRuleActionChoices.SCRIPT and self.instance.action_parameters:
+            scriptmodule_id = self.instance.action_object_id
+            script_name = self.instance.action_parameters.get('script_name')
+            self.fields['action_choice'].initial = f'{scriptmodule_id}:{script_name}'
+
+    def init_webhook_choice(self):
+        initial = None
+        if self.instance.action_type == EventRuleActionChoices.WEBHOOK:
+            webhook_id = get_field_value(self, 'action_object_id')
+            initial = Webhook.objects.get(pk=webhook_id) if webhook_id else None
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Webhook'),
+            queryset=Webhook.objects.all(),
+            required=True,
+            initial=initial
+        )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['action_object_type'].required = False
+        self.fields['action_object_id'].required = False
+
+        # Determine the action type
+        action_type = get_field_value(self, 'action_type')
+
+        if action_type == EventRuleActionChoices.WEBHOOK:
+            self.init_webhook_choice()
+        elif action_type == EventRuleActionChoices.SCRIPT:
+            self.init_script_choice()
+
+    def clean(self):
+        super().clean()
+
+        action_choice = self.cleaned_data.get('action_choice')
+        # Webhook
+        if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
+            self.cleaned_data['action_object_id'] = action_choice.id
+        # Script
+        elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
+            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(
+                ScriptModule,
+                for_concrete_model=False
+            )
+            module_id, script_name = action_choice.split(":", maxsplit=1)
+            self.cleaned_data['action_object_id'] = module_id
+
+        return self.cleaned_data
+
+    def save(self, *args, **kwargs):
+        # Set action_parameters on the instance
+        if self.cleaned_data['action_type'] == EventRuleActionChoices.SCRIPT:
+            module_id, script_name = self.cleaned_data.get('action_choice').split(":", maxsplit=1)
+            self.instance.action_parameters = {
+                'script_name': script_name,
+            }
+        else:
+            self.instance.action_parameters = None
+
+        return super().save(*args, **kwargs)
 
 
 class TagForm(BootstrapMixin, forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
-        queryset=ContentType.objects.all(),
-        limit_choices_to=FeatureQuery('tags'),
+        queryset=ContentType.objects.with_feature('tags'),
         required=False
     )
 
@@ -455,115 +565,3 @@ class JournalEntryForm(NetBoxModelForm):
             'assigned_object_type': forms.HiddenInput,
             'assigned_object_id': forms.HiddenInput,
         }
-
-
-EMPTY_VALUES = ('', None, [], ())
-
-
-class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
-
-    def __new__(mcs, name, bases, attrs):
-
-        # Emulate a declared field for each supported configuration parameter
-        param_fields = {}
-        for param in PARAMS:
-            field_kwargs = {
-                'required': False,
-                'label': param.label,
-                'help_text': param.description,
-            }
-            field_kwargs.update(**param.field_kwargs)
-            param_fields[param.name] = param.field(**field_kwargs)
-        attrs.update(param_fields)
-
-        return super().__new__(mcs, name, bases, attrs)
-
-
-class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMetaclass):
-    """
-    Form for creating a new ConfigRevision.
-    """
-
-    fieldsets = (
-        (_('Rack Elevations'), ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH')),
-        (_('Power'), ('POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION')),
-        (_('IPAM'), ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4')),
-        (_('Security'), ('ALLOWED_URL_SCHEMES',)),
-        (_('Banners'), ('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM')),
-        (_('Pagination'), ('PAGINATE_COUNT', 'MAX_PAGE_SIZE')),
-        (_('Validation'), ('CUSTOM_VALIDATORS',)),
-        (_('User Preferences'), ('DEFAULT_USER_PREFERENCES',)),
-        (_('Miscellaneous'), (
-            'MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL',
-        )),
-        (_('Config Revision'), ('comment',))
-    )
-
-    class Meta:
-        model = ConfigRevision
-        fields = '__all__'
-        widgets = {
-            'BANNER_LOGIN': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'BANNER_MAINTENANCE': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'BANNER_TOP': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'BANNER_BOTTOM': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'CUSTOM_VALIDATORS': forms.Textarea(attrs={'class': 'font-monospace'}),
-            'comment': forms.Textarea(),
-        }
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        # Append current parameter values to form field help texts and check for static configurations
-        config = get_config()
-        for param in PARAMS:
-            value = getattr(config, param.name)
-
-            # Set the field's initial value, if it can be serialized. (This may not be the case e.g. for
-            # CUSTOM_VALIDATORS, which may reference Python objects.)
-            try:
-                json.dumps(value)
-                if type(value) in (tuple, list):
-                    self.fields[param.name].initial = ', '.join(value)
-                else:
-                    self.fields[param.name].initial = value
-            except TypeError:
-                pass
-
-            # Check whether this parameter is statically configured (e.g. in configuration.py)
-            if hasattr(settings, param.name):
-                self.fields[param.name].disabled = True
-                self.fields[param.name].help_text = _(
-                    'This parameter has been defined statically and cannot be modified.'
-                )
-                continue
-
-            # Set the field's help text
-            help_text = self.fields[param.name].help_text
-            if help_text:
-                help_text += '<br />'  # Line break
-            help_text += _('Current value: <strong>{value}</strong>').format(value=value or '&mdash;')
-            if value == param.default:
-                help_text += _(' (default)')
-            self.fields[param.name].help_text = help_text
-
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-
-        # Populate JSON data on the instance
-        instance.data = self.render_json()
-
-        if commit:
-            instance.save()
-
-        return instance
-
-    def render_json(self):
-        json = {}
-
-        # Iterate through each field and populate non-empty values
-        for field_name in self.declared_fields:
-            if field_name in self.cleaned_data and self.cleaned_data[field_name] not in EMPTY_VALUES:
-                json[field_name] = self.cleaned_data[field_name]
-
-        return json

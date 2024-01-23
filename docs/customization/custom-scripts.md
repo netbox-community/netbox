@@ -288,9 +288,9 @@ An IPv4 or IPv6 network with a mask. Returns a `netaddr.IPNetwork` object. Two a
 ## Running Custom Scripts
 
 !!! note
-    To run a custom script, a user must be assigned the `extras.run_script` permission. This is achieved by assigning the user (or group) a permission on the Script object and specifying the `run` action in the admin UI as shown below.
+    To run a custom script, a user must be assigned permissions for `Extras > Script`, `Extras > Script Module`, and `Core > Managed File` objects. They must also be assigned the `extras.run_script` permission. This is achieved by assigning the user (or group) a permission on the Script object and specifying the `run` action in "Permissions" as shown below.
 
-    ![Adding the run action to a permission](../media/admin_ui_run_permission.png)
+    ![Adding the run action to a permission](../media/run_permission.png)
 
 ### Via the Web UI
 

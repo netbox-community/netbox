@@ -1,6 +1,6 @@
 from django.apps import apps
 from django.db.models import F, Count, OuterRef, Subquery
-from django.db.models.signals import post_delete, post_save
+from django.db.models.signals import post_delete, post_save, pre_delete
 
 from netbox.registry import registry
 from .fields import CounterCacheField
@@ -62,7 +62,13 @@ def post_save_receiver(sender, instance, created, **kwargs):
             update_counter(parent_model, new_pk, counter_name, 1)
 
 
-def post_delete_receiver(sender, instance, **kwargs):
+def pre_delete_receiver(sender, instance, origin, **kwargs):
+    model = instance._meta.model
+    if not model.objects.filter(pk=instance.pk).exists():
+        instance._previously_removed = True
+
+
+def post_delete_receiver(sender, instance, origin, **kwargs):
     """
     Update counter fields on related objects when a TrackingModelMixin subclass is deleted.
     """
@@ -71,7 +77,7 @@ def post_delete_receiver(sender, instance, **kwargs):
         parent_pk = getattr(instance, field_name, None)
 
         # Decrement the parent's counter by one
-        if parent_pk is not None:
+        if parent_pk is not None and not hasattr(instance, "_previously_removed"):
             update_counter(parent_model, parent_pk, counter_name, -1)
 
 
@@ -100,6 +106,12 @@ def connect_counters(*models):
             # Connect the post_save and post_delete handlers
             post_save.connect(
                 post_save_receiver,
+                sender=to_model,
+                weak=False,
+                dispatch_uid=f'{model._meta.label}.{field.name}'
+            )
+            pre_delete.connect(
+                pre_delete_receiver,
                 sender=to_model,
                 weak=False,
                 dispatch_uid=f'{model._meta.label}.{field.name}'

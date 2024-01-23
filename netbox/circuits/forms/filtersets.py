@@ -7,7 +7,7 @@ from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
-from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -88,7 +88,7 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
         label=_('Provider')
     )
     service_id = forms.CharField(
-        label=_('Service id'),
+        label=_('Service ID'),
         max_length=100,
         required=False
     )
@@ -97,7 +97,16 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
 
 class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Attributes'), ('color',)),
+    )
     tag = TagFilterField(model)
+
+    color = ColorField(
+        label=_('Color'),
+        required=False
+    )
 
 
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
@@ -110,6 +119,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
+    selector_fields = ('filter_id', 'q', 'region_id', 'site_group_id', 'site_id', 'provider_id', 'provider_network_id')
     type_id = DynamicModelMultipleChoiceField(
         queryset=CircuitType.objects.all(),
         required=False,

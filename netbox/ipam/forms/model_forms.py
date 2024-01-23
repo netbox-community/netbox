@@ -29,8 +29,6 @@ __all__ = (
     'IPAddressBulkAddForm',
     'IPAddressForm',
     'IPRangeForm',
-    'L2VPNForm',
-    'L2VPNTerminationForm',
     'PrefixForm',
     'RIRForm',
     'RoleForm',
@@ -216,7 +214,7 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
         required=False,
         selector=True,
         query_params={
-            'site_id': '$site',
+            'available_at_site': '$site',
         },
         label=_('VLAN'),
     )
@@ -354,7 +352,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             })
         elif selected_objects:
             assigned_object = self.cleaned_data[selected_objects[0]]
-            if self.instance.pk and self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
+            if self.instance.pk and self.instance.assigned_object and self.cleaned_data['primary_for_parent'] and assigned_object != self.instance.assigned_object:
                 raise ValidationError(
                     _("Cannot reassign IP address while it is designated as the primary IP for the parent object")
                 )
@@ -372,14 +370,14 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         # Do not allow assigning a network ID or broadcast address to an interface.
         if interface and (address := self.cleaned_data.get('address')):
             if address.ip == address.network:
-                msg = _("{address} is a network ID, which may not be assigned to an interface.").format(address=address)
+                msg = _("{ip} is a network ID, which may not be assigned to an interface.").format(ip=address.ip)
                 if address.version == 4 and address.prefixlen not in (31, 32):
                     raise ValidationError(msg)
                 if address.version == 6 and address.prefixlen not in (127, 128):
                     raise ValidationError(msg)
             if address.version == 4 and address.ip == address.broadcast and address.prefixlen not in (31, 32):
-                msg = _("{address} is a broadcast address, which may not be assigned to an interface.").format(
-                    address=address
+                msg = _("{ip} is a broadcast address, which may not be assigned to an interface.").format(
+                    ip=address.ip
                 )
                 raise ValidationError(msg)
 
@@ -754,97 +752,3 @@ class ServiceCreateForm(ServiceForm):
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
             raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")
-
-
-#
-# L2VPN
-#
-
-
-class L2VPNForm(TenancyForm, NetBoxModelForm):
-    slug = SlugField()
-    import_targets = DynamicModelMultipleChoiceField(
-        label=_('Import targets'),
-        queryset=RouteTarget.objects.all(),
-        required=False
-    )
-    export_targets = DynamicModelMultipleChoiceField(
-        label=_('Export targets'),
-        queryset=RouteTarget.objects.all(),
-        required=False
-    )
-    comments = CommentField()
-
-    fieldsets = (
-        (_('L2VPN'), ('name', 'slug', 'type', 'identifier', 'description', 'tags')),
-        (_('Route Targets'), ('import_targets', 'export_targets')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-    )
-
-    class Meta:
-        model = L2VPN
-        fields = (
-            'name', 'slug', 'type', 'identifier', 'import_targets', 'export_targets', 'tenant', 'description',
-            'comments', 'tags'
-        )
-
-
-class L2VPNTerminationForm(NetBoxModelForm):
-    l2vpn = DynamicModelChoiceField(
-        queryset=L2VPN.objects.all(),
-        required=True,
-        query_params={},
-        label=_('L2VPN'),
-        fetch_trigger='open'
-    )
-    vlan = DynamicModelChoiceField(
-        queryset=VLAN.objects.all(),
-        required=False,
-        selector=True,
-        label=_('VLAN')
-    )
-    interface = DynamicModelChoiceField(
-        label=_('Interface'),
-        queryset=Interface.objects.all(),
-        required=False,
-        selector=True
-    )
-    vminterface = DynamicModelChoiceField(
-        queryset=VMInterface.objects.all(),
-        required=False,
-        selector=True,
-        label=_('Interface')
-    )
-
-    class Meta:
-        model = L2VPNTermination
-        fields = ('l2vpn', )
-
-    def __init__(self, *args, **kwargs):
-        instance = kwargs.get('instance')
-        initial = kwargs.get('initial', {}).copy()
-
-        if instance:
-            if type(instance.assigned_object) is Interface:
-                initial['interface'] = instance.assigned_object
-            elif type(instance.assigned_object) is VLAN:
-                initial['vlan'] = instance.assigned_object
-            elif type(instance.assigned_object) is VMInterface:
-                initial['vminterface'] = instance.assigned_object
-            kwargs['initial'] = initial
-
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        super().clean()
-
-        interface = self.cleaned_data.get('interface')
-        vminterface = self.cleaned_data.get('vminterface')
-        vlan = self.cleaned_data.get('vlan')
-
-        if not (interface or vminterface or vlan):
-            raise ValidationError(_('A termination must specify an interface or VLAN.'))
-        if len([x for x in (interface, vminterface, vlan) if x]) > 1:
-            raise ValidationError(_('A termination can only have one terminating object (an interface or VLAN).'))
-
-        self.instance.assigned_object = interface or vminterface or vlan

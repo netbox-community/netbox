@@ -4,18 +4,20 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import Device, DeviceRole, Platform, Region, Site, SiteGroup
 from extras.forms import LocalConfigContextFilterForm
 from extras.models import ConfigTemplate
-from ipam.models import L2VPN, VRF
+from ipam.models import VRF
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
 from virtualization.choices import *
 from virtualization.models import *
+from vpn.models import L2VPN
 
 __all__ = (
     'ClusterFilterForm',
     'ClusterGroupFilterForm',
     'ClusterTypeFilterForm',
+    'VirtualDiskFilterForm',
     'VirtualMachineFilterForm',
     'VMInterfaceFilterForm',
 )
@@ -44,6 +46,7 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         (_('Tenant'), ('tenant_group_id', 'tenant_id')),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
+    selector_fields = ('filter_id', 'q', 'group_id')
     type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
@@ -186,6 +189,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         (_('Virtual Machine'), ('cluster_id', 'virtual_machine_id')),
         (_('Attributes'), ('enabled', 'mac_address', 'vrf_id', 'l2vpn_id')),
     )
+    selector_fields = ('filter_id', 'q', 'virtual_machine_id')
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
         required=False,
@@ -219,5 +223,25 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         queryset=L2VPN.objects.all(),
         required=False,
         label=_('L2VPN')
+    )
+    tag = TagFilterField(model)
+
+
+class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
+    model = VirtualDisk
+    fieldsets = (
+        (None, ('q', 'filter_id', 'tag')),
+        (_('Virtual Machine'), ('virtual_machine_id',)),
+        (_('Attributes'), ('size',)),
+    )
+    virtual_machine_id = DynamicModelMultipleChoiceField(
+        queryset=VirtualMachine.objects.all(),
+        required=False,
+        label=_('Virtual machine')
+    )
+    size = forms.IntegerField(
+        label=_('Size (GB)'),
+        required=False,
+        min_value=1
     )
     tag = TagFilterField(model)

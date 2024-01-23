@@ -7,6 +7,8 @@ class UserToken(Token):
     """
     Proxy model for users to manage their own API tokens.
     """
+    _netbox_private = True
+
     class Meta:
         proxy = True
         verbose_name = 'token'

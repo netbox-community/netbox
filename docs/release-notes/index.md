@@ -10,6 +10,17 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 3.7](./version-3.7.md) (December 2023)
+
+* VPN Tunnels ([#9816](https://github.com/netbox-community/netbox/issues/9816))
+* Event Rules ([#14132](https://github.com/netbox-community/netbox/issues/14132))
+* Virtual Machine Disks ([#8356](https://github.com/netbox-community/netbox/issues/8356))
+* Object Protection Rules ([#10244](https://github.com/netbox-community/netbox/issues/10244))
+* Improved Custom Field Visibility Controls ([#13299](https://github.com/netbox-community/netbox/issues/13299))
+* Improved Global Search Results ([#14134](https://github.com/netbox-community/netbox/issues/14134))
+* Table Column Registration for Plugins ([#14173](https://github.com/netbox-community/netbox/issues/14173))
+* Data Backend Registration for Plugins ([#13381](https://github.com/netbox-community/netbox/issues/13381))
+
 #### [Version 3.6](./version-3.6.md) (August 2023)
 
 * Relocated Admin UI Views ([#12589](https://github.com/netbox-community/netbox/issues/12589), [#12590](https://github.com/netbox-community/netbox/issues/12590), [#12591](https://github.com/netbox-community/netbox/issues/12591), [#13044](https://github.com/netbox-community/netbox/issues/13044))

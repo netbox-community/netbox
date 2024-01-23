@@ -438,6 +438,12 @@ class PowerPortTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
+    maximum_draw = tables.Column(
+        verbose_name=_('Maximum draw (W)')
+    )
+    allocated_draw = tables.Column(
+        verbose_name=_('Allocated draw (W)')
+    )
     tags = columns.TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -550,6 +556,12 @@ class BaseInterfaceTable(NetBoxTable):
         orderable=False,
         verbose_name=_('L2VPN')
     )
+    tunnel = tables.Column(
+        accessor=tables.A('tunnel_termination__tunnel'),
+        linkify=True,
+        orderable=False,
+        verbose_name=_('Tunnel')
+    )
     untagged_vlan = tables.Column(
         verbose_name=_('Untagged VLAN'),
         linkify=True
@@ -597,6 +609,10 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         verbose_name=_('VRF'),
         linkify=True
     )
+    inventory_items = tables.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name=_('Inventory Items'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:interface_list'
     )
@@ -608,7 +624,8 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
             'speed', 'speed_formatted', 'duplex', 'mode', 'mac_address', 'wwn', 'poe_mode', 'poe_type', 'rf_role', 'rf_channel',
             'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable',
             'cable_color', 'wireless_link', 'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn',
-            'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
+            'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'inventory_items', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'device', 'label', 'enabled', 'type', 'description')
 
@@ -644,8 +661,8 @@ class DeviceInterfaceTable(InterfaceTable):
             'pk', 'id', 'name', 'module_bay', 'module', 'label', 'enabled', 'type', 'parent', 'bridge', 'lag',
             'mgmt_only', 'mtu', 'mode', 'mac_address', 'wwn', 'rf_role', 'rf_channel', 'rf_channel_frequency',
             'rf_channel_width', 'tx_power', 'description', 'mark_connected', 'cable', 'cable_color', 'wireless_link',
-            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups',
-            'untagged_vlan', 'tagged_vlans', 'actions',
+            'wireless_lans', 'link_peer', 'connection', 'tags', 'vdcs', 'vrf', 'l2vpn', 'tunnel', 'ip_addresses',
+            'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = (
             'pk', 'name', 'label', 'enabled', 'type', 'parent', 'lag', 'mtu', 'mode', 'description', 'ip_addresses',
@@ -657,7 +674,7 @@ class DeviceInterfaceTable(InterfaceTable):
             'data-virtual': lambda record: "true" if record.is_virtual else "false",
             'data-mark-connected': lambda record: "true" if record.mark_connected else "false",
             'data-cable-status': lambda record: record.cable.status if record.cable else "",
-            'data-type': lambda record: record.type,
+            'data-type': lambda record: record.type
         }
 
 
@@ -906,6 +923,10 @@ class InventoryItemTable(DeviceComponentTable):
     discovered = columns.BooleanColumn(
         verbose_name=_('Discovered'),
     )
+    parent = tables.Column(
+        linkify=True,
+        verbose_name=_('Parent'),
+    )
     tags = columns.TagColumn(
         url_name='dcim:inventoryitem_list'
     )
@@ -914,7 +935,7 @@ class InventoryItemTable(DeviceComponentTable):
     class Meta(NetBoxTable.Meta):
         model = models.InventoryItem
         fields = (
-            'pk', 'id', 'name', 'device', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
+            'pk', 'id', 'name', 'device', 'parent', 'component', 'label', 'role', 'manufacturer', 'part_id', 'serial',
             'asset_tag', 'description', 'discovered', 'tags', 'created', 'last_updated',
         )
         default_columns = (
@@ -1037,7 +1058,7 @@ class VirtualDeviceContextTable(TenancyColumnsMixin, NetBoxTable):
     comments = columns.MarkdownColumn()
 
     tags = columns.TagColumn(
-        url_name='dcim:vdc_list'
+        url_name='dcim:virtualdevicecontext_list'
     )
 
     class Meta(NetBoxTable.Meta):

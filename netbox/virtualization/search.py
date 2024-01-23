@@ -10,6 +10,7 @@ class ClusterIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('type', 'group', 'status', 'tenant', 'site', 'description')
 
 
 @register_search
@@ -20,6 +21,7 @@ class ClusterGroupIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
+    display_attrs = ('description',)
 
 
 @register_search
@@ -30,6 +32,7 @@ class ClusterTypeIndex(SearchIndex):
         ('slug', 110),
         ('description', 500),
     )
+    display_attrs = ('description',)
 
 
 @register_search
@@ -40,6 +43,7 @@ class VirtualMachineIndex(SearchIndex):
         ('description', 500),
         ('comments', 5000),
     )
+    display_attrs = ('site', 'cluster', 'device', 'tenant', 'platform', 'status', 'role', 'description')
 
 
 @register_search
@@ -51,3 +55,14 @@ class VMInterfaceIndex(SearchIndex):
         ('description', 500),
         ('mtu', 2000),
     )
+    display_attrs = ('virtual_machine', 'mac_address', 'description')
+
+
+@register_search
+class VirtualDiskIndex(SearchIndex):
+    model = models.VirtualDisk
+    fields = (
+        ('name', 100),
+        ('description', 500),
+    )
+    display_attrs = ('virtual_machine', 'size', 'description')

@@ -15,7 +15,7 @@ from core.models import Job
 from core.tables import JobTable
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
-from netbox.config import get_config, PARAMS
+from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import is_htmx
@@ -210,7 +210,10 @@ class ExportTemplateListView(generic.ObjectListView):
     filterset_form = forms.ExportTemplateFilterForm
     table = tables.ExportTemplateTable
     template_name = 'extras/exporttemplate_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_sync': {'sync'},
+    }
 
 
 @register_model_view(ExportTemplate)
@@ -393,6 +396,51 @@ class WebhookBulkDeleteView(generic.BulkDeleteView):
 
 
 #
+# Event Rules
+#
+
+class EventRuleListView(generic.ObjectListView):
+    queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
+    filterset_form = forms.EventRuleFilterForm
+    table = tables.EventRuleTable
+
+
+@register_model_view(EventRule)
+class EventRuleView(generic.ObjectView):
+    queryset = EventRule.objects.all()
+
+
+@register_model_view(EventRule, 'edit')
+class EventRuleEditView(generic.ObjectEditView):
+    queryset = EventRule.objects.all()
+    form = forms.EventRuleForm
+
+
+@register_model_view(EventRule, 'delete')
+class EventRuleDeleteView(generic.ObjectDeleteView):
+    queryset = EventRule.objects.all()
+
+
+class EventRuleBulkImportView(generic.BulkImportView):
+    queryset = EventRule.objects.all()
+    model_form = forms.EventRuleImportForm
+
+
+class EventRuleBulkEditView(generic.BulkEditView):
+    queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
+    table = tables.EventRuleTable
+    form = forms.EventRuleBulkEditForm
+
+
+class EventRuleBulkDeleteView(generic.BulkDeleteView):
+    queryset = EventRule.objects.all()
+    filterset = filtersets.EventRuleFilterSet
+    table = tables.EventRuleTable
+
+
+#
 # Tags
 #
 
@@ -472,7 +520,12 @@ class ConfigContextListView(generic.ObjectListView):
     filterset_form = forms.ConfigContextFilterForm
     table = tables.ConfigContextTable
     template_name = 'extras/configcontext_list.html'
-    actions = ('add', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+    actions = {
+        'add': {'add'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+        'bulk_sync': {'sync'},
+    }
 
 
 @register_model_view(ConfigContext)
@@ -576,7 +629,10 @@ class ConfigTemplateListView(generic.ObjectListView):
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
     template_name = 'extras/configtemplate_list.html'
-    actions = ('add', 'import', 'export', 'bulk_edit', 'bulk_delete', 'bulk_sync')
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_sync': {'sync'},
+    }
 
 
 @register_model_view(ConfigTemplate)
@@ -627,7 +683,9 @@ class ObjectChangeListView(generic.ObjectListView):
     filterset_form = forms.ObjectChangeFilterForm
     table = tables.ObjectChangeTable
     template_name = 'extras/objectchange_list.html'
-    actions = ('export',)
+    actions = {
+        'export': {'view'},
+    }
 
 
 @register_model_view(ObjectChange)
@@ -693,7 +751,9 @@ class ImageAttachmentListView(generic.ObjectListView):
     filterset = filtersets.ImageAttachmentFilterSet
     filterset_form = forms.ImageAttachmentFilterForm
     table = tables.ImageAttachmentTable
-    actions = ('export',)
+    actions = {
+        'export': {'view'},
+    }
 
 
 @register_model_view(ImageAttachment, 'edit')
@@ -736,7 +796,12 @@ class JournalEntryListView(generic.ObjectListView):
     filterset = filtersets.JournalEntryFilterSet
     filterset_form = forms.JournalEntryFilterForm
     table = tables.JournalEntryTable
-    actions = ('import', 'export', 'bulk_edit', 'bulk_delete')
+    actions = {
+        'import': {'add'},
+        'export': {'view'},
+        'bulk_edit': {'change'},
+        'bulk_delete': {'delete'},
+    }
 
 
 @register_model_view(JournalEntry)
@@ -978,6 +1043,10 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         })
 
 
+def get_report_module(module, request):
+    return get_object_or_404(ReportModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
+
+
 class ReportView(ContentTypePermissionRequiredMixin, View):
     """
     Display a single Report and its associated Job (if any).
@@ -986,18 +1055,16 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_report_module(module, request)
         report = module.reports[name]()
+        jobs = module.get_jobs(report.class_name)
 
-        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
-        report.result = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=report.name,
+        report.result = jobs.filter(
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
         return render(request, 'extras/report.html', {
+            'job_count': jobs.count(),
             'module': module,
             'report': report,
             'form': ReportForm(scheduling_enabled=report.scheduling_enabled),
@@ -1007,8 +1074,9 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         if not request.user.has_perm('extras.run_report'):
             return HttpResponseForbidden()
 
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_report_module(module, request)
         report = module.reports[name]()
+        jobs = module.get_jobs(report.class_name)
         form = ReportForm(request.POST, scheduling_enabled=report.scheduling_enabled)
 
         if form.is_valid():
@@ -1017,6 +1085,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             if not get_workers_for_queue('default'):
                 messages.error(request, "Unable to run report: RQ worker process not running.")
                 return render(request, 'extras/report.html', {
+                    'job_count': jobs.count(),
                     'report': report,
                 })
 
@@ -1034,6 +1103,7 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
             return redirect('extras:report_result', job_pk=job.pk)
 
         return render(request, 'extras/report.html', {
+            'job_count': jobs.count(),
             'module': module,
             'report': report,
             'form': form,
@@ -1046,10 +1116,12 @@ class ReportSourceView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_report_module(module, request)
         report = module.reports[name]()
+        jobs = module.get_jobs(report.class_name)
 
         return render(request, 'extras/report/source.html', {
+            'job_count': jobs.count(),
             'module': module,
             'report': report,
             'tab': 'source',
@@ -1062,15 +1134,9 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ReportModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_report_module(module, request)
         report = module.reports[name]()
-
-        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
-        jobs = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=report.name
-        )
+        jobs = module.get_jobs(report.class_name)
 
         jobs_table = JobTable(
             data=jobs,
@@ -1080,6 +1146,7 @@ class ReportJobsView(ContentTypePermissionRequiredMixin, View):
         jobs_table.configure(request)
 
         return render(request, 'extras/report/jobs.html', {
+            'job_count': jobs.count(),
             'module': module,
             'report': report,
             'table': jobs_table,
@@ -1151,27 +1218,28 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         })
 
 
+def get_script_module(module, request):
+    return get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
+
+
 class ScriptView(ContentTypePermissionRequiredMixin, View):
 
     def get_required_permission(self):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(initial=normalize_querydict(request.GET))
 
         # Look for a pending Job (use the latest one by creation timestamp)
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        script.result = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=script.name,
-        ).exclude(
+        script.result = module.get_jobs(script.class_name).exclude(
             status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
         ).first()
 
         return render(request, 'extras/script.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'form': form,
@@ -1181,8 +1249,9 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         if not request.user.has_perm('extras.run_script'):
             return HttpResponseForbidden()
 
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
@@ -1206,6 +1275,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
             return redirect('extras:script_result', job_pk=job.pk)
 
         return render(request, 'extras/script.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'form': form,
@@ -1218,10 +1288,12 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
 
         return render(request, 'extras/script/source.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'tab': 'source',
@@ -1234,15 +1306,9 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, module, name):
-        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__startswith=module)
+        module = get_script_module(module, request)
         script = module.scripts[name]()
-
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        jobs = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=script.class_name
-        )
+        jobs = module.get_jobs(script.class_name)
 
         jobs_table = JobTable(
             data=jobs,
@@ -1252,6 +1318,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         jobs_table.configure(request)
 
         return render(request, 'extras/script/jobs.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'table': jobs_table,
@@ -1285,74 +1352,6 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
             'script': script,
             'job': job,
         })
-
-
-#
-# Config Revisions
-#
-
-class ConfigRevisionListView(generic.ObjectListView):
-    queryset = ConfigRevision.objects.all()
-    filterset = filtersets.ConfigRevisionFilterSet
-    filterset_form = forms.ConfigRevisionFilterForm
-    table = tables.ConfigRevisionTable
-
-
-@register_model_view(ConfigRevision)
-class ConfigRevisionView(generic.ObjectView):
-    queryset = ConfigRevision.objects.all()
-
-
-class ConfigRevisionEditView(generic.ObjectEditView):
-    queryset = ConfigRevision.objects.all()
-    form = forms.ConfigRevisionForm
-
-
-@register_model_view(ConfigRevision, 'delete')
-class ConfigRevisionDeleteView(generic.ObjectDeleteView):
-    queryset = ConfigRevision.objects.all()
-
-
-class ConfigRevisionBulkDeleteView(generic.BulkDeleteView):
-    queryset = ConfigRevision.objects.all()
-    filterset = filtersets.ConfigRevisionFilterSet
-    table = tables.ConfigRevisionTable
-
-
-class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
-
-    def get_required_permission(self):
-        return 'extras.configrevision_edit'
-
-    def get(self, request, pk):
-        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
-
-        # Get the current ConfigRevision
-        config_version = get_config().version
-        current_config = ConfigRevision.objects.filter(pk=config_version).first()
-
-        params = []
-        for param in PARAMS:
-            params.append((
-                param.name,
-                current_config.data.get(param.name, None),
-                candidate_config.data.get(param.name, None)
-            ))
-
-        return render(request, 'extras/configrevision_restore.html', {
-            'object': candidate_config,
-            'params': params,
-        })
-
-    def post(self, request, pk):
-        if not request.user.has_perm('extras.configrevision_edit'):
-            return HttpResponseForbidden()
-
-        candidate_config = get_object_or_404(ConfigRevision, pk=pk)
-        candidate_config.activate()
-        messages.success(request, f"Restored configuration revision #{pk}")
-
-        return redirect(candidate_config.get_absolute_url())
 
 
 #

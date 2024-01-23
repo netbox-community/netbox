@@ -53,8 +53,8 @@ markdown_extensions:
     - admonition
     - attr_list
     - pymdownx.emoji:
-        emoji_index: !!python/name:materialx.emoji.twemoji
-        emoji_generator: !!python/name:materialx.emoji.to_svg
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
     - pymdownx.superfences:
         custom_fences:
           - name: mermaid
@@ -74,6 +74,7 @@ nav:
         - Circuits: 'features/circuits.md'
         - Wireless: 'features/wireless.md'
         - Virtualization: 'features/virtualization.md'
+        - VPN Tunnels: 'features/vpn-tunnels.md'
         - Tenancy: 'features/tenancy.md'
         - Contacts: 'features/contacts.md'
         - Search: 'features/search.md'
@@ -82,6 +83,7 @@ nav:
         - Synchronized Data: 'features/synchronized-data.md'
         - Change Logging: 'features/change-logging.md'
         - Journaling: 'features/journaling.md'
+        - Event Rules: 'features/event-rules.md'
         - Background Jobs: 'features/background-jobs.md'
         - Auth & Permissions: 'features/authentication-permissions.md'
         - API & Integration: 'features/api-integration.md'
@@ -136,6 +138,7 @@ nav:
             - Forms: 'plugins/development/forms.md'
             - Filters & Filter Sets: 'plugins/development/filtersets.md'
             - Search: 'plugins/development/search.md'
+            - Data Backends: 'plugins/development/data-backends.md'
             - REST API: 'plugins/development/rest-api.md'
             - GraphQL API: 'plugins/development/graphql-api.md'
             - Background Tasks: 'plugins/development/background-tasks.md'
@@ -213,6 +216,7 @@ nav:
             - CustomField: 'models/extras/customfield.md'
             - CustomFieldChoiceSet: 'models/extras/customfieldchoiceset.md'
             - CustomLink: 'models/extras/customlink.md'
+            - EventRule: 'models/extras/eventrule.md'
             - ExportTemplate: 'models/extras/exporttemplate.md'
             - ImageAttachment: 'models/extras/imageattachment.md'
             - JournalEntry: 'models/extras/journalentry.md'
@@ -228,8 +232,6 @@ nav:
             - FHRPGroupAssignment: 'models/ipam/fhrpgroupassignment.md'
             - IPAddress: 'models/ipam/ipaddress.md'
             - IPRange: 'models/ipam/iprange.md'
-            - L2VPN: 'models/ipam/l2vpn.md'
-            - L2VPNTermination: 'models/ipam/l2vpntermination.md'
             - Prefix: 'models/ipam/prefix.md'
             - RIR: 'models/ipam/rir.md'
             - Role: 'models/ipam/role.md'
@@ -250,7 +252,19 @@ nav:
             - ClusterGroup: 'models/virtualization/clustergroup.md'
             - ClusterType: 'models/virtualization/clustertype.md'
             - VMInterface: 'models/virtualization/vminterface.md'
+            - VirtualDisk: 'models/virtualization/virtualdisk.md'
             - VirtualMachine: 'models/virtualization/virtualmachine.md'
+        - VPN:
+            - IKEPolicy: 'models/vpn/ikepolicy.md'
+            - IKEProposal: 'models/vpn/ikeproposal.md'
+            - IPSecPolicy: 'models/vpn/ipsecpolicy.md'
+            - IPSecProfile: 'models/vpn/ipsecprofile.md'
+            - IPSecProposal: 'models/vpn/ipsecproposal.md'
+            - L2VPN: 'models/vpn/l2vpn.md'
+            - L2VPNTermination: 'models/vpn/l2vpntermination.md'
+            - Tunnel: 'models/vpn/tunnel.md'
+            - TunnelGroup: 'models/vpn/tunnelgroup.md'
+            - TunnelTermination: 'models/vpn/tunneltermination.md'
         - Wireless:
             - WirelessLAN: 'models/wireless/wirelesslan.md'
             - WirelessLANGroup: 'models/wireless/wirelesslangroup.md'
@@ -272,10 +286,12 @@ nav:
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'
         - Internationalization: 'development/internationalization.md'
+        - Translations: 'development/translations.md'
         - Release Checklist: 'development/release-checklist.md'
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 3.7: 'release-notes/version-3.7.md'
         - Version 3.6: 'release-notes/version-3.6.md'
         - Version 3.5: 'release-notes/version-3.5.md'
         - Version 3.4: 'release-notes/version-3.4.md'

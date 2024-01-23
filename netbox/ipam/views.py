@@ -1,5 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import F, Prefetch
+from django.db.models import Prefetch
 from django.db.models.expressions import RawSQL
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -9,7 +9,6 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
-from tenancy.views import ObjectContactsView
 from utilities.tables import get_table_ordering
 from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
@@ -19,7 +18,6 @@ from . import filtersets, forms, tables
 from .choices import PrefixStatusChoices
 from .constants import *
 from .models import *
-from .tables.l2vpn import L2VPNTable, L2VPNTerminationTable
 from .utils import add_requested_prefixes, add_available_ipaddresses, add_available_vlans
 
 
@@ -220,7 +218,7 @@ class ASNRangeASNsView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('ASNs'),
         badge=lambda x: x.get_child_asns().count(),
-        permission='ipam.view_asns',
+        permission='ipam.view_asn',
         weight=500
     )
 
@@ -606,7 +604,7 @@ class PrefixIPAddressesView(generic.ObjectChildrenView):
         return parent.get_child_ips().restrict(request.user, 'view').prefetch_related('vrf', 'tenant', 'tenant__group')
 
     def prep_table_data(self, request, queryset, parent):
-        if not get_table_ordering(request, self.table):
+        if not request.GET.get('q') and not get_table_ordering(request, self.table):
             return add_available_ipaddresses(parent.prefix, queryset, parent.is_pool)
         return queryset
 
@@ -660,6 +658,26 @@ class IPRangeListView(generic.ObjectListView):
 @register_model_view(IPRange)
 class IPRangeView(generic.ObjectView):
     queryset = IPRange.objects.all()
+
+    def get_extra_context(self, request, instance):
+
+        # Parent prefixes table
+        parent_prefixes = Prefix.objects.restrict(request.user, 'view').filter(
+            Q(prefix__net_contains_or_equals=str(instance.start_address.ip)),
+            Q(prefix__net_contains_or_equals=str(instance.end_address.ip)),
+            vrf=instance.vrf
+        ).prefetch_related(
+            'site', 'role', 'tenant', 'vlan', 'role'
+        )
+        parent_prefixes_table = tables.PrefixTable(
+            list(parent_prefixes),
+            exclude=('vrf', 'utilization'),
+            orderable=False
+        )
+
+        return {
+            'parent_prefixes_table': parent_prefixes_table,
+        }
 
 
 @register_model_view(IPRange, 'ipaddresses', path='ip-addresses')
@@ -953,7 +971,7 @@ class VLANGroupVLANsView(generic.ObjectChildrenView):
 
     def prep_table_data(self, request, queryset, parent):
         if not get_table_ordering(request, self.table):
-            return add_available_vlans(parent.get_child_vlans(), parent)
+            return add_available_vlans(queryset, parent)
         return queryset
 
 
@@ -1243,112 +1261,3 @@ class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
-
-
-# L2VPN
-
-class L2VPNListView(generic.ObjectListView):
-    queryset = L2VPN.objects.all()
-    table = L2VPNTable
-    filterset = filtersets.L2VPNFilterSet
-    filterset_form = forms.L2VPNFilterForm
-
-
-@register_model_view(L2VPN)
-class L2VPNView(generic.ObjectView):
-    queryset = L2VPN.objects.all()
-
-    def get_extra_context(self, request, instance):
-        import_targets_table = tables.RouteTargetTable(
-            instance.import_targets.prefetch_related('tenant'),
-            orderable=False
-        )
-        export_targets_table = tables.RouteTargetTable(
-            instance.export_targets.prefetch_related('tenant'),
-            orderable=False
-        )
-
-        return {
-            'import_targets_table': import_targets_table,
-            'export_targets_table': export_targets_table,
-        }
-
-
-@register_model_view(L2VPN, 'edit')
-class L2VPNEditView(generic.ObjectEditView):
-    queryset = L2VPN.objects.all()
-    form = forms.L2VPNForm
-
-
-@register_model_view(L2VPN, 'delete')
-class L2VPNDeleteView(generic.ObjectDeleteView):
-    queryset = L2VPN.objects.all()
-
-
-class L2VPNBulkImportView(generic.BulkImportView):
-    queryset = L2VPN.objects.all()
-    model_form = forms.L2VPNImportForm
-
-
-class L2VPNBulkEditView(generic.BulkEditView):
-    queryset = L2VPN.objects.all()
-    filterset = filtersets.L2VPNFilterSet
-    table = tables.L2VPNTable
-    form = forms.L2VPNBulkEditForm
-
-
-class L2VPNBulkDeleteView(generic.BulkDeleteView):
-    queryset = L2VPN.objects.all()
-    filterset = filtersets.L2VPNFilterSet
-    table = tables.L2VPNTable
-
-
-@register_model_view(L2VPN, 'contacts')
-class L2VPNContactsView(ObjectContactsView):
-    queryset = L2VPN.objects.all()
-
-
-#
-# L2VPN terminations
-#
-
-class L2VPNTerminationListView(generic.ObjectListView):
-    queryset = L2VPNTermination.objects.all()
-    table = L2VPNTerminationTable
-    filterset = filtersets.L2VPNTerminationFilterSet
-    filterset_form = forms.L2VPNTerminationFilterForm
-
-
-@register_model_view(L2VPNTermination)
-class L2VPNTerminationView(generic.ObjectView):
-    queryset = L2VPNTermination.objects.all()
-
-
-@register_model_view(L2VPNTermination, 'edit')
-class L2VPNTerminationEditView(generic.ObjectEditView):
-    queryset = L2VPNTermination.objects.all()
-    form = forms.L2VPNTerminationForm
-    template_name = 'ipam/l2vpntermination_edit.html'
-
-
-@register_model_view(L2VPNTermination, 'delete')
-class L2VPNTerminationDeleteView(generic.ObjectDeleteView):
-    queryset = L2VPNTermination.objects.all()
-
-
-class L2VPNTerminationBulkImportView(generic.BulkImportView):
-    queryset = L2VPNTermination.objects.all()
-    model_form = forms.L2VPNTerminationImportForm
-
-
-class L2VPNTerminationBulkEditView(generic.BulkEditView):
-    queryset = L2VPNTermination.objects.all()
-    filterset = filtersets.L2VPNTerminationFilterSet
-    table = tables.L2VPNTerminationTable
-    form = forms.L2VPNTerminationBulkEditForm
-
-
-class L2VPNTerminationBulkDeleteView(generic.BulkDeleteView):
-    queryset = L2VPNTermination.objects.all()
-    filterset = filtersets.L2VPNTerminationFilterSet
-    table = tables.L2VPNTerminationTable

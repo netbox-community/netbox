@@ -8,7 +8,7 @@ from itertools import count, groupby
 import bleach
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.utils import timezone
@@ -19,9 +19,9 @@ from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
-from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from netbox.config import get_config
+from netbox.plugins import PluginConfig
 from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
@@ -144,15 +144,23 @@ def count_related(model, field):
     return Coalesce(subquery, 0)
 
 
-def serialize_object(obj, resolve_tags=True, extra=None):
+def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
     can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
     implicitly excluded.
+
+    Args:
+        obj: The object to serialize
+        resolve_tags: If true, any assigned tags will be represented by their names
+        extra: Any additional data to include in the serialized output. Keys provided in this mapping will
+            override object attributes.
+        exclude: An iterable of attributes to exclude from the serialized output
     """
     json_str = serializers.serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
+    exclude = exclude or []
 
     # Exclude any MPTTModel fields
     if issubclass(obj.__class__, MPTTModel):
@@ -169,15 +177,14 @@ def serialize_object(obj, resolve_tags=True, extra=None):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
         data['tags'] = sorted([tag.name for tag in tags])
 
+    # Skip excluded and private (prefixes with an underscore) attributes
+    for key in list(data.keys()):
+        if key in exclude or (isinstance(key, str) and key.startswith('_')):
+            data.pop(key)
+
     # Append any extra data
     if extra is not None:
         data.update(extra)
-
-    # Copy keys to list to avoid 'dictionary changed size during iteration' exception
-    for key in list(data):
-        # Private fields shouldn't be logged in the object change
-        if isinstance(key, str) and key.startswith('_'):
-            data.pop(key)
 
     return data
 
@@ -567,3 +574,20 @@ def local_now():
     Return the current date & time in the system timezone.
     """
     return localtime(timezone.now())
+
+
+def get_related_models(model, ordered=True):
+    """
+    Return a list of all models which have a ForeignKey to the given model and the name of the field. For example,
+    `get_related_models(Tenant)` will return all models which have a ForeignKey relationship to Tenant.
+    """
+    related_models = [
+        (field.related_model, field.remote_field.name)
+        for field in model._meta.related_objects
+        if type(field) is ManyToOneRel
+    ]
+
+    if ordered:
+        return sorted(related_models, key=lambda x: x[0]._meta.verbose_name.lower())
+
+    return related_models

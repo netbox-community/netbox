@@ -15,6 +15,13 @@
             </button>
           </li>
         {% endif %}
+        {% if perms.virtualization.add_virtualdisk %}
+          <li>
+            <button type="submit" formaction="{% url 'virtualization:virtualmachine_bulk_add_virtualdisk' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+              {% trans "Virtual Disks" %}
+            </button>
+          </li>
+        {% endif %}
       </ul>
     </div>
   {% endif %}

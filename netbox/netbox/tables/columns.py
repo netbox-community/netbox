@@ -483,8 +483,10 @@ class CustomFieldColumn(tables.Column):
             return mark_safe('<i class="mdi mdi-close-thick text-danger"></i>')
         if self.customfield.type == CustomFieldTypeChoices.TYPE_URL:
             return mark_safe(f'<a href="{escape(value)}">{escape(value)}</a>')
+        if self.customfield.type == CustomFieldTypeChoices.TYPE_SELECT:
+            return self.customfield.get_choice_label(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTISELECT:
-            return ', '.join(v for v in value)
+            return ', '.join(self.customfield.get_choice_label(v) for v in value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
             return mark_safe(', '.join(
                 self._linkify_item(obj) for obj in self.customfield.deserialize(value)

@@ -56,6 +56,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 class UserConfigForm(BootstrapMixin, forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         (_('User Interface'), (
+            'locale.language',
             'pagination.per_page',
             'pagination.placement',
             'ui.colormode',
@@ -114,6 +115,9 @@ class UserTokenForm(BootstrapMixin, forms.ModelForm):
         help_text=_(
             'Keys must be at least 40 characters in length. <strong>Be sure to record your key</strong> prior to '
             'submitting this form, as it may no longer be accessible once the token has been created.'
+        ),
+        widget=forms.TextInput(
+            attrs={'data-clipboard': 'true'}
         )
     )
     allowed_ips = SimpleArrayField(
@@ -383,5 +387,5 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
                     model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
                 except FieldError as e:
                     raise forms.ValidationError({
-                        'constraints': _('Invalid filter for {model}: {e}').format(model=model, e=e)
+                        'constraints': _('Invalid filter for {model}: {error}').format(model=model, error=e)
                     })

@@ -1,7 +1,11 @@
-from django.test import TestCase
+from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
+from django.urls import reverse
 
 from dcim.models import *
-from utilities.testing.utils import create_test_device
+from users.models import ObjectPermission
+from utilities.testing.base import TestCase
+from utilities.testing.utils import create_test_device, create_test_user
 
 
 class CountersTest(TestCase):
@@ -10,7 +14,6 @@ class CountersTest(TestCase):
     """
     @classmethod
     def setUpTestData(cls):
-
         # Create devices
         device1 = create_test_device('Device 1')
         device2 = create_test_device('Device 2')
@@ -79,3 +82,25 @@ class CountersTest(TestCase):
         device2.refresh_from_db()
         self.assertEqual(device1.interface_count, 1)
         self.assertEqual(device2.interface_count, 3)
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    def test_mptt_child_delete(self):
+        device1, device2 = Device.objects.all()
+        inventory_item1 = InventoryItem.objects.create(device=device1, name='Inventory Item 1')
+        inventory_item2 = InventoryItem.objects.create(device=device1, name='Inventory Item 2', parent=inventory_item1)
+        device1.refresh_from_db()
+        self.assertEqual(device1.inventory_item_count, 2)
+
+        # Setup bulk_delete for the inventory items
+        self.add_permissions('dcim.delete_inventoryitem')
+        pk_list = device1.inventoryitems.values_list('pk', flat=True)
+        data = {
+            'pk': pk_list,
+            'confirm': True,
+            '_confirm': True,  # Form button
+        }
+
+        # Try POST with model-level permission
+        self.client.post(reverse("dcim:inventoryitem_bulk_delete"), data)
+        device1.refresh_from_db()
+        self.assertEqual(device1.inventory_item_count, 0)

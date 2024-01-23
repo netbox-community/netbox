@@ -8,6 +8,7 @@ __all__ = (
     'ClusterType',
     'ClusterGroupType',
     'ClusterTypeType',
+    'VirtualDiskType',
     'VirtualMachineType',
     'VMInterfaceType',
 )
@@ -51,6 +52,17 @@ class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
         model = models.VMInterface
         fields = '__all__'
         filterset_class = filtersets.VMInterfaceFilterSet
+
+    def resolve_mode(self, info):
+        return self.mode or None
+
+
+class VirtualDiskType(ComponentObjectType):
+
+    class Meta:
+        model = models.VirtualDisk
+        fields = '__all__'
+        filterset_class = filtersets.VirtualDiskFilterSet
 
     def resolve_mode(self, info):
         return self.mode or None

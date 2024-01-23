@@ -66,6 +66,10 @@
                         <th scope="row">{% trans "802.1Q Mode" %}</th>
                         <td>{{ object.get_mode_display|placeholder }}</td>
                     </tr>
+                    <tr>
+                        <th scope="row">{% trans "Tunnel" %}</th>
+                        <td>{{ object.tunnel_termination.tunnel|linkify|placeholder }}</td>
+                    </tr>
                 </table>
             </div>
         </div>

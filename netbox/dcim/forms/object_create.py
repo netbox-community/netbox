@@ -151,6 +151,23 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
                     )
         self.fields['rear_port'].choices = choices
 
+    def clean(self):
+
+        # Check that the number of FrontPortTemplates to be created matches the selected number of RearPortTemplate
+        # positions
+        frontport_count = len(self.cleaned_data['name'])
+        rearport_count = len(self.cleaned_data['rear_port'])
+        if frontport_count != rearport_count:
+            raise forms.ValidationError({
+                'rear_port': _(
+                    "The number of front port templates to be created ({frontport_count}) must match the selected "
+                    "number of rear port positions ({rearport_count})."
+                ).format(
+                    frontport_count=frontport_count,
+                    rearport_count=rearport_count
+                )
+            })
+
     def get_iterative_data(self, iteration):
 
         # Assign rear port and position from selected set
@@ -290,6 +307,22 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
                         ('{}:{}'.format(rear_port.pk, i), '{}:{}'.format(rear_port.name, i))
                     )
         self.fields['rear_port'].choices = choices
+
+    def clean(self):
+
+        # Check that the number of FrontPorts to be created matches the selected number of RearPort positions
+        frontport_count = len(self.cleaned_data['name'])
+        rearport_count = len(self.cleaned_data['rear_port'])
+        if frontport_count != rearport_count:
+            raise forms.ValidationError({
+                'rear_port': _(
+                    "The number of front ports to be created ({frontport_count}) must match the selected number of "
+                    "rear port positions ({rearport_count})."
+                ).format(
+                    frontport_count=frontport_count,
+                    rearport_count=rearport_count
+                )
+            })
 
     def get_iterative_data(self, iteration):
 

@@ -23,8 +23,9 @@ django-filter
 django-graphiql-debug-toolbar
 
 # Modified Preorder Tree Traversal (recursive nesting of objects)
+# Pinned to 0.14.0; 0.15.0 requires Python 3.9+
 # https://github.com/django-mptt/django-mptt/blob/main/CHANGELOG.rst
-django-mptt
+django-mptt==0.14.0
 
 # Context managers for PostgreSQL advisory locks
 # https://github.com/Xof/django-pglocks/blob/master/CHANGES.txt
@@ -88,9 +89,8 @@ gunicorn
 Jinja2
 
 # Simple markup language for rendering HTML
-# https://python-markdown.github.io/change_log/
-# mkdocs currently requires Markdown v3.3
-Markdown<3.4
+# https://python-markdown.github.io/changelog/
+Markdown
 
 # File inclusion plugin for Python-Markdown
 # https://github.com/cmacmackin/markdown-include
@@ -120,9 +120,9 @@ psycopg[binary,pool]
 # https://github.com/yaml/pyyaml/blob/master/CHANGES
 PyYAML
 
-# Sentry SDK
-# https://github.com/getsentry/sentry-python/blob/master/CHANGELOG.md
-sentry-sdk
+# Requests
+# https://github.com/psf/requests/blob/main/HISTORY.md
+requests
 
 # Social authentication framework
 # https://github.com/python-social-auth/social-core/blob/master/CHANGELOG.md

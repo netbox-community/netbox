@@ -1,15 +1,38 @@
-from django.core.exceptions import ValidationError
 from django.core import validators
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
 
 # NOTE: As this module may be imported by configuration.py, we cannot import
 # anything from NetBox itself.
+
+
+class IsEqualValidator(validators.BaseValidator):
+    """
+    Employed by CustomValidator to require a specific value.
+    """
+    message = _("Ensure this value is equal to %(limit_value)s.")
+    code = "is_equal"
+
+    def compare(self, a, b):
+        return a != b
+
+
+class IsNotEqualValidator(validators.BaseValidator):
+    """
+    Employed by CustomValidator to exclude a specific value.
+    """
+    message = _("Ensure this value does not equal %(limit_value)s.")
+    code = "is_not_equal"
+
+    def compare(self, a, b):
+        return a == b
 
 
 class IsEmptyValidator:
     """
     Employed by CustomValidator to enforce required fields.
     """
-    message = "This field must be empty."
+    message = _("This field must be empty.")
     code = 'is_empty'
 
     def __init__(self, enforce=True):
@@ -24,7 +47,7 @@ class IsNotEmptyValidator:
     """
     Employed by CustomValidator to enforce prohibited fields.
     """
-    message = "This field must not be empty."
+    message = _("This field must not be empty.")
     code = 'not_empty'
 
     def __init__(self, enforce=True):
@@ -50,6 +73,8 @@ class CustomValidator:
     :param validation_rules: A dictionary mapping object attributes to validation rules
     """
     VALIDATORS = {
+        'eq': IsEqualValidator,
+        'neq': IsNotEqualValidator,
         'min': validators.MinValueValidator,
         'max': validators.MaxValueValidator,
         'min_length': validators.MinLengthValidator,
@@ -66,8 +91,7 @@ class CustomValidator:
     def __call__(self, instance):
         # Validate instance attributes per validation rules
         for attr_name, rules in self.validation_rules.items():
-            assert hasattr(instance, attr_name), f"Invalid attribute '{attr_name}' for {instance.__class__.__name__}"
-            attr = getattr(instance, attr_name)
+            attr = self._getattr(instance, attr_name)
             for descriptor, value in rules.items():
                 validator = self.get_validator(descriptor, value)
                 try:
@@ -78,6 +102,26 @@ class CustomValidator:
 
         # Execute custom validation logic (if any)
         self.validate(instance)
+
+    @staticmethod
+    def _getattr(instance, name):
+        # Attempt to resolve many-to-many fields to their stored values
+        m2m_fields = [f.name for f in instance._meta.local_many_to_many]
+        if name in m2m_fields:
+            if name in getattr(instance, '_m2m_values', []):
+                return instance._m2m_values[name]
+            if instance.pk:
+                return list(getattr(instance, name).all())
+            return []
+
+        # Raise a ValidationError for unknown attributes
+        if not hasattr(instance, name):
+            raise ValidationError(_('Invalid attribute "{name}" for {model}').format(
+                name=name,
+                model=instance.__class__.__name__
+            ))
+
+        return getattr(instance, name)
 
     def get_validator(self, descriptor, value):
         """

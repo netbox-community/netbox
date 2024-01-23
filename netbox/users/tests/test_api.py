@@ -54,6 +54,38 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         )
         User.objects.bulk_create(users)
 
+    def test_that_password_is_changed(self):
+        """
+        Test that password is changed
+        """
+
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['change']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+
+        user_credentials = {
+            'username': 'user1',
+            'password': 'abc123',
+        }
+        user = User.objects.create_user(**user_credentials)
+
+        data = {
+            'password': 'newpassword'
+        }
+        url = reverse('users-api:user-detail', kwargs={'pk': user.id})
+
+        response = self.client.patch(url, data, format='json', **self.header)
+
+        self.assertEqual(response.status_code, 200)
+
+        updated_user = User.objects.get(id=user.id)
+
+        self.assertTrue(updated_user.check_password(data['password']))
+
 
 class GroupTest(APIViewTestCases.APIViewTestCase):
     model = Group

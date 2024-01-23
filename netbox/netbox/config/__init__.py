@@ -74,7 +74,7 @@ class Config:
 
     def _populate_from_db(self):
         """Cache data from latest ConfigRevision, then populate from cache"""
-        from extras.models import ConfigRevision
+        from core.models import ConfigRevision
 
         try:
             revision = ConfigRevision.objects.last()

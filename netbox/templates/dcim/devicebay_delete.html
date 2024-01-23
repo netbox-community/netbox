@@ -8,8 +8,8 @@
 
 {% block message %}
   <p>
-    {% blocktrans trimmed %}
-      Are you sure you want to delete this device bay from <strong>{{ devicebay.device }}</strong>?
+    {% blocktrans trimmed with device=devicebay.device %}
+      Are you sure you want to delete this device bay from <strong>{{ device }}</strong>?
     {% endblocktrans %}
   </p>
 {% endblock %}

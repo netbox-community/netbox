@@ -43,7 +43,7 @@ class DynamicMultipleChoiceField(forms.MultipleChoiceField):
 
         if data is not None:
             self.choices = [
-                choice for choice in self.choices if choice[0] in data
+                choice for choice in self.choices if choice[0] and choice[0] in data
             ]
 
         return bound_field

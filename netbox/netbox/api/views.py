@@ -11,7 +11,7 @@ from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 from rq.worker import Worker
 
-from extras.plugins.utils import get_installed_plugins
+from netbox.plugins.utils import get_installed_plugins
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 
 
@@ -39,6 +39,7 @@ class APIRootView(APIView):
             'tenancy': reverse('tenancy-api:api-root', request=request, format=format),
             'users': reverse('users-api:api-root', request=request, format=format),
             'virtualization': reverse('virtualization-api:api-root', request=request, format=format),
+            'vpn': reverse('vpn-api:api-root', request=request, format=format),
             'wireless': reverse('wireless-api:api-root', request=request, format=format),
         })
 
