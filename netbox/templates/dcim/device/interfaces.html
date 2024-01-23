@@ -30,33 +30,3 @@
         </div>
     {% endif %}
 {% endblock bulk_extra_controls %}
-
-{% block head %}
-    {{ block.super }}
-    <style>
-        tr[data-cable-status=connected] {
-            background-color: var(--nbx-color-green-a15);
-        }
-        tr[data-cable-status=planned] {
-            background-color: var(--nbx-color-blue-a15);
-        }
-        tr[data-cable-status=decommissioning] {
-            background-color: var(--nbx-color-yellow-a15);
-        }
-        tr[data-mark-connected=true] {
-            background-color: var(--nbx-color-success-a15);
-        }
-        tr[data-virtual=true] {
-            background-color: var(--nbx-color-primary-a15);
-        }
-        tr[data-enabled=disabled] {
-            background-color: var(--nbx-color-danger-a15);
-        }
-        tr[data-cable-status=connected] button.mark-installed {
-            display: none;
-        }
-        tr:not([data-cable-status=connected]) button.mark-planned {
-            display: none;
-        }
-    </style>
-{% endblock %} 
