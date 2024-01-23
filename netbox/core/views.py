@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden, Http404
+from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django_rq.queues import get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
@@ -27,6 +28,7 @@ from rq.registry import (
 )
 from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
+from utilities.forms import ConfirmationForm
 from utilities.htmx import is_embedded, is_htmx
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
@@ -416,6 +418,49 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
             'dependency_id': job._dependency_id,
             'exc_info': exc_info,
         })
+
+
+class BackgroundTaskDeleteView(UserPassesTestMixin, View):
+    template_name = 'core_background_task_delete.html'
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get(self, request, job_id):
+        if not is_htmx(request):
+            return redirect('home')
+
+        form = ConfirmationForm(initial=request.GET)
+
+        return render(request, 'core/htmx/delete_form.html', {
+            'object_type': 'background task',
+            'object_name': job_id,
+            'form': form,
+            'form_url': reverse('core:background_task_delete', kwargs={'job_id': job_id})
+        })
+
+    def post(self, request, job_id):
+        form = ConfirmationForm(request.POST)
+
+        if form.is_valid():
+            # all the RQ queues should use the same connection
+            config = QUEUES_LIST[0]
+            try:
+                job = RQ_Job.fetch(job_id, connection=get_redis_connection(config['connection_config']),)
+            except NoSuchJobError:
+                raise Http404(_("Job {job_id} not found").format(job_id=job_id))
+
+            queue_index = QUEUES_MAP[job.origin]
+            queue = get_queue_by_index(queue_index)
+
+            # Remove job id from queue and delete the actual job
+            queue.connection.lrem(queue.key, 0, job.id)
+            job.delete()
+            messages.success(request, f'Deleted job {job_id}')
+        else:
+            messages.error(request, f'Error deleting job: {form.errors[0]}')
+
+        return redirect(reverse('core:background_queue_list'))
 
 
 class WorkerDetailView(UserPassesTestMixin, View):

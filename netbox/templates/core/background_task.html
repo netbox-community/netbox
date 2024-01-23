@@ -1,5 +1,6 @@
 {% extends 'generic/object.html' %}
 {% load i18n %}
+{% load buttons %}
 {% load helpers %}
 {% load render_table from django_tables2 %}
 
@@ -13,10 +14,18 @@
 {% block object_identifier %}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% block extra_controls %}{% endblock %}
-    </div>
+  <div class="btn-list mb-2">
+    {% url 'core:background_task_delete' job_id=job.id as delete_url %}
+    {% include "buttons/delete.html" with url=delete_url %}
+    <a href="#"
+      hx-get="{% url 'extras:dashboardwidget_add' %}"
+      hx-target="#htmx-modal-content"
+      data-bs-toggle="modal"
+      data-bs-target="#htmx-modal"
+      class="btn btn-primary"
+    >
+      <i class="mdi mdi-sync"></i> {% trans "Requeue" %}
+    </a>
   </div>
 {% endblock controls %}
 
