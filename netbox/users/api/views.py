@@ -5,6 +5,7 @@ from django.contrib.auth.models import Group
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema
 from drf_spectacular.types import OpenApiTypes
+from rest_framework.decorators import action
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -15,7 +16,7 @@ from rest_framework.viewsets import ViewSet
 
 from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
-from users.models import ObjectPermission, Token, UserConfig
+from users.models import ObjectPermission, Token, UserConfig, NetBoxUser
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge
 from . import serializers
@@ -32,6 +33,12 @@ class UsersRootView(APIRootView):
 #
 # Users and groups
 #
+
+class NetBoxUserViewSet(NetBoxModelViewSet):
+    queryset = RestrictedQuerySet(model=NetBoxUser).prefetch_related('groups').order_by('username')
+    serializer_class = serializers.UserSerializer
+    filterset_class = filtersets.UserFilterSet
+
 
 class UserViewSet(NetBoxModelViewSet):
     queryset = RestrictedQuerySet(model=get_user_model()).prefetch_related('groups').order_by('username')

@@ -9,6 +9,7 @@ router.APIRootView = views.UsersRootView
 
 # Users and groups
 router.register('users', views.UserViewSet)
+router.register('netboxusers', views.NetBoxUserViewSet)
 router.register('groups', views.GroupViewSet)
 
 # Tokens
