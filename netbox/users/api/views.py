@@ -15,7 +15,7 @@ from rest_framework.viewsets import ViewSet
 
 from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
-from users.models import ObjectPermission, Token, UserConfig, NetBoxUser
+from users.models import ObjectPermission, Token, UserConfig
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge
 from . import serializers
@@ -34,7 +34,7 @@ class UsersRootView(APIRootView):
 #
 
 class UserViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=NetBoxUser).prefetch_related('groups').order_by('username')
+    queryset = RestrictedQuerySet(model=get_user_model()).prefetch_related('groups').order_by('username')
     serializer_class = serializers.UserSerializer
     filterset_class = filtersets.UserFilterSet
 
