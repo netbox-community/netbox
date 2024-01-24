@@ -5,7 +5,6 @@ from django.urls import reverse
 
 from dcim.models import Site
 from dcim.tables import SiteTable
-from users.models import NetBoxUser
 from users.preferences import UserPreference
 from utilities.testing import TestCase
 
@@ -15,6 +14,9 @@ DEFAULT_USER_PREFERENCES = {
         'per_page': 250,
     }
 }
+
+
+User = get_user_model()
 
 
 class UserPreferencesTest(TestCase):
@@ -40,7 +42,7 @@ class UserPreferencesTest(TestCase):
 
     @override_settings(DEFAULT_USER_PREFERENCES=DEFAULT_USER_PREFERENCES)
     def test_default_preferences(self):
-        user = NetBoxUser.objects.create(username='User 1')
+        user = User.objects.create(username='User 1')
         userconfig = user.config
 
         self.assertEqual(userconfig.data, DEFAULT_USER_PREFERENCES)
