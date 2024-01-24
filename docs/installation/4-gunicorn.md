@@ -58,3 +58,6 @@ You should see output similar to the following:
     If the NetBox service fails to start, issue the command `journalctl -eu netbox` to check for log messages that may indicate the problem.
 
 Once you've verified that the WSGI workers are up and running, move on to HTTP server setup.
+
+!!! note
+    There is a bug in the current stable release of gunicorn that NetBox ships with (v21.2.0) which can cause 502 errors when multiple sequential requests are sent to gunicorn.  If you encounter this problem you can downgrade gunicorn via the command `pip install gunicorn==20.1.0`.  Note however that this will remove support for python 3.11.  More information on this gunicorn bug can be found at https://github.com/benoitc/gunicorn/issues/3038
