@@ -1359,6 +1359,10 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
         to_field_name='name',
         help_text='Assigned tenant'
     )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=VirtualDeviceContextStatusChoices,
+    )
 
     class Meta:
         fields = [
