@@ -1,0 +1,59 @@
+{% extends 'base/layout.html' %}
+
+{% block content %}
+  <h3>Tom select</h3>
+
+  <select type="text" class="form-select" id="select-site" placeholder="Select a site..." autocomplete="off">
+  </select>
+
+
+
+  <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
+  <script>
+
+
+new TomSelect('#select-site',{
+		valueField: 'id',
+		labelField: 'name',
+		searchField: 'name',
+    copyClassesToDropdown: false,
+    dropdownParent: 'body',
+    controlInput: '<input>',
+    preload: 'focus',
+		// fetch remote data
+		load: function(query, callback) {
+
+			var url = '/api/dcim/sites/?q=' + encodeURIComponent(query);
+			fetch(url)
+				.then(response => response.json())
+				.then(json => {
+					callback(json.results);
+				}).catch(()=>{
+					callback();
+				});
+
+		},
+		// custom rendering functions for options and items
+		render: {
+			option: function(item, escape) {
+				return `<div class="py-2 d-flex">
+							<div>
+								<div class="mb-1">
+									<span class="h4">${ escape(item.name) }</span>
+                  <span class="text-muted">${ escape(item.tenant.name) }</span>
+								</div>
+						 		<div class="description">${ escape(item.description) }</div>
+							</div>
+						</div>`;
+			},
+			item: function(item, escape) {
+				return `<div>
+                  ${ escape(item.name) }
+						</div>`;
+			}
+		},
+	});
+
+
+  </script>
+{% endblock content %}

@@ -136,4 +136,7 @@ urlpatterns = [
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),
+
+    # Testing
+    path('tom-select/', views.TomSelectView.as_view(), name="tom_select"),
 ]

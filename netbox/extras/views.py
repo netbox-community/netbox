@@ -30,6 +30,13 @@ from .reports import run_report
 from .scripts import run_script
 
 
+class TomSelectView(View):
+
+    def get(self, request):
+        return render(request, 'extras/tom_select.html', {
+        })
+
+
 #
 # Custom fields
 #
