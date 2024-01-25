@@ -47,12 +47,18 @@ class DataFileSerializer(NetBoxModelSerializer):
     source = NestedDataSourceSerializer(
         read_only=True
     )
+    data = serializers.SerializerMethodField(
+        read_only=True
+    )
 
     class Meta:
         model = DataFile
         fields = [
-            'id', 'url', 'display', 'source', 'path', 'last_updated', 'size', 'hash',
+            'id', 'url', 'display', 'source', 'path', 'last_updated', 'size', 'hash', 'data'
         ]
+
+    def get_data(self, obj):
+        return obj.data_as_string
 
 
 class JobSerializer(BaseModelSerializer):
