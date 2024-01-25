@@ -8,13 +8,17 @@
 
 ### Bug Fixes
 
+* [#14511](https://github.com/netbox-community/netbox/issues/14511) - Fix GraphQL support for interfaces connected to provider networks
 * [#14572](https://github.com/netbox-community/netbox/issues/14572) - Correct the number of jobs listed for individual report & script modules
+* [#14703](https://github.com/netbox-community/netbox/issues/14703) - Revert to the default layout when encountering a misconfigured dashboard
 * [#14755](https://github.com/netbox-community/netbox/issues/14755) - Fix validation of choice values & labels when creating a custom field choice set via the REST API
+* [#14838](https://github.com/netbox-community/netbox/issues/14838) - Avoid corrupting JSON data when changing the action type while editing an event rule
 * [#14847](https://github.com/netbox-community/netbox/issues/14847) - IKE policy mode may be set inly when IKEv1 is selected
 * [#14851](https://github.com/netbox-community/netbox/issues/14851) - Automatically remove any associated bookmarks when deleting a user
 * [#14879](https://github.com/netbox-community/netbox/issues/14879) - Include custom fields in REST API representation of data sources
 * [#14885](https://github.com/netbox-community/netbox/issues/14885) - Add missing "group" field to VPN tunnel creation form
 * [#14892](https://github.com/netbox-community/netbox/issues/14892) - Fix exception when running report/script via command line due to missing username
+* [#14920](https://github.com/netbox-community/netbox/issues/14920) - Include button to display available status choices when bulk importing virtual device contexts
 
 ---
 
