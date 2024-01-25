@@ -60,4 +60,4 @@ You should see output similar to the following:
 Once you've verified that the WSGI workers are up and running, move on to HTTP server setup.
 
 !!! note
-    There is a bug in the current stable release of gunicorn that NetBox ships with (v21.2.0) which can cause 502 errors when multiple sequential requests are sent to gunicorn.  If you encounter this problem you can downgrade gunicorn via the command `pip install gunicorn==20.1.0`.  Note however that this will remove support for python 3.11.  More information on this gunicorn bug can be found at https://github.com/benoitc/gunicorn/issues/3038
+    There is a bug in the current stable release of gunicorn (v21.2.0) where automatic restarts of the worker processes can result in 502 errors under heavy load. (See [gunicorn bug #3038](https://github.com/benoitc/gunicorn/issues/3038) for more detail.) Users who encounter this issue may opt to downgrade to an earlier, unaffected release of gunicorn (`pip install gunicorn==20.1.0`). Note, however, that this earlier release does not officially support Python 3.11.
