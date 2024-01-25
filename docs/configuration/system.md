@@ -73,14 +73,6 @@ Determines if localization features are enabled or not. This should only be enab
 
 ---
 
-## GIT_PATH
-
-Default: `git`
-
-The system path to the `git` executable, used by the synchronization backend for remote git repositories.
-
----
-
 ## HTTP_PROXIES
 
 Default: None
