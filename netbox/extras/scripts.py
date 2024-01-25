@@ -10,6 +10,7 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
+from django.utils import timezone
 from django.utils.functional import classproperty
 
 from core.choices import JobStatusChoices
@@ -257,7 +258,7 @@ class IPNetworkVar(ScriptVariable):
 # Scripts
 #
 
-class BaseScript:
+class BaseScript(object):
     """
     Base model for custom scripts. User classes should inherit from this model if they want to extend Script
     functionality for use in other subclasses.
@@ -270,6 +271,9 @@ class BaseScript:
         pass
 
     def __init__(self):
+        self._results = {}
+        self.failed = False
+        self._current_method = 'main'
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
@@ -278,9 +282,26 @@ class BaseScript:
         # Declare the placeholder for the current request
         self.request = None
 
-        # Grab some info about the script
-        self.filename = inspect.getfile(self.__class__)
-        self.source = inspect.getsource(self.__class__)
+        # Compile test methods and initialize results skeleton
+        self._results['main'] = {
+            'success': 0,
+            'info': 0,
+            'warning': 0,
+            'failure': 0,
+            'log': [],
+        }
+        test_methods = []
+        for method in dir(self):
+            if method.startswith('test_') and callable(getattr(self, method)):
+                test_methods.append(method)
+                self._results[method] = {
+                    'success': 0,
+                    'info': 0,
+                    'warning': 0,
+                    'failure': 0,
+                    'log': [],
+                }
+        self.test_methods = test_methods
 
     def __str__(self):
         return self.name
@@ -330,6 +351,21 @@ class BaseScript:
     @classproperty
     def scheduling_enabled(self):
         return getattr(self.Meta, 'scheduling_enabled', True)
+
+    @property
+    def filename(self):
+        return inspect.getfile(self.__class__)
+
+    @property
+    def source(self):
+        return inspect.getsource(self.__class__)
+
+    @property
+    def is_valid(self):
+        """
+        Indicates whether the report can be run.
+        """
+        return bool(self.test_methods)
 
     @classmethod
     def _get_vars(cls):
@@ -399,25 +435,53 @@ class BaseScript:
 
     # Logging
 
-    def log_debug(self, message):
-        self.logger.log(logging.DEBUG, message)
-        self.log.append((LogLevelChoices.LOG_DEFAULT, str(message)))
+    def _log(self, message, obj=None, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.INFO):
+        """
+        Log a message from a test method. Do not call this method directly; use one of the log_* wrappers below.
+        """
+        if log_level not in LogLevelChoices.values():
+            raise Exception(f"Unknown logging level: {log_level}")
 
-    def log_success(self, message):
-        self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LogLevelChoices.LOG_SUCCESS, str(message)))
+        if message:
+            self._results[self._current_method]['log'].append((
+                timezone.now().isoformat(),
+                log_level,
+                str(obj) if obj else None,
+                obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
+                message,
+            ))
 
-    def log_info(self, message):
-        self.logger.log(logging.INFO, message)
-        self.log.append((LogLevelChoices.LOG_INFO, str(message)))
+        if log_level != LogLevelChoices.LOG_DEFAULT:
+            self._results[self._current_method][log_level] += 1
 
-    def log_warning(self, message):
-        self.logger.log(logging.WARNING, message)
-        self.log.append((LogLevelChoices.LOG_WARNING, str(message)))
+            if self._current_method != 'main':
+                self._results['main'][log_level] += 1
 
-    def log_failure(self, message):
-        self.logger.log(logging.ERROR, message)
-        self.log.append((LogLevelChoices.LOG_FAILURE, str(message)))
+        if obj:
+            self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
+        else:
+            self.logger.log(level, message)  # No syslog equivalent for SUCCESS
+
+    def log(self, message):
+        """
+        Log a message which is not associated with a particular object.
+        """
+        self._log(str(message), None, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.INFO)
+
+    def log_debug(self, message, obj=None):
+        self._log(str(message), obj, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.DEBUG)
+
+    def log_success(self, message=None, obj=None):
+        self._log(str(message), obj, log_level=LogLevelChoices.LOG_SUCCESS, level=logging.INFO)
+
+    def log_info(self, message, obj=None):
+        self._log(str(message), obj, log_level=LogLevelChoices.LOG_INFO, level=logging.INFO)
+
+    def log_warning(self, message, obj=None):
+        self._log(str(message), obj, log_level=LogLevelChoices.LOG_WARNING, level=logging.WARNING)
+
+    def log_failure(self, message, obj=None):
+        self._log(str(message), obj, log_level=LogLevelChoices.LOG_FAILURE, level=logging.ERROR)
 
     # Convenience functions
 
@@ -445,6 +509,51 @@ class BaseScript:
             data = json.load(datafile)
 
         return data
+
+    def run_test_scripts(self, job):
+        """
+        Run the report and save its results. Each test method will be executed in order.
+        """
+        self.logger.info(f"Running report")
+
+        # Perform any post-run tasks
+        self.pre_run()
+
+        try:
+            for method_name in self.test_methods:
+                self._current_method = method_name
+                test_method = getattr(self, method_name)
+                test_method()
+            job.data = self._results
+            if self.failed:
+                self.logger.warning("Report failed")
+                job.terminate(status=JobStatusChoices.STATUS_FAILED)
+            else:
+                self.logger.info("Report completed successfully")
+                job.terminate()
+        except Exception as e:
+            stacktrace = traceback.format_exc()
+            self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
+            logger.error(f"Exception raised during report execution: {e}")
+            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
+
+        # Perform any post-run tasks
+        self.post_run()
+
+    def run(self, job):
+        self.run_test_scripts(job)
+
+    def pre_run(self):
+        """
+        Extend this method to include any tasks which should execute *before* the report is run.
+        """
+        pass
+
+    def post_run(self):
+        """
+        Extend this method to include any tasks which should execute *after* the report is run.
+        """
+        pass
 
 
 class Script(BaseScript):
