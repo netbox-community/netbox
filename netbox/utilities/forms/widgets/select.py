@@ -36,7 +36,7 @@ class ColorSelect(forms.Select):
     def __init__(self, *args, **kwargs):
         kwargs['choices'] = add_blank_choice(ColorChoices)
         super().__init__(*args, **kwargs)
-        self.attrs['class'] = 'netbox-color-select'
+        self.attrs['class'] = 'color-select'
 
 
 class HTMXSelect(forms.Select):

@@ -2,7 +2,7 @@ import { initForms } from './forms';
 import { initBootstrap } from './bs';
 import { initQuickSearch } from './search';
 // import { initSelect } from './select';
-import { initTomSelect } from './tomSelect';
+import { initSelects } from './tomSelect';
 import { initButtons } from './buttons';
 import { initColorMode } from './colorMode';
 import { initMessages } from './messages';
@@ -24,7 +24,7 @@ function initDocument(): void {
     initForms,
     initQuickSearch,
     // initSelect,
-    initTomSelect,
+    initSelects,
     initDateSelector,
     initButtons,
     initClipboard,

@@ -1,15 +1,18 @@
 import { getElements } from './util';
+import { TomOption } from 'tom-select/src/types';
 import TomSelect from 'tom-select';
 
-export function initTomSelect(): void {
+function initStaticSelects(): void {
 
-  // Static selects
-  for (const select of getElements<HTMLSelectElement>('select:not(.api-select)')) {
+  for (const select of getElements<HTMLSelectElement>('select:not(.api-select):not(.color-select)')) {
     new TomSelect(select, {});
   }
 
-  // API selects
-  for (const select of getElements<HTMLSelectElement>('.api-select')) {
+}
+
+function initDynamicSelects(): void {
+
+  for (const select of getElements<HTMLSelectElement>('select.api-select')) {
     const api_url = select.getAttribute('data-url') as string;
     new TomSelect(select, {
       valueField: 'id',
@@ -19,9 +22,8 @@ export function initTomSelect(): void {
       dropdownParent: 'body',
       controlInput: '<input>',
       preload: 'focus',
-      load: function(query, callback) {
-        var url = api_url + '?brief=True&q=' + encodeURIComponent(query);
-        console.log(url);
+      load: function(query: string, callback: Function) {
+        let url = api_url + '?brief=True&q=' + encodeURIComponent(query);
         fetch(url)
             .then(response => response.json())
             .then(json => {
@@ -33,4 +35,24 @@ export function initTomSelect(): void {
 	});
   }
 
+}
+
+function initColorSelects(): void {
+
+  for (const select of getElements<HTMLSelectElement>('select.color-select')) {
+    new TomSelect(select, {
+      render: {
+        option: function(item: TomOption, escape: Function) {
+          return `<div style="background-color: #${escape(item.value)}">${escape(item.text)}</div>`;
+        }
+      }
+    });
+  }
+
+}
+
+export function initSelects(): void {
+  initStaticSelects();
+  initDynamicSelects();
+  initColorSelects();
 }
