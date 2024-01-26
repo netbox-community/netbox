@@ -5,7 +5,9 @@ import TomSelect from 'tom-select';
 function initStaticSelects(): void {
 
   for (const select of getElements<HTMLSelectElement>('select:not(.api-select):not(.color-select)')) {
-    new TomSelect(select, {});
+    new TomSelect(select, {
+      plugins: ['clear_button']
+    });
   }
 
 }
@@ -15,6 +17,7 @@ function initDynamicSelects(): void {
   for (const select of getElements<HTMLSelectElement>('select.api-select')) {
     const api_url = select.getAttribute('data-url') as string;
     new TomSelect(select, {
+      plugins: ['clear_button'],
       valueField: 'id',
       labelField: 'display',
       searchField: ['name'],
