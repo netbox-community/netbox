@@ -3,12 +3,13 @@ import logging
 from functools import cached_property
 
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.choices import ManagedFileRootPathChoices
 from core.models import ManagedFile
-from extras.utils import is_script
+from extras.utils import is_script_or_report
 from netbox.models.features import JobsMixin, EventRulesMixin
 from utilities.querysets import RestrictedQuerySet
 from .mixins import PythonModuleMixin
@@ -32,7 +33,8 @@ class Script(EventRulesMixin, models.Model):
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
     def get_queryset(self):
-        return super().get_queryset().filter(file_root=ManagedFileRootPathChoices.SCRIPTS)
+        return super().get_queryset().filter(
+            Q(file_root=ManagedFileRootPathChoices.SCRIPTS) | Q(file_root=ManagedFileRootPathChoices.REPORTS))
 
 
 class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
@@ -70,7 +72,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
         for cls in ordered:
             scripts[_get_name(cls)] = cls
-        for name, cls in inspect.getmembers(module, is_script):
+        for name, cls in inspect.getmembers(module, is_script_or_report):
             if cls not in ordered:
                 scripts[_get_name(cls)] = cls
 

@@ -67,3 +67,15 @@ def is_report(obj):
         return issubclass(obj, Report) and obj != Report
     except TypeError:
         return False
+
+
+def is_script_or_report(obj):
+    """
+    Returns True if the given object is a Report.
+    """
+    from .reports import Report
+    from .scripts import Script
+    try:
+        return ((issubclass(obj, Report) and obj != Report) or (issubclass(obj, Script) and obj != Script))
+    except TypeError:
+        return False
