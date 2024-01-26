@@ -271,8 +271,8 @@ class BaseScript(object):
 
     def __init__(self):
         self._logs = {}
-        self.failed = False
-        self._current_method = 'total'
+        self._failed = False
+        self._current_method = 'totals'
         self._output = ''
 
         # Initiate the log
@@ -283,7 +283,7 @@ class BaseScript(object):
         self.request = None
 
         # Compile test methods and initialize results skeleton
-        self._logs['total'] = {
+        self._logs['totals'] = {
             'success': 0,
             'info': 0,
             'warning': 0,
@@ -454,8 +454,8 @@ class BaseScript(object):
         if log_level != LogLevelChoices.LOG_DEFAULT:
             self._logs[self._current_method][log_level] += 1
 
-            if self._current_method != 'total':
-                self._logs['total'][log_level] += 1
+            if self._current_method != 'totals':
+                self._logs['totals'][log_level] += 1
 
         if obj:
             self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
@@ -482,6 +482,7 @@ class BaseScript(object):
 
     def log_failure(self, message, obj=None):
         self._log(str(message), obj, log_level=LogLevelChoices.LOG_FAILURE, level=logging.ERROR)
+        self._failed = True
 
     # Convenience functions
 
@@ -524,23 +525,17 @@ class BaseScript(object):
                 self._current_method = method_name
                 test_method = getattr(self, method_name)
                 test_method()
-            if self.failed:
-                self.logger.warning("Report failed")
-                job.terminate(status=JobStatusChoices.STATUS_FAILED)
-            else:
-                self.logger.info("Report completed successfully")
-                job.terminate()
         except Exception as e:
-            stacktrace = traceback.format_exc()
-            self.log_failure(None, f"An exception occurred: {type(e).__name__}: {e} <pre>{stacktrace}</pre>")
-            logger.error(f"Exception raised during report execution: {e}")
-            job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
+            self.post_run()
+            self._current_method = 'totals'
+            raise e
 
         # Perform any post-run tasks
         self.post_run()
+        self._current_method = 'totals'
 
-    def run(self, data, commit, job):
-        self.run_test_scripts(job)
+    def run(self, data, commit):
+        self.run_test_scripts()
 
     def pre_run(self):
         """
@@ -655,6 +650,16 @@ def run_script(data, job, request=None, commit=True, **kwargs):
 
         return fn(**kwargs)
 
+    def set_job_data(job, script):
+        logs = script._logs
+        totals = logs.pop('totals')
+        job.data = {
+            'logs': logs,
+            'totals': totals,
+            'output': script._output,
+        }
+        return job
+
     def _run_script():
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
@@ -663,18 +668,19 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         try:
             try:
                 with transaction.atomic():
-                    script._output = call_with_appropriate(script.run, kwargs={'data': data, 'commit': commit, 'job': job})
+                    script._output = script.run(data, commit)
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
                 call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted automatically."})
                 if request:
                     clear_events.send(request)
-            job.data = {
-                'logs': script._logs,
-                'output': script._output,
-            }
-            job.terminate()
+            job = set_job_data(job, script)
+            if script._failed:
+                logger.warning(f"Script failed")
+                job.terminate(status=JobStatusChoices.STATUS_FAILED)
+            else:
+                job.terminate()
         except Exception as e:
             if type(e) is AbortScript:
                 call_with_appropriate(script.log_failure, kwargs={'message': f"Script aborted with error: {e}"})
@@ -684,10 +690,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                 call_with_appropriate(script.log_failure, kwargs={'message': f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"})
                 logger.error(f"Exception raised during script execution: {e}")
             call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted due to error."})
-            job.data = {
-                'logs': script._logs,
-                'output': script._output,
-            }
+            job = set_job_data(job, script)
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
                 clear_events.send(request)
