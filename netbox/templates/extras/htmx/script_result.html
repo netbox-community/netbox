@@ -19,7 +19,7 @@
   <div class="card">
     <h5 class="card-header">{% trans "Script Methods" %}</h5>
     <table class="table table-hover">
-      {% for method, data in job.data.items %}
+      {% for method, data in job.data.logs.items %}
         <tr>
           <td class="font-monospace"><a href="#{{ method }}">{{ method }}</a></td>
           <td class="text-end script-stats">
@@ -44,30 +44,32 @@
         </tr>
       </thead>
       <tbody>
-        {% for method, data in job.data.items %}
-          <tr>
-            <th colspan="4" style="font-family: monospace">
-              <a name="{{ method }}"></a>{{ method }}
-            </th>
-          </tr>
-          {% for time, level, obj, url, message in data.log %}
-            <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
-              <td>{{ time }}</td>
-              <td>
-                <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
-              </td>
-              <td>
-                {% if obj and url %}
-                  <a href="{{ url }}">{{ obj }}</a>
-                {% elif obj %}
-                  {{ obj }}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-              <td class="rendered-markdown">{{ message|markdown }}</td>
+        {% for method, data in job.data.logs.items %}
+          {% if method != 'total' %}
+            <tr>
+              <th colspan="4" style="font-family: monospace">
+                <a name="{{ method }}"></a>{{ method }}
+              </th>
             </tr>
-          {% endfor %}
+            {% for time, level, obj, url, message in data.log %}
+              <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
+                <td>{{ time }}</td>
+                <td>
+                  <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
+                </td>
+                <td>
+                  {% if obj and url %}
+                    <a href="{{ url }}">{{ obj }}</a>
+                  {% elif obj %}
+                    {{ obj }}
+                  {% else %}
+                    {{ ''|placeholder }}
+                  {% endif %}
+                </td>
+                <td class="rendered-markdown">{{ message|markdown }}</td>
+              </tr>
+            {% endfor %}
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>

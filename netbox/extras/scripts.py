@@ -15,7 +15,6 @@ from django.utils.functional import classproperty
 
 from core.choices import JobStatusChoices
 from core.models import Job
-from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import LogLevelChoices
 from extras.models import ScriptModule
 from extras.signals import clear_events
@@ -271,9 +270,10 @@ class BaseScript(object):
         pass
 
     def __init__(self):
-        self._results = {}
+        self._logs = {}
         self.failed = False
         self._current_method = 'total'
+        self._output = ''
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
@@ -283,7 +283,7 @@ class BaseScript(object):
         self.request = None
 
         # Compile test methods and initialize results skeleton
-        self._results['total'] = {
+        self._logs['total'] = {
             'success': 0,
             'info': 0,
             'warning': 0,
@@ -294,7 +294,7 @@ class BaseScript(object):
         for method in dir(self):
             if method.startswith('test_') and callable(getattr(self, method)):
                 test_methods.append(method)
-                self._results[method] = {
+                self._logs[method] = {
                     'success': 0,
                     'info': 0,
                     'warning': 0,
@@ -443,7 +443,7 @@ class BaseScript(object):
             raise Exception(f"Unknown logging level: {log_level}")
 
         if message:
-            self._results[self._current_method]['log'].append((
+            self._logs[self._current_method]['log'].append((
                 timezone.now().isoformat(),
                 log_level,
                 str(obj) if obj else None,
@@ -452,10 +452,10 @@ class BaseScript(object):
             ))
 
         if log_level != LogLevelChoices.LOG_DEFAULT:
-            self._results[self._current_method][log_level] += 1
+            self._logs[self._current_method][log_level] += 1
 
             if self._current_method != 'total':
-                self._results['total'][log_level] += 1
+                self._logs['total'][log_level] += 1
 
         if obj:
             self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
@@ -471,7 +471,7 @@ class BaseScript(object):
     def log_debug(self, message, obj=None):
         self._log(str(message), obj, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.DEBUG)
 
-    def log_success(self, message=None, obj=None):
+    def log_success(self, message, obj=None):
         self._log(str(message), obj, log_level=LogLevelChoices.LOG_SUCCESS, level=logging.INFO)
 
     def log_info(self, message, obj=None):
@@ -524,7 +524,6 @@ class BaseScript(object):
                 self._current_method = method_name
                 test_method = getattr(self, method_name)
                 test_method()
-            job.data = self._results
             if self.failed:
                 self.logger.warning("Report failed")
                 job.terminate(status=JobStatusChoices.STATUS_FAILED)
@@ -540,7 +539,7 @@ class BaseScript(object):
         # Perform any post-run tasks
         self.post_run()
 
-    def run(self, job):
+    def run(self, data, commit, job):
         self.run_test_scripts(job)
 
     def pre_run(self):
@@ -609,6 +608,53 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     # Add the current request as a property of the script
     script.request = request
 
+    def signature(fn):
+        """
+        Taken from django.tables2 (https://github.com/jieter/django-tables2/blob/master/django_tables2/utils.py)
+        Returns:
+            tuple: Returns a (arguments, kwarg_name)-tuple:
+                 - the arguments (positional or keyword)
+                 - the name of the ** kwarg catch all.
+
+        The self-argument for methods is always removed.
+        """
+
+        signature = inspect.signature(fn)
+
+        args = []
+        keywords = None
+        for arg in signature.parameters.values():
+            if arg.kind == arg.VAR_KEYWORD:
+                keywords = arg.name
+            elif arg.kind == arg.VAR_POSITIONAL:
+                continue  # skip *args catch-all
+            else:
+                args.append(arg.name)
+
+        return tuple(args), keywords
+
+    def call_with_appropriate(fn, kwargs):
+        """
+        Taken from django.tables2 (https://github.com/jieter/django-tables2/blob/master/django_tables2/utils.py)
+        Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
+
+        If the kwargs argument is defined, pass all arguments, else provide exactly
+        the arguments wanted.
+
+        If one of the arguments of ``fn`` are not contained in kwargs, ``fn`` will not
+        be called and ``None`` will be returned.
+        """
+        args, kwargs_name = signature(fn)
+        # no catch-all defined, we need to exactly pass the arguments specified.
+        if not kwargs_name:
+            kwargs = {key: kwargs[key] for key in kwargs if key in args}
+
+            # if any argument of fn is not in kwargs, just return None
+            if any(arg not in kwargs for arg in args):
+                return None
+
+        return fn(**kwargs)
+
     def _run_script():
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
@@ -617,25 +663,31 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         try:
             try:
                 with transaction.atomic():
-                    script.output = script.run(data=data, commit=commit)
+                    script._output = call_with_appropriate(script.run, kwargs={'data': data, 'commit': commit, 'job': job})
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
-                script.log_info("Database changes have been reverted automatically.")
+                call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted automatically."})
                 if request:
                     clear_events.send(request)
-            job.data = ScriptOutputSerializer(script).data
+            job.data = {
+                'logs': script._logs,
+                'output': script._output,
+            }
             job.terminate()
         except Exception as e:
             if type(e) is AbortScript:
-                script.log_failure(f"Script aborted with error: {e}")
+                call_with_appropriate(script.log_failure, kwargs={'message': f"Script aborted with error: {e}"})
                 logger.error(f"Script aborted with error: {e}")
             else:
                 stacktrace = traceback.format_exc()
-                script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
+                call_with_appropriate(script.log_failure, kwargs={'message': f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"})
                 logger.error(f"Exception raised during script execution: {e}")
-            script.log_info("Database changes have been reverted due to error.")
-            job.data = ScriptOutputSerializer(script).data
+            call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted due to error."})
+            job.data = {
+                'logs': script._logs,
+                'output': script._output,
+            }
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
                 clear_events.send(request)

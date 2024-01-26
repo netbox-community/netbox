@@ -317,14 +317,8 @@ CUSTOMIZATION_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Reports & Scripts'),
+            label=_('Scripts'),
             items=(
-                MenuItem(
-                    link='extras:report_list',
-                    link_text=_('Reports'),
-                    permissions=['extras.view_report'],
-                    buttons=get_model_buttons('extras', "reportmodule", actions=['add'])
-                ),
                 MenuItem(
                     link='extras:script_list',
                     link_text=_('Scripts'),
