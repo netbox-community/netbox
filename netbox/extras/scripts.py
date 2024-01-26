@@ -273,7 +273,7 @@ class BaseScript(object):
     def __init__(self):
         self._results = {}
         self.failed = False
-        self._current_method = 'main'
+        self._current_method = 'total'
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
@@ -283,7 +283,7 @@ class BaseScript(object):
         self.request = None
 
         # Compile test methods and initialize results skeleton
-        self._results['main'] = {
+        self._results['total'] = {
             'success': 0,
             'info': 0,
             'warning': 0,
@@ -454,8 +454,8 @@ class BaseScript(object):
         if log_level != LogLevelChoices.LOG_DEFAULT:
             self._results[self._current_method][log_level] += 1
 
-            if self._current_method != 'main':
-                self._results['main'][log_level] += 1
+            if self._current_method != 'total':
+                self._results['total'][log_level] += 1
 
         if obj:
             self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
