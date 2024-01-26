@@ -134,15 +134,11 @@ class ConditionSet:
         if type(ruleset) is not dict:
             raise ValueError(f"Ruleset must be a dictionary, not {type(ruleset)}.")
 
-        self.logic = None
-
-        # If logic type use it, else return the ruleset
         if len(ruleset) == 1:
-            logic = list(ruleset.keys())[0]
-            if logic not in (AND, OR):
+            self.logic = (list(ruleset.keys())[0]).lower()
+            if self.logic not in (AND, OR):
                 raise ValueError(
-                    f"Invalid logic type: {logic} (must be '{AND}' or '{OR}'). Please check documentation.")
-            self.logic = logic.lower()
+                    f"Invalid logic type: {self.logic} (must be '{AND}' or '{OR}'). Please check documentation.")
 
             # Compile the set of Conditions
             self.conditions = [
@@ -151,6 +147,7 @@ class ConditionSet:
             ]
         else:
             try:
+                self.logic = None
                 self.conditions = [Condition(**ruleset)]
             except TypeError:
                 raise ValueError(f"Incorrect key(s) informed. Please check documentation.")
