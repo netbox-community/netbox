@@ -25,7 +25,6 @@ class BulkEditNullBooleanSelect(forms.NullBooleanSelect):
             ('2', 'Yes'),
             ('3', 'No'),
         )
-        self.attrs['class'] = 'netbox-static-select'
 
 
 class ColorSelect(forms.Select):
