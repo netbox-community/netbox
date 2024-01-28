@@ -727,7 +727,7 @@ class PowerOutletImportForm(NetBoxModelImportForm):
         help_text=_('Local power port which feeds this outlet')
     )
     feed_leg = CSVChoiceField(
-        label=_('Feed lag'),
+        label=_('Feed leg'),
         choices=PowerOutletFeedLegChoices,
         required=False,
         help_text=_('Electrical phase (for three-phase circuits)')
