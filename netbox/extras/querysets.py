@@ -120,17 +120,14 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
         if self.model._meta.model_name == 'device':
             base_query.add((Q(locations=OuterRef('location')) | Q(locations=None)), Q.AND)
             base_query.add((Q(device_types=OuterRef('device_type')) | Q(device_types=None)), Q.AND)
-            base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
-            base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
-            region_field = 'site__region'
-            sitegroup_field = 'site__group'
 
         elif self.model._meta.model_name == 'virtualmachine':
-            base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
-            base_query.add((Q(sites=OuterRef('cluster__site')) | Q(sites=None)), Q.AND)
             base_query.add(Q(device_types=None), Q.AND)
-            region_field = 'cluster__site__region'
-            sitegroup_field = 'cluster__site__group'
+
+        base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
+        base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
+        region_field = 'site__region'
+        sitegroup_field = 'site__group'
 
         base_query.add(
             (Q(

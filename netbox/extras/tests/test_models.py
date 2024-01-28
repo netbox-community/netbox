@@ -270,7 +270,12 @@ class ConfigContextTest(TestCase):
         tag = Tag.objects.first()
         cluster_type = ClusterType.objects.create(name="Cluster Type")
         cluster_group = ClusterGroup.objects.create(name="Cluster Group")
-        cluster = Cluster.objects.create(name="Cluster", group=cluster_group, type=cluster_type)
+        cluster = Cluster.objects.create(
+            name="Cluster",
+            group=cluster_group,
+            type=cluster_type,
+            site=site,
+        )
 
         region_context = ConfigContext.objects.create(
             name="region",
@@ -352,6 +357,106 @@ class ConfigContextTest(TestCase):
         virtual_machine.tags.add(tag)
 
         annotated_queryset = VirtualMachine.objects.filter(name=virtual_machine.name).annotate_config_context_data()
+        self.assertEqual(virtual_machine.get_config_context(), annotated_queryset[0].get_config_context())
+
+    def test_annotation_same_as_get_for_object_virtualmachine_relations_direct_site(self):
+        region = Region.objects.first()
+        sitegroup = SiteGroup.objects.first()
+        site = Site.objects.first()
+        platform = Platform.objects.first()
+        tenantgroup = TenantGroup.objects.first()
+        tenant = Tenant.objects.first()
+        tag = Tag.objects.first()
+        cluster_type = ClusterType.objects.create(name="Cluster Type")
+        cluster_group = ClusterGroup.objects.create(name="Cluster Group")
+        cluster = Cluster.objects.create(
+            name="Cluster",
+            group=cluster_group,
+            type=cluster_type,
+            site=site,
+        )
+
+        region_context = ConfigContext.objects.create(
+            name="region",
+            weight=100,
+            data={"region": 1}
+        )
+        region_context.regions.add(region)
+
+        sitegroup_context = ConfigContext.objects.create(
+            name="sitegroup",
+            weight=100,
+            data={"sitegroup": 1}
+        )
+        sitegroup_context.site_groups.add(sitegroup)
+
+        site_context = ConfigContext.objects.create(
+            name="site",
+            weight=100,
+            data={"site": 1}
+        )
+        site_context.sites.add(site)
+
+        platform_context = ConfigContext.objects.create(
+            name="platform",
+            weight=100,
+            data={"platform": 1}
+        )
+        platform_context.platforms.add(platform)
+
+        tenant_group_context = ConfigContext.objects.create(
+            name="tenant group",
+            weight=100,
+            data={"tenant_group": 1}
+        )
+        tenant_group_context.tenant_groups.add(tenantgroup)
+
+        tenant_context = ConfigContext.objects.create(
+            name="tenant",
+            weight=100,
+            data={"tenant": 1}
+        )
+        tenant_context.tenants.add(tenant)
+
+        tag_context = ConfigContext.objects.create(
+            name="tag",
+            weight=100,
+            data={"tag": 1}
+        )
+        tag_context.tags.add(tag)
+
+        cluster_type_context = ConfigContext.objects.create(
+            name="cluster type",
+            weight=100,
+            data={"cluster_type": 1}
+        )
+        cluster_type_context.cluster_types.add(cluster_type)
+
+        cluster_group_context = ConfigContext.objects.create(
+            name="cluster group",
+            weight=100,
+            data={"cluster_group": 1}
+        )
+        cluster_group_context.cluster_groups.add(cluster_group)
+
+        cluster_context = ConfigContext.objects.create(
+            name="cluster",
+            weight=100,
+            data={"cluster": 1}
+        )
+        cluster_context.clusters.add(cluster)
+
+        virtual_machine = VirtualMachine.objects.create(
+            name="VM 2",
+            site=site,
+            tenant=tenant,
+            platform=platform,
+            role=DeviceRole.objects.first()
+        )
+        virtual_machine.tags.add(tag)
+
+        annotated_queryset = VirtualMachine.objects.filter(name=virtual_machine.name).annotate_config_context_data()
+
         self.assertEqual(virtual_machine.get_config_context(), annotated_queryset[0].get_config_context())
 
     def test_multiple_tags_return_distinct_objects(self):
