@@ -1,15 +1,15 @@
-import { getElements } from './util';
-import { RecursivePartial, TomInput, TomOption, TomSettings } from 'tom-select/src/types';
+import { RecursivePartial, TomInput, TomSettings } from 'tom-select/dist/types/types';
 import { addClasses } from 'tom-select/src/vanilla'
 import queryString from 'query-string';
 import TomSelect from 'tom-select';
 import type { Stringifiable } from 'query-string';
 
 // Transitional
-import { QueryFilter } from './select/api/types'
+import { QueryFilter } from '../../select_old/api/types'
 
 
-class DynamicTomSelect extends TomSelect {
+// Extends TomSelect to provide enhanced fetching of options via the REST API
+export class DynamicTomSelect extends TomSelect {
 
   /*
    * Transitional code from APISelect
@@ -24,6 +24,7 @@ class DynamicTomSelect extends TomSelect {
   constructor( input_arg: string|TomInput, user_settings: RecursivePartial<TomSettings> ) {
     super(input_arg, user_settings);
 
+    // Glean the REST API endpoint URL from the <select> element
     this.api_url = this.input.getAttribute('data-url') as string;
 
     // Populate static query parameters.
@@ -35,6 +36,7 @@ class DynamicTomSelect extends TomSelect {
 
   load(value: string) {
     const self = this;
+    const url = self.getRequestUrl(value);
 
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
@@ -45,16 +47,13 @@ class DynamicTomSelect extends TomSelect {
     addClasses(self.wrapper, self.settings.loadingClass);
     self.loading++;
 
-    const callback = self.loadCallback.bind(self);
-    const url = self.getRequestUrl(value);
-
     // Make the API request
     fetch(url)
       .then(response => response.json())
       .then(json => {
-          callback(json.results);
+          self.loadCallback(json.results, []);
       }).catch(()=>{
-          callback();
+          self.loadCallback([], []);
       });
 
   }
@@ -63,9 +62,7 @@ class DynamicTomSelect extends TomSelect {
    * Custom methods
    */
 
-  /**
-   * Formulate and return the complete URL for an API request, including any query parameters.
-   */
+  // Formulate and return the complete URL for an API request, including any query parameters.
   getRequestUrl(search: string): string {
     const url = this.api_url;
 
@@ -91,13 +88,9 @@ class DynamicTomSelect extends TomSelect {
    * Transitional methods
    */
 
-  /**
-   * Determine if this instance's options should be filtered by static values passed from the
-   * server.
-   *
-   * Looks for the DOM attribute `data-static-params`, the value of which is a JSON array of
-   * objects containing key/value pairs to add to `this.staticParams`.
-   */
+  // Determine if this instance's options should be filtered by static values passed from the
+  // server. Looks for the DOM attribute `data-static-params`, the value of which is a JSON
+  // array of objects containing key/value pairs to add to `this.staticParams`.
   private getStaticParams(): void {
     const serialized = this.input.getAttribute('data-static-params');
 
@@ -121,54 +114,4 @@ class DynamicTomSelect extends TomSelect {
     }
   }
 
-}
-
-// Initialize <select> elements with statically-defined options
-function initStaticSelects(): void {
-
-  for (const select of getElements<HTMLSelectElement>('select:not(.api-select):not(.color-select)')) {
-    new TomSelect(select, {
-      plugins: ['clear_button']
-    });
-  }
-
-}
-
-// Initialize <select> elements which are populated via a REST API call
-function initDynamicSelects(): void {
-
-  for (const select of getElements<HTMLSelectElement>('select.api-select')) {
-    new DynamicTomSelect(select, {
-      plugins: ['clear_button'],
-      valueField: 'id',
-      labelField: 'display',
-      searchField: [],
-      copyClassesToDropdown: false,
-      dropdownParent: 'body',
-      controlInput: '<input>',
-      preload: 'focus',
-	});
-  }
-
-}
-
-// Initialize color selection fields
-function initColorSelects(): void {
-
-  for (const select of getElements<HTMLSelectElement>('select.color-select')) {
-    new TomSelect(select, {
-      render: {
-        option: function(item: TomOption, escape: Function) {
-          return `<div style="background-color: #${escape(item.value)}">${escape(item.text)}</div>`;
-        }
-      }
-    });
-  }
-
-}
-
-export function initSelects(): void {
-  initStaticSelects();
-  initDynamicSelects();
-  initColorSelects();
 }

@@ -1,8 +1,7 @@
 import { initForms } from './forms';
 import { initBootstrap } from './bs';
 import { initQuickSearch } from './search';
-// import { initSelect } from './select';
-import { initSelects } from './tomSelect';
+import { initSelects } from './select';
 import { initButtons } from './buttons';
 import { initColorMode } from './colorMode';
 import { initMessages } from './messages';
@@ -23,7 +22,6 @@ function initDocument(): void {
     initMessages,
     initForms,
     initQuickSearch,
-    // initSelect,
     initSelects,
     initDateSelector,
     initButtons,
