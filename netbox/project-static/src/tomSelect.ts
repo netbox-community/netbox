@@ -2,6 +2,19 @@ import { getElements } from './util';
 import { TomOption } from 'tom-select/src/types';
 import TomSelect from 'tom-select';
 
+
+class DynamicTomSelect extends TomSelect {
+
+  // Override load() to automatically clear any cached options. (Only options included
+  // in the API response should be present.)
+  load(value: string) {
+    this.clearOptions();
+    super.load(value);
+  }
+
+}
+
+// Initialize <select> elements with statically-defined options
 function initStaticSelects(): void {
 
   for (const select of getElements<HTMLSelectElement>('select:not(.api-select):not(.color-select)')) {
@@ -12,15 +25,16 @@ function initStaticSelects(): void {
 
 }
 
+// Initialize <select> elements which are populated via a REST API call
 function initDynamicSelects(): void {
 
   for (const select of getElements<HTMLSelectElement>('select.api-select')) {
     const api_url = select.getAttribute('data-url') as string;
-    new TomSelect(select, {
+    new DynamicTomSelect(select, {
       plugins: ['clear_button'],
       valueField: 'id',
       labelField: 'display',
-      searchField: ['name'],
+      searchField: [],
       copyClassesToDropdown: false,
       dropdownParent: 'body',
       controlInput: '<input>',
@@ -40,6 +54,7 @@ function initDynamicSelects(): void {
 
 }
 
+// Initialize color selection fields
 function initColorSelects(): void {
 
   for (const select of getElements<HTMLSelectElement>('select.color-select')) {
