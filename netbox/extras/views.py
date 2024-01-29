@@ -1163,15 +1163,18 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
         module = job.object
         script = module.scripts[job.name]()
 
-        if 'logs' in job.data:
-            legacy_script = False
-            legacy_report = False
-        elif 'log' in job.data:
-            legacy_script = True
-            legacy_report = False
-        else:
-            legacy_script = False
-            legacy_report = True
+        legacy_script = False
+        legacy_report = False
+        if job.data:
+            if 'logs' in job.data:
+                legacy_script = False
+                legacy_report = False
+            elif 'log' in job.data:
+                legacy_script = True
+                legacy_report = False
+            else:
+                legacy_script = False
+                legacy_report = True
 
         # If this is an HTMX request, return only the result HTML
         if request.htmx:

@@ -272,18 +272,17 @@ class BaseScript(object):
     def __init__(self):
         self._logs = {}
         self._failed = False
-        self._current_method = 'totals'
+        self._current_method = 'unassigned'
         self._output = ''
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
-        self.log = []
 
         # Declare the placeholder for the current request
         self.request = None
 
         # Compile test methods and initialize results skeleton
-        self._logs['totals'] = {
+        self._logs['unassigned'] = {
             'success': 0,
             'info': 0,
             'warning': 0,
@@ -454,8 +453,8 @@ class BaseScript(object):
         if log_level != LogLevelChoices.LOG_DEFAULT:
             self._logs[self._current_method][log_level] += 1
 
-            if self._current_method != 'totals':
-                self._logs['totals'][log_level] += 1
+            if self._current_method != 'unassigned':
+                self._logs['unassigned'][log_level] += 1
 
         if obj:
             self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
@@ -527,12 +526,12 @@ class BaseScript(object):
                 test_method()
         except Exception as e:
             self.post_run()
-            self._current_method = 'totals'
+            self._current_method = 'unassigned'
             raise e
 
         # Perform any post-run tasks
         self.post_run()
-        self._current_method = 'totals'
+        self._current_method = 'unassigned'
 
     def run(self, data, commit):
         self.run_test_scripts()
@@ -650,12 +649,10 @@ def run_script(data, job, request=None, commit=True, **kwargs):
 
         return fn(**kwargs)
 
-    def set_job_data(job, script):
+    def set_job_data(script):
         logs = script._logs
-        totals = logs.pop('totals')
         job.data = {
             'logs': logs,
-            'totals': totals,
             'output': script._output,
         }
         return job
@@ -675,7 +672,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                 call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted automatically."})
                 if request:
                     clear_events.send(request)
-            job = set_job_data(job, script)
+            job = set_job_data(script)
             if script._failed:
                 logger.warning(f"Script failed")
                 job.terminate(status=JobStatusChoices.STATUS_FAILED)
