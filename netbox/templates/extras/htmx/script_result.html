@@ -32,8 +32,11 @@
       {% endfor %}
     </table>
   </div>
+  <h2 class="card-header">{% trans "Script Results" %}</h2>
+
+  {% for method, data in job.data.logs.items %}
   <div class="card">
-    <h5 class="card-header">{% trans "Script Results" %}</h5>
+    <h5 class="card-header"><a name="{{ method }}"></a>{{ method }}</h5>
     <table class="table table-hover script">
       <thead>
         <tr>
@@ -44,36 +47,28 @@
         </tr>
       </thead>
       <tbody>
-        {% for method, data in job.data.logs.items %}
-          {% if method != 'total' %}
-            <tr>
-              <th colspan="4" style="font-family: monospace">
-                <a name="{{ method }}"></a>{{ method }}
-              </th>
+          {% for time, level, obj, url, message in data.log %}
+            <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
+              <td>{{ time }}</td>
+              <td>
+                <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
+              </td>
+              <td>
+                {% if obj and url %}
+                  <a href="{{ url }}">{{ obj }}</a>
+                {% elif obj %}
+                  {{ obj }}
+                {% else %}
+                  {{ ''|placeholder }}
+                {% endif %}
+              </td>
+              <td class="rendered-markdown">{{ message|markdown }}</td>
             </tr>
-            {% for time, level, obj, url, message in data.log %}
-              <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
-                <td>{{ time }}</td>
-                <td>
-                  <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
-                </td>
-                <td>
-                  {% if obj and url %}
-                    <a href="{{ url }}">{{ obj }}</a>
-                  {% elif obj %}
-                    {{ obj }}
-                  {% else %}
-                    {{ ''|placeholder }}
-                  {% endif %}
-                </td>
-                <td class="rendered-markdown">{{ message|markdown }}</td>
-              </tr>
-            {% endfor %}
-          {% endif %}
-        {% endfor %}
+          {% endfor %}
       </tbody>
     </table>
   </div>
+  {% endfor %}
 {% elif job.started %}
   {% include 'extras/inc/result_pending.html' %}
 {% endif %}

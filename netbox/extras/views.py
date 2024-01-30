@@ -1165,15 +1165,10 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
 
         legacy_script = False
         legacy_report = False
-        if job.data:
-            if 'logs' in job.data:
-                legacy_script = False
-                legacy_report = False
-            elif 'log' in job.data:
+        if job.data and ('logs' not in job.data):
+            if 'log' in job.data:
                 legacy_script = True
-                legacy_report = False
             else:
-                legacy_script = False
                 legacy_report = True
 
         # If this is an HTMX request, return only the result HTML

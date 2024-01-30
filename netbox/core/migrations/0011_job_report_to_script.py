@@ -8,9 +8,10 @@ def migrate_report_jobs(apps, schema_editor):
     Job = apps.get_model('core', 'Job')
 
     # Delete the new ContentType effected by the introduction of core.ConfigRevision
-    report_content_type = ContentType.objects.get(app_label='extras', model='reportmodule')
-    script_content_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-    jobs = Job.objects.filter(object_type_id=report_content_type.id).update(object_type_id=script_content_type.id)
+    if ContentType.objects.filter(app_label='extras', model='reportmodule'):
+        report_content_type = ContentType.objects.get(app_label='extras', model='reportmodule')
+        script_content_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
+        jobs = Job.objects.filter(object_type_id=report_content_type.id).update(object_type_id=script_content_type.id)
 
 
 class Migration(migrations.Migration):
