@@ -70,13 +70,21 @@ def handle_changed_object(sender, instance, **kwargs):
 
     # Record an ObjectChange if applicable
     if m2m_changed:
-        ObjectChange.objects.filter(
+        qs = ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(instance),
             changed_object_id=instance.pk,
             request_id=request.id
-        ).update(
-            postchange_data=instance.to_objectchange(action).postchange_data
         )
+        if not qs:
+            objectchange = instance.to_objectchange(action)
+            if objectchange and objectchange.has_changes:
+                objectchange.user = request.user
+                objectchange.request_id = request.id
+                objectchange.save()
+        else:
+            qs.update(
+                postchange_data=instance.to_objectchange(action).postchange_data
+            )
     else:
         objectchange = instance.to_objectchange(action)
         if objectchange and objectchange.has_changes:
