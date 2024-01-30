@@ -311,7 +311,7 @@ class BackgroundTaskListView(BaseTaskListView):
 
                 for job_id in job_ids:
                     try:
-                        jobs.append(Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
+                        jobs.append(RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
                     except NoSuchJobError:
                         pass
 
