@@ -52,10 +52,7 @@
 	<div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">{% trans "Child Regions" %}</h5>
-      <div class="card-body htmx-container table-responsive p-0"
-        hx-get="{% url 'dcim:region_list' %}?parent_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
+      {% htmx_table 'dcim:region_list' parent_id=object.pk %}
       {% if perms.dcim.add_region %}
         <div class="card-footer text-end d-print-none">
           <a href="{% url 'dcim:region_add' %}?parent={{ object.pk }}" class="btn btn-primary">

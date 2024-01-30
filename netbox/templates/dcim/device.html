@@ -154,10 +154,7 @@
             {% include 'inc/panels/comments.html' %}
             <div class="card">
               <h5 class="card-header">{% trans "Virtual Device Contexts" %}</h5>
-              <div class="card-body htmx-container table-responsive p-0"
-                hx-get="{% url 'dcim:virtualdevicecontext_list' %}?device_id={{ object.pk }}"
-                hx-trigger="load"
-              ></div>
+              {% htmx_table 'dcim:virtualdevicecontext_list' device_id=object.pk %}
               {% if perms.dcim.add_virtualdevicecontext %}
                 <div class="card-footer text-end d-print-none">
                   <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-primary">
@@ -292,10 +289,7 @@
             {% endif %}
             <div class="card">
               <h5 class="card-header">{% trans "Services" %}</h5>
-              <div class="card-body htmx-container table-responsive p-0"
-                hx-get="{% url 'ipam:service_list' %}?device_id={{ object.pk }}"
-                hx-trigger="load"
-              ></div>
+              {% htmx_table 'ipam:service_list' device_id=object.pk %}
               {% if perms.ipam.add_service %}
                 <div class="card-footer text-end d-print-none">
                   <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-primary">
