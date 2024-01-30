@@ -147,10 +147,7 @@
         </div>
         <div class="card">
           <h5 class="card-header">{% trans "Services" %}</h5>
-          <div class="card-body htmx-container table-responsive p-0"
-            hx-get="{% url 'ipam:service_list' %}?virtual_machine_id={{ object.pk }}"
-            hx-trigger="load"
-          ></div>
+          {% htmx_table 'ipam:service_list' virtual_machine_id=object.pk %}
           {% if perms.ipam.add_service %}
             <div class="card-footer text-end d-print-none">
               <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-primary">
@@ -167,10 +164,7 @@
   <div class="col col-md-12">
     <div class="card">
       <h5 class="card-header">{% trans "Virtual Disks" %}</h5>
-      <div class="card-body htmx-container table-responsive p-0"
-        hx-get="{% url 'virtualization:virtualdisk_list' %}?virtual_machine_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
+      {% htmx_table 'virtualization:virtualdisk_list' virtual_machine_id=object.pk %}
       {% if perms.virtualization.add_virtualdisk %}
         <div class="card-footer text-end d-print-none">
           <a href="{% url 'virtualization:virtualdisk_add' %}?device={{ object.device.pk }}&virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">

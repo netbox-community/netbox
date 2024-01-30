@@ -81,10 +81,7 @@
       <div class="col col-md-12">
         <div class="card">
           <h5 class="card-header">{% trans "Prefixes" %}</h5>
-          <div class="card-body htmx-container table-responsive p-0"
-            hx-get="{% url 'ipam:prefix_list' %}?vlan_id={{ object.pk }}"
-            hx-trigger="load"
-          ></div>
+          {% htmx_table 'ipam:prefix_list' vlan_id=object.pk %}
           {% if perms.ipam.add_prefix %}
             <div class="card-footer text-end d-print-none">
               <a href="{% url 'ipam:prefix_add' %}?{% if object.tenant %}tenant={{ object.tenant.pk }}&{% endif %}site={{ object.site.pk }}&vlan={{ object.pk }}" class="btn btn-primary">

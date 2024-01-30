@@ -112,10 +112,7 @@
     <div class="col col-md-12">
       <div class="card">
         <h5 class="card-header">{% trans "Files" %}</h5>
-        <div class="card-body htmx-container table-responsive p-0"
-          hx-get="{% url 'core:datafile_list' %}?source_id={{ object.pk }}"
-          hx-trigger="load"
-        ></div>
+        {% htmx_table 'core:datafile_list' source_id=object.pk %}
       </div>
       {% plugin_full_width_page object %}
     </div>
