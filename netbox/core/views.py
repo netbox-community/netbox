@@ -19,7 +19,7 @@ from netbox.views.generic.mixins import ActionsMixin, TableMixin
 
 from rq import requeue_job
 from rq.exceptions import NoSuchJobError
-from rq.job import Job as RQ_Job
+from rq.job import Job as RQ_Job, JobStatus
 from rq.registry import (
     DeferredJobRegistry,
     FailedJobRegistry,
