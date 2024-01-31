@@ -4,8 +4,7 @@
 {% load render_table from django_tables2 %}
 
 {% block breadcrumbs %}
-  <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Tasks' %}</a></li>
-  {# <li class="breadcrumb-item"><a href="{% url 'core:background_task_list' queue_index=queue_index status=job.get_status %}">{{ queue.name }}</a></li> #}
+  <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Queues' %}</a></li>
 {% endblock breadcrumbs %}
 
 {% block title %}{% trans "Worker Info" %} {{ job.id }}{% endblock %}
@@ -46,7 +45,7 @@
             </tr>
             <tr>
               <th scope="row">{% trans "State" %}</th>
-              <td>{{ worker.get_state|placeholder }}</td>
+              <td>{{ worker.get_state|bettertitle|placeholder }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Birth" %}</th>
@@ -73,8 +72,8 @@
               <td>{{ worker.failed_job_count }}</td>
             </tr>
             <tr>
-              <th scope="row">{% trans "Total working time (seconds)" %}</th>
-              <td>{{ total_working_time }}</td>
+              <th scope="row">{% trans "Total working time" %}</th>
+              <td>{{ total_working_time }} {% trans "seconds" %}</td>
             </tr>
           </table>
         </div>

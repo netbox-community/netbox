@@ -4,31 +4,26 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.http import HttpResponseForbidden, Http404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import View
 from django_rq.queues import get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
-from django_rq.utils import get_jobs, get_scheduler_statistics, get_statistics, stop_jobs
-from django.shortcuts import get_object_or_404, redirect, render
-from django.views.generic import View
+from django_rq.utils import get_jobs, get_statistics, stop_jobs
+from rq import requeue_job
+from rq.exceptions import NoSuchJobError
+from rq.job import Job as RQ_Job, JobStatus as RQJobStatus
+from rq.registry import (
+    DeferredJobRegistry, FailedJobRegistry, FinishedJobRegistry, ScheduledJobRegistry, StartedJobRegistry,
+)
+from rq.worker import Worker
+from rq.worker_registration import clean_worker_registry
 
 from netbox.config import get_config, PARAMS
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
-from netbox.views.generic.mixins import ActionsMixin, TableMixin
-
-from rq import requeue_job
-from rq.exceptions import NoSuchJobError
-from rq.job import Job as RQ_Job, JobStatus
-from rq.registry import (
-    DeferredJobRegistry,
-    FailedJobRegistry,
-    FinishedJobRegistry,
-    ScheduledJobRegistry,
-    StartedJobRegistry,
-)
-from rq.worker import Worker
-from rq.worker_registration import clean_worker_registry
+from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm
 from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
@@ -256,88 +251,78 @@ class ConfigRevisionRestoreView(ContentTypePermissionRequiredMixin, View):
 
         return redirect(candidate_config.get_absolute_url())
 
+
 #
 # Background Tasks (RQ)
 #
 
-
-class BaseTaskListView(UserPassesTestMixin, TableMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-
-class BackgroundQueueListView(UserPassesTestMixin, View):
+class BaseRQView(UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_staff
+
+
+class BackgroundQueueListView(TableMixin, BaseRQView):
+    table = tables.BackgroundQueueTable
 
     def get(self, request):
-        table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"], user=request.user)
-        table.configure(request)
+        data = get_statistics(run_maintenance_tasks=True)["queues"]
+        table = self.get_table(data, request, bulk_actions=False)
+
         return render(request, 'core/rq_queue_list.html', {
             'table': table,
         })
 
 
-class BackgroundTaskListView(BaseTaskListView):
+class BackgroundTaskListView(TableMixin, BaseRQView):
     table = tables.BackgroundTaskTable
 
     def get_table_data(self, request, queue, status):
-        registry = None
         jobs = []
 
-        if status == 'queued':
-            if queue.count > 0:
-                jobs = queue.get_jobs()
-        elif status == 'started':
-            registry = StartedJobRegistry(queue.name, queue.connection)
-        elif status == 'deferred':
-            registry = DeferredJobRegistry(queue.name, queue.connection)
-        elif status == 'finished':
-            registry = FinishedJobRegistry(queue.name, queue.connection)
-        elif status == 'failed':
-            registry = FailedJobRegistry(queue.name, queue.connection)
-        elif status == 'scheduled':
-            registry = ScheduledJobRegistry(queue.name, queue.connection)
+        # Call get_jobs() to returned queued tasks
+        if status == RQJobStatus.QUEUED:
+            return queue.get_jobs()
 
-        if status != 'queued':
-            job_ids = registry.get_job_ids()
-            if status != 'deferred':
-                jobs = get_jobs(queue, job_ids, registry)
-            else:
-                # deferred jobs require special handling
-                job_ids = registry.get_job_ids()
+        # For other statuses, determine the registry to list (or raise a 404 for invalid statuses)
+        try:
+            registry_cls = {
+                RQJobStatus.STARTED: StartedJobRegistry,
+                RQJobStatus.DEFERRED: DeferredJobRegistry,
+                RQJobStatus.FINISHED: FinishedJobRegistry,
+                RQJobStatus.FAILED: FailedJobRegistry,
+                RQJobStatus.SCHEDULED: ScheduledJobRegistry,
+            }[status]
+        except KeyError:
+            raise Http404
+        registry = registry_cls(queue.name, queue.connection)
 
-                for job_id in job_ids:
-                    try:
-                        jobs.append(RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
-                    except NoSuchJobError:
-                        pass
+        job_ids = registry.get_job_ids()
+        if status != RQJobStatus.DEFERRED:
+            jobs = get_jobs(queue, job_ids, registry)
+        else:
+            # Deferred jobs require special handling
+            for job_id in job_ids:
+                try:
+                    jobs.append(RQ_Job.fetch(job_id, connection=queue.connection, serializer=queue.serializer))
+                except NoSuchJobError:
+                    pass
 
-            if jobs and status == 'scheduled':
-                for job in jobs:
-                    job.scheduled_at = registry.get_scheduled_time(job)
+        if jobs and status == RQJobStatus.SCHEDULED:
+            for job in jobs:
+                job.scheduled_at = registry.get_scheduled_time(job)
 
         return jobs
 
     def get(self, request, queue_index, status):
         queue = get_queue_by_index(queue_index)
         data = self.get_table_data(request, queue, status)
-
         table = self.get_table(data, request, False)
 
         # If this is an HTMX request, return only the rendered table HTML
         if request.htmx:
-            if request.htmx.target != 'object_list':
-                table.embedded = True
-                # Hide selection checkboxes
-                if 'pk' in table.base_columns:
-                    table.columns.hide('pk')
             return render(request, 'htmx/table.html', {
                 'table': table,
-                'queue': queue,
-                'status': status,
             })
 
         return render(request, 'core/rq_task_list.html', {
@@ -347,46 +332,7 @@ class BackgroundTaskListView(BaseTaskListView):
         })
 
 
-class WorkerListView(BaseTaskListView):
-    table = tables.WorkerTable
-
-    def test_func(self):
-        return self.request.user.is_staff
-
-    def get_table_data(self, request, queue):
-        clean_worker_registry(queue)
-        all_workers = Worker.all(queue.connection)
-        workers = [worker for worker in all_workers if queue.name in worker.queue_names()]
-        return workers
-
-    def get(self, request, queue_index):
-        queue = get_queue_by_index(queue_index)
-        data = self.get_table_data(request, queue)
-
-        table = self.get_table(data, request, False)
-
-        # If this is an HTMX request, return only the rendered table HTML
-        if request.htmx:
-            if request.htmx.target != 'object_list':
-                table.embedded = True
-                # Hide selection checkboxes
-                if 'pk' in table.base_columns:
-                    table.columns.hide('pk')
-            return render(request, 'htmx/table.html', {
-                'table': table,
-                'queue': queue,
-            })
-
-        return render(request, 'core/rq_worker_list.html', {
-            'table': table,
-            'queue': queue,
-        })
-
-
-class BackgroundTaskDetailView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class BackgroundTaskView(BaseRQView):
 
     def get(self, request, job_id):
         # all the RQ queues should use the same connection
@@ -413,10 +359,7 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         })
 
 
-class BackgroundTaskDeleteView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class BackgroundTaskDeleteView(BaseRQView):
 
     def get(self, request, job_id):
         if not request.htmx:
@@ -455,10 +398,7 @@ class BackgroundTaskDeleteView(UserPassesTestMixin, View):
         return redirect(reverse('core:background_queue_list'))
 
 
-class BackgroundTaskRequeueView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class BackgroundTaskRequeueView(BaseRQView):
 
     def get(self, request, job_id):
         # all the RQ queues should use the same connection
@@ -476,10 +416,7 @@ class BackgroundTaskRequeueView(UserPassesTestMixin, View):
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
-class BackgroundTaskEnqueueView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class BackgroundTaskEnqueueView(BaseRQView):
 
     def get(self, request, job_id):
         # all the RQ queues should use the same connection
@@ -500,13 +437,13 @@ class BackgroundTaskEnqueueView(UserPassesTestMixin, View):
             queue.enqueue_job(job)
 
         # Remove job from correct registry if needed
-        if job.get_status() == JobStatus.DEFERRED:
+        if job.get_status() == RQJobStatus.DEFERRED:
             registry = DeferredJobRegistry(queue.name, queue.connection)
             registry.remove(job)
-        elif job.get_status() == JobStatus.FINISHED:
+        elif job.get_status() == RQJobStatus.FINISHED:
             registry = FinishedJobRegistry(queue.name, queue.connection)
             registry.remove(job)
-        elif job.get_status() == JobStatus.SCHEDULED:
+        elif job.get_status() == RQJobStatus.SCHEDULED:
             registry = ScheduledJobRegistry(queue.name, queue.connection)
             registry.remove(job)
 
@@ -514,10 +451,7 @@ class BackgroundTaskEnqueueView(UserPassesTestMixin, View):
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
-class BackgroundTaskStopView(UserPassesTestMixin, View):
-
-    def test_func(self):
-        return self.request.user.is_staff
+class BackgroundTaskStopView(BaseRQView):
 
     def get(self, request, job_id):
         # all the RQ queues should use the same connection
@@ -539,10 +473,40 @@ class BackgroundTaskStopView(UserPassesTestMixin, View):
         return redirect(reverse('core:background_task', args=[job_id]))
 
 
-class WorkerDetailView(UserPassesTestMixin, View):
+class WorkerListView(TableMixin, BaseRQView):
+    table = tables.WorkerTable
 
-    def test_func(self):
-        return self.request.user.is_staff
+    def get_table_data(self, request, queue):
+        clean_worker_registry(queue)
+        all_workers = Worker.all(queue.connection)
+        workers = [worker for worker in all_workers if queue.name in worker.queue_names()]
+        return workers
+
+    def get(self, request, queue_index):
+        queue = get_queue_by_index(queue_index)
+        data = self.get_table_data(request, queue)
+
+        table = self.get_table(data, request, False)
+
+        # If this is an HTMX request, return only the rendered table HTML
+        if request.htmx:
+            if request.htmx.target != 'object_list':
+                table.embedded = True
+                # Hide selection checkboxes
+                if 'pk' in table.base_columns:
+                    table.columns.hide('pk')
+            return render(request, 'htmx/table.html', {
+                'table': table,
+                'queue': queue,
+            })
+
+        return render(request, 'core/rq_worker_list.html', {
+            'table': table,
+            'queue': queue,
+        })
+
+
+class WorkerView(BaseRQView):
 
     def get(self, request, key):
         # all the RQ queues should use the same connection
