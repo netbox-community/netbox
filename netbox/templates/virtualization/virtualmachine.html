@@ -146,15 +146,17 @@
             </table>
         </div>
         <div class="card">
-          <h5 class="card-header">{% trans "Services" %}</h5>
+          <h5 class="card-header">
+            {% trans "Services" %}
+            {% if perms.ipam.add_service %}
+              <div class="card-actions">
+                <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                  <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
+                </a>
+              </div>
+            {% endif %}
+          </h5>
           {% htmx_table 'ipam:service_list' virtual_machine_id=object.pk %}
-          {% if perms.ipam.add_service %}
-            <div class="card-footer text-end d-print-none">
-              <a href="{% url 'ipam:service_add' %}?virtual_machine={{ object.pk }}" class="btn btn-primary">
-                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
-              </a>
-            </div>
-          {% endif %}
         </div>
         {% plugin_right_page object %}
     </div>
@@ -163,15 +165,17 @@
 <div class="row">
   <div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Virtual Disks" %}</h5>
+      <h5 class="card-header">
+        {% trans "Virtual Disks" %}
+        {% if perms.virtualization.add_virtualdisk %}
+          <div class="card-actions">
+            <a href="{% url 'virtualization:virtualdisk_add' %}?device={{ object.device.pk }}&virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Virtual Disk" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
       {% htmx_table 'virtualization:virtualdisk_list' virtual_machine_id=object.pk %}
-      {% if perms.virtualization.add_virtualdisk %}
-        <div class="card-footer text-end d-print-none">
-          <a href="{% url 'virtualization:virtualdisk_add' %}?device={{ object.device.pk }}&virtual_machine={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Virtual Disk" %}
-          </a>
-        </div>
-      {% endif %}
     </div>
   </div>
 </div>

@@ -49,7 +49,16 @@
     </div>
     <div class="col col-md-8">
       <div class="card">
-        <h5 class="card-header">{% trans "Members" %}</h5>
+        <h5 class="card-header">
+          {% trans "Members" %}
+          {% if perms.dcim.change_virtualchassis %}
+            <div class="card-actions">
+              <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Member" %}
+              </a>
+            </div>
+          {% endif %}
+        </h5>
         <table class="table table-hover object-list">
           <thead>
             <tr>
@@ -78,13 +87,6 @@
             </tr>
           {% endfor %}
         </table>
-        {% if perms.dcim.change_virtualchassis %}
-          <div class="card-footer text-end d-print-none">
-            <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
-              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Member" %}
-            </a>
-          </div>
-        {% endif %}
       </div>
       {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}

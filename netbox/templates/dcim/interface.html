@@ -335,15 +335,18 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "IP Addresses" %}</h5>
+        <h5 class="card-header">
+          {% trans "IP Addresses" %}
+          {% if perms.ipam.add_ipaddress %}
+            <div class="card-actions">
+              <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add IP Address" %}
+              </a>
+            </div>
+          {% endif %}
+        </h5>
         {% htmx_table 'ipam:ipaddress_list' interface_id=object.pk %}
-        {% if perms.ipam.add_ipaddress %}
-          <div class="card-footer text-end d-print-none">
-            <a href="{% url 'ipam:ipaddress_add' %}?device={{ object.device.pk }}&interface={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
-              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add IP Address" %}
-            </a>
-          </div>
-        {% endif %}
+        
       </div>
     </div>
   </div>
