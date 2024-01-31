@@ -2,13 +2,15 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">{% trans "Images" %}</h5>
+  <h5 class="card-header">
+    {% trans "Images" %}
+    {% if perms.extras.add_imageattachment %}
+      <div class="card-actions">
+        <a href="{% url 'extras:imageattachment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+          <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Attach an image" %}
+        </a>
+      </div>
+    {% endif %}
+  </h5>
   {% htmx_table 'extras:imageattachment_list' content_type_id=object|content_type_id object_id=object.pk %}
-  {% if perms.extras.add_imageattachment %}
-    <div class="card-footer text-end d-print-none">
-      <a href="{% url 'extras:imageattachment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}" class="btn btn-primary">
-        <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Attach an image" %}
-      </a>
-    </div>
-  {% endif %}
 </div>

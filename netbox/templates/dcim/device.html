@@ -115,7 +115,14 @@
             </div>
             {% if vc_members %}
                 <div class="card">
-                    <h5 class="card-header">{% trans "Virtual Chassis" %}</h5>
+                    <h5 class="card-header">
+                      {% trans "Virtual Chassis" %}
+                      <div class="card-actions">
+                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                          <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> {% trans "View Virtual Chassis" %}
+                        </a>
+                      </div>
+                    </h5>
                     <table class="table table-hover attr-table">
                         <tr>
                             <th>{% trans "Device" %}</th>
@@ -140,26 +147,23 @@
                             </tr>
                         {% endfor %}
                     </table>
-                    <div class="card-footer text-end d-print-none">
-                        <a href="{{ object.virtual_chassis.get_absolute_url }}" class="btn btn-primary">
-                            <span class="mdi mdi-arrow-right-bold" aria-hidden="true"></span> {% trans "View Virtual Chassis" %}
-                        </a>
-                    </div>
                 </div>
             {% endif %}
             {% include 'inc/panels/custom_fields.html' %}
             {% include 'inc/panels/tags.html' %}
             {% include 'inc/panels/comments.html' %}
             <div class="card">
-              <h5 class="card-header">{% trans "Virtual Device Contexts" %}</h5>
+              <h5 class="card-header">
+                {% trans "Virtual Device Contexts" %}
+                {% if perms.dcim.add_virtualdevicecontext %}
+                  <div class="card-actions">
+                    <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Create VDC" %}
+                    </a>
+                  </div>
+                {% endif %}
+              </h5>
               {% htmx_table 'dcim:virtualdevicecontext_list' device_id=object.pk %}
-              {% if perms.dcim.add_virtualdevicecontext %}
-                <div class="card-footer text-end d-print-none">
-                  <a href="{% url 'dcim:virtualdevicecontext_add' %}?device={{ object.pk }}" class="btn btn-primary">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Create VDC" %}
-                  </a>
-                </div>
-              {% endif %}
             </div>
             {% plugin_left_page object %}
         </div>
@@ -286,15 +290,17 @@
                 </div>
             {% endif %}
             <div class="card">
-              <h5 class="card-header">{% trans "Services" %}</h5>
+              <h5 class="card-header">
+                {% trans "Services" %}
+                {% if perms.ipam.add_service %}
+                  <div class="card-actions">
+                    <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+                      <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
+                    </a>
+                  </div>
+                {% endif %}
+              </h5>
               {% htmx_table 'ipam:service_list' device_id=object.pk %}
-              {% if perms.ipam.add_service %}
-                <div class="card-footer text-end d-print-none">
-                  <a href="{% url 'ipam:service_add' %}?device={{ object.pk }}" class="btn btn-primary">
-                    <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a service" %}
-                  </a>
-                </div>
-              {% endif %}
             </div>
             {% include 'inc/panels/image_attachments.html' %}
             <div class="card">

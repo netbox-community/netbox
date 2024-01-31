@@ -2,7 +2,16 @@
 {% load i18n %}
 
 <div class="card">
-  <h5 class="card-header">{% trans "Inventory Items" %}</h5>
+  <h5 class="card-header">
+    {% trans "Inventory Items" %}
+    {% if perms.dcim.add_inventoryitem %}
+      <div class="card-actions">
+        <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ object|content_type_id }}&component_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+          <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Inventory Item" %}
+        </a>
+      </div>
+    {% endif %}
+  </h5>
   <table class="table table-hover">
     <thead>
       <tr>
@@ -38,11 +47,4 @@
       {% endfor %}
     </tbody>
   </table>
-  <div class="card-footer text-end d-print-none">
-    {% if perms.dcim.add_inventoryitem %}
-      <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.device.pk }}&component_type={{ object|content_type_id }}&component_id={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
-        <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Inventory Item" %}
-      </a>
-    {% endif %}
-  </div>
 </div>

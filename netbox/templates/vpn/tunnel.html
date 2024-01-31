@@ -68,15 +68,17 @@
   <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Terminations" %}</h5>
+        <h5 class="card-header">
+          {% trans "Terminations" %}
+          {% if perms.vpn.add_tunneltermination %}
+            <div class="card-actions">
+              <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
+              </a>
+            </div>
+          {% endif %}
+        </h5>
         {% htmx_table 'vpn:tunneltermination_list' tunnel_id=object.pk %}
-        {% if perms.vpn.add_tunneltermination %}
-          <div class="card-footer text-end d-print-none">
-            <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
-              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
-            </a>
-          </div>
-        {% endif %}
       </div>
       {% plugin_full_width_page object %}
     </div>

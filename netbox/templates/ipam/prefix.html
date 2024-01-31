@@ -91,7 +91,16 @@
   </div>
   <div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">{% trans "Addressing" %}</h5>
+      <h5 class="card-header">
+        {% trans "Addressing" %}
+        {% if object.prefix.version == 4 %}
+          <div class="card-actions">
+            <a class="btn btn-ghost-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
+              <i class="mdi mdi-information-outline" aria-hidden="true"></i> {% trans "Addressing Details" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
       <table class="table table-hover attr-table">
         <tr>
           <th scope="row">{% trans "Utilization" %}</th>
@@ -142,13 +151,6 @@
           </td>
         </tr>
       </table>
-      {% if object.prefix.version == 4 %}
-        <div class="card-footer text-end">
-          <a class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#prefix-modal">
-            <i class="mdi mdi-information-outline" aria-hidden="true"></i> {% trans "Addressing Details" %}
-          </a>
-        </div>
-      {% endif %}
     </div>
     {% include 'inc/panels/custom_fields.html' %}
     {% include 'inc/panels/tags.html' %}
