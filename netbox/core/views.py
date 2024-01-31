@@ -275,7 +275,7 @@ class BackgroundQueueListView(UserPassesTestMixin, View):
     def get(self, request):
         table = tables.BackgroundQueueTable(get_statistics(run_maintenance_tasks=True)["queues"], user=request.user)
         table.configure(request)
-        return render(request, 'core/background_queue_list.html', {
+        return render(request, 'core/rq_queue_list.html', {
             'table': table,
         })
 
@@ -340,7 +340,7 @@ class BackgroundTaskListView(BaseTaskListView):
                 'status': status,
             })
 
-        return render(request, 'core/background_task_list.html', {
+        return render(request, 'core/rq_task_list.html', {
             'table': table,
             'queue': queue,
             'status': status,
@@ -377,7 +377,7 @@ class WorkerListView(BaseTaskListView):
                 'queue': queue,
             })
 
-        return render(request, 'core/worker_list.html', {
+        return render(request, 'core/rq_worker_list.html', {
             'table': table,
             'queue': queue,
         })
@@ -404,7 +404,7 @@ class BackgroundTaskDetailView(UserPassesTestMixin, View):
         except AttributeError:
             exc_info = None
 
-        return render(request, 'core/background_task.html', {
+        return render(request, 'core/rq_task.html', {
             'queue': queue,
             'job': job,
             'queue_index': queue_index,
@@ -551,7 +551,7 @@ class WorkerDetailView(UserPassesTestMixin, View):
         # Convert microseconds to milliseconds
         worker.total_working_time = worker.total_working_time / 1000
 
-        return render(request, 'core/worker.html', {
+        return render(request, 'core/rq_worker.html', {
             'worker': worker,
             'job': worker.get_current_job(),
             'total_working_time': worker.total_working_time * 1000,

@@ -1,24 +1,35 @@
-{% extends 'generic/_base.html' %}
+{% extends 'generic/object_list.html' %}
 {% load helpers %}
 {% load i18n %}
 {% load render_table from django_tables2 %}
 
 {% block page-header %}
-  <div class="d-flex justify-content-between align-items-center">
-    {# Breadcrumbs #}
-    <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Tasks' %}</a></li>
-      </ol>
-    </nav>
+  <div class="container-xl">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+      {# Breadcrumbs #}
+      <nav class="breadcrumb-container" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'core:background_queue_list' %}">{% trans 'Background Workers' %}</a>
+          </li>
+          <li class="breadcrumb-item">{{ queue.name }}</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h2 class="page-title mt-2">{% trans 'Background Workers' %}</h2>
+      </div>
+    </div>
   </div>
-  {{ block.super }}
 {% endblock page-header %}
 
 {% block title %}{{ status|capfirst }} {% trans "Workers in " %}{{ queue.name }}{% endblock %}
 
+{% block controls %}{% endblock %}
+
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <a class="nav-link active" role="tab">{% trans "Workers" %}</a>
     </li>
