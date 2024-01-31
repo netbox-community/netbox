@@ -128,24 +128,29 @@ class BackgroundTaskTestCase(TestCase):
         self.user.is_staff = True
         self.user.is_active = True
         self.user.save()
+
+        # Clear all queues prior to running each test
         get_queue('default').connection.flushall()
         get_queue('high').connection.flushall()
         get_queue('low').connection.flushall()
 
     def test_background_queue_list(self):
-        response = self.client.get(reverse('core:background_queue_list'))
+        url = reverse('core:background_queue_list')
+
+        # Attempt to load view without permission
+        self.user.is_staff = False
+        self.user.save()
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403)
+
+        # Load view with permission
+        self.user.is_staff = True
+        self.user.save()
+        response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         self.assertIn('default', str(response.content))
         self.assertIn('high', str(response.content))
         self.assertIn('low', str(response.content))
-
-    def test_background_queue_list_no_perm(self):
-        self.user.is_staff = False
-        self.user.save()
-        response = self.client.get(reverse('core:background_queue_list'))
-        self.assertEqual(response.status_code, 403)
-        self.user.is_staff = True
-        self.user.save()
 
     def test_background_tasks_list_default(self):
         queue = get_queue('default')
@@ -214,7 +219,7 @@ class BackgroundTaskTestCase(TestCase):
         self.assertIn(str(job.id), str(response.content))
         self.assertIn('Callable', str(response.content))
         self.assertIn('Meta', str(response.content))
-        self.assertIn('Kwargs', str(response.content))
+        self.assertIn('Keyword Arguments', str(response.content))
 
     def test_background_task_delete(self):
         queue = get_queue('default')
@@ -305,4 +310,4 @@ class BackgroundTaskTestCase(TestCase):
         response = self.client.get(reverse('core:worker', args=[worker1.name]))
         self.assertIn(str(worker1.name), str(response.content))
         self.assertIn('Birth', str(response.content))
-        self.assertIn('Total working time (seconds)', str(response.content))
+        self.assertIn('Total working time', str(response.content))
