@@ -59,20 +59,4 @@ class Migration(migrations.Migration):
                 ('objects', django.contrib.auth.models.GroupManager()),
             ],
         ),
-        migrations.CreateModel(
-            name='NetBoxUser',
-            fields=[
-            ],
-            options={
-                'verbose_name': 'User',
-                'proxy': True,
-                'indexes': [],
-                'constraints': [],
-                'ordering': ('username',),
-            },
-            bases=('auth.user',),
-            managers=[
-                ('objects', django.contrib.auth.models.UserManager()),
-            ],
-        ),
     ]

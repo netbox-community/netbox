@@ -452,6 +452,8 @@ AUTHENTICATION_BACKENDS = [
     'netbox.authentication.ObjectPermissionBackend',
 ]
 
+AUTH_USER_MODEL = 'users.User'
+
 # Time zones
 USE_TZ = True
 
@@ -591,6 +593,8 @@ for param in dir(configuration):
 # Force usage of PostgreSQL's JSONB field for extra data
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = 'users.utils.clean_username'
+
+SOCIAL_AUTH_USER_MODEL = 'users.User'
 
 #
 # Django Prometheus
