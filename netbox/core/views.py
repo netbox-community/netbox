@@ -367,9 +367,9 @@ class BackgroundTaskDeleteView(BaseRQView):
 
         form = ConfirmationForm(initial=request.GET)
 
-        return render(request, 'core/htmx/delete_form.html', {
+        return render(request, 'htmx/delete_form.html', {
             'object_type': 'background task',
-            'object_name': job_id,
+            'object': job_id,
             'form': form,
             'form_url': reverse('core:background_task_delete', kwargs={'job_id': job_id})
         })
