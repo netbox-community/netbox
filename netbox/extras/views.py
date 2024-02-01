@@ -1059,6 +1059,10 @@ class ReportView(ContentTypePermissionRequiredMixin, View):
         report = module.reports[name]()
         jobs = module.get_jobs(report.class_name)
 
+        report.result = jobs.filter(
+            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
+        ).first()
+
         return render(request, 'extras/report.html', {
             'job_count': jobs.count(),
             'module': module,
