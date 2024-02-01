@@ -513,7 +513,7 @@ class BaseScript:
 
         return data
 
-    def run_tests(self, job):
+    def run_tests(self):
         """
         Run the report and save its results. Each test method will be executed in order.
         """
@@ -623,7 +623,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                         raise AbortTransaction()
             except AbortTransaction:
                 msg = _("Database changes have been reverted automatically.")
-                if is_report(script):
+                if is_report(type(script)):
                     # script and legacy reports have different log function signatures
                     script.log_info(message=msg)
                 else:
@@ -640,7 +640,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         except Exception as e:
             if type(e) is AbortScript:
                 msg = _("Script aborted with error: ") + str(e)
-                if is_report(script):
+                if is_report(type(script)):
                     script.log_failure(message=msg)
                 else:
                     script.log_failure(msg)
@@ -649,13 +649,13 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             else:
                 stacktrace = traceback.format_exc()
                 msg = _("An exception occurred: : ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
-                if is_report(script):
+                if is_report(type(script)):
                     script.log_failure(message=msg)
                 else:
                     script.log_failure(msg)
                 logger.error(f"Exception raised during script execution: {e}")
             msg = _("Database changes have been reverted due to error.")
-            if is_report(script):
+            if is_report(type(script)):
                 script.log_info(message=msg)
             else:
                 script.log_info(msg)
