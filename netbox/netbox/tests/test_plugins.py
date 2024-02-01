@@ -32,7 +32,6 @@ class PluginTest(TestCase):
         instance.delete()
         self.assertIsNone(instance.pk)
 
-    @override_settings(DJANGO_ADMIN_ENABLED=True)
     def test_admin(self):
 
         # Test admin view URL resolution
@@ -42,7 +41,7 @@ class PluginTest(TestCase):
     def test_views(self):
 
         # Test URL resolution
-        url = reverse('plugins:dummy_plugin:dummy_models')
+        url = reverse('plugins:dummy_plugin:dummy_model_list')
         self.assertEqual(url, '/plugins/dummy-plugin/models/')
 
         # Test GET request
