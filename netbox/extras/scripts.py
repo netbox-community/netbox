@@ -257,7 +257,7 @@ class IPNetworkVar(ScriptVariable):
 # Scripts
 #
 
-class BaseScript(object):
+class BaseScript:
     """
     Base model for custom scripts. User classes should inherit from this model if they want to extend Script
     functionality for use in other subclasses.
@@ -510,14 +510,11 @@ class BaseScript(object):
 
         return data
 
-    def run_test_scripts(self, job):
+    def run_tests(self, job):
         """
         Run the report and save its results. Each test method will be executed in order.
         """
         self.logger.info(f"Running report")
-
-        # Perform any post-run tasks
-        self.pre_run()
 
         try:
             for method_name in self.test_methods:
@@ -529,12 +526,12 @@ class BaseScript(object):
             self._current_method = 'unassigned'
             raise e
 
-        # Perform any post-run tasks
-        self.post_run()
         self._current_method = 'unassigned'
 
     def run(self, data, commit):
-        self.run_test_scripts()
+        self.pre_run()
+        self.run_tests()
+        self.post_run()
 
     def pre_run(self):
         """
