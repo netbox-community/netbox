@@ -1,0 +1,34 @@
+{% extends 'generic/object_list.html' %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block title %}{% trans "Background Queues" %}{% endblock %}
+
+{% block controls %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">
+        {% trans "Background Queues" %} {% badge table.rows|length %}
+      </a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-auto ms-auto d-print-none">
+      {# Table configuration button #}
+      <div class="table-configure input-group">
+        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#ObjectTable_config" class="btn">
+          <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    {% render_table table %}
+  </div>
+{% endblock content %}

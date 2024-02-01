@@ -451,11 +451,16 @@ ADMIN_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Plugins'),
+            label=_('System'),
             items=(
                 MenuItem(
                     link='core:plugin_list',
                     link_text=_('Plugins'),
+                    staff_only=True
+                ),
+                MenuItem(
+                    link='core:background_queue_list',
+                    link_text=_('Background Tasks'),
                     staff_only=True
                 ),
             ),

@@ -72,7 +72,6 @@ _patterns = [
     path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
 
     # Admin
-    path('admin/background-tasks/', include('django_rq.urls')),
     path('admin/', admin_site.urls),
 ]
 
