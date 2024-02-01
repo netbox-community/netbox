@@ -599,53 +599,6 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     # Add the current request as a property of the script
     script.request = request
 
-    def signature(fn):
-        """
-        Taken from django.tables2 (https://github.com/jieter/django-tables2/blob/master/django_tables2/utils.py)
-        Returns:
-            tuple: Returns a (arguments, kwarg_name)-tuple:
-                 - the arguments (positional or keyword)
-                 - the name of the ** kwarg catch all.
-
-        The self-argument for methods is always removed.
-        """
-
-        signature = inspect.signature(fn)
-
-        args = []
-        keywords = None
-        for arg in signature.parameters.values():
-            if arg.kind == arg.VAR_KEYWORD:
-                keywords = arg.name
-            elif arg.kind == arg.VAR_POSITIONAL:
-                continue  # skip *args catch-all
-            else:
-                args.append(arg.name)
-
-        return tuple(args), keywords
-
-    def call_with_appropriate(fn, kwargs):
-        """
-        Taken from django.tables2 (https://github.com/jieter/django-tables2/blob/master/django_tables2/utils.py)
-        Calls the function ``fn`` with the keyword arguments from ``kwargs`` it expects
-
-        If the kwargs argument is defined, pass all arguments, else provide exactly
-        the arguments wanted.
-
-        If one of the arguments of ``fn`` are not contained in kwargs, ``fn`` will not
-        be called and ``None`` will be returned.
-        """
-        args, kwargs_name = signature(fn)
-        # no catch-all defined, we need to exactly pass the arguments specified.
-        if not kwargs_name:
-            kwargs = {key: kwargs[key] for key in kwargs if key in args}
-
-            # if any argument of fn is not in kwargs, just return None
-            if any(arg not in kwargs for arg in args):
-                return None
-
-        return fn(**kwargs)
-
     def set_job_data(script):
         logs = script._logs
         job.data = {
@@ -659,6 +612,8 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
         the event_tracking context manager (which is bypassed if commit == False).
         """
+        from .reports import Report  # here to prevent circular import
+
         try:
             try:
                 with transaction.atomic():
@@ -666,7 +621,13 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
-                call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted automatically."})
+                msg = _("Database changes have been reverted automatically.")
+                if issubclass(script, Report):
+                    # script and legacy reports have different log function signatures
+                    script.log_info(message=msg)
+                else:
+                    script.log_info(msg)
+
                 if request:
                     clear_events.send(request)
             job = set_job_data(script)
@@ -677,13 +638,27 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                 job.terminate()
         except Exception as e:
             if type(e) is AbortScript:
-                call_with_appropriate(script.log_failure, kwargs={'message': f"Script aborted with error: {e}"})
+                msg = _("Script aborted with error: ") + str(e)
+                if issubclass(script, Report):
+                    script.log_failure(message=msg)
+                else:
+                    script.log_failure(msg)
+
                 logger.error(f"Script aborted with error: {e}")
             else:
                 stacktrace = traceback.format_exc()
-                call_with_appropriate(script.log_failure, kwargs={'message': f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"})
+                msg = _("An exception occurred: : ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
+                if issubclass(script, Report):
+                    script.log_failure(message=msg)
+                else:
+                    script.log_failure(msg)
                 logger.error(f"Exception raised during script execution: {e}")
-            call_with_appropriate(script.log_info, kwargs={'message': "Database changes have been reverted due to error."})
+            msg = _("Database changes have been reverted due to error.")
+            if issubclass(script, Report):
+                script.log_info(message=msg)
+            else:
+                script.log_info(msg)
+
             job = set_job_data(job, script)
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
