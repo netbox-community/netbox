@@ -10,7 +10,6 @@ from django.db import transaction
 
 from core.choices import JobStatusChoices
 from core.models import Job
-from extras.api.serializers import ScriptOutputSerializer
 from extras.context_managers import event_tracking
 from extras.scripts import get_module_and_script
 from extras.signals import clear_events
@@ -34,6 +33,30 @@ class Command(BaseCommand):
         parser.add_argument('script', help="Script to run")
 
     def handle(self, *args, **options):
+        def _output_results(job):
+            # Report on success/failure
+            if job.status == JobStatusChoices.STATUS_FAILED:
+                status = self.style.ERROR('FAILED')
+            elif job == JobStatusChoices.STATUS_ERRORED:
+                status = self.style.ERROR('ERRORED')
+            else:
+                status = self.style.SUCCESS('SUCCESS')
+
+            for test_name, attrs in job.data.logs.items():
+                self.stdout.write(
+                    "\t{}: {} success, {} info, {} warning, {} failure".format(
+                        test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failure']
+                    )
+                )
+
+        def _set_job_data(job, script):
+            logs = script._logs
+            job.data = {
+                'logs': logs,
+                'output': script._output,
+            }
+            return job
+
         def _run_script():
             """
             Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
@@ -48,7 +71,7 @@ class Command(BaseCommand):
                 except AbortTransaction:
                     script.log_info("Database changes have been reverted automatically.")
                     clear_events.send(request)
-                job.data = ScriptOutputSerializer(script).data
+                job = _set_job_data(job, script)
                 job.terminate()
             except Exception as e:
                 stacktrace = traceback.format_exc()
@@ -58,7 +81,7 @@ class Command(BaseCommand):
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
                 clear_events.send(request)
-                job.data = ScriptOutputSerializer(script).data
+                job = _set_job_data(job, script)
                 job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
 
             logger.info(f"Script completed in {job.duration}")

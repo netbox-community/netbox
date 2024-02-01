@@ -47,6 +47,18 @@ def register_features(model, features):
         registry['models'][app_label].add(model_name)
 
 
+def is_report(obj):
+    """
+    Returns True if the given object is a Report.
+    """
+    from .reports import Report
+    try:
+        return issubclass(obj, Report) and obj != Report
+    except TypeError:
+        print("TypeError")
+        return False
+
+
 def is_script(obj):
     """
     Returns True if the object is a Script.

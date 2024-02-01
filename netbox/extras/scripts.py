@@ -12,6 +12,7 @@ from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils import timezone
 from django.utils.functional import classproperty
+from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
 from core.models import Job
@@ -25,6 +26,8 @@ from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import event_tracking
 from .forms import ScriptForm
+from .utils import is_report
+
 
 __all__ = (
     'BaseScript',
@@ -612,8 +615,6 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
         the event_tracking context manager (which is bypassed if commit == False).
         """
-        from .reports import Report  # here to prevent circular import
-
         try:
             try:
                 with transaction.atomic():
@@ -622,7 +623,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                         raise AbortTransaction()
             except AbortTransaction:
                 msg = _("Database changes have been reverted automatically.")
-                if issubclass(script, Report):
+                if is_report(script):
                     # script and legacy reports have different log function signatures
                     script.log_info(message=msg)
                 else:
@@ -639,7 +640,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         except Exception as e:
             if type(e) is AbortScript:
                 msg = _("Script aborted with error: ") + str(e)
-                if issubclass(script, Report):
+                if is_report(script):
                     script.log_failure(message=msg)
                 else:
                     script.log_failure(msg)
@@ -648,13 +649,13 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             else:
                 stacktrace = traceback.format_exc()
                 msg = _("An exception occurred: : ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
-                if issubclass(script, Report):
+                if is_report(script):
                     script.log_failure(message=msg)
                 else:
                     script.log_failure(msg)
                 logger.error(f"Exception raised during script execution: {e}")
             msg = _("Database changes have been reverted due to error.")
-            if issubclass(script, Report):
+            if is_report(script):
                 script.log_info(message=msg)
             else:
                 script.log_info(msg)
