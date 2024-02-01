@@ -115,6 +115,7 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
+DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
@@ -355,7 +356,6 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 #
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -392,6 +392,9 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
+
+if DJANGO_ADMIN_ENABLED:
+    INSTALLED_APPS.insert(0, 'django.contrib.admin')
 
 # Middleware
 MIDDLEWARE = [

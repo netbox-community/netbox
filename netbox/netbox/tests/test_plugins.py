@@ -32,6 +32,7 @@ class PluginTest(TestCase):
         instance.delete()
         self.assertIsNone(instance.pk)
 
+    @override_settings(DJANGO_ADMIN_ENABLED=True)
     def test_admin(self):
 
         # Test admin view URL resolution
