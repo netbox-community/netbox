@@ -67,4 +67,4 @@ You should be redirected to Okta's authentication portal. Enter the username/ema
 
 If successful, you will be redirected back to the NetBox UI, and will be logged in as the Okta user. You can verify this by navigating to your profile (using the button at top right).
 
-This user account has been replicated locally to NetBox, and can now be assigned groups and permissions within the NetBox admin UI.
+This user account has been replicated locally to NetBox, and can now be assigned groups and permissions within NetBox.
