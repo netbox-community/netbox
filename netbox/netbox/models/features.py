@@ -578,7 +578,6 @@ registry['model_features'].update({
 
 @receiver(class_prepared)
 def _register_features(sender, **kwargs):
-    print(sender)
     # Record each applicable feature for the model in the registry
     features = {
         feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
