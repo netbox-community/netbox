@@ -660,7 +660,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
             else:
                 script.log_info(msg)
 
-            job = set_job_data(job, script)
+            job = set_job_data(script)
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
                 clear_events.send(request)

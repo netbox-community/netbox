@@ -34,22 +34,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         def _output_results(job):
-            # Report on success/failure
-            if job.status == JobStatusChoices.STATUS_FAILED:
-                status = self.style.ERROR('FAILED')
-            elif job == JobStatusChoices.STATUS_ERRORED:
-                status = self.style.ERROR('ERRORED')
-            else:
-                status = self.style.SUCCESS('SUCCESS')
 
-            for test_name, attrs in job.data.logs.items():
+            for test_name, attrs in job.data['logs'].items():
                 self.stdout.write(
                     "\t{}: {} success, {} info, {} warning, {} failure".format(
                         test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failure']
                     )
                 )
 
-        def _set_job_data(job, script):
+        def _set_job_data(script):
             logs = script._logs
             job.data = {
                 'logs': logs,
@@ -71,7 +64,7 @@ class Command(BaseCommand):
                 except AbortTransaction:
                     script.log_info("Database changes have been reverted automatically.")
                     clear_events.send(request)
-                job = _set_job_data(job, script)
+                _set_job_data(script)
                 job.terminate()
             except Exception as e:
                 stacktrace = traceback.format_exc()
@@ -81,9 +74,10 @@ class Command(BaseCommand):
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
                 clear_events.send(request)
-                job = _set_job_data(job, script)
+                _set_job_data(script)
                 job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
 
+            _output_results(job)
             logger.info(f"Script completed in {job.duration}")
 
         User = get_user_model()
@@ -92,6 +86,7 @@ class Command(BaseCommand):
         script = options['script']
         loglevel = options['loglevel']
         commit = options['commit']
+
         try:
             data = json.loads(options['data'])
         except TypeError:
