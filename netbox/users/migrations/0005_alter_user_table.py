@@ -27,6 +27,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # 0001_squashed had model with db_table=auth_user - now we switch it
+        # to None to use the default Django resolution (users.user)
         migrations.AlterModelTable(
             name='user',
             table=None,
