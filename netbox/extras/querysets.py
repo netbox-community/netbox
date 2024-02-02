@@ -126,25 +126,23 @@ class ConfigContextModelQuerySet(RestrictedQuerySet):
 
         base_query.add((Q(roles=OuterRef('role')) | Q(roles=None)), Q.AND)
         base_query.add((Q(sites=OuterRef('site')) | Q(sites=None)), Q.AND)
-        region_field = 'site__region'
-        sitegroup_field = 'site__group'
 
         base_query.add(
             (Q(
-                regions__tree_id=OuterRef(f'{region_field}__tree_id'),
-                regions__level__lte=OuterRef(f'{region_field}__level'),
-                regions__lft__lte=OuterRef(f'{region_field}__lft'),
-                regions__rght__gte=OuterRef(f'{region_field}__rght'),
+                regions__tree_id=OuterRef('site__region__tree_id'),
+                regions__level__lte=OuterRef('site__region__level'),
+                regions__lft__lte=OuterRef('site__region__lft'),
+                regions__rght__gte=OuterRef('site__region__rght'),
             ) | Q(regions=None)),
             Q.AND
         )
 
         base_query.add(
             (Q(
-                site_groups__tree_id=OuterRef(f'{sitegroup_field}__tree_id'),
-                site_groups__level__lte=OuterRef(f'{sitegroup_field}__level'),
-                site_groups__lft__lte=OuterRef(f'{sitegroup_field}__lft'),
-                site_groups__rght__gte=OuterRef(f'{sitegroup_field}__rght'),
+                site_groups__tree_id=OuterRef('site__group__tree_id'),
+                site_groups__level__lte=OuterRef('site__group__level'),
+                site_groups__lft__lte=OuterRef('site__group__lft'),
+                site_groups__rght__gte=OuterRef('site__group__rght'),
             ) | Q(site_groups=None)),
             Q.AND
         )
