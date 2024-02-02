@@ -144,4 +144,5 @@ class Cluster(ContactsMixin, PrimaryModel):
 
     def save(self, *args, **kwargs):
         # Update Site for all assigned virtual machines
+        super().save(*args, **kwargs)
         self.virtual_machines.all().update(site=self.site)
