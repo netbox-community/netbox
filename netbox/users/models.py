@@ -24,9 +24,9 @@ from .constants import *
 
 __all__ = (
     'NetBoxGroup',
-    'User',
     'ObjectPermission',
     'Token',
+    'User',
     'UserConfig',
 )
 
@@ -73,7 +73,6 @@ class NetBoxGroup(Group):
     objects = NetBoxGroupManager()
 
     class Meta:
-        # db_table = 'auth_group'
         proxy = True
         ordering = ('name',)
         verbose_name = _('group')
@@ -220,7 +219,6 @@ class UserConfig(models.Model):
             self.save()
 
 
-@receiver(post_save, sender=User)
 @receiver(post_save, sender=User)
 def create_userconfig(instance, created, raw=False, **kwargs):
     """

@@ -594,7 +594,7 @@ for param in dir(configuration):
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = 'users.utils.clean_username'
 
-SOCIAL_AUTH_USER_MODEL = 'users.User'
+SOCIAL_AUTH_USER_MODEL = AUTH_USER_MODEL
 
 #
 # Django Prometheus
