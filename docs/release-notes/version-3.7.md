@@ -19,6 +19,9 @@
 * [#14885](https://github.com/netbox-community/netbox/issues/14885) - Add missing "group" field to VPN tunnel creation form
 * [#14892](https://github.com/netbox-community/netbox/issues/14892) - Fix exception when running report/script via command line due to missing username
 * [#14920](https://github.com/netbox-community/netbox/issues/14920) - Include button to display available status choices when bulk importing virtual device contexts
+* [#14962](https://github.com/netbox-community/netbox/issues/14962) - Fix config context rendering for VMs assigned directly to a site (rather than via a cluster)
+* [#14999](https://github.com/netbox-community/netbox/issues/14999) - Fix "create & add another" link for interface FHRP group assignment
+* [#15025](https://github.com/netbox-community/netbox/issues/15025) - The `can_add()` template filter should accept a model (not an instance)
 
 ---
 
