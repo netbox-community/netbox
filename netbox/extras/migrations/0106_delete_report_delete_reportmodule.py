@@ -3,14 +3,28 @@
 from django.db import migrations
 
 
+def migrate_report_jobs(apps, schema_editor):
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    Job = apps.get_model('core', 'Job')
+
+    # Delete the new ContentType effected by the introduction of core.ConfigRevision
+    if ContentType.objects.filter(app_label='extras', model='reportmodule'):
+        report_content_type = ContentType.objects.get(app_label='extras', model='reportmodule')
+        script_content_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
+        jobs = Job.objects.filter(object_type_id=report_content_type.id).update(object_type_id=script_content_type.id)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
         ('extras', '0105_customfield_min_max_values'),
-        ('core', '0011_job_report_to_script'),
     ]
 
     operations = [
+        migrations.RunPython(
+            code=migrate_report_jobs,
+            reverse_code=migrations.RunPython.noop
+        ),
         migrations.DeleteModel(
             name='Report',
         ),
