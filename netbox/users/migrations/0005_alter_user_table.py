@@ -16,7 +16,7 @@ def update_content_types(apps, schema_editor):
     if netboxuser_ct:
         user_ct = ContentType.objects.filter(app_label='users', model='user').first()
         CustomField = apps.get_model('extras', 'CustomField')
-        CustField.objects.filter(object_type_id=netboxuser_ct.id).update(object_type_id=user_ct.id)
+        CustomField.objects.filter(object_type_id=netboxuser_ct.id).update(object_type_id=user_ct.id)
 
 
 class Migration(migrations.Migration):
