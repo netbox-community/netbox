@@ -141,3 +141,7 @@ class Cluster(ContactsMixin, PrimaryModel):
                         "{count} devices are assigned as hosts for this cluster but are not in site {site}"
                     ).format(count=nonsite_devices, site=self.site)
                 })
+
+    def save(self, *args, **kwargs):
+        # Update Site for all assigned virtual machines
+        self.virtual_machines.all().update(site=self.site)
