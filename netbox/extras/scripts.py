@@ -275,7 +275,7 @@ class BaseScript:
     def __init__(self):
         self._logs = {}
         self._failed = False
-        self._current_method = 'unassigned'
+        self._current_method = ''
         self._output = ''
 
         # Initiate the log
@@ -285,7 +285,7 @@ class BaseScript:
         self.request = None
 
         # Compile test methods and initialize results skeleton
-        self._logs['unassigned'] = {
+        self._logs[''] = {
             'success': 0,
             'info': 0,
             'warning': 0,
@@ -456,8 +456,8 @@ class BaseScript:
         if log_level != LogLevelChoices.LOG_DEFAULT:
             self._logs[self._current_method][log_level] += 1
 
-            if self._current_method != 'unassigned':
-                self._logs['unassigned'][log_level] += 1
+            if self._current_method != '':
+                self._logs[''][log_level] += 1
 
         if obj:
             self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
@@ -526,10 +526,10 @@ class BaseScript:
                 test_method()
         except Exception as e:
             self.post_run()
-            self._current_method = 'unassigned'
+            self._current_method = ''
             raise e
 
-        self._current_method = 'unassigned'
+        self._current_method = ''
 
     def run(self, data, commit):
         self.pre_run()
