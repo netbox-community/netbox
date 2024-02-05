@@ -5,15 +5,16 @@
 # 
 # Translators:
 # Jeremy Stretch, 2024
+# Burak Senturk, 2024
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-22 21:17+0000\n"
+"POT-Creation-Date: 2024-01-23 18:14+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Burak Senturk, 2024\n"
 "Language-Team: Turkish (https://app.transifex.com/netbox-community/teams/178115/tr/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -46,11 +47,11 @@ msgstr "Oluşturuldu"
 #: templates/users/token.html:40 users/forms/bulk_edit.py:97
 #: users/forms/filtersets.py:137
 msgid "Expires"
-msgstr "Süresi doluyor"
+msgstr "Süre bitiş tarihi"
 
 #: account/tables.py:40 users/forms/filtersets.py:142
 msgid "Last Used"
-msgstr "Son Kullanılan"
+msgstr "Son Kullanım"
 
 #: account/tables.py:43 templates/account/token.html:56
 #: templates/users/token.html:48 users/forms/bulk_edit.py:102
@@ -60,7 +61,7 @@ msgstr "İzin verilen IP'ler"
 
 #: account/views.py:197
 msgid "Your preferences have been updated."
-msgstr ""
+msgstr "Tercihleriniz güncellendi."
 
 #: circuits/choices.py:21 dcim/choices.py:20 dcim/choices.py:102
 #: dcim/choices.py:174 dcim/choices.py:220 dcim/choices.py:1419
@@ -87,7 +88,7 @@ msgstr "Aktif"
 #: dcim/choices.py:1493 dcim/choices.py:1546 virtualization/choices.py:24
 #: virtualization/choices.py:43
 msgid "Offline"
-msgstr "Çevrimdışı"
+msgstr "Çevrim dışı"
 
 #: circuits/choices.py:25
 msgid "Deprovisioning"
@@ -114,7 +115,7 @@ msgstr "Bölge (ID)"
 #: virtualization/filtersets.py:52 virtualization/filtersets.py:180
 #: vpn/filtersets.py:325
 msgid "Region (slug)"
-msgstr "Bölge (sümüklü böcek)"
+msgstr "Bölge (kısa ad)"
 
 #: circuits/filtersets.py:42 circuits/filtersets.py:197 dcim/filtersets.py:196
 #: dcim/filtersets.py:271 dcim/filtersets.py:380 dcim/filtersets.py:902
@@ -131,7 +132,7 @@ msgstr "Site grubu (ID)"
 #: ipam/filtersets.py:916 virtualization/filtersets.py:65
 #: virtualization/filtersets.py:193
 msgid "Site group (slug)"
-msgstr "Site grubu (sümüklü böcek)"
+msgstr "Site grubu (kısa ad)"
 
 #: circuits/filtersets.py:54 circuits/forms/bulk_import.py:117
 #: circuits/forms/filtersets.py:47 circuits/forms/filtersets.py:171
@@ -183,7 +184,7 @@ msgstr "Site grubu (sümüklü böcek)"
 #: virtualization/tables/virtualmachines.py:53 vpn/forms/filtersets.py:262
 #: wireless/forms/model_forms.py:77 wireless/forms/model_forms.py:117
 msgid "Site"
-msgstr "SİTE"
+msgstr "Site"
 
 #: circuits/filtersets.py:60 circuits/filtersets.py:215
 #: circuits/filtersets.py:252 dcim/filtersets.py:213 dcim/filtersets.py:288
@@ -192,11 +193,11 @@ msgstr "SİTE"
 #: virtualization/filtersets.py:75 virtualization/filtersets.py:203
 #: vpn/filtersets.py:335
 msgid "Site (slug)"
-msgstr "Site (sümüklü böcek)"
+msgstr "Site (kısa ad)"
 
 #: circuits/filtersets.py:65
 msgid "ASN (ID)"
-msgstr "ASN (KİMLİK)"
+msgstr "ASN (ID)"
 
 #: circuits/filtersets.py:87 circuits/filtersets.py:114
 #: circuits/filtersets.py:148
@@ -206,7 +207,7 @@ msgstr "Sağlayıcı (ID)"
 #: circuits/filtersets.py:93 circuits/filtersets.py:120
 #: circuits/filtersets.py:154
 msgid "Provider (slug)"
-msgstr "Sağlayıcı (sümüklü böcek)"
+msgstr "Sağlayıcı (kısa ad)"
 
 #: circuits/filtersets.py:159
 msgid "Provider account (ID)"
@@ -222,7 +223,7 @@ msgstr "Devre tipi (ID)"
 
 #: circuits/filtersets.py:174
 msgid "Circuit type (slug)"
-msgstr "Devre tipi (sümüklü böcek)"
+msgstr "Devre tipi (kısa ad)"
 
 #: circuits/filtersets.py:209 circuits/filtersets.py:246
 #: dcim/filtersets.py:207 dcim/filtersets.py:282 dcim/filtersets.py:355
@@ -388,7 +389,7 @@ msgstr "Sağlayıcı"
 #: circuits/forms/bulk_edit.py:75 circuits/forms/filtersets.py:91
 #: templates/circuits/providernetwork.html:31
 msgid "Service ID"
-msgstr "Servis Kimliği"
+msgstr "Servis ID"
 
 #: circuits/forms/bulk_edit.py:95 circuits/forms/filtersets.py:107
 #: dcim/forms/bulk_edit.py:204 dcim/forms/bulk_edit.py:500
@@ -613,7 +614,7 @@ msgstr "Atanan sağlayıcı"
 #: dcim/forms/bulk_import.py:380 dcim/forms/bulk_import.py:1092
 #: dcim/forms/bulk_import.py:1171 extras/forms/bulk_import.py:229
 msgid "RGB color in hexadecimal. Example:"
-msgstr "Onaltılık olarak RGB rengi. Örnek:"
+msgstr "Onaltılık değerde RGB rengi. Örnek:"
 
 #: circuits/forms/bulk_import.py:85
 msgid "Assigned provider account"
@@ -684,7 +685,7 @@ msgstr "Sağlayıcı ağı"
 #: virtualization/forms/filtersets.py:45 virtualization/forms/filtersets.py:99
 #: wireless/forms/model_forms.py:88 wireless/forms/model_forms.py:128
 msgid "Location"
-msgstr "Yer"
+msgstr "Konum"
 
 #: circuits/forms/filtersets.py:27 ipam/forms/model_forms.py:158
 #: ipam/models/asns.py:108 ipam/models/asns.py:125 ipam/tables/asn.py:41
@@ -749,7 +750,7 @@ msgstr "Site grubu"
 
 #: circuits/forms/filtersets.py:51
 msgid "ASN (legacy)"
-msgstr "ASN (miras)"
+msgstr "ASN (eski)"
 
 #: circuits/forms/filtersets.py:65 circuits/forms/filtersets.py:83
 #: circuits/forms/filtersets.py:102 circuits/forms/filtersets.py:117
@@ -814,11 +815,11 @@ msgstr "devre türleri"
 
 #: circuits/models/circuits.py:46
 msgid "circuit ID"
-msgstr "devre kimliği"
+msgstr "devre ID"
 
 #: circuits/models/circuits.py:47
 msgid "Unique circuit ID"
-msgstr "Benzersiz devre kimliği"
+msgstr "Benzersiz devre ID"
 
 #: circuits/models/circuits.py:67 core/models/data.py:54
 #: core/models/jobs.py:85 dcim/models/cables.py:49 dcim/models/devices.py:641
@@ -850,7 +851,7 @@ msgstr "Taahhüt oranı"
 
 #: circuits/models/circuits.py:135
 msgid "circuit"
-msgstr "çevrim"
+msgstr "devre"
 
 #: circuits/models/circuits.py:136
 msgid "circuits"
@@ -950,7 +951,7 @@ msgstr "Sağlayıcının tam adı"
 #: netbox/models/__init__.py:185 tenancy/models/tenants.py:25
 #: tenancy/models/tenants.py:49 vpn/models/l2vpn.py:27 wireless/models.py:55
 msgid "slug"
-msgstr "sümüklü böcek"
+msgstr "kısa ad"
 
 #: circuits/models/providers.py:42
 msgid "provider"
@@ -1082,7 +1083,7 @@ msgstr "Devreler"
 
 #: circuits/tables/circuits.py:52 templates/circuits/circuit.html:27
 msgid "Circuit ID"
-msgstr "Devre Kimliği"
+msgstr "Devre ID"
 
 #: circuits/tables/circuits.py:65 wireless/forms/model_forms.py:157
 msgid "Side A"
@@ -1225,7 +1226,7 @@ msgstr "Veri kaynağı (isim)"
 msgid "Enforce unique space"
 msgstr "Benzersiz alanı uygulayın"
 
-#: core/forms/bulk_edit.py:33 extras/forms/model_forms.py:202
+#: core/forms/bulk_edit.py:33 extras/forms/model_forms.py:204
 #: templates/extras/savedfilter.html:57 vpn/forms/filtersets.py:95
 #: vpn/forms/filtersets.py:124 vpn/forms/filtersets.py:148
 #: vpn/forms/filtersets.py:167 vpn/forms/model_forms.py:294
@@ -1239,8 +1240,8 @@ msgid "Ignore rules"
 msgstr "Kuralları yok sayın"
 
 #: core/forms/filtersets.py:26 core/forms/model_forms.py:95
-#: extras/forms/model_forms.py:165 extras/forms/model_forms.py:462
-#: extras/forms/model_forms.py:515 extras/tables/tables.py:149
+#: extras/forms/model_forms.py:167 extras/forms/model_forms.py:464
+#: extras/forms/model_forms.py:517 extras/tables/tables.py:149
 #: extras/tables/tables.py:368 extras/tables/tables.py:403
 #: templates/core/datasource.html:31
 #: templates/dcim/device/render_config.html:19
@@ -2029,7 +2030,7 @@ msgstr "Ana bölge (ID)"
 
 #: dcim/filtersets.py:88
 msgid "Parent region (slug)"
-msgstr "Ana bölge (sümüklü böcek)"
+msgstr "Ana bölge (kısa ad)"
 
 #: dcim/filtersets.py:99
 msgid "Parent site group (ID)"
@@ -2037,7 +2038,7 @@ msgstr "Ana site grubu (ID)"
 
 #: dcim/filtersets.py:105
 msgid "Parent site group (slug)"
-msgstr "Ana site grubu (sümüklü böcek)"
+msgstr "Ana site grubu (kısa ad)"
 
 #: dcim/filtersets.py:134 ipam/filtersets.py:797 ipam/filtersets.py:930
 msgid "Group (ID)"
@@ -2045,7 +2046,7 @@ msgstr "Grup (ID)"
 
 #: dcim/filtersets.py:140
 msgid "Group (slug)"
-msgstr "Grup (sümüklü böcek)"
+msgstr "Grup (kısa ad)"
 
 #: dcim/filtersets.py:146 dcim/filtersets.py:151
 msgid "AS (ID)"
@@ -2059,7 +2060,7 @@ msgstr "Konum (ID)"
 #: dcim/filtersets.py:226 dcim/filtersets.py:301 dcim/filtersets.py:400
 #: dcim/filtersets.py:1235 extras/filtersets.py:447
 msgid "Location (slug)"
-msgstr "Yer (sümüklü böcek)"
+msgstr "Konum (kısa ad)"
 
 #: dcim/filtersets.py:315 dcim/filtersets.py:772 dcim/filtersets.py:862
 #: dcim/filtersets.py:1635 ipam/filtersets.py:347 ipam/filtersets.py:459
@@ -2072,7 +2073,7 @@ msgstr "Rol (ID)"
 #: ipam/filtersets.py:465 ipam/filtersets.py:946
 #: virtualization/filtersets.py:216
 msgid "Role (slug)"
-msgstr "Rol (sümüklü böcek)"
+msgstr "Rol (kısa ad)"
 
 #: dcim/filtersets.py:350 dcim/filtersets.py:930 dcim/filtersets.py:1240
 #: dcim/filtersets.py:2029
@@ -2099,7 +2100,7 @@ msgstr "Üretici (ID)"
 #: dcim/filtersets.py:819 dcim/filtersets.py:847 dcim/filtersets.py:1137
 #: dcim/filtersets.py:1631
 msgid "Manufacturer (slug)"
-msgstr "Üretici (sümüklü böcek)"
+msgstr "Üretici (kısa ad)"
 
 #: dcim/filtersets.py:448
 msgid "Default platform (ID)"
@@ -2107,7 +2108,7 @@ msgstr "Varsayılan platform (ID)"
 
 #: dcim/filtersets.py:454
 msgid "Default platform (slug)"
-msgstr "Varsayılan platform (slug)"
+msgstr "Varsayılan platform (kısa ad)"
 
 #: dcim/filtersets.py:457 dcim/forms/filtersets.py:452
 msgid "Has a front image"
@@ -2159,7 +2160,7 @@ msgstr "Modül yuvaları vardır"
 
 #: dcim/filtersets.py:494 dcim/filtersets.py:1011 dcim/forms/filtersets.py:508
 msgid "Has device bays"
-msgstr "Cihaz yuvaları vardır"
+msgstr "Aygıt yuvaları vardır"
 
 #: dcim/filtersets.py:498 dcim/forms/filtersets.py:522
 msgid "Has inventory items"
@@ -2167,7 +2168,7 @@ msgstr "Envanter kalemleri var"
 
 #: dcim/filtersets.py:643 dcim/filtersets.py:857 dcim/filtersets.py:1261
 msgid "Device type (ID)"
-msgstr "Cihaz tipi (ID)"
+msgstr "Aygıt tipi (ID)"
 
 #: dcim/filtersets.py:659 dcim/filtersets.py:1142
 msgid "Module type (ID)"
@@ -2184,11 +2185,11 @@ msgstr "Yapılandırma şablonu (ID)"
 
 #: dcim/filtersets.py:853
 msgid "Device type (slug)"
-msgstr "Cihaz tipi (sümüklü böcek)"
+msgstr "Aygıt tipi (kısa ad)"
 
 #: dcim/filtersets.py:873
 msgid "Parent Device (ID)"
-msgstr "Ana Cihaz (ID)"
+msgstr "Ana Aygıt (ID)"
 
 #: dcim/filtersets.py:877 virtualization/filtersets.py:220
 msgid "Platform (ID)"
@@ -2197,12 +2198,12 @@ msgstr "Platform (ID)"
 #: dcim/filtersets.py:883 extras/filtersets.py:474
 #: virtualization/filtersets.py:226
 msgid "Platform (slug)"
-msgstr "Platform (sümüklü böcek)"
+msgstr "Platform (kısa ad)"
 
 #: dcim/filtersets.py:919 dcim/filtersets.py:1224 dcim/filtersets.py:1719
 #: dcim/filtersets.py:1961 dcim/filtersets.py:2020
 msgid "Site name (slug)"
-msgstr "Site adı (sümüklü böcek)"
+msgstr "Site adı (kısa ad)"
 
 #: dcim/filtersets.py:934
 msgid "VM cluster (ID)"
@@ -2210,7 +2211,7 @@ msgstr "VM kümesi (ID)"
 
 #: dcim/filtersets.py:940
 msgid "Device model (slug)"
-msgstr "Cihaz modeli (sümüklü böcek)"
+msgstr "Aygıt modeli (kısa ad)"
 
 #: dcim/filtersets.py:951 dcim/forms/bulk_edit.py:421
 msgid "Is full depth"
@@ -2258,7 +2259,7 @@ msgstr "Modül Yuvası (ID)"
 #: ipam/filtersets.py:807 ipam/filtersets.py:1026
 #: virtualization/filtersets.py:161 vpn/filtersets.py:351
 msgid "Device (ID)"
-msgstr "Cihaz (ID)"
+msgstr "Aygıt (ID)"
 
 #: dcim/filtersets.py:1246
 msgid "Rack (name)"
@@ -2267,11 +2268,11 @@ msgstr "Raf (isim)"
 #: dcim/filtersets.py:1256 ipam/filtersets.py:572 ipam/filtersets.py:802
 #: ipam/filtersets.py:1032 vpn/filtersets.py:346
 msgid "Device (name)"
-msgstr "Cihaz (isim)"
+msgstr "Aygıt (isim)"
 
 #: dcim/filtersets.py:1267
 msgid "Device type (model)"
-msgstr "Cihaz tipi (model)"
+msgstr "Aygıt tipi (model)"
 
 #: dcim/filtersets.py:1272 dcim/filtersets.py:1295
 msgid "Device role (ID)"
@@ -2279,7 +2280,7 @@ msgstr "Aygıt rolü (ID)"
 
 #: dcim/filtersets.py:1278 dcim/filtersets.py:1301
 msgid "Device role (slug)"
-msgstr "Cihaz rolü (slug)"
+msgstr "Aygıt rolü (kısa ad)"
 
 #: dcim/filtersets.py:1283
 msgid "Virtual Chassis (ID)"
@@ -2358,11 +2359,11 @@ msgstr "L2VPN"
 
 #: dcim/filtersets.py:1483
 msgid "Virtual Chassis Interfaces for Device"
-msgstr "Cihaz için Sanal Kasa Arabirimleri"
+msgstr "Aygıt için Sanal Kasa Arabirimleri"
 
 #: dcim/filtersets.py:1488
 msgid "Virtual Chassis Interfaces for Device (ID)"
-msgstr "Cihaz için Sanal Kasa Arabirimleri (ID)"
+msgstr "Aygıt için Sanal Kasa Arabirimleri (ID)"
 
 #: dcim/filtersets.py:1492
 msgid "Kind of interface"
@@ -2394,7 +2395,7 @@ msgstr "Kiracı (ID)"
 
 #: dcim/filtersets.py:1730 extras/filtersets.py:523 tenancy/filtersets.py:227
 msgid "Tenant (slug)"
-msgstr "Kiracı (sümüklü böcek)"
+msgstr "Kiracı (kısa ad)"
 
 #: dcim/filtersets.py:1766 dcim/forms/filtersets.py:990
 msgid "Unterminated"
@@ -2405,7 +2406,7 @@ msgid "Power panel (ID)"
 msgstr "Güç paneli (ID)"
 
 #: dcim/forms/bulk_create.py:40 extras/forms/filtersets.py:410
-#: extras/forms/model_forms.py:451 extras/forms/model_forms.py:502
+#: extras/forms/model_forms.py:453 extras/forms/model_forms.py:504
 #: netbox/forms/base.py:82 netbox/forms/mixins.py:79
 #: netbox/tables/columns.py:448
 #: templates/circuits/inc/circuit_termination.html:119
@@ -2679,7 +2680,7 @@ msgstr "Hava akışı"
 #: dcim/tables/devicetypes.py:78 templates/dcim/device.html:90
 #: templates/dcim/devicebay.html:59 templates/dcim/module.html:59
 msgid "Device Type"
-msgstr "Cihaz Türü"
+msgstr "Aygıt Türü"
 
 #: dcim/forms/bulk_edit.py:492 dcim/forms/model_forms.py:336
 #: dcim/tables/modules.py:17 dcim/tables/modules.py:65
@@ -2711,12 +2712,12 @@ msgstr "Yapılandırma şablonu"
 #: dcim/forms/model_forms.py:435 dcim/forms/model_forms.py:776
 #: dcim/forms/model_forms.py:790 extras/filtersets.py:452
 msgid "Device type"
-msgstr "Cihaz tipi"
+msgstr "Aygıt tipi"
 
 #: dcim/forms/bulk_edit.py:565 dcim/forms/bulk_import.py:410
 #: dcim/forms/filtersets.py:116 dcim/forms/model_forms.py:440
 msgid "Device role"
-msgstr "Cihaz rolü"
+msgstr "Aygıt rolü"
 
 #: dcim/forms/bulk_edit.py:588 dcim/forms/bulk_import.py:435
 #: dcim/forms/filtersets.py:723 dcim/forms/model_forms.py:385
@@ -2788,7 +2789,7 @@ msgstr "Platform"
 #: wireless/forms/model_forms.py:100 wireless/forms/model_forms.py:140
 #: wireless/tables/wirelesslan.py:75
 msgid "Device"
-msgstr "Cihaz"
+msgstr "Aygıt"
 
 #: dcim/forms/bulk_edit.py:624 netbox/navigation/menu.py:441
 #: templates/extras/dashboard/widget_config.html:7
@@ -3114,11 +3115,11 @@ msgstr "Bu tür cihazlar için varsayılan platform (isteğe bağlı)"
 
 #: dcim/forms/bulk_import.py:326
 msgid "Device weight"
-msgstr "Cihaz ağırlığı"
+msgstr "Aygıt ağırlığı"
 
 #: dcim/forms/bulk_import.py:332
 msgid "Unit for device weight"
-msgstr "Cihaz ağırlığı için birim"
+msgstr "Aygıt ağırlığı için birim"
 
 #: dcim/forms/bulk_import.py:352
 msgid "Module weight"
@@ -3138,11 +3139,11 @@ msgstr "Atanan rol"
 
 #: dcim/forms/bulk_import.py:426
 msgid "Device type manufacturer"
-msgstr "Cihaz tipi üreticisi"
+msgstr "Aygıt tipi üreticisi"
 
 #: dcim/forms/bulk_import.py:432
 msgid "Device type model"
-msgstr "Cihaz tipi modeli"
+msgstr "Aygıt tipi modeli"
 
 #: dcim/forms/bulk_import.py:439 virtualization/forms/bulk_import.py:126
 msgid "Assigned platform"
@@ -3198,7 +3199,7 @@ msgstr "Ana cihaz (çocuk cihazlar için)"
 
 #: dcim/forms/bulk_import.py:510
 msgid "Device bay"
-msgstr "Cihaz yuvası"
+msgstr "Aygıt yuvası"
 
 #: dcim/forms/bulk_import.py:514
 msgid "Device bay in which this device is installed (for child devices)"
@@ -3558,11 +3559,11 @@ msgstr "Bağlantı"
 #: dcim/forms/filtersets.py:1245 dcim/forms/model_forms.py:1477
 #: templates/dcim/virtualdevicecontext.html:16
 msgid "Virtual Device Context"
-msgstr "Sanal Cihaz Bağlamı"
+msgstr "Sanal Aygıt Bağlamı"
 
 #: dcim/forms/filtersets.py:1248 extras/forms/bulk_edit.py:315
 #: extras/forms/bulk_import.py:239 extras/forms/filtersets.py:479
-#: extras/forms/model_forms.py:555 extras/tables/tables.py:487
+#: extras/forms/model_forms.py:557 extras/tables/tables.py:487
 #: templates/extras/journalentry.html:33
 msgid "Kind"
 msgstr "Tür"
@@ -3638,7 +3639,7 @@ msgstr "Rezervasyon"
 #: dcim/forms/model_forms.py:297 dcim/forms/model_forms.py:380
 #: utilities/forms/fields/fields.py:47
 msgid "Slug"
-msgstr "Sümüklü böcek"
+msgstr "Kısa isim"
 
 #: dcim/forms/model_forms.py:304 templates/dcim/devicetype.html:12
 msgid "Chassis"
@@ -4577,7 +4578,7 @@ msgstr "tam derinliktir"
 
 #: dcim/models/devices.py:117
 msgid "Device consumes both front and rear rack faces."
-msgstr "Cihaz hem ön hem de arka raf yüzlerini tüketir."
+msgstr "Aygıt hem ön hem de arka raf yüzlerini tüketir."
 
 #: dcim/models/devices.py:123
 msgid "parent/child status"
@@ -4613,7 +4614,7 @@ msgid ""
 "Device {device} in rack {rack} does not have sufficient space to accommodate"
 " a height of {height}U"
 msgstr ""
-"Cihaz {device} rafta {rack} bir yüksekliği barındırmak için yeterli alana "
+"Aygıt {device} rafta {rack} bir yüksekliği barındırmak için yeterli alana "
 "sahip değildir {height}U"
 
 #: dcim/models/devices.py:321
@@ -4737,7 +4738,7 @@ msgstr "boylam"
 
 #: dcim/models/devices.py:786
 msgid "Device name must be unique per site."
-msgstr "Cihaz adı site başına benzersiz olmalıdır."
+msgstr "Aygıt adı site başına benzersiz olmalıdır."
 
 #: dcim/models/devices.py:797 ipam/models/services.py:75
 msgid "device"
@@ -4755,12 +4756,12 @@ msgstr "Raf {rack} siteye ait değil {site}."
 #: dcim/models/devices.py:843
 #, python-brace-format
 msgid "Location {location} does not belong to site {site}."
-msgstr "Yer {location} siteye ait değil {site}."
+msgstr "{location} Konum {site} adlı siteye ait değil."
 
 #: dcim/models/devices.py:849
 #, python-brace-format
 msgid "Rack {rack} does not belong to location {location}."
-msgstr "Raf {rack} konuma ait değil {location}."
+msgstr "{rack} rafı {location} adlı konuma ait değil."
 
 #: dcim/models/devices.py:856
 msgid "Cannot select a rack face without assigning a rack."
@@ -4935,7 +4936,7 @@ msgstr "güç panelleri"
 #, python-brace-format
 msgid ""
 "Location {location} ({location_site}) is in a different site than {site}"
-msgstr "Yer {location} ({location_site}) farklı bir sitede {site}"
+msgstr "{location} ({location_site}) adlı konum, {site} adlı sitede değil."
 
 #: dcim/models/power.py:107
 msgid "supply"
@@ -5152,7 +5153,7 @@ msgstr "Bu ada sahip üst düzey bir bölge zaten var."
 
 #: dcim/models/sites.py:59
 msgid "A top-level region with this slug already exists."
-msgstr "Bu sümüklü böceklerin bulunduğu üst düzey bir bölge zaten var."
+msgstr "Bu kısa adı içeren üst düzey bir bölge zaten var."
 
 #: dcim/models/sites.py:62
 msgid "region"
@@ -5160,7 +5161,7 @@ msgstr "bölge"
 
 #: dcim/models/sites.py:63
 msgid "regions"
-msgstr "yöreler"
+msgstr "bölgeler"
 
 #: dcim/models/sites.py:102
 msgid "A top-level site group with this name already exists."
@@ -5168,7 +5169,7 @@ msgstr "Bu ada sahip üst düzey bir site grubu zaten var."
 
 #: dcim/models/sites.py:112
 msgid "A top-level site group with this slug already exists."
-msgstr "Bu sümüklü böcek içeren üst düzey bir site grubu zaten var."
+msgstr "Bu kısa adı içeren üst düzey bir site grubu zaten var."
 
 #: dcim/models/sites.py:115
 msgid "site group"
@@ -5220,7 +5221,7 @@ msgstr "Belirtilen sitede bu ada sahip bir konum zaten var."
 
 #: dcim/models/sites.py:313
 msgid "A location with this slug already exists within the specified site."
-msgstr "Belirtilen sitede bu sümüklü böcek bulunan bir konum zaten var."
+msgstr "Belirtilen sitede bu kısa ada sahip bir konum zaten var."
 
 #: dcim/models/sites.py:316
 msgid "location"
@@ -5228,12 +5229,12 @@ msgstr "konum"
 
 #: dcim/models/sites.py:317
 msgid "locations"
-msgstr "konumları"
+msgstr "konumlar"
 
 #: dcim/models/sites.py:331
 #, python-brace-format
 msgid "Parent location ({parent}) must belong to the same site ({site})."
-msgstr "Ana konum ({parent}) aynı siteye ait olmalıdır ({site})."
+msgstr "Ana konum ({parent}) aynı siteye ({site}) ait olmalıdır."
 
 #: dcim/tables/cables.py:54
 msgid "Termination A"
@@ -5245,11 +5246,11 @@ msgstr "Sonlandırma B"
 
 #: dcim/tables/cables.py:65 wireless/tables/wirelesslink.py:22
 msgid "Device A"
-msgstr "Cihaz A"
+msgstr "Aygıt A"
 
 #: dcim/tables/cables.py:71 wireless/tables/wirelesslink.py:31
 msgid "Device B"
-msgstr "Cihaz B"
+msgstr "Aygıt B"
 
 #: dcim/tables/cables.py:77
 msgid "Location A"
@@ -5273,7 +5274,7 @@ msgstr "Site A"
 
 #: dcim/tables/cables.py:107
 msgid "Site B"
-msgstr "B Sitesi"
+msgstr "Site B"
 
 #: dcim/tables/connections.py:27 templates/dcim/consoleport.html:18
 #: templates/dcim/consoleserverport.html:75 templates/dcim/frontport.html:119
@@ -5307,7 +5308,7 @@ msgid "VMs"
 msgstr "Sanal Makineler"
 
 #: dcim/tables/devices.py:133 dcim/tables/devices.py:245
-#: extras/forms/model_forms.py:513 templates/dcim/device.html:114
+#: extras/forms/model_forms.py:515 templates/dcim/device.html:114
 #: templates/dcim/device/render_config.html:11
 #: templates/dcim/device/render_config.html:15
 #: templates/dcim/devicerole.html:47 templates/dcim/platform.html:44
@@ -5352,7 +5353,7 @@ msgstr "Ebeveyn Aygıtı"
 
 #: dcim/tables/devices.py:254
 msgid "Position (Device Bay)"
-msgstr "Konum (Cihaz Yuvası)"
+msgstr "Konum (Aygıt Yuvası)"
 
 #: dcim/tables/devices.py:263
 msgid "Console ports"
@@ -5391,7 +5392,7 @@ msgstr "Ön bağlantı noktaları"
 
 #: dcim/tables/devices.py:284
 msgid "Device bays"
-msgstr "Cihaz yuvaları"
+msgstr "Aygıt yuvaları"
 
 #: dcim/tables/devices.py:287
 msgid "Module bays"
@@ -5508,14 +5509,14 @@ msgstr "Öğeler"
 #: dcim/tables/devicetypes.py:38 netbox/navigation/menu.py:72
 #: netbox/navigation/menu.py:74
 msgid "Device Types"
-msgstr "Cihaz Türleri"
+msgstr "Aygıt Türleri"
 
 #: dcim/tables/devicetypes.py:43 netbox/navigation/menu.py:75
 msgid "Module Types"
 msgstr "Modül Çeşitleri"
 
 #: dcim/tables/devicetypes.py:53 extras/forms/filtersets.py:379
-#: extras/forms/model_forms.py:421 netbox/navigation/menu.py:66
+#: extras/forms/model_forms.py:423 netbox/navigation/menu.py:66
 msgid "Platforms"
 msgstr "Platformlar"
 
@@ -5586,7 +5587,7 @@ msgstr "Arka Bağlantı Noktaları"
 #: netbox/navigation/menu.py:90 templates/dcim/device/base.html:49
 #: templates/dcim/device_list.html:57 templates/dcim/devicetype/base.html:46
 msgid "Device Bays"
-msgstr "Cihaz Yuvaları"
+msgstr "Aygıt Yuvaları"
 
 #: dcim/tables/devicetypes.py:137 dcim/views.py:1046 dcim/views.py:1981
 #: netbox/navigation/menu.py:89 templates/dcim/device/base.html:46
@@ -5634,7 +5635,7 @@ msgid "Max Weight"
 msgstr "Maksimum Ağırlık"
 
 #: dcim/tables/sites.py:30 dcim/tables/sites.py:57
-#: extras/forms/filtersets.py:359 extras/forms/model_forms.py:401
+#: extras/forms/filtersets.py:359 extras/forms/model_forms.py:403
 #: ipam/forms/bulk_edit.py:128 ipam/forms/model_forms.py:152
 #: ipam/tables/asn.py:66 netbox/navigation/menu.py:16
 #: netbox/navigation/menu.py:18
@@ -5654,7 +5655,7 @@ msgstr "Rezervasyon"
 msgid "Non-Racked Devices"
 msgstr "Raf Olmayan Cihazlar"
 
-#: dcim/views.py:2032 extras/forms/model_forms.py:461
+#: dcim/views.py:2032 extras/forms/model_forms.py:463
 #: templates/extras/configcontext.html:10
 #: virtualization/forms/model_forms.py:228 virtualization/views.py:408
 msgid "Config Context"
@@ -5891,8 +5892,8 @@ msgstr "Siyah"
 msgid "White"
 msgstr "Beyaz"
 
-#: extras/choices.py:306 extras/forms/model_forms.py:233
-#: extras/forms/model_forms.py:319 templates/extras/webhook.html:11
+#: extras/choices.py:306 extras/forms/model_forms.py:235
+#: extras/forms/model_forms.py:321 templates/extras/webhook.html:11
 msgid "Webhook"
 msgstr "Web kancası"
 
@@ -5981,7 +5982,7 @@ msgstr "Küme türü"
 #: extras/filtersets.py:485 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:147
 msgid "Cluster type (slug)"
-msgstr "Küme tipi (sümüklü böcek)"
+msgstr "Küme tipi (kısa ad)"
 
 #: extras/filtersets.py:490 ipam/forms/bulk_edit.py:475
 #: ipam/forms/model_forms.py:585 virtualization/forms/filtersets.py:108
@@ -5990,7 +5991,7 @@ msgstr "Küme grubu"
 
 #: extras/filtersets.py:496 virtualization/filtersets.py:136
 msgid "Cluster group (slug)"
-msgstr "Küme grubu (sümüklü böcek)"
+msgstr "Küme grubu (kısa ad)"
 
 #: extras/filtersets.py:506 tenancy/forms/forms.py:16
 #: tenancy/forms/forms.py:39
@@ -6000,7 +6001,7 @@ msgstr "Kiracı grubu"
 #: extras/filtersets.py:512 tenancy/filtersets.py:164
 #: tenancy/filtersets.py:184
 msgid "Tenant group (slug)"
-msgstr "Kiracı grubu (sümüklü böcek)"
+msgstr "Kiracı grubu (kısa ad)"
 
 #: extras/filtersets.py:528 templates/extras/tag.html:12
 msgid "Tag"
@@ -6008,7 +6009,7 @@ msgstr "etiket"
 
 #: extras/filtersets.py:534
 msgid "Tag (slug)"
-msgstr "Etiket (slug)"
+msgstr "Etiket (kısa ad)"
 
 #: extras/filtersets.py:594 extras/forms/filtersets.py:438
 msgid "Has local config context data"
@@ -6119,8 +6120,8 @@ msgstr "Aktif"
 #: extras/forms/bulk_import.py:177 extras/forms/filtersets.py:114
 #: extras/forms/filtersets.py:160 extras/forms/filtersets.py:201
 #: extras/forms/model_forms.py:43 extras/forms/model_forms.py:127
-#: extras/forms/model_forms.py:154 extras/forms/model_forms.py:195
-#: extras/forms/model_forms.py:251
+#: extras/forms/model_forms.py:156 extras/forms/model_forms.py:197
+#: extras/forms/model_forms.py:253
 msgid "Content types"
 msgstr "İçerik türleri"
 
@@ -6136,7 +6137,7 @@ msgstr "Alan veri türü (örn. Metin, tamsayı vb.)"
 
 #: extras/forms/bulk_import.py:44 extras/forms/filtersets.py:48
 #: extras/forms/filtersets.py:259 extras/forms/model_forms.py:47
-#: extras/forms/model_forms.py:221 tenancy/forms/filtersets.py:91
+#: extras/forms/model_forms.py:223 tenancy/forms/filtersets.py:91
 msgid "Object type"
 msgstr "Nesne türü"
 
@@ -6199,7 +6200,7 @@ msgid "Choices"
 msgstr "Seçenekler"
 
 #: extras/forms/filtersets.py:141 extras/forms/filtersets.py:327
-#: extras/forms/filtersets.py:417 extras/forms/model_forms.py:456
+#: extras/forms/filtersets.py:417 extras/forms/model_forms.py:458
 #: templates/core/job.html:86 templates/extras/configcontext.html:86
 #: templates/extras/eventrule.html:111
 msgid "Data"
@@ -6219,7 +6220,7 @@ msgstr "İçerik türü"
 msgid "HTTP content type"
 msgstr "HTTP içerik türü"
 
-#: extras/forms/filtersets.py:254 extras/forms/model_forms.py:269
+#: extras/forms/filtersets.py:254 extras/forms/model_forms.py:271
 #: templates/extras/eventrule.html:46
 msgid "Events"
 msgstr "Olaylar"
@@ -6244,7 +6245,7 @@ msgstr "Nesne silme"
 msgid "Job starts"
 msgstr "İş başlıyor"
 
-#: extras/forms/filtersets.py:306 extras/forms/model_forms.py:288
+#: extras/forms/filtersets.py:306 extras/forms/model_forms.py:290
 msgid "Job terminations"
 msgstr "İş sonlandırmaları"
 
@@ -6256,44 +6257,44 @@ msgstr "Etiketli nesne türü"
 msgid "Allowed object type"
 msgstr "İzin verilen nesne türü"
 
-#: extras/forms/filtersets.py:349 extras/forms/model_forms.py:391
+#: extras/forms/filtersets.py:349 extras/forms/model_forms.py:393
 #: netbox/navigation/menu.py:19
 msgid "Regions"
 msgstr "Bölgeler"
 
-#: extras/forms/filtersets.py:354 extras/forms/model_forms.py:396
+#: extras/forms/filtersets.py:354 extras/forms/model_forms.py:398
 msgid "Site groups"
 msgstr "Site grupları"
 
-#: extras/forms/filtersets.py:364 extras/forms/model_forms.py:406
+#: extras/forms/filtersets.py:364 extras/forms/model_forms.py:408
 #: netbox/navigation/menu.py:21
 msgid "Locations"
 msgstr "Konumlar"
 
-#: extras/forms/filtersets.py:369 extras/forms/model_forms.py:411
+#: extras/forms/filtersets.py:369 extras/forms/model_forms.py:413
 msgid "Device types"
-msgstr "Cihaz türleri"
+msgstr "Aygıt türleri"
 
-#: extras/forms/filtersets.py:374 extras/forms/model_forms.py:416
+#: extras/forms/filtersets.py:374 extras/forms/model_forms.py:418
 msgid "Roles"
 msgstr "Roller"
 
-#: extras/forms/filtersets.py:384 extras/forms/model_forms.py:426
+#: extras/forms/filtersets.py:384 extras/forms/model_forms.py:428
 msgid "Cluster types"
 msgstr "Küme türleri"
 
-#: extras/forms/filtersets.py:390 extras/forms/model_forms.py:431
+#: extras/forms/filtersets.py:390 extras/forms/model_forms.py:433
 msgid "Cluster groups"
 msgstr "Küme grupları"
 
-#: extras/forms/filtersets.py:395 extras/forms/model_forms.py:436
+#: extras/forms/filtersets.py:395 extras/forms/model_forms.py:438
 #: netbox/navigation/menu.py:243 netbox/navigation/menu.py:245
 #: templates/virtualization/clustertype.html:33
 #: virtualization/tables/clusters.py:23 virtualization/tables/clusters.py:45
 msgid "Clusters"
 msgstr "Kümeler"
 
-#: extras/forms/filtersets.py:400 extras/forms/model_forms.py:441
+#: extras/forms/filtersets.py:400 extras/forms/model_forms.py:443
 msgid "Tenant groups"
 msgstr "Kiracı grupları"
 
@@ -6311,7 +6312,7 @@ msgstr "Önce"
 msgid "Time"
 msgstr "Zaman"
 
-#: extras/forms/filtersets.py:504 extras/forms/model_forms.py:271
+#: extras/forms/filtersets.py:504 extras/forms/model_forms.py:273
 #: extras/tables/tables.py:445 templates/extras/eventrule.html:90
 #: templates/extras/objectchange.html:50
 msgid "Action"
@@ -6366,59 +6367,64 @@ msgid "Templates"
 msgstr "Şablonlar"
 
 #: extras/forms/model_forms.py:145
+#, python-brace-format
 msgid ""
-"Jinja2 template code for the link text. Reference the object as <code>{{ "
-"object }}</code>. Links which render as empty text will not be displayed."
+"Jinja2 template code for the link text. Reference the object as {example}. "
+"Links which render as empty text will not be displayed."
 msgstr ""
+"Bağlantı metni için Jinja2 şablon kodu. Nesneyi {example} şeklinde referans "
+"alabilirsiniz. Boş metin olarak görüntülenen bağlantılar görüntülenmez."
 
-#: extras/forms/model_forms.py:148
+#: extras/forms/model_forms.py:149
+#, python-brace-format
 msgid ""
-"Jinja2 template code for the link URL. Reference the object as <code>{{ "
-"object }}</code>."
+"Jinja2 template code for the link URL. Reference the object as {example}."
 msgstr ""
+"Bağlantı metni için Jinja2 şablon kodu. Nesneyi {example} şeklinde referans "
+"alabilirsiniz. "
 
-#: extras/forms/model_forms.py:158 extras/forms/model_forms.py:507
+#: extras/forms/model_forms.py:160 extras/forms/model_forms.py:509
 msgid "Template code"
 msgstr "Şablon kodu"
 
-#: extras/forms/model_forms.py:164 templates/extras/exporttemplate.html:17
+#: extras/forms/model_forms.py:166 templates/extras/exporttemplate.html:17
 msgid "Export Template"
 msgstr "Dışa Aktar Şablonu"
 
-#: extras/forms/model_forms.py:166
+#: extras/forms/model_forms.py:168
 msgid "Rendering"
 msgstr "Oluşturma"
 
-#: extras/forms/model_forms.py:180 extras/forms/model_forms.py:532
+#: extras/forms/model_forms.py:182 extras/forms/model_forms.py:534
 msgid "Template content is populated from the remote source selected below."
 msgstr "Şablon içeriği aşağıda seçilen uzak kaynaktan doldurulur."
 
-#: extras/forms/model_forms.py:187 extras/forms/model_forms.py:539
+#: extras/forms/model_forms.py:189 extras/forms/model_forms.py:541
 msgid "Must specify either local content or a data file"
 msgstr "Yerel içerik veya veri dosyası belirtmelidir"
 
-#: extras/forms/model_forms.py:201 netbox/forms/mixins.py:68
+#: extras/forms/model_forms.py:203 netbox/forms/mixins.py:68
 #: templates/extras/savedfilter.html:10
 msgid "Saved Filter"
 msgstr "Kaydedilen Filtre"
 
-#: extras/forms/model_forms.py:234 templates/extras/webhook.html:28
+#: extras/forms/model_forms.py:236 templates/extras/webhook.html:28
 msgid "HTTP Request"
 msgstr "HTTP isteği"
 
-#: extras/forms/model_forms.py:237 templates/extras/webhook.html:53
+#: extras/forms/model_forms.py:239 templates/extras/webhook.html:53
 msgid "SSL"
 msgstr "SSL"
 
-#: extras/forms/model_forms.py:255
+#: extras/forms/model_forms.py:257
 msgid "Action choice"
 msgstr "Eylem seçimi"
 
-#: extras/forms/model_forms.py:260
+#: extras/forms/model_forms.py:262
 msgid "Enter conditions in <a href=\"https://json.org/\">JSON</a> format."
 msgstr "Koşulları girin <a href=\"https://json.org/\">JSON</a> biçim."
 
-#: extras/forms/model_forms.py:264
+#: extras/forms/model_forms.py:266
 msgid ""
 "Enter parameters to pass to the action in <a "
 "href=\"https://json.org/\">JSON</a> format."
@@ -6426,55 +6432,55 @@ msgstr ""
 "Eyleme iletilecek parametreleri girin <a href=\"https://json.org/\">JSON</a>"
 " biçim."
 
-#: extras/forms/model_forms.py:268 templates/extras/eventrule.html:11
+#: extras/forms/model_forms.py:270 templates/extras/eventrule.html:11
 msgid "Event Rule"
 msgstr "Etkinlik Kuralı"
 
-#: extras/forms/model_forms.py:270 templates/extras/eventrule.html:78
+#: extras/forms/model_forms.py:272 templates/extras/eventrule.html:78
 msgid "Conditions"
 msgstr "Koşullar"
 
-#: extras/forms/model_forms.py:284
+#: extras/forms/model_forms.py:286
 msgid "Creations"
 msgstr "Kreasyonlar"
 
-#: extras/forms/model_forms.py:285
+#: extras/forms/model_forms.py:287
 msgid "Updates"
 msgstr "Güncellemeler"
 
-#: extras/forms/model_forms.py:286
+#: extras/forms/model_forms.py:288
 msgid "Deletions"
 msgstr "Silme"
 
-#: extras/forms/model_forms.py:287
+#: extras/forms/model_forms.py:289
 msgid "Job executions"
 msgstr "İş yürütmeleri"
 
-#: extras/forms/model_forms.py:373 users/forms/model_forms.py:286
+#: extras/forms/model_forms.py:375 users/forms/model_forms.py:286
 msgid "Object types"
 msgstr "Nesne türleri"
 
-#: extras/forms/model_forms.py:446 netbox/navigation/menu.py:40
+#: extras/forms/model_forms.py:448 netbox/navigation/menu.py:40
 #: tenancy/tables/tenants.py:22
 msgid "Tenants"
 msgstr "Kiracılar"
 
-#: extras/forms/model_forms.py:463 ipam/forms/filtersets.py:141
+#: extras/forms/model_forms.py:465 ipam/forms/filtersets.py:141
 #: ipam/forms/filtersets.py:527 templates/extras/configcontext.html:62
 #: templates/ipam/ipaddress.html:62 templates/ipam/vlan_edit.html:30
 #: tenancy/forms/filtersets.py:86 users/forms/model_forms.py:324
 msgid "Assignment"
 msgstr "Ödev"
 
-#: extras/forms/model_forms.py:489
+#: extras/forms/model_forms.py:491
 msgid "Data is populated from the remote source selected below."
 msgstr "Veriler aşağıda seçilen uzak kaynaktan doldurulur."
 
-#: extras/forms/model_forms.py:495
+#: extras/forms/model_forms.py:497
 msgid "Must specify either local data or a data file"
 msgstr "Yerel veri veya veri dosyası belirtmelidir"
 
-#: extras/forms/model_forms.py:514 templates/core/datafile.html:65
+#: extras/forms/model_forms.py:516 templates/core/datafile.html:65
 msgid "Content"
 msgstr "İçerik"
 
@@ -7462,7 +7468,7 @@ msgstr "Bu alan boş olmamalıdır."
 #: extras/validators.py:119
 #, python-brace-format
 msgid "Invalid attribute \"{name}\" for {model}"
-msgstr ""
+msgstr "\"{name}\" niteliği {model} için geçerli değil."
 
 #: extras/views.py:880
 msgid "Your dashboard has been reset."
@@ -7569,7 +7575,7 @@ msgstr "RİR (İD)"
 
 #: ipam/filtersets.py:142 ipam/filtersets.py:181 ipam/filtersets.py:204
 msgid "RIR (slug)"
-msgstr "RIR (sümüklü böcek)"
+msgstr "RIR (kısa ad)"
 
 #: ipam/filtersets.py:251
 msgid "Within prefix"
@@ -7699,6 +7705,12 @@ msgstr "Önek uzunluğu"
 #: templates/ipam/prefix.html:86
 msgid "Is a pool"
 msgstr "Havuz mu"
+
+#: ipam/forms/bulk_edit.py:257 ipam/forms/bulk_edit.py:301
+#: ipam/forms/filtersets.py:243 ipam/forms/filtersets.py:282
+#: ipam/models/ip.py:271 ipam/models/ip.py:538
+msgid "Treat as fully utilized"
+msgstr "Tamamen kullanılmış gibi davran"
 
 #: ipam/forms/bulk_edit.py:349 ipam/models/ip.py:771
 msgid "DNS name"
@@ -7932,7 +7944,7 @@ msgstr "VRF'de mevcut"
 
 #: ipam/forms/filtersets.py:297
 msgid "Device/VM"
-msgstr "Cihaz/VM"
+msgstr "Aygıt/VM"
 
 #: ipam/forms/filtersets.py:333
 msgid "Assigned Device"
@@ -8084,11 +8096,11 @@ msgstr "ASN aralıkları"
 #: ipam/models/asns.py:72
 #, python-brace-format
 msgid "Starting ASN ({start}) must be lower than ending ASN ({end})."
-msgstr "ASN'yi başlatma ({start}) ASN sonundan daha düşük olmalıdır ({end})."
+msgstr "Başlangıç ASN'si ({start}), son ASN'den ({end}) daha küçük olmalıdır."
 
 #: ipam/models/asns.py:104
 msgid "Regional Internet Registry responsible for this AS number space"
-msgstr "Bu AS numara alanından sorumlu Bölgesel İnternet Kaydı"
+msgstr "Bu ASN alanından sorumlu Bölgesel İnternet Kaydı"
 
 #: ipam/models/asns.py:109
 msgid "16- or 32-bit autonomous system number"
@@ -8436,7 +8448,8 @@ msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
 "site {site}."
 msgstr ""
-"VLAN gruba atandı {group} (kapsam: {scope}); siteye de atanamaz {site}."
+"VLAN {group} adlı gruba (kapsam: {scope}) atandığı için; {site} adlı siteye "
+"de atanamaz ."
 
 #: ipam/models/vlans.py:238
 #, python-brace-format
@@ -8591,7 +8604,7 @@ msgstr "İlgili IP'ler"
 
 #: ipam/views.py:1111
 msgid "Device Interfaces"
-msgstr "Cihaz Arayüzleri"
+msgstr "Aygıt Arayüzleri"
 
 #: ipam/views.py:1129
 msgid "VM Interfaces"
@@ -8869,12 +8882,12 @@ msgstr "Modüller"
 
 #: netbox/navigation/menu.py:65 templates/dcim/devicerole.html:8
 msgid "Device Roles"
-msgstr "Cihaz Rolleri"
+msgstr "Aygıt Rolleri"
 
 #: netbox/navigation/menu.py:68 templates/dcim/device.html:162
 #: templates/dcim/virtualdevicecontext.html:8
 msgid "Virtual Device Contexts"
-msgstr "Sanal Cihaz Bağlamları"
+msgstr "Sanal Aygıt Bağlamları"
 
 #: netbox/navigation/menu.py:76
 msgid "Manufacturers"
@@ -8882,7 +8895,7 @@ msgstr "İmalatçıları"
 
 #: netbox/navigation/menu.py:80
 msgid "Device Components"
-msgstr "Cihaz Bileşenleri"
+msgstr "Aygıt Bileşenleri"
 
 #: netbox/navigation/menu.py:92 templates/dcim/inventoryitemrole.html:8
 msgid "Inventory Item Roles"
@@ -9172,15 +9185,15 @@ msgstr "Renk modu"
 
 #: netbox/preferences.py:21
 msgid "Light"
-msgstr ""
+msgstr "Açık"
 
 #: netbox/preferences.py:22
 msgid "Dark"
-msgstr ""
+msgstr "Koyu"
 
 #: netbox/preferences.py:27
 msgid "Language"
-msgstr ""
+msgstr "Dil"
 
 #: netbox/preferences.py:34
 msgid "Page length"
@@ -9196,15 +9209,15 @@ msgstr "Paginator yerleşimi"
 
 #: netbox/preferences.py:42
 msgid "Bottom"
-msgstr ""
+msgstr "Alt"
 
 #: netbox/preferences.py:43
 msgid "Top"
-msgstr ""
+msgstr "Üst"
 
 #: netbox/preferences.py:44
 msgid "Both"
-msgstr ""
+msgstr "İkisi de"
 
 #: netbox/preferences.py:46
 msgid "Where the paginator controls will be displayed relative to a table"
@@ -9216,23 +9229,31 @@ msgstr "Veri biçimi"
 
 #: netbox/settings.py:726
 msgid "English"
-msgstr ""
+msgstr "İngilizce"
 
 #: netbox/settings.py:727
 msgid "Spanish"
-msgstr ""
+msgstr "İspanyolca"
 
 #: netbox/settings.py:728
 msgid "French"
-msgstr ""
+msgstr "Fransızca"
 
 #: netbox/settings.py:729
-msgid "Portuguese"
-msgstr ""
+msgid "Japanese"
+msgstr "Japonca"
 
 #: netbox/settings.py:730
+msgid "Portuguese"
+msgstr "Portekizce"
+
+#: netbox/settings.py:731
 msgid "Russian"
-msgstr ""
+msgstr "Rusça"
+
+#: netbox/settings.py:732
+msgid "Turkish"
+msgstr "Türkçe"
 
 #: netbox/tables/columns.py:175
 msgid "Toggle all"
@@ -9559,7 +9580,7 @@ msgstr "Takas Devresi Sonlandırmaları"
 #: templates/circuits/circuit_terminations_swap.html:8
 #, python-format
 msgid "Swap these terminations for circuit %(circuit)s?"
-msgstr "Devre için bu sonlandırmaları değiştirin %(circuit)s?"
+msgstr "%(circuit)s devre için bu sonlandırmaların yerini değiştirin ?"
 
 #: templates/circuits/circuit_terminations_swap.html:14
 msgid "A side"
@@ -10099,7 +10120,7 @@ msgstr "Ebeveyn Körfezi"
 #: templates/dcim/device_edit.html:48
 #: utilities/templates/form_helpers/render_field.html:20
 msgid "Regenerate Slug"
-msgstr "Sümüklü böcekleri yeniden oluştur"
+msgstr "Yeniden kısa ad oluştur"
 
 #: templates/dcim/device_edit.html:49 templates/generic/bulk_remove.html:7
 #: utilities/templates/helpers/table_config_form.html:23
@@ -10121,7 +10142,7 @@ msgstr "Yeniden Adlandır"
 
 #: templates/dcim/devicebay.html:18
 msgid "Device Bay"
-msgstr "Cihaz Yuvası"
+msgstr "Aygıt Yuvası"
 
 #: templates/dcim/devicebay.html:48
 msgid "Installed Device"
@@ -10165,7 +10186,7 @@ msgstr "Körfez"
 
 #: templates/dcim/devicerole.html:14 templates/dcim/platform.html:17
 msgid "Add Device"
-msgstr "Cihaz Ekle"
+msgstr "Aygıt Ekle"
 
 #: templates/dcim/devicerole.html:43
 msgid "VM Role"
@@ -10360,11 +10381,11 @@ msgstr "Güç Çıkışı"
 
 #: templates/dcim/location.html:17
 msgid "Add Child Location"
-msgstr "Çocuk Konumu Ekle"
+msgstr "Alt Konumu Ekle"
 
 #: templates/dcim/location.html:76
 msgid "Child Locations"
-msgstr "Çocuk Yerleri"
+msgstr "Alt Konumlar"
 
 #: templates/dcim/location.html:84 templates/dcim/site.html:137
 msgid "Add a Location"
@@ -10376,7 +10397,7 @@ msgstr "Aygıt Ekle"
 
 #: templates/dcim/manufacturer.html:16
 msgid "Add Device Type"
-msgstr "Cihaz Türü Ekle"
+msgstr "Aygıt Türü Ekle"
 
 #: templates/dcim/manufacturer.html:21
 msgid "Add Module Type"
@@ -10384,7 +10405,7 @@ msgstr "Modül Türü Ekle"
 
 #: templates/dcim/powerfeed.html:56
 msgid "Connected Device"
-msgstr "Bağlı Cihaz"
+msgstr "Bağlı Aygıt"
 
 #: templates/dcim/powerfeed.html:66
 msgid "Utilization (Allocated"
@@ -10514,7 +10535,7 @@ msgstr "Site Ekle"
 
 #: templates/dcim/region.html:56
 msgid "Child Regions"
-msgstr "Çocuk Bölgeleri"
+msgstr "Alt Bölgeler"
 
 #: templates/dcim/region.html:64
 msgid "Add Region"
@@ -11421,8 +11442,8 @@ msgid ""
 "Before you can add a %(model)s you must first create a "
 "<strong>%(prerequisite_model)s</strong>."
 msgstr ""
-"Eklemeden önce %(model)s Önce bir yaratmalısın "
-"<strong>%(prerequisite_model)s</strong>."
+"%(model)s eklemeden önce <strong>%(prerequisite_model)s</strong> "
+"oluşturmalısınız."
 
 #: templates/inc/paginator.html:38 templates/inc/paginator_htmx.html:53
 msgid "Per Page"
@@ -11890,7 +11911,7 @@ msgstr "Kümeye Aygıt Ekle %(cluster)s"
 
 #: templates/virtualization/cluster_add_devices.html:23
 msgid "Device Selection"
-msgstr "Cihaz Seçimi"
+msgstr "Aygıt Seçimi"
 
 #: templates/virtualization/cluster_add_devices.html:31
 msgid "Add Devices"
@@ -11929,7 +11950,7 @@ msgstr "Sanal Disk Ekle"
 #: templates/vpn/ikepolicy.html:10 templates/vpn/ipsecprofile.html:35
 #: vpn/tables/crypto.py:166
 msgid "IKE Policy"
-msgstr "IKE Politikası"
+msgstr "IKE İlkesi"
 
 #: templates/vpn/ikepolicy.html:22
 msgid "IKE Version"
@@ -11986,7 +12007,7 @@ msgstr "SA ömrü (saniye)"
 #: templates/vpn/ipsecpolicy.html:10 templates/vpn/ipsecprofile.html:70
 #: vpn/tables/crypto.py:170
 msgid "IPSec Policy"
-msgstr "IPSec Politikası"
+msgstr "IPSec İlkesi"
 
 #: templates/vpn/ipsecpolicy.html:22 vpn/forms/bulk_edit.py:211
 #: vpn/models/crypto.py:193
@@ -12118,7 +12139,7 @@ msgstr "İletişim grubu (ID)"
 
 #: tenancy/filtersets.py:35 tenancy/filtersets.py:62 tenancy/filtersets.py:105
 msgid "Contact group (slug)"
-msgstr "İletişim grubu (sümüklü böcek)"
+msgstr "İletişim grubu (kısa ad)"
 
 #: tenancy/filtersets.py:92
 msgid "Contact (ID)"
@@ -12130,7 +12151,7 @@ msgstr "Kişi rolü (ID)"
 
 #: tenancy/filtersets.py:115
 msgid "Contact role (slug)"
-msgstr "İletişim rolü (sümüklü böcek)"
+msgstr "İletişim rolü (kısa ad)"
 
 #: tenancy/filtersets.py:147
 msgid "Contact group"
@@ -12146,7 +12167,7 @@ msgstr "Kiracı Grubu (ID)"
 
 #: tenancy/filtersets.py:217
 msgid "Tenant Group (slug)"
-msgstr "Kiracı Grubu (sümüklü böcek)"
+msgstr "Kiracı Grubu (kısa ad)"
 
 #: tenancy/forms/bulk_edit.py:65
 msgid "Desciption"
@@ -12219,11 +12240,11 @@ msgstr "kiracı grupları"
 
 #: tenancy/models/tenants.py:70
 msgid "Tenant name must be unique per group."
-msgstr "Kiracı adı grup başına benzersiz olmalıdır."
+msgstr "Kiracı adı, her grup için benzersiz olmalıdır."
 
 #: tenancy/models/tenants.py:80
 msgid "Tenant slug must be unique per group."
-msgstr "Kiracı sümüklü böcek grup başına benzersiz olmalıdır."
+msgstr "Kiracı kısa adı, her grup için benzersiz olmalıdır."
 
 #: tenancy/models/tenants.py:88
 msgid "tenant"
@@ -12809,7 +12830,7 @@ msgstr "Ana grup (ID)"
 
 #: virtualization/filtersets.py:85
 msgid "Parent group (slug)"
-msgstr "Ebeveyn grubu (sümüklü böcek)"
+msgstr "Ebeveyn grubu (kısa ad)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:141
 msgid "Cluster type (ID)"
@@ -12863,7 +12884,8 @@ msgid ""
 "{device} belongs to a different site ({device_site}) than the cluster "
 "({cluster_site})"
 msgstr ""
-"{device} farklı bir siteye aittir ({device_site}) kümeden ({cluster_site})"
+"{device} adlı aygıt, ({cluster_site}) kümesinden farklı bir siteye "
+"({device_site})  aittir"
 
 #: virtualization/forms/model_forms.py:195
 msgid "Optionally pin this VM to a specific host device within the cluster"
@@ -12913,8 +12935,8 @@ msgid ""
 "{count} devices are assigned as hosts for this cluster but are not in site "
 "{site}"
 msgstr ""
-"{count} aygıtlar bu küme için ana bilgisayar olarak atanır ancak sitede "
-"değildir {site}"
+"{count} aygıt bu küme için ana bilgisayar olarak atanır, ancak {site} isimli"
+" site için için atanmaz"
 
 #: virtualization/models/virtualmachines.py:121
 msgid "memory (MB)"
@@ -12948,7 +12970,7 @@ msgstr "Seçilen küme ({cluster}) bu siteye atanmamıştır ({site})."
 
 #: virtualization/models/virtualmachines.py:191
 msgid "Must specify a cluster when assigning a host device."
-msgstr "Bir ana aygıt atarken bir küme belirtmeniz gerekir."
+msgstr "Ana aygıt atarken bir küme belirtmeniz gerekir."
 
 #: virtualization/models/virtualmachines.py:196
 #, python-brace-format
@@ -13094,7 +13116,7 @@ msgstr "Tünel grubu (ID)"
 
 #: vpn/filtersets.py:47
 msgid "Tunnel group (slug)"
-msgstr "Tünel grubu (sümüklü böcek)"
+msgstr "Tünel grubu (kısa ad)"
 
 #: vpn/filtersets.py:54
 msgid "IPSec profile (ID)"
@@ -13118,11 +13140,11 @@ msgstr "Dış IP (ID)"
 
 #: vpn/filtersets.py:235
 msgid "IKE policy (ID)"
-msgstr "IKE politikası (ID)"
+msgstr "IKE ilkesi (ID)"
 
 #: vpn/filtersets.py:241
 msgid "IKE policy (name)"
-msgstr "IKE politikası (isim)"
+msgstr "IKE ilkesi (isim)"
 
 #: vpn/filtersets.py:245
 msgid "IPSec policy (ID)"
@@ -13134,7 +13156,7 @@ msgstr "IPsec ilkesi (ad)"
 
 #: vpn/filtersets.py:320
 msgid "L2VPN (slug)"
-msgstr "L2VPN (sümüklü böcek)"
+msgstr "L2VPN (kısa ad)"
 
 #: vpn/filtersets.py:384
 msgid "VM Interface (ID)"
@@ -13163,13 +13185,13 @@ msgstr "Önceden paylaşılan anahtar"
 #: vpn/forms/filtersets.py:196 vpn/forms/model_forms.py:363
 #: vpn/models/crypto.py:104
 msgid "IKE policy"
-msgstr "IKE politikası"
+msgstr "IKE ilkesi"
 
 #: vpn/forms/bulk_edit.py:243 vpn/forms/bulk_import.py:244
 #: vpn/forms/filtersets.py:201 vpn/forms/model_forms.py:367
 #: vpn/models/crypto.py:209
 msgid "IPSec policy"
-msgstr "IPsec politikası"
+msgstr "IPsec ilkesi"
 
 #: vpn/forms/bulk_import.py:50
 msgid "Tunnel encapsulation"
@@ -13189,7 +13211,7 @@ msgstr "Atanan arabirimin üst VM'si"
 
 #: vpn/forms/bulk_import.py:104
 msgid "Device or virtual machine interface"
-msgstr "Cihaz veya sanal makine arayüzü"
+msgstr "Aygıt veya sanal makine arayüzü"
 
 #: vpn/forms/bulk_import.py:183
 msgid "IKE proposal(s)"
@@ -13262,7 +13284,7 @@ msgstr "Bir sonlandırma tanımlarken bu parametre gereklidir."
 
 #: vpn/forms/model_forms.py:314 vpn/forms/model_forms.py:349
 msgid "Policy"
-msgstr "Politika"
+msgstr "İlke"
 
 #: vpn/forms/model_forms.py:469
 msgid "A termination must specify an interface or VLAN."
@@ -13317,11 +13339,11 @@ msgstr "IKE politikaları"
 
 #: vpn/models/crypto.py:118
 msgid "Mode is required for selected IKE version"
-msgstr ""
+msgstr "Seçilen IKE sürümü için mod gereklidir"
 
 #: vpn/models/crypto.py:122
 msgid "Mode cannot be used for selected IKE version"
-msgstr ""
+msgstr "Seçilen IKE sürümü için mod kullanılamaz"
 
 #: vpn/models/crypto.py:136
 msgid "encryption"
@@ -13460,7 +13482,7 @@ msgstr "Nesne Sitesi"
 
 #: vpn/tables/tunnels.py:84
 msgid "Host"
-msgstr "Ev Sahibi"
+msgstr "Ana bilgisayar"
 
 #: wireless/choices.py:11
 msgid "Access point"

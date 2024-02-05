@@ -1,26 +1,34 @@
 # NetBox v3.7
 
-## v3.7.2 (FUTURE)
+## v3.7.2 (2024-02-05)
 
 ### Enhancements
 
+* [#13729](https://github.com/netbox-community/netbox/issues/13729) - Omit sensitive data source parameters from change log data
 * [#14645](https://github.com/netbox-community/netbox/issues/14645) - Limit the number of assigned IP addresses displayed under interfaces list
 
 ### Bug Fixes
 
+* [#14500](https://github.com/netbox-community/netbox/issues/14500) - Optimize calculation of available child prefixes & ranges when viewing a prefix
 * [#14511](https://github.com/netbox-community/netbox/issues/14511) - Fix GraphQL support for interfaces connected to provider networks
 * [#14572](https://github.com/netbox-community/netbox/issues/14572) - Correct the number of jobs listed for individual report & script modules
 * [#14703](https://github.com/netbox-community/netbox/issues/14703) - Revert to the default layout when encountering a misconfigured dashboard
 * [#14755](https://github.com/netbox-community/netbox/issues/14755) - Fix validation of choice values & labels when creating a custom field choice set via the REST API
 * [#14838](https://github.com/netbox-community/netbox/issues/14838) - Avoid corrupting JSON data when changing the action type while editing an event rule
+* [#14839](https://github.com/netbox-community/netbox/issues/14839) - Fix form validation error when attempting to terminate a tunnel to a virtual machine interface
+* [#14840](https://github.com/netbox-community/netbox/issues/14840) - Fix `NoReverseMatch` exception when rendering a custom field which references a user
 * [#14847](https://github.com/netbox-community/netbox/issues/14847) - IKE policy mode may be set inly when IKEv1 is selected
 * [#14851](https://github.com/netbox-community/netbox/issues/14851) - Automatically remove any associated bookmarks when deleting a user
 * [#14879](https://github.com/netbox-community/netbox/issues/14879) - Include custom fields in REST API representation of data sources
 * [#14885](https://github.com/netbox-community/netbox/issues/14885) - Add missing "group" field to VPN tunnel creation form
 * [#14892](https://github.com/netbox-community/netbox/issues/14892) - Fix exception when running report/script via command line due to missing username
 * [#14920](https://github.com/netbox-community/netbox/issues/14920) - Include button to display available status choices when bulk importing virtual device contexts
+* [#14945](https://github.com/netbox-community/netbox/issues/14945) - Fix "select all" button for device type components
+* [#14947](https://github.com/netbox-community/netbox/issues/14947) - Ensure that application & removal of tags is always recorded in an object's change log
 * [#14962](https://github.com/netbox-community/netbox/issues/14962) - Fix config context rendering for VMs assigned directly to a site (rather than via a cluster)
 * [#14999](https://github.com/netbox-community/netbox/issues/14999) - Fix "create & add another" link for interface FHRP group assignment
+* [#15015](https://github.com/netbox-community/netbox/issues/15015) - Pre-populate assigned tenant when allocating next available IP address under prefix view
+* [#15020](https://github.com/netbox-community/netbox/issues/15020) - Automatically update all VMs when changing a cluster's assigned site
 * [#15025](https://github.com/netbox-community/netbox/issues/15025) - The `can_add()` template filter should accept a model (not an instance)
 
 ---

@@ -5,15 +5,17 @@
 # 
 # Translators:
 # Jeremy Stretch, 2024
+# Tatsuya Ueda <ml@tatsuya.info>, 2024
+# teapot, 2024
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-22 21:17+0000\n"
+"POT-Creation-Date: 2024-01-23 18:14+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: teapot, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/netbox-community/teams/178115/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -25,11 +27,11 @@ msgstr ""
 #: templates/users/token.html:18 users/forms/bulk_import.py:41
 #: users/forms/model_forms.py:114
 msgid "Key"
-msgstr "キー"
+msgstr "Key"
 
 #: account/tables.py:31 users/forms/filtersets.py:133
 msgid "Write Enabled"
-msgstr "書き込み有効"
+msgstr "書き込み可能"
 
 #: account/tables.py:34 core/tables/jobs.py:29 extras/choices.py:135
 #: extras/tables/tables.py:474 templates/account/token.html:44
@@ -40,13 +42,13 @@ msgstr "書き込み有効"
 #: templates/extras/journalentry.html:25 templates/generic/object.html:48
 #: templates/users/token.html:36
 msgid "Created"
-msgstr "作成されました"
+msgstr "作成日時"
 
 #: account/tables.py:37 templates/account/token.html:48
 #: templates/users/token.html:40 users/forms/bulk_edit.py:97
 #: users/forms/filtersets.py:137
 msgid "Expires"
-msgstr "期限切れ"
+msgstr "有効期限"
 
 #: account/tables.py:40 users/forms/filtersets.py:142
 msgid "Last Used"
@@ -67,11 +69,11 @@ msgstr "設定が更新されました。"
 #: dcim/choices.py:1495 dcim/choices.py:1545 virtualization/choices.py:20
 #: virtualization/choices.py:45 vpn/choices.py:18
 msgid "Planned"
-msgstr "計画済み"
+msgstr "計画中"
 
 #: circuits/choices.py:22 netbox/navigation/menu.py:290
 msgid "Provisioning"
-msgstr "プロビジョニング"
+msgstr "開通"
 
 #: circuits/choices.py:23 dcim/choices.py:22 dcim/choices.py:103
 #: dcim/choices.py:173 dcim/choices.py:219 dcim/choices.py:1494
@@ -91,11 +93,11 @@ msgstr "オフライン"
 
 #: circuits/choices.py:25
 msgid "Deprovisioning"
-msgstr "デプロビジョニング"
+msgstr "解約"
 
 #: circuits/choices.py:26
 msgid "Decommissioned"
-msgstr "廃止されました"
+msgstr "廃止"
 
 #: circuits/filtersets.py:29 circuits/filtersets.py:184 dcim/filtersets.py:122
 #: dcim/filtersets.py:183 dcim/filtersets.py:258 dcim/filtersets.py:367
@@ -114,7 +116,7 @@ msgstr "リージョン (ID)"
 #: virtualization/filtersets.py:52 virtualization/filtersets.py:180
 #: vpn/filtersets.py:325
 msgid "Region (slug)"
-msgstr "リージョン (スラッグ)"
+msgstr "リージョン (slug)"
 
 #: circuits/filtersets.py:42 circuits/filtersets.py:197 dcim/filtersets.py:196
 #: dcim/filtersets.py:271 dcim/filtersets.py:380 dcim/filtersets.py:902
@@ -131,7 +133,7 @@ msgstr "サイトグループ (ID)"
 #: ipam/filtersets.py:916 virtualization/filtersets.py:65
 #: virtualization/filtersets.py:193
 msgid "Site group (slug)"
-msgstr "サイトグループ (スラッグ)"
+msgstr "サイトグループ (slug)"
 
 #: circuits/filtersets.py:54 circuits/forms/bulk_import.py:117
 #: circuits/forms/filtersets.py:47 circuits/forms/filtersets.py:171
@@ -183,7 +185,7 @@ msgstr "サイトグループ (スラッグ)"
 #: virtualization/tables/virtualmachines.py:53 vpn/forms/filtersets.py:262
 #: wireless/forms/model_forms.py:77 wireless/forms/model_forms.py:117
 msgid "Site"
-msgstr "[サイト]"
+msgstr "サイト"
 
 #: circuits/filtersets.py:60 circuits/filtersets.py:215
 #: circuits/filtersets.py:252 dcim/filtersets.py:213 dcim/filtersets.py:288
@@ -192,37 +194,37 @@ msgstr "[サイト]"
 #: virtualization/filtersets.py:75 virtualization/filtersets.py:203
 #: vpn/filtersets.py:335
 msgid "Site (slug)"
-msgstr "サイト (スラッグ)"
+msgstr "サイト (slug)"
 
 #: circuits/filtersets.py:65
 msgid "ASN (ID)"
-msgstr "サン (ID)"
+msgstr "ASN (ID)"
 
 #: circuits/filtersets.py:87 circuits/filtersets.py:114
 #: circuits/filtersets.py:148
 msgid "Provider (ID)"
-msgstr "プロバイダー (ID)"
+msgstr "プロバイダ (ID)"
 
 #: circuits/filtersets.py:93 circuits/filtersets.py:120
 #: circuits/filtersets.py:154
 msgid "Provider (slug)"
-msgstr "プロバイダー (スラッグ)"
+msgstr "プロバイダ (slug)"
 
 #: circuits/filtersets.py:159
 msgid "Provider account (ID)"
-msgstr "プロバイダーアカウント (ID)"
+msgstr "プロバイダアカウント (ID)"
 
 #: circuits/filtersets.py:164
 msgid "Provider network (ID)"
-msgstr "プロバイダーネットワーク (ID)"
+msgstr "プロバイダネットワーク (ID)"
 
 #: circuits/filtersets.py:168
 msgid "Circuit type (ID)"
-msgstr "回路タイプ (ID)"
+msgstr "回線タイプ (ID)"
 
 #: circuits/filtersets.py:174
 msgid "Circuit type (slug)"
-msgstr "回路タイプ (スラッグ)"
+msgstr "回線タイプ (slug)"
 
 #: circuits/filtersets.py:209 circuits/filtersets.py:246
 #: dcim/filtersets.py:207 dcim/filtersets.py:282 dcim/filtersets.py:355
@@ -256,11 +258,11 @@ msgstr "検索"
 #: templates/dcim/inc/cable_termination.html:55
 #: templates/dcim/trace/circuit.html:4
 msgid "Circuit"
-msgstr "サーキット"
+msgstr "回線"
 
 #: circuits/filtersets.py:256
 msgid "ProviderNetwork (ID)"
-msgstr "プロバイダーネットワーク (ID)"
+msgstr "プロバイダネットワーク (ID)"
 
 #: circuits/forms/bulk_edit.py:25 circuits/forms/filtersets.py:56
 #: circuits/forms/model_forms.py:26 circuits/tables/providers.py:33
@@ -367,7 +369,7 @@ msgstr "ASN"
 #: vpn/forms/bulk_edit.py:277 wireless/forms/bulk_edit.py:28
 #: wireless/forms/bulk_edit.py:81 wireless/forms/bulk_edit.py:128
 msgid "Description"
-msgstr "[説明]"
+msgstr "説明"
 
 #: circuits/forms/bulk_edit.py:46 circuits/forms/bulk_edit.py:68
 #: circuits/forms/bulk_edit.py:118 circuits/forms/bulk_import.py:35
@@ -383,7 +385,7 @@ msgstr "[説明]"
 #: templates/circuits/providernetwork.html:23
 #: templates/dcim/inc/cable_termination.html:51
 msgid "Provider"
-msgstr "プロバイダー"
+msgstr "プロバイダ"
 
 #: circuits/forms/bulk_edit.py:75 circuits/forms/filtersets.py:91
 #: templates/circuits/providernetwork.html:31
@@ -405,7 +407,7 @@ msgstr "サービス ID"
 #: templates/dcim/rackrole.html:33 templates/dcim/rearport.html:43
 #: templates/extras/tag.html:29
 msgid "Color"
-msgstr "[カラー]"
+msgstr "色"
 
 #: circuits/forms/bulk_edit.py:113 circuits/forms/bulk_import.py:89
 #: circuits/forms/filtersets.py:126 core/forms/bulk_edit.py:17
@@ -454,7 +456,7 @@ msgstr "タイプ"
 #: circuits/forms/bulk_edit.py:123 circuits/forms/bulk_import.py:82
 #: circuits/forms/filtersets.py:139 circuits/forms/model_forms.py:97
 msgid "Provider account"
-msgstr "プロバイダーアカウント"
+msgstr "プロバイダアカウント"
 
 #: circuits/forms/bulk_edit.py:131 circuits/forms/bulk_import.py:95
 #: circuits/forms/filtersets.py:150 core/forms/filtersets.py:34
@@ -572,7 +574,7 @@ msgstr "テナント"
 
 #: circuits/forms/bulk_edit.py:142 circuits/forms/filtersets.py:174
 msgid "Install date"
-msgstr "インストール日"
+msgstr "開通日"
 
 #: circuits/forms/bulk_edit.py:147 circuits/forms/filtersets.py:179
 msgid "Termination date"
@@ -580,11 +582,11 @@ msgstr "終了日"
 
 #: circuits/forms/bulk_edit.py:153 circuits/forms/filtersets.py:186
 msgid "Commit rate (Kbps)"
-msgstr "コミットレート (Kbps)"
+msgstr "保証帯域 (Kbps)"
 
 #: circuits/forms/bulk_edit.py:168 circuits/forms/model_forms.py:111
 msgid "Service Parameters"
-msgstr "サービスパラメーター"
+msgstr "サービス情報"
 
 #: circuits/forms/bulk_edit.py:169 circuits/forms/model_forms.py:112
 #: dcim/forms/model_forms.py:141 dcim/forms/model_forms.py:183
@@ -607,21 +609,21 @@ msgstr "テナンシー"
 #: circuits/forms/bulk_import.py:38 circuits/forms/bulk_import.py:53
 #: circuits/forms/bulk_import.py:79
 msgid "Assigned provider"
-msgstr "割り当てられたプロバイダー"
+msgstr "割当プロバイダ"
 
 #: circuits/forms/bulk_import.py:70 dcim/forms/bulk_import.py:170
 #: dcim/forms/bulk_import.py:380 dcim/forms/bulk_import.py:1092
 #: dcim/forms/bulk_import.py:1171 extras/forms/bulk_import.py:229
 msgid "RGB color in hexadecimal. Example:"
-msgstr "16 進数の RGB カラー。例:"
+msgstr "16 進数の RGB カラーコード。例:"
 
 #: circuits/forms/bulk_import.py:85
 msgid "Assigned provider account"
-msgstr "割り当てられたプロバイダーアカウント"
+msgstr "割当プロバイダアカウント"
 
 #: circuits/forms/bulk_import.py:92
 msgid "Type of circuit"
-msgstr "回路のタイプ"
+msgstr "回線のタイプ"
 
 #: circuits/forms/bulk_import.py:97 dcim/forms/bulk_import.py:89
 #: dcim/forms/bulk_import.py:148 dcim/forms/bulk_import.py:196
@@ -645,12 +647,12 @@ msgstr "運用状況"
 #: virtualization/forms/bulk_import.py:119 vpn/forms/bulk_import.py:63
 #: wireless/forms/bulk_import.py:59 wireless/forms/bulk_import.py:101
 msgid "Assigned tenant"
-msgstr "割り当てられたテナント"
+msgstr "割当テナント"
 
 #: circuits/forms/bulk_import.py:123 circuits/forms/filtersets.py:147
 #: circuits/forms/model_forms.py:143
 msgid "Provider network"
-msgstr "プロバイダーネットワーク"
+msgstr "プロバイダネットワーク"
 
 #: circuits/forms/filtersets.py:26 circuits/forms/filtersets.py:118
 #: dcim/forms/bulk_edit.py:247 dcim/forms/bulk_edit.py:345
@@ -789,11 +791,11 @@ msgstr "アカウント"
 #: templates/circuits/inc/circuit_termination.html:89
 #: templates/circuits/providernetwork.html:18
 msgid "Provider Network"
-msgstr "プロバイダーネットワーク"
+msgstr "プロバイダネットワーク"
 
 #: circuits/forms/model_forms.py:78 templates/circuits/circuittype.html:20
 msgid "Circuit Type"
-msgstr "回路タイプ"
+msgstr "回線タイプ"
 
 #: circuits/models/circuits.py:25 dcim/models/cables.py:67
 #: dcim/models/device_component_templates.py:491
@@ -806,19 +808,19 @@ msgstr "色"
 
 #: circuits/models/circuits.py:34
 msgid "circuit type"
-msgstr "回路タイプ"
+msgstr "回線タイプ"
 
 #: circuits/models/circuits.py:35
 msgid "circuit types"
-msgstr "回路タイプ"
+msgstr "回線タイプ"
 
 #: circuits/models/circuits.py:46
 msgid "circuit ID"
-msgstr "サーキット ID"
+msgstr "回線 ID"
 
 #: circuits/models/circuits.py:47
 msgid "Unique circuit ID"
-msgstr "ユニークな回路 ID"
+msgstr "一意な回線 ID"
 
 #: circuits/models/circuits.py:67 core/models/data.py:54
 #: core/models/jobs.py:85 dcim/models/cables.py:49 dcim/models/devices.py:641
@@ -834,39 +836,39 @@ msgstr "状態"
 
 #: circuits/models/circuits.py:82
 msgid "installed"
-msgstr "インストール済み"
+msgstr "開通済"
 
 #: circuits/models/circuits.py:87
 msgid "terminates"
-msgstr "終了する"
+msgstr "終端"
 
 #: circuits/models/circuits.py:92
 msgid "commit rate (Kbps)"
-msgstr "コミットレート (Kbps)"
+msgstr "保証帯域 (Kbps)"
 
 #: circuits/models/circuits.py:93
 msgid "Committed rate"
-msgstr "コミットレート"
+msgstr "保証帯域"
 
 #: circuits/models/circuits.py:135
 msgid "circuit"
-msgstr "回路"
+msgstr "回線"
 
 #: circuits/models/circuits.py:136
 msgid "circuits"
-msgstr "回路"
+msgstr "回線"
 
 #: circuits/models/circuits.py:169
 msgid "termination"
-msgstr "終了"
+msgstr "終端"
 
 #: circuits/models/circuits.py:186
 msgid "port speed (Kbps)"
-msgstr "ポートスピード (Kbps)"
+msgstr "ポート速度 (Kbps)"
 
 #: circuits/models/circuits.py:189
 msgid "Physical circuit speed"
-msgstr "物理回路速度"
+msgstr "物理回線速度"
 
 #: circuits/models/circuits.py:194
 msgid "upstream speed (Kbps)"
@@ -908,11 +910,11 @@ msgstr "説明"
 
 #: circuits/models/circuits.py:223
 msgid "circuit termination"
-msgstr "回路終端"
+msgstr "回線終端"
 
 #: circuits/models/circuits.py:224
 msgid "circuit terminations"
-msgstr "回路終端"
+msgstr "回線終端"
 
 #: circuits/models/providers.py:22 circuits/models/providers.py:66
 #: circuits/models/providers.py:104 core/models/data.py:41
@@ -942,7 +944,7 @@ msgstr "名前"
 
 #: circuits/models/providers.py:25
 msgid "Full name of the provider"
-msgstr "プロバイダーのフルネーム"
+msgstr "プロバイダのフルネーム"
 
 #: circuits/models/providers.py:28 dcim/models/devices.py:86
 #: dcim/models/sites.py:149 extras/models/models.py:536 ipam/models/asns.py:23
@@ -950,15 +952,15 @@ msgstr "プロバイダーのフルネーム"
 #: netbox/models/__init__.py:185 tenancy/models/tenants.py:25
 #: tenancy/models/tenants.py:49 vpn/models/l2vpn.py:27 wireless/models.py:55
 msgid "slug"
-msgstr "ナメクジ"
+msgstr "slug"
 
 #: circuits/models/providers.py:42
 msgid "provider"
-msgstr "プロバイダー"
+msgstr "プロバイダ"
 
 #: circuits/models/providers.py:43
 msgid "providers"
-msgstr "プロバイダー"
+msgstr "プロバイダ"
 
 #: circuits/models/providers.py:63
 msgid "account ID"
@@ -966,11 +968,11 @@ msgstr "アカウント ID"
 
 #: circuits/models/providers.py:86
 msgid "provider account"
-msgstr "プロバイダーアカウント"
+msgstr "プロバイダアカウント"
 
 #: circuits/models/providers.py:87
 msgid "provider accounts"
-msgstr "プロバイダーアカウント"
+msgstr "プロバイダアカウント"
 
 #: circuits/models/providers.py:115
 msgid "service ID"
@@ -978,11 +980,11 @@ msgstr "サービス ID"
 
 #: circuits/models/providers.py:126
 msgid "provider network"
-msgstr "プロバイダーネットワーク"
+msgstr "プロバイダネットワーク"
 
 #: circuits/models/providers.py:127
 msgid "provider networks"
-msgstr "プロバイダーネットワーク"
+msgstr "プロバイダネットワーク"
 
 #: circuits/tables/circuits.py:29 circuits/tables/providers.py:18
 #: circuits/tables/providers.py:69 circuits/tables/providers.py:99
@@ -1069,7 +1071,7 @@ msgstr "プロバイダーネットワーク"
 #: vpn/tables/tunnels.py:40 wireless/tables/wirelesslan.py:18
 #: wireless/tables/wirelesslan.py:79
 msgid "Name"
-msgstr "[名前]"
+msgstr "名前"
 
 #: circuits/tables/circuits.py:38 circuits/tables/providers.py:45
 #: circuits/tables/providers.py:79 netbox/navigation/menu.py:254
@@ -1078,11 +1080,11 @@ msgstr "[名前]"
 #: templates/circuits/provideraccount.html:46
 #: templates/circuits/providernetwork.html:54
 msgid "Circuits"
-msgstr "回路"
+msgstr "回線"
 
 #: circuits/tables/circuits.py:52 templates/circuits/circuit.html:27
 msgid "Circuit ID"
-msgstr "サーキット ID"
+msgstr "回線 ID"
 
 #: circuits/tables/circuits.py:65 wireless/forms/model_forms.py:157
 msgid "Side A"
@@ -1094,7 +1096,7 @@ msgstr "サイド Z"
 
 #: circuits/tables/circuits.py:72 templates/circuits/circuit.html:56
 msgid "Commit Rate"
-msgstr "コミットレート"
+msgstr "保証帯域"
 
 #: circuits/tables/circuits.py:75 circuits/tables/providers.py:48
 #: circuits/tables/providers.py:82 circuits/tables/providers.py:107
@@ -1115,7 +1117,7 @@ msgstr "コミットレート"
 #: vpn/tables/crypto.py:173 vpn/tables/l2vpn.py:37 vpn/tables/tunnels.py:57
 #: wireless/tables/wirelesslan.py:27 wireless/tables/wirelesslan.py:58
 msgid "Comments"
-msgstr "[コメント]"
+msgstr "コメント"
 
 #: circuits/tables/providers.py:23
 msgid "Accounts"
@@ -1127,7 +1129,7 @@ msgstr "アカウント数"
 
 #: circuits/tables/providers.py:39 dcim/tables/sites.py:100
 msgid "ASN Count"
-msgstr "ASN カウント"
+msgstr "ASN 数"
 
 #: core/choices.py:18
 msgid "New"
@@ -1144,7 +1146,7 @@ msgstr "同期中"
 #: core/choices.py:21 core/choices.py:57 core/tables/jobs.py:41
 #: extras/choices.py:210 templates/core/job.html:75
 msgid "Completed"
-msgstr "完了しました"
+msgstr "完了"
 
 #: core/choices.py:22 core/choices.py:59 dcim/choices.py:176
 #: dcim/choices.py:222 dcim/choices.py:1496 extras/choices.py:212
@@ -1171,7 +1173,7 @@ msgstr "保留中"
 #: core/choices.py:55 core/tables/jobs.py:32 extras/choices.py:208
 #: templates/core/job.html:62
 msgid "Scheduled"
-msgstr "スケジュール済み"
+msgstr "予定済"
 
 #: core/choices.py:56 extras/choices.py:209
 msgid "Running"
@@ -1179,7 +1181,7 @@ msgstr "実行中"
 
 #: core/choices.py:58 extras/choices.py:211
 msgid "Errored"
-msgstr "エラーです"
+msgstr "エラー"
 
 #: core/data_backends.py:29 templates/dcim/interface.html:224
 msgid "Local"
@@ -1189,16 +1191,16 @@ msgstr "ローカル"
 #: templates/account/profile.html:16 templates/users/user.html:18
 #: users/tables.py:31
 msgid "Username"
-msgstr "ユーザー名"
+msgstr "ユーザ名"
 
 #: core/data_backends.py:49 core/data_backends.py:55
 msgid "Only used for cloning with HTTP(S)"
-msgstr "HTTP (S) でのクローニングにのみ使用されます"
+msgstr "HTTP (S) でのcloneに使用されます"
 
 #: core/data_backends.py:53 templates/account/base.html:17
 #: templates/account/password.html:11 users/forms/model_forms.py:172
 msgid "Password"
-msgstr "[パスワード]"
+msgstr "パスワード"
 
 #: core/data_backends.py:59
 msgid "Branch"
@@ -1223,24 +1225,24 @@ msgstr "データソース (名前)"
 
 #: core/forms/bulk_edit.py:24 ipam/forms/bulk_edit.py:47
 msgid "Enforce unique space"
-msgstr "ユニークな空間を強制"
+msgstr "IPアドレスの重複を禁止する"
 
-#: core/forms/bulk_edit.py:33 extras/forms/model_forms.py:202
+#: core/forms/bulk_edit.py:33 extras/forms/model_forms.py:204
 #: templates/extras/savedfilter.html:57 vpn/forms/filtersets.py:95
 #: vpn/forms/filtersets.py:124 vpn/forms/filtersets.py:148
 #: vpn/forms/filtersets.py:167 vpn/forms/model_forms.py:294
 #: vpn/forms/model_forms.py:315 vpn/forms/model_forms.py:329
 #: vpn/forms/model_forms.py:350 vpn/forms/model_forms.py:373
 msgid "Parameters"
-msgstr "パラメーター"
+msgstr "パラメータ"
 
 #: core/forms/bulk_edit.py:37 templates/core/datasource.html:69
 msgid "Ignore rules"
-msgstr "ルールを無視"
+msgstr "ignoreルール"
 
 #: core/forms/filtersets.py:26 core/forms/model_forms.py:95
-#: extras/forms/model_forms.py:165 extras/forms/model_forms.py:462
-#: extras/forms/model_forms.py:515 extras/tables/tables.py:149
+#: extras/forms/model_forms.py:167 extras/forms/model_forms.py:464
+#: extras/forms/model_forms.py:517 extras/tables/tables.py:149
 #: extras/tables/tables.py:368 extras/tables/tables.py:403
 #: templates/core/datasource.html:31
 #: templates/dcim/device/render_config.html:19
@@ -1249,7 +1251,7 @@ msgstr "ルールを無視"
 #: templates/extras/exporttemplate.html:41
 #: templates/virtualization/virtualmachine/render_config.html:19
 msgid "Data Source"
-msgstr "[データソース]"
+msgstr "データソース"
 
 #: core/forms/filtersets.py:39 core/tables/data.py:26
 #: dcim/forms/bulk_edit.py:1012 dcim/forms/bulk_edit.py:1285
@@ -1272,7 +1274,7 @@ msgstr "有効"
 
 #: core/forms/filtersets.py:51 core/forms/mixins.py:21
 msgid "File"
-msgstr "[ファイル]"
+msgstr "ファイル"
 
 #: core/forms/filtersets.py:56 core/forms/mixins.py:16
 #: extras/forms/filtersets.py:147 extras/forms/filtersets.py:336
@@ -1289,11 +1291,11 @@ msgstr "作成"
 #: templates/core/job.html:25 templates/extras/objectchange.html:56
 #: tenancy/tables/contacts.py:90 vpn/tables/l2vpn.py:59
 msgid "Object Type"
-msgstr "[オブジェクトタイプ]"
+msgstr "オブジェクトタイプ"
 
 #: core/forms/filtersets.py:80
 msgid "Created after"
-msgstr "後に作成"
+msgstr "以降に作成"
 
 #: core/forms/filtersets.py:85
 msgid "Created before"
@@ -1301,27 +1303,27 @@ msgstr "以前に作成"
 
 #: core/forms/filtersets.py:90
 msgid "Scheduled after"
-msgstr "後に予定されている"
+msgstr "以降に予定"
 
 #: core/forms/filtersets.py:95
 msgid "Scheduled before"
-msgstr "以前に予定されている"
+msgstr "以前に予定"
 
 #: core/forms/filtersets.py:100
 msgid "Started after"
-msgstr "後に開始"
+msgstr "以降に開始"
 
 #: core/forms/filtersets.py:105
 msgid "Started before"
-msgstr "前に開始"
+msgstr "以前に開始"
 
 #: core/forms/filtersets.py:110
 msgid "Completed after"
-msgstr "後に完了"
+msgstr "以降に完了"
 
 #: core/forms/filtersets.py:115
 msgid "Completed before"
-msgstr "前に完了しました"
+msgstr "以前に完了"
 
 #: core/forms/filtersets.py:122 dcim/forms/bulk_edit.py:359
 #: dcim/forms/filtersets.py:352 dcim/forms/filtersets.py:396
@@ -1340,27 +1342,27 @@ msgstr "ユーザ"
 #: templates/core/datafile.html:36 templates/extras/report/base.html:33
 #: templates/extras/script/base.html:32 templates/extras/script_result.html:45
 msgid "Source"
-msgstr "[ソース]"
+msgstr "ソース"
 
 #: core/forms/model_forms.py:56
 msgid "Backend Parameters"
-msgstr "バックエンドパラメーター"
+msgstr "バックエンド設定"
 
 #: core/forms/model_forms.py:94
 msgid "File Upload"
-msgstr "ファイルアップロード"
+msgstr "ファイルのアップロード"
 
 #: core/forms/model_forms.py:147 templates/core/configrevision.html:43
 #: templates/dcim/rack_elevation_list.html:6
 msgid "Rack Elevations"
-msgstr "ラックの高さ"
+msgstr "ラック図"
 
 #: core/forms/model_forms.py:148 dcim/choices.py:1407
 #: dcim/forms/bulk_edit.py:859 dcim/forms/bulk_edit.py:1242
 #: dcim/forms/bulk_edit.py:1260 dcim/tables/racks.py:89
 #: netbox/navigation/menu.py:276 netbox/navigation/menu.py:280
 msgid "Power"
-msgstr "パワー"
+msgstr "電源"
 
 #: core/forms/model_forms.py:149 netbox/navigation/menu.py:142
 #: templates/core/configrevision.html:79
@@ -1372,7 +1374,7 @@ msgstr "IPAM"
 #: vpn/forms/filtersets.py:42 vpn/forms/model_forms.py:60
 #: vpn/forms/model_forms.py:145
 msgid "Security"
-msgstr "[セキュリティ]"
+msgstr "セキュリティ"
 
 #: core/forms/model_forms.py:151 templates/core/configrevision.html:107
 msgid "Banners"
@@ -1385,21 +1387,21 @@ msgstr "ページネーション"
 #: core/forms/model_forms.py:153 extras/forms/model_forms.py:63
 #: templates/core/configrevision.html:147
 msgid "Validation"
-msgstr "検証"
+msgstr "バリデーション"
 
 #: core/forms/model_forms.py:154 templates/account/preferences.html:6
 #: templates/core/configrevision.html:175
 msgid "User Preferences"
-msgstr "ユーザープリファレンス"
+msgstr "ユーザ設定"
 
 #: core/forms/model_forms.py:155 dcim/forms/filtersets.py:658
 #: templates/core/configrevision.html:193 users/forms/model_forms.py:64
 msgid "Miscellaneous"
-msgstr "雑多"
+msgstr "その他"
 
 #: core/forms/model_forms.py:158
 msgid "Config Revision"
-msgstr "コンフィグリビジョン"
+msgstr "設定履歴"
 
 #: core/forms/model_forms.py:197
 msgid "This parameter has been defined statically and cannot be modified."
@@ -1418,7 +1420,7 @@ msgstr " (デフォルト)"
 #: core/models/jobs.py:50 extras/models/models.py:760
 #: netbox/models/features.py:52 users/models.py:248
 msgid "created"
-msgstr "作成した"
+msgstr "作成日時"
 
 #: core/models/config.py:22
 msgid "comment"
@@ -1430,24 +1432,24 @@ msgstr "設定データ"
 
 #: core/models/config.py:36
 msgid "config revision"
-msgstr "設定リビジョン"
+msgstr "設定履歴"
 
 #: core/models/config.py:37
 msgid "config revisions"
-msgstr "設定リビジョン"
+msgstr "設定履歴"
 
 #: core/models/config.py:41
 msgid "Default configuration"
-msgstr "デフォルト構成"
+msgstr "デフォルト設定"
 
 #: core/models/config.py:43
 msgid "Current configuration"
-msgstr "現在の構成"
+msgstr "現在の設定"
 
 #: core/models/config.py:44
 #, python-brace-format
 msgid "Config revision #{id}"
-msgstr "設定リビジョン #{id}"
+msgstr "設定履歴 #{id}"
 
 #: core/models/data.py:46 dcim/models/cables.py:43
 #: dcim/models/device_component_templates.py:177
@@ -1480,19 +1482,19 @@ msgstr "有効"
 
 #: core/models/data.py:65
 msgid "ignore rules"
-msgstr "ルールを無視"
+msgstr "ignoreルール"
 
 #: core/models/data.py:67
 msgid "Patterns (one per line) matching files to ignore when syncing"
-msgstr "同期時に無視するファイルマッチングパターン (1 行に 1 つ)"
+msgstr "同期時に除外するファイル名のパターン (1 行に 1 つ)"
 
 #: core/models/data.py:70 extras/models/models.py:564
 msgid "parameters"
-msgstr "パラメーター"
+msgstr "パラメータ"
 
 #: core/models/data.py:75
 msgid "last synced"
-msgstr "最終同期"
+msgstr "最終同期日時"
 
 #: core/models/data.py:83
 msgid "data source"
@@ -1510,11 +1512,11 @@ msgstr "不明なバックエンドタイプ: {type}"
 #: core/models/data.py:263 core/models/files.py:31
 #: netbox/models/features.py:58
 msgid "last updated"
-msgstr "最終更新日"
+msgstr "最終更新日時"
 
 #: core/models/data.py:273 dcim/models/cables.py:430
 msgid "path"
-msgstr "道"
+msgstr "パス"
 
 #: core/models/data.py:276
 msgid "File path relative to the data source's root"
@@ -1530,7 +1532,7 @@ msgstr "ハッシュ"
 
 #: core/models/data.py:287
 msgid "Length must be 64 hexadecimal characters."
-msgstr "長さは 64 桁の 16 進数文字でなければなりません。"
+msgstr "64 桁の 16 進数でなければなりません。"
 
 #: core/models/data.py:289
 msgid "SHA256 hash of the file data"
@@ -1562,19 +1564,19 @@ msgstr "ファイルパス"
 
 #: core/models/files.py:44
 msgid "File path relative to the designated root path"
-msgstr "指定されたルートパスからの相対ファイルパス"
+msgstr "指定されたルートパスからの相対パス"
 
 #: core/models/files.py:61
 msgid "managed file"
-msgstr "管理ファイル"
+msgstr "管理対象ファイル"
 
 #: core/models/files.py:62
 msgid "managed files"
-msgstr "管理ファイル"
+msgstr "管理対象ファイル"
 
 #: core/models/jobs.py:54
 msgid "scheduled"
-msgstr "予定"
+msgstr "予定日時"
 
 #: core/models/jobs.py:59
 msgid "interval"
@@ -1582,15 +1584,15 @@ msgstr "間隔"
 
 #: core/models/jobs.py:65
 msgid "Recurrence interval (in minutes)"
-msgstr "繰り返し間隔 (分単位)"
+msgstr "繰り返し間隔 (分)"
 
 #: core/models/jobs.py:68
 msgid "started"
-msgstr "始まった"
+msgstr "開始日時"
 
 #: core/models/jobs.py:73
 msgid "completed"
-msgstr "完成した"
+msgstr "完了日時"
 
 #: core/models/jobs.py:91 extras/models/models.py:123
 #: extras/models/staging.py:87
@@ -1620,7 +1622,7 @@ msgstr "このオブジェクトタイプにはジョブを割り当てられま
 
 #: core/tables/config.py:21 users/forms/filtersets.py:45 users/tables.py:39
 msgid "Is Active"
-msgstr "アクティブです"
+msgstr "有効"
 
 #: core/tables/data.py:50 templates/core/datafile.html:40
 msgid "Path"
@@ -1645,7 +1647,7 @@ msgstr "ID"
 #: templates/extras/journalentry.html:21 templates/extras/objectchange.html:62
 #: tenancy/tables/contacts.py:93 vpn/tables/l2vpn.py:64
 msgid "Object"
-msgstr "[オブジェクト]"
+msgstr "オブジェクト"
 
 #: core/tables/jobs.py:35
 msgid "Interval"
@@ -1655,7 +1657,7 @@ msgstr "間隔"
 #: templates/extras/htmx/report_result.html:7
 #: templates/extras/htmx/script_result.html:8
 msgid "Started"
-msgstr "開始"
+msgstr "開始日時"
 
 #: dcim/api/serializers.py:205 templates/dcim/rack.html:33
 msgid "Facility ID"
@@ -1673,19 +1675,19 @@ msgstr "ステージング"
 #: dcim/choices.py:1420 virtualization/choices.py:23
 #: virtualization/choices.py:48
 msgid "Decommissioning"
-msgstr "廃止措置"
+msgstr "廃止"
 
 #: dcim/choices.py:24
 msgid "Retired"
-msgstr "退職しました"
+msgstr "撤退済"
 
 #: dcim/choices.py:65
 msgid "2-post frame"
-msgstr "2 ポストフレーム"
+msgstr "2 ポストラック"
 
 #: dcim/choices.py:66
 msgid "4-post frame"
-msgstr "4ポストフレーム"
+msgstr "4ポストラック"
 
 #: dcim/choices.py:67
 msgid "4-post cabinet"
@@ -1693,19 +1695,19 @@ msgstr "4 ポストキャビネット"
 
 #: dcim/choices.py:68
 msgid "Wall-mounted frame"
-msgstr "壁掛けフレーム"
+msgstr "ウォールマウントラック"
 
 #: dcim/choices.py:69
 msgid "Wall-mounted frame (vertical)"
-msgstr "壁掛けフレーム (垂直)"
+msgstr "ウォールマウントラック (垂直)"
 
 #: dcim/choices.py:70
 msgid "Wall-mounted cabinet"
-msgstr "壁掛けキャビネット"
+msgstr "ウォールマウントキャビネット"
 
 #: dcim/choices.py:71
 msgid "Wall-mounted cabinet (vertical)"
-msgstr "壁掛けキャビネット (縦型)"
+msgstr "ウォールマウントキャビネット (垂直)"
 
 #: dcim/choices.py:83 dcim/choices.py:84 dcim/choices.py:85 dcim/choices.py:86
 #, python-brace-format
@@ -1715,7 +1717,7 @@ msgstr "{n} インチ"
 #: dcim/choices.py:100 ipam/choices.py:32 ipam/choices.py:50
 #: ipam/choices.py:70 ipam/choices.py:155 wireless/choices.py:26
 msgid "Reserved"
-msgstr "予約済み"
+msgstr "予約済"
 
 #: dcim/choices.py:101 templates/dcim/device.html:262
 msgid "Available"
@@ -1724,7 +1726,7 @@ msgstr "利用可能"
 #: dcim/choices.py:104 ipam/choices.py:33 ipam/choices.py:51
 #: ipam/choices.py:71 ipam/choices.py:156 wireless/choices.py:28
 msgid "Deprecated"
-msgstr "非推奨"
+msgstr "廃止済"
 
 #: dcim/choices.py:114 templates/dcim/rack.html:128
 msgid "Millimeters"
@@ -1763,35 +1765,35 @@ msgstr "親"
 
 #: dcim/choices.py:141
 msgid "Child"
-msgstr "子ども"
+msgstr "子"
 
 #: dcim/choices.py:155 templates/dcim/device.html:345
 #: templates/dcim/rack.html:181 templates/dcim/rack_elevation_list.html:22
 #: templates/dcim/rackreservation.html:84
 msgid "Front"
-msgstr "正面"
+msgstr "前面"
 
 #: dcim/choices.py:156 templates/dcim/device.html:351
 #: templates/dcim/rack.html:187 templates/dcim/rack_elevation_list.html:23
 #: templates/dcim/rackreservation.html:90
 msgid "Rear"
-msgstr "リア"
+msgstr "背面"
 
 #: dcim/choices.py:175 dcim/choices.py:221 virtualization/choices.py:46
 msgid "Staged"
-msgstr "上演"
+msgstr "検証"
 
 #: dcim/choices.py:177
 msgid "Inventory"
-msgstr "インベントリ"
+msgstr "在庫"
 
 #: dcim/choices.py:193
 msgid "Front to rear"
-msgstr "前面から背面へ"
+msgstr "前面から背面"
 
 #: dcim/choices.py:194
 msgid "Rear to front"
-msgstr "背面から前面へ"
+msgstr "背面から前面"
 
 #: dcim/choices.py:195
 msgid "Left to right"
@@ -1803,7 +1805,7 @@ msgstr "右から左"
 
 #: dcim/choices.py:197
 msgid "Side to rear"
-msgstr "側面から背面へ"
+msgstr "側面から背面"
 
 #: dcim/choices.py:198 dcim/choices.py:1215
 msgid "Passive"
@@ -1815,23 +1817,23 @@ msgstr "混合"
 
 #: dcim/choices.py:443 dcim/choices.py:680
 msgid "NEMA (Non-locking)"
-msgstr "NEMA (ノンロック)"
+msgstr "NEMA (ロック無)"
 
 #: dcim/choices.py:465 dcim/choices.py:702
 msgid "NEMA (Locking)"
-msgstr "ネマ (ロッキング)"
+msgstr "NEMA (ロック有)"
 
 #: dcim/choices.py:488 dcim/choices.py:725
 msgid "California Style"
-msgstr "カリフォルニアスタイル"
+msgstr "California Style"
 
 #: dcim/choices.py:496
 msgid "International/ITA"
-msgstr "インターナショナル/イタリア"
+msgstr "International/ITA"
 
 #: dcim/choices.py:526 dcim/choices.py:755
 msgid "Proprietary"
-msgstr "プロプライエタリ"
+msgstr "独自規格"
 
 #: dcim/choices.py:534 dcim/choices.py:764 dcim/choices.py:1131
 #: dcim/choices.py:1133 dcim/choices.py:1338 dcim/choices.py:1340
@@ -1841,26 +1843,26 @@ msgstr "その他"
 
 #: dcim/choices.py:733
 msgid "ITA/International"
-msgstr "ITA/インターナショナル"
+msgstr "ITA/International"
 
 #: dcim/choices.py:794
 msgid "Physical"
-msgstr "物理的"
+msgstr "物理"
 
 #: dcim/choices.py:795 dcim/choices.py:949
 msgid "Virtual"
-msgstr "バーチャル"
+msgstr "仮想"
 
 #: dcim/choices.py:796 dcim/choices.py:1019 dcim/forms/bulk_edit.py:1398
 #: dcim/forms/filtersets.py:1233 dcim/forms/model_forms.py:881
 #: dcim/forms/model_forms.py:1190 netbox/navigation/menu.py:128
 #: netbox/navigation/menu.py:132 templates/dcim/interface.html:217
 msgid "Wireless"
-msgstr "ワイヤレス"
+msgstr "無線"
 
 #: dcim/choices.py:947
 msgid "Virtual interfaces"
-msgstr "仮想インターフェース"
+msgstr "仮想インタフェース"
 
 #: dcim/choices.py:950 dcim/forms/bulk_edit.py:1295
 #: dcim/forms/bulk_import.py:777 dcim/forms/model_forms.py:869
@@ -1874,7 +1876,7 @@ msgstr "ブリッジ"
 
 #: dcim/choices.py:951
 msgid "Link Aggregation Group (LAG)"
-msgstr "リンク・アグリゲーション・グループ (LAG)"
+msgstr "リンクアグリゲーション (LAG)"
 
 #: dcim/choices.py:955
 msgid "Ethernet (fixed)"
@@ -1882,7 +1884,7 @@ msgstr "イーサネット (固定)"
 
 #: dcim/choices.py:969
 msgid "Ethernet (modular)"
-msgstr "イーサネット (モジュラー)"
+msgstr "イーサネット (モジュール)"
 
 #: dcim/choices.py:1005
 msgid "Ethernet (backplane)"
@@ -1905,19 +1907,19 @@ msgstr "同軸"
 
 #: dcim/choices.py:1112
 msgid "Stacking"
-msgstr "スタッキング"
+msgstr "スタック"
 
 #: dcim/choices.py:1162
 msgid "Half"
-msgstr "ハーフ"
+msgstr "半二重"
 
 #: dcim/choices.py:1163
 msgid "Full"
-msgstr "フル"
+msgstr "全二重"
 
 #: dcim/choices.py:1164 netbox/preferences.py:29 wireless/choices.py:480
 msgid "Auto"
-msgstr "オート"
+msgstr "自動"
 
 #: dcim/choices.py:1175
 msgid "Access"
@@ -1954,7 +1956,7 @@ msgstr "パッシブ 48V (4ペア)"
 
 #: dcim/choices.py:1282 dcim/choices.py:1378
 msgid "Copper"
-msgstr "銅"
+msgstr "カッパー"
 
 #: dcim/choices.py:1305
 msgid "Fiber Optic"
@@ -1966,7 +1968,7 @@ msgstr "ファイバー"
 
 #: dcim/choices.py:1418 dcim/forms/filtersets.py:1140
 msgid "Connected"
-msgstr "接続済み"
+msgstr "接続済"
 
 #: dcim/choices.py:1437
 msgid "Kilometers"
@@ -2015,11 +2017,11 @@ msgstr "冗長"
 
 #: dcim/choices.py:1528
 msgid "Single phase"
-msgstr "シングルフェーズ"
+msgstr "単相"
 
 #: dcim/choices.py:1529
 msgid "Three-phase"
-msgstr "3 フェーズ"
+msgstr "三相"
 
 #: dcim/filtersets.py:82
 msgid "Parent region (ID)"
@@ -2027,7 +2029,7 @@ msgstr "親リージョン (ID)"
 
 #: dcim/filtersets.py:88
 msgid "Parent region (slug)"
-msgstr "親リージョン (スラッグ)"
+msgstr "親リージョン (slug)"
 
 #: dcim/filtersets.py:99
 msgid "Parent site group (ID)"
@@ -2035,7 +2037,7 @@ msgstr "親サイトグループ (ID)"
 
 #: dcim/filtersets.py:105
 msgid "Parent site group (slug)"
-msgstr "親サイトグループ (スラッグ)"
+msgstr "親サイトグループ (slug)"
 
 #: dcim/filtersets.py:134 ipam/filtersets.py:797 ipam/filtersets.py:930
 msgid "Group (ID)"
@@ -2043,11 +2045,11 @@ msgstr "グループ (ID)"
 
 #: dcim/filtersets.py:140
 msgid "Group (slug)"
-msgstr "グループ (スラッグ)"
+msgstr "グループ (slug)"
 
 #: dcim/filtersets.py:146 dcim/filtersets.py:151
 msgid "AS (ID)"
-msgstr "(ID) として"
+msgstr "AS (ID)"
 
 #: dcim/filtersets.py:219 dcim/filtersets.py:294 dcim/filtersets.py:393
 #: dcim/filtersets.py:925 dcim/filtersets.py:1229 dcim/filtersets.py:1967
@@ -2057,7 +2059,7 @@ msgstr "ロケーション (ID)"
 #: dcim/filtersets.py:226 dcim/filtersets.py:301 dcim/filtersets.py:400
 #: dcim/filtersets.py:1235 extras/filtersets.py:447
 msgid "Location (slug)"
-msgstr "場所 (スラッグ)"
+msgstr "ロケーション (slug)"
 
 #: dcim/filtersets.py:315 dcim/filtersets.py:772 dcim/filtersets.py:862
 #: dcim/filtersets.py:1635 ipam/filtersets.py:347 ipam/filtersets.py:459
@@ -2070,7 +2072,7 @@ msgstr "ロール (ID)"
 #: ipam/filtersets.py:465 ipam/filtersets.py:946
 #: virtualization/filtersets.py:216
 msgid "Role (slug)"
-msgstr "ロール (スラッグ)"
+msgstr "ロール (slug)"
 
 #: dcim/filtersets.py:350 dcim/filtersets.py:930 dcim/filtersets.py:1240
 #: dcim/filtersets.py:2029
@@ -2085,19 +2087,19 @@ msgstr "ユーザ (ID)"
 #: dcim/filtersets.py:410 extras/filtersets.py:240 extras/filtersets.py:284
 #: extras/filtersets.py:324 users/filtersets.py:80 users/filtersets.py:140
 msgid "User (name)"
-msgstr "ユーザー (名前)"
+msgstr "ユーザ (名前)"
 
 #: dcim/filtersets.py:438 dcim/filtersets.py:565 dcim/filtersets.py:762
 #: dcim/filtersets.py:813 dcim/filtersets.py:841 dcim/filtersets.py:1131
 #: dcim/filtersets.py:1625
 msgid "Manufacturer (ID)"
-msgstr "メーカー (ID)"
+msgstr "メーカ (ID)"
 
 #: dcim/filtersets.py:444 dcim/filtersets.py:571 dcim/filtersets.py:768
 #: dcim/filtersets.py:819 dcim/filtersets.py:847 dcim/filtersets.py:1137
 #: dcim/filtersets.py:1631
 msgid "Manufacturer (slug)"
-msgstr "メーカー (スラッグ)"
+msgstr "メーカ (slug)"
 
 #: dcim/filtersets.py:448
 msgid "Default platform (ID)"
@@ -2105,63 +2107,63 @@ msgstr "デフォルトプラットフォーム (ID)"
 
 #: dcim/filtersets.py:454
 msgid "Default platform (slug)"
-msgstr "デフォルトプラットフォーム (スラッグ)"
+msgstr "デフォルトプラットフォーム (slug)"
 
 #: dcim/filtersets.py:457 dcim/forms/filtersets.py:452
 msgid "Has a front image"
-msgstr "正面画像あり"
+msgstr "正面画像がある"
 
 #: dcim/filtersets.py:461 dcim/forms/filtersets.py:459
 msgid "Has a rear image"
-msgstr "背面画像あり"
+msgstr "背面画像がある"
 
 #: dcim/filtersets.py:466 dcim/filtersets.py:575 dcim/filtersets.py:983
 #: dcim/forms/filtersets.py:466 dcim/forms/filtersets.py:563
 #: dcim/forms/filtersets.py:775
 msgid "Has console ports"
-msgstr "コンソールポートあり"
+msgstr "コンソールポートがある"
 
 #: dcim/filtersets.py:470 dcim/filtersets.py:579 dcim/filtersets.py:987
 #: dcim/forms/filtersets.py:473 dcim/forms/filtersets.py:570
 #: dcim/forms/filtersets.py:782
 msgid "Has console server ports"
-msgstr "コンソール・サーバー・ポートあり"
+msgstr "コンソールサーバポートがある"
 
 #: dcim/filtersets.py:474 dcim/filtersets.py:583 dcim/filtersets.py:991
 #: dcim/forms/filtersets.py:480 dcim/forms/filtersets.py:577
 #: dcim/forms/filtersets.py:789
 msgid "Has power ports"
-msgstr "電源ポート付き"
+msgstr "電源ポートがある"
 
 #: dcim/filtersets.py:478 dcim/filtersets.py:587 dcim/filtersets.py:995
 #: dcim/forms/filtersets.py:487 dcim/forms/filtersets.py:584
 #: dcim/forms/filtersets.py:796
 msgid "Has power outlets"
-msgstr "電源コンセントあり"
+msgstr "電源コンセントがある"
 
 #: dcim/filtersets.py:482 dcim/filtersets.py:591 dcim/filtersets.py:999
 #: dcim/forms/filtersets.py:494 dcim/forms/filtersets.py:591
 #: dcim/forms/filtersets.py:803
 msgid "Has interfaces"
-msgstr "インターフェースあり"
+msgstr "インタフェースがある"
 
 #: dcim/filtersets.py:486 dcim/filtersets.py:595 dcim/filtersets.py:1003
 #: dcim/forms/filtersets.py:501 dcim/forms/filtersets.py:598
 #: dcim/forms/filtersets.py:810
 msgid "Has pass-through ports"
-msgstr "パススルーポートあり"
+msgstr "パススルーポートがある"
 
 #: dcim/filtersets.py:490 dcim/filtersets.py:1007 dcim/forms/filtersets.py:515
 msgid "Has module bays"
-msgstr "モジュールベイあり"
+msgstr "モジュールベイがある"
 
 #: dcim/filtersets.py:494 dcim/filtersets.py:1011 dcim/forms/filtersets.py:508
 msgid "Has device bays"
-msgstr "デバイスベイあり"
+msgstr "デバイスベイがある"
 
 #: dcim/filtersets.py:498 dcim/forms/filtersets.py:522
 msgid "Has inventory items"
-msgstr "インベントリアイテムあり"
+msgstr "在庫品目がある"
 
 #: dcim/filtersets.py:643 dcim/filtersets.py:857 dcim/filtersets.py:1261
 msgid "Device type (ID)"
@@ -2173,7 +2175,7 @@ msgstr "モジュールタイプ (ID)"
 
 #: dcim/filtersets.py:758 dcim/filtersets.py:1621
 msgid "Parent inventory item (ID)"
-msgstr "親インベントリアイテム (ID)"
+msgstr "親在庫品目 (ID)"
 
 #: dcim/filtersets.py:801 dcim/filtersets.py:823 dcim/filtersets.py:979
 #: virtualization/filtersets.py:238
@@ -2182,7 +2184,7 @@ msgstr "設定テンプレート (ID)"
 
 #: dcim/filtersets.py:853
 msgid "Device type (slug)"
-msgstr "デバイスタイプ (スラッグ)"
+msgstr "デバイスタイプ (slug)"
 
 #: dcim/filtersets.py:873
 msgid "Parent Device (ID)"
@@ -2195,12 +2197,12 @@ msgstr "プラットフォーム (ID)"
 #: dcim/filtersets.py:883 extras/filtersets.py:474
 #: virtualization/filtersets.py:226
 msgid "Platform (slug)"
-msgstr "プラットフォーム (スラッグ)"
+msgstr "プラットフォーム (slug)"
 
 #: dcim/filtersets.py:919 dcim/filtersets.py:1224 dcim/filtersets.py:1719
 #: dcim/filtersets.py:1961 dcim/filtersets.py:2020
 msgid "Site name (slug)"
-msgstr "サイト名 (スラッグ)"
+msgstr "サイト名 (slug)"
 
 #: dcim/filtersets.py:934
 msgid "VM cluster (ID)"
@@ -2208,11 +2210,11 @@ msgstr "VM クラスタ (ID)"
 
 #: dcim/filtersets.py:940
 msgid "Device model (slug)"
-msgstr "デバイスモデル (スラッグ)"
+msgstr "デバイスモデル (slug)"
 
 #: dcim/filtersets.py:951 dcim/forms/bulk_edit.py:421
 msgid "Is full depth"
-msgstr "奥行きがいっぱい"
+msgstr "奥行きをすべて使うか"
 
 #: dcim/filtersets.py:955 dcim/forms/common.py:18 dcim/forms/filtersets.py:745
 #: dcim/forms/filtersets.py:1285 dcim/models/device_components.py:519
@@ -2238,11 +2240,11 @@ msgstr "バーチャルシャーシ (ID)"
 
 #: dcim/filtersets.py:975
 msgid "Is a virtual chassis member"
-msgstr "バーチャルシャーシのメンバーです"
+msgstr "バーチャルシャーシのメンバーか"
 
 #: dcim/filtersets.py:1016
 msgid "OOB IP (ID)"
-msgstr "ブーブチップ (ID)"
+msgstr "OOB IP (ID)"
 
 #: dcim/filtersets.py:1148
 msgid "Module type (model)"
@@ -2277,7 +2279,7 @@ msgstr "デバイスロール (ID)"
 
 #: dcim/filtersets.py:1278 dcim/filtersets.py:1301
 msgid "Device role (slug)"
-msgstr "デバイスロール (スラッグ)"
+msgstr "デバイスロール (slug)"
 
 #: dcim/filtersets.py:1283
 msgid "Virtual Chassis (ID)"
@@ -2299,11 +2301,11 @@ msgstr "モジュール (ID)"
 #: dcim/filtersets.py:1425 ipam/forms/bulk_import.py:188
 #: vpn/forms/bulk_import.py:308
 msgid "Assigned VLAN"
-msgstr "割り当てられた VLAN"
+msgstr "割当 VLAN"
 
 #: dcim/filtersets.py:1429
 msgid "Assigned VID"
-msgstr "割り当てられた VID"
+msgstr "割当 VID"
 
 #: dcim/filtersets.py:1434 dcim/forms/bulk_edit.py:1374
 #: dcim/forms/bulk_import.py:828 dcim/forms/filtersets.py:1328
@@ -2337,7 +2339,7 @@ msgstr "VRF"
 #: dcim/filtersets.py:1440 ipam/filtersets.py:288 ipam/filtersets.py:299
 #: ipam/filtersets.py:455 ipam/filtersets.py:556 ipam/filtersets.py:567
 msgid "VRF (RD)"
-msgstr "VRF (赤)"
+msgstr "VRF (RD)"
 
 #: dcim/filtersets.py:1445 ipam/filtersets.py:967 vpn/filtersets.py:314
 msgid "L2VPN (ID)"
@@ -2356,27 +2358,27 @@ msgstr "L2VPN"
 
 #: dcim/filtersets.py:1483
 msgid "Virtual Chassis Interfaces for Device"
-msgstr "デバイス用バーチャルシャーシインターフェイス"
+msgstr "バーチャルシャーシインタフェース"
 
 #: dcim/filtersets.py:1488
 msgid "Virtual Chassis Interfaces for Device (ID)"
-msgstr "デバイス (ID) のバーチャルシャーシインターフェイス"
+msgstr "バーチャルシャーシインタフェース (ID)"
 
 #: dcim/filtersets.py:1492
 msgid "Kind of interface"
-msgstr "インターフェースの種類"
+msgstr "インタフェースの種類"
 
 #: dcim/filtersets.py:1497 virtualization/filtersets.py:289
 msgid "Parent interface (ID)"
-msgstr "親インターフェース (ID)"
+msgstr "親インタフェース (ID)"
 
 #: dcim/filtersets.py:1502 virtualization/filtersets.py:294
 msgid "Bridged interface (ID)"
-msgstr "ブリッジインターフェイス (ID)"
+msgstr "ブリッジインタフェース (ID)"
 
 #: dcim/filtersets.py:1507
 msgid "LAG interface (ID)"
-msgstr "LAG インターフェイス (ID)"
+msgstr "LAG インタフェース (ID)"
 
 #: dcim/filtersets.py:1676
 msgid "Master (ID)"
@@ -2392,25 +2394,25 @@ msgstr "テナント (ID)"
 
 #: dcim/filtersets.py:1730 extras/filtersets.py:523 tenancy/filtersets.py:227
 msgid "Tenant (slug)"
-msgstr "テナント (スラッグ)"
+msgstr "テナント (slug)"
 
 #: dcim/filtersets.py:1766 dcim/forms/filtersets.py:990
 msgid "Unterminated"
-msgstr "未終了"
+msgstr "未終端"
 
 #: dcim/filtersets.py:2024
 msgid "Power panel (ID)"
-msgstr "電源パネル (ID)"
+msgstr "電源盤 (ID)"
 
 #: dcim/forms/bulk_create.py:40 extras/forms/filtersets.py:410
-#: extras/forms/model_forms.py:451 extras/forms/model_forms.py:502
+#: extras/forms/model_forms.py:453 extras/forms/model_forms.py:504
 #: netbox/forms/base.py:82 netbox/forms/mixins.py:79
 #: netbox/tables/columns.py:448
 #: templates/circuits/inc/circuit_termination.html:119
 #: templates/generic/bulk_edit.html:81 templates/inc/panels/tags.html:5
 #: utilities/forms/fields/fields.py:81
 msgid "Tags"
-msgstr "[タグ]"
+msgstr "タグ"
 
 #: dcim/forms/bulk_create.py:112 dcim/forms/filtersets.py:1390
 #: dcim/forms/model_forms.py:422 dcim/forms/model_forms.py:468
@@ -2427,7 +2429,7 @@ msgstr "ポジション"
 msgid ""
 "Alphanumeric ranges are supported. (Must match the number of names being "
 "created.)"
-msgstr "英数字の範囲がサポートされています。(作成する名前の数と一致する必要があります)。"
+msgstr "英数字の範囲が使用できます。(作成する名前の数と一致する必要があります)"
 
 #: dcim/forms/bulk_edit.py:115 dcim/forms/bulk_import.py:99
 #: dcim/forms/model_forms.py:120 dcim/tables/sites.py:89
@@ -2457,7 +2459,7 @@ msgstr "英数字の範囲がサポートされています。(作成する名�
 #: wireless/forms/filtersets.py:45 wireless/forms/model_forms.py:41
 #: wireless/tables/wirelesslan.py:48
 msgid "Group"
-msgstr "[グループ]"
+msgstr "グループ"
 
 #: dcim/forms/bulk_edit.py:130
 msgid "Contact name"
@@ -2515,14 +2517,14 @@ msgstr "タイムゾーン"
 #: vpn/forms/model_forms.py:77 vpn/forms/model_forms.py:112
 #: vpn/tables/tunnels.py:78
 msgid "Role"
-msgstr "役割"
+msgstr "ロール"
 
 #: dcim/forms/bulk_edit.py:273 dcim/forms/bulk_edit.py:605
 #: dcim/forms/bulk_edit.py:654 templates/dcim/device.html:106
 #: templates/dcim/module.html:75 templates/dcim/modulebay.html:69
 #: templates/dcim/rack.html:58
 msgid "Serial Number"
-msgstr "[シリアル番号]"
+msgstr "シリアル番号"
 
 #: dcim/forms/bulk_edit.py:276 dcim/forms/filtersets.py:306
 #: dcim/forms/filtersets.py:740 dcim/forms/filtersets.py:880
@@ -2542,23 +2544,23 @@ msgstr "高さ (U)"
 
 #: dcim/forms/bulk_edit.py:297
 msgid "Descending units"
-msgstr "降順単位"
+msgstr "降順"
 
 #: dcim/forms/bulk_edit.py:300
 msgid "Outer width"
-msgstr "外側の幅"
+msgstr "外形の幅"
 
 #: dcim/forms/bulk_edit.py:305
 msgid "Outer depth"
-msgstr "外側の深さ"
+msgstr "外形の奥行"
 
 #: dcim/forms/bulk_edit.py:310 dcim/forms/bulk_import.py:217
 msgid "Outer unit"
-msgstr "アウターユニット"
+msgstr "外形の単位"
 
 #: dcim/forms/bulk_edit.py:315
 msgid "Mounting depth"
-msgstr "取り付け深さ"
+msgstr "取り付け奥行き"
 
 #: dcim/forms/bulk_edit.py:320 dcim/forms/bulk_edit.py:349
 #: dcim/forms/bulk_edit.py:434 dcim/forms/bulk_edit.py:457
@@ -2579,7 +2581,7 @@ msgstr "取り付け深さ"
 #: templates/extras/configcontext.html:18 templates/extras/customlink.html:26
 #: templates/extras/savedfilter.html:34 templates/ipam/role.html:33
 msgid "Weight"
-msgstr "ウェイト"
+msgstr "重量"
 
 #: dcim/forms/bulk_edit.py:325 dcim/forms/filtersets.py:316
 msgid "Max weight"
@@ -2644,7 +2646,7 @@ msgstr "ハードウェア"
 #: templates/dcim/manufacturer.html:34 templates/dcim/modulebay.html:61
 #: templates/dcim/moduletype.html:15 templates/dcim/platform.html:40
 msgid "Manufacturer"
-msgstr "メーカー"
+msgstr "メーカ"
 
 #: dcim/forms/bulk_edit.py:405 dcim/forms/bulk_import.py:317
 #: dcim/forms/filtersets.py:434 dcim/forms/model_forms.py:292
@@ -2658,11 +2660,11 @@ msgstr "パーツ番号"
 
 #: dcim/forms/bulk_edit.py:414
 msgid "U height"
-msgstr "U ハイト"
+msgstr "ユニット数"
 
 #: dcim/forms/bulk_edit.py:426
 msgid "Exclude from utilization"
-msgstr "利用から除外"
+msgstr "ラック利用率に含めない"
 
 #: dcim/forms/bulk_edit.py:429 dcim/forms/bulk_edit.py:598
 #: dcim/forms/bulk_import.py:517 dcim/forms/filtersets.py:446
@@ -2686,7 +2688,7 @@ msgstr "モジュールタイプ"
 
 #: dcim/forms/bulk_edit.py:506 dcim/models/devices.py:472
 msgid "VM role"
-msgstr "仮想マシンの役割"
+msgstr "仮想マシンのロール"
 
 #: dcim/forms/bulk_edit.py:509 dcim/forms/bulk_edit.py:533
 #: dcim/forms/bulk_edit.py:613 dcim/forms/bulk_import.py:368
@@ -2784,12 +2786,12 @@ msgstr "プラットフォーム"
 #: wireless/forms/model_forms.py:100 wireless/forms/model_forms.py:140
 #: wireless/tables/wirelesslan.py:75
 msgid "Device"
-msgstr "[デバイス]"
+msgstr "デバイス"
 
 #: dcim/forms/bulk_edit.py:624 netbox/navigation/menu.py:441
 #: templates/extras/dashboard/widget_config.html:7
 msgid "Configuration"
-msgstr "コンフィギュレーション"
+msgstr "設定"
 
 #: dcim/forms/bulk_edit.py:638 dcim/forms/bulk_import.py:590
 #: dcim/forms/model_forms.py:569 dcim/forms/model_forms.py:795
@@ -2811,7 +2813,7 @@ msgstr "モジュールタイプ"
 #: templates/dcim/powerport.html:35 templates/dcim/rearport.html:35
 #: templates/extras/customfield.html:27 templates/generic/bulk_import.html:155
 msgid "Label"
-msgstr "[ラベル]"
+msgstr "ラベル"
 
 #: dcim/forms/bulk_edit.py:698 dcim/forms/filtersets.py:981
 #: templates/dcim/cable.html:51
@@ -2821,7 +2823,7 @@ msgstr "長さ"
 #: dcim/forms/bulk_edit.py:703 dcim/forms/bulk_import.py:1158
 #: dcim/forms/bulk_import.py:1161 dcim/forms/filtersets.py:985
 msgid "Length unit"
-msgstr "長さ単位"
+msgstr "長さの単位"
 
 #: dcim/forms/bulk_edit.py:727 templates/dcim/virtualchassis.html:24
 msgid "Domain"
@@ -2830,17 +2832,17 @@ msgstr "ドメイン"
 #: dcim/forms/bulk_edit.py:795 dcim/forms/bulk_import.py:1273
 #: dcim/forms/filtersets.py:1071 dcim/forms/model_forms.py:657
 msgid "Power panel"
-msgstr "パワーパネル"
+msgstr "電源盤"
 
 #: dcim/forms/bulk_edit.py:817 dcim/forms/bulk_import.py:1309
 #: dcim/forms/filtersets.py:1093 templates/dcim/powerfeed.html:90
 msgid "Supply"
-msgstr "サプライ"
+msgstr "供給電源"
 
 #: dcim/forms/bulk_edit.py:823 dcim/forms/bulk_import.py:1314
 #: dcim/forms/filtersets.py:1098 templates/dcim/powerfeed.html:102
 msgid "Phase"
-msgstr "フェーズ"
+msgstr "電力相"
 
 #: dcim/forms/bulk_edit.py:829 dcim/forms/filtersets.py:1103
 #: templates/dcim/powerfeed.html:94
@@ -2861,11 +2863,11 @@ msgstr "最大使用率"
 #: dcim/forms/bulk_edit.py:1252 dcim/forms/bulk_edit.py:1340
 #: dcim/forms/bulk_edit.py:1478 dcim/forms/bulk_edit.py:1495
 msgid "Mark connected"
-msgstr "接続済みとしてマークする"
+msgstr "接続済みにする"
 
 #: dcim/forms/bulk_edit.py:926
 msgid "Maximum draw"
-msgstr "最大ドロー"
+msgstr "最大消費電力"
 
 #: dcim/forms/bulk_edit.py:929 dcim/models/device_component_templates.py:256
 #: dcim/models/device_components.py:357
@@ -2874,12 +2876,12 @@ msgstr "最大消費電力 (ワット)"
 
 #: dcim/forms/bulk_edit.py:932
 msgid "Allocated draw"
-msgstr "割り当てられた抽選"
+msgstr "割当電力"
 
 #: dcim/forms/bulk_edit.py:935 dcim/models/device_component_templates.py:263
 #: dcim/models/device_components.py:364
 msgid "Allocated power draw (watts)"
-msgstr "割り当て消費電力 (ワット)"
+msgstr "割当消費電力 (ワット)"
 
 #: dcim/forms/bulk_edit.py:968 dcim/forms/bulk_import.py:723
 #: dcim/forms/model_forms.py:848 dcim/forms/model_forms.py:1076
@@ -2889,7 +2891,7 @@ msgstr "電源ポート"
 
 #: dcim/forms/bulk_edit.py:973
 msgid "Feed leg"
-msgstr "フィードレッグ"
+msgstr "供給端子"
 
 #: dcim/forms/bulk_edit.py:1019 dcim/forms/bulk_edit.py:1325
 msgid "Management only"
@@ -2914,7 +2916,7 @@ msgstr "PoE タイプ"
 #: dcim/forms/bulk_edit.py:1041 dcim/forms/filtersets.py:1304
 #: dcim/forms/object_import.py:105
 msgid "Wireless role"
-msgstr "ワイヤレスの役割"
+msgstr "無線ロール"
 
 #: dcim/forms/bulk_edit.py:1178 dcim/forms/model_forms.py:588
 #: dcim/forms/model_forms.py:1019 dcim/tables/devices.py:337
@@ -2929,7 +2931,7 @@ msgstr "モジュール"
 #: dcim/forms/bulk_edit.py:1305 dcim/tables/devices.py:680
 #: templates/dcim/interface.html:113
 msgid "LAG"
-msgstr "ラグ"
+msgstr "LAG"
 
 #: dcim/forms/bulk_edit.py:1310 dcim/forms/model_forms.py:1103
 msgid "Virtual device contexts"
@@ -2942,7 +2944,7 @@ msgstr "仮想デバイスコンテキスト"
 #: templates/circuits/inc/circuit_termination.html:94
 #: templates/dcim/consoleport.html:43 templates/dcim/consoleserverport.html:43
 msgid "Speed"
-msgstr "スピード"
+msgstr "速度"
 
 #: dcim/forms/bulk_edit.py:1345 dcim/forms/bulk_import.py:822
 #: templates/vpn/ikepolicy.html:26 templates/vpn/ipsecprofile.html:22
@@ -2976,13 +2978,13 @@ msgstr "タグ付き VLAN"
 
 #: dcim/forms/bulk_edit.py:1379 dcim/forms/model_forms.py:1139
 msgid "Wireless LAN group"
-msgstr "ワイヤレス LAN グループ"
+msgstr "無線 LAN グループ"
 
 #: dcim/forms/bulk_edit.py:1384 dcim/forms/model_forms.py:1144
 #: dcim/tables/devices.py:630 netbox/navigation/menu.py:134
 #: templates/dcim/interface.html:289 wireless/tables/wirelesslan.py:24
 msgid "Wireless LANs"
-msgstr "ワイヤレス LAN"
+msgstr "無線 LAN"
 
 #: dcim/forms/bulk_edit.py:1393 dcim/forms/filtersets.py:1231
 #: dcim/forms/model_forms.py:1185 ipam/forms/bulk_edit.py:270
@@ -2990,7 +2992,7 @@ msgstr "ワイヤレス LAN"
 #: templates/dcim/interface.html:126 templates/ipam/prefix.html:96
 #: virtualization/forms/model_forms.py:352
 msgid "Addressing"
-msgstr "アドレッシング"
+msgstr "アドレス"
 
 #: dcim/forms/bulk_edit.py:1394 dcim/forms/filtersets.py:651
 #: dcim/forms/model_forms.py:1186 virtualization/forms/model_forms.py:353
@@ -3006,7 +3008,7 @@ msgstr "PoE"
 #: templates/dcim/interface.html:101 virtualization/forms/bulk_edit.py:266
 #: virtualization/forms/model_forms.py:354
 msgid "Related Interfaces"
-msgstr "関連インターフェース"
+msgstr "関連インタフェース"
 
 #: dcim/forms/bulk_edit.py:1397 dcim/forms/model_forms.py:1189
 #: virtualization/forms/bulk_edit.py:267
@@ -3016,28 +3018,28 @@ msgstr "802.1Q スイッチング"
 
 #: dcim/forms/bulk_edit.py:1458 dcim/forms/bulk_edit.py:1460
 msgid "Interface mode must be specified to assign VLANs"
-msgstr "VLAN を割り当てるには、インターフェイスモードを指定する必要があります"
+msgstr "VLAN を割り当てるには、インタフェースモードを指定する必要があります"
 
 #: dcim/forms/bulk_edit.py:1465 dcim/forms/common.py:50
 msgid "An access interface cannot have tagged VLANs assigned."
-msgstr "アクセスインターフェイスにはタグ付き VLAN を割り当てることはできません。"
+msgstr "アクセスインタフェースにはタグ付き VLAN を割り当てることはできません。"
 
 #: dcim/forms/bulk_import.py:63
 msgid "Name of parent region"
-msgstr "親地域の名前"
+msgstr "親リージョン名"
 
 #: dcim/forms/bulk_import.py:77
 msgid "Name of parent site group"
-msgstr "親サイトグループの名前"
+msgstr "親サイトグループ名"
 
 #: dcim/forms/bulk_import.py:96
 msgid "Assigned region"
-msgstr "割り当てられた地域"
+msgstr "割当リージョン"
 
 #: dcim/forms/bulk_import.py:103 tenancy/forms/bulk_import.py:44
 #: tenancy/forms/bulk_import.py:85 wireless/forms/bulk_import.py:40
 msgid "Assigned group"
-msgstr "割り当てられたグループ"
+msgstr "割当グループ"
 
 #: dcim/forms/bulk_import.py:122
 msgid "available options"
@@ -3048,23 +3050,23 @@ msgstr "使用可能なオプション"
 #: ipam/forms/bulk_import.py:441 virtualization/forms/bulk_import.py:63
 #: virtualization/forms/bulk_import.py:89
 msgid "Assigned site"
-msgstr "割り当てられたサイト"
+msgstr "割当サイト"
 
 #: dcim/forms/bulk_import.py:140
 msgid "Parent location"
-msgstr "親の場所"
+msgstr "親ロケーション"
 
 #: dcim/forms/bulk_import.py:142
 msgid "Location not found."
-msgstr "場所が見つかりません。"
+msgstr "ロケーションが見つかりません。"
 
 #: dcim/forms/bulk_import.py:191
 msgid "Name of assigned tenant"
-msgstr "割り当てられたテナントの名前"
+msgstr "割当テナント名"
 
 #: dcim/forms/bulk_import.py:203
 msgid "Name of assigned role"
-msgstr "割り当てられたロールの名前"
+msgstr "割当ロール名"
 
 #: dcim/forms/bulk_import.py:209
 msgid "Rack type"
@@ -3072,7 +3074,7 @@ msgstr "ラックタイプ"
 
 #: dcim/forms/bulk_import.py:214
 msgid "Rail-to-rail width (in inches)"
-msgstr "レールツーレールの幅 (インチ)"
+msgstr "レール間の幅 (インチ)"
 
 #: dcim/forms/bulk_import.py:220
 msgid "Unit for outer dimensions"
@@ -3080,7 +3082,7 @@ msgstr "外形寸法の単位"
 
 #: dcim/forms/bulk_import.py:226
 msgid "Unit for rack weights"
-msgstr "ラックウェイト用ユニット"
+msgstr "重量の単位"
 
 #: dcim/forms/bulk_import.py:252
 msgid "Parent site"
@@ -3088,7 +3090,7 @@ msgstr "親サイト"
 
 #: dcim/forms/bulk_import.py:259 dcim/forms/bulk_import.py:1283
 msgid "Rack's location (if any)"
-msgstr "ラックの場所 (ある場合)"
+msgstr "ラックのロケーション (存在する場合)"
 
 #: dcim/forms/bulk_import.py:268 dcim/forms/model_forms.py:246
 #: dcim/tables/racks.py:153 templates/dcim/rackreservation.html:12
@@ -3098,15 +3100,15 @@ msgstr "単位"
 
 #: dcim/forms/bulk_import.py:271
 msgid "Comma-separated list of individual unit numbers"
-msgstr "個々のユニット番号をカンマで区切ったリスト"
+msgstr "カンマ区切りのユニット番号"
 
 #: dcim/forms/bulk_import.py:314
 msgid "The manufacturer which produces this device type"
-msgstr "このデバイスタイプを製造しているメーカー"
+msgstr "製造メーカ"
 
 #: dcim/forms/bulk_import.py:321
 msgid "The default platform for devices of this type (optional)"
-msgstr "このタイプのデバイスのデフォルトプラットフォーム (オプション)"
+msgstr "デフォルトのプラットフォーム (オプション)"
 
 #: dcim/forms/bulk_import.py:326
 msgid "Device weight"
@@ -3126,15 +3128,15 @@ msgstr "モジュール重量の単位"
 
 #: dcim/forms/bulk_import.py:391
 msgid "Limit platform assignments to this manufacturer"
-msgstr "プラットフォーム割り当てをこのメーカーに限定する"
+msgstr "プラットフォーム割り当てをこのメーカに限定する"
 
 #: dcim/forms/bulk_import.py:413 tenancy/forms/bulk_import.py:106
 msgid "Assigned role"
-msgstr "割り当てられた役割"
+msgstr "割当ロール"
 
 #: dcim/forms/bulk_import.py:426
 msgid "Device type manufacturer"
-msgstr "デバイスタイプメーカー"
+msgstr "デバイスタイプメーカ"
 
 #: dcim/forms/bulk_import.py:432
 msgid "Device type model"
@@ -3142,7 +3144,7 @@ msgstr "デバイスタイプモデル"
 
 #: dcim/forms/bulk_import.py:439 virtualization/forms/bulk_import.py:126
 msgid "Assigned platform"
-msgstr "割り当てられたプラットフォーム"
+msgstr "割当プラットフォーム"
 
 #: dcim/forms/bulk_import.py:447 dcim/forms/bulk_import.py:451
 #: dcim/forms/model_forms.py:461
@@ -3174,23 +3176,23 @@ msgstr "仮想化クラスタ"
 
 #: dcim/forms/bulk_import.py:487
 msgid "Assigned location (if any)"
-msgstr "割り当てられた場所 (存在する場合)"
+msgstr "割当ロケーション (存在する場合)"
 
 #: dcim/forms/bulk_import.py:494
 msgid "Assigned rack (if any)"
-msgstr "割り当てられたラック (ある場合)"
+msgstr "割当ラック (存在する場合)"
 
 #: dcim/forms/bulk_import.py:497
 msgid "Face"
-msgstr "フェイス"
+msgstr "面"
 
 #: dcim/forms/bulk_import.py:500
 msgid "Mounted rack face"
-msgstr "マウントラックフェイス"
+msgstr "ラック取付面"
 
 #: dcim/forms/bulk_import.py:507
 msgid "Parent device (for child devices)"
-msgstr "親デバイス (子供用デバイス用)"
+msgstr "親デバイス (子デバイス用)"
 
 #: dcim/forms/bulk_import.py:510
 msgid "Device bay"
@@ -3198,15 +3200,15 @@ msgstr "デバイスベイ"
 
 #: dcim/forms/bulk_import.py:514
 msgid "Device bay in which this device is installed (for child devices)"
-msgstr "このデバイスがインストールされているデバイスベイ (子供用デバイス用)"
+msgstr "設置されているデバイスベイ (子デバイス用)"
 
 #: dcim/forms/bulk_import.py:520
 msgid "Airflow direction"
-msgstr "気流方向"
+msgstr "エアフロー"
 
 #: dcim/forms/bulk_import.py:581
 msgid "The device in which this module is installed"
-msgstr "このモジュールがインストールされているデバイス"
+msgstr "挿入されているデバイス"
 
 #: dcim/forms/bulk_import.py:584 dcim/forms/model_forms.py:562
 msgid "Module bay"
@@ -3214,29 +3216,29 @@ msgstr "モジュールベイ"
 
 #: dcim/forms/bulk_import.py:587
 msgid "The module bay in which this module is installed"
-msgstr "このモジュールが取り付けられているモジュールベイ"
+msgstr "挿入されているモジュールベイ"
 
 #: dcim/forms/bulk_import.py:593
 msgid "The type of module"
-msgstr "モジュールのタイプ"
+msgstr "モジュールタイプ"
 
 #: dcim/forms/bulk_import.py:601 dcim/forms/model_forms.py:575
 msgid "Replicate components"
-msgstr "コンポーネントを複製"
+msgstr "構成要素を複製"
 
 #: dcim/forms/bulk_import.py:603
 msgid ""
 "Automatically populate components associated with this module type (enabled "
 "by default)"
-msgstr "このモジュールタイプに関連するコンポーネントを自動的に入力 (デフォルトで有効)"
+msgstr "関連する構成要素を自動的に登録 (デフォルト)"
 
 #: dcim/forms/bulk_import.py:606 dcim/forms/model_forms.py:581
 msgid "Adopt components"
-msgstr "コンポーネントを採用"
+msgstr "既存の構成要素を採用"
 
 #: dcim/forms/bulk_import.py:608 dcim/forms/model_forms.py:584
 msgid "Adopt already existing components"
-msgstr "既存のコンポーネントを採用"
+msgstr "既存の構成要素を採用"
 
 #: dcim/forms/bulk_import.py:648 dcim/forms/bulk_import.py:674
 #: dcim/forms/bulk_import.py:700
@@ -3253,7 +3255,7 @@ msgstr "コンセントタイプ"
 
 #: dcim/forms/bulk_import.py:727
 msgid "Local power port which feeds this outlet"
-msgstr "このコンセントに給電するローカル電源ポート"
+msgstr "このコンセントに給電する電源ポート"
 
 #: dcim/forms/bulk_import.py:730
 msgid "Feed lag"
@@ -3261,27 +3263,27 @@ msgstr "フィードラグ"
 
 #: dcim/forms/bulk_import.py:733
 msgid "Electrical phase (for three-phase circuits)"
-msgstr "電気相 (三相回路用)"
+msgstr "電気位相 (三相回路用)"
 
 #: dcim/forms/bulk_import.py:774 dcim/forms/model_forms.py:1114
 #: virtualization/forms/bulk_import.py:155
 #: virtualization/forms/model_forms.py:308
 msgid "Parent interface"
-msgstr "親インターフェース"
+msgstr "親インタフェース"
 
 #: dcim/forms/bulk_import.py:781 dcim/forms/model_forms.py:1122
 #: virtualization/forms/bulk_import.py:162
 #: virtualization/forms/model_forms.py:316
 msgid "Bridged interface"
-msgstr "ブリッジインターフェース"
+msgstr "ブリッジインタフェース"
 
 #: dcim/forms/bulk_import.py:784
 msgid "Lag"
-msgstr "ラグ"
+msgstr "Lag"
 
 #: dcim/forms/bulk_import.py:788
 msgid "Parent LAG interface"
-msgstr "親 LAG インターフェイス"
+msgstr "親 LAG インタフェース"
 
 #: dcim/forms/bulk_import.py:791
 msgid "Vdcs"
@@ -3301,68 +3303,68 @@ msgstr "デュプレックス"
 
 #: dcim/forms/bulk_import.py:810
 msgid "Poe mode"
-msgstr "ポーモード"
+msgstr "PoEモード"
 
 #: dcim/forms/bulk_import.py:816
 msgid "Poe type"
-msgstr "ポータイプ"
+msgstr "PoEタイプ"
 
 #: dcim/forms/bulk_import.py:825 virtualization/forms/bulk_import.py:168
 msgid "IEEE 802.1Q operational mode (for L2 interfaces)"
-msgstr "IEEE 802.1Q オペレーショナルモード（L2 インターフェイス用）"
+msgstr "IEEE 802.1Q モード（L2 インタフェース用）"
 
 #: dcim/forms/bulk_import.py:832 ipam/forms/bulk_import.py:160
 #: ipam/forms/bulk_import.py:246 ipam/forms/bulk_import.py:282
 #: ipam/forms/filtersets.py:196 ipam/forms/filtersets.py:266
 #: ipam/forms/filtersets.py:322 virtualization/forms/bulk_import.py:175
 msgid "Assigned VRF"
-msgstr "割り当てられた VRF"
+msgstr "割当 VRF"
 
 #: dcim/forms/bulk_import.py:835
 msgid "Rf role"
-msgstr "Rf ロール"
+msgstr "RF ロール"
 
 #: dcim/forms/bulk_import.py:838
 msgid "Wireless role (AP/station)"
-msgstr "ワイヤレスロール (AP/ステーション)"
+msgstr "無線ロール (AP/ステーション)"
 
 #: dcim/forms/bulk_import.py:884 dcim/forms/model_forms.py:893
 #: dcim/forms/model_forms.py:1369 dcim/forms/object_import.py:122
 msgid "Rear port"
-msgstr "リアポート"
+msgstr "背面ポート"
 
 #: dcim/forms/bulk_import.py:887
 msgid "Corresponding rear port"
-msgstr "対応リアポート"
+msgstr "対応する背面ポート"
 
 #: dcim/forms/bulk_import.py:892 dcim/forms/bulk_import.py:933
 #: dcim/forms/bulk_import.py:1148
 msgid "Physical medium classification"
-msgstr "物理媒体分類"
+msgstr "物理媒体の分類"
 
 #: dcim/forms/bulk_import.py:961 dcim/tables/devices.py:841
 msgid "Installed device"
-msgstr "インストール済みデバイス"
+msgstr "挿入済みデバイス"
 
 #: dcim/forms/bulk_import.py:965
 msgid "Child device installed within this bay"
-msgstr "このベイ内に設置された子供用デバイス"
+msgstr "このベイ内に挿入された子デバイス"
 
 #: dcim/forms/bulk_import.py:967
 msgid "Child device not found."
-msgstr "子供用デバイスが見つかりません。"
+msgstr "子デバイスが見つかりません。"
 
 #: dcim/forms/bulk_import.py:1025
 msgid "Parent inventory item"
-msgstr "親インベントリアイテム"
+msgstr "親在庫品目"
 
 #: dcim/forms/bulk_import.py:1028
 msgid "Component type"
-msgstr "コンポーネントタイプ"
+msgstr "構成要素タイプ"
 
 #: dcim/forms/bulk_import.py:1032
 msgid "Component Type"
-msgstr "コンポーネントタイプ"
+msgstr "構成要素タイプ"
 
 #: dcim/forms/bulk_import.py:1035
 msgid "Compnent name"
@@ -3370,7 +3372,7 @@ msgstr "コンポーネント名"
 
 #: dcim/forms/bulk_import.py:1037
 msgid "Component Name"
-msgstr "コンポーネント名"
+msgstr "構成要素名"
 
 #: dcim/forms/bulk_import.py:1103
 msgid "Side A device"
@@ -3394,7 +3396,7 @@ msgstr "サイド A 名"
 
 #: dcim/forms/bulk_import.py:1116 dcim/forms/bulk_import.py:1134
 msgid "Termination name"
-msgstr "終了名"
+msgstr "終端名"
 
 #: dcim/forms/bulk_import.py:1121
 msgid "Side B device"
@@ -3428,7 +3430,7 @@ msgstr "親サイトの名前"
 
 #: dcim/forms/bulk_import.py:1276
 msgid "Upstream power panel"
-msgstr "上流電源パネル"
+msgstr "上流電源盤"
 
 #: dcim/forms/bulk_import.py:1306
 msgid "Primary or redundant"
@@ -3454,36 +3456,35 @@ msgstr "MTU"
 msgid ""
 "The tagged VLANs ({vlans}) must belong to the same site as the interface's "
 "parent device/VM, or they must be global"
-msgstr ""
-"タグ付きの VLAN ({vlans}) はインターフェースの親デバイス/仮想マシンと同じサイトに属しているか、グローバルである必要があります"
+msgstr "タグ付き VLAN ({vlans}) はインタフェースの親デバイス/仮想マシンと同サイトに属しているか、グローバルである必要があります"
 
 #: dcim/forms/common.py:110
 msgid ""
 "Cannot install module with placeholder values in a module bay with no "
 "position defined."
-msgstr "位置が定義されていないモジュールベイには、プレースホルダー値のあるモジュールをインストールできません。"
+msgstr "位置が定義されていないモジュールベイには、プレースホルダー値のあるモジュールを挿入できません。"
 
 #: dcim/forms/common.py:119
 #, python-brace-format
 msgid "Cannot adopt {model} {name} as it already belongs to a module"
-msgstr "採用できない {model} {name} すでにモジュールに属しているので"
+msgstr " {model} {name} は既にモジュールに属しているので採用できません"
 
 #: dcim/forms/common.py:128
 #, python-brace-format
 msgid "A {model} named {name} already exists"
-msgstr "A {model} 名前付き {name} 既に存在しています"
+msgstr "{model} {name} は既に存在しています"
 
 #: dcim/forms/connections.py:45 dcim/tables/power.py:66
 #: templates/dcim/inc/cable_termination.html:37
 #: templates/dcim/powerfeed.html:27 templates/dcim/powerpanel.html:19
 #: templates/dcim/trace/powerpanel.html:4
 msgid "Power Panel"
-msgstr "パワーパネル"
+msgstr "電源盤"
 
 #: dcim/forms/connections.py:54 dcim/forms/model_forms.py:670
 #: templates/dcim/powerfeed.html:22 templates/dcim/powerport.html:84
 msgid "Power Feed"
-msgstr "パワーフィード"
+msgstr "電源タップ"
 
 #: dcim/forms/connections.py:74
 msgid "Side"
@@ -3491,7 +3492,7 @@ msgstr "サイド"
 
 #: dcim/forms/filtersets.py:141
 msgid "Parent region"
-msgstr "親地域"
+msgstr "親リージョン"
 
 #: dcim/forms/filtersets.py:155 tenancy/forms/bulk_import.py:28
 #: tenancy/forms/bulk_import.py:62 tenancy/forms/filtersets.py:32
@@ -3502,7 +3503,7 @@ msgstr "親グループ"
 
 #: dcim/forms/filtersets.py:246 dcim/forms/filtersets.py:331
 msgid "Function"
-msgstr "ファンクション"
+msgstr "機能"
 
 #: dcim/forms/filtersets.py:418 dcim/forms/model_forms.py:308
 #: templates/inc/panels/image_attachments.html:5
@@ -3512,7 +3513,7 @@ msgstr "画像"
 #: dcim/forms/filtersets.py:419 dcim/forms/filtersets.py:544
 #: dcim/forms/filtersets.py:655
 msgid "Components"
-msgstr "[コンポーネント]"
+msgstr "構成要素"
 
 #: dcim/forms/filtersets.py:441
 msgid "Subdevice role"
@@ -3528,11 +3529,11 @@ msgstr "バーチャルシャーシメンバー"
 
 #: dcim/forms/filtersets.py:1123
 msgid "Cabled"
-msgstr "ケーブル接続"
+msgstr "ケーブル接続済"
 
 #: dcim/forms/filtersets.py:1130
 msgid "Occupied"
-msgstr "占領"
+msgstr "専有済"
 
 #: dcim/forms/filtersets.py:1155 dcim/forms/filtersets.py:1177
 #: dcim/forms/filtersets.py:1199 dcim/forms/filtersets.py:1216
@@ -3551,10 +3552,10 @@ msgstr "仮想デバイスコンテキスト"
 
 #: dcim/forms/filtersets.py:1248 extras/forms/bulk_edit.py:315
 #: extras/forms/bulk_import.py:239 extras/forms/filtersets.py:479
-#: extras/forms/model_forms.py:555 extras/tables/tables.py:487
+#: extras/forms/model_forms.py:557 extras/tables/tables.py:487
 #: templates/extras/journalentry.html:33
 msgid "Kind"
-msgstr "親切"
+msgstr "種類"
 
 #: dcim/forms/filtersets.py:1277
 msgid "Mgmt only"
@@ -3567,7 +3568,7 @@ msgstr "WWN"
 
 #: dcim/forms/filtersets.py:1309
 msgid "Wireless channel"
-msgstr "ワイヤレスチャネル"
+msgstr "無線チャネル"
 
 #: dcim/forms/filtersets.py:1313
 msgid "Channel frequency (MHz)"
@@ -3579,7 +3580,7 @@ msgstr "チャネル幅 (MHz)"
 
 #: dcim/forms/filtersets.py:1321 templates/dcim/interface.html:86
 msgid "Transmit power (dBm)"
-msgstr "送信パワー (dBm)"
+msgstr "送信出力 (dBm)"
 
 #: dcim/forms/filtersets.py:1344 dcim/forms/filtersets.py:1366
 #: dcim/tables/devices.py:344 templates/dcim/cable.html:12
@@ -3597,7 +3598,7 @@ msgstr "発見された"
 #: dcim/forms/formsets.py:20
 #, python-brace-format
 msgid "A virtual chassis member already exists in position {vc_position}."
-msgstr "バーチャルシャーシメンバーはすでに所定の位置に存在します {vc_position}。"
+msgstr "バーチャルシャーシメンバーはすでに{vc_position}に存在します 。"
 
 #: dcim/forms/model_forms.py:101 dcim/tables/devices.py:183
 #: templates/dcim/sitegroup.html:26
@@ -3616,7 +3617,7 @@ msgstr "ラックロール"
 msgid ""
 "Comma-separated list of numeric unit IDs. A range may be specified using a "
 "hyphen."
-msgstr "コンマで区切られた数値ユニット ID のリスト。範囲はハイフンを使用して指定できます。"
+msgstr "カンマ区切りのユニット ID 。範囲はハイフンを使用して指定できます。"
 
 #: dcim/forms/model_forms.py:259 dcim/tables/racks.py:133
 msgid "Reservation"
@@ -3625,7 +3626,7 @@ msgstr "予約"
 #: dcim/forms/model_forms.py:297 dcim/forms/model_forms.py:380
 #: utilities/forms/fields/fields.py:47
 msgid "Slug"
-msgstr "スラッグ"
+msgstr "Slug"
 
 #: dcim/forms/model_forms.py:304 templates/dcim/devicetype.html:12
 msgid "Chassis"
@@ -3637,11 +3638,11 @@ msgstr "デバイスロール"
 
 #: dcim/forms/model_forms.py:424 dcim/models/devices.py:632
 msgid "The lowest-numbered unit occupied by the device"
-msgstr "デバイスが使用している最も番号の小さいユニット"
+msgstr "デバイスが使用している最も小さいユニット番号"
 
 #: dcim/forms/model_forms.py:469
 msgid "The position in the virtual chassis this device is identified by"
-msgstr "このデバイスの識別基準となる仮想シャーシ内の位置"
+msgstr "仮想シャーシ内の位置"
 
 #: dcim/forms/model_forms.py:473 templates/dcim/device.html:131
 #: templates/dcim/virtualchassis.html:61
@@ -3653,23 +3654,23 @@ msgstr "優先度"
 
 #: dcim/forms/model_forms.py:474
 msgid "The priority of the device in the virtual chassis"
-msgstr "仮想シャーシ内のデバイスの優先順位"
+msgstr "仮想シャーシ内の優先度"
 
 #: dcim/forms/model_forms.py:578
 msgid "Automatically populate components associated with this module type"
-msgstr "このモジュールタイプに関連するコンポーネントを自動的に入力"
+msgstr "このモジュールタイプに関連する構成要素を自動的に入力する"
 
 #: dcim/forms/model_forms.py:623
 msgid "Maximum length is 32767 (any unit)"
-msgstr "最大長は32767 (任意の単位)"
+msgstr "最大長は32767です (任意の単位)"
 
 #: dcim/forms/model_forms.py:671
 msgid "Characteristics"
-msgstr "特徴"
+msgstr "特性"
 
 #: dcim/forms/model_forms.py:1130
 msgid "LAG interface"
-msgstr "LAG インターフェイス"
+msgstr "LAG インタフェース"
 
 #: dcim/forms/model_forms.py:1184 dcim/forms/model_forms.py:1345
 #: dcim/tables/connections.py:65 ipam/forms/bulk_import.py:317
@@ -3695,13 +3696,13 @@ msgstr "インタフェース"
 
 #: dcim/forms/model_forms.py:1278
 msgid "Child Device"
-msgstr "子供用デバイス"
+msgstr "子デバイス"
 
 #: dcim/forms/model_forms.py:1279
 msgid ""
 "Child devices must first be created and assigned to the site and rack of the"
 " parent device."
-msgstr "最初に子デバイスを作成し、親デバイスのサイトとラックに割り当てる必要があります。"
+msgstr "まず子デバイスを作成し、親デバイスのサイトとラックに割り当てる必要があります。"
 
 #: dcim/forms/model_forms.py:1321
 msgid "Console port"
@@ -3713,7 +3714,7 @@ msgstr "コンソールサーバポート"
 
 #: dcim/forms/model_forms.py:1337
 msgid "Front port"
-msgstr "フロントポート"
+msgstr "前面ポート"
 
 #: dcim/forms/model_forms.py:1353
 msgid "Power outlet"
@@ -3722,15 +3723,15 @@ msgstr "電源コンセント"
 #: dcim/forms/model_forms.py:1373 templates/dcim/inventoryitem.html:17
 #: templates/dcim/inventoryitem_edit.html:10
 msgid "Inventory Item"
-msgstr "インベントリアイテム"
+msgstr "在庫品目"
 
 #: dcim/forms/model_forms.py:1425
 msgid "An InventoryItem can only be assigned to a single component."
-msgstr "InventoryItemは1つのコンポーネントにのみ割り当てることができます。"
+msgstr "在庫品目は1つの構成要素にのみ割り当てることができます。"
 
 #: dcim/forms/model_forms.py:1439 templates/dcim/inventoryitemrole.html:15
 msgid "Inventory Item Role"
-msgstr "インベントリアイテムロール"
+msgstr "在庫品目ロール"
 
 #: dcim/forms/model_forms.py:1459 templates/dcim/device.html:195
 #: templates/dcim/virtualdevicecontext.html:33
@@ -3756,7 +3757,7 @@ msgstr "英数字の範囲がサポートされています。(作成するオ�
 msgid ""
 "The provided pattern specifies {value_count} values, but {pattern_count} are"
 " expected."
-msgstr "提供されたパターンは以下を指定します {value_count} 値、しかし {pattern_count} 期待されています。"
+msgstr "パターンは {value_count} 個の値を示す範囲を指定しますが、 {pattern_count} 個の値が必要です。"
 
 #: dcim/forms/object_create.py:109 dcim/forms/object_create.py:270
 #: dcim/tables/devices.py:281
@@ -3765,7 +3766,7 @@ msgstr "背面ポート"
 
 #: dcim/forms/object_create.py:110 dcim/forms/object_create.py:271
 msgid "Select one rear port assignment for each front port being created."
-msgstr "作成する前面ポートごとに背面ポート割り当てを 1 つ選択します。"
+msgstr "前面ポートごとに背面ポート 1 つ割り当てます。"
 
 #: dcim/forms/object_create.py:163
 #, python-brace-format
@@ -3773,15 +3774,15 @@ msgid ""
 "The number of front port templates to be created ({frontport_count}) must "
 "match the selected number of rear port positions ({rearport_count})."
 msgstr ""
-"作成するフロントポートテンプレートの数 ({frontport_count}) は選択した背面ポートの位置の数と一致する必要があります "
-"({rearport_count})。"
+"前面ポートテンプレートの数 ({frontport_count}) "
+"は選択した背面ポートの数({rearport_count})と一致する必要があります。"
 
 #: dcim/forms/object_create.py:250
 #, python-brace-format
 msgid ""
 "The string <code>{module}</code> will be replaced with the position of the "
 "assigned module, if any."
-msgstr "ストリング <code>{module}</code> 割り当てられたモジュールの位置 (存在する場合) に置き換えられます。"
+msgstr "文字列 <code>{module}</code> は(存在する場合)割当モジュールの位置に置き換えられます。"
 
 #: dcim/forms/object_create.py:319
 #, python-brace-format
@@ -3789,8 +3790,7 @@ msgid ""
 "The number of front ports to be created ({frontport_count}) must match the "
 "selected number of rear port positions ({rearport_count})."
 msgstr ""
-"作成するフロントポートの数 ({frontport_count}) は選択した背面ポートの位置の数と一致する必要があります "
-"({rearport_count})。"
+"前面ポートの数 ({frontport_count}) は選択した背面ポートの数 ({rearport_count}) と一致する必要があります。"
 
 #: dcim/forms/object_create.py:408 dcim/tables/devices.py:1034
 #: ipam/tables/fhrp.py:31 templates/dcim/virtualchassis.html:54
@@ -3806,7 +3806,7 @@ msgstr "初期位置"
 msgid ""
 "Position of the first member device. Increases by one for each additional "
 "member."
-msgstr "最初のメンバーデバイスの位置。メンバーが増えるごとに 1 ずつ増えます。"
+msgstr "最初のメンバーの位置。メンバーが増えるごとに 1 ずつ増えます。"
 
 #: dcim/forms/object_create.py:434
 msgid "A position must be specified for the first VC member."
@@ -3815,7 +3815,7 @@ msgstr "最初の VC メンバーの位置を指定する必要があります�
 #: dcim/models/cables.py:62 dcim/models/device_component_templates.py:55
 #: dcim/models/device_components.py:63 extras/models/customfields.py:108
 msgid "label"
-msgstr "ラベルに貼り付けます"
+msgstr "ラベル"
 
 #: dcim/models/cables.py:71
 msgid "length"
@@ -3823,7 +3823,7 @@ msgstr "長さ"
 
 #: dcim/models/cables.py:78
 msgid "length unit"
-msgstr "長さ単位"
+msgstr "長さの単位"
 
 #: dcim/models/cables.py:93
 msgid "cable"
@@ -3839,42 +3839,42 @@ msgstr "A 端子と B 端子を同じオブジェクトに接続することは�
 
 #: dcim/models/cables.py:257 ipam/models/asns.py:37
 msgid "end"
-msgstr "終わり"
+msgstr "端"
 
 #: dcim/models/cables.py:310
 msgid "cable termination"
-msgstr "ケーブルターミネーション"
+msgstr "ケーブル終端"
 
 #: dcim/models/cables.py:311
 msgid "cable terminations"
-msgstr "ケーブルターミネーション"
+msgstr "ケーブル終端"
 
 #: dcim/models/cables.py:434 extras/models/configs.py:50
 msgid "is active"
-msgstr "アクティブです"
+msgstr "アクティブ"
 
 #: dcim/models/cables.py:438
 msgid "is complete"
-msgstr "完了です"
+msgstr "完了"
 
 #: dcim/models/cables.py:442
 msgid "is split"
-msgstr "分割されています"
+msgstr "分割"
 
 #: dcim/models/cables.py:450
 msgid "cable path"
-msgstr "ケーブルパス"
+msgstr "ケーブル経路"
 
 #: dcim/models/cables.py:451
 msgid "cable paths"
-msgstr "ケーブルパス"
+msgstr "ケーブル経路"
 
 #: dcim/models/device_component_templates.py:46
 #, python-brace-format
 msgid ""
 "{module} is accepted as a substitution for the module bay position when "
 "attached to a module type."
-msgstr "{module} モジュールタイプに取り付ける場合、モジュールベイ位置の代わりとして使用できます。"
+msgstr "{module} は、モジュールタイプに取り付けられる場合、モジュールベイ位置の代わりとして使用できます。"
 
 #: dcim/models/device_component_templates.py:58
 #: dcim/models/device_components.py:66
@@ -3883,19 +3883,19 @@ msgstr "物理ラベル"
 
 #: dcim/models/device_component_templates.py:103
 msgid "Component templates cannot be moved to a different device type."
-msgstr "コンポーネントテンプレートを別のデバイスタイプに移動することはできません。"
+msgstr "構成要素テンプレートを別のデバイスタイプに移動することはできません。"
 
 #: dcim/models/device_component_templates.py:154
 msgid ""
 "A component template cannot be associated with both a device type and a "
 "module type."
-msgstr "コンポーネントテンプレートをデバイスタイプとモジュールタイプの両方に関連付けることはできません。"
+msgstr "構成要素テンプレートをデバイスタイプとモジュールタイプの両方に関連付けることはできません。"
 
 #: dcim/models/device_component_templates.py:158
 msgid ""
 "A component template must be associated with either a device type or a "
 "module type."
-msgstr "コンポーネントテンプレートは、デバイスタイプまたはモジュールタイプのいずれかに関連付ける必要があります。"
+msgstr "構成要素テンプレートは、デバイスタイプまたはモジュールタイプのいずれかに関連付ける必要があります。"
 
 #: dcim/models/device_component_templates.py:186
 msgid "console port template"
@@ -3907,21 +3907,21 @@ msgstr "コンソールポートテンプレート"
 
 #: dcim/models/device_component_templates.py:220
 msgid "console server port template"
-msgstr "コンソール・サーバー・ポート・テンプレート"
+msgstr "コンソールサーバポートテンプレート"
 
 #: dcim/models/device_component_templates.py:221
 msgid "console server port templates"
-msgstr "コンソール・サーバー・ポート・テンプレート"
+msgstr "コンソールサーバポートテンプレート"
 
 #: dcim/models/device_component_templates.py:252
 #: dcim/models/device_components.py:353
 msgid "maximum draw"
-msgstr "最大ドロー"
+msgstr "最大消費電力"
 
 #: dcim/models/device_component_templates.py:259
 #: dcim/models/device_components.py:360
 msgid "allocated draw"
-msgstr "割り当てられたドロー"
+msgstr "割当消費電力"
 
 #: dcim/models/device_component_templates.py:269
 msgid "power port template"
@@ -3935,17 +3935,17 @@ msgstr "電源ポートテンプレート"
 #: dcim/models/device_components.py:383
 #, python-brace-format
 msgid "Allocated draw cannot exceed the maximum draw ({maximum_draw}W)."
-msgstr "割り当てられた抽選回数は最大抽選回数を超えることはできません ({maximum_draw}W)。"
+msgstr "割当消費電力は最大消費電力 ({maximum_draw}W) を超えることはできません。"
 
 #: dcim/models/device_component_templates.py:321
 #: dcim/models/device_components.py:478
 msgid "feed leg"
-msgstr "フィードレッグ"
+msgstr "供給端子"
 
 #: dcim/models/device_component_templates.py:325
 #: dcim/models/device_components.py:482
 msgid "Phase (for three-phase feeds)"
-msgstr "フェーズ (三相フィード用)"
+msgstr "電力相 (三相電源用)"
 
 #: dcim/models/device_component_templates.py:331
 msgid "power outlet template"
@@ -3973,61 +3973,61 @@ msgstr "管理のみ"
 #: dcim/models/device_component_templates.py:405
 #: dcim/models/device_components.py:551
 msgid "bridge interface"
-msgstr "ブリッジインターフェース"
+msgstr "ブリッジインタフェース"
 
 #: dcim/models/device_component_templates.py:423
 #: dcim/models/device_components.py:637
 msgid "wireless role"
-msgstr "ワイヤレスロール"
+msgstr "無線ロール"
 
 #: dcim/models/device_component_templates.py:429
 msgid "interface template"
-msgstr "インターフェーステンプレート"
+msgstr "インタフェーステンプレート"
 
 #: dcim/models/device_component_templates.py:430
 msgid "interface templates"
-msgstr "インターフェーステンプレート"
+msgstr "インタフェーステンプレート"
 
 #: dcim/models/device_component_templates.py:437
 #: dcim/models/device_components.py:805
 #: virtualization/models/virtualmachines.py:398
 msgid "An interface cannot be bridged to itself."
-msgstr "インターフェースをそれ自体にブリッジすることはできません。"
+msgstr "インタフェースを自分自身にブリッジすることはできません。"
 
 #: dcim/models/device_component_templates.py:440
 #, python-brace-format
 msgid "Bridge interface ({bridge}) must belong to the same device type"
-msgstr "ブリッジインターフェース ({bridge}) は同じデバイスタイプに属している必要があります"
+msgstr "ブリッジインタフェース ({bridge}) は同じデバイスタイプに属している必要があります"
 
 #: dcim/models/device_component_templates.py:444
 #, python-brace-format
 msgid "Bridge interface ({bridge}) must belong to the same module type"
-msgstr "ブリッジインターフェース ({bridge}) は同じモジュールタイプに属している必要があります"
+msgstr "ブリッジインタフェース ({bridge}) は同じモジュールタイプに属している必要があります"
 
 #: dcim/models/device_component_templates.py:500
 #: dcim/models/device_components.py:985
 msgid "rear port position"
-msgstr "リアポート位置"
+msgstr "背面ポート位置"
 
 #: dcim/models/device_component_templates.py:525
 msgid "front port template"
-msgstr "フロントポートテンプレート"
+msgstr "前面ポートテンプレート"
 
 #: dcim/models/device_component_templates.py:526
 msgid "front port templates"
-msgstr "フロントポートテンプレート"
+msgstr "前面ポートテンプレート"
 
 #: dcim/models/device_component_templates.py:536
 #, python-brace-format
 msgid "Rear port ({name}) must belong to the same device type"
-msgstr "リアポート ({name}) は同じデバイスタイプに属している必要があります"
+msgstr "背面ポート ({name}) は同じデバイスタイプに属している必要があります"
 
 #: dcim/models/device_component_templates.py:542
 #, python-brace-format
 msgid ""
 "Invalid rear port position ({position}); rear port {name} has only {count} "
 "positions"
-msgstr "背面ポートの位置が無効です ({position}); リアポート {name} しかない {count} 位置"
+msgstr "背面ポートの位置 ({position}) が無効です; 背面ポート {name} は{count}箇所しかありません"
 
 #: dcim/models/device_component_templates.py:595
 #: dcim/models/device_components.py:1054
@@ -4036,21 +4036,21 @@ msgstr "位置"
 
 #: dcim/models/device_component_templates.py:606
 msgid "rear port template"
-msgstr "リアポートテンプレート"
+msgstr "背面ポートテンプレート"
 
 #: dcim/models/device_component_templates.py:607
 msgid "rear port templates"
-msgstr "リアポートテンプレート"
+msgstr "背面ポートテンプレート"
 
 #: dcim/models/device_component_templates.py:636
 #: dcim/models/device_components.py:1095
 msgid "position"
-msgstr "ポジション"
+msgstr "位置"
 
 #: dcim/models/device_component_templates.py:639
 #: dcim/models/device_components.py:1098
 msgid "Identifier to reference when renaming installed components"
-msgstr "インストール済みコンポーネントの名前を変更するときに参照する識別子"
+msgstr "インストール済み構成要素名を変更する際に参照する識別子"
 
 #: dcim/models/device_component_templates.py:645
 msgid "module bay template"
@@ -4073,7 +4073,8 @@ msgstr "デバイスベイテンプレート"
 msgid ""
 "Subdevice role of device type ({device_type}) must be set to \"parent\" to "
 "allow device bays."
-msgstr "デバイスタイプのサブデバイスロール ({device_type}デバイスベイを許可するには) を「parent」に設定する必要があります。"
+msgstr ""
+"デバイスベイを許可するためには、デバイスタイプ ({device_type}) のサブデバイスロールを「parent」に設定する必要があります。"
 
 #: dcim/models/device_component_templates.py:742
 #: dcim/models/device_components.py:1224
@@ -4083,7 +4084,7 @@ msgstr "パーツ ID"
 #: dcim/models/device_component_templates.py:744
 #: dcim/models/device_components.py:1226
 msgid "Manufacturer-assigned part identifier"
-msgstr "メーカー指定の部品識別子"
+msgstr "メーカ指定の部品識別子"
 
 #: dcim/models/device_component_templates.py:761
 msgid "inventory item template"
@@ -4095,11 +4096,11 @@ msgstr "在庫品目テンプレート"
 
 #: dcim/models/device_components.py:106
 msgid "Components cannot be moved to a different device."
-msgstr "コンポーネントを別のデバイスに移動することはできません。"
+msgstr "構成要素を別のデバイスに移動することはできません。"
 
 #: dcim/models/device_components.py:145
 msgid "cable end"
-msgstr "ケーブルエンド"
+msgstr "ケーブル端"
 
 #: dcim/models/device_components.py:151
 msgid "mark connected"
@@ -4137,7 +4138,7 @@ msgstr "速度"
 
 #: dcim/models/device_components.py:295 dcim/models/device_components.py:324
 msgid "Port speed in bits per second"
-msgstr "ポート速度 (ビット/秒)"
+msgstr "ポート速度 (bps)"
 
 #: dcim/models/device_components.py:301
 msgid "console port"
@@ -4149,11 +4150,11 @@ msgstr "コンソールポート"
 
 #: dcim/models/device_components.py:330
 msgid "console server port"
-msgstr "コンソール・サーバー・ポート"
+msgstr "コンソールサーバポート"
 
 #: dcim/models/device_components.py:331
 msgid "console server ports"
-msgstr "コンソール・サーバー・ポート"
+msgstr "コンソールサーバポート"
 
 #: dcim/models/device_components.py:370
 msgid "power port"
@@ -4183,11 +4184,11 @@ msgstr "モード"
 
 #: dcim/models/device_components.py:535
 msgid "IEEE 802.1Q tagging strategy"
-msgstr "IEEE 802.1Q タギングストラテジー"
+msgstr "IEEE 802.1Q タギング戦略"
 
 #: dcim/models/device_components.py:543
 msgid "parent interface"
-msgstr "親インターフェース"
+msgstr "親インタフェース"
 
 #: dcim/models/device_components.py:603
 msgid "parent LAG"
@@ -4195,11 +4196,11 @@ msgstr "親ラグ"
 
 #: dcim/models/device_components.py:613
 msgid "This interface is used only for out-of-band management"
-msgstr "このインターフェイスは帯域外管理にのみ使用されます。"
+msgstr "このインタフェースは帯域外管理にのみ使用されます。"
 
 #: dcim/models/device_components.py:618
 msgid "speed (Kbps)"
-msgstr "速度 (キロビット/秒)"
+msgstr "速度 (Kbps)"
 
 #: dcim/models/device_components.py:621
 msgid "duplex"
@@ -4207,11 +4208,11 @@ msgstr "デュプレックス"
 
 #: dcim/models/device_components.py:631
 msgid "64-bit World Wide Name"
-msgstr "64 ビットのワールドワイドネーム"
+msgstr "64 ビットのWWN (World Wide Name)"
 
 #: dcim/models/device_components.py:643
 msgid "wireless channel"
-msgstr "ワイヤレスチャネル"
+msgstr "無線チャネル"
 
 #: dcim/models/device_components.py:650
 msgid "channel frequency (MHz)"
@@ -4227,7 +4228,7 @@ msgstr "送信パワー (dBm)"
 
 #: dcim/models/device_components.py:690 wireless/models.py:116
 msgid "wireless LANs"
-msgstr "ワイヤレス LAN"
+msgstr "無線 LAN"
 
 #: dcim/models/device_components.py:698
 #: virtualization/models/virtualmachines.py:328
@@ -4247,33 +4248,33 @@ msgstr "インタフェース"
 #: dcim/models/device_components.py:747
 #: virtualization/models/virtualmachines.py:371
 msgid "interfaces"
-msgstr "インターフェース"
+msgstr "インタフェース"
 
 #: dcim/models/device_components.py:758
 #, python-brace-format
 msgid "{display_type} interfaces cannot have a cable attached."
-msgstr "{display_type} インターフェイスにはケーブルを接続できません。"
+msgstr "{display_type} インタフェースにはケーブルを接続できません。"
 
 #: dcim/models/device_components.py:766
 #, python-brace-format
 msgid "{display_type} interfaces cannot be marked as connected."
-msgstr "{display_type} インターフェースは接続済みとしてマークできません。"
+msgstr "{display_type} インタフェースは接続済みとしてマークできません。"
 
 #: dcim/models/device_components.py:775
 #: virtualization/models/virtualmachines.py:383
 msgid "An interface cannot be its own parent."
-msgstr "インターフェースを自身の親にすることはできません。"
+msgstr "インタフェースを自身の親にすることはできません。"
 
 #: dcim/models/device_components.py:779
 msgid "Only virtual interfaces may be assigned to a parent interface."
-msgstr "親インターフェースに割り当てることができるのは仮想インターフェースだけです。"
+msgstr "親インタフェースに割り当てることができるのは仮想インタフェースだけです。"
 
 #: dcim/models/device_components.py:786
 #, python-brace-format
 msgid ""
 "The selected parent interface ({interface}) belongs to a different device "
 "({device})"
-msgstr "選択した親インターフェイス ({interface}) は別のデバイスに属しています ({device})"
+msgstr "選択した親インタフェース ({interface}) は別のデバイス ({device}) に属しています"
 
 #: dcim/models/device_components.py:792
 #, python-brace-format
@@ -4281,15 +4282,15 @@ msgid ""
 "The selected parent interface ({interface}) belongs to {device}, which is "
 "not part of virtual chassis {virtual_chassis}."
 msgstr ""
-"選択した親インターフェイス ({interface}) に属する {device}、これはバーチャルシャーシには含まれていません。 "
-"{virtual_chassis}。"
+"選択した親インタフェース ({interface}) が属する {device} "
+"は、バーチャルシャーシ{virtual_chassis}には含まれていません。 。"
 
 #: dcim/models/device_components.py:812
 #, python-brace-format
 msgid ""
 "The selected bridge interface ({bridge}) belongs to a different device "
 "({device})."
-msgstr "選択したブリッジインターフェース ({bridge}) は別のデバイスに属しています ({device})。"
+msgstr "選択したブリッジインタフェース ({bridge}) は別のデバイス ({device}) に属しています。"
 
 #: dcim/models/device_components.py:818
 #, python-brace-format
@@ -4297,22 +4298,22 @@ msgid ""
 "The selected bridge interface ({interface}) belongs to {device}, which is "
 "not part of virtual chassis {virtual_chassis}."
 msgstr ""
-"選択したブリッジインターフェース ({interface}) に属する {device}、これはバーチャルシャーシには含まれていません。 "
-"{virtual_chassis}。"
+"選択したブリッジインタフェース ({interface}) が属する "
+"{device}は、バーチャルシャーシ{virtual_chassis}には含まれていません。 。"
 
 #: dcim/models/device_components.py:829
 msgid "Virtual interfaces cannot have a parent LAG interface."
-msgstr "仮想インターフェースは親 LAG インターフェースを持つことはできません。"
+msgstr "仮想インタフェースは親 LAG インタフェースを持つことはできません。"
 
 #: dcim/models/device_components.py:833
 msgid "A LAG interface cannot be its own parent."
-msgstr "LAG インターフェースを自身の親にすることはできません。"
+msgstr "LAG インタフェースを自身の親にすることはできません。"
 
 #: dcim/models/device_components.py:840
 #, python-brace-format
 msgid ""
 "The selected LAG interface ({lag}) belongs to a different device ({device})."
-msgstr "選択した LAG インターフェイス ({lag}) は別のデバイスに属しています ({device})。"
+msgstr "選択した LAG インタフェース ({lag}) は別のデバイス ({device}) に属しています。"
 
 #: dcim/models/device_components.py:846
 #, python-brace-format
@@ -4320,16 +4321,16 @@ msgid ""
 "The selected LAG interface ({lag}) belongs to {device}, which is not part of"
 " virtual chassis {virtual_chassis}."
 msgstr ""
-"選択した LAG インターフェイス ({lag}) に属する {device}、これはバーチャルシャーシには含まれていません "
+"選択した LAG インタフェース ({lag}) に属する {device}、これはバーチャルシャーシには含まれていません "
 "{virtual_chassis}。"
 
 #: dcim/models/device_components.py:857
 msgid "Virtual interfaces cannot have a PoE mode."
-msgstr "仮想インターフェイスには PoE モードを設定できません。"
+msgstr "仮想インタフェースには PoE モードを設定できません。"
 
 #: dcim/models/device_components.py:861
 msgid "Virtual interfaces cannot have a PoE type."
-msgstr "仮想インターフェイスに PoE タイプを設定することはできません。"
+msgstr "仮想インタフェースに PoE タイプを設定することはできません。"
 
 #: dcim/models/device_components.py:867
 msgid "Must specify PoE mode when designating a PoE type."
@@ -4337,15 +4338,15 @@ msgstr "PoE タイプを指定するときは、PoE モードを指定する必�
 
 #: dcim/models/device_components.py:874
 msgid "Wireless role may be set only on wireless interfaces."
-msgstr "ワイヤレスロールはワイヤレスインターフェイスでのみ設定できます。"
+msgstr "無線ロールは無線インタフェースでのみ設定できます。"
 
 #: dcim/models/device_components.py:876
 msgid "Channel may be set only on wireless interfaces."
-msgstr "チャネルはワイヤレスインターフェイスでのみ設定できます。"
+msgstr "チャネルは無線インタフェースでのみ設定できます。"
 
 #: dcim/models/device_components.py:882
 msgid "Channel frequency may be set only on wireless interfaces."
-msgstr "チャネル周波数は、ワイヤレスインターフェイスでのみ設定できます。"
+msgstr "チャネル周波数は、無線インタフェースでのみ設定できます。"
 
 #: dcim/models/device_components.py:886
 msgid "Cannot specify custom frequency with channel selected."
@@ -4353,7 +4354,7 @@ msgstr "選択したチャンネルではカスタム周波数を指定できま
 
 #: dcim/models/device_components.py:892
 msgid "Channel width may be set only on wireless interfaces."
-msgstr "チャネル幅はワイヤレスインターフェイスでのみ設定できます。"
+msgstr "チャネル幅は無線インタフェースでのみ設定できます。"
 
 #: dcim/models/device_components.py:894
 msgid "Cannot specify custom width with channel selected."
@@ -4366,7 +4367,7 @@ msgid ""
 "interface's parent device, or it must be global."
 msgstr ""
 "タグが付いていない VLAN ({untagged_vlan}) "
-"はインターフェースの親デバイスと同じサイトに属しているか、またはグローバルである必要があります。"
+"はインタフェースの親デバイスと同じサイトに属しているか、またはグローバルである必要があります。"
 
 #: dcim/models/device_components.py:991
 msgid "Mapped position on corresponding rear port"
@@ -4374,16 +4375,16 @@ msgstr "対応する背面ポートのマップ位置"
 
 #: dcim/models/device_components.py:1007
 msgid "front port"
-msgstr "フロントポート"
+msgstr "前面ポート"
 
 #: dcim/models/device_components.py:1008
 msgid "front ports"
-msgstr "フロントポート"
+msgstr "前面ポート"
 
 #: dcim/models/device_components.py:1022
 #, python-brace-format
 msgid "Rear port ({rear_port}) must belong to the same device"
-msgstr "リアポート ({rear_port}) は同じデバイスに属している必要があります"
+msgstr "背面ポート ({rear_port}) は同じデバイスに属している必要があります"
 
 #: dcim/models/device_components.py:1030
 #, python-brace-format
@@ -4391,26 +4392,26 @@ msgid ""
 "Invalid rear port position ({rear_port_position}): Rear port {name} has only"
 " {positions} positions."
 msgstr ""
-"背面ポートの位置が無効です ({rear_port_position}): リアポート {name} しかない {positions} ポジション。"
+"背面ポートの位置が無効です ({rear_port_position}): 背面ポート {name} しかない {positions} ポジション。"
 
 #: dcim/models/device_components.py:1060
 msgid "Number of front ports which may be mapped"
-msgstr "マップできるフロントポートの数"
+msgstr "マップできる前面ポートの数"
 
 #: dcim/models/device_components.py:1065
 msgid "rear port"
-msgstr "リアポート"
+msgstr "背面ポート"
 
 #: dcim/models/device_components.py:1066
 msgid "rear ports"
-msgstr "リアポート"
+msgstr "背面ポート"
 
 #: dcim/models/device_components.py:1080
 #, python-brace-format
 msgid ""
 "The number of positions cannot be less than the number of mapped front ports"
 " ({frontport_count})"
-msgstr "位置の数は、マップされたフロントポートの数より少なくすることはできません ({frontport_count})"
+msgstr "位置の数は、マップされた前面ポートの数より少なくすることはできません ({frontport_count})"
 
 #: dcim/models/device_components.py:1104
 msgid "module bay"
@@ -4445,11 +4446,11 @@ msgstr "指定されたデバイスはインストールできません。デバ
 
 #: dcim/models/device_components.py:1172
 msgid "inventory item role"
-msgstr "インベントリアイテムロール"
+msgstr "在庫品目ロール"
 
 #: dcim/models/device_components.py:1173
 msgid "inventory item roles"
-msgstr "インベントリアイテムの役割"
+msgstr "在庫品目のロール"
 
 #: dcim/models/device_components.py:1230 dcim/models/devices.py:595
 #: dcim/models/devices.py:1173 dcim/models/racks.py:113
@@ -4475,11 +4476,11 @@ msgstr "このアイテムは自動的に検出されました"
 
 #: dcim/models/device_components.py:1262
 msgid "inventory item"
-msgstr "インベントリアイテム"
+msgstr "在庫品目"
 
 #: dcim/models/device_components.py:1263
 msgid "inventory items"
-msgstr "インベントリアイテム"
+msgstr "在庫品目"
 
 #: dcim/models/device_components.py:1274
 msgid "Cannot assign self as parent."
@@ -4487,23 +4488,23 @@ msgstr "自分を親として割り当てることはできません。"
 
 #: dcim/models/device_components.py:1282
 msgid "Parent inventory item does not belong to the same device."
-msgstr "親インベントリアイテムは同じデバイスに属していません。"
+msgstr "親在庫品目は同じデバイスに属していません。"
 
 #: dcim/models/device_components.py:1288
 msgid "Cannot move an inventory item with dependent children"
-msgstr "子が扶養されているインベントリアイテムは移動できません"
+msgstr "子が扶養されている在庫品目は移動できません"
 
 #: dcim/models/device_components.py:1296
 msgid "Cannot assign inventory item to component on another device"
-msgstr "インベントリアイテムを別のデバイスのコンポーネントに割り当てることはできません"
+msgstr "在庫品目を別のデバイスの構成要素に割り当てることはできません"
 
 #: dcim/models/devices.py:54
 msgid "manufacturer"
-msgstr "メーカー"
+msgstr "メーカ"
 
 #: dcim/models/devices.py:55
 msgid "manufacturers"
-msgstr "メーカー"
+msgstr "メーカ"
 
 #: dcim/models/devices.py:82 dcim/models/devices.py:381
 msgid "model"
@@ -4549,7 +4550,7 @@ msgstr "親/子のステータス"
 msgid ""
 "Parent devices house child devices in device bays. Leave blank if this "
 "device type is neither a parent nor a child."
-msgstr "親デバイスはデバイスベイに子供用デバイスを収納します。このデバイスタイプが親でも子供でもない場合は、空白のままにしてください。"
+msgstr "親デバイスはデバイスベイに子デバイスを収納します。このデバイスタイプが親でも子供でもない場合は、空白のままにしてください。"
 
 #: dcim/models/devices.py:128 dcim/models/devices.py:647
 msgid "airflow"
@@ -4591,7 +4592,7 @@ msgstr "このデバイスを親デバイスとして分類解除する前に、
 
 #: dcim/models/devices.py:336
 msgid "Child device types must be 0U."
-msgstr "お子様のデバイスタイプは 0U でなければなりません。"
+msgstr "子デバイスタイプは 0U でなければなりません。"
 
 #: dcim/models/devices.py:404
 msgid "module type"
@@ -4615,7 +4616,7 @@ msgstr "デバイスロール"
 
 #: dcim/models/devices.py:503
 msgid "Optionally limit this platform to devices of a certain manufacturer"
-msgstr "オプションで、このプラットフォームを特定のメーカーのデバイスに限定できます"
+msgstr "オプションで、このプラットフォームを特定のメーカのデバイスに限定できます"
 
 #: dcim/models/devices.py:515
 msgid "platform"
@@ -4631,7 +4632,7 @@ msgstr "このデバイスが果たす機能"
 
 #: dcim/models/devices.py:596
 msgid "Chassis serial number, assigned by the manufacturer"
-msgstr "製造元によって割り当てられたシャーシのシリアル番号"
+msgstr "製造元によって割当シャーシのシリアル番号"
 
 #: dcim/models/devices.py:604 dcim/models/devices.py:1181
 msgid "A unique tag used to identify this device"
@@ -4741,13 +4742,13 @@ msgstr "U0 デバイスタイプ ({device_type}) をラックポジションに�
 msgid ""
 "Child device types cannot be assigned to a rack face. This is an attribute "
 "of the parent device."
-msgstr "チャイルドデバイスタイプをラックフェースに割り当てることはできません。これは親デバイスの属性です。"
+msgstr "子デバイスタイプをラックフェースに割り当てることはできません。これは親デバイスの属性です。"
 
 #: dcim/models/devices.py:896
 msgid ""
 "Child device types cannot be assigned to a rack position. This is an "
 "attribute of the parent device."
-msgstr "チャイルドデバイスタイプをラックポジションに割り当てることはできません。これは親デバイスの属性です。"
+msgstr "子デバイスタイプをラックポジションに割り当てることはできません。これは親デバイスの属性です。"
 
 #: dcim/models/devices.py:910
 #, python-brace-format
@@ -4785,11 +4786,11 @@ msgstr ""
 #: dcim/models/devices.py:978
 #, python-brace-format
 msgid "The assigned cluster belongs to a different site ({site})"
-msgstr "割り当てられたクラスタは別のサイトに属しています ({site})"
+msgstr "割当クラスタは別のサイトに属しています ({site})"
 
 #: dcim/models/devices.py:986
 msgid "A device assigned to a virtual chassis must have its position defined."
-msgstr "仮想シャーシに割り当てられたデバイスには、その位置が定義されている必要があります。"
+msgstr "仮想シャーシに割当デバイスには、その位置が定義されている必要があります。"
 
 #: dcim/models/devices.py:1188
 msgid "module"
@@ -4804,7 +4805,7 @@ msgstr "モジュール"
 msgid ""
 "Module must be installed within a module bay belonging to the assigned "
 "device ({device})."
-msgstr "モジュールは、割り当てられたデバイスに属するモジュールベイ内に取り付ける必要があります ({device})。"
+msgstr "モジュールは、割当デバイスに属するモジュールベイ内に取り付ける必要があります ({device})。"
 
 #: dcim/models/devices.py:1309
 msgid "domain"
@@ -4825,7 +4826,7 @@ msgstr "選択したマスター ({master}) はこの仮想シャーシに割り
 msgid ""
 "Unable to delete virtual chassis {self}. There are member interfaces which "
 "form a cross-chassis LAG interfaces."
-msgstr "バーチャルシャーシを削除できません {self}。クロスシャーシ LAG インターフェイスを形成するメンバーインターフェイスがあります。"
+msgstr "バーチャルシャーシを削除できません {self}。クロスシャーシ LAG インタフェースを形成するメンバーインタフェースがあります。"
 
 #: dcim/models/devices.py:1379 vpn/models/l2vpn.py:37
 msgid "identifier"
@@ -4855,7 +4856,7 @@ msgstr "{ip} IPvではありません{family} 住所。"
 
 #: dcim/models/devices.py:1463
 msgid "Primary IP address must belong to an interface on the assigned device."
-msgstr "プライマリ IP アドレスは、割り当てられたデバイスのインターフェイスに属している必要があります。"
+msgstr "プライマリ IP アドレスは、割当デバイスのインタフェースに属している必要があります。"
 
 #: dcim/models/mixins.py:15 extras/models/configs.py:41
 #: extras/models/models.py:343 extras/models/models.py:552
@@ -4873,11 +4874,11 @@ msgstr "重量を設定するときは単位を指定する必要があります
 
 #: dcim/models/power.py:55
 msgid "power panel"
-msgstr "パワーパネル"
+msgstr "電源盤"
 
 #: dcim/models/power.py:56
 msgid "power panels"
-msgstr "パワーパネル"
+msgstr "電源盤"
 
 #: dcim/models/power.py:70
 #, python-brace-format
@@ -4891,7 +4892,7 @@ msgstr "供給"
 
 #: dcim/models/power.py:113
 msgid "phase"
-msgstr "段階"
+msgstr "電力相"
 
 #: dcim/models/power.py:119
 msgid "voltage"
@@ -4915,11 +4916,11 @@ msgstr "使用可能な電力"
 
 #: dcim/models/power.py:163
 msgid "power feed"
-msgstr "パワーフィード"
+msgstr "電源タップ"
 
 #: dcim/models/power.py:164
 msgid "power feeds"
-msgstr "パワーフィード"
+msgstr "電源タップ"
 
 #: dcim/models/power.py:178
 #, python-brace-format
@@ -4927,8 +4928,7 @@ msgid ""
 "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) "
 "are in different sites."
 msgstr ""
-"ラック {rack} ({rack_site}) とパワーパネル {powerpanel} ({powerpanel_site}) "
-"は別のサイトにあります。"
+"ラック {rack} ({rack_site}) と電源盤 {powerpanel} ({powerpanel_site}) は別のサイトにあります。"
 
 #: dcim/models/power.py:189
 msgid "Voltage cannot be negative for AC supply"
@@ -4948,13 +4948,13 @@ msgstr "ファシリティ ID"
 
 #: dcim/models/racks.py:75
 msgid "Locally-assigned identifier"
-msgstr "ローカルに割り当てられた識別子"
+msgstr "ローカルに割当識別子"
 
 #: dcim/models/racks.py:108 ipam/forms/bulk_import.py:200
 #: ipam/forms/bulk_import.py:265 ipam/forms/bulk_import.py:300
 #: ipam/forms/bulk_import.py:467 virtualization/forms/bulk_import.py:112
 msgid "Functional role"
-msgstr "機能的役割"
+msgstr "機能的ロール"
 
 #: dcim/models/racks.py:121
 msgid "A unique tag used to identify this rack"
@@ -4990,7 +4990,7 @@ msgstr "ユニットには上から下に番号が付けられています"
 
 #: dcim/models/racks.py:153
 msgid "outer width"
-msgstr "外側の幅"
+msgstr "外形の幅"
 
 #: dcim/models/racks.py:156
 msgid "Outer dimension of rack (width)"
@@ -4998,7 +4998,7 @@ msgstr "ラックの外形寸法（幅）"
 
 #: dcim/models/racks.py:159
 msgid "outer depth"
-msgstr "外側の深さ"
+msgstr "外形の深さ"
 
 #: dcim/models/racks.py:162
 msgid "Outer dimension of rack (depth)"
@@ -5037,11 +5037,11 @@ msgstr "ラック"
 #: dcim/models/racks.py:236
 #, python-brace-format
 msgid "Assigned location must belong to parent site ({site})."
-msgstr "割り当てられた場所は親サイトに属している必要があります ({site})。"
+msgstr "割当ロケーションは親サイトに属している必要があります ({site})。"
 
 #: dcim/models/racks.py:240
 msgid "Must specify a unit when setting an outer width/depth"
-msgstr "外側の幅/奥行きを設定する場合は単位を指定する必要があります"
+msgstr "外形の幅/奥行きを設定する場合は単位を指定する必要があります"
 
 #: dcim/models/racks.py:244
 msgid "Must specify a unit when setting a maximum weight"
@@ -5064,7 +5064,7 @@ msgstr "ラックユニット番号は次の文字で始まる必要がありま
 #: dcim/models/racks.py:269
 #, python-brace-format
 msgid "Location must be from the same site, {site}."
-msgstr "場所は同じサイトのものでなければなりません。 {site}。"
+msgstr "ロケーションは同じサイトのものでなければなりません。 {site}。"
 
 #: dcim/models/racks.py:522
 msgid "units"
@@ -5094,7 +5094,7 @@ msgstr "同じ名前のトップレベルリージョンが既に存在します
 
 #: dcim/models/sites.py:59
 msgid "A top-level region with this slug already exists."
-msgstr "このスラッグを含むトップレベルリージョンは既に存在します。"
+msgstr "このslugを含むトップレベルリージョンは既に存在します。"
 
 #: dcim/models/sites.py:62
 msgid "region"
@@ -5110,7 +5110,7 @@ msgstr "同じ名前のトップレベルサイトグループが既に存在し
 
 #: dcim/models/sites.py:112
 msgid "A top-level site group with this slug already exists."
-msgstr "このスラッグを含むトップレベルのサイトグループが既に存在しています。"
+msgstr "このslugを含むトップレベルのサイトグループが既に存在しています。"
 
 #: dcim/models/sites.py:115
 msgid "site group"
@@ -5158,11 +5158,11 @@ msgstr "サイト"
 
 #: dcim/models/sites.py:303
 msgid "A location with this name already exists within the specified site."
-msgstr "この名前の場所は、指定されたサイト内に既に存在します。"
+msgstr "この名前のロケーションは、指定されたサイト内に既に存在します。"
 
 #: dcim/models/sites.py:313
 msgid "A location with this slug already exists within the specified site."
-msgstr "このスラッグのある場所は、指定されたサイト内にすでに存在します。"
+msgstr "このslugのあるロケーションは、指定されたサイト内にすでに存在します。"
 
 #: dcim/models/sites.py:316
 msgid "location"
@@ -5170,12 +5170,12 @@ msgstr "ロケーション"
 
 #: dcim/models/sites.py:317
 msgid "locations"
-msgstr "場所"
+msgstr "ロケーション"
 
 #: dcim/models/sites.py:331
 #, python-brace-format
 msgid "Parent location ({parent}) must belong to the same site ({site})."
-msgstr "親の場所 ({parent}) は同じサイトに属している必要があります ({site})。"
+msgstr "親のロケーション ({parent}) は同じサイトに属している必要があります ({site})。"
 
 #: dcim/tables/cables.py:54
 msgid "Termination A"
@@ -5233,7 +5233,7 @@ msgstr "到達可能"
 #: templates/dcim/inventoryitem_edit.html:64
 #: templates/dcim/poweroutlet.html:47 templates/dcim/powerport.html:18
 msgid "Power Port"
-msgstr "パワーポート"
+msgstr "電源ポート"
 
 #: dcim/tables/devices.py:94 dcim/tables/devices.py:139
 #: dcim/tables/racks.py:81 dcim/tables/sites.py:143
@@ -5241,7 +5241,7 @@ msgstr "パワーポート"
 #: netbox/navigation/menu.py:63 virtualization/forms/model_forms.py:125
 #: virtualization/tables/clusters.py:83 virtualization/views.py:211
 msgid "Devices"
-msgstr "[デバイス]"
+msgstr "デバイス"
 
 #: dcim/tables/devices.py:99 dcim/tables/devices.py:144
 #: virtualization/tables/clusters.py:88
@@ -5249,7 +5249,7 @@ msgid "VMs"
 msgstr "仮想マシン"
 
 #: dcim/tables/devices.py:133 dcim/tables/devices.py:245
-#: extras/forms/model_forms.py:513 templates/dcim/device.html:114
+#: extras/forms/model_forms.py:515 templates/dcim/device.html:114
 #: templates/dcim/device/render_config.html:11
 #: templates/dcim/device/render_config.html:15
 #: templates/dcim/devicerole.html:47 templates/dcim/platform.html:44
@@ -5329,7 +5329,7 @@ msgstr "インタフェース"
 
 #: dcim/tables/devices.py:278
 msgid "Front ports"
-msgstr "フロントポート"
+msgstr "前面ポート"
 
 #: dcim/tables/devices.py:284
 msgid "Device bays"
@@ -5341,7 +5341,7 @@ msgstr "モジュールベイ"
 
 #: dcim/tables/devices.py:290
 msgid "Inventory items"
-msgstr "インベントリアイテム"
+msgstr "在庫品目"
 
 #: dcim/tables/devices.py:329 dcim/tables/modules.py:56
 #: templates/dcim/modulebay.html:17
@@ -5366,7 +5366,7 @@ msgstr "最大引き込み (W)"
 
 #: dcim/tables/devices.py:473
 msgid "Allocated draw (W)"
-msgstr "割り当て済みドロー (W)"
+msgstr "割り当て済み消費電力 (W)"
 
 #: dcim/tables/devices.py:573 ipam/forms/model_forms.py:707
 #: ipam/tables/fhrp.py:28 ipam/views.py:597 ipam/views.py:691
@@ -5398,7 +5398,7 @@ msgstr "管理のみ"
 
 #: dcim/tables/devices.py:624
 msgid "Wireless link"
-msgstr "ワイヤレスリンク"
+msgstr "無線リンク"
 
 #: dcim/tables/devices.py:634
 msgid "VDCs"
@@ -5411,7 +5411,7 @@ msgstr "VDC"
 #: templates/dcim/inc/panels/inventory_items.html:5
 #: templates/dcim/inventoryitemrole.html:33
 msgid "Inventory Items"
-msgstr "インベントリアイテム"
+msgstr "在庫品目"
 
 #: dcim/tables/devices.py:723
 #: templates/circuits/inc/circuit_termination.html:80
@@ -5420,7 +5420,7 @@ msgstr "インベントリアイテム"
 #: templates/dcim/interface.html:196 templates/dcim/inventoryitem_edit.html:69
 #: templates/dcim/rearport.html:18 templates/dcim/rearport.html:115
 msgid "Rear Port"
-msgstr "リアポート"
+msgstr "背面ポート"
 
 #: dcim/tables/devices.py:888 templates/dcim/modulebay.html:51
 msgid "Installed Module"
@@ -5441,7 +5441,7 @@ msgstr "モジュールステータス"
 #: dcim/tables/devices.py:946 dcim/tables/devicetypes.py:308
 #: templates/dcim/inventoryitem.html:41
 msgid "Component"
-msgstr "[コンポーネント]"
+msgstr "[構成要素]"
 
 #: dcim/tables/devices.py:1001
 msgid "Items"
@@ -5457,7 +5457,7 @@ msgid "Module Types"
 msgstr "モジュールタイプ"
 
 #: dcim/tables/devicetypes.py:53 extras/forms/filtersets.py:379
-#: extras/forms/model_forms.py:421 netbox/navigation/menu.py:66
+#: extras/forms/model_forms.py:423 netbox/navigation/menu.py:66
 msgid "Platforms"
 msgstr "プラットフォーム"
 
@@ -5514,7 +5514,7 @@ msgstr "電源コンセント"
 #: templates/dcim/device/base.html:40 templates/dcim/devicetype/base.html:37
 #: templates/dcim/module.html:37 templates/dcim/moduletype/base.html:37
 msgid "Front Ports"
-msgstr "フロントポート"
+msgstr "前面ポート"
 
 #: dcim/tables/devicetypes.py:131 dcim/views.py:1031 dcim/views.py:1270
 #: dcim/views.py:1962 netbox/navigation/menu.py:84
@@ -5522,7 +5522,7 @@ msgstr "フロントポート"
 #: templates/dcim/devicetype/base.html:40 templates/dcim/module.html:40
 #: templates/dcim/moduletype/base.html:40
 msgid "Rear Ports"
-msgstr "リアポート"
+msgstr "背面ポート"
 
 #: dcim/tables/devicetypes.py:134 dcim/views.py:1061 dcim/views.py:2000
 #: netbox/navigation/menu.py:90 templates/dcim/device/base.html:49
@@ -5539,7 +5539,7 @@ msgstr "モジュールベイ"
 #: dcim/tables/power.py:36 netbox/navigation/menu.py:282
 #: templates/core/configrevision.html:59 templates/dcim/powerpanel.html:53
 msgid "Power Feeds"
-msgstr "パワーフィード"
+msgstr "電源タップ"
 
 #: dcim/tables/power.py:80 templates/dcim/powerfeed.html:106
 msgid "Max Utilization"
@@ -5565,18 +5565,18 @@ msgstr "スペース"
 
 #: dcim/tables/racks.py:96 templates/dcim/rack.html:105
 msgid "Outer Width"
-msgstr "外側の幅"
+msgstr "外形の幅"
 
 #: dcim/tables/racks.py:100 templates/dcim/rack.html:115
 msgid "Outer Depth"
-msgstr "外側の深さ"
+msgstr "外形の深さ"
 
 #: dcim/tables/racks.py:108
 msgid "Max Weight"
 msgstr "最大重量"
 
 #: dcim/tables/sites.py:30 dcim/tables/sites.py:57
-#: extras/forms/filtersets.py:359 extras/forms/model_forms.py:401
+#: extras/forms/filtersets.py:359 extras/forms/model_forms.py:403
 #: ipam/forms/bulk_edit.py:128 ipam/forms/model_forms.py:152
 #: ipam/tables/asn.py:66 netbox/navigation/menu.py:16
 #: netbox/navigation/menu.py:18
@@ -5596,7 +5596,7 @@ msgstr "ご予約"
 msgid "Non-Racked Devices"
 msgstr "ラック搭載でないデバイス"
 
-#: dcim/views.py:2032 extras/forms/model_forms.py:461
+#: dcim/views.py:2032 extras/forms/model_forms.py:463
 #: templates/extras/configcontext.html:10
 #: virtualization/forms/model_forms.py:228 virtualization/views.py:408
 msgid "Config Context"
@@ -5612,7 +5612,7 @@ msgstr "子ども"
 
 #: extras/choices.py:27 extras/forms/misc.py:14
 msgid "Text"
-msgstr "[テキスト]"
+msgstr "テキスト"
 
 #: extras/choices.py:28
 msgid "Text (long)"
@@ -5764,7 +5764,7 @@ msgstr "作成"
 #: extras/choices.py:255 extras/tables/tables.py:294
 #: templates/extras/eventrule.html:55
 msgid "Update"
-msgstr "[更新]"
+msgstr "更新"
 
 #: extras/choices.py:256 extras/tables/tables.py:297
 #: templates/circuits/inc/circuit_termination.html:22
@@ -5779,7 +5779,7 @@ msgstr "[更新]"
 #: templates/users/objectpermission.html:49
 #: utilities/templates/buttons/delete.html:9
 msgid "Delete"
-msgstr "[削除]"
+msgstr "削除"
 
 #: extras/choices.py:280 utilities/choices.py:143 utilities/choices.py:191
 msgid "Blue"
@@ -5833,8 +5833,8 @@ msgstr "ブラック"
 msgid "White"
 msgstr "ホワイト"
 
-#: extras/choices.py:306 extras/forms/model_forms.py:233
-#: extras/forms/model_forms.py:319 templates/extras/webhook.html:11
+#: extras/choices.py:306 extras/forms/model_forms.py:235
+#: extras/forms/model_forms.py:321 templates/extras/webhook.html:11
 msgid "Webhook"
 msgstr "ウェブフック"
 
@@ -5848,7 +5848,7 @@ msgstr "ウィジェットタイプ"
 
 #: extras/dashboard/widgets.py:148
 msgid "Note"
-msgstr "[メモ]"
+msgstr "メモ"
 
 #: extras/dashboard/widgets.py:149
 msgid "Display some arbitrary custom content. Markdown is supported."
@@ -5920,7 +5920,7 @@ msgstr "クラスタータイプ"
 #: extras/filtersets.py:485 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:147
 msgid "Cluster type (slug)"
-msgstr "クラスタータイプ (スラッグ)"
+msgstr "クラスタータイプ (slug)"
 
 #: extras/filtersets.py:490 ipam/forms/bulk_edit.py:475
 #: ipam/forms/model_forms.py:585 virtualization/forms/filtersets.py:108
@@ -5929,7 +5929,7 @@ msgstr "クラスターグループ"
 
 #: extras/filtersets.py:496 virtualization/filtersets.py:136
 msgid "Cluster group (slug)"
-msgstr "クラスターグループ (スラッグ)"
+msgstr "クラスターグループ (slug)"
 
 #: extras/filtersets.py:506 tenancy/forms/forms.py:16
 #: tenancy/forms/forms.py:39
@@ -5939,15 +5939,15 @@ msgstr "テナントグループ"
 #: extras/filtersets.py:512 tenancy/filtersets.py:164
 #: tenancy/filtersets.py:184
 msgid "Tenant group (slug)"
-msgstr "テナントグループ (スラッグ)"
+msgstr "テナントグループ (slug)"
 
 #: extras/filtersets.py:528 templates/extras/tag.html:12
 msgid "Tag"
-msgstr "[タグ]"
+msgstr "タグ"
 
 #: extras/filtersets.py:534
 msgid "Tag (slug)"
-msgstr "タグ (スラッグ)"
+msgstr "タグ (slug)"
 
 #: extras/filtersets.py:594 extras/forms/filtersets.py:438
 msgid "Has local config context data"
@@ -5955,7 +5955,7 @@ msgstr "ローカル設定コンテキストデータがある"
 
 #: extras/filtersets.py:619
 msgid "User name"
-msgstr "[ユーザー名]"
+msgstr "ユーザ名"
 
 #: extras/forms/bulk_edit.py:32 extras/forms/filtersets.py:56
 msgid "Group name"
@@ -6058,8 +6058,8 @@ msgstr "アクティブです"
 #: extras/forms/bulk_import.py:177 extras/forms/filtersets.py:114
 #: extras/forms/filtersets.py:160 extras/forms/filtersets.py:201
 #: extras/forms/model_forms.py:43 extras/forms/model_forms.py:127
-#: extras/forms/model_forms.py:154 extras/forms/model_forms.py:195
-#: extras/forms/model_forms.py:251
+#: extras/forms/model_forms.py:156 extras/forms/model_forms.py:197
+#: extras/forms/model_forms.py:253
 msgid "Content types"
 msgstr "コンテンツタイプ"
 
@@ -6067,7 +6067,7 @@ msgstr "コンテンツタイプ"
 #: extras/forms/bulk_import.py:132 extras/forms/bulk_import.py:155
 #: extras/forms/bulk_import.py:179 tenancy/forms/bulk_import.py:96
 msgid "One or more assigned object types"
-msgstr "1 つまたは複数の割り当てられたオブジェクトタイプ"
+msgstr "1 つまたは複数の割当オブジェクトタイプ"
 
 #: extras/forms/bulk_import.py:41
 msgid "Field data type (e.g. text, integer, etc.)"
@@ -6075,7 +6075,7 @@ msgstr "フィールドデータタイプ (テキスト、整数など)"
 
 #: extras/forms/bulk_import.py:44 extras/forms/filtersets.py:48
 #: extras/forms/filtersets.py:259 extras/forms/model_forms.py:47
-#: extras/forms/model_forms.py:221 tenancy/forms/filtersets.py:91
+#: extras/forms/model_forms.py:223 tenancy/forms/filtersets.py:91
 msgid "Object type"
 msgstr "オブジェクトタイプ"
 
@@ -6119,7 +6119,7 @@ msgstr "ドットパス形式のウェブフック名またはスクリプト mo
 
 #: extras/forms/bulk_import.py:236
 msgid "Assigned object type"
-msgstr "割り当てられたオブジェクトタイプ"
+msgstr "割当オブジェクトタイプ"
 
 #: extras/forms/bulk_import.py:241
 msgid "The classification of entry"
@@ -6135,7 +6135,7 @@ msgid "Choices"
 msgstr "選択肢"
 
 #: extras/forms/filtersets.py:141 extras/forms/filtersets.py:327
-#: extras/forms/filtersets.py:417 extras/forms/model_forms.py:456
+#: extras/forms/filtersets.py:417 extras/forms/model_forms.py:458
 #: templates/core/job.html:86 templates/extras/configcontext.html:86
 #: templates/extras/eventrule.html:111
 msgid "Data"
@@ -6155,10 +6155,10 @@ msgstr "コンテンツタイプ"
 msgid "HTTP content type"
 msgstr "HTTP コンテンツタイプ"
 
-#: extras/forms/filtersets.py:254 extras/forms/model_forms.py:269
+#: extras/forms/filtersets.py:254 extras/forms/model_forms.py:271
 #: templates/extras/eventrule.html:46
 msgid "Events"
-msgstr "[イベント]"
+msgstr "イベント"
 
 #: extras/forms/filtersets.py:264
 msgid "Action type"
@@ -6180,7 +6180,7 @@ msgstr "オブジェクト削除"
 msgid "Job starts"
 msgstr "ジョブ開始"
 
-#: extras/forms/filtersets.py:306 extras/forms/model_forms.py:288
+#: extras/forms/filtersets.py:306 extras/forms/model_forms.py:290
 msgid "Job terminations"
 msgstr "ジョブの終了"
 
@@ -6192,44 +6192,44 @@ msgstr "タグ付きオブジェクトタイプ"
 msgid "Allowed object type"
 msgstr "許可されるオブジェクトタイプ"
 
-#: extras/forms/filtersets.py:349 extras/forms/model_forms.py:391
+#: extras/forms/filtersets.py:349 extras/forms/model_forms.py:393
 #: netbox/navigation/menu.py:19
 msgid "Regions"
 msgstr "リージョン"
 
-#: extras/forms/filtersets.py:354 extras/forms/model_forms.py:396
+#: extras/forms/filtersets.py:354 extras/forms/model_forms.py:398
 msgid "Site groups"
 msgstr "サイトグループ"
 
-#: extras/forms/filtersets.py:364 extras/forms/model_forms.py:406
+#: extras/forms/filtersets.py:364 extras/forms/model_forms.py:408
 #: netbox/navigation/menu.py:21
 msgid "Locations"
 msgstr "ロケーション"
 
-#: extras/forms/filtersets.py:369 extras/forms/model_forms.py:411
+#: extras/forms/filtersets.py:369 extras/forms/model_forms.py:413
 msgid "Device types"
 msgstr "デバイスタイプ"
 
-#: extras/forms/filtersets.py:374 extras/forms/model_forms.py:416
+#: extras/forms/filtersets.py:374 extras/forms/model_forms.py:418
 msgid "Roles"
-msgstr "役割"
+msgstr "ロール"
 
-#: extras/forms/filtersets.py:384 extras/forms/model_forms.py:426
+#: extras/forms/filtersets.py:384 extras/forms/model_forms.py:428
 msgid "Cluster types"
 msgstr "クラスタータイプ"
 
-#: extras/forms/filtersets.py:390 extras/forms/model_forms.py:431
+#: extras/forms/filtersets.py:390 extras/forms/model_forms.py:433
 msgid "Cluster groups"
 msgstr "クラスターグループ"
 
-#: extras/forms/filtersets.py:395 extras/forms/model_forms.py:436
+#: extras/forms/filtersets.py:395 extras/forms/model_forms.py:438
 #: netbox/navigation/menu.py:243 netbox/navigation/menu.py:245
 #: templates/virtualization/clustertype.html:33
 #: virtualization/tables/clusters.py:23 virtualization/tables/clusters.py:45
 msgid "Clusters"
 msgstr "クラスタ"
 
-#: extras/forms/filtersets.py:400 extras/forms/model_forms.py:441
+#: extras/forms/filtersets.py:400 extras/forms/model_forms.py:443
 msgid "Tenant groups"
 msgstr "テナントグループ"
 
@@ -6247,7 +6247,7 @@ msgstr "変更前"
 msgid "Time"
 msgstr "時間"
 
-#: extras/forms/filtersets.py:504 extras/forms/model_forms.py:271
+#: extras/forms/filtersets.py:504 extras/forms/model_forms.py:273
 #: extras/tables/tables.py:445 templates/extras/eventrule.html:90
 #: templates/extras/objectchange.html:50
 msgid "Action"
@@ -6294,116 +6294,117 @@ msgstr "カスタムリンク"
 
 #: extras/forms/model_forms.py:133
 msgid "Templates"
-msgstr "[テンプレート]"
+msgstr "テンプレート"
 
 #: extras/forms/model_forms.py:145
+#, python-brace-format
 msgid ""
-"Jinja2 template code for the link text. Reference the object as <code>{{ "
-"object }}</code>. Links which render as empty text will not be displayed."
+"Jinja2 template code for the link text. Reference the object as {example}. "
+"Links which render as empty text will not be displayed."
 msgstr ""
 
-#: extras/forms/model_forms.py:148
+#: extras/forms/model_forms.py:149
+#, python-brace-format
 msgid ""
-"Jinja2 template code for the link URL. Reference the object as <code>{{ "
-"object }}</code>."
+"Jinja2 template code for the link URL. Reference the object as {example}."
 msgstr ""
 
-#: extras/forms/model_forms.py:158 extras/forms/model_forms.py:507
+#: extras/forms/model_forms.py:160 extras/forms/model_forms.py:509
 msgid "Template code"
 msgstr "テンプレートコード"
 
-#: extras/forms/model_forms.py:164 templates/extras/exporttemplate.html:17
+#: extras/forms/model_forms.py:166 templates/extras/exporttemplate.html:17
 msgid "Export Template"
 msgstr "テンプレートをエクスポート"
 
-#: extras/forms/model_forms.py:166
+#: extras/forms/model_forms.py:168
 msgid "Rendering"
 msgstr "レンダリング"
 
-#: extras/forms/model_forms.py:180 extras/forms/model_forms.py:532
+#: extras/forms/model_forms.py:182 extras/forms/model_forms.py:534
 msgid "Template content is populated from the remote source selected below."
 msgstr "テンプレートコンテンツは、以下で選択したリモートソースから入力されます。"
 
-#: extras/forms/model_forms.py:187 extras/forms/model_forms.py:539
+#: extras/forms/model_forms.py:189 extras/forms/model_forms.py:541
 msgid "Must specify either local content or a data file"
 msgstr "ローカルコンテンツまたはデータファイルのいずれかを指定する必要があります"
 
-#: extras/forms/model_forms.py:201 netbox/forms/mixins.py:68
+#: extras/forms/model_forms.py:203 netbox/forms/mixins.py:68
 #: templates/extras/savedfilter.html:10
 msgid "Saved Filter"
 msgstr "保存済みフィルター"
 
-#: extras/forms/model_forms.py:234 templates/extras/webhook.html:28
+#: extras/forms/model_forms.py:236 templates/extras/webhook.html:28
 msgid "HTTP Request"
 msgstr "HTTP リクエスト"
 
-#: extras/forms/model_forms.py:237 templates/extras/webhook.html:53
+#: extras/forms/model_forms.py:239 templates/extras/webhook.html:53
 msgid "SSL"
 msgstr "SSL"
 
-#: extras/forms/model_forms.py:255
+#: extras/forms/model_forms.py:257
 msgid "Action choice"
 msgstr "アクション選択"
 
-#: extras/forms/model_forms.py:260
+#: extras/forms/model_forms.py:262
 msgid "Enter conditions in <a href=\"https://json.org/\">JSON</a> format."
 msgstr "に条件を入力 <a href=\"https://json.org/\">JSON</a> フォーマット。"
 
-#: extras/forms/model_forms.py:264
+#: extras/forms/model_forms.py:266
 msgid ""
 "Enter parameters to pass to the action in <a "
 "href=\"https://json.org/\">JSON</a> format."
 msgstr "アクションに渡すパラメータを入力してください <a href=\"https://json.org/\">JSON</a> フォーマット。"
 
-#: extras/forms/model_forms.py:268 templates/extras/eventrule.html:11
+#: extras/forms/model_forms.py:270 templates/extras/eventrule.html:11
 msgid "Event Rule"
 msgstr "イベントルール"
 
-#: extras/forms/model_forms.py:270 templates/extras/eventrule.html:78
+#: extras/forms/model_forms.py:272 templates/extras/eventrule.html:78
 msgid "Conditions"
 msgstr "条件"
 
-#: extras/forms/model_forms.py:284
+#: extras/forms/model_forms.py:286
 msgid "Creations"
 msgstr "クリエーション"
 
-#: extras/forms/model_forms.py:285
+#: extras/forms/model_forms.py:287
 msgid "Updates"
 msgstr "アップデート"
 
-#: extras/forms/model_forms.py:286
+#: extras/forms/model_forms.py:288
 msgid "Deletions"
 msgstr "削除"
 
-#: extras/forms/model_forms.py:287
+#: extras/forms/model_forms.py:289
 msgid "Job executions"
 msgstr "ジョブの実行"
 
-#: extras/forms/model_forms.py:373 users/forms/model_forms.py:286
+#: extras/forms/model_forms.py:375 users/forms/model_forms.py:286
 msgid "Object types"
 msgstr "オブジェクトタイプ"
 
-#: extras/forms/model_forms.py:446 netbox/navigation/menu.py:40
+#: extras/forms/model_forms.py:448 netbox/navigation/menu.py:40
 #: tenancy/tables/tenants.py:22
 msgid "Tenants"
 msgstr "テナント"
 
-#: extras/forms/model_forms.py:463 ipam/forms/filtersets.py:141
+#: extras/forms/model_forms.py:465 ipam/forms/filtersets.py:141
 #: ipam/forms/filtersets.py:527 templates/extras/configcontext.html:62
 #: templates/ipam/ipaddress.html:62 templates/ipam/vlan_edit.html:30
 #: tenancy/forms/filtersets.py:86 users/forms/model_forms.py:324
 msgid "Assignment"
 msgstr "アサイメント"
 
-#: extras/forms/model_forms.py:489
+#: extras/forms/model_forms.py:491
 msgid "Data is populated from the remote source selected below."
 msgstr "データは、以下で選択したリモートソースから入力されます。"
 
-#: extras/forms/model_forms.py:495
+#: extras/forms/model_forms.py:497
 msgid "Must specify either local data or a data file"
 msgstr "ローカルデータまたはデータファイルのいずれかを指定する必要があります"
 
-#: extras/forms/model_forms.py:514 templates/core/datafile.html:65
+#: extras/forms/model_forms.py:516 templates/core/datafile.html:65
 msgid "Content"
 msgstr "[コンテンツ]"
 
@@ -6454,7 +6455,7 @@ msgstr "時間"
 
 #: extras/models/change_logging.py:37
 msgid "user name"
-msgstr "ユーザー名"
+msgstr "ユーザ名"
 
 #: extras/models/change_logging.py:42
 msgid "request ID"
@@ -6513,7 +6514,7 @@ msgstr "Jinja2 テンプレートコード。"
 
 #: extras/models/configs.py:228
 msgid "environment parameters"
-msgstr "環境パラメーター"
+msgstr "環境パラメータ"
 
 #: extras/models/configs.py:233
 msgid ""
@@ -6522,7 +6523,7 @@ msgid ""
 " parameters</a> to pass when constructing the Jinja2 environment."
 msgstr ""
 "任意 <a "
-"href=\"https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment\">追加パラメーター</a>"
+"href=\"https://jinja.palletsprojects.com/en/3.1.x/api/#jinja2.Environment\">追加パラメータ</a>"
 " Jinja2 環境を構築するときに渡されます。"
 
 #: extras/models/configs.py:240
@@ -6561,7 +6562,7 @@ msgstr "カスタムフィールド名には二重アンダースコアを使用
 msgid ""
 "Name of the field as displayed to users (if not provided, 'the field's name "
 "will be used)"
-msgstr "ユーザーに表示されるフィールドの名前 (指定しない場合は、「フィールドの名前が使用されます)」"
+msgstr "ユーザに表示されるフィールドの名前 (指定しない場合は、「フィールドの名前が使用されます)」"
 
 #: extras/models/customfields.py:116 extras/models/models.py:347
 msgid "group name"
@@ -6937,7 +6938,7 @@ msgid ""
 "Value</code>. Jinja2 template processing is supported with the same context "
 "as the request body (below)."
 msgstr ""
-"HTTP コンテンツタイプに加えて、リクエストとともに送信されるユーザー指定の HTTP ヘッダー。ヘッダーは次の形式で定義する必要があります。 "
+"HTTP コンテンツタイプに加えて、リクエストとともに送信されるユーザ指定の HTTP ヘッダー。ヘッダーは次の形式で定義する必要があります。 "
 "<code>名前:値</code>。Jinja2 テンプレート処理はリクエストボディ (下記) と同じコンテキストでサポートされています。"
 
 #: extras/models/models.py:225
@@ -6953,7 +6954,7 @@ msgid ""
 msgstr ""
 "カスタムリクエストボディ用の Jinja2 テンプレート。空欄の場合は、変更を表す JSON "
 "オブジェクトが含まれます。利用可能なコンテキストデータには以下が含まれます。 <code>出来事</code>、 <code>型</code>、 "
-"<code>タイムスタンプ</code>、 <code>ユーザー名</code>、 <code>リクエスト ID</code>、および "
+"<code>タイムスタンプ</code>、 <code>ユーザ名</code>、 <code>リクエスト ID</code>、および "
 "<code>データ</code>。"
 
 #: extras/models/models.py:234
@@ -7107,7 +7108,7 @@ msgstr "保存済みフィルター"
 
 #: extras/models/models.py:592
 msgid "Filter parameters must be stored as a dictionary of keyword arguments."
-msgstr "フィルターパラメーターは、キーワード引数の辞書として保存する必要があります。"
+msgstr "フィルターパラメータは、キーワード引数の辞書として保存する必要があります。"
 
 #: extras/models/models.py:620
 msgid "image height"
@@ -7462,7 +7463,7 @@ msgstr "リル (アイディー)"
 
 #: ipam/filtersets.py:142 ipam/filtersets.py:181 ipam/filtersets.py:204
 msgid "RIR (slug)"
-msgstr "RIR (スラッグ)"
+msgstr "RIR (slug)"
 
 #: ipam/filtersets.py:251
 msgid "Within prefix"
@@ -7516,19 +7517,19 @@ msgstr "仮想マシン (ID)"
 
 #: ipam/filtersets.py:593 vpn/filtersets.py:97 vpn/filtersets.py:368
 msgid "Interface (name)"
-msgstr "インターフェイス (名前)"
+msgstr "インタフェース (名前)"
 
 #: ipam/filtersets.py:598 vpn/filtersets.py:102 vpn/filtersets.py:373
 msgid "Interface (ID)"
-msgstr "インターフェイス (ID)"
+msgstr "インタフェース (ID)"
 
 #: ipam/filtersets.py:604 vpn/filtersets.py:108 vpn/filtersets.py:379
 msgid "VM interface (name)"
-msgstr "VM インターフェイス (名前)"
+msgstr "VM インタフェース (名前)"
 
 #: ipam/filtersets.py:609 vpn/filtersets.py:113
 msgid "VM interface (ID)"
-msgstr "VM インターフェイス (ID)"
+msgstr "VM インタフェース (ID)"
 
 #: ipam/filtersets.py:614
 msgid "FHRP group (ID)"
@@ -7536,7 +7537,7 @@ msgstr "FHRP グループ (ID)"
 
 #: ipam/filtersets.py:618
 msgid "Is assigned to an interface"
-msgstr "インターフェースに割り当てられている"
+msgstr "インタフェースに割り当てられている"
 
 #: ipam/filtersets.py:622
 msgid "Is assigned"
@@ -7593,6 +7594,12 @@ msgstr "プレフィックス長"
 msgid "Is a pool"
 msgstr "プールです"
 
+#: ipam/forms/bulk_edit.py:257 ipam/forms/bulk_edit.py:301
+#: ipam/forms/filtersets.py:243 ipam/forms/filtersets.py:282
+#: ipam/models/ip.py:271 ipam/models/ip.py:538
+msgid "Treat as fully utilized"
+msgstr ""
+
 #: ipam/forms/bulk_edit.py:349 ipam/models/ip.py:771
 msgid "DNS name"
 msgstr "DNS ネーム"
@@ -7631,15 +7638,15 @@ msgstr "認証キー"
 #: wireless/forms/filtersets.py:35 wireless/forms/filtersets.py:75
 #: wireless/forms/model_forms.py:56 wireless/forms/model_forms.py:161
 msgid "Authentication"
-msgstr "[認証]"
+msgstr "認証"
 
 #: ipam/forms/bulk_edit.py:414
 msgid "Minimum child VLAN VID"
-msgstr "チャイルド VLAN VID の最小値"
+msgstr "子 VLAN VID の最小値"
 
 #: ipam/forms/bulk_edit.py:420
 msgid "Maximum child VLAN VID"
-msgstr "チャイルド VLAN VID の最大数"
+msgstr "子 VLAN VID の最大数"
 
 #: ipam/forms/bulk_edit.py:428 ipam/forms/model_forms.py:527
 msgid "Scope type"
@@ -7672,7 +7679,7 @@ msgstr "ルートターゲットをエクスポートする"
 #: ipam/forms/bulk_import.py:91 ipam/forms/bulk_import.py:111
 #: ipam/forms/bulk_import.py:131
 msgid "Assigned RIR"
-msgstr "割り当てられた RIR"
+msgstr "割当 RIR"
 
 #: ipam/forms/bulk_import.py:181
 msgid "VLAN's group (if any)"
@@ -7692,7 +7699,7 @@ msgstr "VLAN"
 
 #: ipam/forms/bulk_import.py:307
 msgid "Parent device of assigned interface (if any)"
-msgstr "割り当てられたインターフェースの親デバイス (存在する場合)"
+msgstr "割当インタフェースの親デバイス (存在する場合)"
 
 #: ipam/forms/bulk_import.py:310 ipam/forms/bulk_import.py:496
 #: ipam/forms/model_forms.py:691 virtualization/filtersets.py:284
@@ -7709,11 +7716,11 @@ msgstr "[仮想マシン]"
 
 #: ipam/forms/bulk_import.py:314
 msgid "Parent VM of assigned interface (if any)"
-msgstr "割り当てられたインターフェースの親仮想マシン (存在する場合)"
+msgstr "割当インタフェースの親仮想マシン (存在する場合)"
 
 #: ipam/forms/bulk_import.py:321
 msgid "Assigned interface"
-msgstr "割り当てられたインターフェース"
+msgstr "割当インタフェース"
 
 #: ipam/forms/bulk_import.py:324
 msgid "Is primary"
@@ -7721,7 +7728,7 @@ msgstr "プライマリです"
 
 #: ipam/forms/bulk_import.py:325
 msgid "Make this the primary IP for the assigned device"
-msgstr "これを割り当てられたデバイスのプライマリ IP アドレスにする"
+msgstr "これを割当デバイスのプライマリ IP アドレスにする"
 
 #: ipam/forms/bulk_import.py:364
 msgid "No device or virtual machine specified; cannot set as primary IP"
@@ -7729,7 +7736,7 @@ msgstr "デバイスまたは仮想マシンが指定されていません。プ
 
 #: ipam/forms/bulk_import.py:368
 msgid "No interface specified; cannot set as primary IP"
-msgstr "インターフェイスが指定されていません。プライマリ IP として設定できません"
+msgstr "インタフェースが指定されていません。プライマリ IP として設定できません"
 
 #: ipam/forms/bulk_import.py:397
 msgid "Auth type"
@@ -7747,11 +7754,11 @@ msgstr "子の VLAN VID の最小値 (デフォルト: {minimum})"
 #: ipam/forms/bulk_import.py:424
 #, python-brace-format
 msgid "Maximum child VLAN VID (default: {maximum})"
-msgstr "チャイルド VLAN VID の最大数 (デフォルト: {maximum})"
+msgstr "子 VLAN VID の最大数 (デフォルト: {maximum})"
 
 #: ipam/forms/bulk_import.py:448
 msgid "Assigned VLAN group"
-msgstr "割り当てられた VLAN グループ"
+msgstr "割当 VLAN グループ"
 
 #: ipam/forms/bulk_import.py:479 ipam/forms/bulk_import.py:505
 msgid "IP protocol"
@@ -7832,11 +7839,11 @@ msgstr "割り当て済みデバイス"
 
 #: ipam/forms/filtersets.py:338
 msgid "Assigned VM"
-msgstr "割り当てられた仮想マシン"
+msgstr "割当仮想マシン"
 
 #: ipam/forms/filtersets.py:352
 msgid "Assigned to an interface"
-msgstr "インターフェースに割り当てられる"
+msgstr "インタフェースに割り当てられる"
 
 #: ipam/forms/filtersets.py:359 templates/ipam/ipaddress.html:54
 msgid "DNS Name"
@@ -7916,18 +7923,18 @@ msgstr "親オブジェクトのプライマリ IP として指定されてい�
 #: ipam/forms/model_forms.py:367
 msgid ""
 "Only IP addresses assigned to an interface can be designated as primary IPs."
-msgstr "プライマリ IP として指定できるのは、インターフェイスに割り当てられた IP アドレスのみです。"
+msgstr "プライマリ IP として指定できるのは、インタフェースに割当 IP アドレスのみです。"
 
 #: ipam/forms/model_forms.py:373
 #, python-brace-format
 msgid "{ip} is a network ID, which may not be assigned to an interface."
-msgstr "{ip} はネットワーク ID で、インターフェースに割り当てることはできません。"
+msgstr "{ip} はネットワーク ID で、インタフェースに割り当てることはできません。"
 
 #: ipam/forms/model_forms.py:379
 #, python-brace-format
 msgid ""
 "{ip} is a broadcast address, which may not be assigned to an interface."
-msgstr "{ip} はブロードキャストアドレスで、インターフェイスに割り当てることはできません。"
+msgstr "{ip} はブロードキャストアドレスで、インタフェースに割り当てることはできません。"
 
 #: ipam/forms/model_forms.py:456
 msgid "Virtual IP Address"
@@ -7941,7 +7948,7 @@ msgstr "VLAN グループ"
 
 #: ipam/forms/model_forms.py:599
 msgid "Child VLANs"
-msgstr "チャイルド VLAN"
+msgstr "子 VLAN"
 
 #: ipam/forms/model_forms.py:668 ipam/forms/model_forms.py:702
 msgid ""
@@ -7976,7 +7983,7 @@ msgstr "ASN を起動しています ({start}) は終了 ASN () より小さく�
 
 #: ipam/models/asns.py:104
 msgid "Regional Internet Registry responsible for this AS number space"
-msgstr "この AS 番号空間を担当する地域インターネットレジストリ"
+msgstr "この AS 番号空間を担当するリージョンインターネットレジストリ"
 
 #: ipam/models/asns.py:109
 msgid "16- or 32-bit autonomous system number"
@@ -8036,7 +8043,7 @@ msgstr "IPv4 ネットワークまたは IPv6 ネットワーク"
 
 #: ipam/models/ip.py:90
 msgid "Regional Internet Registry responsible for this IP space"
-msgstr "この IP スペースを管理する地域インターネットレジストリ"
+msgstr "この IP スペースを管理するリージョンインターネットレジストリ"
 
 #: ipam/models/ip.py:100
 msgid "date added"
@@ -8070,11 +8077,11 @@ msgstr "プレフィックスはアグリゲートと重複できません。 {p
 
 #: ipam/models/ip.py:199 ipam/models/ip.py:736 vpn/models/tunnels.py:114
 msgid "role"
-msgstr "役割"
+msgstr "ロール"
 
 #: ipam/models/ip.py:200
 msgid "roles"
-msgstr "役割"
+msgstr "ロール"
 
 #: ipam/models/ip.py:216 ipam/models/ip.py:292
 msgid "prefix"
@@ -8188,7 +8195,7 @@ msgstr "この IP の動作ステータス"
 
 #: ipam/models/ip.py:740
 msgid "The functional role of this IP"
-msgstr "この IP の機能的役割"
+msgstr "この IP の機能的ロール"
 
 #: ipam/models/ip.py:764 templates/ipam/ipaddress.html:75
 msgid "NAT (inside)"
@@ -8366,7 +8373,7 @@ msgstr "サイト数"
 
 #: ipam/tables/asn.py:62
 msgid "Provider Count"
-msgstr "プロバイダー数"
+msgstr "プロバイダ数"
 
 #: ipam/tables/ip.py:94 netbox/navigation/menu.py:167
 #: netbox/navigation/menu.py:169
@@ -8429,7 +8436,7 @@ msgstr "割り当て済み"
 #: ipam/tables/ip.py:424 templates/vpn/l2vpntermination.html:19
 #: vpn/forms/filtersets.py:235
 msgid "Assigned Object"
-msgstr "割り当てられたオブジェクト"
+msgstr "割当オブジェクト"
 
 #: ipam/tables/vlans.py:68
 msgid "Scope Type"
@@ -8462,7 +8469,7 @@ msgstr "子プレフィックス"
 
 #: ipam/views.py:571
 msgid "Child Ranges"
-msgstr "チャイルドレンジ"
+msgstr "子レンジ"
 
 #: ipam/views.py:888
 msgid "Related IPs"
@@ -8470,11 +8477,11 @@ msgstr "関連IPアドレス"
 
 #: ipam/views.py:1111
 msgid "Device Interfaces"
-msgstr "デバイスインターフェース"
+msgstr "デバイスインタフェース"
 
 #: ipam/views.py:1129
 msgid "VM Interfaces"
-msgstr "VM インターフェイス"
+msgstr "VM インタフェース"
 
 #: netbox/config/parameters.py:22 templates/core/configrevision.html:111
 msgid "Login banner"
@@ -8546,7 +8553,7 @@ msgstr "給電電圧"
 
 #: netbox/config/parameters.py:102
 msgid "Default voltage for powerfeeds"
-msgstr "パワーフィードのデフォルト電圧"
+msgstr "電源タップのデフォルト電圧"
 
 #: netbox/config/parameters.py:107
 msgid "Powerfeed amperage"
@@ -8554,15 +8561,15 @@ msgstr "給電アンペア数"
 
 #: netbox/config/parameters.py:109
 msgid "Default amperage for powerfeeds"
-msgstr "パワーフィードのデフォルトアンペア数"
+msgstr "電源タップのデフォルトアンペア数"
 
 #: netbox/config/parameters.py:114
 msgid "Powerfeed max utilization"
-msgstr "パワーフィードの最大使用率"
+msgstr "電源タップの最大使用率"
 
 #: netbox/config/parameters.py:116
 msgid "Default max utilization for powerfeeds"
-msgstr "パワーフィードのデフォルト最大使用率"
+msgstr "電源タップのデフォルト最大使用率"
 
 #: netbox/config/parameters.py:123 templates/core/configrevision.html:99
 msgid "Allowed URL schemes"
@@ -8570,7 +8577,7 @@ msgstr "許可された URL スキーム"
 
 #: netbox/config/parameters.py:128
 msgid "Permitted schemes for URLs in user-provided content"
-msgstr "ユーザー提供コンテンツの URL に許可されているスキーム"
+msgstr "ユーザ提供コンテンツの URL に許可されているスキーム"
 
 #: netbox/config/parameters.py:136
 msgid "Default page size"
@@ -8602,7 +8609,7 @@ msgstr "デフォルト設定"
 
 #: netbox/config/parameters.py:174
 msgid "Default preferences for new users"
-msgstr "新規ユーザーのデフォルト設定"
+msgstr "新規ユーザのデフォルト設定"
 
 #: netbox/config/parameters.py:181 templates/core/configrevision.html:197
 msgid "Maintenance mode"
@@ -8730,7 +8737,7 @@ msgstr "連絡先グループ"
 
 #: netbox/navigation/menu.py:49 templates/tenancy/contactrole.html:8
 msgid "Contact Roles"
-msgstr "連絡先の役割"
+msgstr "連絡先のロール"
 
 #: netbox/navigation/menu.py:50
 msgid "Contact Assignments"
@@ -8751,15 +8758,15 @@ msgstr "仮想デバイスコンテキスト"
 
 #: netbox/navigation/menu.py:76
 msgid "Manufacturers"
-msgstr "メーカー"
+msgstr "メーカ"
 
 #: netbox/navigation/menu.py:80
 msgid "Device Components"
-msgstr "デバイスコンポーネント"
+msgstr "デバイス構成要素"
 
 #: netbox/navigation/menu.py:92 templates/dcim/inventoryitemrole.html:8
 msgid "Inventory Item Roles"
-msgstr "インベントリアイテムの役割"
+msgstr "在庫品目のロール"
 
 #: netbox/navigation/menu.py:99 netbox/navigation/menu.py:103
 msgid "Connections"
@@ -8771,11 +8778,11 @@ msgstr "ケーブル"
 
 #: netbox/navigation/menu.py:106
 msgid "Wireless Links"
-msgstr "ワイヤレスリンク"
+msgstr "無線リンク"
 
 #: netbox/navigation/menu.py:109
 msgid "Interface Connections"
-msgstr "インターフェイス接続"
+msgstr "インタフェース接続"
 
 #: netbox/navigation/menu.py:114
 msgid "Console Connections"
@@ -8787,11 +8794,11 @@ msgstr "電源接続"
 
 #: netbox/navigation/menu.py:135
 msgid "Wireless LAN Groups"
-msgstr "ワイヤレス LAN グループ"
+msgstr "無線 LAN グループ"
 
 #: netbox/navigation/menu.py:156
 msgid "Prefix & VLAN Roles"
-msgstr "プレフィックスと VLAN の役割"
+msgstr "プレフィックスと VLAN のロール"
 
 #: netbox/navigation/menu.py:162
 msgid "ASN Ranges"
@@ -8886,23 +8893,23 @@ msgstr "クラスターグループ"
 
 #: netbox/navigation/menu.py:261
 msgid "Circuit Types"
-msgstr "回路タイプ"
+msgstr "回線タイプ"
 
 #: netbox/navigation/menu.py:265 netbox/navigation/menu.py:267
 msgid "Providers"
-msgstr "プロバイダー"
+msgstr "プロバイダ"
 
 #: netbox/navigation/menu.py:268 templates/circuits/provider.html:53
 msgid "Provider Accounts"
-msgstr "プロバイダーアカウント"
+msgstr "プロバイダアカウント"
 
 #: netbox/navigation/menu.py:269
 msgid "Provider Networks"
-msgstr "プロバイダーネットワーク"
+msgstr "プロバイダネットワーク"
 
 #: netbox/navigation/menu.py:283
 msgid "Power Panels"
-msgstr "パワーパネル"
+msgstr "電源盤"
 
 #: netbox/navigation/menu.py:294
 msgid "Configurations"
@@ -9100,12 +9107,20 @@ msgid "French"
 msgstr "フランス語"
 
 #: netbox/settings.py:729
+msgid "Japanese"
+msgstr "日本語"
+
+#: netbox/settings.py:730
 msgid "Portuguese"
 msgstr "ポルトガル語"
 
-#: netbox/settings.py:730
+#: netbox/settings.py:731
 msgid "Russian"
-msgstr "ロシア人"
+msgstr "ロシア語"
+
+#: netbox/settings.py:732
+msgid "Turkish"
+msgstr "トルコ語"
 
 #: netbox/tables/columns.py:175
 msgid "Toggle all"
@@ -9242,7 +9257,7 @@ msgstr "[キャンセル]"
 #: utilities/templates/helpers/applied_filters.html:16
 #: utilities/templates/helpers/table_config_form.html:40
 msgid "Save"
-msgstr "[保存]"
+msgstr "保存"
 
 #: templates/account/preferences.html:41
 msgid "Table Configurations"
@@ -9275,7 +9290,7 @@ msgstr "何も見つかりませんでした"
 
 #: templates/account/profile.html:6
 msgid "User Profile"
-msgstr "ユーザープロフィール"
+msgstr "ユーザプロフィール"
 
 #: templates/account/profile.html:12
 msgid "Account Details"
@@ -9301,7 +9316,7 @@ msgstr "管理者アクセス"
 #: templates/account/profile.html:51 templates/users/objectpermission.html:86
 #: templates/users/user.html:51
 msgid "Assigned Groups"
-msgstr "割り当てられたグループ"
+msgstr "割当グループ"
 
 #: templates/account/profile.html:56
 #: templates/circuits/circuit_terminations_swap.html:18
@@ -9425,12 +9440,12 @@ msgstr "終了日"
 
 #: templates/circuits/circuit_terminations_swap.html:4
 msgid "Swap Circuit Terminations"
-msgstr "スワップ回路終端"
+msgstr "回線終端を交換する"
 
 #: templates/circuits/circuit_terminations_swap.html:8
 #, python-format
 msgid "Swap these terminations for circuit %(circuit)s?"
-msgstr "これらの終端を回路に交換してください %(circuit)s?"
+msgstr "回線%(circuit)sの終端を交換しますか?"
 
 #: templates/circuits/circuit_terminations_swap.html:14
 msgid "A side"
@@ -9445,7 +9460,7 @@ msgstr "Z サイド"
 #: templates/dcim/frontport.html:128 templates/dcim/interface.html:199
 #: templates/dcim/rearport.html:118
 msgid "Circuit Termination"
-msgstr "サーキットターミネーション"
+msgstr "回線終端"
 
 #: templates/circuits/circuittermination_edit.html:41
 msgid "Termination Details"
@@ -9453,7 +9468,7 @@ msgstr "終了詳細"
 
 #: templates/circuits/circuittype.html:10
 msgid "Add Circuit"
-msgstr "回路を追加"
+msgstr "回線を追加"
 
 #: templates/circuits/inc/circuit_termination.html:9
 #: templates/dcim/devicetype/component_templates.html:30
@@ -9546,7 +9561,7 @@ msgstr "接続"
 #: templates/dcim/interface.html:193 templates/dcim/inventoryitem_edit.html:49
 #: templates/dcim/rearport.html:112
 msgid "Front Port"
-msgstr "フロントポート"
+msgstr "前面ポート"
 
 #: templates/circuits/inc/circuit_termination.html:97
 msgid "Downstream"
@@ -9566,11 +9581,11 @@ msgstr "パッチパネル/ポート"
 
 #: templates/circuits/provider.html:11
 msgid "Add circuit"
-msgstr "回路を追加"
+msgstr "回線を追加"
 
 #: templates/circuits/provideraccount.html:17
 msgid "Provider Account"
-msgstr "プロバイダーアカウント"
+msgstr "プロバイダアカウント"
 
 #: templates/core/configrevision.html:47
 msgid "Default unit height"
@@ -9606,7 +9621,7 @@ msgstr "最大ページサイズ"
 
 #: templates/core/configrevision.html:179
 msgid "Default user preferences"
-msgstr "デフォルト・ユーザー・プリファレンス"
+msgstr "デフォルト・ユーザ・プリファレンス"
 
 #: templates/core/configrevision.html:209
 msgid "Job retention"
@@ -9628,7 +9643,7 @@ msgstr "設定リビジョン"
 
 #: templates/core/configrevision_restore.html:54
 msgid "Parameter"
-msgstr "パラメーター"
+msgstr "パラメータ"
 
 #: templates/core/configrevision_restore.html:55
 msgid "Current Value"
@@ -9876,7 +9891,7 @@ msgstr "ディメンション"
 #: templates/virtualization/virtualmachine/base.html:22
 #: templates/virtualization/virtualmachine_list.html:8
 msgid "Add Components"
-msgstr "[コンポーネントを追加]"
+msgstr "[構成要素を追加]"
 
 #: templates/dcim/device/consoleports.html:24
 msgid "Add Console Ports"
@@ -9892,7 +9907,7 @@ msgstr "デバイスベイの追加"
 
 #: templates/dcim/device/frontports.html:24
 msgid "Add Front Ports"
-msgstr "フロントポートを追加"
+msgstr "前面ポートを追加"
 
 #: templates/dcim/device/inc/interface_table_controls.html:9
 msgid "Hide Enabled"
@@ -9912,12 +9927,12 @@ msgstr "接続解除を非表示"
 
 #: templates/dcim/device/interfaces.html:28
 msgid "Add Interfaces"
-msgstr "インターフェースを追加"
+msgstr "インタフェースを追加"
 
 #: templates/dcim/device/inventory.html:10
 #: templates/dcim/inc/panels/inventory_items.html:46
 msgid "Add Inventory Item"
-msgstr "インベントリアイテムの追加"
+msgstr "在庫品目の追加"
 
 #: templates/dcim/device/modulebays.html:10
 msgid "Add Module Bays"
@@ -9967,7 +9982,7 @@ msgstr "ペアレントベイ"
 #: templates/dcim/device_edit.html:48
 #: utilities/templates/form_helpers/render_field.html:20
 msgid "Regenerate Slug"
-msgstr "リジェネレートスラッグ"
+msgstr "リジェネレートslug"
 
 #: templates/dcim/device_edit.html:49 templates/generic/bulk_remove.html:7
 #: utilities/templates/helpers/table_config_form.html:23
@@ -10035,7 +10050,7 @@ msgstr "[デバイスを追加]"
 
 #: templates/dcim/devicerole.html:43
 msgid "VM Role"
-msgstr "仮想マシンの役割"
+msgstr "仮想マシンのロール"
 
 #: templates/dcim/devicetype.html:21 templates/dcim/moduletype.html:19
 msgid "Model Name"
@@ -10059,7 +10074,7 @@ msgstr "親/子"
 
 #: templates/dcim/devicetype.html:74
 msgid "Front Image"
-msgstr "フロントイメージ"
+msgstr "前面イメージ"
 
 #: templates/dcim/devicetype.html:86
 msgid "Rear Image"
@@ -10067,7 +10082,7 @@ msgstr "背面画像"
 
 #: templates/dcim/frontport.html:57
 msgid "Rear Port Position"
-msgstr "リアポート位置"
+msgstr "背面ポート位置"
 
 #: templates/dcim/frontport.html:79 templates/dcim/interface.html:150
 #: templates/dcim/poweroutlet.html:67 templates/dcim/powerport.html:67
@@ -10127,7 +10142,7 @@ msgstr "[すべてクリア]"
 
 #: templates/dcim/interface.html:17
 msgid "Add Child Interface"
-msgstr "子インターフェースの追加"
+msgstr "子インタフェースの追加"
 
 #: templates/dcim/interface.html:51
 msgid "Speed/Duplex"
@@ -10153,7 +10168,7 @@ msgstr "MAC アドレス"
 
 #: templates/dcim/interface.html:157
 msgid "Wireless Link"
-msgstr "ワイヤレスリンク"
+msgstr "無線リンク"
 
 #: templates/dcim/interface.html:226 vpn/choices.py:55
 msgid "Peer"
@@ -10193,7 +10208,7 @@ msgstr "LAG メンバー"
 
 #: templates/dcim/interface.html:335
 msgid "No member interfaces"
-msgstr "メンバーインターフェースなし"
+msgstr "メンバーインタフェースなし"
 
 #: templates/dcim/interface.html:359 templates/ipam/fhrpgroup.html:80
 #: templates/ipam/iprange/ip_addresses.html:7
@@ -10212,11 +10227,11 @@ msgstr "パーツ ID"
 
 #: templates/dcim/inventoryitem_bulk_delete.html:5
 msgid "This will also delete all child inventory items of those listed"
-msgstr "これにより、リストされている商品の子在庫アイテムもすべて削除されます。"
+msgstr "これにより、リストされている商品の子在庫品目もすべて削除されます。"
 
 #: templates/dcim/inventoryitem_edit.html:33
 msgid "Component Assignment"
-msgstr "コンポーネント割り当て"
+msgstr "構成要素割り当て"
 
 #: templates/dcim/inventoryitem_edit.html:59
 #: templates/dcim/poweroutlet.html:18 templates/dcim/powerport.html:81
@@ -10225,11 +10240,11 @@ msgstr "電源コンセント"
 
 #: templates/dcim/location.html:17
 msgid "Add Child Location"
-msgstr "お子様の所在地を追加"
+msgstr "子所在地を追加"
 
 #: templates/dcim/location.html:76
 msgid "Child Locations"
-msgstr "チャイルドロケーション"
+msgstr "子ロケーション"
 
 #: templates/dcim/location.html:84 templates/dcim/site.html:137
 msgid "Add a Location"
@@ -10271,15 +10286,15 @@ msgstr "A"
 
 #: templates/dcim/poweroutlet.html:51
 msgid "Feed Leg"
-msgstr "フィードレッグ"
+msgstr "供給端子"
 
 #: templates/dcim/powerpanel.html:77
 msgid "Add Power Feeds"
-msgstr "パワーフィードの追加"
+msgstr "電源タップの追加"
 
 #: templates/dcim/powerport.html:47
 msgid "Maximum Draw"
-msgstr "最大ドロー"
+msgstr "最大消費電力"
 
 #: templates/dcim/powerport.html:51
 msgid "Allocated Draw"
@@ -10335,7 +10350,7 @@ msgstr "予約を追加"
 
 #: templates/dcim/rack_edit.html:21
 msgid "Inventory Control"
-msgstr "インベントリ管理"
+msgstr "在庫管理"
 
 #: templates/dcim/rack_edit.html:45
 msgid "Outer Dimensions"
@@ -10379,11 +10394,11 @@ msgstr "サイトを追加"
 
 #: templates/dcim/region.html:56
 msgid "Child Regions"
-msgstr "子地域"
+msgstr "子リージョン"
 
 #: templates/dcim/region.html:64
 msgid "Add Region"
-msgstr "地域を追加"
+msgstr "リージョンを追加"
 
 #: templates/dcim/site.html:56
 msgid "Facility"
@@ -10417,7 +10432,7 @@ msgstr "配送先住所"
 #: templates/tenancy/tenantgroup.html:58
 #: templates/wireless/wirelesslangroup.html:56
 msgid "Child Groups"
-msgstr "チャイルド・グループ"
+msgstr "子・グループ"
 
 #: templates/dcim/sitegroup.html:64
 msgid "Add Site Group"
@@ -10528,7 +10543,7 @@ msgid ""
 "path."
 msgstr ""
 "設定されているメディアルートは <code>%(media_root)s</code>。NetBox "
-"を実行するユーザーに、このパス内のすべての場所にファイルを書き込む権限があることを確認してください。"
+"を実行するユーザに、このパス内のすべてのロケーションにファイルを書き込む権限があることを確認してください。"
 
 #: templates/exceptions/programming_error.html:6
 msgid ""
@@ -10607,7 +10622,7 @@ msgstr "データを同期"
 
 #: templates/extras/configtemplate.html:58
 msgid "Environment Parameters"
-msgstr "環境パラメーター"
+msgstr "環境パラメータ"
 
 #: templates/extras/configtemplate.html:69
 #: templates/extras/exporttemplate.html:88
@@ -10669,7 +10684,7 @@ msgstr "ボタンクラス"
 #: templates/extras/customlink.html:41 templates/extras/exporttemplate.html:73
 #: templates/extras/savedfilter.html:41
 msgid "Assigned Models"
-msgstr "割り当てられたモデル"
+msgstr "割当モデル"
 
 #: templates/extras/customlink.html:57
 msgid "Link Text"
@@ -10693,7 +10708,7 @@ msgstr "これにより削除されます <strong>すべて</strong> ウィジ�
 msgid ""
 "This change affects only <i>your</i> dashboard, and will not impact other "
 "users."
-msgstr "この変更の影響を受けるのは <i>きみの</i> ダッシュボード。他のユーザーには影響しません。"
+msgstr "この変更の影響を受けるのは <i>きみの</i> ダッシュボード。他のユーザには影響しません。"
 
 #: templates/extras/dashboard/widget_add.html:7
 msgid "Add a Widget"
@@ -11225,7 +11240,7 @@ msgstr "ウィジェットを追加"
 
 #: templates/home.html:60
 msgid "Save Layout"
-msgstr "[レイアウトを保存]"
+msgstr "レイアウトを保存"
 
 #: templates/htmx/delete_form.html:7
 msgid "Confirm Deletion"
@@ -11396,7 +11411,7 @@ msgstr "IP アドレスを一括追加"
 
 #: templates/ipam/ipaddress_edit.html:35
 msgid "Interface Assignment"
-msgstr "インターフェース割り当て"
+msgstr "インタフェース割り当て"
 
 #: templates/ipam/ipaddress_edit.html:74
 msgid "NAT IP (Inside"
@@ -11538,7 +11553,7 @@ msgstr "サインイン"
 
 #: templates/login.html:54
 msgid "Or use a single sign-on (SSO) provider"
-msgstr "または、シングルサインオン (SSO) プロバイダーを使用する"
+msgstr "または、シングルサインオン (SSO) プロバイダを使用する"
 
 #: templates/login.html:68
 msgid "Toggle Color Mode"
@@ -11629,7 +11644,7 @@ msgstr "連絡先グループを追加"
 #: templates/tenancy/contactrole.html:15 tenancy/filtersets.py:141
 #: tenancy/forms/forms.py:61 tenancy/forms/model_forms.py:90
 msgid "Contact Role"
-msgstr "連絡先の役割"
+msgstr "連絡先のロール"
 
 #: templates/tenancy/object_contacts.html:9
 msgid "Add a contact"
@@ -11650,7 +11665,7 @@ msgstr "テナントグループの追加"
 
 #: templates/users/group.html:37 templates/users/user.html:61
 msgid "Assigned Permissions"
-msgstr "割り当てられた権限"
+msgstr "割当権限"
 
 #: templates/users/objectpermission.html:6
 #: templates/users/objectpermission.html:14 users/forms/filtersets.py:67
@@ -11672,7 +11687,7 @@ msgstr "制約"
 
 #: templates/users/objectpermission.html:76
 msgid "Assigned Users"
-msgstr "割り当てられたユーザ"
+msgstr "割当ユーザ"
 
 #: templates/users/user.html:38
 msgid "Staff"
@@ -11914,7 +11929,7 @@ msgstr "メガヘルツ"
 
 #: templates/wireless/wirelesslan.html:11 wireless/forms/model_forms.py:54
 msgid "Wireless LAN"
-msgstr "ワイヤレス LAN"
+msgstr "無線 LAN"
 
 #: templates/wireless/wirelesslan.html:59
 msgid "Attached Interfaces"
@@ -11922,16 +11937,16 @@ msgstr "接続インタフェース"
 
 #: templates/wireless/wirelesslangroup.html:17
 msgid "Add Wireless LAN"
-msgstr "ワイヤレス LAN の追加"
+msgstr "無線 LAN の追加"
 
 #: templates/wireless/wirelesslangroup.html:26
 #: wireless/forms/model_forms.py:27
 msgid "Wireless LAN Group"
-msgstr "ワイヤレス LAN グループ"
+msgstr "無線 LAN グループ"
 
 #: templates/wireless/wirelesslangroup.html:64
 msgid "Add Wireless LAN Group"
-msgstr "ワイヤレス LAN グループの追加"
+msgstr "無線 LAN グループの追加"
 
 #: templates/wireless/wirelesslink.html:16
 msgid "Link Properties"
@@ -11951,7 +11966,7 @@ msgstr "連絡先グループ (ID)"
 
 #: tenancy/filtersets.py:35 tenancy/filtersets.py:62 tenancy/filtersets.py:105
 msgid "Contact group (slug)"
-msgstr "コンタクトグループ (スラッグ)"
+msgstr "コンタクトグループ (slug)"
 
 #: tenancy/filtersets.py:92
 msgid "Contact (ID)"
@@ -11963,7 +11978,7 @@ msgstr "連絡先ロール (ID)"
 
 #: tenancy/filtersets.py:115
 msgid "Contact role (slug)"
-msgstr "コンタクトロール (スラッグ)"
+msgstr "コンタクトロール (slug)"
 
 #: tenancy/filtersets.py:147
 msgid "Contact group"
@@ -11979,7 +11994,7 @@ msgstr "テナントグループ (ID)"
 
 #: tenancy/filtersets.py:217
 msgid "Tenant Group (slug)"
-msgstr "テナントグループ (スラッグ)"
+msgstr "テナントグループ (slug)"
 
 #: tenancy/forms/bulk_edit.py:65
 msgid "Desciption"
@@ -11987,7 +12002,7 @@ msgstr "[説明]"
 
 #: tenancy/forms/bulk_import.py:101
 msgid "Assigned contact"
-msgstr "割り当てられた連絡先"
+msgstr "割当連絡先"
 
 #: tenancy/models/contacts.py:32
 msgid "contact group"
@@ -11999,11 +12014,11 @@ msgstr "連絡先グループ"
 
 #: tenancy/models/contacts.py:48
 msgid "contact role"
-msgstr "連絡先の役割"
+msgstr "連絡先のロール"
 
 #: tenancy/models/contacts.py:49
 msgid "contact roles"
-msgstr "連絡先の役割"
+msgstr "連絡先のロール"
 
 #: tenancy/models/contacts.py:68
 msgid "title"
@@ -12056,7 +12071,7 @@ msgstr "テナント名はグループごとに一意である必要がありま
 
 #: tenancy/models/tenants.py:80
 msgid "Tenant slug must be unique per group."
-msgstr "テナントスラッグはグループごとにユニークでなければなりません。"
+msgstr "テナントslugはグループごとにユニークでなければなりません。"
 
 #: tenancy/models/tenants.py:88
 msgid "tenant"
@@ -12108,7 +12123,7 @@ msgstr "スタッフステータス"
 
 #: users/forms/bulk_edit.py:46
 msgid "Superuser status"
-msgstr "スーパーユーザーステータス"
+msgstr "スーパーユーザステータス"
 
 #: users/forms/bulk_import.py:43
 msgid "If no key is provided, one will be generated automatically."
@@ -12120,7 +12135,7 @@ msgstr "スタッフですか"
 
 #: users/forms/filtersets.py:59 users/tables.py:45
 msgid "Is Superuser"
-msgstr "スーパーユーザーですか"
+msgstr "スーパーユーザですか"
 
 #: users/forms/filtersets.py:92 users/tables.py:89
 msgid "Can View"
@@ -12140,7 +12155,7 @@ msgstr "削除可能"
 
 #: users/forms/model_forms.py:58
 msgid "User Interface"
-msgstr "ユーザーインターフェース"
+msgstr "ユーザインタフェース"
 
 #: users/forms/model_forms.py:116
 msgid ""
@@ -12204,15 +12219,15 @@ msgstr "のフィルタが無効です {model}: {error}"
 
 #: users/models.py:54
 msgid "user"
-msgstr "ユーザー"
+msgstr "ユーザ"
 
 #: users/models.py:55
 msgid "users"
-msgstr "ユーザー"
+msgstr "ユーザ"
 
 #: users/models.py:66
 msgid "A user with this username already exists."
-msgstr "このユーザー名のユーザーはすでに存在します。"
+msgstr "このユーザ名のユーザはすでに存在します。"
 
 #: users/models.py:78 vpn/models/crypto.py:42
 msgid "group"
@@ -12224,7 +12239,7 @@ msgstr "グループ"
 
 #: users/models.py:106 users/models.py:107
 msgid "user preferences"
-msgstr "ユーザープリファレンス"
+msgstr "ユーザプリファレンス"
 
 #: users/models.py:174
 #, python-brace-format
@@ -12408,7 +12423,7 @@ msgid ""
 "%s(%r) is invalid. to_model parameter to CounterCacheField must be a string "
 "in the format 'app.model'"
 msgstr ""
-"%s(%r) は無効です。CounterCacheField の to_model パラメーターは 'app.model' "
+"%s(%r) は無効です。CounterCacheField の to_model パラメータは 'app.model' "
 "形式の文字列でなければなりません"
 
 #: utilities/fields.py:172
@@ -12417,7 +12432,7 @@ msgid ""
 "%s(%r) is invalid. to_field parameter to CounterCacheField must be a string "
 "in the format 'field'"
 msgstr ""
-"%s(%r) は無効です。CounterCacheField の to_field パラメーターは 'field' 形式の文字列でなければなりません"
+"%s(%r) は無効です。CounterCacheField の to_field パラメータは 'field' 形式の文字列でなければなりません"
 
 #: utilities/forms/bulk_import.py:24
 msgid "Enter object data in CSV, JSON or YAML format."
@@ -12624,7 +12639,7 @@ msgstr "親グループ (ID)"
 
 #: virtualization/filtersets.py:85
 msgid "Parent group (slug)"
-msgstr "親グループ (スラッグ)"
+msgstr "親グループ (slug)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:141
 msgid "Cluster type (ID)"
@@ -12662,7 +12677,7 @@ msgstr "クラスターのタイプ"
 
 #: virtualization/forms/bulk_import.py:51
 msgid "Assigned cluster group"
-msgstr "割り当てられたクラスターグループ"
+msgstr "割当クラスターグループ"
 
 #: virtualization/forms/bulk_import.py:96
 msgid "Assigned cluster"
@@ -12771,7 +12786,7 @@ msgstr "選択したデバイス ({device}) はこのクラスターに割り当
 msgid ""
 "The specified disk size ({size}) must match the aggregate size of assigned "
 "virtual disks ({total_size})."
-msgstr "指定されたディスクサイズ ({size}) は割り当てられた仮想ディスクの合計サイズと一致する必要がある ({total_size})。"
+msgstr "指定されたディスクサイズ ({size}) は割当仮想ディスクの合計サイズと一致する必要がある ({total_size})。"
 
 #: virtualization/models/virtualmachines.py:222
 #, python-brace-format
@@ -12788,14 +12803,14 @@ msgstr "指定された IP アドレス ({ip}) はこの VM に割り当てら�
 msgid ""
 "The selected parent interface ({parent}) belongs to a different virtual "
 "machine ({virtual_machine})."
-msgstr "選択した親インターフェイス ({parent}) は別の仮想マシンに属しています ({virtual_machine})。"
+msgstr "選択した親インタフェース ({parent}) は別の仮想マシンに属しています ({virtual_machine})。"
 
 #: virtualization/models/virtualmachines.py:404
 #, python-brace-format
 msgid ""
 "The selected bridge interface ({bridge}) belongs to a different virtual "
 "machine ({virtual_machine})."
-msgstr "選択したブリッジインターフェース ({bridge}) は別の仮想マシンに属しています ({virtual_machine})。"
+msgstr "選択したブリッジインタフェース ({bridge}) は別の仮想マシンに属しています ({virtual_machine})。"
 
 #: virtualization/models/virtualmachines.py:415
 #, python-brace-format
@@ -12804,7 +12819,7 @@ msgid ""
 "interface's parent virtual machine, or it must be global."
 msgstr ""
 "タグが付いていない VLAN ({untagged_vlan}) "
-"はインターフェースの親仮想マシンと同じサイトに属しているか、またはグローバルである必要があります。"
+"はインタフェースの親仮想マシンと同じサイトに属しているか、またはグローバルである必要があります。"
 
 #: virtualization/models/virtualmachines.py:427
 msgid "size (GB)"
@@ -12898,7 +12913,7 @@ msgstr "トンネルグループ (ID)"
 
 #: vpn/filtersets.py:47
 msgid "Tunnel group (slug)"
-msgstr "トンネルグループ (スラッグ)"
+msgstr "トンネルグループ (slug)"
 
 #: vpn/filtersets.py:54
 msgid "IPSec profile (ID)"
@@ -12938,11 +12953,11 @@ msgstr "IPsec ポリシー (名前)"
 
 #: vpn/filtersets.py:320
 msgid "L2VPN (slug)"
-msgstr "L2VPN (スラッグ)"
+msgstr "L2VPN (slug)"
 
 #: vpn/filtersets.py:384
 msgid "VM Interface (ID)"
-msgstr "VM インターフェイス (ID)"
+msgstr "VM インタフェース (ID)"
 
 #: vpn/filtersets.py:390
 msgid "VLAN (name)"
@@ -12981,19 +12996,19 @@ msgstr "トンネルカプセル化"
 
 #: vpn/forms/bulk_import.py:83
 msgid "Operational role"
-msgstr "運用上の役割"
+msgstr "運用上のロール"
 
 #: vpn/forms/bulk_import.py:90
 msgid "Parent device of assigned interface"
-msgstr "割り当てられたインターフェースの親デバイス"
+msgstr "割当インタフェースの親デバイス"
 
 #: vpn/forms/bulk_import.py:97
 msgid "Parent VM of assigned interface"
-msgstr "割り当てられたインターフェースの親仮想マシン"
+msgstr "割当インタフェースの親仮想マシン"
 
 #: vpn/forms/bulk_import.py:104
 msgid "Device or virtual machine interface"
-msgstr "デバイスまたは仮想マシンのインターフェイス"
+msgstr "デバイスまたは仮想マシンのインタフェース"
 
 #: vpn/forms/bulk_import.py:183
 msgid "IKE proposal(s)"
@@ -13017,27 +13032,27 @@ msgstr "L2VPN タイプ"
 
 #: vpn/forms/bulk_import.py:287
 msgid "Parent device (for interface)"
-msgstr "親デバイス (インターフェース用)"
+msgstr "親デバイス (インタフェース用)"
 
 #: vpn/forms/bulk_import.py:294
 msgid "Parent virtual machine (for interface)"
-msgstr "親仮想マシン (インターフェース用)"
+msgstr "親仮想マシン (インタフェース用)"
 
 #: vpn/forms/bulk_import.py:301
 msgid "Assigned interface (device or VM)"
-msgstr "割り当てられたインターフェイス (デバイスまたは VM)"
+msgstr "割当インタフェース (デバイスまたは VM)"
 
 #: vpn/forms/bulk_import.py:334
 msgid "Cannot import device and VM interface terminations simultaneously."
-msgstr "デバイスと VM インターフェイスの終端を同時にインポートすることはできません。"
+msgstr "デバイスと VM インタフェースの終端を同時にインポートすることはできません。"
 
 #: vpn/forms/bulk_import.py:336
 msgid "Each termination must specify either an interface or a VLAN."
-msgstr "各終端には、インターフェイスまたは VLAN のいずれかを指定する必要があります。"
+msgstr "各終端には、インタフェースまたは VLAN のいずれかを指定する必要があります。"
 
 #: vpn/forms/bulk_import.py:338
 msgid "Cannot assign both an interface and a VLAN."
-msgstr "インターフェイスと VLAN の両方を割り当てることはできません。"
+msgstr "インタフェースと VLAN の両方を割り当てることはできません。"
 
 #: vpn/forms/filtersets.py:127
 msgid "IKE version"
@@ -13050,7 +13065,7 @@ msgstr "提案"
 
 #: vpn/forms/filtersets.py:247
 msgid "Assigned Object Type"
-msgstr "割り当てられたオブジェクトタイプ"
+msgstr "割当オブジェクトタイプ"
 
 #: vpn/forms/model_forms.py:147
 msgid "First Termination"
@@ -13070,12 +13085,12 @@ msgstr "ポリシー"
 
 #: vpn/forms/model_forms.py:469
 msgid "A termination must specify an interface or VLAN."
-msgstr "終端にはインターフェイスまたは VLAN を指定する必要があります。"
+msgstr "終端にはインタフェースまたは VLAN を指定する必要があります。"
 
 #: vpn/forms/model_forms.py:471
 msgid ""
 "A termination can only have one terminating object (an interface or VLAN)."
-msgstr "終端には、1 つの終端オブジェクト（インターフェイスまたは VLAN）しか設定できません。"
+msgstr "終端には、1 つの終端オブジェクト（インタフェースまたは VLAN）しか設定できません。"
 
 #: vpn/models/crypto.py:33
 msgid "encryption algorithm"
@@ -13296,11 +13311,11 @@ msgstr "ブリッジド VLAN"
 
 #: wireless/forms/bulk_import.py:89 wireless/tables/wirelesslink.py:27
 msgid "Interface A"
-msgstr "インターフェイス A"
+msgstr "インタフェース A"
 
 #: wireless/forms/bulk_import.py:93 wireless/tables/wirelesslink.py:36
 msgid "Interface B"
-msgstr "インターフェイス B"
+msgstr "インタフェース B"
 
 #: wireless/forms/model_forms.py:158
 msgid "Side B"
@@ -13312,19 +13327,19 @@ msgstr "認証暗号"
 
 #: wireless/models.py:68
 msgid "wireless LAN group"
-msgstr "ワイヤレス LAN グループ"
+msgstr "無線 LAN グループ"
 
 #: wireless/models.py:69
 msgid "wireless LAN groups"
-msgstr "ワイヤレス LAN グループ"
+msgstr "無線 LAN グループ"
 
 #: wireless/models.py:115
 msgid "wireless LAN"
-msgstr "ワイヤレス LAN"
+msgstr "無線 LAN"
 
 #: wireless/models.py:143
 msgid "interface A"
-msgstr "インターフェイス A"
+msgstr "インタフェース A"
 
 #: wireless/models.py:150
 msgid "interface B"
@@ -13332,13 +13347,13 @@ msgstr "インタフェース B"
 
 #: wireless/models.py:198
 msgid "wireless link"
-msgstr "ワイヤレスリンク"
+msgstr "無線リンク"
 
 #: wireless/models.py:199
 msgid "wireless links"
-msgstr "ワイヤレスリンク"
+msgstr "無線リンク"
 
 #: wireless/models.py:216 wireless/models.py:222
 #, python-brace-format
 msgid "{type} is not a wireless interface."
-msgstr "{type} ワイヤレスインターフェースではありません。"
+msgstr "{type} 無線インタフェースではありません。"
