@@ -29,7 +29,7 @@ from netbox.plugins import PluginConfig
 # Environment setup
 #
 
-VERSION = '3.7-beta1'
+VERSION = '3.7.3-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -124,7 +124,6 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
-GIT_PATH = getattr(configuration, 'GIT_PATH', 'git')
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
@@ -736,8 +735,10 @@ LANGUAGES = (
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
+    ('ja', _('Japanese')),
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
+    ('tr', _('Turkish')),
 )
 
 LOCALE_PATHS = (

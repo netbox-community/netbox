@@ -80,6 +80,18 @@ Run the following command to update the device type definition validation schema
 
 This will automatically update the schema file at `contrib/generated_schema.json`.
 
+### Update & Compile Translations
+
+Log into [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) to download the updated string maps. Download the resource (portable object, or `.po`) file for each language and save them to `netbox/translations/$lang/LC_MESSAGES/django.po`, overwriting the current files. (Be sure to click the **Download for use** link.)
+
+![Transifex download](../media/development/transifex_download.png)
+
+Once the resource files for all languages have been updated, compile the machine object (`.mo`) files using the `compilemessages` management command:
+
+```nohighlight
+./manage.py compilemessages
+```
+
 ### Update Version and Changelog
 
 * Update the `VERSION` constant in `settings.py` to the new release version.
@@ -90,7 +102,7 @@ Commit these changes to the `develop` branch and push upstream.
 
 ### Verify CI Build Status
 
-Ensure that continuous integration testing on the `develop` branch is completing successfully. If it fails, take action to correct the failure before proceding with the release.
+Ensure that continuous integration testing on the `develop` branch is completing successfully. If it fails, take action to correct the failure before proceeding with the release.
 
 ### Submit a Pull Request
 

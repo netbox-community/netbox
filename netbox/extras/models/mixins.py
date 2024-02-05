@@ -8,6 +8,16 @@ __all__ = (
 
 class PythonModuleMixin:
 
+    def get_jobs(self, name):
+        """
+        Returns a list of Jobs associated with this specific script or report module
+        :param name: The class name of the script or report
+        :return: List of Jobs associated with this
+        """
+        return self.jobs.filter(
+            name=name
+        )
+
     @property
     def path(self):
         return os.path.splitext(self.file_path)[0]

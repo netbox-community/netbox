@@ -68,6 +68,9 @@ jobs:
     - name: Collect static files
       run: python netbox/manage.py collectstatic --no-input
 
+    - name: Check for missing migrations
+      run: python netbox/manage.py makemigrations --check
+
     - name: Check PEP8 compliance
       run: pycodestyle --ignore=W504,E501 --exclude=node_modules netbox/
 

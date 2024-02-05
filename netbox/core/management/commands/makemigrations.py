@@ -9,9 +9,9 @@ class Command(_Command):
         """
         This built-in management command enables the creation of new database schema migration files, which should
         never be required by and ordinary user. We prevent this command from executing unless the configuration
-        indicates that the user is a developer (i.e. configuration.DEVELOPER == True).
+        indicates that the user is a developer (i.e. configuration.DEVELOPER == True), or it was run with --check.
         """
-        if not settings.DEVELOPER:
+        if not kwargs['check_changes'] and not settings.DEVELOPER:
             raise CommandError(
                 "This command is available for development purposes only. It will\n"
                 "NOT resolve any issues with missing or unapplied migrations. For assistance,\n"

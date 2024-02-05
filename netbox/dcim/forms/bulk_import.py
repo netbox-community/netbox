@@ -727,7 +727,7 @@ class PowerOutletImportForm(NetBoxModelImportForm):
         help_text=_('Local power port which feeds this outlet')
     )
     feed_leg = CSVChoiceField(
-        label=_('Feed lag'),
+        label=_('Feed leg'),
         choices=PowerOutletFeedLegChoices,
         required=False,
         help_text=_('Electrical phase (for three-phase circuits)')
@@ -1358,6 +1358,10 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
         help_text='Assigned tenant'
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=VirtualDeviceContextStatusChoices,
     )
 
     class Meta:

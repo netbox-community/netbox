@@ -105,7 +105,12 @@ class JSONField(_JSONField):
             return value
         if value in ('', None):
             return ''
-        return json.dumps(value, sort_keys=True, indent=4)
+        if type(value) is str:
+            try:
+                value = json.loads(value, cls=self.decoder)
+            except json.decoder.JSONDecodeError:
+                return value
+        return json.dumps(value, sort_keys=True, indent=4, ensure_ascii=False, cls=self.encoder)
 
 
 class MACAddressField(forms.Field):

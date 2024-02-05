@@ -35,13 +35,17 @@ DEVICEBAY_STATUS = """
 """
 
 INTERFACE_IPADDRESSES = """
-  {% for ip in value.all %}
-    {% if ip.status != 'active' %}
-      <a href="{{ ip.get_absolute_url }}" class="badge text-bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
-    {% else %}
-      <a href="{{ ip.get_absolute_url }}">{{ ip }}</a>
-    {% endif %}
-  {% endfor %}
+  {% if value.count > 3 %}
+    <a href="{% url 'ipam:ipaddress_list' %}?interface_id={{ record.pk }}">{{ value.count }}</a>
+  {% else %}
+    {% for ip in value.all %}
+      {% if ip.status != 'active' %}
+        <a href="{{ ip.get_absolute_url }}" class="badge text-bg-{{ ip.get_status_color }}" data-bs-toggle="tooltip" data-bs-placement="left" title="{{ ip.get_status_display }}">{{ ip }}</a>
+      {% else %}
+        <a href="{{ ip.get_absolute_url }}">{{ ip }}</a>
+      {% endif %}
+    {% endfor %}
+  {% endif %}
 """
 
 INTERFACE_FHRPGROUPS = """
