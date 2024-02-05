@@ -28,4 +28,4 @@ For more detail, see the reference documentation for NetBox's [conditional logic
 
 ## Event Rule Processing
 
-When a change is detected, any resulting events are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing event(s) to be processed. The events are then extracted from the queue by the `rqworker` process. The current event queue and any failed events can be inspected in the admin UI under System > Background Tasks.
+When a change is detected, any resulting events are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing event(s) to be processed. The events are then extracted from the queue by the `rqworker` process. The current event queue and any failed events can be inspected under System > Background Tasks.

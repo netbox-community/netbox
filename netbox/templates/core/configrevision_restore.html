@@ -45,7 +45,11 @@
               <td>{{ param }}</td>
               <td>{{ current }}</td>
               <td>{{ new }}</td>
-              <td>{% if current != new %}<img src="{% static 'admin/img/icon-changelink.svg' %}" alt="*" title="{% trans "Changed" %}">{% endif %}</td>
+              <td>
+                {% if current != new %}
+                  <i class="mdi mdi-pencil text-warning" title="{% trans "Changed" %}"></i>
+                {% endif %}
+              </td>
             </tr>
           {% endfor %}
         </tbody>

@@ -73,9 +73,9 @@ If no body template is specified, the request body will be populated with a JSON
 
 ## Webhook Processing
 
-Using [Event Rules](../features/event-rules.md), when a change is detected, any resulting webhooks are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing webhook(s) to be processed. The webhooks are then extracted from the queue by the `rqworker` process and HTTP requests are sent to their respective destinations. The current webhook queue and any failed webhooks can be inspected in the admin UI under System > Background Tasks.
+Using [Event Rules](../features/event-rules.md), when a change is detected, any resulting webhooks are placed into a Redis queue for processing. This allows the user's request to complete without needing to wait for the outgoing webhook(s) to be processed. The webhooks are then extracted from the queue by the `rqworker` process and HTTP requests are sent to their respective destinations. The current webhook queue and any failed webhooks can be inspected under System > Background Tasks.
 
-A request is considered successful if the response has a 2XX status code; otherwise, the request is marked as having failed. Failed requests may be retried manually via the admin UI.
+A request is considered successful if the response has a 2XX status code; otherwise, the request is marked as having failed. Failed requests may be requeued manually under System > Background Tasks.
 
 ## Troubleshooting
 
@@ -108,4 +108,4 @@ Content-Type: application/x-www-form-urlencoded
 
 Note that `webhook_receiver` does not actually _do_ anything with the information received: It merely prints the request headers and body for inspection.
 
-Now, when the NetBox webhook is triggered and processed, you should see its headers and content appear in the terminal where the webhook receiver is listening. If you don't, check that the `rqworker` process is running and that webhook events are being placed into the queue (visible under the NetBox admin UI).
+Now, when the NetBox webhook is triggered and processed, you should see its headers and content appear in the terminal where the webhook receiver is listening. If you don't, check that the `rqworker` process is running and that webhook events are being placed into the queue.

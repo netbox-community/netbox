@@ -46,4 +46,4 @@ The configuration file may be modified at any time. However, the WSGI service (e
 $ sudo systemctl restart netbox
 ```
 
-Configuration parameters which are set via the admin UI (those listed under "dynamic settings") take effect immediately.
+Configuration parameters which are set via the user interface (those listed under "dynamic settings") take effect immediately.
