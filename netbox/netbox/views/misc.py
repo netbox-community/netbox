@@ -2,14 +2,17 @@ import re
 from collections import namedtuple
 
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.contenttypes.models import ContentType
 from django.core.cache import cache
 from django.shortcuts import redirect, render
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
 from django_tables2 import RequestConfig
 from packaging import version
 
-from extras.dashboard.utils import get_dashboard
+from extras.constants import DEFAULT_DASHBOARD
+from extras.dashboard.utils import get_dashboard, get_default_dashboard
 from netbox.forms import SearchForm
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
@@ -33,7 +36,13 @@ class HomeView(View):
             return redirect('login')
 
         # Construct the user's custom dashboard layout
-        dashboard = get_dashboard(request.user).get_layout()
+        try:
+            dashboard = get_dashboard(request.user).get_layout()
+        except Exception:
+            messages.error(request, _(
+                "There was an error loading the dashboard configuration. A default dashboard is in use."
+            ))
+            dashboard = get_default_dashboard(config=DEFAULT_DASHBOARD).get_layout()
 
         # Check whether a new release is available. (Only for staff/superusers.)
         new_release = None

@@ -21,7 +21,7 @@ class DataSourceBulkEditForm(NetBoxModelBulkEditForm):
     enabled = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label=_('Enforce unique space')
+        label=_('Enabled')
     )
     description = forms.CharField(
         label=_('Description'),

@@ -36,3 +36,7 @@ DEFAULT_ACTION_PERMISSIONS = {
     'bulk_edit': {'change'},
     'bulk_delete': {'delete'},
 }
+
+# General-purpose tokens
+CENSOR_TOKEN = '********'
+CENSOR_TOKEN_CHANGED = '***CHANGED***'

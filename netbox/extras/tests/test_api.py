@@ -14,7 +14,6 @@ from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
-
 User = get_user_model()
 
 
@@ -250,6 +249,23 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
             CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
+
+    def test_invalid_choice_items(self):
+        """
+        Attempting to define each choice as a single-item list should return a 400 error.
+        """
+        self.add_permissions('extras.add_customfieldchoiceset')
+        data = {
+            "name": "test",
+            "extra_choices": [
+                ["choice1"],
+                ["choice2"],
+                ["choice3"],
+            ]
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
 
 
 class CustomLinkTest(APIViewTestCases.APIViewTestCase):

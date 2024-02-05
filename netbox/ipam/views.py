@@ -1068,6 +1068,12 @@ class FHRPGroupAssignmentEditView(generic.ObjectEditView):
             instance.interface = get_object_or_404(content_type.model_class(), pk=request.GET.get('interface_id'))
         return instance
 
+    def get_extra_addanother_params(self, request):
+        return {
+            'interface_type': request.GET.get('interface_type'),
+            'interface_id': request.GET.get('interface_id'),
+        }
+
 
 @register_model_view(FHRPGroupAssignment, 'delete')
 class FHRPGroupAssignmentDeleteView(generic.ObjectDeleteView):

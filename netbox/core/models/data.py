@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
+from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
@@ -129,6 +130,28 @@ class DataSource(JobsMixin, PrimaryModel):
             raise ValidationError({
                 'source_url': f"URLs for local sources must start with file:// (or specify no scheme)"
             })
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+
+        # Censor any backend parameters marked as sensitive in the serialized data
+        pre_change_params = {}
+        post_change_params = {}
+        if objectchange.prechange_data:
+            pre_change_params = objectchange.prechange_data.get('parameters') or {}  # parameters may be None
+        if objectchange.postchange_data:
+            post_change_params = objectchange.postchange_data.get('parameters') or {}
+        for param in self.backend_class.sensitive_parameters:
+            if post_change_params.get(param):
+                if post_change_params[param] != pre_change_params.get(param):
+                    # Set the "changed" token if the parameter's value has been modified
+                    post_change_params[param] = CENSOR_TOKEN_CHANGED
+                else:
+                    post_change_params[param] = CENSOR_TOKEN
+            if pre_change_params.get(param):
+                pre_change_params[param] = CENSOR_TOKEN
+
+        return objectchange
 
     def enqueue_sync_job(self, request):
         """

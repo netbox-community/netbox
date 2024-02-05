@@ -10,6 +10,9 @@ The time zone NetBox will use when dealing with dates and times. It is recommend
 
 You may define custom formatting for date and times. For detailed instructions on writing format strings, please see [the Django documentation](https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date). Default formats are listed below.
 
+!!! note
+    These system defaults will be overridden by a user's selected language/locale when [localization](./system.md#enable_localization) is enabled.
+
 ```python
 DATE_FORMAT = 'N j, Y'               # June 26, 2016
 SHORT_DATE_FORMAT = 'Y-m-d'          # 2016-06-26
