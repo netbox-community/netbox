@@ -32,8 +32,15 @@ class Script(EventRulesMixin, models.Model):
         related_name='scripts'
     )
 
+    def __str__(self):
+        return self.name
+
     class Meta:
         ordering = ('name', 'pk')
+
+    @cached_property
+    def python_class(self):
+        return self.module.get_module_scripts.get(self.name)
 
 
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):

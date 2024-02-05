@@ -5,14 +5,15 @@ import django.db.models.deletion
 
 
 def update_scripts(apps, schema_editor):
-    ScriptModule = apps.get_model('extras', 'ScriptModule')
+    from extras.models import ScriptModule
+    ScriptModuleNew = apps.get_model('extras', 'ScriptModule')
     Script = apps.get_model('extras', 'Script')
 
     for module in ScriptModule.objects.all():
-        for script, cls in module.get_module_scripts:
+        for script in module.get_module_scripts.keys():
             Script.objects.create(
                 name=script,
-                script_module=module,
+                module=ScriptModuleNew.objects.get(file_root=module.file_root, file_path=module.file_path),
             )
 
 
@@ -23,26 +24,16 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AddField(
-            model_name='script',
-            name='name',
-            field=models.CharField(default=None, max_length=79),
-            preserve_default=False,
-        ),
-        migrations.AddField(
-            model_name='script',
-            name='module',
-            field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.PROTECT, related_name='scripts', to='extras.scriptmodule'),
-            preserve_default=False,
-        ),
-        migrations.AlterField(
-            model_name='script',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False),
-        ),
-        migrations.AlterModelOptions(
-            name='script',
-            options={'ordering': ('name', 'pk')},
+        migrations.CreateModel(
+            name='Script',
+            fields=[
+                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
+                ('name', models.CharField(max_length=79)),
+                ('module', models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='scripts', to='extras.scriptmodule')),
+            ],
+            options={
+                'ordering': ('name', 'pk'),
+            },
         ),
         migrations.RunPython(
             code=update_scripts,
