@@ -427,10 +427,10 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
 
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
-        child_ranges = netaddr.IPSet()
+        child_ranges = []
         for iprange in self.get_child_ranges():
-            child_ranges.add(iprange.range)
-        available_ips = prefix - child_ips - child_ranges
+            child_ranges.append(iprange.range)
+        available_ips = prefix - child_ips - netaddr.IPSet(child_ranges)
 
         # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
         if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
