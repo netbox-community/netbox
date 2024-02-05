@@ -28,7 +28,7 @@ from netbox.plugins import PluginConfig
 # Environment setup
 #
 
-VERSION = '3.7.2'
+VERSION = '3.7.3-dev'
 
 # Hostname
 HOSTNAME = platform.node()
