@@ -4,6 +4,18 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
+def update_scripts(apps, schema_editor):
+    ScriptModule = apps.get_model('extras', 'ScriptModule')
+    Script = apps.get_model('extras', 'Script')
+
+    for module in ScriptModule.objects.all():
+        for script, cls in module.get_module_scripts:
+            Script.objects.create(
+                name=script,
+                script_module=module,
+            )
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -19,7 +31,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='script',
-            name='script_module',
+            name='module',
             field=models.ForeignKey(default=None, on_delete=django.db.models.deletion.PROTECT, related_name='scripts', to='extras.scriptmodule'),
             preserve_default=False,
         ),
@@ -31,5 +43,9 @@ class Migration(migrations.Migration):
         migrations.AlterModelOptions(
             name='script',
             options={'ordering': ('name', 'pk')},
+        ),
+        migrations.RunPython(
+            code=update_scripts,
+            reverse_code=migrations.RunPython.noop
         ),
     ]

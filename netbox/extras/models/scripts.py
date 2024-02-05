@@ -26,7 +26,7 @@ class Script(EventRulesMixin, models.Model):
         verbose_name=_('name'),
         max_length=79,
     )
-    script_module = models.ForeignKey(
+    module = models.ForeignKey(
         to='extras.ScriptModule',
         on_delete=models.PROTECT,
         related_name='scripts'
@@ -59,9 +59,8 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     def __str__(self):
         return self.python_name
 
-    '''
     @cached_property
-    def scripts(self):
+    def get_module_scripts(self):
 
         def _get_name(cls):
             # For child objects in submodules use the full import path w/o the root module as the name
@@ -83,7 +82,6 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
                 scripts[_get_name(cls)] = cls
 
         return scripts
-    '''
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
