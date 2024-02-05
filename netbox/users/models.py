@@ -2,7 +2,10 @@ import binascii
 import os
 
 from django.conf import settings
-from django.contrib.auth.models import Group, GroupManager, User, UserManager
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import (
+    AbstractUser, Group, GroupManager, User as DjangoUser, UserManager as DjangoUserManager
+)
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
@@ -23,9 +26,9 @@ from .constants import *
 
 __all__ = (
     'NetBoxGroup',
-    'NetBoxUser',
     'ObjectPermission',
     'Token',
+    'User',
     'UserConfig',
 )
 
@@ -34,7 +37,7 @@ __all__ = (
 # Proxies for Django's User and Group models
 #
 
-class NetBoxUserManager(UserManager.from_queryset(RestrictedQuerySet)):
+class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
     pass
 
 
@@ -42,20 +45,19 @@ class NetBoxGroupManager(GroupManager.from_queryset(RestrictedQuerySet)):
     pass
 
 
-class NetBoxUser(User):
+class User(AbstractUser):
     """
     Proxy contrib.auth.models.User for the UI
     """
-    objects = NetBoxUserManager()
+    objects = UserManager()
 
     class Meta:
-        proxy = True
         ordering = ('username',)
         verbose_name = _('user')
         verbose_name_plural = _('users')
 
     def get_absolute_url(self):
-        return reverse('users:netboxuser', args=[self.pk])
+        return reverse('users:user', args=[self.pk])
 
     def clean(self):
         super().clean()
@@ -91,7 +93,7 @@ class UserConfig(models.Model):
     This model stores arbitrary user-specific preferences in a JSON data structure.
     """
     user = models.OneToOneField(
-        to=User,
+        to=get_user_model(),
         on_delete=models.CASCADE,
         related_name='config'
     )
@@ -220,7 +222,6 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
-@receiver(post_save, sender=NetBoxUser)
 def create_userconfig(instance, created, raw=False, **kwargs):
     """
     Automatically create a new UserConfig when a new User is created. Skip this if importing a user from a fixture.
@@ -240,7 +241,7 @@ class Token(models.Model):
     It also supports setting an expiration time and toggling write ability.
     """
     user = models.ForeignKey(
-        to=User,
+        to=get_user_model(),
         on_delete=models.CASCADE,
         related_name='tokens'
     )
@@ -364,7 +365,7 @@ class ObjectPermission(models.Model):
         related_name='object_permissions'
     )
     users = models.ManyToManyField(
-        to=User,
+        to=get_user_model(),
         blank=True,
         related_name='object_permissions'
     )

@@ -15,7 +15,7 @@ class UserTestCase(
     ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
-    model = NetBoxUser
+    model = User
     maxDiff = None
     validation_excluded_fields = ['password']
 
@@ -27,11 +27,11 @@ class UserTestCase(
     def setUpTestData(cls):
 
         users = (
-            NetBoxUser(username='username1', first_name='first1', last_name='last1', email='user1@foo.com', password='pass1xxx'),
-            NetBoxUser(username='username2', first_name='first2', last_name='last2', email='user2@foo.com', password='pass2xxx'),
-            NetBoxUser(username='username3', first_name='first3', last_name='last3', email='user3@foo.com', password='pass3xxx'),
+            User(username='username1', first_name='first1', last_name='last1', email='user1@foo.com', password='pass1xxx'),
+            User(username='username2', first_name='first2', last_name='last2', email='user2@foo.com', password='pass2xxx'),
+            User(username='username3', first_name='first3', last_name='last3', email='user3@foo.com', password='pass3xxx'),
         )
-        NetBoxUser.objects.bulk_create(users)
+        User.objects.bulk_create(users)
 
         cls.form_data = {
             'username': 'usernamex',
