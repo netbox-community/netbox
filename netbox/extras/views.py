@@ -1233,11 +1233,6 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         jobs = module.get_jobs(script.class_name)
         form = script.as_form(initial=normalize_querydict(request.GET))
 
-        # Look for a pending Job (use the latest one by creation timestamp)
-        script.result = module.get_jobs(script.class_name).exclude(
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-        ).first()
-
         return render(request, 'extras/script.html', {
             'job_count': jobs.count(),
             'module': module,
