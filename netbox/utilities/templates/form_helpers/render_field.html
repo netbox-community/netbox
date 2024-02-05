@@ -23,11 +23,14 @@
       </div>
     {# Render checkbox labels to the right of the field #}
     {% elif field|widget_type == 'checkboxinput' %}
-      <div class="form-check">
+      <div class="form-check mb-0">
         {{ field }}
         <label for="{{ field.id_for_label }}" class="form-check-label">
           {{ label }}
         </label>
+        {% if field.help_text %}
+          <span class="form-text">{{ field.help_text|safe }}</span>
+        {% endif %}
       </div>
     {# Include a copy-to-clipboard button #}
     {% elif 'data-clipboard' in field.field.widget.attrs %}
@@ -54,7 +57,7 @@
     {% endif %}
 
     {# Help text #}
-    {% if field.help_text %}
+    {% if field.help_text and field|widget_type != 'checkboxinput' %}
       <span class="form-text">{{ field.help_text|safe }}</span>
     {% endif %}
 

@@ -17,7 +17,7 @@ def migrate_report_jobs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0105_customfield_min_max_values'),
+        ('extras', '0106_bookmark_user_cascade_deletion'),
     ]
 
     operations = [

@@ -1,0 +1,117 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+{% load buttons %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Tasks' %}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'core:background_task_list' queue_index=queue_index status=job.get_status %}">{{ queue.name }}</a></li>
+{% endblock breadcrumbs %}
+
+{% block title %}{% trans "Job" %} {{ job.id }}{% endblock %}
+
+{% block subtitle %}
+  <div class="text-secondary fs-5">
+    <span>{% trans "Created" %} {{ job.created_at|annotated_date }}</span>
+  </div>
+{% endblock subtitle %}
+
+{% block object_identifier %}{% endblock %}
+
+{% block controls %}
+  <div class="btn-list mb-2">
+    {% url 'core:background_task_delete' job_id=job.id as delete_url %}
+    {% include "buttons/delete.html" with url=delete_url %}
+
+    {% if job.is_started %}
+      <a href="{% url 'core:background_task_stop' job.id %}" class="btn btn-primary">
+        <i class="mdi mdi-stop-circle-outline"></i> {% trans "Stop" %}
+      </a>
+    {% endif %}
+    {% if job.is_failed %}
+      <a href="{% url 'core:background_task_requeue' job.id %}" class="btn btn-primary">
+        <i class="mdi mdi-sync"></i> {% trans "Requeue" %}
+      </a>
+    {% endif %}
+    {% if not job.is_queued and not job.is_failed %}
+      <a href="{% url 'core:background_task_enqueue' job.id %}" class="btn btn-primary">
+        <i class="mdi mdi-sync"></i> {% trans "Enqueue" %}
+      </a>
+    {% endif %}
+
+  </div>
+{% endblock controls %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Job" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Job" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Queue" %}</th>
+            <td>{{ job.origin|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Timeout" %}</th>
+            <td>{{ job.timeout|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Result TTL" %}</th>
+            <td>{{ job.result_ttl|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Created" %}</th>
+            <td>{{ job.created_at|annotated_date }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Queued" %}</th>
+            <td>{{ job.enqueued_at|annotated_date }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{{ job.get_status|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Callable" %}</th>
+            <td>{{ object.get_type_display|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Meta" %}</th>
+            <td>{{ job.meta|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Arguments" %}</th>
+            <td>{{ jobs.args|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Keyword Arguments" %}</th>
+            {# TODO: Render as formatted JSON #}
+            <td>{{ job.kwargs }}</td>
+          </tr>
+          {% if dependency_id %}
+            <tr>
+              <th scope="row">{% trans "Depends on" %}</th>
+              <td><a href="{% url 'core:background_task' job.id %}">{{ dependency_id }}</a></td>
+            </tr>
+          {% endif %}
+          {% if exc_info %}
+            <tr>
+              <th scope="row">{% trans "Exception" %}</th>
+              <td><pre>{% if job.exc_info %}{{ job.exc_info|linebreaks }}{% endif %}</pre></td>
+            </tr>
+          {% endif %}
+        </table>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

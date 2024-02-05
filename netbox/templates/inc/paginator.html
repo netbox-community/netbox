@@ -43,7 +43,7 @@
                   {{ p }}
                 </a>
               {% elif p %}
-                <a href="{% querystring request page=p %}" class="btn btn-outline-secondary{% if page.number == p %} active{% endif %}">
+                <a href="{% querystring request page=p %}" class="page-link {% if page.number == p %} active{% endif %}">
                   {{ p }}
                 </a>
               {% else %}

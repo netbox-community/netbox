@@ -53,13 +53,13 @@ def get_dashboard(user):
     return dashboard
 
 
-def get_default_dashboard():
+def get_default_dashboard(config=None):
     from extras.models import Dashboard
 
     dashboard = Dashboard()
-    default_config = settings.DEFAULT_DASHBOARD or DEFAULT_DASHBOARD
+    config = config or settings.DEFAULT_DASHBOARD or DEFAULT_DASHBOARD
 
-    for widget in default_config:
+    for widget in config:
         id = str(uuid.uuid4())
         dashboard.layout.append({
             'id': id,

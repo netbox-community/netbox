@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
-from core.choices import JobStatusChoices, ManagedFileRootPathChoices
+from core.choices import ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
@@ -24,7 +24,6 @@ from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
-from .forms.reports import ReportForm
 from .models import *
 from .scripts import run_script
 
@@ -1051,19 +1050,11 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(initial=normalize_querydict(request.GET))
 
-        # Look for a pending Job (use the latest one by creation timestamp)
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        script.result = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=script.name,
-        ).exclude(
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-        ).first()
-
         return render(request, 'extras/script.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'form': form,
@@ -1075,6 +1066,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
 
         module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
@@ -1098,6 +1090,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
             return redirect('extras:script_result', job_pk=job.pk)
 
         return render(request, 'extras/script.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'form': form,
@@ -1112,8 +1105,10 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
 
         return render(request, 'extras/script/source.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'tab': 'source',
@@ -1128,13 +1123,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
-
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        jobs = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=script.class_name
-        )
+        jobs = module.get_jobs(script.class_name)
 
         jobs_table = JobTable(
             data=jobs,
@@ -1144,6 +1133,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         jobs_table.configure(request)
 
         return render(request, 'extras/script/jobs.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'table': jobs_table,

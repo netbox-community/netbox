@@ -58,7 +58,11 @@ class DeviceComponentsView(generic.ObjectChildrenView):
         return self.child_model.objects.restrict(request.user, 'view').filter(device=parent)
 
 
-class DeviceTypeComponentsView(DeviceComponentsView):
+class DeviceTypeComponentsView(generic.ObjectChildrenView):
+    actions = {
+        **DEFAULT_ACTION_PERMISSIONS,
+        'bulk_rename': {'change'},
+    }
     queryset = DeviceType.objects.all()
     template_name = 'dcim/devicetype/component_templates.html'
     viewname = None  # Used for return_url resolution
@@ -2956,7 +2960,6 @@ class InventoryItemBulkDeleteView(generic.BulkDeleteView):
     queryset = InventoryItem.objects.all()
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
-    template_name = 'dcim/inventoryitem_bulk_delete.html'
 
 
 @register_model_view(InventoryItem, 'children')

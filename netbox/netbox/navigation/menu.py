@@ -371,19 +371,19 @@ ADMIN_MENU = Menu(
             items=(
                 # Proxy model for auth.User
                 MenuItem(
-                    link=f'users:netboxuser_list',
+                    link=f'users:user_list',
                     link_text=_('Users'),
                     permissions=[f'auth.view_user'],
                     staff_only=True,
                     buttons=(
                         MenuItemButton(
-                            link=f'users:netboxuser_add',
+                            link=f'users:user_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
                             permissions=[f'auth.add_user']
                         ),
                         MenuItemButton(
-                            link=f'users:netboxuser_import',
+                            link=f'users:user_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
                             permissions=[f'auth.add_user']
@@ -445,11 +445,16 @@ ADMIN_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Plugins'),
+            label=_('System'),
             items=(
                 MenuItem(
                     link='core:plugin_list',
                     link_text=_('Plugins'),
+                    staff_only=True
+                ),
+                MenuItem(
+                    link='core:background_queue_list',
+                    link_text=_('Background Tasks'),
                     staff_only=True
                 ),
             ),

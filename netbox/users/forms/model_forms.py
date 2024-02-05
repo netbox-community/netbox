@@ -198,7 +198,7 @@ class UserForm(forms.ModelForm):
     )
 
     class Meta:
-        model = NetBoxUser
+        model = User
         fields = [
             'username', 'first_name', 'last_name', 'email', 'groups', 'object_permissions',
             'is_active', 'is_staff', 'is_superuser',

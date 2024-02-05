@@ -1,0 +1,58 @@
+{% extends 'generic/object_list.html' %}
+{% load helpers %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block page-header %}
+  <div class="container-xl">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+      {# Breadcrumbs #}
+      <nav class="breadcrumb-container" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'core:background_queue_list' %}">{% trans 'Background Workers' %}</a>
+          </li>
+          <li class="breadcrumb-item">{{ queue.name }}</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h2 class="page-title mt-2">{% trans 'Background Workers' %}</h2>
+      </div>
+    </div>
+  </div>
+{% endblock page-header %}
+
+{% block title %}{{ status|capfirst }} {% trans "Workers in " %}{{ queue.name }}{% endblock %}
+
+{% block controls %}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Workers" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  <div class="row mb-3">
+    <div class="col-auto ms-auto d-print-none">
+      {# Table configuration button #}
+      <div class="table-configure input-group">
+        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#ObjectTable_config" class="btn">
+          <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    {% render_table table %}
+  </div>
+{% endblock content %}
+
+{% block modals %}
+  {% table_config_form table table_name="ObjectTable" %}
+{% endblock modals %}
