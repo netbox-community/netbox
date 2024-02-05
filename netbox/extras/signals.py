@@ -68,21 +68,23 @@ def handle_changed_object(sender, instance, **kwargs):
     else:
         return
 
-    # Record an ObjectChange if applicable
-    if m2m_changed:
-        ObjectChange.objects.filter(
+    # Create/update an ObejctChange record for this change
+    objectchange = instance.to_objectchange(action)
+    # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
+    # for this object by this request and update it
+    if m2m_changed and (
+        prev_change := ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(instance),
             changed_object_id=instance.pk,
             request_id=request.id
-        ).update(
-            postchange_data=instance.to_objectchange(action).postchange_data
-        )
-    else:
-        objectchange = instance.to_objectchange(action)
-        if objectchange and objectchange.has_changes:
-            objectchange.user = request.user
-            objectchange.request_id = request.id
-            objectchange.save()
+        ).first()
+    ):
+        prev_change.postchange_data = objectchange.postchange_data
+        prev_change.save()
+    elif objectchange and objectchange.has_changes:
+        objectchange.user = request.user
+        objectchange.request_id = request.id
+        objectchange.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
     queue = events_queue.get()
