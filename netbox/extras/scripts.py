@@ -286,10 +286,10 @@ class BaseScript:
 
         # Compile test methods and initialize results skeleton
         self._logs[''] = {
-            'success': 0,
-            'info': 0,
-            'warning': 0,
-            'failure': 0,
+            LogLevelChoices.LOG_SUCCESS: 0,
+            LogLevelChoices.LOG_INFO: 0,
+            LogLevelChoices.LOG_WARNING: 0,
+            LogLevelChoices.LOG_FAILURE: 0,
             'log': [],
         }
         test_methods = []
@@ -297,10 +297,10 @@ class BaseScript:
             if method.startswith('test_') and callable(getattr(self, method)):
                 test_methods.append(method)
                 self._logs[method] = {
-                    'success': 0,
-                    'info': 0,
-                    'warning': 0,
-                    'failure': 0,
+                    LogLevelChoices.LOG_SUCCESS: 0,
+                    LogLevelChoices.LOG_INFO: 0,
+                    LogLevelChoices.LOG_WARNING: 0,
+                    LogLevelChoices.LOG_FAILURE: 0,
                     'log': [],
                 }
         self.test_methods = test_methods
@@ -437,53 +437,51 @@ class BaseScript:
 
     # Logging
 
-    def _log(self, message, obj=None, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.INFO):
+    def _log(self, message, obj=None, level=LogLevelChoices.LOG_DEFAULT):
         """
-        Log a message from a test method. Do not call this method directly; use one of the log_* wrappers below.
+        Log a message. Do not call this method directly; use one of the log_* wrappers below.
         """
-        if log_level not in LogLevelChoices.values():
-            raise Exception(f"Unknown logging level: {log_level}")
+        if level not in LogLevelChoices.values():
+            raise ValueError(f"Invalid logging level: {level}")
 
         if message:
+
+            # Record to the script's log
             self._logs[self._current_method]['log'].append((
                 timezone.now().isoformat(),
-                log_level,
+                level,
                 str(obj) if obj else None,
                 obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
-                message,
+                str(message),
             ))
 
-        if log_level != LogLevelChoices.LOG_DEFAULT:
-            self._logs[self._current_method][log_level] += 1
+            # Record to the system log
+            if obj:
+                message = f"{obj}: {message}"
+            self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], message)
 
-            if self._current_method != '':
-                self._logs[''][log_level] += 1
+        # Increment the event counter for this level if applicable
+        if level in self._logs[self._current_method]:
+            self._logs[self._current_method][level] += 1
 
-        if obj:
-            self.logger.log(level, f"{log_level.capitalize()} | {obj}: {message}")
-        else:
-            self.logger.log(level, message)  # No syslog equivalent for SUCCESS
-
-    def log(self, message):
-        """
-        Log a message which is not associated with a particular object.
-        """
-        self._log(str(message), None, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.INFO)
+            # For individual test methods, increment the global counter as well
+            if self._current_method:
+                self._logs[''][level] += 1
 
     def log_debug(self, message, obj=None):
-        self._log(str(message), obj, log_level=LogLevelChoices.LOG_DEFAULT, level=logging.DEBUG)
+        self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)
 
     def log_success(self, message, obj=None):
-        self._log(str(message), obj, log_level=LogLevelChoices.LOG_SUCCESS, level=logging.INFO)
+        self._log(message, obj, level=LogLevelChoices.LOG_SUCCESS)
 
     def log_info(self, message, obj=None):
-        self._log(str(message), obj, log_level=LogLevelChoices.LOG_INFO, level=logging.INFO)
+        self._log(message, obj, level=LogLevelChoices.LOG_INFO)
 
     def log_warning(self, message, obj=None):
-        self._log(str(message), obj, log_level=LogLevelChoices.LOG_WARNING, level=logging.WARNING)
+        self._log(message, obj, level=LogLevelChoices.LOG_WARNING)
 
     def log_failure(self, message, obj=None):
-        self._log(str(message), obj, log_level=LogLevelChoices.LOG_FAILURE, level=logging.ERROR)
+        self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
         self._failed = True
 
     # Convenience functions
