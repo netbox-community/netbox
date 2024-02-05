@@ -22,11 +22,18 @@ logger = logging.getLogger('netbox.data_backends')
 
 
 class Script(EventRulesMixin, models.Model):
-    """
-    Dummy model used to generate permissions for custom scripts. Does not exist in the database.
-    """
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=79,
+    )
+    script_module = models.ForeignKey(
+        to='extras.ScriptModule',
+        on_delete=models.PROTECT,
+        related_name='scripts'
+    )
+
     class Meta:
-        managed = False
+        ordering = ('name', 'pk')
 
 
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -52,6 +59,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     def __str__(self):
         return self.python_name
 
+    '''
     @cached_property
     def scripts(self):
 
@@ -75,6 +83,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
                 scripts[_get_name(cls)] = cls
 
         return scripts
+    '''
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
