@@ -3,7 +3,9 @@ import os
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import AbstractUser, Group, GroupManager, User as DjangoUser, UserManager
+from django.contrib.auth.models import (
+    AbstractUser, Group, GroupManager, User as DjangoUser, UserManager as DjangoUserManager
+)
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
@@ -35,7 +37,7 @@ __all__ = (
 # Proxies for Django's User and Group models
 #
 
-class UserManager(UserManager.from_queryset(RestrictedQuerySet)):
+class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
     pass
 
 
