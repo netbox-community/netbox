@@ -177,7 +177,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         Render Script Data, if defined. Otherwise, jump the context as a JSON object.
         """
         if self.action_data:
-            return render_jinja2(str(self.action_data), context)
+            return render_jinja2(json.dumps(self.action_data), context)
         else:
             return json.dumps(context, cls=JSONEncoder)
 
