@@ -22,12 +22,14 @@
     <table class="table table-hover panel-body">
       <tr>
         <th>{% trans "Line" %}</th>
+        <th>{% trans "Time" %}</th>
         <th>{% trans "Level" %}</th>
         <th>{% trans "Message" %}</th>
       </tr>
       {% for log in job.data.log %}
         <tr>
           <td>{{ forloop.counter }}</td>
+          <td>{{ log.time|placeholder }}</td>
           <td>{% log_level log.status %}</td>
           <td class="rendered-markdown">{{ log.message|markdown }}</td>
         </tr>

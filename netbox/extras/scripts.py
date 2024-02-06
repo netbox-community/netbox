@@ -459,6 +459,7 @@ class BaseScript:
 
             # Record to the script's log
             self.messages.append({
+                'time': timezone.now().isoformat(),
                 'status': level,
                 'message': str(message),
             })
