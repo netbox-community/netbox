@@ -62,18 +62,10 @@
                         </td>
                       {% else %}
                         <td class="text-muted">{% trans "Never" %}</td>
-                        <td>
-                          {% if script.is_valid %}
-                            {{ ''|placeholder }}
-                          {% else %}
-                            <span class="badge text-bg-danger" title="{% trans "Script has no methods" %}">
-                              {% trans "Invalid" %}
-                            </span>
-                          {% endif %}
-                        </td>
+                        <td>{{ ''|placeholder }}</td>
                       {% endif %}
                       <td>
-                        {% if perms.extras.run_script and script.is_valid %}
+                        {% if perms.extras.run_script %}
                           <div class="float-end d-print-none">
                             <form action="{% url 'extras:script' module=script.module name=script.class_name %}" method="post">
                               {% csrf_token %}

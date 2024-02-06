@@ -362,13 +362,6 @@ class BaseScript:
     def source(self):
         return inspect.getsource(self.__class__)
 
-    @property
-    def is_valid(self):
-        """
-        Indicates whether the report can be run.
-        """
-        return bool(self.test_methods)
-
     @classmethod
     def _get_vars(cls):
         vars = {}
