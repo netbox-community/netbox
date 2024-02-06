@@ -107,4 +107,5 @@ class L2VPNType(ContactsMixin, NetBoxObjectType):
     filters=L2VPNTerminationFilter
 )
 class L2VPNTerminationType(NetBoxObjectType):
-    assigned_object = graphene.Field('vpn.graphql.gfk_mixins.L2VPNAssignmentType')
+    # assigned_object = graphene.Field('vpn.graphql.gfk_mixins.L2VPNAssignmentType')
+    pass

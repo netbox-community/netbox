@@ -1,7 +1,7 @@
 import strawberry
 import strawberry_django
 
-from circuits import filtersets, models
+from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType

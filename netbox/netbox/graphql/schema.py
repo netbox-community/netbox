@@ -11,7 +11,7 @@ from users.graphql.schema import UsersQuery
 @strawberry.type
 class Query(
     UsersQuery,
-    # CircuitsQuery,
+    CircuitsQuery,
     #     CoreQuery,
     #     DCIMQuery,
     #     ExtrasQuery,

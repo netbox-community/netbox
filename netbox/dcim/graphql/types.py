@@ -94,8 +94,8 @@ class ComponentTemplateObjectType(
     filters=CableFilter
 )
 class CableType(NetBoxObjectType):
-    a_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
-    b_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+    # a_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+    # b_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
 
     class Meta:
         model = models.Cable
@@ -121,7 +121,8 @@ class CableType(NetBoxObjectType):
     filters=CableTerminationFilter
 )
 class CableTerminationType(NetBoxObjectType):
-    termination = graphene.Field('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+    # termination = graphene.Field('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
+    pass
 
 
 @strawberry_django.type(
@@ -206,7 +207,8 @@ class DeviceBayTemplateType(ComponentTemplateObjectType):
     filters=InventoryItemTemplateFilter
 )
 class InventoryItemTemplateType(ComponentTemplateObjectType):
-    component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemTemplateComponentType')
+    # component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemTemplateComponentType')
+    pass
 
 
 @strawberry_django.type(
@@ -299,7 +301,8 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
     filters=InventoryItemFilter
 )
 class InventoryItemType(ComponentObjectType):
-    component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')
+    # component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')
+    pass
 
 
 @strawberry_django.type(
@@ -512,7 +515,8 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
     filters=SiteFilter
 )
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
-    asn = graphene.Field(BigInt)
+    # asn = graphene.Field(BigInt)
+    pass
 
 
 @strawberry_django.type(

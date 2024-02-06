@@ -28,8 +28,8 @@ __all__ = (
 
 class IPAddressFamilyType(graphene.ObjectType):
 
-    value = graphene.Int()
-    label = graphene.String()
+    # value = graphene.Int()
+    # label = graphene.String()
 
     def __init__(self, value):
         self.value = value
@@ -40,7 +40,7 @@ class BaseIPAddressFamilyType:
     """
     Base type for models that need to expose their IPAddress family type.
     """
-    family = graphene.Field(IPAddressFamilyType)
+    # family = graphene.Field(IPAddressFamilyType)
 
     def resolve_family(self, _):
         # Note that self, is an instance of models.IPAddress
@@ -54,7 +54,8 @@ class BaseIPAddressFamilyType:
     filters=ProviderFilter
 )
 class ASNType(NetBoxObjectType):
-    asn = graphene.Field(BigInt)
+    # asn = graphene.Field(BigInt)
+    pass
 
 
 @strawberry_django.type(
@@ -92,7 +93,8 @@ class FHRPGroupType(NetBoxObjectType):
     filters=FHRPGroupAssignmentFilter
 )
 class FHRPGroupAssignmentType(BaseObjectType):
-    interface = graphene.Field('ipam.graphql.gfk_mixins.FHRPGroupInterfaceType')
+    # interface = graphene.Field('ipam.graphql.gfk_mixins.FHRPGroupInterfaceType')
+    pass
 
 
 @strawberry_django.type(
@@ -101,7 +103,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
     filters=IPAddressFilter
 )
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
-    assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
+    # assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
 
     def resolve_role(self, info):
         return self.role or None
@@ -187,7 +189,8 @@ class VLANType(NetBoxObjectType):
     filters=VLANGroupFilter
 )
 class VLANGroupType(OrganizationalObjectType):
-    scope = graphene.Field('ipam.graphql.gfk_mixins.VLANGroupScopeType')
+    # scope = graphene.Field('ipam.graphql.gfk_mixins.VLANGroupScopeType')
+    pass
 
 
 @strawberry_django.type(

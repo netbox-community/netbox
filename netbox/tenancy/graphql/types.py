@@ -17,7 +17,7 @@ __all__ = (
 
 
 class ContactAssignmentsMixin:
-    assignments = graphene.List('tenancy.graphql.types.ContactAssignmentType')
+    # assignments = graphene.List('tenancy.graphql.types.ContactAssignmentType')
 
     def resolve_assignments(self, info):
         return self.assignments.restrict(info.context.user, 'view')
@@ -30,7 +30,7 @@ class ContactAssignmentsMixin:
 @strawberry_django.type(
     models.Tenant,
     fields='__all__',
-    filters=TenantFilter
+    # filters=TenantFilter
 )
 class TenantType(NetBoxObjectType):
     pass
@@ -39,7 +39,7 @@ class TenantType(NetBoxObjectType):
 @strawberry_django.type(
     models.TenantGroup,
     fields='__all__',
-    filters=TenantGroupFilter
+    # filters=TenantGroupFilter
 )
 class TenantGroupType(OrganizationalObjectType):
     pass
@@ -52,7 +52,7 @@ class TenantGroupType(OrganizationalObjectType):
 @strawberry_django.type(
     models.Contact,
     fields='__all__',
-    filters=ContactFilter
+    # filters=ContactFilter
 )
 class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
     pass
@@ -61,7 +61,7 @@ class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
 @strawberry_django.type(
     models.ContactRole,
     fields='__all__',
-    filters=ContactRoleFilter
+    # filters=ContactRoleFilter
 )
 class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
     pass
@@ -70,7 +70,7 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
 @strawberry_django.type(
     models.ContactGroup,
     fields='__all__',
-    filters=ContactGroupFilter
+    # filters=ContactGroupFilter
 )
 class ContactGroupType(OrganizationalObjectType):
     pass
@@ -79,7 +79,7 @@ class ContactGroupType(OrganizationalObjectType):
 @strawberry_django.type(
     models.ContactAssignment,
     fields='__all__',
-    filters=ContactAssignmentFilter
+    # filters=ContactAssignmentFilter
 )
 class ContactAssignmentType(CustomFieldsMixin, TagsMixin, BaseObjectType):
     pass
