@@ -171,6 +171,15 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
             return True
 
         return ConditionSet(self.conditions).eval(data)
+    
+    def render_script_data(self, context):
+        """
+        Render Script Data, if defined. Otherwise, jump the context as a JSON object.
+        """
+        if self.action_data:
+            return render_jinja2(str(self.action_data), context)
+        else:
+            return json.dumps(context, cls=JSONEncoder)
 
 
 class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):

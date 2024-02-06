@@ -119,13 +119,22 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             script_name = event_rule.action_parameters['script_name']
             script = script_module.scripts[script_name]()
 
+            context = {
+                'event': event,
+                'timestamp': timezone.now().isoformat(),
+                'model': model_name,
+                'username': username,
+                'request_id': request_id,
+                'model': data,
+            }
+
             # Enqueue a Job to record the script's execution
             Job.enqueue(
                 "extras.scripts.run_script",
                 instance=script_module,
                 name=script.class_name,
                 user=user,
-                data=data
+                data=event_rule.render_script_data(context)
             )
 
         else:
