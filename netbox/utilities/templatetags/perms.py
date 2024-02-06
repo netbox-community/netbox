@@ -24,8 +24,9 @@ def can_view(user, instance):
 
 
 @register.filter()
-def can_add(user, instance):
-    return _check_permission(user, instance, 'add')
+def can_add(user, model):
+    permission = get_permission_for_model(model, 'add')
+    return user.has_perm(perm=permission)
 
 
 @register.filter()

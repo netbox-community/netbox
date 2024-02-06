@@ -134,7 +134,7 @@
               {% with first_available_ip=object.get_first_available_ip %}
                 {% if first_available_ip %}
                   {% if perms.ipam.add_ipaddress %}
-                    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}">{{ first_available_ip }}</a>
+                    <a href="{% url 'ipam:ipaddress_add' %}?address={{ first_available_ip }}{% if object.vrf %}&vrf={{ object.vrf_id }}{% endif %}{% if object.tenant %}&tenant={{ object.tenant.pk }}{% endif %}">{{ first_available_ip }}</a>
                   {% else %}
                     {{ first_available_ip }}
                   {% endif %}

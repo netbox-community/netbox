@@ -164,7 +164,7 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
         )),
     )
     nullable_fields = (
-        'preshared_key', 'description', 'comments',
+        'mode', 'preshared_key', 'description', 'comments',
     )
 
 

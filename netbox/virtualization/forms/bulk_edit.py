@@ -96,7 +96,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     description = forms.CharField(
-        label=_('Site'),
+        label=_('Description'),
         max_length=200,
         required=False
     )
