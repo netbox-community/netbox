@@ -1,12 +1,14 @@
-import graphene
+import strawberry
+import strawberry_django
 
-from dcim import filtersets, models
+from dcim import models
 from extras.graphql.mixins import (
     ChangelogMixin, ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
 
 __all__ = (
@@ -86,6 +88,11 @@ class ComponentTemplateObjectType(
 # Model types
 #
 
+@strawberry_django.type(
+    models.Cable,
+    fields='__all__',
+    filters=CableFilter
+)
 class CableType(NetBoxObjectType):
     a_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
     b_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
@@ -108,65 +115,65 @@ class CableType(NetBoxObjectType):
         return self.b_terminations
 
 
+@strawberry_django.type(
+    models.CableTermination,
+    exclude=('termination_type', 'termination_id'),
+    filters=CableTerminationFilter
+)
 class CableTerminationType(NetBoxObjectType):
     termination = graphene.Field('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
 
-    class Meta:
-        model = models.CableTermination
-        exclude = ('termination_type', 'termination_id')
-        filterset_class = filtersets.CableTerminationFilterSet
 
-
+@strawberry_django.type(
+    models.ConsolePort,
+    exclude=('_path',),
+    filters=ConsolePortFilter
+)
 class ConsolePortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
-    class Meta:
-        model = models.ConsolePort
-        exclude = ('_path',)
-        filterset_class = filtersets.ConsolePortFilterSet
-
     def resolve_type(self, info):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.ConsolePortTemplate,
+    fields='__all__',
+    filters=ConsolePortTemplateFilter
+)
 class ConsolePortTemplateType(ComponentTemplateObjectType):
 
-    class Meta:
-        model = models.ConsolePortTemplate
-        fields = '__all__'
-        filterset_class = filtersets.ConsolePortTemplateFilterSet
-
     def resolve_type(self, info):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.ConsoleServerPort,
+    exclude=('_path',),
+    filters=ConsoleServerPortFilter
+)
 class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
-    class Meta:
-        model = models.ConsoleServerPort
-        exclude = ('_path',)
-        filterset_class = filtersets.ConsoleServerPortFilterSet
-
     def resolve_type(self, info):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.ConsoleServerPortTemplate,
+    fields='__all__',
+    filters=ConsoleServerPortTemplateFilter
+)
 class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
 
-    class Meta:
-        model = models.ConsoleServerPortTemplate
-        fields = '__all__'
-        filterset_class = filtersets.ConsoleServerPortTemplateFilterSet
-
     def resolve_type(self, info):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.Device,
+    fields='__all__',
+    filters=DeviceFilter
+)
 class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
-
-    class Meta:
-        model = models.Device
-        fields = '__all__'
-        filterset_class = filtersets.DeviceFilterSet
 
     def resolve_face(self, info):
         return self.face or None
@@ -175,45 +182,48 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBo
         return self.airflow or None
 
 
+@strawberry_django.type(
+    models.DeviceBay,
+    fields='__all__',
+    filters=DeviceBayFilter
+)
 class DeviceBayType(ComponentObjectType):
-
-    class Meta:
-        model = models.DeviceBay
-        fields = '__all__'
-        filterset_class = filtersets.DeviceBayFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.DeviceBayTemplate,
+    fields='__all__',
+    filters=DeviceBayTemplateFilter
+)
 class DeviceBayTemplateType(ComponentTemplateObjectType):
-
-    class Meta:
-        model = models.DeviceBayTemplate
-        fields = '__all__'
-        filterset_class = filtersets.DeviceBayTemplateFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.InventoryItemTemplate,
+    exclude=('component_type', 'component_id'),
+    filters=InventoryItemTemplateFilter
+)
 class InventoryItemTemplateType(ComponentTemplateObjectType):
     component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemTemplateComponentType')
 
-    class Meta:
-        model = models.InventoryItemTemplate
-        exclude = ('component_type', 'component_id')
-        filterset_class = filtersets.InventoryItemTemplateFilterSet
 
-
+@strawberry_django.type(
+    models.DeviceRole,
+    fields='__all__',
+    filters=DeviceRoleFilter
+)
 class DeviceRoleType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.DeviceRole
-        fields = '__all__'
-        filterset_class = filtersets.DeviceRoleFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.DeviceType,
+    fields='__all__',
+    filters=DeviceTypeFilter
+)
 class DeviceTypeType(NetBoxObjectType):
-
-    class Meta:
-        model = models.DeviceType
-        fields = '__all__'
-        filterset_class = filtersets.DeviceTypeFilterSet
 
     def resolve_subdevice_role(self, info):
         return self.subdevice_role or None
@@ -225,28 +235,30 @@ class DeviceTypeType(NetBoxObjectType):
         return self.weight_unit or None
 
 
+@strawberry_django.type(
+    models.FrontPort,
+    fields='__all__',
+    filters=FrontPortFilter
+)
 class FrontPortType(ComponentObjectType, CabledObjectMixin):
-
-    class Meta:
-        model = models.FrontPort
-        fields = '__all__'
-        filterset_class = filtersets.FrontPortFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.FrontPortTemplate,
+    fields='__all__',
+    filters=FrontPortTemplateFilter
+)
 class FrontPortTemplateType(ComponentTemplateObjectType):
-
-    class Meta:
-        model = models.FrontPortTemplate
-        fields = '__all__'
-        filterset_class = filtersets.FrontPortTemplateFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Interface,
+    exclude=('_path',),
+    filters=InterfaceFilter
+)
 class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
-
-    class Meta:
-        model = models.Interface
-        exclude = ('_path',)
-        filterset_class = filtersets.InterfaceFilterSet
 
     def resolve_poe_mode(self, info):
         return self.poe_mode or None
@@ -264,12 +276,12 @@ class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin, Pa
         return self.rf_channel or None
 
 
+@strawberry_django.type(
+    models.InterfaceTemplate,
+    fields='__all__',
+    filters=InterfaceTemplateFilter
+)
 class InterfaceTemplateType(ComponentTemplateObjectType):
-
-    class Meta:
-        model = models.InterfaceTemplate
-        fields = '__all__'
-        filterset_class = filtersets.InterfaceTemplateFilterSet
 
     def resolve_poe_mode(self, info):
         return self.poe_mode or None
@@ -281,97 +293,105 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
         return self.rf_role or None
 
 
+@strawberry_django.type(
+    models.InventoryItem,
+    exclude=('component_type', 'component_id'),
+    filters=InventoryItemFilter
+)
 class InventoryItemType(ComponentObjectType):
     component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')
 
-    class Meta:
-        model = models.InventoryItem
-        exclude = ('component_type', 'component_id')
-        filterset_class = filtersets.InventoryItemFilterSet
 
-
+@strawberry_django.type(
+    models.InventoryItemRole,
+    fields='__all__',
+    filters=InventoryItemRoleFilter
+)
 class InventoryItemRoleType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.InventoryItemRole
-        fields = '__all__'
-        filterset_class = filtersets.InventoryItemRoleFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Location,
+    fields='__all__',
+    filters=LocationFilter
+)
 class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, OrganizationalObjectType):
-
-    class Meta:
-        model = models.Location
-        fields = '__all__'
-        filterset_class = filtersets.LocationFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Manufacturer,
+    fields='__all__',
+    filters=ManufacturerFilter
+)
 class ManufacturerType(OrganizationalObjectType, ContactsMixin):
-
-    class Meta:
-        model = models.Manufacturer
-        fields = '__all__'
-        filterset_class = filtersets.ManufacturerFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Module,
+    fields='__all__',
+    filters=ModuleFilter
+)
 class ModuleType(ComponentObjectType):
-
-    class Meta:
-        model = models.Module
-        fields = '__all__'
-        filterset_class = filtersets.ModuleFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.ModuleBay,
+    fields='__all__',
+    filters=ModuleBayFilter
+)
 class ModuleBayType(ComponentObjectType):
-
-    class Meta:
-        model = models.ModuleBay
-        fields = '__all__'
-        filterset_class = filtersets.ModuleBayFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.ModuleBayTemplate,
+    fields='__all__',
+    filters=ModuleBayTemplateFilter
+)
 class ModuleBayTemplateType(ComponentTemplateObjectType):
-
-    class Meta:
-        model = models.ModuleBayTemplate
-        fields = '__all__'
-        filterset_class = filtersets.ModuleBayTemplateFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.ModuleType,
+    fields='__all__',
+    filters=ModuleTypeFilter
+)
 class ModuleTypeType(NetBoxObjectType):
-
-    class Meta:
-        model = models.ModuleType
-        fields = '__all__'
-        filterset_class = filtersets.ModuleTypeFilterSet
 
     def resolve_weight_unit(self, info):
         return self.weight_unit or None
 
 
+@strawberry_django.type(
+    models.Platform,
+    fields='__all__',
+    filters=PlatformFilter
+)
 class PlatformType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.Platform
-        fields = '__all__'
-        filterset_class = filtersets.PlatformFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.PowerFeed,
+    exclude=('_path',),
+    filters=PowerFeedFilter
+)
 class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
-
-    class Meta:
-        model = models.PowerFeed
-        exclude = ('_path',)
-        filterset_class = filtersets.PowerFeedFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.PowerOutlet,
+    exclude=('_path',),
+    filters=PowerOutletFilter
+)
 class PowerOutletType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
-    class Meta:
-        model = models.PowerOutlet
-        exclude = ('_path',)
-        filterset_class = filtersets.PowerOutletFilterSet
-
     def resolve_feed_leg(self, info):
         return self.feed_leg or None
 
@@ -379,13 +399,13 @@ class PowerOutletType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin)
         return self.type or None
 
 
+@strawberry_django.type(
+    models.PowerOutletTemplate,
+    fields='__all__',
+    filters=PowerOutletTemplateFilter
+)
 class PowerOutletTemplateType(ComponentTemplateObjectType):
 
-    class Meta:
-        model = models.PowerOutletTemplate
-        fields = '__all__'
-        filterset_class = filtersets.PowerOutletTemplateFilterSet
-
     def resolve_feed_leg(self, info):
         return self.feed_leg or None
 
@@ -393,42 +413,43 @@ class PowerOutletTemplateType(ComponentTemplateObjectType):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.PowerPanel,
+    fields='__all__',
+    filters=PowerPanelFilter
+)
 class PowerPanelType(NetBoxObjectType, ContactsMixin):
-
-    class Meta:
-        model = models.PowerPanel
-        fields = '__all__'
-        filterset_class = filtersets.PowerPanelFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.PowerPort,
+    exclude=('_path',),
+    filters=PowerPortFilter
+)
 class PowerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
 
-    class Meta:
-        model = models.PowerPort
-        exclude = ('_path',)
-        filterset_class = filtersets.PowerPortFilterSet
-
     def resolve_type(self, info):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.PowerPortTemplate,
+    fields='__all__',
+    filters=PowerPortTemplateFilter
+)
 class PowerPortTemplateType(ComponentTemplateObjectType):
 
-    class Meta:
-        model = models.PowerPortTemplate
-        fields = '__all__'
-        filterset_class = filtersets.PowerPortTemplateFilterSet
-
     def resolve_type(self, info):
         return self.type or None
 
 
+@strawberry_django.type(
+    models.Rack,
+    fields='__all__',
+    filters=RackFilter
+)
 class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
-
-    class Meta:
-        model = models.Rack
-        fields = '__all__'
-        filterset_class = filtersets.RackFilterSet
 
     def resolve_type(self, info):
         return self.type or None
@@ -440,74 +461,82 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
         return self.weight_unit or None
 
 
+@strawberry_django.type(
+    models.RackReservation,
+    fields='__all__',
+    filters=RackReservationFilter
+)
 class RackReservationType(NetBoxObjectType):
-
-    class Meta:
-        model = models.RackReservation
-        fields = '__all__'
-        filterset_class = filtersets.RackReservationFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.RackRole,
+    fields='__all__',
+    filters=RackRoleFilter
+)
 class RackRoleType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.RackRole
-        fields = '__all__'
-        filterset_class = filtersets.RackRoleFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.RearPort,
+    fields='__all__',
+    filters=RearPortFilter
+)
 class RearPortType(ComponentObjectType, CabledObjectMixin):
-
-    class Meta:
-        model = models.RearPort
-        fields = '__all__'
-        filterset_class = filtersets.RearPortFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.RearPortTemplate,
+    fields='__all__',
+    filters=RearPortTemplateFilter
+)
 class RearPortTemplateType(ComponentTemplateObjectType):
-
-    class Meta:
-        model = models.RearPortTemplate
-        fields = '__all__'
-        filterset_class = filtersets.RearPortTemplateFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Region,
+    fields='__all__',
+    filters=RegionFilter
+)
 class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
-
-    class Meta:
-        model = models.Region
-        fields = '__all__'
-        filterset_class = filtersets.RegionFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Site,
+    fields='__all__',
+    filters=SiteFilter
+)
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     asn = graphene.Field(BigInt)
 
-    class Meta:
-        model = models.Site
-        fields = '__all__'
-        filterset_class = filtersets.SiteFilterSet
 
-
+@strawberry_django.type(
+    models.SiteGroup,
+    fields='__all__',
+    filters=SiteGroupFilter
+)
 class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
-
-    class Meta:
-        model = models.SiteGroup
-        fields = '__all__'
-        filterset_class = filtersets.SiteGroupFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.VirtualChassis,
+    fields='__all__',
+    filters=VirtualChassisFilter
+)
 class VirtualChassisType(NetBoxObjectType):
-
-    class Meta:
-        model = models.VirtualChassis
-        fields = '__all__'
-        filterset_class = filtersets.VirtualChassisFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.VirtualDeviceContext,
+    fields='__all__',
+    filters=VirtualDeviceContextFilter
+)
 class VirtualDeviceContextType(NetBoxObjectType):
-
-    class Meta:
-        model = models.VirtualDeviceContext
-        fields = '__all__'
-        filterset_class = filtersets.VirtualDeviceContextFilterSet
+    pass

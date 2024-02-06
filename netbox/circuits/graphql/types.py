@@ -6,7 +6,6 @@ from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
 from .filters import *
-from typing import List
 
 __all__ = (
     'CircuitTerminationType',

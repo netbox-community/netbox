@@ -1,8 +1,10 @@
-import graphene
+import strawberry
+import strawberry_django
 
-from ipam import filtersets, models
+from ipam import models
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+from .filters import *
 
 __all__ = (
     'ASNType',
@@ -46,142 +48,152 @@ class BaseIPAddressFamilyType:
         return IPAddressFamilyType(self.family)
 
 
+@strawberry_django.type(
+    models.ASN,
+    fields='__all__',
+    filters=ProviderFilter
+)
 class ASNType(NetBoxObjectType):
     asn = graphene.Field(BigInt)
 
-    class Meta:
-        model = models.ASN
-        fields = '__all__'
-        filterset_class = filtersets.ASNFilterSet
 
-
+@strawberry_django.type(
+    models.ASNRange,
+    fields='__all__',
+    filters=ASNRangeFilter
+)
 class ASNRangeType(NetBoxObjectType):
-
-    class Meta:
-        model = models.ASNRange
-        fields = '__all__'
-        filterset_class = filtersets.ASNRangeFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Aggregate,
+    fields='__all__',
+    filters=AggregateFilter
+)
 class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
-
-    class Meta:
-        model = models.Aggregate
-        fields = '__all__'
-        filterset_class = filtersets.AggregateFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.FHRPGroup,
+    fields='__all__',
+    filters=FHRPGroupFilter
+)
 class FHRPGroupType(NetBoxObjectType):
-
-    class Meta:
-        model = models.FHRPGroup
-        fields = '__all__'
-        filterset_class = filtersets.FHRPGroupFilterSet
 
     def resolve_auth_type(self, info):
         return self.auth_type or None
 
 
+@strawberry_django.type(
+    models.FHRPGroupAssignment,
+    exclude=('interface_type', 'interface_id'),
+    filters=FHRPGroupAssignmentFilter
+)
 class FHRPGroupAssignmentType(BaseObjectType):
     interface = graphene.Field('ipam.graphql.gfk_mixins.FHRPGroupInterfaceType')
 
-    class Meta:
-        model = models.FHRPGroupAssignment
-        exclude = ('interface_type', 'interface_id')
-        filterset_class = filtersets.FHRPGroupAssignmentFilterSet
 
-
+@strawberry_django.type(
+    models.IPAddress,
+    exclude=('assigned_object_type', 'assigned_object_id'),
+    filters=IPAddressFilter
+)
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
 
-    class Meta:
-        model = models.IPAddress
-        exclude = ('assigned_object_type', 'assigned_object_id')
-        filterset_class = filtersets.IPAddressFilterSet
-
     def resolve_role(self, info):
         return self.role or None
 
 
+@strawberry_django.type(
+    models.IPRange,
+    fields='__all__',
+    filters=IPRangeFilter
+)
 class IPRangeType(NetBoxObjectType):
 
-    class Meta:
-        model = models.IPRange
-        fields = '__all__'
-        filterset_class = filtersets.IPRangeFilterSet
-
     def resolve_role(self, info):
         return self.role or None
 
 
+@strawberry_django.type(
+    models.Prefix,
+    fields='__all__',
+    filters=PrefixFilter
+)
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
-
-    class Meta:
-        model = models.Prefix
-        fields = '__all__'
-        filterset_class = filtersets.PrefixFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.RIR,
+    fields='__all__',
+    filters=RIRFilter
+)
 class RIRType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.RIR
-        fields = '__all__'
-        filterset_class = filtersets.RIRFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Role,
+    fields='__all__',
+    filters=RoleFilter
+)
 class RoleType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.Role
-        fields = '__all__'
-        filterset_class = filtersets.RoleFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.RouteTarget,
+    fields='__all__',
+    filters=RouteTargetFilter
+)
 class RouteTargetType(NetBoxObjectType):
-
-    class Meta:
-        model = models.RouteTarget
-        fields = '__all__'
-        filterset_class = filtersets.RouteTargetFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Service,
+    fields='__all__',
+    filters=ServiceFilter
+)
 class ServiceType(NetBoxObjectType):
-
-    class Meta:
-        model = models.Service
-        fields = '__all__'
-        filterset_class = filtersets.ServiceFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.ServiceTemplate,
+    fields='__all__',
+    filters=ServiceTemplateFilter
+)
 class ServiceTemplateType(NetBoxObjectType):
-
-    class Meta:
-        model = models.ServiceTemplate
-        fields = '__all__'
-        filterset_class = filtersets.ServiceTemplateFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.VLAN,
+    fields='__all__',
+    filters=VLANFilter
+)
 class VLANType(NetBoxObjectType):
-
-    class Meta:
-        model = models.VLAN
-        fields = '__all__'
-        filterset_class = filtersets.VLANFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.VLANGroup,
+    exclude=('scope_type', 'scope_id'),
+    filters=VLANGroupFilter
+)
 class VLANGroupType(OrganizationalObjectType):
     scope = graphene.Field('ipam.graphql.gfk_mixins.VLANGroupScopeType')
 
-    class Meta:
-        model = models.VLANGroup
-        exclude = ('scope_type', 'scope_id')
-        filterset_class = filtersets.VLANGroupFilterSet
 
-
+@strawberry_django.type(
+    models.VRF,
+    fields='__all__',
+    filters=VRFFilter
+)
 class VRFType(NetBoxObjectType):
-
-    class Meta:
-        model = models.VRF
-        fields = '__all__'
-        filterset_class = filtersets.VRFFilterSet
+    pass

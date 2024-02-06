@@ -1,8 +1,11 @@
 import strawberry
+import strawberry_django
+
+import strawberry
 from strawberry import auto
 import strawberry_django
 
-from extras import filtersets, models
+from extras import models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, ObjectType, OrganizationalObjectType
 from .filters import *

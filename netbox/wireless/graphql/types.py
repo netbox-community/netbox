@@ -1,5 +1,9 @@
-from wireless import filtersets, models
+import strawberry
+import strawberry_django
+
+from wireless import models
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
+from .filters import *
 
 __all__ = (
     'WirelessLANType',
@@ -8,20 +12,21 @@ __all__ = (
 )
 
 
+@strawberry_django.type(
+    models.WirelessLANGroup,
+    fields='__all__',
+    filters=WirelessLANGroupFilter
+)
 class WirelessLANGroupType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.WirelessLANGroup
-        fields = '__all__'
-        filterset_class = filtersets.WirelessLANGroupFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.WirelessLAN,
+    fields='__all__',
+    filters=WirelessLANFilter
+)
 class WirelessLANType(NetBoxObjectType):
-
-    class Meta:
-        model = models.WirelessLAN
-        fields = '__all__'
-        filterset_class = filtersets.WirelessLANFilterSet
 
     def resolve_auth_type(self, info):
         return self.auth_type or None
@@ -30,12 +35,12 @@ class WirelessLANType(NetBoxObjectType):
         return self.auth_cipher or None
 
 
+@strawberry_django.type(
+    models.WirelessLink,
+    fields='__all__',
+    filters=WirelessLinkFilter
+)
 class WirelessLinkType(NetBoxObjectType):
-
-    class Meta:
-        model = models.WirelessLink
-        fields = '__all__'
-        filterset_class = filtersets.WirelessLinkFilterSet
 
     def resolve_auth_type(self, info):
         return self.auth_type or None

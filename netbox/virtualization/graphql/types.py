@@ -1,8 +1,12 @@
+import strawberry
+import strawberry_django
+
 from dcim.graphql.types import ComponentObjectType
 from extras.graphql.mixins import ConfigContextMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
-from virtualization import filtersets, models
+from virtualization import models
+from .filters import *
 
 __all__ = (
     'ClusterType',
@@ -14,55 +18,59 @@ __all__ = (
 )
 
 
+@strawberry_django.type(
+    models.Cluster,
+    fields='__all__',
+    filters=ClusterFilter
+)
 class ClusterType(VLANGroupsMixin, NetBoxObjectType):
-
-    class Meta:
-        model = models.Cluster
-        fields = '__all__'
-        filterset_class = filtersets.ClusterFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.ClusterGroup,
+    fields='__all__',
+    filters=ClusterGroupFilter
+)
 class ClusterGroupType(VLANGroupsMixin, OrganizationalObjectType):
-
-    class Meta:
-        model = models.ClusterGroup
-        fields = '__all__'
-        filterset_class = filtersets.ClusterGroupFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.ClusterType,
+    fields='__all__',
+    filters=ClusterTypeFilter
+)
 class ClusterTypeType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.ClusterType
-        fields = '__all__'
-        filterset_class = filtersets.ClusterTypeFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.VirtualMachine,
+    fields='__all__',
+    filters=VirtualMachineFilter
+)
 class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
-
-    class Meta:
-        model = models.VirtualMachine
-        fields = '__all__'
-        filterset_class = filtersets.VirtualMachineFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.VMInterface,
+    fields='__all__',
+    filters=VMInterfaceFilter
+)
 class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
-
-    class Meta:
-        model = models.VMInterface
-        fields = '__all__'
-        filterset_class = filtersets.VMInterfaceFilterSet
 
     def resolve_mode(self, info):
         return self.mode or None
 
 
+@strawberry_django.type(
+    models.VirtualDisk,
+    fields='__all__',
+    filters=VirtualDiskFilter
+)
 class VirtualDiskType(ComponentObjectType):
-
-    class Meta:
-        model = models.VirtualDisk
-        fields = '__all__'
-        filterset_class = filtersets.VirtualDiskFilterSet
 
     def resolve_mode(self, info):
         return self.mode or None

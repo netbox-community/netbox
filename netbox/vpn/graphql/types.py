@@ -1,8 +1,10 @@
-import graphene
+import strawberry
+import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
-from vpn import filtersets, models
+from vpn import models
+from .filters import *
 
 __all__ = (
     'IKEPolicyType',
@@ -18,81 +20,91 @@ __all__ = (
 )
 
 
+@strawberry_django.type(
+    models.TunnelGroup,
+    fields='__all__',
+    filters=TunnelGroupFilter
+)
 class TunnelGroupType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.TunnelGroup
-        fields = '__all__'
-        filterset_class = filtersets.TunnelGroupFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.TunnelTermination,
+    fields='__all__',
+    filters=TunnelTerminationFilter
+)
 class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
-
-    class Meta:
-        model = models.TunnelTermination
-        fields = '__all__'
-        filterset_class = filtersets.TunnelTerminationFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.Tunnel,
+    fields='__all__',
+    filters=TunnelFilter
+)
 class TunnelType(NetBoxObjectType):
-
-    class Meta:
-        model = models.Tunnel
-        fields = '__all__'
-        filterset_class = filtersets.TunnelFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.IKEProposal,
+    fields='__all__',
+    filters=IKEProposalFilter
+)
 class IKEProposalType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.IKEProposal
-        fields = '__all__'
-        filterset_class = filtersets.IKEProposalFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.IKEPolicy,
+    fields='__all__',
+    filters=IKEPolicyFilter
+)
 class IKEPolicyType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.IKEPolicy
-        fields = '__all__'
-        filterset_class = filtersets.IKEPolicyFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.IPSecProposal,
+    fields='__all__',
+    filters=IPSecProposalFilter
+)
 class IPSecProposalType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.IPSecProposal
-        fields = '__all__'
-        filterset_class = filtersets.IPSecProposalFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.IPSecPolicy,
+    fields='__all__',
+    filters=IPSecPolicyFilter
+)
 class IPSecPolicyType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.IPSecPolicy
-        fields = '__all__'
-        filterset_class = filtersets.IPSecPolicyFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.IPSecProfile,
+    fields='__all__',
+    filters=IPSecProfileFilter
+)
 class IPSecProfileType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.IPSecProfile
-        fields = '__all__'
-        filterset_class = filtersets.IPSecProfileFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.L2VPN,
+    fields='__all__',
+    filters=L2VPNFilter
+)
 class L2VPNType(ContactsMixin, NetBoxObjectType):
-    class Meta:
-        model = models.L2VPN
-        fields = '__all__'
-        filtersets_class = filtersets.L2VPNFilterSet
+    pass
 
 
+@strawberry_django.type(
+    models.L2VPNTermination,
+    exclude=('assigned_object_type', 'assigned_object_id'),
+    filters=L2VPNTerminationFilter
+)
 class L2VPNTerminationType(NetBoxObjectType):
     assigned_object = graphene.Field('vpn.graphql.gfk_mixins.L2VPNAssignmentType')
-
-    class Meta:
-        model = models.L2VPNTermination
-        exclude = ('assigned_object_type', 'assigned_object_id')
-        filtersets_class = filtersets.L2VPNTerminationFilterSet

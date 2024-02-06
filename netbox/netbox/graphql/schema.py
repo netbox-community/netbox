@@ -9,24 +9,21 @@ from users.graphql.schema import UsersQuery
 
 
 @strawberry.type
-class Query(CircuitsQuery, UsersQuery):
+class Query(
+    UsersQuery,
+    # CircuitsQuery,
+    #     CoreQuery,
+    #     DCIMQuery,
+    #     ExtrasQuery,
+    #     IPAMQuery,
+    #     TenancyQuery,
+    #     VirtualizationQuery,
+    #     VPNQuery,
+    #     WirelessQuery,
+    #     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
+    #     graphene.ObjectType
+):
     pass
-
-# class Query(
-#     UsersQuery,
-#     CircuitsQuery,
-#     CoreQuery,
-#     DCIMQuery,
-#     ExtrasQuery,
-#     IPAMQuery,
-#     TenancyQuery,
-#     VirtualizationQuery,
-#     VPNQuery,
-#     WirelessQuery,
-#     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
-#     graphene.ObjectType
-# ):
-#     pass
 
 
 schema = strawberry.Schema(
