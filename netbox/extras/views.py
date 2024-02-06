@@ -1209,7 +1209,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
-        script_modules = ScriptModule.objects.restrict(request.user)
+        script_modules = ScriptModule.objects.restrict(request.user).prefetch_related('jobs')
 
         return render(request, 'extras/script_list.html', {
             'model': ScriptModule,
@@ -1229,7 +1229,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, pk):
         script = Script.objects.get(pk=pk)
         script_class = script.python_class()
-        jobs = script.get_jobs()
+        jobs = script.jobs.all()
         form = script_class.as_form(initial=normalize_querydict(request.GET))
 
         return render(request, 'extras/script.html', {
@@ -1246,7 +1246,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
 
         script = Script.objects.get(pk=pk)
         script_class = script.python_class()
-        jobs = script.get_jobs()
+        jobs = script.jobs.all()
         form = script_class.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
@@ -1256,7 +1256,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         elif form.is_valid():
             job = Job.enqueue(
                 run_script,
-                instance=script.module,
+                instance=script,
                 name=script_class.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
@@ -1286,7 +1286,7 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, pk):
         script = Script.objects.get(pk=pk)
         script_class = script.python_class()
-        jobs = script.get_jobs()
+        jobs = script.jobs.all()
 
         return render(request, 'extras/script/source.html', {
             'job_count': jobs.count(),
@@ -1305,7 +1305,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, pk):
         script = Script.objects.get(pk=pk)
         script_class = script.python_class()
-        jobs = script.get_jobs()
+        jobs = script.jobs.all()
 
         jobs_table = JobTable(
             data=jobs,

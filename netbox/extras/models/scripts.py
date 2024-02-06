@@ -50,11 +50,6 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     def python_class(self):
         return self.module.get_module_scripts.get(self.name)
 
-    def get_jobs(self):
-        return self.module.jobs.filter(
-            name=self.name
-        )
-
 
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
 

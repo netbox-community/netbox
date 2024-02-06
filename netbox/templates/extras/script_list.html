@@ -52,31 +52,29 @@
               </tr>
             </thead>
             <tbody>
-              {% with jobs=module.get_latest_jobs %}
-                {% for script in module.scripts.all %}
-                  <tr>
-                    <td>
-                      <a href="{% url 'extras:script' script.id %}" name="script.{{ script.name }}">{{ script.python_class.name }}</a>
-                    </td>
-                    <td>
-                      {{ script.python_class.Meta.description|markdown|placeholder }}
-                    </td>
-                    {% with last_result=jobs|get_key:script.python_class.class_name %}
-                      {% if last_result %}
-                        <td>
-                          <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
-                        </td>
-                        <td class="text-end">
-                          {% badge last_result.get_status_display last_result.get_status_color %}
-                        </td>
-                      {% else %}
-                        <td class="text-muted">{% trans "Never" %}</td>
-                        <td class="text-end">{{ ''|placeholder }}</td>
-                      {% endif %}
-                    {% endwith %}
+              {% for script in module.scripts.all %}
+                <tr>
+                  <td>
+                    <a href="{% url 'extras:script' script.id %}" name="script.{{ script.name }}">{{ script.python_class.name }}</a>
+                  </td>
+                  <td>
+                    {{ script.python_class.Meta.description|markdown|placeholder }}
+                  </td>
+                  {% with last_result=script.get_latest_jobs|get_key:script.name %}
+                    {% if last_result %}
+                      <td>
+                        <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
+                      </td>
+                      <td class="text-end">
+                        {% badge last_result.get_status_display last_result.get_status_color %}
+                      </td>
+                    {% else %}
+                      <td class="text-muted">{% trans "Never" %}</td>
+                      <td class="text-end">{{ ''|placeholder }}</td>
+                    {% endif %}
                   </tr>
-                {% endfor %}
-              {% endwith %}
+                {% endwith %}
+              {% endfor %}
             </tbody>
           </table>
         {% endif %}

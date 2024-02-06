@@ -19,7 +19,7 @@ def update_scripts(apps, schema_editor):
             )
 
             # update all jobs associated with this module/name to point to the new script obj
-            module.jobs.filter(name=name).update(object_type=ct, object_id=obj.id)
+            module.jobs.filter(name=script).update(object_type=ct, object_id=obj.id)
 
 
 class Migration(migrations.Migration):
