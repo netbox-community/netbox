@@ -16,7 +16,7 @@ from core.choices import JobStatusChoices
 from core.models import Job
 from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import LogLevelChoices
-from extras.models import ScriptModule
+from extras.models import ScriptModule, Script as ScriptModel
 from extras.signals import clear_events
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
@@ -485,8 +485,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     """
     job.start()
 
-    module = ScriptModule.objects.get(pk=job.object_id)
-    script = module.scripts.get(job.name)()
+    script = ScriptModel.objects.get(pk=job.object_id).python_class()
 
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")

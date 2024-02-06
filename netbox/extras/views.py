@@ -1252,7 +1252,6 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         # Allow execution only if RQ worker process is running
         if not get_workers_for_queue('default'):
             messages.error(request, "Unable to run script: RQ worker process not running.")
-
         elif form.is_valid():
             job = Job.enqueue(
                 run_script,
@@ -1263,7 +1262,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
                 interval=form.cleaned_data.pop('_interval'),
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
-                job_timeout=script.job_timeout,
+                job_timeout=script.python_class.job_timeout,
                 commit=form.cleaned_data.pop('_commit')
             )
 
@@ -1329,11 +1328,10 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, job_pk):
-        object_type = ContentType.objects.get_by_natural_key(app_label='extras', model='scriptmodule')
+        object_type = ContentType.objects.get_by_natural_key(app_label='extras', model='script')
         job = get_object_or_404(Job.objects.all(), pk=job_pk, object_type=object_type)
 
-        module = job.object
-        script = module.scripts[job.name]()
+        script = job.object
 
         # If this is an HTMX request, return only the result HTML
         if request.htmx:
