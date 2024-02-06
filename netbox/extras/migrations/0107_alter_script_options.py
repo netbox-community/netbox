@@ -9,7 +9,7 @@ def update_scripts(apps, schema_editor):
     ScriptModuleNew = apps.get_model('extras', 'ScriptModule')
     Script = apps.get_model('extras', 'Script')
     ContentType = apps.get_model('contenttypes', 'ContentType')
-    ct = ContentType.objects.get(app_label='extras', model='script')
+    ct = ContentType.objects.filter(app_label='extras', model='script').first()
 
     for module in ScriptModule.objects.all():
         for script in module.get_module_scripts.keys():
@@ -19,7 +19,8 @@ def update_scripts(apps, schema_editor):
             )
 
             # update all jobs associated with this module/name to point to the new script obj
-            module.jobs.filter(name=script).update(object_type=ct, object_id=obj.id)
+            if ct:
+                module.jobs.filter(name=script).update(object_type=ct, object_id=obj.id)
 
 
 class Migration(migrations.Migration):
