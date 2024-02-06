@@ -77,7 +77,6 @@ class DynamicModelChoiceMixin:
             initial_params=None,
             null_option=None,
             disabled_indicator=None,
-            empty_label=None,
             selector=False,
             **kwargs
     ):
@@ -88,14 +87,10 @@ class DynamicModelChoiceMixin:
         self.disabled_indicator = disabled_indicator
         self.selector = selector
 
-        self.empty_option = empty_label or ""
-
         super().__init__(queryset, **kwargs)
 
     def widget_attrs(self, widget):
-        attrs = {
-            'data-empty-option': self.empty_option
-        }
+        attrs = {}
 
         # Set the string used to represent a null option
         if self.null_option is not None:
