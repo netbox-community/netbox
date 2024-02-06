@@ -2,9 +2,9 @@
 {% if feed and not feed.bozo %}
   <div class="list-group list-group-flush">
     {% for entry in feed.entries %}
-      <div class="list-group-item px-1">
-        <h6><a href="{{ entry.link }}">{{ entry.title }}</a></h6>
-        <div>
+      <div class="list-group-item px-1 py-2">
+        <a href="{{ entry.link }}" class="text-body">{{ entry.title }}</a>
+        <div class="text-secondary">
           {{ entry.summary|safe }}
         </div>
       </div>

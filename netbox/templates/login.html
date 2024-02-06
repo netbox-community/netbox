@@ -5,77 +5,77 @@
 {% load i18n %}
 
 {% block layout %}
-  <main class="login-container text-center">
 
-    {# Login banner #}
-    {% if config.BANNER_LOGIN %}
-      <div class="mw-90 mw-md-75 mw-lg-80 mw-xl-75 mw-xxl-50">
-        {{ config.BANNER_LOGIN|safe }}
+  <div class="page page-center">
+    <div class="container container-tight py-4">
+
+      {# NetBox logo #}
+      <div class="text-center mb-4">
+        <img src="{% static 'netbox_logo.svg' %}" height="80" alt="{% trans "NetBox logo" %}" />
       </div>
-    {% endif %}
 
-    {# Login form errors #}
-    {% if form.non_field_errors %}
-      <div class="alert alert-danger" role="alert">
-        <h4 class="alert-heading">{% trans "Errors" %}</h4>
-        <p>
-          {{ form.non_field_errors }}
-        </p>
-      </div>
-    {% endif %}
+      {# Login banner #}
+      {% if config.BANNER_LOGIN %}
+        <div class="mb-5 text-center">
+          {{ config.BANNER_LOGIN|safe }}
+        </div>
+      {% endif %}
 
-    {# Login form #}
-    <div class="form-login">
-      <form action="{% url 'login' %}" method="post">
-        {% csrf_token %}
+      {# Login form errors #}
+      {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          <h4 class="alert-heading">{% trans "Errors" %}</h4>
+          <p>
+            {{ form.non_field_errors }}
+          </p>
+        </div>
+      {% endif %}
 
-        {# Logo #}
-        <div class="mb-4">
-          <img src="{% static 'netbox_logo.svg' %}" height="80" alt="{% trans "NetBox logo" %}" />
+      <div class="card card-md">
+        <div class="card-body">
+          <h2 class="text-center mb-4">{% trans "Log In" %}</h2>
+
+          {# Login form #}
+          <form action="{% url 'login' %}" method="post">
+            {% csrf_token %}
+
+            {# Set post-login URL #}
+            {% if 'next' in request.GET %}
+              <input type="hidden" name="next" value="{{ request.GET.next }}" />
+            {% elif 'next' in request.POST %}
+              <input type="hidden" name="next" value="{{ request.POST.next }}" />
+            {% endif %}
+
+            {% render_form form %}
+
+            <div class="form-footer">
+              <button type="submit" class="btn btn-primary w-100">
+                {% trans "Sign In" %}
+              </button>
+            </div>
+          </form>
         </div>
 
-        {# Set post-login URL #}
-        {% if 'next' in request.GET %}
-        <input type="hidden" name="next" value="{{ request.GET.next }}" />
-        {% endif %} {% if 'next' in request.POST %}
-        <input type="hidden" name="next" value="{{ request.POST.next }}" />
+        {# SSO login #}
+        {% if auth_backends %}
+          <div class="hr-text">{% trans "Or" context "Denotes an alternative option" %}</div>
+          <div class="card-body">
+            <div class="row">
+              {% for backend in auth_backends %}
+                <div class="col">
+                  <a href="{{ backend.url }}" class="btn w-100">
+                    {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
+                    {{ backend.display_name }}
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
         {% endif %}
 
-        {{ form.username }}
-        {{ form.password }}
-
-        <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">
-          {% trans "Sign In" %}
-        </button>
-      </form>
-    </div>
-
-    {% if auth_backends %}
-      <h6 class="mt-4 mb-3">{% trans "Or use a single sign-on (SSO) provider" %}:</h6>
-      {% for backend in auth_backends %}
-        <h5>
-          {% if backend.icon_name %}<i class="mdi mdi-{{ backend.icon_name }}"></i>{% endif %}
-          <a href="{{ backend.url }}" class="my-2">{{ backend.display_name }}</a>
-        </h5>
-      {% endfor %}
-    {% endif %}
-  </main>
-
-  {# Page footer #}
-  <footer class="footer container-fluid login-footer p-3">
-    <div class="row align-items-center w-100">
-      <div class="col-2 col-md-1 mb-0">
-        <button type="button" class="btn btn-sm color-mode-toggle" title="{% trans "Toggle Color Mode" %}">
-          <i class="color-mode-icon mdi mdi-lightbulb"></i>&nbsp;
-        </button>
       </div>
-      <div class="col-1 col-md-auto mb-0"></div>
-      <div class="col text-end mb-0">
-        <small class="text-muted">
-          {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
-        </small>
-      </div>
+
     </div>
-  </footer>
+  </div>
 
 {% endblock layout %}

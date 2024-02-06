@@ -5,7 +5,7 @@
 
 {% block extra_controls %}
   {% if perms.vpn.add_tunneltermination %}
-    <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary">
       <i class="mdi mdi-plus-thick"></i> {% trans "Add Termination" %}
     </a>
   {% endif %}
@@ -16,47 +16,45 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Tunnel" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Status" %}</th>
-              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Group" %}</th>
-              <td>{{ object.group|linkify|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Encapsulation" %}</th>
-              <td>{{ object.get_encapsulation_display }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "IPSec profile" %}</th>
-              <td>{{ object.ipsec_profile|linkify|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Tunnel ID" %}</th>
-              <td>{{ object.tunnel_id|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Tenant" %}</th>
-              <td>
-                {% if object.tenant.group %}
-                  {{ object.tenant.group|linkify }} /
-                {% endif %}
-                {{ object.tenant|linkify|placeholder }}
-              </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Group" %}</th>
+            <td>{{ object.group|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Encapsulation" %}</th>
+            <td>{{ object.get_encapsulation_display }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "IPSec profile" %}</th>
+            <td>{{ object.ipsec_profile|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tunnel ID" %}</th>
+            <td>{{ object.tunnel_id|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>
@@ -70,18 +68,17 @@
   <div class="row">
     <div class="col col-md-12">
       <div class="card">
-        <h5 class="card-header">{% trans "Terminations" %}</h5>
-        <div class="card-body htmx-container table-responsive"
-          hx-get="{% url 'vpn:tunneltermination_list' %}?tunnel_id={{ object.pk }}"
-          hx-trigger="load"
-        ></div>
-        {% if perms.vpn.add_tunneltermination %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
-            </a>
-          </div>
-        {% endif %}
+        <h5 class="card-header">
+          {% trans "Terminations" %}
+          {% if perms.vpn.add_tunneltermination %}
+            <div class="card-actions">
+              <a href="{% url 'vpn:tunneltermination_add' %}?tunnel={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Termination" %}
+              </a>
+            </div>
+          {% endif %}
+        </h5>
+        {% htmx_table 'vpn:tunneltermination_list' tunnel_id=object.pk %}
       </div>
       {% plugin_full_width_page object %}
     </div>

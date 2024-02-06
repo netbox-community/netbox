@@ -6,24 +6,24 @@
 {% block title %}{% trans "Rack Elevations" %}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-sm btn-primary">
+  <div class="col-auto d-print-none">
+    <div class="btn-list">
+      <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-primary">
         <i class="mdi mdi-format-list-checkbox"></i> {% trans "View List" %}
       </a>
-      <div class="btn-group btn-group-sm" role="group">
-        <select class="btn btn-sm btn-outline-secondary rack-view">
+      <div class="btn-group" role="group">
+        <select class="btn btn-outline-secondary rack-view">
           <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
           <option value="images-only">{% trans "Images only" %}</option>
           <option value="labels-only">{% trans "Labels only" %}</option>
         </select>
       </div>
-      <div class="btn-group btn-group-sm" role="group">
+      <div class="btn-group" role="group">
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">{% trans "Front" %}</a>
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>
       </div>
       <div class="dropdown">
-        <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <button type="button" class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
           <i class="mdi mdi-sort"></i> {% trans "Sort By" %} {{ sort_display_name }}
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
@@ -36,56 +36,54 @@
   </div>
 {% endblock %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
+{% block content %}
 
-    {% if filter_form %}
-      {% applied_filters model filter_form request.GET %}
+  {% if filter_form %}
+    {% applied_filters model filter_form request.GET %}
+  {% endif %}
+
+  {# Rack elevations #}
+  <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+    {% if page %}
+        <div style="white-space: nowrap; overflow-x: scroll;">
+            {% for rack in page %}
+                <div style="display: inline-block; margin-right: 12px">
+                <div style="margin-left: 30px">
+                    <div class="text-center">
+                        <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
+                        {% if rack.role %}
+                            <br /><span class="badge my-3" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</span>
+                        {% endif %}
+                        {% if rack.facility_id %}
+                            <br /><small class="text-muted">{{ rack.facility_id }}</small>
+                        {% endif %}
+                    </div>
+                    {% include 'dcim/inc/rack_elevation.html' with object=rack face=rack_face %}
+                    <div class="clearfix"></div>
+                    <div class="text-center">
+                        <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
+                        {% if rack.facility_id %}
+                            <small class="text-muted">({{ rack.facility_id }})</small>
+                        {% endif %}
+                    </div>
+                </div>
+                </div>
+            {% endfor %}
+        </div>
+        <br />
+        {% include 'inc/paginator.html' %}
+    {% else %}
+        <p>{% trans "No Racks Found" %}</p>
     {% endif %}
-    
-    {# Rack elevations #}
-    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
-      {% if page %}
-          <div style="white-space: nowrap; overflow-x: scroll;">
-              {% for rack in page %}
-                  <div style="display: inline-block; margin-right: 12px">
-                  <div style="margin-left: 30px">
-                      <div class="text-center">
-                          <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
-                          {% if rack.role %}
-                              <br /><span class="badge my-3" style="color: {{ rack.role.color|fgcolor }}; background-color: #{{ rack.role.color }}">{{ rack.role }}</span>
-                          {% endif %}
-                          {% if rack.facility_id %}
-                              <br /><small class="text-muted">{{ rack.facility_id }}</small>
-                          {% endif %}
-                      </div>
-                      {% include 'dcim/inc/rack_elevation.html' with object=rack face=rack_face %}
-                      <div class="clearfix"></div>
-                      <div class="text-center">
-                          <strong><a href="{% url 'dcim:rack' pk=rack.pk %}">{{ rack.name }}</a></strong>
-                          {% if rack.facility_id %}
-                              <small class="text-muted">({{ rack.facility_id }})</small>
-                          {% endif %}
-                      </div>
-                  </div>
-                  </div>
-              {% endfor %}
-          </div>
-          <br />
-          {% include 'inc/paginator.html' %}
-      {% else %}
-          <p>{% trans "No Racks Found" %}</p>
-      {% endif %}
-    </div>
-
-    {# Filter form #}
-    {% if filter_form %}
-      <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
-        {% include 'inc/filter_list.html' %}
-      </div>
-    {% endif %}
-
   </div>
-{% endblock content-wrapper %}
+
+  {# Filter form #}
+  {% if filter_form %}
+    <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
+      {% include 'inc/filter_list.html' %}
+    </div>
+  {% endif %}
+
+{% endblock content %}
 
 {% block modals %}{% endblock %}

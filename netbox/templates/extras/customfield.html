@@ -7,127 +7,117 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Custom Field" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
+      <h5 class="card-header">{% trans "Custom Field" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Type</th>
+          <td>
+            {{ object.get_type_display }}
+            {% if object.object_type %}({{ object.object_type.model|bettertitle }}){% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Label" %}</th>
+          <td>{{ object.label|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Group Name" %}</th>
+          <td>{{ object.group_name|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|markdown|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Required" %}</th>
+          <td>{% checkmark object.required %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Cloneable" %}</th>
+          <td>{% checkmark object.is_cloneable %}</td>
+        </tr>
+        {% if object.choice_set %}
           <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
+            <th scope="row">{% trans "Choice Set" %}</th>
+            <td>{{ object.choice_set|linkify }} ({{ object.choice_set.choices|length }} choices)</td>
           </tr>
-          <tr>
-            <th scope="row">Type</th>
-            <td>
-              {{ object.get_type_display }}
-              {% if object.object_type %}({{ object.object_type.model|bettertitle }}){% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Label" %}</th>
-            <td>{{ object.label|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Group Name" %}</th>
-            <td>{{ object.group_name|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|markdown|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Required" %}</th>
-            <td>{% checkmark object.required %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Cloneable" %}</th>
-            <td>{% checkmark object.is_cloneable %}</td>
-          </tr>
-          {% if object.choice_set %}
-            <tr>
-              <th scope="row">{% trans "Choice Set" %}</th>
-              <td>{{ object.choice_set|linkify }} ({{ object.choice_set.choices|length }} choices)</td>
-            </tr>
-          {% endif %}
-          <tr>
-            <th scope="row">{% trans "Default Value" %}</th>
-            <td>{{ object.default }}</td>
-          </tr>
-        </table>
-      </div>
+        {% endif %}
+        <tr>
+          <th scope="row">{% trans "Default Value" %}</th>
+          <td>{{ object.default }}</td>
+        </tr>
+      </table>
     </div>
     <div class="card">
       <h5 class="card-header">{% trans "Behavior" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Search Weight" %}</th>
-            <td>
-              {% if object.search_weight %}
-                {{ object.search_weight }}
-              {% else %}
-                <span class="text-muted">{% trans "Disabled" %}</span>
-              {% endif %}
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Filter Logic" %}</th>
-            <td>{{ object.get_filter_logic_display }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Display Weight" %}</th>
-            <td>{{ object.weight }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "UI Visible" %}</th>
-            <td>{{ object.get_ui_visible_display }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "UI Editable" %}</th>
-            <td>{{ object.get_ui_editable_display }}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Search Weight" %}</th>
+          <td>
+            {% if object.search_weight %}
+              {{ object.search_weight }}
+            {% else %}
+              <span class="text-muted">{% trans "Disabled" %}</span>
+            {% endif %}
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Filter Logic" %}</th>
+          <td>{{ object.get_filter_logic_display }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Display Weight" %}</th>
+          <td>{{ object.weight }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "UI Visible" %}</th>
+          <td>{{ object.get_ui_visible_display }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "UI Editable" %}</th>
+          <td>{{ object.get_ui_editable_display }}</td>
+        </tr>
+      </table>
     </div>
     {% plugin_left_page object %}
 	</div>
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Object Types" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          {% for ct in object.content_types.all %}
-            <tr>
-              <td>{{ ct }}</td>
-            </tr>
-          {% endfor %}
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        {% for ct in object.content_types.all %}
+          <tr>
+            <td>{{ ct }}</td>
+          </tr>
+        {% endfor %}
+      </table>
     </div>
     <div class="card">
       <h5 class="card-header">{% trans "Validation Rules" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Minimum Value" %}</th>
-            <td>{{ object.validation_minimum|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Maximum Value" %}</th>
-            <td>{{ object.validation_maximum|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Regular Expression" %}</th>
-            <td>
-              {% if object.validation_regex %}
-                <code>{{ object.validation_regex }}</code>
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Minimum Value" %}</th>
+          <td>{{ object.validation_minimum|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Maximum Value" %}</th>
+          <td>{{ object.validation_maximum|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Regular Expression" %}</th>
+          <td>
+            {% if object.validation_regex %}
+              <code>{{ object.validation_regex }}</code>
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+          </td>
+        </tr>
+      </table>
     </div>
     <div class="card">
       <h5 class="card-header">Related Objects</h5>
@@ -137,9 +127,9 @@
             {{ qs.model|meta:"verbose_name_plural"|bettertitle }}
             {% with count=qs.count %}
               {% if count %}
-                <span class="badge bg-primary rounded-pill">{{ count }}</span>
+                <span class="badge text-bg-primary rounded-pill">{{ count }}</span>
               {% else %}
-                <span class="badge bg-light rounded-pill">&mdash;</span>
+                <span class="badge text-bg-light rounded-pill">&mdash;</span>
               {% endif %}
             {% endwith %}
           </a>

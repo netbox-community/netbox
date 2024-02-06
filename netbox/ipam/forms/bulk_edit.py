@@ -254,7 +254,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label=_('Treat as 100% utilized')
+        label=_('Treat as fully utilized')
     )
     description = forms.CharField(
         label=_('Description'),
@@ -298,7 +298,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label=_('Treat as 100% utilized')
+        label=_('Treat as fully utilized')
     )
     description = forms.CharField(
         label=_('Description'),

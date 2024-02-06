@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load render_table from django_tables2 %}
@@ -7,7 +7,7 @@
 {% block title %}{% trans "Search" %}{% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" type="button" role="tab">
         {% trans "Results" %}
@@ -31,7 +31,7 @@
   </div>
   <div class="row px-3">
     <div class="card">
-      <div class="card-body htmx-container table-responsive" id="object_list">
+      <div class="htmx-container table-responsive" id="object_list">
         {% include 'htmx/table.html' %}
       </div>
     </div>

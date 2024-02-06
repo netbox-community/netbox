@@ -9,10 +9,9 @@ from account.views import LoginView, LogoutView
 from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
 from netbox.graphql.views import GraphQLView
-from netbox.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
+from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
 from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
 from strawberry.django.views import GraphQLView
-from .admin import admin_site
 
 _patterns = [
 
@@ -71,28 +70,25 @@ _patterns = [
     # Plugins
     path('plugins/', include((plugin_patterns, 'plugins'))),
     path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
-
-    # Admin
-    path('admin/background-tasks/', include('django_rq.urls')),
-    path('admin/plugins/', include(plugin_admin_patterns)),
-    path('admin/', admin_site.urls),
 ]
 
+# Django admin UI
+if settings.DJANGO_ADMIN_ENABLED:
+    from .admin import admin_site
+    _patterns.append(path('admin/', admin_site.urls))
 
+# django-debug-toolbar
 if settings.DEBUG:
     import debug_toolbar
-    _patterns += [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ]
+    _patterns.append(path('__debug__/', include(debug_toolbar.urls)))
 
+# Prometheus metrics
 if settings.METRICS_ENABLED:
-    _patterns += [
-        path('', include('django_prometheus.urls')),
-    ]
+    _patterns.append(path('', include('django_prometheus.urls')))
 
 # Prepend BASE_PATH
 urlpatterns = [
-    path('{}'.format(settings.BASE_PATH), include(_patterns))
+    path(settings.BASE_PATH, include(_patterns))
 ]
 
 handler404 = 'netbox.views.errors.handler_404'

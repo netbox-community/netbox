@@ -7,7 +7,6 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
-from utilities.forms import BootstrapMixin
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
 
 __all__ = (
@@ -112,7 +111,7 @@ class CircuitImportForm(NetBoxModelImportForm):
         ]
 
 
-class CircuitTerminationImportForm(BootstrapMixin, forms.ModelForm):
+class CircuitTerminationImportForm(forms.ModelForm):
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),

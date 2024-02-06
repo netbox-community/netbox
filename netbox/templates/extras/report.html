@@ -14,7 +14,7 @@
               {% trans "This report is invalid and cannot be run." %}
             </div>
           {% endif %}
-          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post" class="form-object-edit">
+          <form action="{% url 'extras:report' module=report.module name=report.class_name %}" method="post" class="object-edit">
             {% csrf_token %}
             {% render_form form %}
             <div class="float-end">

@@ -1,0 +1,2 @@
+{# Skip "class" attribute, which needs to be handled on the widget directly. #}
+{% for name, value in widget.attrs.items %}{% if name != 'class' %}{% if value is not False %} {{ name }}{% if value is not True %}="{{ value|stringformat:'s' }}"{% endif %}{% endif %}{% endif %}{% endfor %}

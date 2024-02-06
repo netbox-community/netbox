@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_location %}
-    <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Child Location" %}
     </a>
   {% endif %}
@@ -23,42 +23,38 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Location" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Site" %}</th>
-            <td>{{ object.site|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Parent" %}</th>
-            <td>{{ object.parent|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Status" %}</th>
-            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Tenant" %}</th>
-            <td>
-              {% if object.tenant.group %}
-                {{ object.tenant.group|linkify }} /
-              {% endif %}
-              {{ object.tenant|linkify|placeholder }}
-            </td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "Location" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Site" %}</th>
+          <td>{{ object.site|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Parent" %}</th>
+          <td>{{ object.parent|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Status" %}</th>
+          <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Tenant" %}</th>
+          <td>
+            {% if object.tenant.group %}
+              {{ object.tenant.group|linkify }} /
+            {% endif %}
+            {{ object.tenant|linkify|placeholder }}
+          </td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/custom_fields.html' %}
@@ -73,32 +69,30 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Child Locations" %}</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'dcim:location_list' %}?parent_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-      {% if perms.dcim.add_location %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
-          </a>
-        </div>
-      {% endif %}
+      <h5 class="card-header">
+        {% trans "Child Locations" %}
+        {% if perms.dcim.add_location %}
+          <div class="card-actions">
+            <a href="{% url 'dcim:location_add' %}?site={{ object.site.pk }}&parent={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Location" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
+      {% htmx_table 'dcim:location_list' parent_id=object.pk %}
     </div>
     <div class="card">
-      <h5 class="card-header">Non-Racked Devices</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'dcim:device_list' %}?location_id={{ object.pk }}&rack_id=null&parent_bay_id=null"
-        hx-trigger="load"
-      ></div>
-      {% if perms.dcim.add_device %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-            <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
-          </a>
-        </div>
-      {% endif %}
+      <h5 class="card-header">
+        {% trans "Non-Racked Devices" %}
+        {% if perms.dcim.add_device %}
+          <div class="card-actions">
+            <a href="{% url 'dcim:device_add' %}?site={{ object.site.pk }}&location={{ object.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add a Device" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
+      {% htmx_table 'dcim:device_list' location_id=object.pk rack_id='null' parent_bay_id='null' %}
     </div>
     {% plugin_full_width_page object %}
   </div>

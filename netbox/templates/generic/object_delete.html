@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load i18n %}
@@ -14,8 +14,6 @@ Context:
 {% block title %}
   {% trans "Delete" %} {{ object|meta:"verbose_name" }}?
 {% endblock %}
-
-{% block header %}{% endblock %}
 
 {% block content %}
   <div class="modal" tabindex="-1" style="display: block; position: static">

@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load i18n %}
@@ -6,96 +6,91 @@
 {% block title %}{% trans "Scripts" %}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% block extra_controls %}{% endblock %}
-      {% add_button model %}
-    </div>
-  </div>
+  {% add_button model %}
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <a class="nav-link active" role="tab">{% trans "Scripts" %}</a>
     </li>
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    {% for module in script_modules %}
-      <div class="card">
-        <h5 class="card-header" id="module{{ module.pk }}">
-          {% if perms.extras.delete_scriptmodule %}
-            <div class="float-end">
-              <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-                <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-              </a>
-            </div>
-          {% endif %}
+{% block content %}
+  {% for module in script_modules %}
+    <div class="card">
+      <h5 class="card-header justify-content-between" id="module{{ module.pk }}">
+        <div>
           <i class="mdi mdi-file-document-outline"></i> {{ module }}
-        </h5>
-        <div class="card-body">
-          {% include 'inc/sync_warning.html' with object=module %}
-          {% if not module.scripts %}
-            <div class="alert alert-warning d-flex align-items-center" role="alert">
-              <i class="mdi mdi-alert"></i>
-              {% blocktrans trimmed with file_path=module.full_path %}
-                Script file at <code class="mx-1">{{ file_path }}</code> could not be loaded.
-              {% endblocktrans %}
-            </div>
-          {% else %}
-            <table class="table table-hover table-headings reports">
-              <thead>
-                <tr>
-                  <th width="250">{% trans "Name" %}</th>
-                  <th>{% trans "Description" %}</th>
-                  <th>{% trans "Last Run" %}</th>
-                  <th class="text-end">{% trans "Status" %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% with jobs=module.get_latest_jobs %}
-                  {% for script_name, script_class in module.scripts.items %}
-                    <tr>
-                      <td>
-                        <a href="{% url 'extras:script' module=module.python_name name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
-                      </td>
-                      <td>
-                        {{ script_class.Meta.description|markdown|placeholder }}
-                      </td>
-                      {% with last_result=jobs|get_key:script_class.class_name %}
-                        {% if last_result %}
-                          <td>
-                            <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
-                          </td>
-                          <td class="text-end">
-                            {% badge last_result.get_status_display last_result.get_status_color %}
-                          </td>
-                        {% else %}
-                          <td class="text-muted">{% trans "Never" %}</td>
-                          <td class="text-end">{{ ''|placeholder }}</td>
-                        {% endif %}
-                      {% endwith %}
-                    </tr>
-                  {% endfor %}
-                {% endwith %}
-              </tbody>
-            </table>
-          {% endif %}
         </div>
-      </div>
-    {% empty %}
-      <div class="alert alert-info">
-        <h4 class="alert-heading">{% trans "No Scripts Found" %}</h4>
-        {% if perms.extras.add_scriptmodule %}
-          {% url 'extras:scriptmodule_add' as create_script_url %}
-          {% blocktrans trimmed %}
-            Get started by <a href="{{ create_script_url }}">creating a script</a> from an uploaded file or data source.
-          {% endblocktrans %}
+        {% if perms.extras.delete_scriptmodule %}
+          <div class="float-end">
+            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
+      <div class="card-body">
+        {% include 'inc/sync_warning.html' with object=module %}
+        {% if not module.scripts %}
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="mdi mdi-alert"></i>
+            {% blocktrans trimmed with file_path=module.full_path %}
+              Script file at <code class="mx-1">{{ file_path }}</code> could not be loaded.
+            {% endblocktrans %}
+          </div>
+        {% else %}
+          <table class="table table-hover reports">
+            <thead>
+              <tr>
+                <th width="250">{% trans "Name" %}</th>
+                <th>{% trans "Description" %}</th>
+                <th>{% trans "Last Run" %}</th>
+                <th class="text-end">{% trans "Status" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% with jobs=module.get_latest_jobs %}
+                {% for script_name, script_class in module.scripts.items %}
+                  <tr>
+                    <td>
+                      <a href="{% url 'extras:script' module=module.python_name name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
+                    </td>
+                    <td>
+                      {{ script_class.Meta.description|markdown|placeholder }}
+                    </td>
+                    {% with last_result=jobs|get_key:script_class.class_name %}
+                      {% if last_result %}
+                        <td>
+                          <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
+                        </td>
+                        <td class="text-end">
+                          {% badge last_result.get_status_display last_result.get_status_color %}
+                        </td>
+                      {% else %}
+                        <td class="text-muted">{% trans "Never" %}</td>
+                        <td class="text-end">{{ ''|placeholder }}</td>
+                      {% endif %}
+                    {% endwith %}
+                  </tr>
+                {% endfor %}
+              {% endwith %}
+            </tbody>
+          </table>
         {% endif %}
       </div>
-    {% endfor %}
-  </div>
-{% endblock content-wrapper %}
+    </div>
+  {% empty %}
+    <div class="alert alert-info">
+      <h4 class="alert-heading">{% trans "No Scripts Found" %}</h4>
+      {% if perms.extras.add_scriptmodule %}
+        {% url 'extras:scriptmodule_add' as create_script_url %}
+        {% blocktrans trimmed %}
+          Get started by <a href="{{ create_script_url }}">creating a script</a> from an uploaded file or data source.
+        {% endblocktrans %}
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endblock content %}

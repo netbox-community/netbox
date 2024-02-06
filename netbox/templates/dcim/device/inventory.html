@@ -4,9 +4,9 @@
 {% block bulk_extra_controls %}
     {{ block.super }}
     {% if perms.dcim.add_inventoryitem %}
-        <div class="bulk-button-group">
+        <div class="btn-group" role="group">
             <a href="{% url 'dcim:inventoryitem_add' %}?device={{ object.pk }}&return_url={% url 'dcim:device_inventory' pk=object.pk %}"
-               class="btn btn-primary btn-sm">
+               class="btn btn-primary">
                 <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Inventory Item" %}
             </a>
         </div>

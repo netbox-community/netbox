@@ -5,13 +5,13 @@
 
 {% block form %}
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "L2VPN Termination" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "L2VPN Termination" %}</h5>
     </div>
     {% render_field form.l2vpn %}
-    <div class="row mb-3">
-      <div class="offset-sm-3">
-        <ul class="nav nav-pills" role="tablist">
+    <div class="row">
+      <div class="col-9 offset-3">
+        <ul class="nav nav-pills mb-1" role="tablist">
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="vlan_tab" data-bs-toggle="tab" aria-controls="vlan" data-bs-target="#vlan" class="nav-link {% if not form.initial.interface or form.initial.vminterface %}active{% endif %}">
               {% trans "VLAN" %}
@@ -47,8 +47,8 @@
   </div>
  {% if form.custom_fields %}
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
     </div>
     {% render_custom_fields form %}
   </div>

@@ -13,7 +13,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelForm
 from tenancy.models import Tenant, TenantGroup
-from utilities.forms import BootstrapMixin, add_blank_choice, get_field_value
+from utilities.forms import add_blank_choice, get_field_value
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
@@ -38,7 +38,7 @@ __all__ = (
 )
 
 
-class CustomFieldForm(BootstrapMixin, forms.ModelForm):
+class CustomFieldForm(forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
         queryset=ContentType.objects.with_feature('custom_fields')
@@ -83,7 +83,7 @@ class CustomFieldForm(BootstrapMixin, forms.ModelForm):
             self.fields['type'].disabled = True
 
 
-class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
+class CustomFieldChoiceSetForm(forms.ModelForm):
     extra_choices = forms.CharField(
         widget=ChoicesWidget(),
         required=False,
@@ -122,7 +122,7 @@ class CustomFieldChoiceSetForm(BootstrapMixin, forms.ModelForm):
         return data
 
 
-class CustomLinkForm(BootstrapMixin, forms.ModelForm):
+class CustomLinkForm(forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
         queryset=ContentType.objects.with_feature('custom_links')
@@ -142,14 +142,16 @@ class CustomLinkForm(BootstrapMixin, forms.ModelForm):
         }
         help_texts = {
             'link_text': _(
-                "Jinja2 template code for the link text. Reference the object as <code>{{ object }}</code>. Links "
+                "Jinja2 template code for the link text. Reference the object as {example}. Links "
                 "which render as empty text will not be displayed."
-            ),
-            'link_url': _("Jinja2 template code for the link URL. Reference the object as <code>{{ object }}</code>."),
+            ).format(example="<code>{{ object }}</code>"),
+            'link_url': _(
+                "Jinja2 template code for the link URL. Reference the object as {example}."
+            ).format(example="<code>{{ object }}</code>"),
         }
 
 
-class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
+class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
         queryset=ContentType.objects.with_feature('export_templates')
@@ -189,7 +191,7 @@ class ExportTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class SavedFilterForm(BootstrapMixin, forms.ModelForm):
+class SavedFilterForm(forms.ModelForm):
     slug = SlugField()
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
@@ -216,7 +218,7 @@ class SavedFilterForm(BootstrapMixin, forms.ModelForm):
         super().__init__(*args, initial=initial, **kwargs)
 
 
-class BookmarkForm(BootstrapMixin, forms.ModelForm):
+class BookmarkForm(forms.ModelForm):
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
         queryset=ContentType.objects.with_feature('bookmarks')
@@ -367,7 +369,7 @@ class EventRuleForm(NetBoxModelForm):
         return super().save(*args, **kwargs)
 
 
-class TagForm(BootstrapMixin, forms.ModelForm):
+class TagForm(forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -386,7 +388,7 @@ class TagForm(BootstrapMixin, forms.ModelForm):
         ]
 
 
-class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
+class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
     regions = DynamicModelMultipleChoiceField(
         label=_('Regions'),
         queryset=Region.objects.all(),
@@ -497,7 +499,7 @@ class ConfigContextForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
+class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
     tags = DynamicModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
@@ -541,7 +543,7 @@ class ConfigTemplateForm(BootstrapMixin, SyncedDataMixin, forms.ModelForm):
         return self.cleaned_data
 
 
-class ImageAttachmentForm(BootstrapMixin, forms.ModelForm):
+class ImageAttachmentForm(forms.ModelForm):
 
     class Meta:
         model = ImageAttachment

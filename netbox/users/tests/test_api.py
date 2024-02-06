@@ -264,9 +264,9 @@ class ObjectPermissionTest(
 
         for i in range(3):
             objectpermission = ObjectPermission(
-                name=f'Permission {i+1}',
+                name=f'Permission {i + 1}',
                 actions=['view', 'add', 'change', 'delete'],
-                constraints={'name': f'TEST{i+1}'}
+                constraints={'name': f'TEST{i + 1}'}
             )
             objectpermission.save()
             objectpermission.object_types.add(object_type)

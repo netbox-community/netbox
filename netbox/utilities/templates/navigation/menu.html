@@ -1,43 +1,46 @@
 {% load helpers %}
 
-<ul class="navbar-nav">
+<ul class="navbar-nav pt-lg-2">
   {% for menu, groups in nav_items %}
-    <li class="nav-item">
+    <li class="nav-item dropdown">
+
       {# Menu heading #}
-      <a class="nav-link" href="#menu{{ menu.name }}" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="menu{{ menu.name }}">
-       <i class="{{ menu.icon_class }}"></i>
-       <span class="nav-link-text">{{ menu.label }}</span>
+      <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false" >
+        <span class="nav-link-icon d-md-none d-lg-inline-block">
+          <i class="{{ menu.icon_class }}"></i>
+        </span>
+        <span class="nav-link-title">
+          {{ menu.label }}
+        </span>
       </a>
+
       {# Menu groups #}
-      <div class="collapse" id="menu{{ menu.name }}">
-        <ul class="nav nav-sm flex-column">
-          {% for group, items in groups %}
-            {# Group heading #}
-            <li class="nav-item">
-              <div class="nav-group-header">
-                <span class="nav-group-label">{{ group.label }}</span>
+      <div class="dropdown-menu">
+        <div class="dropdown-menu-columns">
+          <div class="dropdown-menu-column pb-2">
+            {% for group, items in groups %}
+              <div class="text-uppercase fw-bold fs-5 ps-3 pt-3 pb-1">
+                {{ group.label }}
               </div>
-            </li>
-            {# Group items #}
-            {% for item, buttons in items %}
-              <li class="nav-item{% if not item.buttons %} no-buttons{% endif %}">
-                {# Item #}
-                <a href="{% url item.link %}" class="nav-link">{{ item.link_text }}</a>
-                {# Item buttons (if any) #}
-                {% if buttons %}
-                  <div class="btn-group px-2">
-                    {% for button in buttons %}
-                      <a class="btn btn-sm btn-{{ button.color }} lh-1" href="{% url button.link %}" title="{{ button.title }}">
-                        <i class="{{ button.icon_class }}"></i>
-                      </a>
-                    {% endfor %}
-                  </div>
-                {% endif %}
-              </li>
+              {% for item, buttons in items %}
+                <div class="dropdown-item d-flex justify-content-between ps-3 py-0">
+                  <a href="{% url item.link %}" class="d-inline-flex flex-fill py-1">{{ item.link_text }}</a>
+                  {% if buttons %}
+                    <div class="btn-group ms-1">
+                      {% for button in buttons %}
+                        <a href="{% url button.link %}" class="btn btn-sm btn-{{ button.color|default:"outline-dark" }} lh-2 px-2" title="{{ button.title }}">
+                          <i class="{{ button.icon_class }}"></i>
+                        </a>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
             {% endfor %}
-          {% endfor %}
-        </ul>
+          </div>
+        </div>
       </div>
+
     </li>
   {% endfor %}
 </ul>

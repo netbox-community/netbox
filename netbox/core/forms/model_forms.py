@@ -11,7 +11,7 @@ from netbox.config import get_config, PARAMS
 from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
 from netbox.utils import get_data_backend_choices
-from utilities.forms import BootstrapMixin, get_field_value
+from utilities.forms import get_field_value
 from utilities.forms.fields import CommentField
 from utilities.forms.widgets import HTMXSelect
 
@@ -138,7 +138,7 @@ class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
         return super().__new__(mcs, name, bases, attrs)
 
 
-class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMetaclass):
+class ConfigRevisionForm(forms.ModelForm, metaclass=ConfigFormMetaclass):
     """
     Form for creating a new ConfigRevision.
     """

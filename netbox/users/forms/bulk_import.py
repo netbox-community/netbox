@@ -23,7 +23,7 @@ class GroupImportForm(CSVModelForm):
 class UserImportForm(CSVModelForm):
 
     class Meta:
-        model = NetBoxUser
+        model = User
         fields = (
             'username', 'first_name', 'last_name', 'email', 'password', 'is_staff',
             'is_active', 'is_superuser'

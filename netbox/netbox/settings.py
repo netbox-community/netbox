@@ -29,7 +29,7 @@ from netbox.plugins import PluginConfig
 # Environment setup
 #
 
-VERSION = '3.7-beta1'
+VERSION = '3.7.3-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -115,6 +115,7 @@ DEFAULT_PERMISSIONS = getattr(configuration, 'DEFAULT_PERMISSIONS', {
     'users.delete_token': ({'user': '$user'},),
 })
 DEVELOPER = getattr(configuration, 'DEVELOPER', False)
+DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
@@ -123,7 +124,6 @@ EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
 EXEMPT_VIEW_PERMISSIONS = getattr(configuration, 'EXEMPT_VIEW_PERMISSIONS', [])
 FIELD_CHOICES = getattr(configuration, 'FIELD_CHOICES', {})
 FILE_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'FILE_UPLOAD_MAX_MEMORY_SIZE', 2621440)
-GIT_PATH = getattr(configuration, 'GIT_PATH', 'git')
 HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
@@ -355,7 +355,6 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 #
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -367,6 +366,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'graphiql_debug_toolbar',
     'django_filters',
+    'django_htmx',
     'django_tables2',
     'django_prometheus',
     'strawberry_django',
@@ -392,6 +392,9 @@ INSTALLED_APPS = [
     'drf_spectacular_sidecar',
 ]
 
+if DJANGO_ADMIN_ENABLED:
+    INSTALLED_APPS.insert(0, 'django.contrib.admin')
+
 # Middleware
 MIDDLEWARE = [
     "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
@@ -405,6 +408,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
@@ -449,6 +453,8 @@ AUTHENTICATION_BACKENDS = [
     *REMOTE_AUTH_BACKEND,
     'netbox.authentication.ObjectPermissionBackend',
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 # Time zones
 USE_TZ = True
@@ -590,6 +596,8 @@ for param in dir(configuration):
 SOCIAL_AUTH_JSONFIELD_ENABLED = True
 SOCIAL_AUTH_CLEAN_USERNAME_FUNCTION = 'users.utils.clean_username'
 
+SOCIAL_AUTH_USER_MODEL = AUTH_USER_MODEL
+
 #
 # Django Prometheus
 #
@@ -727,8 +735,10 @@ LANGUAGES = (
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
+    ('ja', _('Japanese')),
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
+    ('tr', _('Turkish')),
 )
 
 LOCALE_PATHS = (

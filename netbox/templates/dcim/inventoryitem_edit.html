@@ -6,8 +6,8 @@
 
 {% block form %}
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Inventory Item" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Inventory Item" %}</h5>
       </div>
       {% render_field form.device %}
       {% render_field form.parent %}
@@ -19,8 +19,8 @@
     </div>
 
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Hardware" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Hardware" %}</h5>
       </div>
       {% render_field form.manufacturer %}
       {% render_field form.part_id %}
@@ -29,11 +29,11 @@
     </div>
 
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Component Assignment" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Component Assignment" %}</h5>
       </div>
-      <div class="row mb-2 offset-sm-3">
-        <ul class="nav nav-pills" role="tablist">
+      <div class="row offset-sm-3">
+        <ul class="nav nav-pills mb-1" role="tablist">
           <li role="presentation" class="nav-item">
               <button role="tab" type="button" id="consoleport_tab" data-bs-toggle="tab" aria-controls="consoleport" data-bs-target="#consoleport" class="nav-link {% if form.initial.consoleport or form.no_component %}active{% endif %}">
                 {% trans "Console Port" %}
@@ -98,8 +98,8 @@
 
     {% if form.custom_fields %}
       <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
         </div>
         {% render_custom_fields form %}
       </div>

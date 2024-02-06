@@ -8,24 +8,23 @@
     <form method="post">
         {% csrf_token %}
         <div class="card">
-            <h5 class="card-header">{{ title }}</h5>
-            <div class="card-body htmx-container table-responsive" id="object_list">
+            <div class="htmx-container table-responsive" id="object_list">
               {% include 'htmx/table.html' %}
             </div>
-            <div class="card-footer noprint">
+            <div class="card-footer d-print-none">
                 {% if table.rows %}
-                    <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-sm btn-warning">
+                    <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-warning">
                         <span class="mdi mdi-pencil-outline" aria-hidden="true"></span> {% trans "Rename" %}
                     </button>
-                    <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_edit" %}?return_url={{ return_url }}" class="btn btn-sm btn-warning">
+                    <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_edit" %}?return_url={{ return_url }}" class="btn btn-warning">
                         <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
                     </button>
-                    <button type="submit" name="_delete" formaction="{% url table.Meta.model|viewname:"bulk_delete" %}?return_url={{ return_url }}" class="btn btn-sm btn-danger">
+                    <button type="submit" name="_delete" formaction="{% url table.Meta.model|viewname:"bulk_delete" %}?return_url={{ return_url }}" class="btn btn-danger">
                         <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
                     </button>
                 {% endif %}
                 <div class="float-end">
-                    <a href="{% url table.Meta.model|viewname:"add" %}?module_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary btn-sm">
+                    <a href="{% url table.Meta.model|viewname:"add" %}?module_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary">
                         <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
                         {% trans "Add" %} {{ title }}
                     </a>
@@ -37,7 +36,7 @@
   {% else %}
     <div class="card">
       <h5 class="card-header">{{ title }}</h5>
-      <div class="card-body htmx-container table-responsive" id="object_list">
+      <div class="htmx-container table-responsive" id="object_list">
         {% include 'htmx/table.html' %}
       </div>
     </div>

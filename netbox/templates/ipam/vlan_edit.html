@@ -6,8 +6,8 @@
 
 {% block form %}
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "VLAN" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "VLAN" %}</h5>
     </div>
     {% render_field form.vid %}
     {% render_field form.name %}
@@ -18,21 +18,21 @@
   </div>
 
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
     </div>
     {% render_field form.tenant_group %}
     {% render_field form.tenant %}
   </div>
 
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Assignment" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Assignment" %}</h5>
     </div>
     {% with site_tab_active=form.initial.site %}
-      <div class="row mb-2">
-        <div class="offset-sm-3">
-          <ul class="nav nav-pills" role="tablist">
+      <div class="row">
+        <div class="col-9 offset-3">
+          <ul class="nav nav-pills mb-1" role="tablist">
             <li class="nav-item" role="presentation">
               <a class="nav-link{% if not site_tab_active %} active{% endif %}" href="#group" role="tab" data-bs-toggle="tab">{% trans "VLAN Group" %}</a>
             </li>
@@ -59,8 +59,8 @@
 
   {% if form.custom_fields %}
     <div class="field-group my-5">
-      <div class="row mb-2">
-        <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
       </div>
       {% render_custom_fields form %}
     </div>

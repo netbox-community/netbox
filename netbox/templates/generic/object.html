@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load buttons %}
 {% load custom_links %}
 {% load helpers %}
@@ -18,33 +18,36 @@ Context:
   object: The object instance being viewed
 {% endcomment %}
 
-{% block header %}
-  <div class="d-flex justify-content-between align-items-center">
-    {# Breadcrumbs #}
-    <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-      <ol class="breadcrumb">
+{% block page-header %}
+  <div class="container-xl">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+
+      {# Breadcrumbs #}
+      <ol class="breadcrumb" aria-label="breadcrumbs">
         {% block breadcrumbs %}
-          <li class="breadcrumb-item"><a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a></li>
+          <li class="breadcrumb-item">
+            <a href="{% url object|viewname:'list' %}">{{ object|meta:'verbose_name_plural'|bettertitle }}</a>
+          </li>
         {% endblock breadcrumbs %}
       </ol>
-    </nav>
-    {# Object identifier #}
-    <div class="float-end px-3">
-        <code class="text-muted">
-          {% block object_identifier %}
-            {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
-            {% if object.slug %}({{ object.slug }}){% endif %}
-          {% endblock object_identifier %}
-        </code>
+
+      {# Object identifier #}
+      <code class="d-block text-muted bg-transparent px-0">
+        {% block object_identifier %}
+          {{ object|meta:"app_label" }}.{{ object|meta:"model_name" }}:{{ object.pk }}
+          {% if object.slug %}({{ object.slug }}){% endif %}
+        {% endblock object_identifier %}
+      </code>
+
     </div>
   </div>
   {{ block.super }}
-{% endblock header %}
+{% endblock page-header %}
 
 {% block title %}{{ object }}{% endblock %}
 
 {% block subtitle %}
-  <div class="object-subtitle">
+  <div class="text-secondary fs-5">
     <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
     {% if object.last_updated %}
       <span class="separator">&middot;</span>
@@ -54,14 +57,16 @@ Context:
 {% endblock subtitle %}
 
 {% block controls %}
-  {# Clone/Edit/Delete Buttons #}
-  <div class="controls">
-    <div class="control-group">
-      {% plugin_buttons object %}
+  <div class="btn-list justify-content-end mb-2">
+    {% plugin_buttons object %}
+
+    {# Add/edit/delete/etc. buttons #}
+    {% block control-buttons %}
 
       {# Extra buttons #}
       {% block extra_controls %}{% endblock %}
 
+      {# Default buttons #}
       {% if perms.extras.add_bookmark and object.bookmarks %}
         {% bookmark_button object %}
       {% endif %}
@@ -74,16 +79,21 @@ Context:
       {% if request.user|can_delete:object %}
         {% delete_button object %}
       {% endif %}
+    {% endblock control-buttons %}
+  </div>
 
-    </div>
-    <div class="control-group">
-      {% custom_links object %}
+  {# Custom links #}
+  <div class="d-flex justify-content-end">
+    <div class="btn-list">
+      {% block custom-links %}
+        {% custom_links object %}
+      {% endblock custom-links %}
     </div>
   </div>
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     {# Primary tab #}
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if not tab %} active{% endif %}" href="{{ object.get_absolute_url }}">{{ object|meta:"verbose_name"|bettertitle }}</a>
@@ -94,11 +104,7 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    {% block content %}{% endblock %}
-  </div>
-{% endblock content-wrapper %}
+{% block content %}{% endblock %}
 
 {% block modals %}
   {% include 'inc/htmx_modal.html' %}

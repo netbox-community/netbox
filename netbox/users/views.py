@@ -5,7 +5,7 @@ from extras.tables import ObjectChangeTable
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from .models import NetBoxGroup, User, ObjectPermission, Token
 
 
 #
@@ -56,15 +56,15 @@ class TokenBulkDeleteView(generic.BulkDeleteView):
 #
 
 class UserListView(generic.ObjectListView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
     filterset_form = forms.UserFilterForm
     table = tables.UserTable
 
 
-@register_model_view(NetBoxUser)
+@register_model_view(User)
 class UserView(generic.ObjectView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     template_name = 'users/user.html'
 
     def get_extra_context(self, request, instance):
@@ -76,31 +76,31 @@ class UserView(generic.ObjectView):
         }
 
 
-@register_model_view(NetBoxUser, 'edit')
+@register_model_view(User, 'edit')
 class UserEditView(generic.ObjectEditView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     form = forms.UserForm
 
 
-@register_model_view(NetBoxUser, 'delete')
+@register_model_view(User, 'delete')
 class UserDeleteView(generic.ObjectDeleteView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
 
 
 class UserBulkEditView(generic.BulkEditView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
 
 
 class UserBulkImportView(generic.BulkImportView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     model_form = forms.UserImportForm
 
 
 class UserBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
 

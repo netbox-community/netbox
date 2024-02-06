@@ -7,12 +7,12 @@ import { isTruthy } from './util';
  */
 function quickSearchEventHandler(event: Event): void {
   const quicksearch = event.currentTarget as HTMLInputElement;
-  const inputgroup = quicksearch.parentElement as HTMLDivElement;
-  if (isTruthy(inputgroup)) {
+  const clearbtn = document.getElementById("quicksearch_clear") as HTMLAnchorElement;
+  if (isTruthy(clearbtn)) {
     if (quicksearch.value === "") {
-      inputgroup.classList.add("hide-last-child");
+      clearbtn.classList.add("d-none");
     } else {
-      inputgroup.classList.remove("hide-last-child");
+      clearbtn.classList.remove("d-none");
     }
   }
 }
@@ -22,7 +22,7 @@ function quickSearchEventHandler(event: Event): void {
  */
 export function initQuickSearch(): void {
   const quicksearch = document.getElementById("quicksearch") as HTMLInputElement;
-  const clearbtn = document.getElementById("quicksearch_clear") as HTMLButtonElement;
+  const clearbtn = document.getElementById("quicksearch_clear") as HTMLAnchorElement;
   if (isTruthy(quicksearch)) {
     quicksearch.addEventListener("keyup", quickSearchEventHandler, {
       passive: true

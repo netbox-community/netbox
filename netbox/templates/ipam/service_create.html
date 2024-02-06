@@ -4,14 +4,14 @@
 
 {% block form %}
   <div class="field-group my-5">
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Service" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Service" %}</h5>
     </div>
 
     {# Device/VM selection #}
-    <div class="row mb-2">
-      <div class="offset-sm-3">
-        <ul class="nav nav-pills" role="tablist">
+    <div class="row">
+      <div class="col-9 offset-3">
+        <ul class="nav nav-pills mb-1" role="tablist">
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="device_tab" data-bs-toggle="tab" aria-controls="device" data-bs-target="#device" class="nav-link {% if not form.initial.virtual_machine %}active{% endif %}">
               {% trans "Device" %}
@@ -35,9 +35,9 @@
     </div>
 
     {# Template or custom #}
-    <div class="row mb-2">
-      <div class="offset-sm-3">
-        <ul class="nav nav-pills" role="tablist">
+    <div class="row">
+      <div class="col-9 offset-3">
+        <ul class="nav nav-pills mb-1" role="tablist">
           <li role="presentation" class="nav-item">
             <button role="tab" type="button" id="template_tab" data-bs-toggle="tab" data-bs-target="#template" class="nav-link active">
               {% trans "From Template" %}
@@ -71,8 +71,8 @@
   </div>
 
   {% if form.custom_fields %}
-    <div class="row mb-2">
-      <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
     </div>
     {% render_custom_fields form %}
   {% endif %}

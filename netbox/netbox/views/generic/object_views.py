@@ -16,7 +16,6 @@ from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
-from utilities.htmx import is_htmx
 from utilities.permissions import get_permission_for_model
 from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin
@@ -136,7 +135,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table = self.get_table(table_data, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
+        if request.htmx:
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
@@ -224,7 +223,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         restrict_form_fields(form, request.user)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if is_htmx(request):
+        if request.htmx:
             return render(request, 'htmx/form.html', {
                 'form': form,
             })
@@ -349,7 +348,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
         """
         handle_protectederror(protected_objects, request, exc)
 
-        if is_htmx(request):
+        if request.htmx:
             return HttpResponse(headers={
                 'HX-Redirect': obj.get_absolute_url(),
             })
@@ -378,7 +377,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             return self._handle_protected_objects(obj, e.restricted_objects, request, e)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
-        if is_htmx(request):
+        if request.htmx:
             viewname = get_viewname(self.queryset.model, action='delete')
             form_url = reverse(viewname, kwargs={'pk': obj.pk})
             return render(request, 'htmx/delete_form.html', {
@@ -480,7 +479,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         instance = self.alter_object(self.queryset.model(), request)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if is_htmx(request):
+        if request.htmx:
             return render(request, 'htmx/form.html', {
                 'form': form,
             })

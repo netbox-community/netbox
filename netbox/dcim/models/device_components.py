@@ -1115,7 +1115,7 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
     installed_device = models.OneToOneField(
         to='dcim.Device',
         on_delete=models.SET_NULL,
-        related_name=_('parent_bay'),
+        related_name='parent_bay',
         blank=True,
         null=True
     )

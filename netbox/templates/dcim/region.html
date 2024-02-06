@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_site %}
-    <a href="{% url 'dcim:site_add' %}?region={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:site_add' %}?region={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Site" %}
     </a>
   {% endif %}
@@ -24,22 +24,20 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Region" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Parent" %}</th>
-            <td>{{ object.parent|linkify|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Parent" %}</th>
+          <td>{{ object.parent|linkify|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/custom_fields.html' %}
@@ -53,18 +51,17 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Child Regions" %}</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'dcim:region_list' %}?parent_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-      {% if perms.dcim.add_region %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'dcim:region_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Region" %}
-          </a>
-        </div>
-      {% endif %}
+      <h5 class="card-header">
+        {% trans "Child Regions" %}
+        {% if perms.dcim.add_region %}
+          <div class="card-actions">
+            <a href="{% url 'dcim:region_add' %}?parent={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Region" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
+      {% htmx_table 'dcim:region_list' parent_id=object.pk %}
     </div>
     {% plugin_full_width_page object %}
   </div>

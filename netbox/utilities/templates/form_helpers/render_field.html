@@ -17,23 +17,26 @@
     {% if field|widget_type == 'slugwidget' %}
       <div class="input-group">
         {{ field }}
-        <button id="reslug" type="button" title="{% trans "Regenerate Slug" %}" class="btn btn-outline-dark border-input">
+        <button id="reslug" type="button" title="{% trans "Regenerate Slug" %}" class="btn">
           <i class="mdi mdi-reload"></i>
         </button>
       </div>
     {# Render checkbox labels to the right of the field #}
     {% elif field|widget_type == 'checkboxinput' %}
-      <div class="form-check">
+      <div class="form-check mb-0">
         {{ field }}
         <label for="{{ field.id_for_label }}" class="form-check-label">
           {{ label }}
         </label>
+        {% if field.help_text %}
+          <span class="form-text">{{ field.help_text|safe }}</span>
+        {% endif %}
       </div>
     {# Include a copy-to-clipboard button #}
     {% elif 'data-clipboard' in field.field.widget.attrs %}
       <div class="input-group">
         {{ field }}
-        <button type="button" title="{% trans "Copy to clipboard" %}" class="btn btn-outline-dark border-input copy-content" data-clipboard-target="#{{ field.id_for_label }}">
+        <button type="button" title="{% trans "Copy to clipboard" %}" class="btn btn-outline-dark copy-content" data-clipboard-target="#{{ field.id_for_label }}">
           <i class="mdi mdi-content-copy"></i>
         </button>
       </div>
@@ -54,7 +57,7 @@
     {% endif %}
 
     {# Help text #}
-    {% if field.help_text %}
+    {% if field.help_text and field|widget_type != 'checkboxinput' %}
       <span class="form-text">{{ field.help_text|safe }}</span>
     {% endif %}
 

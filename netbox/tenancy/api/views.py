@@ -83,6 +83,6 @@ class ContactViewSet(NetBoxModelViewSet):
 
 
 class ContactAssignmentViewSet(NetBoxModelViewSet):
-    queryset = ContactAssignment.objects.prefetch_related('object', 'contact', 'role')
+    queryset = ContactAssignment.objects.prefetch_related('content_type', 'object', 'contact', 'role', 'tags')
     serializer_class = serializers.ContactAssignmentSerializer
     filterset_class = filtersets.ContactAssignmentFilterSet

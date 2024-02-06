@@ -1,11 +1,11 @@
 import datetime
 import decimal
 import json
+import nh3
 import re
 from decimal import Decimal
 from itertools import count, groupby
 
-import bleach
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
@@ -24,6 +24,7 @@ from netbox.config import get_config
 from netbox.plugins import PluginConfig
 from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
+from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
 
 
 def title(value):
@@ -52,6 +53,8 @@ def get_viewname(model, action=None, rest_api=False):
             # Alter the app_label for group and user model_name to point to users app
             if app_label == 'auth' and model_name in ['group', 'user']:
                 app_label = 'users'
+            if app_label == 'users' and model._meta.proxy and model_name in ['netboxuser', 'netboxgroup']:
+                model_name = model._meta.proxy_for_model._meta.model_name
 
             viewname = f'{app_label}-api:{model_name}'
         # Append the action, if any
@@ -511,30 +514,11 @@ def clean_html(html, schemes):
     Sanitizes HTML based on a whitelist of allowed tags and attributes.
     Also takes a list of allowed URI schemes.
     """
-
-    ALLOWED_TAGS = {
-        "div", "pre", "code", "blockquote", "del",
-        "hr", "h1", "h2", "h3", "h4", "h5", "h6",
-        "ul", "ol", "li", "p", "br",
-        "strong", "em", "a", "b", "i", "img",
-        "table", "thead", "tbody", "tr", "th", "td",
-        "dl", "dt", "dd",
-    }
-
-    ALLOWED_ATTRIBUTES = {
-        "div": ['class'],
-        "h1": ["id"], "h2": ["id"], "h3": ["id"], "h4": ["id"], "h5": ["id"], "h6": ["id"],
-        "a": ["href", "title"],
-        "img": ["src", "title", "alt"],
-        "th": ["align"],
-        "td": ["align"],
-    }
-
-    return bleach.clean(
+    return nh3.clean(
         html,
-        tags=ALLOWED_TAGS,
-        attributes=ALLOWED_ATTRIBUTES,
-        protocols=schemes
+        tags=HTML_ALLOWED_TAGS,
+        attributes=HTML_ALLOWED_ATTRIBUTES,
+        url_schemes=set(schemes)
     )
 
 

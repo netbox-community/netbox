@@ -5,11 +5,11 @@
   {% if heading %}
     <h5 class="card-header{% if panel_class %} text-{{ panel_class }}{% endif %}">{{ heading }}</h5>
   {% endif %}
-  <div class="card-body table-responsive">
-    {% if table.rows %}
+  {% if table.rows %}
+    <div class="table-responsive">
       {% render_table table 'inc/table.html' %}
-    {% else %}
-      <div class="text-muted">{% trans "None" %}</div>
-    {% endif %}
-  </div>
+    </div>
+  {% else %}
+    <div class="card-body text-muted">{% trans "None" %}</div>
+  {% endif %}
 </div>
