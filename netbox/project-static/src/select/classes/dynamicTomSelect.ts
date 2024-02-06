@@ -3,6 +3,7 @@ import { addClasses } from 'tom-select/src/vanilla'
 import queryString from 'query-string';
 import TomSelect from 'tom-select';
 import type { Stringifiable } from 'query-string';
+import { DynamicParamsMap } from './dynamicParamsMap';
 
 // Transitional
 import { QueryFilter } from '../../select_old/api/types'
@@ -16,6 +17,7 @@ export class DynamicTomSelect extends TomSelect {
    */
   private readonly queryParams: QueryFilter = new Map();
   private readonly staticParams: QueryFilter = new Map();
+  private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
 
   /**
    * Overrides
@@ -32,6 +34,15 @@ export class DynamicTomSelect extends TomSelect {
     for (const [key, value] of this.staticParams.entries()) {
       this.queryParams.set(key, value);
     }
+
+    // Populate dynamic query parameters
+    this.getDynamicParams();
+    for (const filter of this.dynamicParams.keys()) {
+      this.updateQueryParams(filter);
+    }
+
+    // Add dependency event listeners.
+    this.addEventListeners();
   }
 
   load(value: string) {
@@ -40,9 +51,7 @@ export class DynamicTomSelect extends TomSelect {
 
     // Automatically clear any cached options. (Only options included
     // in the API response should be present.)
-    if (value) {
-      self.clearOptions();
-    }
+    self.clearOptions();
 
     addClasses(self.wrapper, self.settings.loadingClass);
     self.loading++;
@@ -112,6 +121,116 @@ export class DynamicTomSelect extends TomSelect {
       console.warn(err);
       console.groupEnd();
     }
+  }
+
+  // Determine if this instances' options should be filtered by the value of another select
+  // element. Looks for the DOM attribute `data-dynamic-params`, the value of which is a JSON
+  // array of objects containing information about how to handle the related field.
+  private getDynamicParams(): void {
+    const serialized = this.input.getAttribute('data-dynamic-params');
+    try {
+      this.dynamicParams.addFromJson(serialized);
+    } catch (err) {
+      console.group(`Unable to determine dynamic query parameters for select field '${this.name}'`);
+      console.warn(err);
+      console.groupEnd();
+    }
+  }
+
+  // Update an element's API URL based on the value of another element on which this element
+  // relies.
+  private updateQueryParams(fieldName: string): void {
+    // Find the element dependency.
+    const element = document.querySelector<HTMLSelectElement>(`[name="${fieldName}"]`);
+    if (element !== null) {
+      // Initialize the element value as an array, in case there are multiple values.
+      let elementValue = [] as Stringifiable[];
+
+      if (element.multiple) {
+        // If this is a multi-select (form filters, tags, etc.), use all selected options as the value.
+        elementValue = Array.from(element.options)
+          .filter(o => o.selected)
+          .map(o => o.value);
+      } else if (element.value !== '') {
+        // If this is single-select (most fields), use the element's value. This seemingly
+        // redundant/verbose check is mainly for performance, so we're not running the above three
+        // functions (`Array.from()`, `Array.filter()`, `Array.map()`) every time every select
+        // field's value changes.
+        elementValue = [element.value];
+      }
+
+      if (elementValue.length > 0) {
+        // If the field has a value, add it to the map.
+        this.dynamicParams.updateValue(fieldName, elementValue);
+        // Get the updated value.
+        const current = this.dynamicParams.get(fieldName);
+
+        if (typeof current !== 'undefined') {
+          const { queryParam, queryValue } = current;
+          let value = [] as Stringifiable[];
+
+          if (this.staticParams.has(queryParam)) {
+            // If the field is defined in `staticParams`, we should merge the dynamic value with
+            // the static value.
+            const staticValue = this.staticParams.get(queryParam);
+            if (typeof staticValue !== 'undefined') {
+              value = [...staticValue, ...queryValue];
+            }
+          } else {
+            // If the field is _not_ defined in `staticParams`, we should replace the current value
+            // with the new dynamic value.
+            value = queryValue;
+          }
+          if (value.length > 0) {
+            this.queryParams.set(queryParam, value);
+          } else {
+            this.queryParams.delete(queryParam);
+          }
+        }
+      } else {
+        // Otherwise, delete it (we don't want to send an empty query like `?site_id=`)
+        const queryParam = this.dynamicParams.queryParam(fieldName);
+        if (queryParam !== null) {
+          this.queryParams.delete(queryParam);
+        }
+      }
+    }
+  }
+
+  /**
+   * Add event listeners to this element and its dependencies so that when dependencies change
+   * this element's options are updated.
+   */
+  private addEventListeners(): void {
+
+    // Create a unique iterator of all possible form fields which, when changed, should cause this
+    // element to update its API query.
+    // const dependencies = new Set([...this.dynamicParams.keys(), ...this.pathValues.keys()]);
+    const dependencies = this.dynamicParams.keys();
+
+    for (const dep of dependencies) {
+      const filterElement = document.querySelector(`[name="${dep}"]`);
+      if (filterElement !== null) {
+        // Subscribe to dependency changes.
+        filterElement.addEventListener('change', event => this.handleEvent(event));
+      }
+      // Subscribe to changes dispatched by this state manager.
+      this.input.addEventListener(`netbox.select.onload.${dep}`, event => this.handleEvent(event));
+    }
+  }
+
+  // Event handler to be dispatched any time a dependency's value changes. For example, when the
+  // value of `tenant_group` changes, `handleEvent` is called to get the current value of
+  // `tenant_group` and update the query parameters and API query URL for the `tenant` field.
+  private handleEvent(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    // Update the element's URL after any changes to a dependency.
+    this.updateQueryParams(target.name);
+    // this.updatePathValues(target.name);
+    // this.updateQueryUrl();
+
+    // Load new data.
+    this.load(this.lastValue);
   }
 
 }
