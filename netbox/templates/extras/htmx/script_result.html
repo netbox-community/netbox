@@ -1,5 +1,6 @@
 {% load humanize %}
 {% load helpers %}
+{% load log_levels %}
 {% load i18n %}
 
 <p>
@@ -16,59 +17,99 @@
   <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
 </p>
 {% if job.completed %}
-  <div class="card">
-    <h5 class="card-header">{% trans "Script Methods" %}</h5>
-    <table class="table table-hover">
-      {% for method, data in job.data.logs.items %}
+  <div class="card mb-3">
+    <h5 class="card-header">{% trans "Script Log" %}</h5>
+    <table class="table table-hover panel-body">
+      <tr>
+        <th>{% trans "Line" %}</th>
+        <th>{% trans "Level" %}</th>
+        <th>{% trans "Message" %}</th>
+      </tr>
+      {% for log in job.data.log %}
         <tr>
-          <td class="font-monospace"><a href="#{{ method }}">{{ method }}</a></td>
-          <td class="text-end script-stats">
-            <span class="badge text-bg-success">{{ data.success }}</span>
-            <span class="badge text-bg-info">{{ data.info }}</span>
-            <span class="badge text-bg-warning">{{ data.warning }}</span>
-            <span class="badge text-bg-danger">{{ data.failure }}</span>
+          <td>{{ forloop.counter }}</td>
+          <td>{% log_level log.status %}</td>
+          <td class="rendered-markdown">{{ log.message|markdown }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="3" class="text-center text-muted">
+            {% trans "No log output" %}
           </td>
         </tr>
       {% endfor %}
     </table>
+    {% if execution_time %}
+      <div class="card-footer text-end text-muted">
+        <small>{% trans "Exec Time" %}: {{ execution_time|floatformat:3 }} {% trans "seconds" context "Unit of time" %}</small>
+      </div>
+    {% endif %}
   </div>
-  <h2 class="card-header">{% trans "Script Results" %}</h2>
+  <h4>{% trans "Output" %}</h4>
+  {% if job.data.output %}
+    <pre class="block">{{ job.data.output }}</pre>
+  {% else %}
+    <p class="text-muted">{% trans "None" %}</p>
+  {% endif %}
 
-  {% for method, data in job.data.logs.items %}
-  <div class="card">
-    <h5 class="card-header"><a name="{{ method }}"></a>{{ method }}</h5>
-    <table class="table table-hover script">
-      <thead>
-        <tr>
-          <th>{% trans "Time" %}</th>
-          <th>{% trans "Level" %}</th>
-          <th>{% trans "Object" %}</th>
-          <th>{% trans "Message" %}</th>
-        </tr>
-      </thead>
-      <tbody>
-          {% for time, level, obj, url, message in data.log %}
-            <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
-              <td>{{ time }}</td>
-              <td>
-                <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
-              </td>
-              <td>
-                {% if obj and url %}
-                  <a href="{{ url }}">{{ obj }}</a>
-                {% elif obj %}
-                  {{ obj }}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-              <td class="rendered-markdown">{{ message|markdown }}</td>
+  {% if tests %}
+    <div class="card">
+      <h5 class="card-header">{% trans "Report Summary" %}</h5>
+      <table class="table table-hover">
+        {% for test, data in tests.items %}
+          <tr>
+            <td class="font-monospace"><a href="#{{ test }}">{{ test }}</a></td>
+            <td class="text-end report-stats">
+              <span class="badge text-bg-success">{{ data.success }}</span>
+              <span class="badge text-bg-info">{{ data.info }}</span>
+              <span class="badge text-bg-warning">{{ data.warning }}</span>
+              <span class="badge text-bg-danger">{{ data.failure }}</span>
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+    <div class="card">
+      <h5 class="card-header">{% trans "Report Results" %}</h5>
+      <table class="table table-hover report">
+        <thead>
+          <tr class="table-headings">
+            <th>{% trans "Time" %}</th>
+            <th>{% trans "Level" %}</th>
+            <th>{% trans "Object" %}</th>
+            <th>{% trans "Message" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for test, data in tests.items %}
+            <tr>
+              <th colspan="4" style="font-family: monospace">
+                <a name="{{ test }}"></a>{{ test }}
+              </th>
             </tr>
+            {% for time, level, obj, url, message in data.log %}
+              <tr class="{% if level == 'failure' %}danger{% elif level %}{{ level }}{% endif %}">
+                <td>{{ time }}</td>
+                <td>
+                  <label class="badge text-bg-{% if level == 'failure' %}danger{% else %}{{ level }}{% endif %}">{{ level|title }}</label>
+                </td>
+                <td>
+                  {% if obj and url %}
+                    <a href="{{ url }}">{{ obj }}</a>
+                  {% elif obj %}
+                    {{ obj }}
+                  {% else %}
+                    {{ ''|placeholder }}
+                  {% endif %}
+                </td>
+                <td class="rendered-markdown">{{ message|markdown }}</td>
+              </tr>
+            {% endfor %}
           {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
 {% elif job.started %}
   {% include 'extras/inc/result_pending.html' %}
 {% endif %}

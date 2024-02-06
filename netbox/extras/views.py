@@ -1153,32 +1153,28 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
         module = job.object
         script = module.scripts[job.name]()
 
-        legacy_script = False
-        legacy_report = False
-        if job.data and ('logs' not in job.data):
-            if 'log' in job.data:
-                legacy_script = True
-            else:
-                legacy_report = True
+        context = {
+            'script': script,
+            'job': job,
+        }
+        if job.data and 'log' in job.data:
+            # Script
+            context['tests'] = job.data.get('tests', {})
+        elif job.data:
+            # Legacy Report
+            context['tests'] = {
+                name: data for name, data in job.data.items()
+                if name.startswith('test_')
+            }
 
         # If this is an HTMX request, return only the result HTML
         if request.htmx:
-            response = render(request, 'extras/htmx/script_result.html', {
-                'script': script,
-                'job': job,
-                'legacy_script': legacy_script,
-                'legacy_report': legacy_report,
-            })
+            response = render(request, 'extras/htmx/script_result.html', context)
             if job.completed or not job.started:
                 response.status_code = 286
             return response
 
-        return render(request, 'extras/script_result.html', {
-            'script': script,
-            'job': job,
-            'legacy_script': legacy_script,
-            'legacy_report': legacy_report,
-        })
+        return render(request, 'extras/script_result.html', context)
 
 
 #

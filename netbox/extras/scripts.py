@@ -273,10 +273,11 @@ class BaseScript:
         pass
 
     def __init__(self):
-        self._logs = {}
-        self._failed = False
-        self._current_method = ''
-        self._output = ''
+        self.messages = []  # Primary script log
+        self.tests = {}  # Mapping of logs for test methods
+        self.output = ''
+        self.failed = False
+        self._current_method = ''  # Tracks the current test method being run (if any)
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
@@ -285,25 +286,15 @@ class BaseScript:
         self.request = None
 
         # Compile test methods and initialize results skeleton
-        self._logs[''] = {
-            LogLevelChoices.LOG_SUCCESS: 0,
-            LogLevelChoices.LOG_INFO: 0,
-            LogLevelChoices.LOG_WARNING: 0,
-            LogLevelChoices.LOG_FAILURE: 0,
-            'log': [],
-        }
-        test_methods = []
         for method in dir(self):
             if method.startswith('test_') and callable(getattr(self, method)):
-                test_methods.append(method)
-                self._logs[method] = {
+                self.tests[method] = {
                     LogLevelChoices.LOG_SUCCESS: 0,
                     LogLevelChoices.LOG_INFO: 0,
                     LogLevelChoices.LOG_WARNING: 0,
                     LogLevelChoices.LOG_FAILURE: 0,
                     'log': [],
                 }
-        self.test_methods = test_methods
 
     def __str__(self):
         return self.name
@@ -448,10 +439,10 @@ class BaseScript:
         if level not in LogLevelChoices.values():
             raise ValueError(f"Invalid logging level: {level}")
 
-        if message:
+        # A test method is currently active, so log the message using legacy Report logging
+        if self._current_method:
 
-            # Record to the script's log
-            self._logs[self._current_method]['log'].append((
+            self.tests[self._current_method]['log'].append((
                 timezone.now().isoformat(),
                 level,
                 str(obj) if obj else None,
@@ -459,18 +450,21 @@ class BaseScript:
                 str(message),
             ))
 
+            # Increment the event counter for this level
+            if level in self.tests[self._current_method]:
+                self.tests[self._current_method][level] += 1
+
+        elif message:
+
+            # Record to the script's log
+            self.messages.append(
+                (level, str(message))
+            )
+
             # Record to the system log
             if obj:
                 message = f"{obj}: {message}"
             self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], message)
-
-        # Increment the event counter for this level if applicable
-        if level in self._logs[self._current_method]:
-            self._logs[self._current_method][level] += 1
-
-            # For individual test methods, increment the global counter as well
-            if self._current_method:
-                self._logs[''][level] += 1
 
     def log_debug(self, message, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)
@@ -486,7 +480,7 @@ class BaseScript:
 
     def log_failure(self, message, obj=None):
         self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
-        self._failed = True
+        self.failed = True
 
     #
     # Convenience functions
@@ -528,7 +522,7 @@ class BaseScript:
         self.logger.info(f"Running report")
 
         try:
-            for method_name in self.test_methods:
+            for method_name in self.tests:
                 self._current_method = method_name
                 test_method = getattr(self, method_name)
                 test_method()
@@ -606,11 +600,12 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     script.request = request
 
     def set_job_data(script):
-        logs = script._logs
         job.data = {
-            'logs': logs,
-            'output': script._output,
+            'log': script.messages,
+            'output': script.output,
+            'tests': script.tests,
         }
+
         return job
 
     def _run_script():
@@ -621,7 +616,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         try:
             try:
                 with transaction.atomic():
-                    script._output = script.run(data, commit)
+                    script.output = script.run(data, commit)
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
@@ -635,7 +630,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                 if request:
                     clear_events.send(request)
             job = set_job_data(script)
-            if script._failed:
+            if script.failed:
                 logger.warning(f"Script failed")
                 job.terminate(status=JobStatusChoices.STATUS_FAILED)
             else:
