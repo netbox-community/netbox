@@ -491,7 +491,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     if isinstance(data, str):
         data = json.loads(data)
         form = script.as_form(data)
-        if  form.is_valid():
+        if form.is_valid():
             data = form.cleaned_data
 
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")

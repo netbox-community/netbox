@@ -171,7 +171,7 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
             return True
 
         return ConditionSet(self.conditions).eval(data)
-    
+
     def render_script_data(self, context):
         """
         Render Script Data, if defined. Otherwise, jump the context as a JSON object.
