@@ -277,7 +277,7 @@ class BaseScript:
         self.tests = {}  # Mapping of logs for test methods
         self.output = ''
         self.failed = False
-        self._current_method = ''  # Tracks the current test method being run (if any)
+        self._current_test = None  # Tracks the current test method being run (if any)
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
@@ -440,10 +440,10 @@ class BaseScript:
             raise ValueError(f"Invalid logging level: {level}")
 
         # A test method is currently active, so log the message using legacy Report logging
-        if self._current_method:
+        if self._current_test:
 
             # TODO: Use a dataclass for test method logs
-            self.tests[self._current_method]['log'].append((
+            self.tests[self._current_test]['log'].append((
                 timezone.now().isoformat(),
                 level,
                 str(obj) if obj else None,
@@ -452,8 +452,8 @@ class BaseScript:
             ))
 
             # Increment the event counter for this level
-            if level in self.tests[self._current_method]:
-                self.tests[self._current_method][level] += 1
+            if level in self.tests[self._current_test]:
+                self.tests[self._current_test][level] += 1
 
         elif message:
 
@@ -525,16 +525,15 @@ class BaseScript:
         self.logger.info(f"Running report")
 
         try:
-            for method_name in self.tests:
-                self._current_method = method_name
-                test_method = getattr(self, method_name)
+            for test_name in self.tests:
+                self._current_test = test_name
+                test_method = getattr(self, test_name)
                 test_method()
+                self._current_test = None
         except Exception as e:
+            self._current_test = None
             self.post_run()
-            self._current_method = ''
             raise e
-
-        self._current_method = ''
 
     def pre_run(self):
         """
