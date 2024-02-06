@@ -394,9 +394,18 @@ class BaseScript:
         return ordered_vars
 
     def run(self, data, commit):
-        raise NotImplementedError("The script must define a run() method.")
+        """
+        Override this method with custom script logic.
+        """
 
+        # Backward compatibility for legacy Reports
+        self.pre_run()
+        self.run_tests()
+        self.post_run()
+
+    #
     # Form rendering
+    #
 
     def get_fieldsets(self):
         fieldsets = []
@@ -435,7 +444,9 @@ class BaseScript:
 
         return form
 
+    #
     # Logging
+    #
 
     def _log(self, message, obj=None, level=LogLevelChoices.LOG_DEFAULT):
         """
@@ -484,7 +495,9 @@ class BaseScript:
         self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
         self._failed = True
 
+    #
     # Convenience functions
+    #
 
     def load_yaml(self, filename):
         """
@@ -511,6 +524,10 @@ class BaseScript:
 
         return data
 
+    #
+    # Legacy Report functionality
+    #
+
     def run_tests(self):
         """
         Run the report and save its results. Each test method will be executed in order.
@@ -529,20 +546,15 @@ class BaseScript:
 
         self._current_method = ''
 
-    def run(self, data, commit):
-        self.pre_run()
-        self.run_tests()
-        self.post_run()
-
     def pre_run(self):
         """
-        Extend this method to include any tasks which should execute *before* the report is run.
+        Legacy method for operations performed immediately prior to running a Report.
         """
         pass
 
     def post_run(self):
         """
-        Extend this method to include any tasks which should execute *after* the report is run.
+        Legacy method for operations performed immediately after running a Report.
         """
         pass
 
