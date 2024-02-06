@@ -2,6 +2,7 @@ import strawberry
 from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.schema.config import StrawberryConfig
 from circuits.graphql.schema import CircuitsQuery
+from core.graphql.schema import CoreQuery
 from users.graphql.schema import UsersQuery
 # from virtualization.graphql.schema import VirtualizationQuery
 # from vpn.graphql.schema import VPNQuery
@@ -12,16 +13,16 @@ from users.graphql.schema import UsersQuery
 class Query(
     UsersQuery,
     CircuitsQuery,
-    #     CoreQuery,
-    #     DCIMQuery,
-    #     ExtrasQuery,
-    #     IPAMQuery,
-    #     TenancyQuery,
-    #     VirtualizationQuery,
-    #     VPNQuery,
-    #     WirelessQuery,
-    #     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
-    #     graphene.ObjectType
+    CoreQuery,
+    # DCIMQuery,
+    # ExtrasQuery,
+    # IPAMQuery,
+    # TenancyQuery,
+    # VirtualizationQuery,
+    # VPNQuery,
+    # WirelessQuery,
+    # *registry['plugins']['graphql_schemas'],  # Append plugin schemas
+    # graphene.ObjectType
 ):
     pass
 
