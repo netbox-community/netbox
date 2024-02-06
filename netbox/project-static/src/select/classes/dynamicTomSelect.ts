@@ -87,8 +87,9 @@ export class DynamicTomSelect extends TomSelect {
       query['q'] = [search];
     }
 
-    // Enable "brief" mode
-    query['brief'] = ['True'];
+    // Add standard parameters
+    query['brief'] = [true];
+    query['limit'] = [100];
 
     return queryString.stringifyUrl({ url, query });
   }
