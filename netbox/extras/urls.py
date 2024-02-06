@@ -130,9 +130,9 @@ urlpatterns = [
     path('scripts/add/', views.ScriptModuleCreateView.as_view(), name='scriptmodule_add'),
     path('scripts/results/<int:job_pk>/', views.ScriptResultView.as_view(), name='script_result'),
     path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
-    path('scripts/<str:module>/<str:name>/', views.ScriptView.as_view(), name='script'),
-    path('scripts/<str:module>/<str:name>/source/', views.ScriptSourceView.as_view(), name='script_source'),
-    path('scripts/<str:module>/<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
+    path('scripts/class/<int:pk>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/class/<int:pk>/source/', views.ScriptSourceView.as_view(), name='script_source'),
+    path('scripts/class/<int:pk>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),

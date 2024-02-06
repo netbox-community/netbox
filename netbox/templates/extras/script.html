@@ -17,7 +17,7 @@
         {% csrf_token %}
         <div class="field-group my-4">
           {# Render grouped fields according to declared fieldsets #}
-          {% for group, fields in script.get_fieldsets %}
+          {% for group, fields in script_class.get_fieldsets %}
             {% if fields %}
               <div class="field-group mb-5">
                 <div class="row">

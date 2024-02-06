@@ -8,13 +8,18 @@ def update_scripts(apps, schema_editor):
     from extras.models import ScriptModule
     ScriptModuleNew = apps.get_model('extras', 'ScriptModule')
     Script = apps.get_model('extras', 'Script')
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    ct = ContentType.objects.get(app_label='extras', model='script')
 
     for module in ScriptModule.objects.all():
         for script in module.get_module_scripts.keys():
-            Script.objects.create(
+            obj = Script.objects.create(
                 name=script,
                 module=ScriptModuleNew.objects.get(file_root=module.file_root, file_path=module.file_path),
             )
+
+            # update all jobs associated with this module/name to point to the new script obj
+            module.jobs.filter(name=name).update(object_type=ct, object_id=obj.id)
 
 
 class Migration(migrations.Migration):
@@ -34,6 +39,10 @@ class Migration(migrations.Migration):
             options={
                 'ordering': ('name', 'pk'),
             },
+        ),
+        migrations.AddConstraint(
+            model_name='script',
+            constraint=models.UniqueConstraint(fields=('name', 'module'), name='extras_script_unique_name_module'),
         ),
         migrations.RunPython(
             code=update_scripts,

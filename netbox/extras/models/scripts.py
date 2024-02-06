@@ -21,7 +21,7 @@ __all__ = (
 logger = logging.getLogger('netbox.data_backends')
 
 
-class Script(EventRulesMixin, models.Model):
+class Script(EventRulesMixin, JobsMixin, models.Model):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=79,
@@ -37,10 +37,23 @@ class Script(EventRulesMixin, models.Model):
 
     class Meta:
         ordering = ('name', 'pk')
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'module'),
+                name='%(app_label)s_%(class)s_unique_name_module'
+            ),
+        )
+        verbose_name = _('script')
+        verbose_name_plural = _('scripts')
 
     @cached_property
     def python_class(self):
         return self.module.get_module_scripts.get(self.name)
+
+    def get_jobs(self):
+        return self.module.jobs.filter(
+            name=self.name
+        )
 
 
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):

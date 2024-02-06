@@ -56,7 +56,7 @@
                 {% for script in module.scripts.all %}
                   <tr>
                     <td>
-                      <a href="{% url 'extras:script' module=module.python_name name=script.name %}" name="script.{{ script.name }}">{{ script.python_class.name }}</a>
+                      <a href="{% url 'extras:script' script.id %}" name="script.{{ script.name }}">{{ script.python_class.name }}</a>
                     </td>
                     <td>
                       {{ script.python_class.Meta.description|markdown|placeholder }}

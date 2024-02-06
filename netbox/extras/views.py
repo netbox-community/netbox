@@ -1226,27 +1226,28 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def get(self, request, module, name):
-        module = get_script_module(module, request)
-        script = module.scripts[name]()
-        jobs = module.get_jobs(script.class_name)
-        form = script.as_form(initial=normalize_querydict(request.GET))
+    def get(self, request, pk):
+        script = Script.objects.get(pk=pk)
+        script_class = script.python_class()
+        jobs = script.get_jobs()
+        form = script_class.as_form(initial=normalize_querydict(request.GET))
 
         return render(request, 'extras/script.html', {
             'job_count': jobs.count(),
-            'module': module,
+            'module': script.module,
             'script': script,
+            'script_class': script_class,
             'form': form,
         })
 
-    def post(self, request, module, name):
+    def post(self, request, pk):
         if not request.user.has_perm('extras.run_script'):
             return HttpResponseForbidden()
 
-        module = get_script_module(module, request)
-        script = module.scripts[name]()
-        jobs = module.get_jobs(script.class_name)
-        form = script.as_form(request.POST, request.FILES)
+        script = Script.objects.get(pk=pk)
+        script_class = script.python_class()
+        jobs = script.get_jobs()
+        form = script_class.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
         if not get_workers_for_queue('default'):
@@ -1255,8 +1256,8 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
         elif form.is_valid():
             job = Job.enqueue(
                 run_script,
-                instance=module,
-                name=script.class_name,
+                instance=script.module,
+                name=script_class.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
@@ -1270,8 +1271,9 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
 
         return render(request, 'extras/script.html', {
             'job_count': jobs.count(),
-            'module': module,
+            'module': script.module,
             'script': script,
+            'script_class': script_class,
             'form': form,
         })
 
@@ -1281,15 +1283,16 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def get(self, request, module, name):
-        module = get_script_module(module, request)
-        script = module.scripts[name]()
-        jobs = module.get_jobs(script.class_name)
+    def get(self, request, pk):
+        script = Script.objects.get(pk=pk)
+        script_class = script.python_class()
+        jobs = script.get_jobs()
 
         return render(request, 'extras/script/source.html', {
             'job_count': jobs.count(),
-            'module': module,
+            'module': script.module,
             'script': script,
+            'script_class': script_class,
             'tab': 'source',
         })
 
@@ -1299,10 +1302,10 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def get(self, request, module, name):
-        module = get_script_module(module, request)
-        script = module.scripts[name]()
-        jobs = module.get_jobs(script.class_name)
+    def get(self, request, pk):
+        script = Script.objects.get(pk=pk)
+        script_class = script.python_class()
+        jobs = script.get_jobs()
 
         jobs_table = JobTable(
             data=jobs,
@@ -1313,7 +1316,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
 
         return render(request, 'extras/script/jobs.html', {
             'job_count': jobs.count(),
-            'module': module,
+            'module': script.module,
             'script': script,
             'table': jobs_table,
             'tab': 'jobs',
