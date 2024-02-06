@@ -393,10 +393,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     user_id = DynamicModelMultipleChoiceField(
         queryset=get_user_model().objects.all(),
         required=False,
-        label=_('User'),
-        widget=APISelectMultiple(
-            api_url='/api/users/users/',
-        )
+        label=_('User')
     )
     tag = TagFilterField(model)
 
