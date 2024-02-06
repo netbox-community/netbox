@@ -17,46 +17,52 @@
   <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
 </p>
 {% if job.completed %}
-  <div class="card mb-3">
-    <h5 class="card-header">{% trans "Script Log" %}</h5>
-    <table class="table table-hover panel-body">
-      <tr>
-        <th>{% trans "Line" %}</th>
-        <th>{% trans "Time" %}</th>
-        <th>{% trans "Level" %}</th>
-        <th>{% trans "Message" %}</th>
-      </tr>
-      {% for log in job.data.log %}
-        <tr>
-          <td>{{ forloop.counter }}</td>
-          <td>{{ log.time|placeholder }}</td>
-          <td>{% log_level log.status %}</td>
-          <td class="rendered-markdown">{{ log.message|markdown }}</td>
-        </tr>
-      {% empty %}
-        <tr>
-          <td colspan="3" class="text-center text-muted">
-            {% trans "No log output" %}
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
-    {% if execution_time %}
-      <div class="card-footer text-end text-muted">
-        <small>{% trans "Exec Time" %}: {{ execution_time|floatformat:3 }} {% trans "seconds" context "Unit of time" %}</small>
-      </div>
-    {% endif %}
-  </div>
-  <h4>{% trans "Output" %}</h4>
-  {% if job.data.output %}
-    <pre class="block">{{ job.data.output }}</pre>
-  {% else %}
-    <p class="text-muted">{% trans "None" %}</p>
+
+  {# Script log. Legacy reports will not have this. #}
+  {% if 'log' in job.data %}
+    <div class="card mb-3">
+      <h5 class="card-header">{% trans "Log" %}</h5>
+      {% if job.data.log %}
+        <table class="table table-hover panel-body">
+          <tr>
+            <th>{% trans "Line" %}</th>
+            <th>{% trans "Time" %}</th>
+            <th>{% trans "Level" %}</th>
+            <th>{% trans "Message" %}</th>
+          </tr>
+          {% for log in job.data.log %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ log.time|placeholder }}</td>
+              <td>{% log_level log.status %}</td>
+              <td>{{ log.message|markdown }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+      {% else %}
+        <div class="card-body text-muted">{% trans "None" %}</div>
+      {% endif %}
+    </div>
   {% endif %}
 
+  {# Script output. Legacy reports will not have this. #}
+  {% if 'output' in job.data %}
+    <div class="card mb-3">
+    <h5 class="card-header">{% trans "Output" %}</h5>
+      {% if job.data.output %}
+        <pre class="card-body font-monospace">{{ job.data.output }}</pre>
+      {% else %}
+        <div class="card-body text-muted">{% trans "None" %}</div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {# Test method logs (for legacy Reports) #}
   {% if tests %}
+
+    {# Summary of test methods #}
     <div class="card">
-      <h5 class="card-header">{% trans "Report Summary" %}</h5>
+      <h5 class="card-header">{% trans "Test Summary" %}</h5>
       <table class="table table-hover">
         {% for test, data in tests.items %}
           <tr>
@@ -71,8 +77,10 @@
         {% endfor %}
       </table>
     </div>
+
+    {# Detailed results for individual tests #}
     <div class="card">
-      <h5 class="card-header">{% trans "Report Results" %}</h5>
+      <h5 class="card-header">{% trans "Test Details" %}</h5>
       <table class="table table-hover report">
         <thead>
           <tr class="table-headings">
@@ -111,6 +119,7 @@
         </tbody>
       </table>
     </div>
+
   {% endif %}
 {% elif job.started %}
   {% include 'extras/inc/result_pending.html' %}
