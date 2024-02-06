@@ -442,6 +442,7 @@ class BaseScript:
         # A test method is currently active, so log the message using legacy Report logging
         if self._current_method:
 
+            # TODO: Use a dataclass for test method logs
             self.tests[self._current_method]['log'].append((
                 timezone.now().isoformat(),
                 level,
@@ -457,9 +458,10 @@ class BaseScript:
         elif message:
 
             # Record to the script's log
-            self.messages.append(
-                (level, str(message))
-            )
+            self.messages.append({
+                'status': level,
+                'message': str(message),
+            })
 
             # Record to the system log
             if obj:
