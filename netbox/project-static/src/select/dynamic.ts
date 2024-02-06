@@ -11,6 +11,7 @@ export function initDynamicSelects(): void {
       valueField: 'id',
       labelField: 'display',
       searchField: [],
+      disabledField: select.getAttribute('disabled-indicator') || undefined,
       copyClassesToDropdown: false,
       dropdownParent: 'body',
       controlInput: '<input>',
