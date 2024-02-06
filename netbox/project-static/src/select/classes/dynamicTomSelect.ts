@@ -6,7 +6,8 @@ import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
 
 // Transitional
-import { QueryFilter } from '../../select_old/api/types'
+import { QueryFilter, PathFilter } from '../../select_old/api/types'
+import { getElement, replaceAll } from '../../util';
 
 
 // Extends TomSelect to provide enhanced fetching of options via the REST API
@@ -18,6 +19,7 @@ export class DynamicTomSelect extends TomSelect {
   private readonly queryParams: QueryFilter = new Map();
   private readonly staticParams: QueryFilter = new Map();
   private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
+  private readonly pathValues: PathFilter = new Map();
 
   /**
    * Overrides
@@ -39,6 +41,12 @@ export class DynamicTomSelect extends TomSelect {
     this.getDynamicParams();
     for (const filter of this.dynamicParams.keys()) {
       this.updateQueryParams(filter);
+    }
+
+    // Path values
+    this.getPathKeys();
+    for (const filter of this.pathValues.keys()) {
+      this.updatePathValues(filter);
     }
 
     // Add dependency event listeners.
@@ -73,13 +81,22 @@ export class DynamicTomSelect extends TomSelect {
 
   // Formulate and return the complete URL for an API request, including any query parameters.
   getRequestUrl(search: string): string {
-    const url = this.api_url;
+    let url = this.api_url;
 
     // Create new URL query parameters based on the current state of `queryParams` and create an
     // updated API query URL.
     const query = {} as Dict<Stringifiable[]>;
     for (const [key, value] of this.queryParams.entries()) {
       query[key] = value;
+    }
+
+    // Replace any variables in the URL with values from `pathValues` if set.
+    for (const [key, value] of this.pathValues.entries()) {
+      for (const result of this.api_url.matchAll(new RegExp(`({{${key}}})`, 'g'))) {
+        if (value) {
+          url = replaceAll(url, result[1], value.toString());
+        }
+      }
     }
 
     // Append the search query, if any
@@ -135,6 +152,16 @@ export class DynamicTomSelect extends TomSelect {
       console.group(`Unable to determine dynamic query parameters for select field '${this.name}'`);
       console.warn(err);
       console.groupEnd();
+    }
+  }
+
+
+  // Parse the `data-url` attribute to add any variables to `pathValues` as keys with empty
+  // values. As those keys' corresponding form fields' values change, `pathValues` will be
+  // updated to reflect the new value.
+  private getPathKeys() {
+    for (const result of this.api_url.matchAll(new RegExp(`{{(.+)}}`, 'g'))) {
+      this.pathValues.set(result[1], '');
     }
   }
 
@@ -198,16 +225,39 @@ export class DynamicTomSelect extends TomSelect {
     }
   }
 
-  /**
-   * Add event listeners to this element and its dependencies so that when dependencies change
-   * this element's options are updated.
-   */
-  private addEventListeners(): void {
+  // Update `pathValues` based on the form value of another element.
+  private updatePathValues(id: string): void {
+    const key = replaceAll(id, /^id_/i, '');
+    const element = getElement<HTMLSelectElement>(`id_${key}`);
+    if (element !== null) {
+      // If this element's URL contains variable tags ({{), replace the tag with the dependency's
+      // value. For example, if the dependency is the `rack` field, and the `rack` field's value
+      // is `1`, this element's URL would change from `/dcim/racks/{{rack}}/` to `/dcim/racks/1/`.
+      const hasReplacement =
+        this.api_url.includes(`{{`) && Boolean(this.api_url.match(new RegExp(`({{(${id})}})`, 'g')));
 
+      if (hasReplacement) {
+        if (element.value) {
+          // If the field has a value, add it to the map.
+          this.pathValues.set(id, element.value);
+        } else {
+          // Otherwise, reset the value.
+          this.pathValues.set(id, '');
+        }
+      }
+    }
+  }
+
+  /**
+   * Events
+   */
+
+  // Add event listeners to this element and its dependencies so that when dependencies change
+  //this element's options are updated.
+  private addEventListeners(): void {
     // Create a unique iterator of all possible form fields which, when changed, should cause this
     // element to update its API query.
-    // const dependencies = new Set([...this.dynamicParams.keys(), ...this.pathValues.keys()]);
-    const dependencies = this.dynamicParams.keys();
+    const dependencies = new Set([...this.dynamicParams.keys(), ...this.pathValues.keys()]);
 
     for (const dep of dependencies) {
       const filterElement = document.querySelector(`[name="${dep}"]`);
@@ -225,10 +275,10 @@ export class DynamicTomSelect extends TomSelect {
   // `tenant_group` and update the query parameters and API query URL for the `tenant` field.
   private handleEvent(event: Event): void {
     const target = event.target as HTMLSelectElement;
+
     // Update the element's URL after any changes to a dependency.
     this.updateQueryParams(target.name);
-    // this.updatePathValues(target.name);
-    // this.updateQueryUrl();
+    this.updatePathValues(target.name);
 
     // Load new data.
     this.load(this.lastValue);

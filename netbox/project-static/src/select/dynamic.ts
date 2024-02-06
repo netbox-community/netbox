@@ -16,6 +16,7 @@ export function initDynamicSelects(): void {
       dropdownParent: 'body',
       controlInput: '<input>',
       preload: 'focus',
+      maxOptions: 100,
 	});
   }
 
