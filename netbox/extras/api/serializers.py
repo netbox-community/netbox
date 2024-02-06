@@ -50,7 +50,6 @@ __all__ = (
     'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
-    'ScriptLogMessageSerializer',
     'ScriptSerializer',
     'TagSerializer',
     'WebhookSerializer',
