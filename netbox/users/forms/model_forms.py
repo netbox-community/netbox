@@ -186,8 +186,7 @@ class UserForm(forms.ModelForm):
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
         label=_('Permissions'),
-        queryset=ObjectPermission.objects.all(),
-        to_field_name='pk',
+        queryset=ObjectPermission.objects.all()
     )
 
     fieldsets = (
@@ -244,8 +243,7 @@ class GroupForm(forms.ModelForm):
     object_permissions = DynamicModelMultipleChoiceField(
         required=False,
         label=_('Permissions'),
-        queryset=ObjectPermission.objects.all(),
-        to_field_name='pk',
+        queryset=ObjectPermission.objects.all()
     )
 
     fieldsets = (

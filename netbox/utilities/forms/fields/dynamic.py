@@ -92,9 +92,6 @@ class DynamicModelChoiceMixin:
         self.fetch_trigger = fetch_trigger
         self.selector = selector
 
-        # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
-        # by widget_attrs()
-        self.to_field_name = kwargs.get('to_field_name')
         self.empty_option = empty_label or ""
 
         super().__init__(queryset, **kwargs)
@@ -103,10 +100,6 @@ class DynamicModelChoiceMixin:
         attrs = {
             'data-empty-option': self.empty_option
         }
-
-        # Set value-field attribute if the field specifies to_field_name
-        if self.to_field_name:
-            attrs['value-field'] = self.to_field_name
 
         # Set the string used to represent a null option
         if self.null_option is not None:
