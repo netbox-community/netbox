@@ -1918,7 +1918,7 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
             Tenant(name='Tenant 1', slug='tenant-1', group=tenant_groups[0]),
             Tenant(name='Tenant 2', slug='tenant-2', group=tenant_groups[1]),
             Tenant(name='Tenant 3', slug='tenant-3', group=tenant_groups[2]),
-            Tenant(name='Tenant 4', slug='tenant-4', group=tenant_groups[4]),
+            Tenant(name='Tenant 4', slug='tenant-4', group=tenant_groups[3]),
         )
         Tenant.objects.bulk_create(tenants)
 

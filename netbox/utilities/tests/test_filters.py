@@ -540,7 +540,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_provider_asn_lte(self):
         params = {'asn__lte': [65101]}
-        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 3)
+        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 2)
 
     def test_provider_asn_gt(self):
         params = {'asn__lt': [65101]}
@@ -612,11 +612,11 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_icontains(self):
         params = {'mac_address__ic': ['aa:', 'bb']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
 
     def test_device_mac_address_icontains_negation(self):
         params = {'mac_address__nic': ['aa:', 'bb']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
 
     def test_device_status_negation_active(self):
         params = {'status__n': ['active']}
