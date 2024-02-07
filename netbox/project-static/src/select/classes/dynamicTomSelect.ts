@@ -34,8 +34,8 @@ export class DynamicTomSelect extends TomSelect {
     // Set the null option (if any)
     const nullOption = this.input.getAttribute('data-null-option');
     if (nullOption) {
-      let valueField = user_settings.valueField || 'value';
-      let labelField = user_settings.labelField || 'text';
+      let valueField = this.settings.valueField;
+      let labelField = this.settings.labelField;
       this.nullOption = {}
       this.nullOption[valueField] = 'null';
       this.nullOption[labelField] = nullOption;
