@@ -1,4 +1,4 @@
-import { RecursivePartial, TomInput, TomSettings } from 'tom-select/dist/types/types';
+import { RecursivePartial, TomInput, TomOption, TomSettings } from 'tom-select/dist/types/types';
 import { addClasses } from 'tom-select/src/vanilla'
 import queryString from 'query-string';
 import TomSelect from 'tom-select';
@@ -13,9 +13,9 @@ import { getElement, replaceAll } from '../../util';
 // Extends TomSelect to provide enhanced fetching of options via the REST API
 export class DynamicTomSelect extends TomSelect {
 
-  /*
-   * Transitional code from APISelect
-   */
+  public readonly nullOption: Nullable<TomOption> = null;
+
+  // Transitional code from APISelect
   private readonly queryParams: QueryFilter = new Map();
   private readonly staticParams: QueryFilter = new Map();
   private readonly dynamicParams: DynamicParamsMap = new DynamicParamsMap();
@@ -30,6 +30,16 @@ export class DynamicTomSelect extends TomSelect {
 
     // Glean the REST API endpoint URL from the <select> element
     this.api_url = this.input.getAttribute('data-url') as string;
+
+    // Set the null option (if any)
+    const nullOption = this.input.getAttribute('data-null-option');
+    if (nullOption) {
+      let valueField = user_settings.valueField || 'value';
+      let labelField = user_settings.labelField || 'text';
+      this.nullOption = {}
+      this.nullOption[valueField] = 'null';
+      this.nullOption[labelField] = nullOption;
+    }
 
     // Populate static query parameters.
     this.getStaticParams();
@@ -63,6 +73,11 @@ export class DynamicTomSelect extends TomSelect {
 
     addClasses(self.wrapper, self.settings.loadingClass);
     self.loading++;
+
+    // Populate the null option (if any) if not searching
+    if (self.nullOption && !value) {
+      self.addOption(self.nullOption);
+    }
 
     // Make the API request
     fetch(url)
