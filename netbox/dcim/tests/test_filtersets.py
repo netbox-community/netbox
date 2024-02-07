@@ -1011,13 +1011,13 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'console_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_console_server_ports(self):
         params = {'console_server_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_server_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_power_ports(self):
         params = {'power_ports': 'true'}
@@ -1047,7 +1047,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_bays': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device_bays': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_module_bays(self):
         params = {'module_bays': 'true'}
@@ -2241,13 +2241,13 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'console_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_console_server_ports(self):
         params = {'console_server_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'console_server_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_power_ports(self):
         params = {'power_ports': 'true'}
@@ -2283,7 +2283,7 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_bays': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'device_bays': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_local_context_data(self):
         params = {'local_context_data': 'true'}
