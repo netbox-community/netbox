@@ -33,22 +33,6 @@ class Command(BaseCommand):
         parser.add_argument('script', help="Script to run")
 
     def handle(self, *args, **options):
-        def _output_results(job):
-
-            for test_name, attrs in job.data['logs'].items():
-                self.stdout.write(
-                    "\t{}: {} success, {} info, {} warning, {} failure".format(
-                        test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failure']
-                    )
-                )
-
-        def _set_job_data(script):
-            logs = script._logs
-            job.data = {
-                'logs': logs,
-                'output': script._output,
-            }
-            return job
 
         def _run_script():
             """
@@ -64,7 +48,7 @@ class Command(BaseCommand):
                 except AbortTransaction:
                     script.log_info("Database changes have been reverted automatically.")
                     clear_events.send(request)
-                _set_job_data(script)
+                job.data = script.get_job_data()
                 job.terminate()
             except Exception as e:
                 stacktrace = traceback.format_exc()
@@ -74,10 +58,17 @@ class Command(BaseCommand):
                 script.log_info("Database changes have been reverted due to error.")
                 logger.error(f"Exception raised during script execution: {e}")
                 clear_events.send(request)
-                _set_job_data(script)
+                job.data = script.get_job_data()
                 job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
 
-            _output_results(job)
+            # Print any test method results
+            for test_name, attrs in job.data['tests'].items():
+                self.stdout.write(
+                    "\t{}: {} success, {} info, {} warning, {} failure".format(
+                        test_name, attrs['success'], attrs['info'], attrs['warning'], attrs['failure']
+                    )
+                )
+
             logger.info(f"Script completed in {job.duration}")
 
         User = get_user_model()

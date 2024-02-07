@@ -387,6 +387,16 @@ class BaseScript:
         self.run_tests()
         self.post_run()
 
+    def get_job_data(self):
+        """
+        Return a dictionary of data to attach to the script's Job.
+        """
+        return {
+            'log': self.messages,
+            'output': self.output,
+            'tests': self.tests,
+        }
+
     #
     # Form rendering
     #
@@ -610,7 +620,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
 
         return job
 
-    def _run_script():
+    def _run_script(job):
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
         the event_tracking context manager (which is bypassed if commit == False).
@@ -622,21 +632,17 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
-                msg = _("Database changes have been reverted automatically.")
-                if is_report(type(script)):
-                    # script and legacy reports have different log function signatures
-                    script.log_info(message=msg)
-                else:
-                    script.log_info(msg)
-
+                script.log_info(message=_("Database changes have been reverted automatically."))
                 if request:
                     clear_events.send(request)
-            job = set_job_data(script)
+
+            job.data = script.get_job_data()
             if script.failed:
                 logger.warning(f"Script failed")
                 job.terminate(status=JobStatusChoices.STATUS_FAILED)
             else:
                 job.terminate()
+
         except Exception as e:
             if type(e) is AbortScript:
                 msg = _("Script aborted with error: ") + str(e)
@@ -648,19 +654,13 @@ def run_script(data, job, request=None, commit=True, **kwargs):
                 logger.error(f"Script aborted with error: {e}")
             else:
                 stacktrace = traceback.format_exc()
-                msg = _("An exception occurred: : ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
-                if is_report(type(script)):
-                    script.log_failure(message=msg)
-                else:
-                    script.log_failure(msg)
+                script.log_failure(
+                    message=_("An exception occurred: ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
+                )
                 logger.error(f"Exception raised during script execution: {e}")
-            msg = _("Database changes have been reverted due to error.")
-            if is_report(type(script)):
-                script.log_info(message=msg)
-            else:
-                script.log_info(msg)
+            script.log_info(message=_("Database changes have been reverted due to error."))
 
-            job = set_job_data(script)
+            job.data = script.get_job_data()
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
                 clear_events.send(request)
@@ -671,9 +671,9 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     # change logging, event rules, etc.
     if commit:
         with event_tracking(request):
-            _run_script()
+            _run_script(job)
     else:
-        _run_script()
+        _run_script(job)
 
     # Schedule the next job if an interval has been set
     if job.interval:
