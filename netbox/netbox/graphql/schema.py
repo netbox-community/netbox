@@ -3,6 +3,7 @@ from strawberry_django.optimizer import DjangoOptimizerExtension
 from strawberry.schema.config import StrawberryConfig
 from circuits.graphql.schema import CircuitsQuery
 from core.graphql.schema import CoreQuery
+from dcim.graphql.schema import DCIMQuery
 from users.graphql.schema import UsersQuery
 # from virtualization.graphql.schema import VirtualizationQuery
 # from vpn.graphql.schema import VPNQuery
@@ -14,7 +15,7 @@ class Query(
     UsersQuery,
     CircuitsQuery,
     CoreQuery,
-    # DCIMQuery,
+    DCIMQuery,
     # ExtrasQuery,
     # IPAMQuery,
     # TenancyQuery,
