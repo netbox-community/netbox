@@ -368,6 +368,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             ASN(asn=65001, rir=rir),
             ASN(asn=65101, rir=rir),
             ASN(asn=65201, rir=rir),
+            ASN(asn=65301, rir=rir),
         )
         ASN.objects.bulk_create(asns)
 
@@ -375,6 +376,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Manufacturer(name='Manufacturer 1', slug='manufacturer-1'),
             Manufacturer(name='Manufacturer 2', slug='manufacturer-2'),
             Manufacturer(name='Manufacturer 3', slug='manufacturer-3'),
+            Manufacturer(name='Manufacturer 4', slug='manufacturer-4'),
         )
         Manufacturer.objects.bulk_create(manufacturers)
 
@@ -382,6 +384,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             DeviceType(manufacturer=manufacturers[0], model='Model 1', slug='model-1', is_full_depth=True),
             DeviceType(manufacturer=manufacturers[1], model='Model 2', slug='model-2', is_full_depth=True),
             DeviceType(manufacturer=manufacturers[2], model='Model 3', slug='model-3', is_full_depth=False),
+            DeviceType(manufacturer=manufacturers[3], model='Model 4', slug='model-4', is_full_depth=False),
         )
         DeviceType.objects.bulk_create(device_types)
 
@@ -389,6 +392,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             DeviceRole(name='Device Role 1', slug='device-role-1'),
             DeviceRole(name='Device Role 2', slug='device-role-2'),
             DeviceRole(name='Device Role 3', slug='device-role-3'),
+            DeviceRole(name='Device Role 4', slug='device-role-4'),
         )
         DeviceRole.objects.bulk_create(roles)
 
@@ -396,6 +400,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Platform(name='Platform 1', slug='platform-1'),
             Platform(name='Platform 2', slug='platform-2'),
             Platform(name='Platform 3', slug='platform-3'),
+            Platform(name='Platform 4', slug='platform-4'),
         )
         Platform.objects.bulk_create(platforms)
 
@@ -403,6 +408,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Region(name='Region 1', slug='region-1'),
             Region(name='Region 2', slug='region-2'),
             Region(name='Region 3', slug='region-3'),
+            Region(name='Region 4', slug='region-4'),
         )
         for region in regions:
             region.save()
@@ -411,25 +417,80 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Site(name='Site 1', slug='abc-site-1', region=regions[0]),
             Site(name='Site 2', slug='def-site-2', region=regions[1]),
             Site(name='Site 3', slug='ghi-site-3', region=regions[2]),
+            Site(name='Site 4', slug='jkl-site-4', region=regions[3]),
         )
         Site.objects.bulk_create(sites)
 
         asns[0].sites.add(sites[0])
         asns[1].sites.add(sites[1])
         asns[2].sites.add(sites[2])
+        asns[3].sites.add(sites[3])
 
         racks = (
             Rack(name='Rack 1', site=sites[0]),
             Rack(name='Rack 2', site=sites[1]),
             Rack(name='Rack 3', site=sites[2]),
+            Rack(name='Rack 4', site=sites[3]),
         )
         Rack.objects.bulk_create(racks)
 
+        # Assemble the tuple of devices to be created in bulk.
         devices = (
-            Device(name='Device 1', device_type=device_types[0], role=roles[0], platform=platforms[0], serial='ABC', asset_tag='1001', site=sites[0], rack=racks[0], position=1, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_ACTIVE, local_context_data={"foo": 123}),
-            Device(name='Device 2', device_type=device_types[1], role=roles[1], platform=platforms[1], serial='DEF', asset_tag='1002', site=sites[1], rack=racks[1], position=2, face=DeviceFaceChoices.FACE_FRONT, status=DeviceStatusChoices.STATUS_STAGED),
-            Device(name='Device 3', device_type=device_types[2], role=roles[2], platform=platforms[2], serial='GHI', asset_tag='1003', site=sites[2], rack=racks[2], position=3, face=DeviceFaceChoices.FACE_REAR, status=DeviceStatusChoices.STATUS_FAILED),
+            Device(
+                name='Device 1',
+                device_type=device_types[0],
+                role=roles[0],
+                platform=platforms[0],
+                serial='ABC',
+                asset_tag='1001',
+                site=sites[0],
+                rack=racks[0],
+                position=1,
+                face=DeviceFaceChoices.FACE_FRONT,
+                status=DeviceStatusChoices.STATUS_ACTIVE,
+                local_context_data={"foo": 123},
+            ),
+            Device(
+                name='Device 2',
+                device_type=device_types[1],
+                role=roles[1],
+                platform=platforms[1],
+                serial='DEF',
+                asset_tag='1002',
+                site=sites[1],
+                rack=racks[1],
+                position=2,
+                face=DeviceFaceChoices.FACE_FRONT,
+                status=DeviceStatusChoices.STATUS_STAGED,
+            ),
+            Device(
+                name='Device 3',
+                device_type=device_types[2],
+                role=roles[2],
+                platform=platforms[2],
+                serial='GHI',
+                asset_tag='1003',
+                site=sites[2],
+                rack=racks[2],
+                position=3,
+                face=DeviceFaceChoices.FACE_REAR,
+                status=DeviceStatusChoices.STATUS_FAILED,
+            ),
+            Device(
+                name='Device 4',
+                device_type=device_types[3],
+                role=roles[3],
+                platform=platforms[3],
+                serial='JKL',
+                asset_tag='1004',
+                site=sites[3],
+                rack=racks[3],
+                position=4,
+                face=DeviceFaceChoices.FACE_REAR,
+                status=DeviceStatusChoices.STATUS_MAINTENANCE,
+            ),
         )
+
         Device.objects.bulk_create(devices)
 
         interfaces = (
@@ -439,12 +500,15 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Interface(device=devices[1], name='Interface 4', mac_address='bb-00-00-00-00-02'),
             Interface(device=devices[2], name='Interface 5', mac_address='00-00-00-00-00-03'),
             Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03'),
+            Interface(device=devices[3], name='Interface 7', mac_address='00-00-00-00-00-04'),
+            Interface(device=devices[3], name='Interface 8', mac_address='cc-00-00-00-00-04'),
+
         )
         Interface.objects.bulk_create(interfaces)
 
     def test_site_name_negation(self):
         params = {'name__n': ['Site 1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_slug_icontains(self):
         params = {'slug__ic': ['-1']}
@@ -452,7 +516,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_icontains_negation(self):
         params = {'slug__nic': ['-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_slug_startswith(self):
         params = {'slug__isw': ['abc']}
@@ -460,7 +524,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_startswith_negation(self):
         params = {'slug__nisw': ['abc']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_slug_endswith(self):
         params = {'slug__iew': ['-1']}
@@ -468,7 +532,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_endswith_negation(self):
         params = {'slug__niew': ['-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_provider_asn_lt(self):
         params = {'asn__lt': [65101]}
@@ -484,15 +548,15 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_provider_asn_gte(self):
         params = {'asn__gte': [65101]}
-        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 2)
+        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 3)
 
     def test_site_region_negation(self):
         params = {'region__n': ['region-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_region_id_negation(self):
         params = {'region_id__n': [Region.objects.first().pk]}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_device_name_eq(self):
         params = {'name': ['Device 1']}
@@ -500,15 +564,15 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_name_negation(self):
         params = {'name__n': ['Device 1']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_name_startswith(self):
         params = {'name__isw': ['Device']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 4)
 
     def test_device_name_startswith_negation(self):
         params = {'name__nisw': ['Device 1']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_name_endswith(self):
         params = {'name__iew': [' 1']}
@@ -516,7 +580,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_name_endswith_negation(self):
         params = {'name__niew': [' 1']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_name_icontains(self):
         params = {'name__ic': [' 2']}
@@ -528,7 +592,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_negation(self):
         params = {'mac_address__n': ['00-00-00-00-00-01', 'aa-00-00-00-00-01']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_startswith(self):
         params = {'mac_address__isw': ['aa:']}
@@ -536,7 +600,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_startswith_negation(self):
         params = {'mac_address__nisw': ['aa:']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_endswith(self):
         params = {'mac_address__iew': [':02']}
@@ -544,7 +608,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_endswith_negation(self):
         params = {'mac_address__niew': [':02']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_icontains(self):
         params = {'mac_address__ic': ['aa:', 'bb']}
@@ -552,4 +616,20 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_icontains_negation(self):
         params = {'mac_address__nic': ['aa:', 'bb']}
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+
+    def test_device_status_negation_active(self):
+        params = {'status__n': ['active']}
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
+
+    def test_device_status_negation_maintenance(self):
+        params = {'status__n': ['maintenance']}
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
+
+    def test_device_status_active(self):
+        params = {'status': ['active']}
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
+
+    def test_device_status_maintenance(self):
+        params = {'status': ['maintenance']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
