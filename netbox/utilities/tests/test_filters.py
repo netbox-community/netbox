@@ -500,7 +500,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
             Interface(device=devices[1], name='Interface 4', mac_address='bb-00-00-00-00-02'),
             Interface(device=devices[2], name='Interface 5', mac_address='00-00-00-00-00-03'),
             Interface(device=devices[2], name='Interface 6', mac_address='cc-00-00-00-00-03'),
-			Interface(device=devices[3], name='Interface 7', mac_address='00-00-00-00-00-04'),
+            Interface(device=devices[3], name='Interface 7', mac_address='00-00-00-00-00-04'),
             Interface(device=devices[3], name='Interface 8', mac_address='cc-00-00-00-00-04'),
 
         )
