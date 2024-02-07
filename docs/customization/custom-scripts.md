@@ -5,16 +5,17 @@ Custom scripting was introduced to provide a way for users to execute custom log
 * Automatically populate new devices and cables in preparation for a new site deployment
 * Create a range of new reserved prefixes or IP addresses
 * Fetch data from an external source and import it to NetBox
+* Update objects with invalid or incomplete data
 
-Custom scripts are Python code and exist outside of the official NetBox code base, so they can be updated and changed without interfering with the core NetBox installation. And because they're completely custom, there is no inherent limitation on what a script can accomplish.
-
-Custom scripts can also be used as a mechanism for validating the integrity of data within NetBox. Running a script can allow the user to verify that the objects defined within NetBox meet certain arbitrary conditions. For example, you can write script to check that:
+They can also be used as a mechanism for validating the integrity of data within NetBox. Script authors can define test to check object against specific rules and conditions. For example, you can write script to check that:
 
 * All top-of-rack switches have a console connection
 * Every router has a loopback interface with an IP address assigned
 * Each interface description conforms to a standard format
 * Every site has a minimum set of VLANs defined
 * All IP addresses have a parent prefix
+
+Custom scripts are Python code which exists outside the NetBox code base, so they can be updated and changed without interfering with the core NetBox installation. And because they're completely custom, there is no inherent limitation on what a script can accomplish.
 
 ## Writing Custom Scripts
 
@@ -143,13 +144,73 @@ These two methods will load data in YAML or JSON format, respectively, from file
 
 The Script object provides a set of convenient functions for recording messages at different severity levels:
 
-* `log(message)`
+* `log_debug(message, object=None)`
 * `log_success(message, object=None)`
 * `log_info(message, object=None)`
 * `log_warning(message, object=None)`
 * `log_failure(message, object=None)`
 
-Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages.  An optional object can be passed that will be linked in the rendered message.
+Log messages are returned to the user upon execution of the script. Markdown rendering is supported for log messages. A message may optionally be associated with a particular object by passing it as the second argument to the logging method.
+
+## Test Methods
+
+A script can define one or more test methods to report on certain conditions. All test methods must have a name beginning with `test_` and accept no arguments beyond `self`.
+
+These methods are detected and run automatically when the script is executed, unless its `run()` method has been overridden. (When overriding `run()`, `run_tests()` can be called to run all test methods present in the script.)
+
+!!! info
+    This functionality was ported from [legacy reports](./reports.md) in NetBox v4.0.
+
+### Example
+
+```
+from dcim.choices import DeviceStatusChoices
+from dcim.models import ConsolePort, Device, PowerPort
+from extras.scripts import Script
+
+
+class DeviceConnectionsReport(Script):
+    description = "Validate the minimum physical connections for each device"
+
+    def test_console_connection(self):
+
+        # Check that every console port for every active device has a connection defined.
+        active = DeviceStatusChoices.STATUS_ACTIVE
+        for console_port in ConsolePort.objects.prefetch_related('device').filter(device__status=active):
+            if not console_port.connected_endpoints:
+                self.log_failure(
+                    f"No console connection defined for {console_port.name}",
+                    console_port.device,
+                )
+            elif not console_port.connection_status:
+                self.log_warning(
+                    f"Console connection for {console_port.name} marked as planned",
+                    console_port.device,
+                )
+            else:
+                self.log_success("Passed", console_port.device)
+
+    def test_power_connections(self):
+
+        # Check that every active device has at least two connected power supplies.
+        for device in Device.objects.filter(status=DeviceStatusChoices.STATUS_ACTIVE):
+            connected_ports = 0
+            for power_port in PowerPort.objects.filter(device=device):
+                if power_port.connected_endpoints:
+                    connected_ports += 1
+                    if not power_port.path.is_active:
+                        self.log_warning(
+                            f"Power connection for {power_port.name} marked as planned",
+                            device,
+                        )
+            if connected_ports < 2:
+                self.log_failure(
+                    f"{connected_ports} connected power supplies found (2 needed)",
+                    device,
+                )
+            else:
+                self.log_success("Passed", device)
+```
 
 ## Change Logging
 
@@ -418,62 +479,3 @@ class NewBranchScript(Script):
 
         return '\n'.join(output)
 ```
-
-## Test Methods
-
-Within each script class, we can create a number of test methods to validate the integrity of various data. In DeviceConnectionsReport, for instance, we want to ensure that every live device has a console connection, an out-of-band management connection, and two power connections.
-
-```
-from dcim.choices import DeviceStatusChoices
-from dcim.models import ConsolePort, Device, PowerPort
-from extras.scripts import Script
-
-
-class DeviceConnectionsReport(Script):
-    description = "Validate the minimum physical connections for each device"
-
-    def test_console_connection(self):
-
-        # Check that every console port for every active device has a connection defined.
-        active = DeviceStatusChoices.STATUS_ACTIVE
-        for console_port in ConsolePort.objects.prefetch_related('device').filter(device__status=active):
-            if not console_port.connected_endpoints:
-                self.log_failure(
-                    "No console connection defined for {}".format(console_port.name),
-                    console_port.device,
-                )
-            elif not console_port.connection_status:
-                self.log_warning(
-                    "Console connection for {} marked as planned".format(console_port.name),
-                    console_port.device,
-                )
-            else:
-                self.log_success("success", console_port.device)
-
-    def test_power_connections(self):
-
-        # Check that every active device has at least two connected power supplies.
-        for device in Device.objects.filter(status=DeviceStatusChoices.STATUS_ACTIVE):
-            connected_ports = 0
-            for power_port in PowerPort.objects.filter(device=device):
-                if power_port.connected_endpoints:
-                    connected_ports += 1
-                    if not power_port.path.is_active:
-                        self.log_warning(
-                            "Power connection for {} marked as planned".format(power_port.name),
-                            device,
-                        )
-            if connected_ports < 2:
-                self.log_failure(
-                    "{} connected power supplies found (2 needed)".format(connected_ports),
-                    device,
-                )
-            else:
-                self.log_success("success", device)
-
-    def run(self, data, commit):
-        self.run_tests()
-
-```
-
-`run_tests()` is a helper function that will run every method that starts with `test_`

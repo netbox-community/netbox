@@ -1,62 +1,63 @@
 # NetBox Reports
 
 !!! warning
-    Reports are deprecated and merged with [custom scripts](./custom-scripts.md) as of NetBox 4.0.  You should convert any legacy reports to use Script as described below
+    Reports are deprecated beginning with NetBox v4.0, and their functionality has been merged with [custom scripts](./custom-scripts.md). While backward compatibility has been maintained, users are advised to convert legacy reports into custom scripts soon, as support for legacy reports will be removed in a future release.
 
 ## Converting Reports to Scripts
 
-### Step 1: Change Class Definition
+### Step 1: Update Class Definition
 
-First change the import and class definition to use Script.  For example:
+Change the parent class from `Report` to `Script`:
 
-```
+```python title="Old code"
 from extras.reports import Report
 
-class DeviceConnectionsReport(Report):
+class MyReport(Report):
 ```
-change to:
 
-```
+```python title="New code"
 from extras.scripts import Script
 
-class DeviceConnectionsReport(Script):
+class MyReport(Script):
 ```
 
-### Step 2: Change Logging Calls
+### Step 2: Update Logging Calls
 
-The logging methods require the object and message in the logging call to be swapped.  For example:
+Reports and scripts both provide logging methods, however their signatures differ. All script logging methods accept a message as the first parameter, and accept an object as an optional second parameter.
 
+Additionally, the Report class' generic `log()` method is **not** available on Script. Users are advised to replace calls of this method with `log_info()`.
 
+Use the table below as a reference when updating these methods.
+
+| Report (old)                  | Script (New)                |
+|-------------------------------|-----------------------------|
+| `log(message)`                | `log_info(message)`         |
+| `log_debug(obj, message)`[^1] | `log_debug(message, obj)`   |
+| `log_info(obj, message)`      | `log_info(message, obj)`    |
+| `log_success(obj, message)`   | `log_success(message, obj)` |
+| `log_warning(obj, message)`   | `log_warning(message, obj)` |
+| `log_failure(obj, message)`   | `log_failure(message, obj)` |
+
+[^1]: `log_debug()` was added to the Report class in v4.0 to avoid confusion with the same method on Script
+
+```python title="Old code"
+self.log_failure(
+    console_port.device,
+    f"No console connection defined for {console_port.name}"
+)
 ```
-    self.log_failure(
-        console_port.device,
-        "No console connection defined for {}".format(console_port.name)
-    )
+
+```python title="New code"
+self.log_failure(
+    f"No console connection defined for {console_port.name}",
+    obj=console_port.device,
+)
 ```
 
-should be changed to:
+### Other Notes
 
-```
-    self.log_failure(
-        "No console connection defined for {}".format(console_port.name),
-        console_port.device,
-    )
-```
+Existing reports will be converted to scripts automatically upon upgrading to NetBox v4.0, and previous job history will be retained. However, users are advised to convert legacy reports into custom scripts at the earliest opportunity, as support for legacy reports will be removed in a future release.
 
-This applies to all log_ functions:
+The `pre_run()` and `post_run()` Report methods have been carried over to Script. These are called automatically by Script's `run()` method. (Note that if you opt to override this method, you are responsible for calling `pre_run()` and `post_run()` where applicable.)
 
-* log_success(object, message) -> log_success(message, object)
-* log_info(object, message) -> log_info(message, object)
-* log_warning(object, message) -> log_warning(message, object)
-* log_failure(object, message) -> log_failure(message, object)
-
-### Optional Run Method
-
-Scripts have a default run method that will automatically run all the `test_` methods as well as the pre_run and post_run functions.  You can also define a run method and call `run_tests()` to call all the `test_` functions:
-
-```
-    def run(self, data, commit):
-        self.run_tests()
-
-```
-Any functionality needed for pre or post run can just be put into the the run method before or after the call to run_tests.
+The `is_valid()` method on Report is no longer needed and has been removed.
