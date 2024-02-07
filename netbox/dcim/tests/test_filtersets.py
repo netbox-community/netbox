@@ -971,7 +971,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'is_full_depth': True}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'is_full_depth': False}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_subdevice_role(self):
         params = {'subdevice_role': SubdeviceRoleChoices.ROLE_PARENT}
@@ -1023,7 +1023,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'power_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'power_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_power_outlets(self):
         params = {'power_outlets': 'true'}
@@ -1053,7 +1053,7 @@ class DeviceTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'module_bays': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'module_bays': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_inventory_items(self):
         params = {'inventory_items': 'true'}
@@ -1200,7 +1200,7 @@ class ModuleTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'pass_through_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
         params = {'weight': [10, 20]}
@@ -2191,7 +2191,7 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'is_full_depth': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'is_full_depth': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_airflow(self):
         params = {'airflow': DeviceAirflowChoices.AIRFLOW_FRONT_TO_REAR}
@@ -2253,7 +2253,7 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'power_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'power_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_power_outlets(self):
         params = {'power_outlets': 'true'}
@@ -2271,13 +2271,13 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'pass_through_ports': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'pass_through_ports': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_module_bays(self):
         params = {'module_bays': 'true'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'module_bays': 'false'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_device_bays(self):
         params = {'device_bays': 'true'}
