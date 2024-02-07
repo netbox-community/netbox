@@ -50,6 +50,24 @@ class DeviceTestCase(TestCase):
         self.assertTrue(form.is_valid())
         self.assertTrue(form.save())
 
+    def test_racked_device_maintenance_status(self):
+        form = DeviceForm(data={
+            'name': 'Maintenance Device',
+            'role': DeviceRole.objects.first().pk,
+            'tenant': None,
+            'manufacturer': Manufacturer.objects.first().pk,
+            'device_type': DeviceType.objects.first().pk,
+            'site': Site.objects.first().pk,
+            'rack': Rack.objects.first().pk,
+            'face': DeviceFaceChoices.FACE_FRONT,
+            'position': 3,
+            'platform': Platform.objects.first().pk,
+            'status': DeviceStatusChoices.STATUS_MAINTENANCE,
+        })
+        self.assertTrue(form.is_valid())
+        self.assertTrue(form.save())
+
+
     def test_racked_device_occupied(self):
         form = DeviceForm(data={
             'name': 'test',
