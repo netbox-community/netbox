@@ -67,7 +67,6 @@ class DeviceTestCase(TestCase):
         self.assertTrue(form.is_valid())
         self.assertTrue(form.save())
 
-
     def test_racked_device_occupied(self):
         form = DeviceForm(data={
             'name': 'test',
