@@ -434,7 +434,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
         )
         Rack.objects.bulk_create(racks)
 
-		# Assemble the tuple of devices to be created in bulk.
+        # Assemble the tuple of devices to be created in bulk.
         devices = (
             Device(
                 name='Device 1',
