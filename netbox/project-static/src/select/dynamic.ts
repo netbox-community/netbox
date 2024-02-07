@@ -1,14 +1,14 @@
+import { TomOption } from 'tom-select/src/types';
+import { escape_html } from 'tom-select/src/utils';
+import { DynamicTomSelect } from './classes/dynamicTomSelect';
 import { getElements } from '../util';
-import { DynamicTomSelect } from './classes/dynamicTomSelect'
 
 const VALUE_FIELD = 'id';
 const LABEL_FIELD = 'display';
 const MAX_OPTIONS = 100;
 
-
 // Render the HTML for a dropdown option
-function renderOption(data: any, escape: Function) {
-
+function renderOption(data: TomOption, escape: typeof escape_html) {
   // If the option has a `_depth` property, indent its label
   if (typeof data._depth === 'number' && data._depth > 0) {
     return `<div>${'─'.repeat(data._depth)} ${escape(data[LABEL_FIELD])}</div>`;
@@ -17,10 +17,8 @@ function renderOption(data: any, escape: Function) {
   return `<div>${escape(data[LABEL_FIELD])}</div>`;
 }
 
-
 // Initialize <select> elements which are populated via a REST API call
 export function initDynamicSelects(): void {
-
   for (const select of getElements<HTMLSelectElement>('select.api-select')) {
     new DynamicTomSelect(select, {
       valueField: VALUE_FIELD,
@@ -42,12 +40,13 @@ export function initDynamicSelects(): void {
 
       // Define custom rendering functions
       render: {
-        option: renderOption
+        option: renderOption,
       },
 
       // By default, load() will be called only if query.length > 0
-      shouldLoad: function(): boolean { return true; }
-	});
+      shouldLoad: function (): boolean {
+        return true;
+      },
+    });
   }
-
 }

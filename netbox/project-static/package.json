@@ -40,6 +40,7 @@
   "devDependencies": {
     "@types/bootstrap": "5.2.10",
     "@types/cookie": "^0.5.1",
+    "@types/node": "^20.11.16",
     "@typescript-eslint/eslint-plugin": "^5.39.0",
     "@typescript-eslint/parser": "^5.39.0",
     "esbuild": "^0.13.15",
