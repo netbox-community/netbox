@@ -50,8 +50,6 @@ __all__ = (
     'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
-    'ScriptLogMessageSerializer',
-    'ScriptOutputSerializer',
     'ScriptSerializer',
     'TagSerializer',
     'WebhookSerializer',
@@ -602,22 +600,6 @@ class ScriptInputSerializer(serializers.Serializer):
         if value and not self.context['script'].scheduling_enabled:
             raise serializers.ValidationError("Scheduling is not enabled for this script.")
         return value
-
-
-class ScriptLogMessageSerializer(serializers.Serializer):
-    status = serializers.SerializerMethodField(read_only=True)
-    message = serializers.SerializerMethodField(read_only=True)
-
-    def get_status(self, instance):
-        return instance[0]
-
-    def get_message(self, instance):
-        return instance[1]
-
-
-class ScriptOutputSerializer(serializers.Serializer):
-    log = ScriptLogMessageSerializer(many=True, read_only=True)
-    output = serializers.CharField(read_only=True)
 
 
 #

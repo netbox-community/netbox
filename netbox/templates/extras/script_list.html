@@ -1,13 +1,10 @@
 {% extends 'generic/_base.html' %}
 {% load buttons %}
 {% load helpers %}
+{% load perms %}
 {% load i18n %}
 
 {% block title %}{% trans "Scripts" %}{% endblock %}
-
-{% block controls %}
-  {% add_button model %}
-{% endblock controls %}
 
 {% block tabs %}
   <ul class="nav nav-tabs">
@@ -17,73 +14,117 @@
   </ul>
 {% endblock tabs %}
 
+{% block controls %}
+  {% add_button model %}
+{% endblock controls %}
+
 {% block content %}
   {% for module in script_modules %}
+    {% include 'inc/sync_warning.html' with object=module %}
     <div class="card">
       <h5 class="card-header justify-content-between" id="module{{ module.pk }}">
         <div>
           <i class="mdi mdi-file-document-outline"></i> {{ module }}
         </div>
         {% if perms.extras.delete_scriptmodule %}
-          <div class="float-end">
-            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-            </a>
-          </div>
+          <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
+          </a>
         {% endif %}
       </h5>
-      <div class="card-body">
-        {% include 'inc/sync_warning.html' with object=module %}
-        {% if not module.scripts %}
-          <div class="alert alert-warning d-flex align-items-center" role="alert">
-            <i class="mdi mdi-alert"></i>
-            {% blocktrans trimmed with file_path=module.full_path %}
-              Script file at <code class="mx-1">{{ file_path }}</code> could not be loaded.
-            {% endblocktrans %}
-          </div>
-        {% else %}
-          <table class="table table-hover reports">
-            <thead>
-              <tr>
-                <th width="250">{% trans "Name" %}</th>
-                <th>{% trans "Description" %}</th>
-                <th>{% trans "Last Run" %}</th>
-                <th class="text-end">{% trans "Status" %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% with jobs=module.get_latest_jobs %}
-                {% for script_name, script_class in module.scripts.items %}
+      {% if module.scripts %}
+        <table class="table table-hover scripts">
+          <thead>
+            <tr>
+              <th>{% trans "Name" %}</th>
+              <th>{% trans "Description" %}</th>
+              <th>{% trans "Last Run" %}</th>
+              <th>{% trans "Status" %}</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% with jobs=module.get_latest_jobs %}
+              {% for script_name, script in module.scripts.items %}
+                {% with last_job=jobs|get_key:script.class_name %}
                   <tr>
                     <td>
-                      <a href="{% url 'extras:script' module=module.python_name name=script_name %}" name="script.{{ script_name }}">{{ script_class.name }}</a>
+                      <a href="{% url 'extras:script' module=module.python_name name=script.class_name %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
                     </td>
+                    <td>{{ script.description|markdown|placeholder }}</td>
+                    {% if last_job %}
+                      <td>
+                        <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|annotated_date }}</a>
+                      </td>
+                      <td>
+                        {% badge last_job.get_status_display last_job.get_status_color %}
+                      </td>
+                    {% else %}
+                      <td class="text-muted">{% trans "Never" %}</td>
+                      <td>{{ ''|placeholder }}</td>
+                    {% endif %}
                     <td>
-                      {{ script_class.Meta.description|markdown|placeholder }}
-                    </td>
-                    {% with last_result=jobs|get_key:script_class.class_name %}
-                      {% if last_result %}
-                        <td>
-                          <a href="{% url 'extras:script_result' job_pk=last_result.pk %}">{{ last_result.created|annotated_date }}</a>
-                        </td>
-                        <td class="text-end">
-                          {% badge last_result.get_status_display last_result.get_status_color %}
-                        </td>
-                      {% else %}
-                        <td class="text-muted">{% trans "Never" %}</td>
-                        <td class="text-end">{{ ''|placeholder }}</td>
+                      {% if perms.extras.run_script %}
+                        <div class="float-end d-print-none">
+                          <form action="{% url 'extras:script' module=script.module name=script.class_name %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" name="_run" class="btn btn-primary btn-sm">
+                              {% if last_job %}
+                                <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
+                              {% else %}
+                                <i class="mdi mdi-play"></i> {% trans "Run Script" %}
+                              {% endif %}
+                            </button>
+                          </form>
+                        </div>
                       {% endif %}
-                    {% endwith %}
+                    </td>
                   </tr>
-                {% endfor %}
-              {% endwith %}
-            </tbody>
-          </table>
-        {% endif %}
-      </div>
+                  {% if last_job %}
+                    {% for test_name, data in last_job.data.tests.items %}
+                      <tr>
+                        <td colspan="4" class="method">
+                          <span class="ps-3">{{ test_name }}</span>
+                        </td>
+                        <td class="text-end text-nowrap script-stats">
+                          <span class="badge text-bg-success">{{ data.success }}</span>
+                          <span class="badge text-bg-info">{{ data.info }}</span>
+                          <span class="badge text-bg-warning">{{ data.warning }}</span>
+                          <span class="badge text-bg-danger">{{ data.failure }}</span>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% elif not last_job.data.log %}
+                    {# legacy #}
+                    {% for method, stats in last_job.data.items %}
+                      <tr>
+                        <td colspan="4" class="method">
+                          <span class="ps-3">{{ method }}</span>
+                        </td>
+                        <td class="text-end text-nowrap report-stats">
+                          <span class="badge bg-success">{{ stats.success }}</span>
+                          <span class="badge bg-info">{{ stats.info }}</span>
+                          <span class="badge bg-warning">{{ stats.warning }}</span>
+                          <span class="badge bg-danger">{{ stats.failure }}</span>
+                        </td>
+                      </tr>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+              {% endfor %}
+            {% endwith %}
+          </tbody>
+        </table>
+      {% else %}
+        <div class="card-body">
+          <div class="alert alert-warning" role="alert">
+            <i class="mdi mdi-alert"></i> Could not load scripts from {{ module.name }}
+          </div>
+        </div>
+      {% endif %}
     </div>
   {% empty %}
-    <div class="alert alert-info">
+    <div class="alert alert-info" role="alert">
       <h4 class="alert-heading">{% trans "No Scripts Found" %}</h4>
       {% if perms.extras.add_scriptmodule %}
         {% url 'extras:scriptmodule_add' as create_script_url %}
