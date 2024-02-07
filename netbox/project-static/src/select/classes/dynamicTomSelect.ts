@@ -6,7 +6,7 @@ import type { Stringifiable } from 'query-string';
 import { DynamicParamsMap } from './dynamicParamsMap';
 
 // Transitional
-import { QueryFilter, PathFilter } from '../../select_old/api/types'
+import { QueryFilter, PathFilter } from '../types'
 import { getElement, replaceAll } from '../../util';
 
 
