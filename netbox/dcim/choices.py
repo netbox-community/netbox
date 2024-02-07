@@ -167,6 +167,7 @@ class DeviceStatusChoices(ChoiceSet):
     STATUS_FAILED = 'failed'
     STATUS_INVENTORY = 'inventory'
     STATUS_DECOMMISSIONING = 'decommissioning'
+    STATUS_MAINTENANCE = 'maintenance'
 
     CHOICES = [
         (STATUS_OFFLINE, _('Offline'), 'gray'),
@@ -176,6 +177,7 @@ class DeviceStatusChoices(ChoiceSet):
         (STATUS_FAILED, _('Failed'), 'red'),
         (STATUS_INVENTORY, _('Inventory'), 'purple'),
         (STATUS_DECOMMISSIONING, _('Decommissioning'), 'yellow'),
+        (STATUS_MAINTENANCE, _('Maintenance'), 'orange'),
     ]
 
 
