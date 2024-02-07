@@ -4,6 +4,7 @@ from strawberry.schema.config import StrawberryConfig
 from circuits.graphql.schema import CircuitsQuery
 from core.graphql.schema import CoreQuery
 from dcim.graphql.schema import DCIMQuery
+from extras.graphql.schema import ExtrasQuery
 from users.graphql.schema import UsersQuery
 # from virtualization.graphql.schema import VirtualizationQuery
 # from vpn.graphql.schema import VPNQuery
@@ -16,7 +17,7 @@ class Query(
     CircuitsQuery,
     CoreQuery,
     DCIMQuery,
-    # ExtrasQuery,
+    ExtrasQuery,
     # IPAMQuery,
     # TenancyQuery,
     # VirtualizationQuery,

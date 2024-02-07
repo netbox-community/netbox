@@ -56,7 +56,8 @@ class CustomFieldType(ObjectType):
 
 @strawberry_django.type(
     models.CustomFieldChoiceSet,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('extra_choices', ),  # bug - temp
     filters=CustomFieldChoiceSetFilter
 )
 class CustomFieldChoiceSetType(ObjectType):
