@@ -121,7 +121,7 @@ export class DynamicTomSelect extends TomSelect {
 
     // Add standard parameters
     query['brief'] = [true];
-    query['limit'] = [100];
+    query['limit'] = [this.settings.maxOptions];
 
     return queryString.stringifyUrl({ url, query });
   }
