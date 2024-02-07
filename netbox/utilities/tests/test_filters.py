@@ -508,7 +508,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_name_negation(self):
         params = {'name__n': ['Site 1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_slug_icontains(self):
         params = {'slug__ic': ['-1']}
@@ -516,7 +516,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_icontains_negation(self):
         params = {'slug__nic': ['-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_slug_startswith(self):
         params = {'slug__isw': ['abc']}
@@ -524,7 +524,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_startswith_negation(self):
         params = {'slug__nisw': ['abc']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_slug_endswith(self):
         params = {'slug__iew': ['-1']}
@@ -532,7 +532,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_site_slug_endswith_negation(self):
         params = {'slug__niew': ['-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_provider_asn_lt(self):
         params = {'asn__lt': [65101]}
@@ -540,7 +540,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_provider_asn_lte(self):
         params = {'asn__lte': [65101]}
-        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 2)
+        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 3)
 
     def test_provider_asn_gt(self):
         params = {'asn__lt': [65101]}
@@ -548,15 +548,15 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_provider_asn_gte(self):
         params = {'asn__gte': [65101]}
-        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 2)
+        self.assertEqual(ASNFilterSet(params, ASN.objects.all()).qs.count(), 3)
 
     def test_site_region_negation(self):
         params = {'region__n': ['region-1']}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_site_region_id_negation(self):
         params = {'region_id__n': [Region.objects.first().pk]}
-        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 2)
+        self.assertEqual(SiteFilterSet(params, Site.objects.all()).qs.count(), 3)
 
     def test_device_name_eq(self):
         params = {'name': ['Device 1']}
@@ -564,7 +564,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_name_negation(self):
         params = {'name__n': ['Device 1']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_name_startswith(self):
         params = {'name__isw': ['Device']}
@@ -572,7 +572,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_name_startswith_negation(self):
         params = {'name__nisw': ['Device 1']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_name_endswith(self):
         params = {'name__iew': [' 1']}
@@ -580,7 +580,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_name_endswith_negation(self):
         params = {'name__niew': [' 1']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_name_icontains(self):
         params = {'name__ic': [' 2']}
@@ -592,7 +592,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_negation(self):
         params = {'mac_address__n': ['00-00-00-00-00-01', 'aa-00-00-00-00-01']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_startswith(self):
         params = {'mac_address__isw': ['aa:']}
@@ -600,7 +600,7 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_startswith_negation(self):
         params = {'mac_address__nisw': ['aa:']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_endswith(self):
         params = {'mac_address__iew': [':02']}
@@ -608,28 +608,28 @@ class DynamicFilterLookupExpressionTest(TestCase):
 
     def test_device_mac_address_endswith_negation(self):
         params = {'mac_address__niew': [':02']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_icontains(self):
         params = {'mac_address__ic': ['aa:', 'bb']}
-        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 2)
+        self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_mac_address_icontains_negation(self):
         params = {'mac_address__nic': ['aa:', 'bb']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
 
     def test_device_status_negation_active(self):
-        params = {'status__n': 'active'}
+        params = {'status__n': ['active']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_status_negation_maintenance(self):
-        params = {'status__n': 'maintenance'}
+        params = {'status__n': ['maintenance']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 3)
 
     def test_device_status_active(self):
-        params = {'status': 'active'}
+        params = {'status': ['active']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
 
     def test_device_status_maintenance(self):
-        params = {'status': 'maintenance'}
+        params = {'status': ['maintenance']}
         self.assertEqual(DeviceFilterSet(params, Device.objects.all()).qs.count(), 1)
