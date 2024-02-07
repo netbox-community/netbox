@@ -1,44 +1,27 @@
-import graphene
+from typing import List
+import strawberry
+import strawberry_django
 
-from netbox.graphql.fields import ObjectField, ObjectListField
-from tenancy import models
+from circuits import models
 from .types import *
-from utilities.graphql_optimizer import gql_query_optimizer
 
 
-class TenancyQuery(graphene.ObjectType):
-    tenant = ObjectField(TenantType)
-    tenant_list = ObjectListField(TenantType)
+@strawberry.type
+class TenancyQuery:
+    tenant: TenantType = strawberry_django.field()
+    tenant_list: List[TenantType] = strawberry_django.field()
 
-    def resolve_tenant_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Tenant.objects.all(), info)
+    tenant_group: TenantGroupType = strawberry_django.field()
+    tenant_group_list: List[TenantGroupType] = strawberry_django.field()
 
-    tenant_group = ObjectField(TenantGroupType)
-    tenant_group_list = ObjectListField(TenantGroupType)
+    contact: ContactType = strawberry_django.field()
+    contact_list: List[ContactType] = strawberry_django.field()
 
-    def resolve_tenant_group_list(root, info, **kwargs):
-        return gql_query_optimizer(models.TenantGroup.objects.all(), info)
+    contact_role: ContactRoleType = strawberry_django.field()
+    contact_role_list: List[ContactRoleType] = strawberry_django.field()
 
-    contact = ObjectField(ContactType)
-    contact_list = ObjectListField(ContactType)
+    contact_group: ContactGroupType = strawberry_django.field()
+    contact_group_list: List[ContactGroupType] = strawberry_django.field()
 
-    def resolve_contact_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Contact.objects.all(), info)
-
-    contact_role = ObjectField(ContactRoleType)
-    contact_role_list = ObjectListField(ContactRoleType)
-
-    def resolve_contact_role_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ContactRole.objects.all(), info)
-
-    contact_group = ObjectField(ContactGroupType)
-    contact_group_list = ObjectListField(ContactGroupType)
-
-    def resolve_contact_group_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ContactGroup.objects.all(), info)
-
-    contact_assignment = ObjectField(ContactAssignmentType)
-    contact_assignment_list = ObjectListField(ContactAssignmentType)
-
-    def resolve_contact_assignment_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ContactAssignment.objects.all(), info)
+    contact_assignment: ContactAssignmentType = strawberry_django.field()
+    contact_assignment_list: List[ContactAssignmentType] = strawberry_django.field()

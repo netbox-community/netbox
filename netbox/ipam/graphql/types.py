@@ -26,7 +26,7 @@ __all__ = (
 )
 
 
-class IPAddressFamilyType(graphene.ObjectType):
+class IPAddressFamilyType:
 
     # value = graphene.Int()
     # label = graphene.String()
@@ -50,8 +50,9 @@ class BaseIPAddressFamilyType:
 
 @strawberry_django.type(
     models.ASN,
-    fields='__all__',
-    filters=ProviderFilter
+    # fields='__all__',
+    exclude=('asn',),  # bug - temp
+    filters=ASNFilter
 )
 class ASNType(NetBoxObjectType):
     # asn = graphene.Field(BigInt)
@@ -60,7 +61,8 @@ class ASNType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.ASNRange,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('start', 'end',),  # bug - temp
     filters=ASNRangeFilter
 )
 class ASNRangeType(NetBoxObjectType):
@@ -69,7 +71,8 @@ class ASNRangeType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Aggregate,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('prefix',),  # bug - temp
     filters=AggregateFilter
 )
 class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
@@ -99,7 +102,7 @@ class FHRPGroupAssignmentType(BaseObjectType):
 
 @strawberry_django.type(
     models.IPAddress,
-    exclude=('assigned_object_type', 'assigned_object_id'),
+    exclude=('assigned_object_type', 'assigned_object_id', 'address'),
     filters=IPAddressFilter
 )
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
@@ -111,7 +114,8 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
 
 @strawberry_django.type(
     models.IPRange,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('start_address', 'end_address',),  # bug - temp
     filters=IPRangeFilter
 )
 class IPRangeType(NetBoxObjectType):
@@ -122,7 +126,8 @@ class IPRangeType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Prefix,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('prefix',),  # bug - temp
     filters=PrefixFilter
 )
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
@@ -158,7 +163,8 @@ class RouteTargetType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Service,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('ports',),  # bug - temp
     filters=ServiceFilter
 )
 class ServiceType(NetBoxObjectType):
@@ -167,7 +173,8 @@ class ServiceType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.ServiceTemplate,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('ports',),  # bug - temp
     filters=ServiceTemplateFilter
 )
 class ServiceTemplateType(NetBoxObjectType):
