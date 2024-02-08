@@ -1051,7 +1051,7 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get_script(self, request, pk):
-        self.script = Script.objects.get_object_or_404(pk=pk)
+        self.script = get_object_or_404(Script.objects.all(), pk=pk)
         if self.script.python_class:
             self.script_class = self.script.python_class()
         else:
@@ -1147,7 +1147,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request, pk):
-        self.script = Script.objects.get_object_or_404(pk=pk)
+        self.script = get_object_or_404(Script.objects.all(), pk=pk)
         if self.script.python_class:
             self.script_class = self.script.python_class()
         else:
