@@ -26,7 +26,7 @@ def update_scripts(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0106_bookmark_user_cascade_deletion'),
+        ('extras', '0107_convert_reports_to_scripts'),
     ]
 
     operations = [
