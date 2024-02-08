@@ -10,9 +10,9 @@ from ipam.graphql.schema import IPAMQuery
 from netbox.registry import registry
 from tenancy.graphql.schema import TenancyQuery
 from users.graphql.schema import UsersQuery
-# from virtualization.graphql.schema import VirtualizationQuery
-# from vpn.graphql.schema import VPNQuery
-# from wireless.graphql.schema import WirelessQuery
+from virtualization.graphql.schema import VirtualizationQuery
+from vpn.graphql.schema import VPNQuery
+from wireless.graphql.schema import WirelessQuery
 
 
 @strawberry.type
@@ -24,9 +24,9 @@ class Query(
     ExtrasQuery,
     IPAMQuery,
     TenancyQuery,
-    # VirtualizationQuery,
-    # VPNQuery,
-    # WirelessQuery,
+    VirtualizationQuery,
+    VPNQuery,
+    WirelessQuery,
     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
 ):
     pass

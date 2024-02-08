@@ -1,44 +1,27 @@
-import graphene
+from typing import List
+import strawberry
+import strawberry_django
 
-from netbox.graphql.fields import ObjectField, ObjectListField
-from .types import *
-from utilities.graphql_optimizer import gql_query_optimizer
 from virtualization import models
+from .types import *
 
 
-class VirtualizationQuery(graphene.ObjectType):
-    cluster = ObjectField(ClusterType)
-    cluster_list = ObjectListField(ClusterType)
+@strawberry.type
+class VirtualizationQuery:
+    cluster: ClusterType = strawberry_django.field()
+    cluster_list: List[ClusterType] = strawberry_django.field()
 
-    def resolve_cluster_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Cluster.objects.all(), info)
+    cluster_group: ClusterGroupType = strawberry_django.field()
+    cluster_group_list: List[ClusterGroupType] = strawberry_django.field()
 
-    cluster_group = ObjectField(ClusterGroupType)
-    cluster_group_list = ObjectListField(ClusterGroupType)
+    cluster_type: ClusterTypeType = strawberry_django.field()
+    cluster_type_list: List[ClusterTypeType] = strawberry_django.field()
 
-    def resolve_cluster_group_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ClusterGroup.objects.all(), info)
+    virtual_machine: VirtualMachineType = strawberry_django.field()
+    virtual_machine_list: List[VirtualMachineType] = strawberry_django.field()
 
-    cluster_type = ObjectField(ClusterTypeType)
-    cluster_type_list = ObjectListField(ClusterTypeType)
+    vm_interface: VMInterfaceType = strawberry_django.field()
+    vm_interface_list: List[VMInterfaceType] = strawberry_django.field()
 
-    def resolve_cluster_type_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ClusterType.objects.all(), info)
-
-    virtual_machine = ObjectField(VirtualMachineType)
-    virtual_machine_list = ObjectListField(VirtualMachineType)
-
-    def resolve_virtual_machine_list(root, info, **kwargs):
-        return gql_query_optimizer(models.VirtualMachine.objects.all(), info)
-
-    vm_interface = ObjectField(VMInterfaceType)
-    vm_interface_list = ObjectListField(VMInterfaceType)
-
-    def resolve_vm_interface_list(root, info, **kwargs):
-        return gql_query_optimizer(models.VMInterface.objects.all(), info)
-
-    virtual_disk = ObjectField(VirtualDiskType)
-    virtual_disk_list = ObjectListField(VirtualDiskType)
-
-    def resolve_virtual_disk_list(root, info, **kwargs):
-        return gql_query_optimizer(models.VirtualDisk.objects.all(), info)
+    virtual_disk: VirtualDiskType = strawberry_django.field()
+    virtual_disk_list: List[VirtualDiskType] = strawberry_django.field()

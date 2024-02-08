@@ -1,69 +1,39 @@
-import graphene
+from typing import List
+import strawberry
+import strawberry_django
 
-from netbox.graphql.fields import ObjectField, ObjectListField
-from utilities.graphql_optimizer import gql_query_optimizer
 from vpn import models
 from .types import *
 
 
-class VPNQuery(graphene.ObjectType):
+@strawberry.type
+class VPNQuery:
+    ike_policy: IKEPolicyType = strawberry_django.field()
+    ike_policy_list: List[IKEPolicyType] = strawberry_django.field()
 
-    ike_policy = ObjectField(IKEPolicyType)
-    ike_policy_list = ObjectListField(IKEPolicyType)
+    ike_proposal: IKEProposalType = strawberry_django.field()
+    ike_proposal_list: List[IKEProposalType] = strawberry_django.field()
 
-    def resolve_ike_policy_list(root, info, **kwargs):
-        return gql_query_optimizer(models.IKEPolicy.objects.all(), info)
+    ipsec_policy: IPSecPolicyType = strawberry_django.field()
+    ipsec_policy_list: List[IPSecPolicyType] = strawberry_django.field()
 
-    ike_proposal = ObjectField(IKEProposalType)
-    ike_proposal_list = ObjectListField(IKEProposalType)
+    ipsec_profile: IPSecProfileType = strawberry_django.field()
+    ipsec_profile_list: List[IPSecProfileType] = strawberry_django.field()
 
-    def resolve_ike_proposal_list(root, info, **kwargs):
-        return gql_query_optimizer(models.IKEProposal.objects.all(), info)
+    ipsec_proposal: IPSecProposalType = strawberry_django.field()
+    ipsec_proposal_list: List[IPSecProposalType] = strawberry_django.field()
 
-    ipsec_policy = ObjectField(IPSecPolicyType)
-    ipsec_policy_list = ObjectListField(IPSecPolicyType)
+    l2vpn: L2VPNType = strawberry_django.field()
+    l2vpn_list: List[L2VPNType] = strawberry_django.field()
 
-    def resolve_ipsec_policy_list(root, info, **kwargs):
-        return gql_query_optimizer(models.IPSecPolicy.objects.all(), info)
+    l2vpn_termination: L2VPNTerminationType = strawberry_django.field()
+    l2vpn_termination_list: List[L2VPNTerminationType] = strawberry_django.field()
 
-    ipsec_profile = ObjectField(IPSecProfileType)
-    ipsec_profile_list = ObjectListField(IPSecProfileType)
+    tunnel: TunnelType = strawberry_django.field()
+    tunnel_list: List[TunnelType] = strawberry_django.field()
 
-    def resolve_ipsec_profile_list(root, info, **kwargs):
-        return gql_query_optimizer(models.IPSecProfile.objects.all(), info)
+    tunnel_group: TunnelGroupType = strawberry_django.field()
+    tunnel_group_list: List[TunnelGroupType] = strawberry_django.field()
 
-    ipsec_proposal = ObjectField(IPSecProposalType)
-    ipsec_proposal_list = ObjectListField(IPSecProposalType)
-
-    def resolve_ipsec_proposal_list(root, info, **kwargs):
-        return gql_query_optimizer(models.IPSecProposal.objects.all(), info)
-
-    l2vpn = ObjectField(L2VPNType)
-    l2vpn_list = ObjectListField(L2VPNType)
-
-    def resolve_l2vpn_list(root, info, **kwargs):
-        return gql_query_optimizer(models.L2VPN.objects.all(), info)
-
-    l2vpn_termination = ObjectField(L2VPNTerminationType)
-    l2vpn_termination_list = ObjectListField(L2VPNTerminationType)
-
-    def resolve_l2vpn_termination_list(root, info, **kwargs):
-        return gql_query_optimizer(models.L2VPNTermination.objects.all(), info)
-
-    tunnel = ObjectField(TunnelType)
-    tunnel_list = ObjectListField(TunnelType)
-
-    def resolve_tunnel_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Tunnel.objects.all(), info)
-
-    tunnel_group = ObjectField(TunnelGroupType)
-    tunnel_group_list = ObjectListField(TunnelGroupType)
-
-    def resolve_tunnel_group_list(root, info, **kwargs):
-        return gql_query_optimizer(models.TunnelGroup.objects.all(), info)
-
-    tunnel_termination = ObjectField(TunnelTerminationType)
-    tunnel_termination_list = ObjectListField(TunnelTerminationType)
-
-    def resolve_tunnel_termination_list(root, info, **kwargs):
-        return gql_query_optimizer(models.TunnelTermination.objects.all(), info)
+    tunnel_termination: TunnelTerminationType = strawberry_django.field()
+    tunnel_termination_list: List[TunnelTerminationType] = strawberry_django.field()

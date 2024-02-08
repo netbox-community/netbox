@@ -14,7 +14,8 @@ __all__ = (
 
 @strawberry_django.type(
     models.WirelessLANGroup,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('parent',),  # bug - temp
     filters=WirelessLANGroupFilter
 )
 class WirelessLANGroupType(OrganizationalObjectType):

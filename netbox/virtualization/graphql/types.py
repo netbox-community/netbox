@@ -47,7 +47,8 @@ class ClusterTypeType(OrganizationalObjectType):
 
 @strawberry_django.type(
     models.VirtualMachine,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('_name', 'interface_count', 'virtual_disk_count',),  # bug - temp
     filters=VirtualMachineFilter
 )
 class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
@@ -56,7 +57,8 @@ class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
 
 @strawberry_django.type(
     models.VMInterface,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('mac_address', '_name',),  # bug - temp
     filters=VMInterfaceFilter
 )
 class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
@@ -67,7 +69,8 @@ class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
 
 @strawberry_django.type(
     models.VirtualDisk,
-    fields='__all__',
+    # fields='__all__',
+    exclude=('_name',),  # bug - temp
     filters=VirtualDiskFilter
 )
 class VirtualDiskType(ComponentObjectType):
