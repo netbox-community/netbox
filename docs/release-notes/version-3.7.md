@@ -2,6 +2,10 @@
 
 ## v3.7.3 (FUTURE)
 
+### Bug Fixes
+
+* [#15084](https://github.com/netbox-community/netbox/issues/15084) - Fix "add export template" link under "export" button on object list views
+
 ---
 
 ## v3.7.2 (2024-02-05)
