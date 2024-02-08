@@ -295,6 +295,9 @@ export class DynamicTomSelect extends TomSelect {
     this.updateQueryParams(target.name);
     this.updatePathValues(target.name);
 
+    // Clear any previous selection(s) as the parent filter has changed
+    this.clear();
+
     // Load new data.
     this.load(this.lastValue);
   }
