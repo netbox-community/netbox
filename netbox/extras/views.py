@@ -1051,12 +1051,12 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get_script(self, request, pk):
-        self.script = Script.objects.get(pk=pk)
+        self.script = Script.objects.get_object_or_404(pk=pk)
         if self.script.python_class:
-            self.script_class = script.python_class()
+            self.script_class = self.script.python_class()
         else:
             self.script.delete_if_no_jobs()
-            messages.error(request, _("Script class has been deleted."))
+            messages.error(request, _("Script class has been deleted from module: ") + self.script.module)
             if not self.script.id:
                 return redirect('extras:script_list')
             else:
@@ -1067,9 +1067,6 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, View):
 
 
 class ScriptView(BaseScriptView):
-
-    def get_required_permission(self):
-        return 'extras.view_script'
 
     def get(self, request, pk):
         if ret := self.get_script(request, pk):
@@ -1128,9 +1125,6 @@ class ScriptView(BaseScriptView):
 
 class ScriptSourceView(BaseScriptView):
 
-    def get_required_permission(self):
-        return 'extras.view_script'
-
     def get(self, request, pk):
         if ret := self.get_script(request, pk):
             return ret
@@ -1144,19 +1138,22 @@ class ScriptSourceView(BaseScriptView):
         })
 
 
-class ScriptJobsView(BaseScriptView):
+class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
+    script = None
+    script_class = None
+    jobs = None
 
     def get_required_permission(self):
         return 'extras.view_script'
 
     def get(self, request, pk):
-        self.script = Script.objects.get(pk=pk)
+        self.script = Script.objects.get_object_or_404(pk=pk)
         if self.script.python_class:
-            self.script_class = script.python_class()
+            self.script_class = self.script.python_class()
         else:
             self.script.delete_if_no_jobs()
             if not self.script.id:
-                messages.error(request, _("Script class has been deleted."))
+                messages.error(request, _("Script class has been deleted from module: ") + self.script.module)
                 return redirect('extras:script_list')
 
         self.jobs = self.script.jobs.all()
