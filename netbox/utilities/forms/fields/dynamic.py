@@ -64,8 +64,6 @@ class DynamicModelChoiceMixin:
         null_option: The string used to represent a null selection (if any)
         disabled_indicator: The name of the field which, if populated, will disable selection of the
             choice (optional)
-        fetch_trigger: The event type which will cause the select element to
-            fetch data from the API. Must be 'load', 'open', or 'collapse'. (optional)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
     """
     filter = django_filters.ModelChoiceFilter
@@ -79,8 +77,6 @@ class DynamicModelChoiceMixin:
             initial_params=None,
             null_option=None,
             disabled_indicator=None,
-            fetch_trigger=None,
-            empty_label=None,
             selector=False,
             **kwargs
     ):
@@ -89,24 +85,12 @@ class DynamicModelChoiceMixin:
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
-        self.fetch_trigger = fetch_trigger
         self.selector = selector
-
-        # to_field_name is set by ModelChoiceField.__init__(), but we need to set it early for reference
-        # by widget_attrs()
-        self.to_field_name = kwargs.get('to_field_name')
-        self.empty_option = empty_label or ""
 
         super().__init__(queryset, **kwargs)
 
     def widget_attrs(self, widget):
-        attrs = {
-            'data-empty-option': self.empty_option
-        }
-
-        # Set value-field attribute if the field specifies to_field_name
-        if self.to_field_name:
-            attrs['value-field'] = self.to_field_name
+        attrs = {}
 
         # Set the string used to represent a null option
         if self.null_option is not None:
@@ -115,10 +99,6 @@ class DynamicModelChoiceMixin:
         # Set the disabled indicator, if any
         if self.disabled_indicator is not None:
             attrs['disabled-indicator'] = self.disabled_indicator
-
-        # Set the fetch trigger, if any.
-        if self.fetch_trigger is not None:
-            attrs['data-fetch-trigger'] = self.fetch_trigger
 
         # Attach any static query parameters
         if (len(self.query_params) > 0):
