@@ -1,10 +1,9 @@
 export const config = {
-
-      // Provides the "clear" button on the widget
-      plugins: {
-        'clear_button': {
-          'html': (data: Dict) => `<i class="mdi mdi-close-circle ${data.className}" title="${data.title}"></i>`
-        }
-      },
-
-}
+  plugins: {
+    // Provides the "clear" button on the widget
+    clear_button: {
+      html: (data: Dict) =>
+        `<i class="mdi mdi-close-circle ${data.className}" title="${data.title}"></i>`,
+    },
+  },
+};

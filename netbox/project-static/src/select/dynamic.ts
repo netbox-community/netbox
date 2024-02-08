@@ -1,7 +1,7 @@
 import { TomOption } from 'tom-select/src/types';
 import { escape_html } from 'tom-select/src/utils';
 import { DynamicTomSelect } from './classes/dynamicTomSelect';
-import { config } from './config'
+import { config } from './config';
 import { getElements } from '../util';
 
 const VALUE_FIELD = 'id';

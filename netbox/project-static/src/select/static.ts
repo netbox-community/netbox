@@ -1,7 +1,7 @@
 import { TomOption } from 'tom-select/src/types';
 import TomSelect from 'tom-select';
 import { escape_html } from 'tom-select/src/utils';
-import { config } from './config'
+import { config } from './config';
 import { getElements } from '../util';
 
 // Initialize <select> elements with statically-defined options
