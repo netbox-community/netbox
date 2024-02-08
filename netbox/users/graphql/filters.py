@@ -1,4 +1,5 @@
 import strawberry
+import strawberry_django
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
 from strawberry import auto
@@ -10,13 +11,13 @@ __all__ = (
 )
 
 
-@strawberry.django.filter(Group, lookups=True)
+@strawberry_django.filter(Group, lookups=True)
 class GroupFilter(filtersets.GroupFilterSet):
     id: auto
     name: auto
 
 
-@strawberry.django.filter(get_user_model(), lookups=True)
+@strawberry_django.filter(get_user_model(), lookups=True)
 class UserFilter(filtersets.UserFilterSet):
     id: auto
     username: auto

@@ -1,4 +1,5 @@
 import strawberry
+import strawberry_django
 from strawberry import auto
 from extras import models, filtersets
 
@@ -19,7 +20,7 @@ __all__ = (
 )
 
 
-@strawberry.django.filter(models.ConfigContext, lookups=True)
+@strawberry_django.filter(models.ConfigContext, lookups=True)
 class ConfigContextFilter(filtersets.ConfigContextFilterSet):
     id: auto
     name: auto
@@ -27,7 +28,7 @@ class ConfigContextFilter(filtersets.ConfigContextFilterSet):
     data_synced: auto
 
 
-@strawberry.django.filter(models.ConfigTemplate, lookups=True)
+@strawberry_django.filter(models.ConfigTemplate, lookups=True)
 class ConfigTemplateFilter(filtersets.ConfigTemplateFilterSet):
     id: auto
     name: auto
@@ -35,7 +36,7 @@ class ConfigTemplateFilter(filtersets.ConfigTemplateFilterSet):
     data_synced: auto
 
 
-@strawberry.django.filter(models.CustomField, lookups=True)
+@strawberry_django.filter(models.CustomField, lookups=True)
 class CustomFieldFilter(filtersets.CustomFieldFilterSet):
     id: auto
     content_types: auto
@@ -49,7 +50,7 @@ class CustomFieldFilter(filtersets.CustomFieldFilterSet):
     description: auto
 
 
-@strawberry.django.filter(models.CustomFieldChoiceSet, lookups=True)
+@strawberry_django.filter(models.CustomFieldChoiceSet, lookups=True)
 class CustomFieldChoiceSetFilter(filtersets.CustomFieldChoiceSetFilterSet):
     id: auto
     name: auto
@@ -58,7 +59,7 @@ class CustomFieldChoiceSetFilter(filtersets.CustomFieldChoiceSetFilterSet):
     order_alphabetically: auto
 
 
-@strawberry.django.filter(models.CustomLink, lookups=True)
+@strawberry_django.filter(models.CustomLink, lookups=True)
 class CustomLinkFilter(filtersets.CustomLinkFilterSet):
     id: auto
     content_types: auto
@@ -71,7 +72,7 @@ class CustomLinkFilter(filtersets.CustomLinkFilterSet):
     new_window: auto
 
 
-@strawberry.django.filter(models.ExportTemplate, lookups=True)
+@strawberry_django.filter(models.ExportTemplate, lookups=True)
 class ExportTemplateFilter(filtersets.ExportTemplateFilterSet):
     id: auto
     content_types: auto
@@ -80,7 +81,7 @@ class ExportTemplateFilter(filtersets.ExportTemplateFilterSet):
     data_synced: auto
 
 
-@strawberry.django.filter(models.ImageAttachment, lookups=True)
+@strawberry_django.filter(models.ImageAttachment, lookups=True)
 class ImageAttachmentFilter(filtersets.ImageAttachmentFilterSet):
     id: auto
     content_type_id: auto
@@ -88,7 +89,7 @@ class ImageAttachmentFilter(filtersets.ImageAttachmentFilterSet):
     name: auto
 
 
-@strawberry.django.filter(models.JournalEntry, lookups=True)
+@strawberry_django.filter(models.JournalEntry, lookups=True)
 class JournalEntryFilter(filtersets.JournalEntryFilterSet):
     id: auto
     assigned_object_type_id: auto
@@ -97,7 +98,7 @@ class JournalEntryFilter(filtersets.JournalEntryFilterSet):
     kind: auto
 
 
-@strawberry.django.filter(models.ObjectChange, lookups=True)
+@strawberry_django.filter(models.ObjectChange, lookups=True)
 class ObjectChangeFilter(filtersets.ObjectChangeFilterSet):
     id: auto
     user: auto
@@ -109,7 +110,7 @@ class ObjectChangeFilter(filtersets.ObjectChangeFilterSet):
     object_repr: auto
 
 
-@strawberry.django.filter(models.SavedFilter, lookups=True)
+@strawberry_django.filter(models.SavedFilter, lookups=True)
 class SavedFilterFilter(filtersets.SavedFilterFilterSet):
     id: auto
     content_types: auto
@@ -121,7 +122,7 @@ class SavedFilterFilter(filtersets.SavedFilterFilterSet):
     weight: auto
 
 
-@strawberry.django.filter(models.Tag, lookups=True)
+@strawberry_django.filter(models.Tag, lookups=True)
 class TagFilter(filtersets.TagFilterSet):
     id: auto
     name: auto
@@ -131,7 +132,7 @@ class TagFilter(filtersets.TagFilterSet):
     object_types: auto
 
 
-@strawberry.django.filter(models.Webhook, lookups=True)
+@strawberry_django.filter(models.Webhook, lookups=True)
 class WebhookFilter(filtersets.WebhookFilterSet):
     id: auto
     name: auto
@@ -143,7 +144,7 @@ class WebhookFilter(filtersets.WebhookFilterSet):
     ca_file_path: auto
 
 
-@strawberry.django.filter(models.EventRule, lookups=True)
+@strawberry_django.filter(models.EventRule, lookups=True)
 class EventRuleFilter(filtersets.EventRuleFilterSet):
     id: auto
     name: auto
