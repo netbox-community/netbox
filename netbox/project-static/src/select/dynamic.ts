@@ -10,12 +10,31 @@ const MAX_OPTIONS = 100;
 
 // Render the HTML for a dropdown option
 function renderOption(data: TomOption, escape: typeof escape_html) {
-  // If the option has a `_depth` property, indent its label
-  if (typeof data._depth === 'number' && data._depth > 0) {
-    return `<div>${'─'.repeat(data._depth)} ${escape(data[LABEL_FIELD])}</div>`;
+  let html = '<div>';
+
+  // If the option has a `depth` property, indent its label
+  if (typeof data.depth === 'number' && data.depth > 0) {
+    html = `${html}${'─'.repeat(data.depth)} `;
   }
 
-  return `<div>${escape(data[LABEL_FIELD])}</div>`;
+  html = `${html}${escape(data[LABEL_FIELD])}`;
+  if (data['parent']) {
+    html = `${html} <span class="text-secondary">${escape(data['parent'])}</span>`;
+  }
+  if (data['description']) {
+    html = `${html}<br /><small class="text-secondary">${escape(data['description'])}</small>`;
+  }
+  html = `${html}</div>`;
+
+  return html;
+}
+
+// Render the HTML for a selected item
+function renderItem(data: TomOption, escape: typeof escape_html) {
+  if (data['parent']) {
+    return `<div>${escape(data['parent'])} > ${escape(data[LABEL_FIELD])}</div>`;
+  }
+  return `<div>${escape(data[LABEL_FIELD])}<div>`;
 }
 
 // Initialize <select> elements which are populated via a REST API call
@@ -40,6 +59,7 @@ export function initDynamicSelects(): void {
       // Define custom rendering functions
       render: {
         option: renderOption,
+        item: renderItem,
       },
 
       // By default, load() will be called only if query.length > 0
