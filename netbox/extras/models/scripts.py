@@ -29,8 +29,11 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     )
     module = models.ForeignKey(
         to='extras.ScriptModule',
-        on_delete=models.PROTECT,
+        on_delete=models.RESTRICT,
         related_name='scripts'
+    )
+    is_valid = models.BooleanField(
+        default=True
     )
 
     def __str__(self):
@@ -50,6 +53,14 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     @cached_property
     def python_class(self):
         return self.module.get_module_scripts.get(self.name)
+
+    def delete_if_no_jobs(self):
+        if self.jobs.all():
+            self.is_valid = False
+            self.save()
+        else:
+            self.delete()
+            self.id = None
 
 
 class ScriptModuleManager(models.Manager.from_queryset(RestrictedQuerySet)):
@@ -100,6 +111,35 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
         return scripts
 
+    def sync_classes(self):
+        db_classes = {}
+        for obj in self.scripts.filter(module=self):
+            db_classes[obj.name] = obj
+
+        db_classes_set = {k for k in db_classes.keys()}
+
+        module_scripts = self.get_module_scripts
+
+        module_classes_set = {k for k in module_scripts.keys()}
+
+        # remove any existing db classes if they are no longer in the file
+        removed = db_classes_set - module_classes_set
+        for name in removed:
+            db_classes[name].delete_if_no_jobs()
+
+        added = module_classes_set - db_classes_set
+        for name in added:
+            Script.objects.create(
+                module=self,
+                name=name,
+                is_valid=True,
+            )
+
+    def sync_data(self):
+        super().sync_data()
+        self.sync_classes()
+
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
-        return super().save(*args, **kwargs)
+        super().save(*args, **kwargs)
+        self.sync_classes()
