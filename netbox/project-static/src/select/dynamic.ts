@@ -1,6 +1,7 @@
 import { TomOption } from 'tom-select/src/types';
 import { escape_html } from 'tom-select/src/utils';
 import { DynamicTomSelect } from './classes/dynamicTomSelect';
+import { config } from './config'
 import { getElements } from '../util';
 
 const VALUE_FIELD = 'id';
@@ -21,12 +22,10 @@ function renderOption(data: TomOption, escape: typeof escape_html) {
 export function initDynamicSelects(): void {
   for (const select of getElements<HTMLSelectElement>('select.api-select')) {
     new DynamicTomSelect(select, {
+      ...config,
       valueField: VALUE_FIELD,
       labelField: LABEL_FIELD,
       maxOptions: MAX_OPTIONS,
-
-      // Provides the "clear" button on the widget
-      plugins: ['clear_button'],
 
       // Disable local search (search is performed on the backend)
       searchField: [],
