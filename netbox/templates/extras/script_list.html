@@ -48,7 +48,12 @@
               {% with last_job=script.get_latest_jobs|get_key:script.name %}
                 <tr>
                   <td>
-                    <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
+                    {% if script.is_valid %}
+                      <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
+                    {% else %}
+                      <a href="{% url 'extras:script_jobs' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
+                      <i class="mdi mdi-alert"></i>
+                    {% endif %}
                   </td>
                   <td>{{ script.description|markdown|placeholder }}</td>
                   {% if last_job %}
