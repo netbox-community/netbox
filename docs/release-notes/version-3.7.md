@@ -4,6 +4,7 @@
 
 ### Bug Fixes
 
+* [#15070](https://github.com/netbox-community/netbox/issues/15070) - Fix inclusion of `config_template` field on REST API serializer for virtual machines
 * [#15084](https://github.com/netbox-community/netbox/issues/15084) - Fix "add export template" link under "export" button on object list views
 
 ---
