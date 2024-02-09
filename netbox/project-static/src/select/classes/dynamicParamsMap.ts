@@ -1,7 +1,7 @@
 import { isTruthy } from '../../util';
-import { isDataDynamicParams } from './types';
+import { isDataDynamicParams } from '../types';
 
-import type { QueryParam } from './types';
+import type { QueryParam } from '../types';
 
 /**
  * Extension of built-in `Map` to add convenience functions.

@@ -140,7 +140,7 @@ class ContactAssignment(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, Chan
     clone_fields = ('content_type', 'object_id', 'role', 'priority')
 
     class Meta:
-        ordering = ('priority', 'contact')
+        ordering = ('contact', 'priority', 'role', 'pk')
         indexes = (
             models.Index(fields=('content_type', 'object_id')),
         )

@@ -270,7 +270,12 @@ class ConfigContextTest(TestCase):
         tag = Tag.objects.first()
         cluster_type = ClusterType.objects.create(name="Cluster Type")
         cluster_group = ClusterGroup.objects.create(name="Cluster Group")
-        cluster = Cluster.objects.create(name="Cluster", group=cluster_group, type=cluster_type)
+        cluster = Cluster.objects.create(
+            name="Cluster",
+            group=cluster_group,
+            type=cluster_type,
+            site=site,
+        )
 
         region_context = ConfigContext.objects.create(
             name="region",
@@ -353,6 +358,41 @@ class ConfigContextTest(TestCase):
 
         annotated_queryset = VirtualMachine.objects.filter(name=virtual_machine.name).annotate_config_context_data()
         self.assertEqual(virtual_machine.get_config_context(), annotated_queryset[0].get_config_context())
+
+    def test_virtualmachine_site_context(self):
+        """
+        Check that config context associated with a site applies to a VM whether the VM is assigned
+        directly to that site or via its cluster.
+        """
+        site = Site.objects.first()
+        cluster_type = ClusterType.objects.create(name="Cluster Type")
+        cluster = Cluster.objects.create(name="Cluster", type=cluster_type, site=site)
+        vm_role = DeviceRole.objects.first()
+
+        # Create a ConfigContext associated with the site
+        context = ConfigContext.objects.create(
+            name="context1",
+            weight=100,
+            data={"foo": True}
+        )
+        context.sites.add(site)
+
+        # Create one VM assigned directly to the site, and one assigned via the cluster
+        vm1 = VirtualMachine.objects.create(name="VM 1", site=site, role=vm_role)
+        vm2 = VirtualMachine.objects.create(name="VM 2", cluster=cluster, role=vm_role)
+
+        # Check that their individually-rendered config contexts are identical
+        self.assertEqual(
+            vm1.get_config_context(),
+            vm2.get_config_context()
+        )
+
+        # Check that their annotated config contexts are identical
+        vms = VirtualMachine.objects.filter(pk__in=(vm1.pk, vm2.pk)).annotate_config_context_data()
+        self.assertEqual(
+            vms[0].get_config_context(),
+            vms[1].get_config_context()
+        )
 
     def test_multiple_tags_return_distinct_objects(self):
         """

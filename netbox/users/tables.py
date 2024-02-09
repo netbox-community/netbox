@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from account.tables import UserTokenTable
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from users.models import NetBoxGroup, User, ObjectPermission, Token
 
 __all__ = (
     'GroupTable',
@@ -49,7 +49,7 @@ class UserTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = NetBoxUser
+        model = User
         fields = (
             'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'groups', 'is_active', 'is_staff',
             'is_superuser', 'last_login',
@@ -103,7 +103,7 @@ class ObjectPermissionTable(NetBoxTable):
     )
     users = columns.ManyToManyColumn(
         verbose_name=_('Users'),
-        linkify_item=('users:netboxuser', {'pk': tables.A('pk')})
+        linkify_item=('users:user', {'pk': tables.A('pk')})
     )
     groups = columns.ManyToManyColumn(
         verbose_name=_('Groups'),

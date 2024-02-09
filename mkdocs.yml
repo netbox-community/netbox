@@ -52,6 +52,7 @@ extra_css:
 markdown_extensions:
     - admonition
     - attr_list
+    - footnotes
     - pymdownx.emoji:
         emoji_index: !!python/name:material.extensions.emoji.twemoji
         emoji_generator: !!python/name:material.extensions.emoji.to_svg
@@ -286,6 +287,7 @@ nav:
         - User Preferences: 'development/user-preferences.md'
         - Web UI: 'development/web-ui.md'
         - Internationalization: 'development/internationalization.md'
+        - Translations: 'development/translations.md'
         - Release Checklist: 'development/release-checklist.md'
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:

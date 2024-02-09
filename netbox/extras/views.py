@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.views.generic import View
 
-from core.choices import JobStatusChoices, ManagedFileRootPathChoices
+from core.choices import ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
@@ -24,9 +24,7 @@ from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
-from .forms.reports import ReportForm
 from .models import *
-from .reports import run_report
 from .scripts import run_script
 
 
@@ -1007,185 +1005,6 @@ class DashboardWidgetDeleteView(LoginRequiredMixin, View):
 
 
 #
-# Reports
-#
-
-@register_model_view(ReportModule, 'edit')
-class ReportModuleCreateView(generic.ObjectEditView):
-    queryset = ReportModule.objects.all()
-    form = ManagedFileForm
-
-    def alter_object(self, obj, *args, **kwargs):
-        obj.file_root = ManagedFileRootPathChoices.REPORTS
-        return obj
-
-
-@register_model_view(ReportModule, 'delete')
-class ReportModuleDeleteView(generic.ObjectDeleteView):
-    queryset = ReportModule.objects.all()
-    default_return_url = 'extras:report_list'
-
-
-class ReportListView(ContentTypePermissionRequiredMixin, View):
-    """
-    Retrieve all the available reports from disk and the recorded Job (if any) for each.
-    """
-    def get_required_permission(self):
-        return 'extras.view_report'
-
-    def get(self, request):
-        report_modules = ReportModule.objects.restrict(request.user)
-
-        return render(request, 'extras/report_list.html', {
-            'model': ReportModule,
-            'report_modules': report_modules,
-        })
-
-
-def get_report_module(module, request):
-    return get_object_or_404(ReportModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
-
-
-class ReportView(ContentTypePermissionRequiredMixin, View):
-    """
-    Display a single Report and its associated Job (if any).
-    """
-    def get_required_permission(self):
-        return 'extras.view_report'
-
-    def get(self, request, module, name):
-        module = get_report_module(module, request)
-        report = module.reports[name]()
-
-        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
-        report.result = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=report.name,
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-        ).first()
-
-        return render(request, 'extras/report.html', {
-            'module': module,
-            'report': report,
-            'form': ReportForm(scheduling_enabled=report.scheduling_enabled),
-        })
-
-    def post(self, request, module, name):
-        if not request.user.has_perm('extras.run_report'):
-            return HttpResponseForbidden()
-
-        module = get_report_module(module, request)
-        report = module.reports[name]()
-        form = ReportForm(request.POST, scheduling_enabled=report.scheduling_enabled)
-
-        if form.is_valid():
-
-            # Allow execution only if RQ worker process is running
-            if not get_workers_for_queue('default'):
-                messages.error(request, "Unable to run report: RQ worker process not running.")
-                return render(request, 'extras/report.html', {
-                    'report': report,
-                })
-
-            # Run the Report. A new Job is created.
-            job = Job.enqueue(
-                run_report,
-                instance=module,
-                name=report.class_name,
-                user=request.user,
-                schedule_at=form.cleaned_data.get('schedule_at'),
-                interval=form.cleaned_data.get('interval'),
-                job_timeout=report.job_timeout
-            )
-
-            return redirect('extras:report_result', job_pk=job.pk)
-
-        return render(request, 'extras/report.html', {
-            'module': module,
-            'report': report,
-            'form': form,
-        })
-
-
-class ReportSourceView(ContentTypePermissionRequiredMixin, View):
-
-    def get_required_permission(self):
-        return 'extras.view_report'
-
-    def get(self, request, module, name):
-        module = get_report_module(module, request)
-        report = module.reports[name]()
-
-        return render(request, 'extras/report/source.html', {
-            'module': module,
-            'report': report,
-            'tab': 'source',
-        })
-
-
-class ReportJobsView(ContentTypePermissionRequiredMixin, View):
-
-    def get_required_permission(self):
-        return 'extras.view_report'
-
-    def get(self, request, module, name):
-        module = get_report_module(module, request)
-        report = module.reports[name]()
-
-        object_type = ContentType.objects.get(app_label='extras', model='reportmodule')
-        jobs = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=report.class_name
-        )
-
-        jobs_table = JobTable(
-            data=jobs,
-            orderable=False,
-            user=request.user
-        )
-        jobs_table.configure(request)
-
-        return render(request, 'extras/report/jobs.html', {
-            'module': module,
-            'report': report,
-            'table': jobs_table,
-            'tab': 'jobs',
-        })
-
-
-class ReportResultView(ContentTypePermissionRequiredMixin, View):
-    """
-    Display a Job pertaining to the execution of a Report.
-    """
-    def get_required_permission(self):
-        return 'extras.view_report'
-
-    def get(self, request, job_pk):
-        object_type = ContentType.objects.get_by_natural_key(app_label='extras', model='reportmodule')
-        job = get_object_or_404(Job.objects.all(), pk=job_pk, object_type=object_type)
-
-        module = job.object
-        report = module.reports[job.name]
-
-        # If this is an HTMX request, return only the result HTML
-        if request.htmx:
-            response = render(request, 'extras/htmx/report_result.html', {
-                'report': report,
-                'job': job,
-            })
-            if job.completed or not job.started:
-                response.status_code = 286
-            return response
-
-        return render(request, 'extras/report_result.html', {
-            'report': report,
-            'job': job,
-        })
-
-
-#
 # Scripts
 #
 
@@ -1231,19 +1050,11 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(initial=normalize_querydict(request.GET))
 
-        # Look for a pending Job (use the latest one by creation timestamp)
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        script.result = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=script.name,
-        ).exclude(
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-        ).first()
-
         return render(request, 'extras/script.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'form': form,
@@ -1255,6 +1066,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
 
         module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
         form = script.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
@@ -1278,6 +1090,7 @@ class ScriptView(ContentTypePermissionRequiredMixin, View):
             return redirect('extras:script_result', job_pk=job.pk)
 
         return render(request, 'extras/script.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'form': form,
@@ -1292,8 +1105,10 @@ class ScriptSourceView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
+        jobs = module.get_jobs(script.class_name)
 
         return render(request, 'extras/script/source.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'tab': 'source',
@@ -1308,13 +1123,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
     def get(self, request, module, name):
         module = get_script_module(module, request)
         script = module.scripts[name]()
-
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        jobs = Job.objects.filter(
-            object_type=object_type,
-            object_id=module.pk,
-            name=script.class_name
-        )
+        jobs = module.get_jobs(script.class_name)
 
         jobs_table = JobTable(
             data=jobs,
@@ -1324,6 +1133,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         jobs_table.configure(request)
 
         return render(request, 'extras/script/jobs.html', {
+            'job_count': jobs.count(),
             'module': module,
             'script': script,
             'table': jobs_table,
@@ -1343,20 +1153,28 @@ class ScriptResultView(ContentTypePermissionRequiredMixin, View):
         module = job.object
         script = module.scripts[job.name]()
 
+        context = {
+            'script': script,
+            'job': job,
+        }
+        if job.data and 'log' in job.data:
+            # Script
+            context['tests'] = job.data.get('tests', {})
+        elif job.data:
+            # Legacy Report
+            context['tests'] = {
+                name: data for name, data in job.data.items()
+                if name.startswith('test_')
+            }
+
         # If this is an HTMX request, return only the result HTML
         if request.htmx:
-            response = render(request, 'extras/htmx/script_result.html', {
-                'script': script,
-                'job': job,
-            })
+            response = render(request, 'extras/htmx/script_result.html', context)
             if job.completed or not job.started:
                 response.status_code = 286
             return response
 
-        return render(request, 'extras/script_result.html', {
-            'script': script,
-            'job': job,
-        })
+        return render(request, 'extras/script_result.html', context)
 
 
 #

@@ -69,15 +69,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 Default: False
 
-Determines if localization features are enabled or not. This should only be enabled for development or testing purposes as netbox is not yet fully localized. Turning this on will localize numeric and date formats (overriding what is set for DATE_FORMAT) based on the browser locale as well as translate certain strings from third party modules.
-
----
-
-## GIT_PATH
-
-Default: `git`
-
-The system path to the `git` executable, used by the synchronization backend for remote git repositories.
+Determines if localization features are enabled or not. This should only be enabled for development or testing purposes as netbox is not yet fully localized. Turning this on will localize numeric and date formats (overriding any configured [system defaults](./date-time.md#date-and-time-formatting)) based on the browser locale as well as translate certain strings from third party modules.
 
 ---
 

@@ -771,7 +771,7 @@ class Bookmark(models.Model):
     )
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT
+        on_delete=models.CASCADE
     )
 
     objects = RestrictedQuerySet.as_manager()

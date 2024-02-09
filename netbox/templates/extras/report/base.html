@@ -34,7 +34,7 @@
     </li>
     <li class="nav-item" role="presentation">
       <a class="nav-link{% if tab == 'jobs' %} active{% endif %}" href="{% url 'extras:report_jobs' module=report.module name=report.class_name %}">
-        {% trans "Jobs" %} {% badge module.jobs.count %}
+        {% trans "Jobs" %} {% badge job_count %}
       </a>
     </li>
   </ul>

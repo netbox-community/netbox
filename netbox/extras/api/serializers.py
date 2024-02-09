@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
+from rest_framework.fields import ListField
 
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from core.api.serializers import JobSerializer
@@ -49,8 +50,6 @@ __all__ = (
     'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
-    'ScriptLogMessageSerializer',
-    'ScriptOutputSerializer',
     'ScriptSerializer',
     'TagSerializer',
     'WebhookSerializer',
@@ -126,11 +125,15 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     type = ChoiceField(choices=CustomFieldTypeChoices)
     object_type = ContentTypeField(
         queryset=ContentType.objects.all(),
-        required=False
+        required=False,
+        allow_null=True
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
-    choice_set = NestedCustomFieldChoiceSetSerializer(required=False)
+    choice_set = NestedCustomFieldChoiceSetSerializer(
+        required=False,
+        allow_null=True
+    )
     ui_visible = ChoiceField(choices=CustomFieldUIVisibleChoices, required=False)
     ui_editable = ChoiceField(choices=CustomFieldUIEditableChoices, required=False)
 
@@ -170,6 +173,12 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
+    )
+    extra_choices = serializers.ListField(
+        child=serializers.ListField(
+            min_length=2,
+            max_length=2
+        )
     )
 
     class Meta:
@@ -591,22 +600,6 @@ class ScriptInputSerializer(serializers.Serializer):
         if value and not self.context['script'].scheduling_enabled:
             raise serializers.ValidationError("Scheduling is not enabled for this script.")
         return value
-
-
-class ScriptLogMessageSerializer(serializers.Serializer):
-    status = serializers.SerializerMethodField(read_only=True)
-    message = serializers.SerializerMethodField(read_only=True)
-
-    def get_status(self, instance):
-        return instance[0]
-
-    def get_message(self, instance):
-        return instance[1]
-
-
-class ScriptOutputSerializer(serializers.Serializer):
-    log = ScriptLogMessageSerializer(many=True, read_only=True)
-    output = serializers.CharField(read_only=True)
 
 
 #

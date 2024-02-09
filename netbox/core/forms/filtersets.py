@@ -119,10 +119,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     user = DynamicModelMultipleChoiceField(
         queryset=get_user_model().objects.all(),
         required=False,
-        label=_('User'),
-        widget=APISelectMultiple(
-            api_url='/api/users/users/',
-        )
+        label=_('User')
     )
 
 

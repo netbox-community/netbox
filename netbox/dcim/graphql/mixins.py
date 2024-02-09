@@ -13,7 +13,7 @@ class CabledObjectMixin:
 
 
 class PathEndpointMixin:
-    connected_endpoints = graphene.List('dcim.graphql.gfk_mixins.LinkPeerType')
+    connected_endpoints = graphene.List('dcim.graphql.gfk_mixins.ConnectedEndpointType')
 
     def resolve_connected_endpoints(self, info):
         # Handle empty values

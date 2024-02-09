@@ -14,7 +14,6 @@ from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
-
 User = get_user_model()
 
 
@@ -250,6 +249,23 @@ class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
             CustomFieldChoiceSet(name='Choice Set 3', extra_choices=['3A', '3B', '3C', '3D', '3E']),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
+
+    def test_invalid_choice_items(self):
+        """
+        Attempting to define each choice as a single-item list should return a 400 error.
+        """
+        self.add_permissions('extras.add_customfieldchoiceset')
+        data = {
+            "name": "test",
+            "extra_choices": [
+                ["choice1"],
+                ["choice2"],
+                ["choice3"],
+            ]
+        }
+
+        response = self.client.post(self._get_list_url(), data, format='json', **self.header)
+        self.assertEqual(response.status_code, 400)
 
 
 class CustomLinkTest(APIViewTestCases.APIViewTestCase):
@@ -728,37 +744,6 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
             ),
         )
         ConfigTemplate.objects.bulk_create(config_templates)
-
-
-class ReportTest(APITestCase):
-
-    class TestReport(Report):
-
-        def test_foo(self):
-            self.log_success(None, "Report completed")
-
-    @classmethod
-    def setUpTestData(cls):
-        ReportModule.objects.create(
-            file_root=ManagedFileRootPathChoices.REPORTS,
-            file_path='/var/tmp/report.py'
-        )
-
-    def get_test_report(self, *args):
-        return ReportModule.objects.first(), self.TestReport()
-
-    def setUp(self):
-        super().setUp()
-
-        # Monkey-patch the API viewset's _get_report() method to return our test Report above
-        from extras.api.views import ReportViewSet
-        ReportViewSet._get_report = self.get_test_report
-
-    def test_get_report(self):
-        url = reverse('extras-api:report-detail', kwargs={'pk': None})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['name'], self.TestReport.__name__)
 
 
 class ScriptTest(APITestCase):

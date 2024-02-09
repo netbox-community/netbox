@@ -393,10 +393,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     user_id = DynamicModelMultipleChoiceField(
         queryset=get_user_model().objects.all(),
         required=False,
-        label=_('User'),
-        widget=APISelectMultiple(
-            api_url='/api/users/users/',
-        )
+        label=_('User')
     )
     tag = TagFilterField(model)
 
@@ -551,8 +548,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
-        label=_('Manufacturer'),
-        fetch_trigger='open'
+        label=_('Manufacturer')
     )
     part_number = forms.CharField(
         label=_('Part number'),
@@ -828,8 +824,7 @@ class VirtualDeviceContextFilterForm(
     device = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
         required=False,
-        label=_('Device'),
-        fetch_trigger='open'
+        label=_('Device')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),
@@ -855,8 +850,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),
         required=False,
-        label=_('Manufacturer'),
-        fetch_trigger='open'
+        label=_('Manufacturer')
     )
     module_type_id = DynamicModelMultipleChoiceField(
         queryset=ModuleType.objects.all(),
@@ -864,8 +858,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
         query_params={
             'manufacturer_id': '$manufacturer_id'
         },
-        label=_('Type'),
-        fetch_trigger='open'
+        label=_('Type')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),
@@ -1414,8 +1407,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
     role_id = DynamicModelMultipleChoiceField(
         queryset=InventoryItemRole.objects.all(),
         required=False,
-        label=_('Role'),
-        fetch_trigger='open'
+        label=_('Role')
     )
     manufacturer_id = DynamicModelMultipleChoiceField(
         queryset=Manufacturer.objects.all(),

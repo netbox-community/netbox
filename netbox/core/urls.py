@@ -25,6 +25,17 @@ urlpatterns = (
     path('jobs/<int:pk>/', views.JobView.as_view(), name='job'),
     path('jobs/<int:pk>/delete/', views.JobDeleteView.as_view(), name='job_delete'),
 
+    # Background Tasks
+    path('background-queues/', views.BackgroundQueueListView.as_view(), name='background_queue_list'),
+    path('background-queues/<int:queue_index>/<str:status>/', views.BackgroundTaskListView.as_view(), name='background_task_list'),
+    path('background-tasks/<str:job_id>/', views.BackgroundTaskView.as_view(), name='background_task'),
+    path('background-tasks/<str:job_id>/delete/', views.BackgroundTaskDeleteView.as_view(), name='background_task_delete'),
+    path('background-tasks/<str:job_id>/requeue/', views.BackgroundTaskRequeueView.as_view(), name='background_task_requeue'),
+    path('background-tasks/<str:job_id>/enqueue/', views.BackgroundTaskEnqueueView.as_view(), name='background_task_enqueue'),
+    path('background-tasks/<str:job_id>/stop/', views.BackgroundTaskStopView.as_view(), name='background_task_stop'),
+    path('background-workers/<int:queue_index>/', views.WorkerListView.as_view(), name='worker_list'),
+    path('background-workers/<str:key>/', views.WorkerView.as_view(), name='worker'),
+
     # Config revisions
     path('config-revisions/', views.ConfigRevisionListView.as_view(), name='configrevision_list'),
     path('config-revisions/add/', views.ConfigRevisionEditView.as_view(), name='configrevision_add'),

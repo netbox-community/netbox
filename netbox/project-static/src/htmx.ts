@@ -1,11 +1,11 @@
 import { getElements, isTruthy } from './util';
 import { initButtons } from './buttons';
-import { initSelect } from './select';
+import { initSelects } from './select';
 import { initObjectSelector } from './objectSelector';
 import { initBootstrap } from './bs';
 
 function initDepedencies(): void {
-  for (const init of [initButtons, initSelect, initObjectSelector, initBootstrap]) {
+  for (const init of [initButtons, initSelects, initObjectSelector, initBootstrap]) {
     init();
   }
 }

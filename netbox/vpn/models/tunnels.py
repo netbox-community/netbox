@@ -129,10 +129,10 @@ class TunnelTermination(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ChangeLo
         ct_field='termination_type',
         fk_field='termination_id'
     )
-    outside_ip = models.OneToOneField(
+    outside_ip = models.ForeignKey(
         to='ipam.IPAddress',
         on_delete=models.PROTECT,
-        related_name='tunnel_termination',
+        related_name='tunnel_terminations',
         blank=True,
         null=True
     )

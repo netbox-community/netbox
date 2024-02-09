@@ -17,7 +17,7 @@ __all__ = (
 
 class UserBulkEditForm(forms.Form):
     pk = forms.ModelMultipleChoiceField(
-        queryset=NetBoxUser.objects.all(),
+        queryset=User.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     first_name = forms.CharField(
@@ -46,7 +46,7 @@ class UserBulkEditForm(forms.Form):
         label=_('Superuser status')
     )
 
-    model = NetBoxUser
+    model = User
     fieldsets = (
         (None, ('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')),
     )
