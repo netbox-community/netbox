@@ -64,6 +64,7 @@ class DynamicModelChoiceMixin:
         null_option: The string used to represent a null selection (if any)
         disabled_indicator: The name of the field which, if populated, will disable selection of the
             choice (optional)
+        option_attrs: A mapping of <option> template variables to their API data keys (optional)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
     """
     filter = django_filters.ModelChoiceFilter
@@ -77,6 +78,7 @@ class DynamicModelChoiceMixin:
             initial_params=None,
             null_option=None,
             disabled_indicator=None,
+            option_attrs=None,
             selector=False,
             **kwargs
     ):
@@ -85,6 +87,7 @@ class DynamicModelChoiceMixin:
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
+        self.option_attrs = option_attrs or {}
         self.selector = selector
 
         super().__init__(queryset, **kwargs)
@@ -95,6 +98,10 @@ class DynamicModelChoiceMixin:
         # Set the string used to represent a null option
         if self.null_option is not None:
             attrs['data-null-option'] = self.null_option
+
+        # Set any custom template attributes for TomSelect
+        for var, accessor in self.option_attrs.items():
+            attrs[f'ts-{var}-field'] = accessor
 
         # Set the disabled indicator, if any
         if self.disabled_indicator is not None:
