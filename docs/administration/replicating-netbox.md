@@ -9,10 +9,10 @@ NetBox employs a [PostgreSQL](https://www.postgresql.org/) database, so general 
 
 ### Export the Database
 
-Use the `pg_dump` utility to export the entire database to a file:
+Use the `pg_dump` utility (available on the PostgreSQL container) to export the entire database to a file:
 
 ```no-highlight
-pg_dump --username netbox --password --host localhost netbox > netbox.sql
+pg_dump --username netbox --password --host localhost netbox > /tmp/netbox.sql
 ```
 
 !!! note
@@ -21,7 +21,7 @@ pg_dump --username netbox --password --host localhost netbox > netbox.sql
 When replicating a production database for development purposes, you may find it convenient to exclude changelog data, which can easily account for the bulk of a database's size. To do this, exclude the `extras_objectchange` table data from the export. The table will still be included in the output file, but will not be populated with any data.
 
 ```no-highlight
-pg_dump ... --exclude-table-data=extras_objectchange netbox > netbox.sql
+pg_dump ... --exclude-table-data=extras_objectchange netbox > /tmp/netbox.sql
 ```
 
 ### Load an Exported Database
@@ -32,10 +32,31 @@ When restoring a database from a file, it's recommended to delete any existing d
     The following will destroy and replace any existing instance of the database.
 
 ```no-highlight
-psql -c 'drop database netbox'
-psql -c 'create database netbox'
-psql netbox < netbox.sql
+psql -U netbox -h localhost
+netbox=> \c template1
+You are now connected to database "template1" as user "netbox".
+template1=# REVOKE CONNECT ON DATABASE netbox FROM public;
+REVOKE
+template1=# SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE pg_stat_activity.datname = 'netbox';
+pg_terminate_backend
+----------------------
+t
+(0 row)
+template1=# DROP database netbox;
+DROP DATABASE
+postgres-> \q
 ```
+
+Note a few things here:
+1- In PostgreSQL one has to change the actual database to another to be able to drop it. 
+2- There must be no active connections at the moment, so we have to prevent new connections and drop all actual ones ("0 row").
+
+finally, load the database:
+
+```no-highlight
+psql netbox -U netbox -h localhost < /tmp/netbox.sql
+```
+
 
 Keep in mind that PostgreSQL user accounts and permissions are not included with the dump: You will need to create those manually if you want to fully replicate the original database (see the [installation docs](../installation/1-postgresql.md)). When setting up a development instance of NetBox, it's strongly recommended to use different credentials anyway.
 
