@@ -777,18 +777,14 @@ class ScriptTest(APITestCase):
             is_valid=True,
         )
 
-    # def get_test_script(self, *args):
-    #     return ScriptModule.objects.first(), self.TestScriptClass
-
     def python_class(self):
         return self.TestScriptClass
 
     def setUp(self):
         super().setUp()
 
-        # Monkey-patch the API viewset's _get_script() method to return our test Script above
+        # Monkey-patch the Script model to return our TestScriptClass above
         from extras.api.views import ScriptViewSet
-        # ScriptViewSet._get_script = self.get_test_script
         Script.python_class = self.python_class
 
     def test_get_script(self):
