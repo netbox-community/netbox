@@ -2,6 +2,10 @@
 
 ## v4.0.0 (FUTURE)
 
+### Breaking Changes
+
+* The deprecated `device_role` & `device_role_id` filters for devices have been removed. (Use `role` and `role_id` instead.)
+
 ### New Features
 
 #### Complete UI Refresh ([#12128](https://github.com/netbox-community/netbox/issues/12128))
@@ -26,3 +30,4 @@ The NetBox user interface has been completely refreshed and updated.
 * [#14657](https://github.com/netbox-community/netbox/issues/14657) - Remove backward compatibility for old permissions mapping under `ActionsMixin`
 * [#14658](https://github.com/netbox-community/netbox/issues/14658) - Remove backward compatibility for importing `process_webhook()` (now `extras.webhooks.send_webhook()`)
 * [#14740](https://github.com/netbox-community/netbox/issues/14740) - Remove the obsolete `BootstrapMixin` form mixin class
+* [#15099](https://github.com/netbox-community/netbox/issues/15099) - Remove obsolete `device_role` and `device_role_id` filters for devices

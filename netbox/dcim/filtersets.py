@@ -1288,18 +1288,6 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         to_field_name='name',
         label=_('Virtual Chassis'),
     )
-    # TODO: Remove in v4.0
-    device_role_id = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__role',
-        queryset=DeviceRole.objects.all(),
-        label=_('Device role (ID)'),
-    )
-    device_role = django_filters.ModelMultipleChoiceFilter(
-        field_name='device__role__slug',
-        queryset=DeviceRole.objects.all(),
-        to_field_name='slug',
-        label=_('Device role (slug)'),
-    )
 
     def search(self, queryset, name, value):
         if not value.strip():
