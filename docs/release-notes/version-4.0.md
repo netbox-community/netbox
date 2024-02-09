@@ -31,3 +31,4 @@ The NetBox user interface has been completely refreshed and updated.
 * [#14658](https://github.com/netbox-community/netbox/issues/14658) - Remove backward compatibility for importing `process_webhook()` (now `extras.webhooks.send_webhook()`)
 * [#14740](https://github.com/netbox-community/netbox/issues/14740) - Remove the obsolete `BootstrapMixin` form mixin class
 * [#15099](https://github.com/netbox-community/netbox/issues/15099) - Remove obsolete `device_role` and `device_role_id` filters for devices
+* [#15100](https://github.com/netbox-community/netbox/issues/15100) - Remove obsolete `NullableCharField` class
