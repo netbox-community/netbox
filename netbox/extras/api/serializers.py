@@ -513,33 +513,45 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
 
 class ScriptSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail',)
-    # id = serializers.CharField(read_only=True)
-    # module = serializers.CharField(max_length=255)
-    # name = serializers.CharField(read_only=True)
-    # description = serializers.CharField(read_only=True)
-    # vars = serializers.SerializerMethodField(read_only=True)
+    description = serializers.SerializerMethodField(read_only=True)
+    vars = serializers.SerializerMethodField(read_only=True)
     # result = NestedJobSerializer()
     display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Script
         fields = [
-            'id', 'url', 'module', 'name', 'display',
+            'id', 'url', 'module', 'name', 'description', 'vars', 'display',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_vars(self, instance):
-        return {
-            k: v.__class__.__name__ for k, v in instance._get_vars().items()
-        }
+    def get_vars(self, obj):
+        if obj.python_class:
+            return {
+                k: v.__class__.__name__ for k, v in obj.python_class()._get_vars().items()
+            }
+        else:
+            return {}
 
     @extend_schema_field(serializers.CharField())
     def get_display(self, obj):
         return f'{obj.name} ({obj.module})'
 
+    @extend_schema_field(serializers.CharField())
+    def get_description(self, obj):
+        if obj.python_class:
+            return obj.python_class().description
+        else:
+            return None
+
+    @extend_schema_field(NestedJobSerializer())
+    def get_result(self, obj):
+        return f'{obj.name} ({obj.module})'
+
 
 class ScriptDetailSerializer(ScriptSerializer):
-    result = JobSerializer()
+    # result = JobSerializer()
+    pass
 
 
 class ScriptInputSerializer(serializers.Serializer):
