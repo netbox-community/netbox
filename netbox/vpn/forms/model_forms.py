@@ -423,8 +423,7 @@ class L2VPNTerminationForm(NetBoxModelForm):
         queryset=L2VPN.objects.all(),
         required=True,
         query_params={},
-        label=_('L2VPN'),
-        fetch_trigger='open'
+        label=_('L2VPN')
     )
     vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),
