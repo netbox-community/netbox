@@ -12,7 +12,6 @@ import { initInterfaceTable } from './tables';
 import { initSideNav } from './sidenav';
 import { initDashboard } from './dashboard';
 import { initRackElevation } from './racks';
-import { initLinks } from './links';
 import { initHtmx } from './htmx';
 
 function initDocument(): void {
@@ -31,7 +30,6 @@ function initDocument(): void {
     initSideNav,
     initDashboard,
     initRackElevation,
-    initLinks,
     initHtmx,
   ]) {
     init();
