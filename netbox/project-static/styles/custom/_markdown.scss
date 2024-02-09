@@ -28,6 +28,13 @@
 
 }
 
+// Remove the bottom margin of <p> elements inside a table cell
+td > .rendered-markdown {
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
 // Markdown preview
 .markdown-widget {
   .preview {
