@@ -579,7 +579,7 @@ def is_variable(obj):
 
 def get_module_and_script(module_name, script_name):
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
-    script = module.scripts.get(script_name)
+    script = module.scripts.get(name=script_name)
     return module, script
 
 

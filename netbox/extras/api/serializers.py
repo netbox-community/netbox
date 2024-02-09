@@ -512,16 +512,17 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
 #
 
 class ScriptSerializer(ValidatedModelSerializer):
+    id = serializers.CharField(read_only=True)
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail',)
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    # result = NestedJobSerializer()
+    result = serializers.SerializerMethodField(read_only=True)
     display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Script
         fields = [
-            'id', 'url', 'module', 'name', 'description', 'vars', 'display',
+            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -546,12 +547,25 @@ class ScriptSerializer(ValidatedModelSerializer):
 
     @extend_schema_field(NestedJobSerializer())
     def get_result(self, obj):
-        return f'{obj.name} ({obj.module})'
+        job = obj.jobs.all().order_by('-created').first()
+        context = {
+            'request': self.context['request']
+        }
+        data = NestedJobSerializer(job, context=context).data
+        return data
 
 
 class ScriptDetailSerializer(ScriptSerializer):
-    # result = JobSerializer()
-    pass
+    result = serializers.SerializerMethodField(read_only=True)
+
+    @extend_schema_field(JobSerializer())
+    def get_result(self, obj):
+        job = obj.jobs.all().order_by('-created').first()
+        context = {
+            'request': self.context['request']
+        }
+        data = JobSerializer(job, context=context).data
+        return data
 
 
 class ScriptInputSerializer(serializers.Serializer):

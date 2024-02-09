@@ -9,7 +9,7 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
 from rq import Worker
 
 from core.choices import JobStatusChoices
@@ -214,24 +214,35 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
-class ScriptViewSet(ViewSet):
+class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    queryset = Script.objects.all().prefetch_related('jobs')
+    serializer_class = serializers.ScriptSerializer
+    # filterset_class = filtersets.ScriptFilterSet
+
     _ignore_model_permissions = True
     schema = None
     lookup_value_regex = '[^/]+'  # Allow dots
 
     def _get_script(self, pk):
-        try:
-            module_name, script_name = pk.split('.', maxsplit=1)
-        except ValueError:
-            raise Http404
+        # check if includes '.' for old module.script lookup
+        if '.' in pk:
+            try:
+                module_name, script_name = pk.split('.', maxsplit=1)
+            except ValueError:
+                raise Http404
 
-        module, script = get_module_and_script(module_name, script_name)
-        if script is None:
-            raise Http404
+            module, script = get_module_and_script(module_name, script_name)
+            if script is None:
+                raise Http404
+        else:
+            pk = int(pk)
+            script = get_object_or_404(self.queryset, pk=pk)
+            module = script.module
 
         return module, script
 
+    '''
     def list(self, request):
         results = {
             job.name: job
@@ -252,15 +263,10 @@ class ScriptViewSet(ViewSet):
         serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
 
         return Response({'count': len(script_list), 'results': serializer.data})
+    '''
 
     def retrieve(self, request, pk):
         module, script = self._get_script(pk)
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        script.result = Job.objects.filter(
-            object_type=object_type,
-            name=script.class_name,
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-        ).first()
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
         return Response(serializer.data)
