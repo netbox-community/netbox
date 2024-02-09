@@ -63,7 +63,7 @@ class DynamicModelChoiceMixin:
         initial_params: A dictionary of child field references to use for selecting a parent field's initial value
         null_option: The string used to represent a null selection (if any)
         disabled_indicator: The name of the field which, if populated, will disable selection of the
-            choice (optional)
+            choice (DEPRECATED: pass `option_attrs={'disabled': '$fieldname'}` instead)
         option_attrs: A mapping of <option> template variables to their API data keys (optional)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
     """
@@ -103,12 +103,13 @@ class DynamicModelChoiceMixin:
         for var, accessor in self.option_attrs.items():
             attrs[f'ts-{var}-field'] = accessor
 
-        # Set the disabled indicator, if any
+        # TODO: Remove in v4.1
+        # Legacy means of specifying the disabled indicator
         if self.disabled_indicator is not None:
-            attrs['disabled-indicator'] = self.disabled_indicator
+            attrs['ts-disabled-field'] = self.disabled_indicator
 
         # Attach any static query parameters
-        if (len(self.query_params) > 0):
+        if len(self.query_params) > 0:
             widget.add_query_params(self.query_params)
 
         # Include object selector?

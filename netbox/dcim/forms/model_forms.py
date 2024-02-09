@@ -426,7 +426,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
-                'disabled-indicator': 'device',
+                'ts-disabled-field': 'device',
                 'data-dynamic-params': '[{"fieldName":"face","queryParam":"face"}]'
             },
         )

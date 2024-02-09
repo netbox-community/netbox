@@ -49,10 +49,6 @@ export function initDynamicSelects(): void {
       // Disable local search (search is performed on the backend)
       searchField: [],
 
-      // Reference the disabled-indicator attr on the <select> element to determine
-      // the name of the attribute which indicates whether an option should be disabled
-      disabledField: select.getAttribute('disabled-indicator') || undefined,
-
       // Load options from API immediately on focus
       preload: 'focus',
 
