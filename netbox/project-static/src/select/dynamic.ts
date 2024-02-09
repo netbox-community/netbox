@@ -21,6 +21,9 @@ function renderOption(data: TomOption, escape: typeof escape_html) {
   if (data['parent']) {
     html = `${html} <span class="text-secondary">${escape(data['parent'])}</span>`;
   }
+  if (data['count']) {
+    html = `${html} <span class="badge">${escape(data['count'])}</span>`;
+  }
   if (data['description']) {
     html = `${html}<br /><small class="text-secondary">${escape(data['description'])}</small>`;
   }

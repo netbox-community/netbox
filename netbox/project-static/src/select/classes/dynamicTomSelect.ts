@@ -35,9 +35,10 @@ export class DynamicTomSelect extends TomSelect {
     this.valueField = this.input.getAttribute('ts-value-field') || this.settings.valueField;
     this.labelField = this.input.getAttribute('ts-label-field') || this.settings.labelField;
     this.disabledField = this.input.getAttribute('ts-disabled-field') || this.settings.disabledField;
-    this.parentField = this.input.getAttribute('ts-parent-field') || null;
-    this.depthField = this.input.getAttribute('ts-depth-field') || '_depth';
     this.descriptionField = this.input.getAttribute('ts-description-field') || 'description';
+    this.depthField = this.input.getAttribute('ts-depth-field') || '_depth';
+    this.parentField = this.input.getAttribute('ts-parent-field') || null;
+    this.countField = this.input.getAttribute('ts-count-field') || null;
 
     // Set the null option (if any)
     const nullOption = this.input.getAttribute('data-null-option');
@@ -155,6 +156,9 @@ export class DynamicTomSelect extends TomSelect {
     if (data[this.parentField]) {
       let parent: Dict = data[this.parentField] as Dict;
       option['parent'] = parent[this.labelField];
+    }
+    if (data[this.countField]) {
+      option['count'] = data[this.countField];
     }
     if (data[this.disabledField]) {
       option['disabled'] = data[this.disabledField];
