@@ -557,6 +557,9 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
         required=False,
+        option_attrs={
+            'parent': 'manufacturer',
+        },
         query_params={
             'manufacturer_id': '$manufacturer'
         }
@@ -640,6 +643,9 @@ class ModuleBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
         query_params={
             'manufacturer_id': '$manufacturer'
+        },
+        option_attrs={
+            'parent': 'manufacturer',
         }
     )
     status = forms.ChoiceField(
