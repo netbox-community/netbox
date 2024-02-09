@@ -44,9 +44,6 @@ __all__ = (
     'ImageAttachmentSerializer',
     'JournalEntrySerializer',
     'ObjectChangeSerializer',
-    'ReportDetailSerializer',
-    'ReportSerializer',
-    'ReportInputSerializer',
     'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
@@ -511,64 +508,24 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
 
 
 #
-# Reports
-#
-
-class ReportSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
-    id = serializers.CharField(read_only=True, source="full_name")
-    module = serializers.CharField(max_length=255)
-    name = serializers.CharField(max_length=255)
-    description = serializers.CharField(max_length=255, required=False)
-    test_methods = serializers.ListField(child=serializers.CharField(max_length=255), read_only=True)
-    result = NestedJobSerializer()
-    display = serializers.SerializerMethodField(read_only=True)
-
-    @extend_schema_field(serializers.CharField())
-    def get_display(self, obj):
-        return f'{obj.name} ({obj.module})'
-
-
-class ReportDetailSerializer(ReportSerializer):
-    result = JobSerializer()
-
-
-class ReportInputSerializer(serializers.Serializer):
-    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
-    interval = serializers.IntegerField(required=False, allow_null=True)
-
-    def validate_schedule_at(self, value):
-        if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this report.")
-        return value
-
-    def validate_interval(self, value):
-        if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this report.")
-        return value
-
-
-#
 # Scripts
 #
 
-class ScriptSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:script-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
-    id = serializers.CharField(read_only=True, source="full_name")
-    module = serializers.CharField(max_length=255)
-    name = serializers.CharField(read_only=True)
-    description = serializers.CharField(read_only=True)
-    vars = serializers.SerializerMethodField(read_only=True)
-    result = NestedJobSerializer()
+class ScriptSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail',)
+    # id = serializers.CharField(read_only=True)
+    # module = serializers.CharField(max_length=255)
+    # name = serializers.CharField(read_only=True)
+    # description = serializers.CharField(read_only=True)
+    # vars = serializers.SerializerMethodField(read_only=True)
+    # result = NestedJobSerializer()
     display = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Script
+        fields = [
+            'id', 'url', 'module', 'name', 'display',
+        ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_vars(self, instance):
@@ -593,12 +550,12 @@ class ScriptInputSerializer(serializers.Serializer):
 
     def validate_schedule_at(self, value):
         if value and not self.context['script'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
     def validate_interval(self, value):
         if value and not self.context['script'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
 

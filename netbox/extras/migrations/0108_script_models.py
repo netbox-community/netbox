@@ -35,7 +35,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=79)),
-                ('module', models.ForeignKey(on_delete=django.db.models.deletion.RESTRICT, related_name='scripts', to='extras.scriptmodule')),
+                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scripts', to='extras.scriptmodule')),
             ],
             options={
                 'ordering': ('name', 'pk'),

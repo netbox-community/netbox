@@ -29,7 +29,7 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     )
     module = models.ForeignKey(
         to='extras.ScriptModule',
-        on_delete=models.RESTRICT,
+        on_delete=models.CASCADE,
         related_name='scripts'
     )
     is_valid = models.BooleanField(

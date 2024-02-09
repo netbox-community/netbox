@@ -1093,7 +1093,7 @@ class ScriptView(BaseScriptView):
 
         form = None
         if self.script_class:
-            form = script_class.as_form(request.POST, request.FILES)
+            form = self.script_class.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
         if not get_workers_for_queue('default'):
