@@ -242,29 +242,6 @@ class ScriptViewSet(ModelViewSet):
 
         return module, script
 
-    '''
-    def list(self, request):
-        results = {
-            job.name: job
-            for job in Job.objects.filter(
-                object_type=ContentType.objects.get(app_label='extras', model='scriptmodule'),
-                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-            ).order_by('name', '-created').distinct('name').defer('data')
-        }
-
-        script_list = []
-        for script_module in ScriptModule.objects.restrict(request.user):
-            script_list.extend(script_module.scripts.values())
-
-        # Attach Job objects to each script (if any)
-        for script in script_list:
-            script.result = results.get(script.class_name, None)
-
-        serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
-
-        return Response({'count': len(script_list), 'results': serializer.data})
-    '''
-
     def retrieve(self, request, pk):
         module, script = self._get_script(pk)
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
@@ -293,12 +270,12 @@ class ScriptViewSet(ModelViewSet):
             script.result = Job.enqueue(
                 run_script,
                 instance=module,
-                name=script.class_name,
+                name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],
                 request=copy_safe_request(request),
                 commit=input_serializer.data['commit'],
-                job_timeout=script.job_timeout,
+                job_timeout=script.python_class.job_timeout,
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
                 interval=input_serializer.validated_data.get('interval')
             )
