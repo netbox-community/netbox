@@ -24,7 +24,7 @@ class APISelect(forms.Select):
     def __init__(self, api_url=None, full=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.attrs['class'] = 'netbox-api-select'
+        self.attrs['class'] = 'api-select'
         self.dynamic_params: Dict[str, List[str]] = {}
         self.static_params: Dict[str, List[str]] = {}
 
@@ -153,8 +153,4 @@ class APISelect(forms.Select):
 
 
 class APISelectMultiple(APISelect, forms.SelectMultiple):
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        self.attrs['data-multiple'] = 1
+    pass

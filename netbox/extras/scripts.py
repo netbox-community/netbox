@@ -10,11 +10,12 @@ from django import forms
 from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
+from django.utils import timezone
 from django.utils.functional import classproperty
+from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
 from core.models import Job
-from extras.api.serializers import ScriptOutputSerializer
 from extras.choices import LogLevelChoices
 from extras.models import ScriptModule
 from extras.signals import clear_events
@@ -25,6 +26,8 @@ from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
 from .context_managers import event_tracking
 from .forms import ScriptForm
+from .utils import is_report
+
 
 __all__ = (
     'BaseScript',
@@ -270,17 +273,28 @@ class BaseScript:
         pass
 
     def __init__(self):
+        self.messages = []  # Primary script log
+        self.tests = {}  # Mapping of logs for test methods
+        self.output = ''
+        self.failed = False
+        self._current_test = None  # Tracks the current test method being run (if any)
 
         # Initiate the log
         self.logger = logging.getLogger(f"netbox.scripts.{self.__module__}.{self.__class__.__name__}")
-        self.log = []
 
         # Declare the placeholder for the current request
         self.request = None
 
-        # Grab some info about the script
-        self.filename = inspect.getfile(self.__class__)
-        self.source = inspect.getsource(self.__class__)
+        # Compile test methods and initialize results skeleton
+        for method in dir(self):
+            if method.startswith('test_') and callable(getattr(self, method)):
+                self.tests[method] = {
+                    LogLevelChoices.LOG_SUCCESS: 0,
+                    LogLevelChoices.LOG_INFO: 0,
+                    LogLevelChoices.LOG_WARNING: 0,
+                    LogLevelChoices.LOG_FAILURE: 0,
+                    'log': [],
+                }
 
     def __str__(self):
         return self.name
@@ -331,6 +345,14 @@ class BaseScript:
     def scheduling_enabled(self):
         return getattr(self.Meta, 'scheduling_enabled', True)
 
+    @property
+    def filename(self):
+        return inspect.getfile(self.__class__)
+
+    @property
+    def source(self):
+        return inspect.getsource(self.__class__)
+
     @classmethod
     def _get_vars(cls):
         vars = {}
@@ -356,9 +378,28 @@ class BaseScript:
         return ordered_vars
 
     def run(self, data, commit):
-        raise NotImplementedError("The script must define a run() method.")
+        """
+        Override this method with custom script logic.
+        """
 
+        # Backward compatibility for legacy Reports
+        self.pre_run()
+        self.run_tests()
+        self.post_run()
+
+    def get_job_data(self):
+        """
+        Return a dictionary of data to attach to the script's Job.
+        """
+        return {
+            'log': self.messages,
+            'output': self.output,
+            'tests': self.tests,
+        }
+
+    #
     # Form rendering
+    #
 
     def get_fieldsets(self):
         fieldsets = []
@@ -397,29 +438,66 @@ class BaseScript:
 
         return form
 
+    #
     # Logging
+    #
 
-    def log_debug(self, message):
-        self.logger.log(logging.DEBUG, message)
-        self.log.append((LogLevelChoices.LOG_DEFAULT, str(message)))
+    def _log(self, message, obj=None, level=LogLevelChoices.LOG_DEFAULT):
+        """
+        Log a message. Do not call this method directly; use one of the log_* wrappers below.
+        """
+        if level not in LogLevelChoices.values():
+            raise ValueError(f"Invalid logging level: {level}")
 
-    def log_success(self, message):
-        self.logger.log(logging.INFO, message)  # No syslog equivalent for SUCCESS
-        self.log.append((LogLevelChoices.LOG_SUCCESS, str(message)))
+        # A test method is currently active, so log the message using legacy Report logging
+        if self._current_test:
 
-    def log_info(self, message):
-        self.logger.log(logging.INFO, message)
-        self.log.append((LogLevelChoices.LOG_INFO, str(message)))
+            # TODO: Use a dataclass for test method logs
+            self.tests[self._current_test]['log'].append((
+                timezone.now().isoformat(),
+                level,
+                str(obj) if obj else None,
+                obj.get_absolute_url() if hasattr(obj, 'get_absolute_url') else None,
+                str(message),
+            ))
 
-    def log_warning(self, message):
-        self.logger.log(logging.WARNING, message)
-        self.log.append((LogLevelChoices.LOG_WARNING, str(message)))
+            # Increment the event counter for this level
+            if level in self.tests[self._current_test]:
+                self.tests[self._current_test][level] += 1
 
-    def log_failure(self, message):
-        self.logger.log(logging.ERROR, message)
-        self.log.append((LogLevelChoices.LOG_FAILURE, str(message)))
+        elif message:
 
+            # Record to the script's log
+            self.messages.append({
+                'time': timezone.now().isoformat(),
+                'status': level,
+                'message': str(message),
+            })
+
+            # Record to the system log
+            if obj:
+                message = f"{obj}: {message}"
+            self.logger.log(LogLevelChoices.SYSTEM_LEVELS[level], message)
+
+    def log_debug(self, message, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_DEBUG)
+
+    def log_success(self, message, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_SUCCESS)
+
+    def log_info(self, message, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_INFO)
+
+    def log_warning(self, message, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_WARNING)
+
+    def log_failure(self, message, obj=None):
+        self._log(message, obj, level=LogLevelChoices.LOG_FAILURE)
+        self.failed = True
+
+    #
     # Convenience functions
+    #
 
     def load_yaml(self, filename):
         """
@@ -445,6 +523,39 @@ class BaseScript:
             data = json.load(datafile)
 
         return data
+
+    #
+    # Legacy Report functionality
+    #
+
+    def run_tests(self):
+        """
+        Run the report and save its results. Each test method will be executed in order.
+        """
+        self.logger.info(f"Running report")
+
+        try:
+            for test_name in self.tests:
+                self._current_test = test_name
+                test_method = getattr(self, test_name)
+                test_method()
+                self._current_test = None
+        except Exception as e:
+            self._current_test = None
+            self.post_run()
+            raise e
+
+    def pre_run(self):
+        """
+        Legacy method for operations performed immediately prior to running a Report.
+        """
+        pass
+
+    def post_run(self):
+        """
+        Legacy method for operations performed immediately after running a Report.
+        """
+        pass
 
 
 class Script(BaseScript):
@@ -500,7 +611,16 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     # Add the current request as a property of the script
     script.request = request
 
-    def _run_script():
+    def set_job_data(script):
+        job.data = {
+            'log': script.messages,
+            'output': script.output,
+            'tests': script.tests,
+        }
+
+        return job
+
+    def _run_script(job):
         """
         Core script execution task. We capture this within a subfunction to allow for conditionally wrapping it with
         the event_tracking context manager (which is bypassed if commit == False).
@@ -508,25 +628,39 @@ def run_script(data, job, request=None, commit=True, **kwargs):
         try:
             try:
                 with transaction.atomic():
-                    script.output = script.run(data=data, commit=commit)
+                    script.output = script.run(data, commit)
                     if not commit:
                         raise AbortTransaction()
             except AbortTransaction:
-                script.log_info("Database changes have been reverted automatically.")
+                script.log_info(message=_("Database changes have been reverted automatically."))
                 if request:
                     clear_events.send(request)
-            job.data = ScriptOutputSerializer(script).data
-            job.terminate()
+
+            job.data = script.get_job_data()
+            if script.failed:
+                logger.warning(f"Script failed")
+                job.terminate(status=JobStatusChoices.STATUS_FAILED)
+            else:
+                job.terminate()
+
         except Exception as e:
             if type(e) is AbortScript:
-                script.log_failure(f"Script aborted with error: {e}")
+                msg = _("Script aborted with error: ") + str(e)
+                if is_report(type(script)):
+                    script.log_failure(message=msg)
+                else:
+                    script.log_failure(msg)
+
                 logger.error(f"Script aborted with error: {e}")
             else:
                 stacktrace = traceback.format_exc()
-                script.log_failure(f"An exception occurred: `{type(e).__name__}: {e}`\n```\n{stacktrace}\n```")
+                script.log_failure(
+                    message=_("An exception occurred: ") + f"`{type(e).__name__}: {e}`\n```\n{stacktrace}\n```"
+                )
                 logger.error(f"Exception raised during script execution: {e}")
-            script.log_info("Database changes have been reverted due to error.")
-            job.data = ScriptOutputSerializer(script).data
+            script.log_info(message=_("Database changes have been reverted due to error."))
+
+            job.data = script.get_job_data()
             job.terminate(status=JobStatusChoices.STATUS_ERRORED, error=repr(e))
             if request:
                 clear_events.send(request)
@@ -537,9 +671,9 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     # change logging, event rules, etc.
     if commit:
         with event_tracking(request):
-            _run_script()
+            _run_script(job)
     else:
-        _run_script()
+        _run_script(job)
 
     # Schedule the next job if an interval has been set
     if job.interval:

@@ -746,37 +746,6 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
         ConfigTemplate.objects.bulk_create(config_templates)
 
 
-class ReportTest(APITestCase):
-
-    class TestReport(Report):
-
-        def test_foo(self):
-            self.log_success(None, "Report completed")
-
-    @classmethod
-    def setUpTestData(cls):
-        ReportModule.objects.create(
-            file_root=ManagedFileRootPathChoices.REPORTS,
-            file_path='/var/tmp/report.py'
-        )
-
-    def get_test_report(self, *args):
-        return ReportModule.objects.first(), self.TestReport()
-
-    def setUp(self):
-        super().setUp()
-
-        # Monkey-patch the API viewset's _get_report() method to return our test Report above
-        from extras.api.views import ReportViewSet
-        ReportViewSet._get_report = self.get_test_report
-
-    def test_get_report(self):
-        url = reverse('extras-api:report-detail', kwargs={'pk': None})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['name'], self.TestReport.__name__)
-
-
 class ScriptTest(APITestCase):
 
     class TestScript(Script):

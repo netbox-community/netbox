@@ -1,9 +1,8 @@
-import { initApiSelect } from './api';
-import { initColorSelect } from './color';
-import { initStaticSelect } from './static';
+import { initColorSelects, initStaticSelects } from './static';
+import { initDynamicSelects } from './dynamic';
 
-export function initSelect(): void {
-  for (const func of [initApiSelect, initColorSelect, initStaticSelect]) {
-    func();
-  }
+export function initSelects(): void {
+  initStaticSelects();
+  initDynamicSelects();
+  initColorSelects();
 }
