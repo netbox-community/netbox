@@ -4,23 +4,11 @@ from django.db import migrations, models
 import django.db.models.deletion
 
 
-def update_scripts(apps, schema_editor):
+def update_event_rules(apps, schema_editor):
     from extras.models import ScriptModule
-    ScriptModuleNew = apps.get_model('extras', 'ScriptModule')
     Script = apps.get_model('extras', 'Script')
     ContentType = apps.get_model('contenttypes', 'ContentType')
     ct = ContentType.objects.filter(app_label='extras', model='script').first()
-
-    for module in ScriptModule.objects.all():
-        for script in module.get_module_scripts.keys():
-            obj = Script.objects.create(
-                name=script,
-                module=ScriptModuleNew.objects.get(file_root=module.file_root, file_path=module.file_path),
-            )
-
-            # update all jobs associated with this module/name to point to the new script obj
-            if ct:
-                module.jobs.filter(name=script).update(object_type=ct, object_id=obj.id)
 
     EventRule = apps.get_model('extras', 'EventRule')
     ct_script_module = ContentType.objects.filter(app_label='extras', model='scriptmodule').first()
@@ -39,6 +27,25 @@ def update_scripts(apps, schema_editor):
         rule.action_object_type = ct
         rule.action_object_id = obj.id
         rule.save()
+
+
+def update_scripts(apps, schema_editor):
+    from extras.models import ScriptModule
+    ScriptModuleNew = apps.get_model('extras', 'ScriptModule')
+    Script = apps.get_model('extras', 'Script')
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    ct = ContentType.objects.filter(app_label='extras', model='script').first()
+
+    for module in ScriptModule.objects.all():
+        for script in module.get_module_scripts.keys():
+            obj = Script.objects.create(
+                name=script,
+                module=ScriptModuleNew.objects.get(file_root=module.file_root, file_path=module.file_path),
+            )
+
+            # update all jobs associated with this module/name to point to the new script obj
+            if ct:
+                module.jobs.filter(name=script).update(object_type=ct, object_id=obj.id)
 
 
 class Migration(migrations.Migration):
@@ -72,8 +79,18 @@ class Migration(migrations.Migration):
             code=update_scripts,
             reverse_code=migrations.RunPython.noop
         ),
-        migrations.RemoveField(
-            model_name='eventrule',
-            name='action_parameters',
+        migrations.SeparateDatabaseAndState(
+            database_operations=[
+                migrations.RunPython(
+                    code=update_event_rules,
+                    reverse_code=migrations.RunPython.noop
+                ),
+            ],
+            state_operations=[
+                migrations.RemoveField(
+                    model_name='eventrule',
+                    name='action_parameters',
+                ),
+            ]
         ),
     ]
