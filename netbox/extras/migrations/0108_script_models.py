@@ -36,6 +36,10 @@ def update_scripts(apps, schema_editor):
             obj.is_valid = False
             obj.save()
 
+        rule.action_object_type = ct
+        rule.action_object_id = obj.id
+        rule.save()
+
 
 class Migration(migrations.Migration):
 

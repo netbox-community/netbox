@@ -1074,13 +1074,13 @@ class ScriptView(BaseScriptView):
 
         form = None
         if self.script_class:
-            form = script_class.as_form(initial=normalize_querydict(request.GET))
+            form = self.script_class.as_form(initial=normalize_querydict(request.GET))
 
         return render(request, 'extras/script.html', {
             'job_count': self.jobs.count(),
-            'module': script.module,
-            'script': script,
-            'script_class': script_class,
+            'module': self.script.module,
+            'script': self.script,
+            'script_class': self.script_class,
             'form': form,
         })
 
