@@ -522,7 +522,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     class Meta:
         model = Script
         fields = [
-            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display',
+            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_valid',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
