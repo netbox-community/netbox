@@ -58,7 +58,6 @@ class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     queryset = CircuitTermination.objects.all()
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filtersets.CircuitTerminationFilterSet
-    brief_prefetch_fields = ['circuit']
 
 
 #

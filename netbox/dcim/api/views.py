@@ -274,14 +274,12 @@ class DeviceTypeViewSet(NetBoxModelViewSet):
     )
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filtersets.DeviceTypeFilterSet
-    brief_prefetch_fields = ['manufacturer']
 
 
 class ModuleTypeViewSet(NetBoxModelViewSet):
     queryset = ModuleType.objects.all()
     serializer_class = serializers.ModuleTypeSerializer
     filterset_class = filtersets.ModuleTypeFilterSet
-    brief_prefetch_fields = ['manufacturer']
 
 
 #
@@ -435,7 +433,6 @@ class ConsolePortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.ConsolePortSerializer
     filterset_class = filtersets.ConsolePortFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
@@ -444,7 +441,6 @@ class ConsoleServerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.ConsoleServerPortSerializer
     filterset_class = filtersets.ConsoleServerPortFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
@@ -453,7 +449,6 @@ class PowerPortViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.PowerPortSerializer
     filterset_class = filtersets.PowerPortFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
@@ -462,7 +457,6 @@ class PowerOutletViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.PowerOutletSerializer
     filterset_class = filtersets.PowerOutletFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
@@ -474,7 +468,6 @@ class InterfaceViewSet(PathEndpointMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.InterfaceSerializer
     filterset_class = filtersets.InterfaceFilterSet
-    brief_prefetch_fields = ['device']
 
     def get_bulk_destroy_queryset(self):
         # Ensure child interfaces are deleted prior to their parents
@@ -487,7 +480,6 @@ class FrontPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.FrontPortSerializer
     filterset_class = filtersets.FrontPortFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
@@ -496,28 +488,24 @@ class RearPortViewSet(PassThroughPortMixin, NetBoxModelViewSet):
     )
     serializer_class = serializers.RearPortSerializer
     filterset_class = filtersets.RearPortFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class ModuleBayViewSet(NetBoxModelViewSet):
     queryset = ModuleBay.objects.all()
     serializer_class = serializers.ModuleBaySerializer
     filterset_class = filtersets.ModuleBayFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class DeviceBayViewSet(NetBoxModelViewSet):
     queryset = DeviceBay.objects.all()
     serializer_class = serializers.DeviceBaySerializer
     filterset_class = filtersets.DeviceBayFilterSet
-    brief_prefetch_fields = ['device']
 
 
 class InventoryItemViewSet(MPTTLockedMixin, NetBoxModelViewSet):
     queryset = InventoryItem.objects.all()
     serializer_class = serializers.InventoryItemSerializer
     filterset_class = filtersets.InventoryItemFilterSet
-    brief_prefetch_fields = ['device']
 
 
 #
@@ -557,7 +545,6 @@ class VirtualChassisViewSet(NetBoxModelViewSet):
     queryset = VirtualChassis.objects.all()
     serializer_class = serializers.VirtualChassisSerializer
     filterset_class = filtersets.VirtualChassisFilterSet
-    brief_prefetch_fields = ['master']
 
 
 #

@@ -134,7 +134,6 @@ class FHRPGroupViewSet(NetBoxModelViewSet):
     queryset = FHRPGroup.objects.all()
     serializer_class = serializers.FHRPGroupSerializer
     filterset_class = filtersets.FHRPGroupFilterSet
-    brief_prefetch_fields = ('ip_addresses',)
 
 
 class FHRPGroupAssignmentViewSet(NetBoxModelViewSet):

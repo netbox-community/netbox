@@ -84,7 +84,6 @@ class VMInterfaceViewSet(NetBoxModelViewSet):
     )
     serializer_class = serializers.VMInterfaceSerializer
     filterset_class = filtersets.VMInterfaceFilterSet
-    brief_prefetch_fields = ['virtual_machine']
 
     def get_bulk_destroy_queryset(self):
         # Ensure child interfaces are deleted prior to their parents
@@ -95,4 +94,3 @@ class VirtualDiskViewSet(NetBoxModelViewSet):
     queryset = VirtualDisk.objects.all()
     serializer_class = serializers.VirtualDiskSerializer
     filterset_class = filtersets.VirtualDiskFilterSet
-    brief_prefetch_fields = ['virtual_machine']
