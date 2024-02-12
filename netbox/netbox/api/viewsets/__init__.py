@@ -1,8 +1,11 @@
 import logging
+from functools import cached_property
 
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError, RestrictedError
+from django.db.models.fields.related import ManyToOneRel, RelatedField
 from django_pglocks import advisory_lock
 from netbox.constants import ADVISORY_LOCK_KEYS
 from rest_framework import mixins as drf_mixins
@@ -39,6 +42,40 @@ class BaseViewSet(GenericViewSet):
         if request.user.is_authenticated:
             if action := HTTP_ACTIONS[request.method]:
                 self.queryset = self.queryset.restrict(request.user, action)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+
+        # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
+        serializer_class = self.get_serializer_class()
+        model = serializer_class.Meta.model
+        fields_to_include = self.requested_fields or serializer_class.Meta.fields
+        prefetch = []
+        for field_name in fields_to_include:
+            try:
+                field = model._meta.get_field(field_name)
+            except FieldDoesNotExist:
+                continue
+            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
+                # TODO: Use serializer field source if set, else use its name
+                prefetch.append(field_name)
+        if prefetch:
+            qs = qs.prefetch_related(*prefetch)
+
+        return qs
+
+    def get_serializer(self, *args, **kwargs):
+
+        # If specific fields have been requested, pass them to the serializer
+        if self.requested_fields:
+            kwargs['requested_fields'] = self.requested_fields
+
+        return super().get_serializer(*args, **kwargs)
+
+    @cached_property
+    def requested_fields(self):
+        requested_fields = self.request.query_params.get('include')
+        return requested_fields.split(',') if requested_fields else []
 
 
 class NetBoxReadOnlyModelViewSet(
