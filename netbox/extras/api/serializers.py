@@ -84,7 +84,10 @@ class EventRuleSerializer(NetBoxModelSerializer):
         if instance.action_type == EventRuleActionChoices.SCRIPT:
             script = instance.action_object
             script_name = script.name
-            return NestedScriptSerializer(script.python_class(), context=context).data
+            if script.python_class:
+                return NestedScriptSerializer(script.python_class(), context=context).data
+            else:
+                return NestedScriptSerializer(None, context=context).data
         else:
             serializer = get_serializer_for_model(
                 model=instance.action_object_type.model_class(),

@@ -2,6 +2,7 @@ import inspect
 import logging
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
 from django.urls import reverse
@@ -34,6 +35,11 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     )
     is_valid = models.BooleanField(
         default=True
+    )
+    events = GenericRelation(
+        'extras.EventRule',
+        content_type_field='action_object_type',
+        object_id_field='action_object_id'
     )
 
     def __str__(self):
