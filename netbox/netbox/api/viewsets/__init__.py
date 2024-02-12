@@ -1,17 +1,16 @@
 import logging
 from functools import cached_property
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.db.models import ProtectedError, RestrictedError
-from django.db.models.fields.related import ManyToOneRel, RelatedField
 from django_pglocks import advisory_lock
 from netbox.constants import ADVISORY_LOCK_KEYS
 from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from utilities.api import get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from . import mixins
 
@@ -47,18 +46,10 @@ class BaseViewSet(GenericViewSet):
         qs = super().get_queryset()
 
         # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
-        serializer_class = self.get_serializer_class()
-        model = serializer_class.Meta.model
-        fields_to_include = self.requested_fields or serializer_class.Meta.fields
-        prefetch = []
-        for field_name in fields_to_include:
-            try:
-                field = model._meta.get_field(field_name)
-            except FieldDoesNotExist:
-                continue
-            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
-                # TODO: Use serializer field source if set, else use its name
-                prefetch.append(field_name)
+        prefetch = get_prefetches_for_serializer(
+            self.get_serializer_class(),
+            fields_to_include=self.requested_fields
+        )
         if prefetch:
             qs = qs.prefetch_related(*prefetch)
 
