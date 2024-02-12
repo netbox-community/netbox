@@ -75,11 +75,6 @@ drf-spectacular-sidecar
 # https://github.com/kurtmckee/feedparser/blob/develop/CHANGELOG.rst
 feedparser
 
-# Django wrapper for Graphene (GraphQL support)
-# https://github.com/graphql-python/graphene-django/releases
-# Pinned to v3.0.0 for GraphiQL UI issue (see #12762)
-graphene_django==3.0.0
-
 # WSGI HTTP server
 # https://docs.gunicorn.org/en/latest/news.html
 gunicorn
