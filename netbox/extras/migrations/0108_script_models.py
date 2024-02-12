@@ -17,12 +17,8 @@ def update_event_rules(apps, schema_editor):
         obj, created = Script.objects.get_or_create(
             module_id=rule.action_object_id,
             name=name,
+            defaults={'is_valid': False}
         )
-
-        if created:
-            # script in action_parameters was deleted?
-            obj.is_valid = False
-            obj.save()
 
         rule.action_object_type = ct
         rule.action_object_id = obj.id
