@@ -299,18 +299,17 @@ class EventRuleForm(NetBoxModelForm):
     def init_script_choice(self):
         choices = []
         for module in ScriptModule.objects.all():
-            scripts = []
-            for script_name in module.scripts.keys():
-                name = f"{str(module.pk)}:{script_name}"
-                scripts.append((name, script_name))
-            if scripts:
-                choices.append((str(module), scripts))
+            script_list = []
+            for script in module.scripts.all():
+                name = f"{str(script.pk)}:{script.name}"
+                script_list.append((name, script.name))
+            if script_list:
+                choices.append((str(module), script_list))
         self.fields['action_choice'].choices = choices
 
-        if self.instance.action_type == EventRuleActionChoices.SCRIPT and self.instance.action_parameters:
-            scriptmodule_id = self.instance.action_object_id
-            script_name = self.instance.action_parameters.get('script_name')
-            self.fields['action_choice'].initial = f'{scriptmodule_id}:{script_name}'
+        if self.instance.action_type == EventRuleActionChoices.SCRIPT:
+            script = self.instance.action_object
+            self.fields['action_choice'].initial = f'{script.id}:{script.name}'
 
     def init_webhook_choice(self):
         initial = None
@@ -348,25 +347,13 @@ class EventRuleForm(NetBoxModelForm):
         # Script
         elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
             self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(
-                ScriptModule,
+                Script,
                 for_concrete_model=False
             )
-            module_id, script_name = action_choice.split(":", maxsplit=1)
-            self.cleaned_data['action_object_id'] = module_id
+            script_id, script_name = action_choice.split(":", maxsplit=1)
+            self.cleaned_data['action_object_id'] = script_id
 
         return self.cleaned_data
-
-    def save(self, *args, **kwargs):
-        # Set action_parameters on the instance
-        if self.cleaned_data['action_type'] == EventRuleActionChoices.SCRIPT:
-            module_id, script_name = self.cleaned_data.get('action_choice').split(":", maxsplit=1)
-            self.instance.action_parameters = {
-                'script_name': script_name,
-            }
-        else:
-            self.instance.action_parameters = None
-
-        return super().save(*args, **kwargs)
 
 
 class TagForm(forms.ModelForm):

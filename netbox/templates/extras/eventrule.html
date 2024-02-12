@@ -83,13 +83,7 @@
           <tr>
             <th scope="row">{% trans "Object" %}</th>
             <td>
-              {% if object.action_type == 'script' %}
-                <a href="{% url 'extras:script' module=object.action_object.python_name name=object.action_parameters.script_name %}">
-                 {{ object.action_object }} / {{ object.action_parameters.script_name }}
-                </a>
-              {% else %}
                 {{ object.action_object|linkify }}
-              {% endif %}
             </td>
           </tr>
           <tr>
