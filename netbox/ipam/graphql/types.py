@@ -2,7 +2,6 @@ import strawberry
 import strawberry_django
 
 from ipam import models
-from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 from .filters import *
 

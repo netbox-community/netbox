@@ -446,7 +446,10 @@ class APIViewTestCases:
 
             # Compile list of fields to include
             fields_string = ''
-            for field_name, field in type_class._meta.fields.items():
+
+            for field_name, field in type_class.__dataclass_fields__.items():
+                # for field_name, field in type_class._meta.fields.items():
+                print(f"field_name: {field_name} field: {field}")
                 is_string_array = False
                 if type(field.type) is GQLList:
                     if field.type.of_type is GQLString:

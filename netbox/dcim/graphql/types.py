@@ -6,7 +6,6 @@ from extras.graphql.mixins import (
     ChangelogMixin, ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
-from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
