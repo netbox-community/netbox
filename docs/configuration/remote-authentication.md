@@ -67,7 +67,7 @@ When remote user authentication is in use, this is the name of the HTTP header w
 
 Default: `|` (Pipe)
 
-The Seperator upon which `REMOTE_AUTH_GROUP_HEADER` gets split into individual Groups. This needs to be coordinated with your authentication Proxy. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
+The Separator upon which `REMOTE_AUTH_GROUP_HEADER` gets split into individual Groups. This needs to be coordinated with your authentication Proxy. (Requires `REMOTE_AUTH_ENABLED` and `REMOTE_AUTH_GROUP_SYNC_ENABLED` )
 
 ---
 
