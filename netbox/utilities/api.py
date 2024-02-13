@@ -106,19 +106,24 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
 
     prefetch_fields = []
     for field_name in fields_to_include:
+        serializer_field = serializer_class._declared_fields.get(field_name)
+
+        # Determine the name of the model field referenced by the serializer field
+        model_field_name = field_name
+        if serializer_field and serializer_field.source:
+            model_field_name = serializer_field.source
 
         # If the serializer field does not map to a discrete model field, skip it.
         try:
-            field = model._meta.get_field(field_name)
+            field = model._meta.get_field(model_field_name)
+            if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
+                prefetch_fields.append(field.name)
         except FieldDoesNotExist:
             continue
-        if isinstance(field, (RelatedField, ManyToOneRel, GenericForeignKey)):
-            # TODO: Use serializer field source if set, else use its name
-            prefetch_fields.append(field_name)
 
         # If this field is represented by a nested serializer, recurse to resolve prefetches
         # for the related object.
-        if serializer_field := serializer_class._declared_fields.get(field_name):
+        if serializer_field:
             if issubclass(type(serializer_field), Serializer):
                 for subfield in get_prefetches_for_serializer(type(serializer_field)):
                     prefetch_fields.append(f'{field_name}__{subfield}')
