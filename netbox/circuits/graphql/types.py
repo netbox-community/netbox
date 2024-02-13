@@ -1,11 +1,14 @@
+from typing import List
+
 import strawberry
 import strawberry_django
-
 from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
-from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
-from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
+from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from tenancy.graphql.types import TenantType
+
+from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType
+
 from .filters import *
 
 __all__ = (
@@ -76,3 +79,7 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     termination_z: CircuitTerminationType | None
     type: CircuitTypeType
     tenant: TenantType | None
+
+    @strawberry_django.field
+    def terminations(self) -> List[CircuitTerminationType]:
+        return self.terminations.all()

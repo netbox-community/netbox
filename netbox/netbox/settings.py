@@ -739,6 +739,14 @@ if not ENABLE_LOCALIZATION:
     USE_L10N = False
 
 #
+# Strawberry (GraphQL)
+#
+STRAWBERRY_DJANGO = {
+    "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
+    # "GENERATE_ENUMS_FROM_CHOICES": True,
+}
+
+#
 # Plugins
 #
 
