@@ -269,7 +269,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     interface = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        option_attrs={
+        context={
             'parent': 'device',
         },
         selector=True,
@@ -278,7 +278,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
-        option_attrs={
+        context={
             'parent': 'virtual_machine',
         },
         selector=True,

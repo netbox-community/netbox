@@ -434,7 +434,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
-        option_attrs={
+        context={
             'parent': 'manufacturer',
         },
         selector=True
@@ -464,7 +464,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Virtual chassis'),
         queryset=VirtualChassis.objects.all(),
         required=False,
-        option_attrs={
+        context={
             'parent': 'master',
         },
         selector=True
@@ -574,7 +574,7 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
     module_type = DynamicModelChoiceField(
         label=_('Module type'),
         queryset=ModuleType.objects.all(),
-        option_attrs={
+        context={
             'parent': 'manufacturer',
         },
         selector=True
@@ -784,7 +784,7 @@ class ComponentTemplateForm(forms.ModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
-        option_attrs={
+        context={
             'parent': 'manufacturer',
         }
     )
@@ -802,7 +802,7 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         label=_('Device type'),
         queryset=DeviceType.objects.all().all(),
         required=False,
-        option_attrs={
+        context={
             'parent': 'manufacturer',
         }
     )
@@ -810,7 +810,7 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
         label=_('Module type'),
         queryset=ModuleType.objects.all(),
         required=False,
-        option_attrs={
+        context={
             'parent': 'manufacturer',
         }
     )

@@ -108,7 +108,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'kind': 'wireless',
             'device_id': '$device_a',
         },
-        option_attrs={
+        context={
             'disabled': '_occupied',
         },
         label=_('Interface')
@@ -150,7 +150,7 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'kind': 'wireless',
             'device_id': '$device_b',
         },
-        option_attrs={
+        context={
             'disabled': '_occupied',
         },
         label=_('Interface')
