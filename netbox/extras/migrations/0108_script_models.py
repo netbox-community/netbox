@@ -25,18 +25,41 @@ def update_event_rules(apps, schema_editor):
         rule.save()
 
 
+def get_module_scripts(instance):
+
+    def _get_name(cls):
+        # For child objects in submodules use the full import path w/o the root module as the name
+        return cls.full_name.split(".", maxsplit=1)[1]
+
+    try:
+        module = instance.get_module()
+    except Exception as e:
+        logger.debug(f"Failed to load script: {instance.python_name} error: {e}")
+        module = None
+
+    scripts = {}
+    ordered = getattr(module, 'script_order', [])
+
+    for cls in ordered:
+        scripts[_get_name(cls)] = cls
+    for name, cls in inspect.getmembers(module, is_script):
+        if cls not in ordered:
+            scripts[_get_name(cls)] = cls
+
+    return scripts
+
+
 def update_scripts(apps, schema_editor):
-    from extras.models import ScriptModule
-    ScriptModuleNew = apps.get_model('extras', 'ScriptModule')
+    ScriptModule = apps.get_model('extras', 'ScriptModule')
     Script = apps.get_model('extras', 'Script')
     ContentType = apps.get_model('contenttypes', 'ContentType')
     ct = ContentType.objects.filter(app_label='extras', model='script').first()
 
     for module in ScriptModule.objects.all():
-        for script in module.get_module_scripts.keys():
+        for script in get_module_scripts(module).keys():
             obj = Script.objects.create(
                 name=script,
-                module=ScriptModuleNew.objects.get(file_root=module.file_root, file_path=module.file_path),
+                module=ScriptModule.objects.get(file_root=module.file_root, file_path=module.file_path),
             )
 
             # update all jobs associated with this module/name to point to the new script obj

@@ -26,7 +26,7 @@ logger = logging.getLogger('netbox.data_backends')
 class Script(EventRulesMixin, JobsMixin, models.Model):
     name = models.CharField(
         verbose_name=_('name'),
-        max_length=79,
+        max_length=79,  # Maximum length for a Python class name
     )
     module = models.ForeignKey(
         to='extras.ScriptModule',
@@ -56,6 +56,9 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
         )
         verbose_name = _('script')
         verbose_name_plural = _('scripts')
+
+    def get_absolute_url(self):
+        return reverse('extras:script', args=[self.pk])
 
     @cached_property
     def python_class(self):
