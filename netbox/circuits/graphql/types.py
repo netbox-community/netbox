@@ -5,6 +5,7 @@ from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin, ContactsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
+from tenancy.graphql.types import TenantType
 from .filters import *
 
 __all__ = (
@@ -54,15 +55,6 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
 
 
 @strawberry_django.type(
-    models.Circuit,
-    fields='__all__',
-    filters=CircuitFilter
-)
-class CircuitType(NetBoxObjectType, ContactsMixin):
-    provider: ProviderType
-
-
-@strawberry_django.type(
     models.CircuitType,
     # fields='__all__',
     exclude=['color',],  # bug - remove color from exclude
@@ -70,3 +62,17 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
 )
 class CircuitTypeType(OrganizationalObjectType):
     pass
+
+
+@strawberry_django.type(
+    models.Circuit,
+    fields='__all__',
+    filters=CircuitFilter
+)
+class CircuitType(NetBoxObjectType, ContactsMixin):
+    provider: ProviderType
+    provider_account: ProviderAccountType | None
+    termination_a: CircuitTerminationType | None
+    termination_z: CircuitTerminationType | None
+    type: CircuitTypeType
+    tenant: TenantType | None
