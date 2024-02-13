@@ -4,8 +4,14 @@
 
 ### Bug Fixes
 
+* [#15059](https://github.com/netbox-community/netbox/issues/15059) - Correct IP address count link in VM interfaces table
+* [#15067](https://github.com/netbox-community/netbox/issues/15067) - Fix uncaught exception when attempting invalid device bay import
 * [#15070](https://github.com/netbox-community/netbox/issues/15070) - Fix inclusion of `config_template` field on REST API serializer for virtual machines
 * [#15084](https://github.com/netbox-community/netbox/issues/15084) - Fix "add export template" link under "export" button on object list views
+* [#15091](https://github.com/netbox-community/netbox/issues/15091) - Fix designation of the active tab for assigned object when modifying an L2VPN termination
+* [#15115](https://github.com/netbox-community/netbox/issues/15115) - Fix unhandled exception with invalid permission constraints
+* [#15126](https://github.com/netbox-community/netbox/issues/15126) - `group` field should be optional when creating VPN tunnel via REST API
+* [#15133](https://github.com/netbox-community/netbox/issues/15133) - Fix FHRP group representation on assignments REST API endpoint using brief mode
 
 ---
 
