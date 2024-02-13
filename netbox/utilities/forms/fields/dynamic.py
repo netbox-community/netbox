@@ -64,8 +64,18 @@ class DynamicModelChoiceMixin:
         null_option: The string used to represent a null selection (if any)
         disabled_indicator: The name of the field which, if populated, will disable selection of the
             choice (DEPRECATED: pass `context={'disabled': '$fieldname'}` instead)
-        context: A mapping of <option> template variables to their API data keys (optional)
+        context: A mapping of <option> template variables to their API data keys (optional; see below)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
+
+    Context keys:
+        value: The name of the attribute which contains the option's value (default: 'id')
+        label: The name of the attribute used as the option's human-friendly label (default: 'display')
+        description: The name of the attribute to use as a description (default: 'description')
+        depth: The name of the attribute which indicates an object's depth within a recursive hierarchy; must be a
+            positive integer (default: '_depth')
+        disabled: The name of the attribute which, if true, signifies that the option should be disabled
+        parent: The name of the attribute which represents the object's parent object (e.g. device for an interface)
+        count: The name of the attribute which contains a numeric count of related objects
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
