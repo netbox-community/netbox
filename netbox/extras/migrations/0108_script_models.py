@@ -141,18 +141,8 @@ class Migration(migrations.Migration):
             code=update_scripts,
             reverse_code=migrations.RunPython.noop
         ),
-        migrations.SeparateDatabaseAndState(
-            database_operations=[
-                migrations.RunPython(
-                    code=update_event_rules,
-                    reverse_code=migrations.RunPython.noop
-                ),
-            ],
-            state_operations=[
-                migrations.RemoveField(
-                    model_name='eventrule',
-                    name='action_parameters',
-                ),
-            ]
+        migrations.RunPython(
+            code=update_event_rules,
+            reverse_code=migrations.RunPython.noop
         ),
     ]
