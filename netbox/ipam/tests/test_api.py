@@ -760,7 +760,7 @@ class FHRPGroupTest(APIViewTestCases.APIViewTestCase):
 
 class FHRPGroupAssignmentTest(APIViewTestCases.APIViewTestCase):
     model = FHRPGroupAssignment
-    brief_fields = ['display', 'group_id', 'id', 'interface_id', 'interface_type', 'priority', 'url']
+    brief_fields = ['display', 'group', 'id', 'interface_id', 'interface_type', 'priority', 'url']
     bulk_update_data = {
         'priority': 100,
     }
