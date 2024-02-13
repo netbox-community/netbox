@@ -193,16 +193,19 @@ class ObjectVar(ScriptVariable):
 
     :param model: The NetBox model being referenced
     :param query_params: A dictionary of additional query parameters to attach when making REST API requests (optional)
+    :param context: A custom dictionary mapping template context variables to fields, used when rendering <option>
+        elements within the dropdown menu (optional)
     :param null_option: The label to use as a "null" selection option (optional)
     """
     form_field = DynamicModelChoiceField
 
-    def __init__(self, model, query_params=None, null_option=None, *args, **kwargs):
+    def __init__(self, model, query_params=None, context=None, null_option=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.field_attrs.update({
             'queryset': model.objects.all(),
             'query_params': query_params,
+            'context': context,
             'null_option': null_option,
         })
 

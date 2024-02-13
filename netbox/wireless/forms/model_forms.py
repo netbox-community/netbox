@@ -108,7 +108,9 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'kind': 'wireless',
             'device_id': '$device_a',
         },
-        disabled_indicator='_occupied',
+        context={
+            'disabled': '_occupied',
+        },
         label=_('Interface')
     )
     site_b = DynamicModelChoiceField(
@@ -148,7 +150,9 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'kind': 'wireless',
             'device_id': '$device_b',
         },
-        disabled_indicator='_occupied',
+        context={
+            'disabled': '_occupied',
+        },
         label=_('Interface')
     )
     comments = CommentField()

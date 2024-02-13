@@ -426,7 +426,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         widget=APISelect(
             api_url='/api/dcim/racks/{{rack}}/elevation/',
             attrs={
-                'disabled-indicator': 'device',
+                'ts-disabled-field': 'device',
                 'data-dynamic-params': '[{"fieldName":"face","queryParam":"face"}]'
             },
         )
@@ -434,6 +434,9 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all(),
+        context={
+            'parent': 'manufacturer',
+        },
         selector=True
     )
     role = DynamicModelChoiceField(
@@ -461,6 +464,9 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Virtual chassis'),
         queryset=VirtualChassis.objects.all(),
         required=False,
+        context={
+            'parent': 'master',
+        },
         selector=True
     )
     vc_position = forms.IntegerField(
@@ -568,6 +574,9 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
     module_type = DynamicModelChoiceField(
         label=_('Module type'),
         queryset=ModuleType.objects.all(),
+        context={
+            'parent': 'manufacturer',
+        },
         selector=True
     )
     comments = CommentField()
@@ -774,7 +783,10 @@ class VCMemberSelectForm(forms.Form):
 class ComponentTemplateForm(forms.ModelForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
-        queryset=DeviceType.objects.all()
+        queryset=DeviceType.objects.all(),
+        context={
+            'parent': 'manufacturer',
+        }
     )
 
     def __init__(self, *args, **kwargs):
@@ -789,12 +801,18 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
     device_type = DynamicModelChoiceField(
         label=_('Device type'),
         queryset=DeviceType.objects.all().all(),
-        required=False
+        required=False,
+        context={
+            'parent': 'manufacturer',
+        }
     )
     module_type = DynamicModelChoiceField(
         label=_('Module type'),
         queryset=ModuleType.objects.all(),
-        required=False
+        required=False,
+        context={
+            'parent': 'manufacturer',
+        }
     )
 
     def __init__(self, *args, **kwargs):
