@@ -83,11 +83,8 @@ class EventRuleSerializer(NetBoxModelSerializer):
         # We need to manually instantiate the serializer for scripts
         if instance.action_type == EventRuleActionChoices.SCRIPT:
             script = instance.action_object
-            script_name = script.name
-            if script.python_class:
-                return NestedScriptSerializer(script.python_class(), context=context).data
-            else:
-                return NestedScriptSerializer(None, context=context).data
+            instance = script.python_class() if script.python_class else None
+            return NestedScriptSerializer(instance, context=context).data
         else:
             serializer = get_serializer_for_model(
                 model=instance.action_object_type.model_class(),
@@ -525,7 +522,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     class Meta:
         model = Script
         fields = [
-            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_valid',
+            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_executable',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

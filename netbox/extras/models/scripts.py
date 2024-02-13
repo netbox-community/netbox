@@ -33,8 +33,9 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
         on_delete=models.CASCADE,
         related_name='scripts'
     )
-    is_valid = models.BooleanField(
-        default=True
+    is_executable = models.BooleanField(
+        default=True,
+        verbose_name=_('is executable')
     )
     events = GenericRelation(
         'extras.EventRule',
@@ -46,7 +47,7 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
         return self.name
 
     class Meta:
-        ordering = ('name', 'pk')
+        ordering = ('module', 'name')
         constraints = (
             models.UniqueConstraint(
                 fields=('name', 'module'),

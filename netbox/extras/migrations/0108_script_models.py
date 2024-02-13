@@ -57,15 +57,11 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=79)),
                 ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scripts', to='extras.scriptmodule')),
+                ('is_executable', models.BooleanField(default=True))
             ],
             options={
-                'ordering': ('name', 'pk'),
+                'ordering': ('module', 'name'),
             },
-        ),
-        migrations.AddField(
-            model_name='script',
-            name='is_valid',
-            field=models.BooleanField(default=True),
         ),
         migrations.AddConstraint(
             model_name='script',

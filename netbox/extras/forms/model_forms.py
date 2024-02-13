@@ -300,7 +300,7 @@ class EventRuleForm(NetBoxModelForm):
         choices = []
         for module in ScriptModule.objects.all():
             script_list = []
-            for script in module.scripts.all():
+            for script in module.scripts.all().prefetch_related('scripts'):
                 name = f"{str(script.pk)}:{script.name}"
                 script_list.append((name, script.name))
             if script_list:

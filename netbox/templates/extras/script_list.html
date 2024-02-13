@@ -48,7 +48,7 @@
               {% with last_job=script.get_latest_jobs|get_key:script.name %}
                 <tr>
                   <td>
-                    {% if script.is_valid %}
+                    {% if script.is_executable %}
                       <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
                     {% else %}
                       <a href="{% url 'extras:script_jobs' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>

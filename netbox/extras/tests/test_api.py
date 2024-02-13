@@ -774,7 +774,7 @@ class ScriptTest(APITestCase):
         Script.objects.create(
             module=module,
             name="Test script",
-            is_valid=True,
+            is_executable=True,
         )
 
     def python_class(self):
