@@ -385,7 +385,7 @@ class ObjectPermissionForm(BootstrapMixin, forms.ModelForm):
                         CONSTRAINT_TOKEN_USER: 0,  # Replace token with a null user ID
                     }
                     model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
-                except FieldError as e:
+                except (FieldError, ValueError) as e:
                     raise forms.ValidationError({
                         'constraints': _('Invalid filter for {model}: {error}').format(model=model, error=e)
                     })
