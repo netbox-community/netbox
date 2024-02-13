@@ -304,6 +304,7 @@ A particular object within NetBox. Each ObjectVar must specify a particular mode
 
 * `model` - The model class
 * `query_params` - A dictionary of query parameters to use when retrieving available options (optional)
+* `context` - A custom dictionary mapping template context variables to fields, used when rendering `<option>` elements within the dropdown menu (optional)
 * `null_option` - A label representing a "null" or empty choice (optional)
 
 To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:
