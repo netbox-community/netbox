@@ -12,24 +12,8 @@ __all__ = (
     'ColorField',
     'CounterCacheField',
     'NaturalOrderingField',
-    'NullableCharField',
     'RestrictedGenericForeignKey',
 )
-
-
-# Deprecated: Retained only to ensure successful migration from early releases
-# Use models.CharField(null=True) instead
-# TODO: Remove in v4.0
-class NullableCharField(models.CharField):
-    description = "Stores empty values as NULL rather than ''"
-
-    def to_python(self, value):
-        if isinstance(value, models.CharField):
-            return value
-        return value or ''
-
-    def get_prep_value(self, value):
-        return value or None
 
 
 class ColorField(models.CharField):
