@@ -30,15 +30,13 @@ class TenantGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
         'group',
         'tenant_count',
         cumulative=True
-    ).prefetch_related('tags')
+    )
     serializer_class = serializers.TenantGroupSerializer
     filterset_class = filtersets.TenantGroupFilterSet
 
 
 class TenantViewSet(NetBoxModelViewSet):
-    queryset = Tenant.objects.prefetch_related(
-        'group', 'tags'
-    ).annotate(
+    queryset = Tenant.objects.annotate(
         circuit_count=count_related(Circuit, 'tenant'),
         device_count=count_related(Device, 'tenant'),
         ipaddress_count=count_related(IPAddress, 'tenant'),
@@ -65,24 +63,24 @@ class ContactGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
         'group',
         'contact_count',
         cumulative=True
-    ).prefetch_related('tags')
+    )
     serializer_class = serializers.ContactGroupSerializer
     filterset_class = filtersets.ContactGroupFilterSet
 
 
 class ContactRoleViewSet(NetBoxModelViewSet):
-    queryset = ContactRole.objects.prefetch_related('tags')
+    queryset = ContactRole.objects.all()
     serializer_class = serializers.ContactRoleSerializer
     filterset_class = filtersets.ContactRoleFilterSet
 
 
 class ContactViewSet(NetBoxModelViewSet):
-    queryset = Contact.objects.prefetch_related('group', 'tags')
+    queryset = Contact.objects.all()
     serializer_class = serializers.ContactSerializer
     filterset_class = filtersets.ContactFilterSet
 
 
 class ContactAssignmentViewSet(NetBoxModelViewSet):
-    queryset = ContactAssignment.objects.prefetch_related('content_type', 'object', 'contact', 'role', 'tags')
+    queryset = ContactAssignment.objects.all()
     serializer_class = serializers.ContactAssignmentSerializer
     filterset_class = filtersets.ContactAssignmentFilterSet

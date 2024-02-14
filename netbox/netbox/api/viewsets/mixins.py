@@ -30,7 +30,6 @@ class BriefModeMixin:
         GET /api/dcim/sites/?brief=True
     """
     brief = False
-    brief_prefetch_fields = []
 
     def initialize_request(self, request, *args, **kwargs):
         # Annotate whether brief mode is active
@@ -63,9 +62,6 @@ class BriefModeMixin:
             for annotation in list(qs.query.annotations.keys()):
                 if annotation not in serializer_class().fields:
                     qs.query.annotations.pop(annotation)
-
-            # Clear any prefetches from the queryset and append only brief_prefetch_fields (if any)
-            return qs.prefetch_related(None).prefetch_related(*self.brief_prefetch_fields)
 
         return qs
 

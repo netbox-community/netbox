@@ -12,6 +12,15 @@ __all__ = (
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
+    def __init__(self, *args, requested_fields=None, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # If specific fields have been requested, omit the others
+        if requested_fields:
+            for field in list(self.fields.keys()):
+                if field not in requested_fields:
+                    self.fields.pop(field)
+
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
         return str(obj)

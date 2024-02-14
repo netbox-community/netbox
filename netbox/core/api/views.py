@@ -44,7 +44,7 @@ class DataSourceViewSet(NetBoxModelViewSet):
 
 
 class DataFileViewSet(NetBoxReadOnlyModelViewSet):
-    queryset = DataFile.objects.defer('data').prefetch_related('source')
+    queryset = DataFile.objects.defer('data')
     serializer_class = serializers.DataFileSerializer
     filterset_class = filtersets.DataFileFilterSet
 
@@ -53,6 +53,6 @@ class JobViewSet(ReadOnlyModelViewSet):
     """
     Retrieve a list of job results
     """
-    queryset = Job.objects.prefetch_related('user')
+    queryset = Job.objects.all()
     serializer_class = serializers.JobSerializer
     filterset_class = filtersets.JobFilterSet
