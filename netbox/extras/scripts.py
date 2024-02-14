@@ -488,12 +488,6 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     module = ScriptModule.objects.get(pk=job.object_id)
     script = module.scripts.get(job.name)()
 
-    if isinstance(data, str):
-        data = json.loads(data)
-        form = script.as_form(data)
-        if form.is_valid():
-            data = form.cleaned_data
-
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")
 
