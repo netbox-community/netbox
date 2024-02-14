@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 
 from django import forms
 from django.conf import settings
+from django.utils.translation import gettext_lazy as _
 
 __all__ = (
     'APISelect',
@@ -119,7 +120,9 @@ class APISelect(forms.Select):
                 update = [{'fieldName': f, 'queryParam': q} for (f, q) in self.dynamic_params.items()]
                 self._serialize_params(key, update)
             except IndexError as error:
-                raise RuntimeError(f"Missing required value for dynamic query param: '{self.dynamic_params}'") from error
+                raise RuntimeError(
+                    _("Missing required value for dynamic query param: '{dynamic_params}'").format(
+                        dynamic_params=self.dynamic_params)) from error
 
     def _add_static_params(self):
         """
@@ -132,7 +135,9 @@ class APISelect(forms.Select):
                 update = [{'queryParam': k, 'queryValue': v} for (k, v) in self.static_params.items()]
                 self._serialize_params(key, update)
             except IndexError as error:
-                raise RuntimeError(f"Missing required value for static query param: '{self.static_params}'") from error
+                raise RuntimeError(
+                    _("Missing required value for static query param: '{static_params}'").format(
+                        static_params=self.static_params)) from error
 
     def add_query_params(self, query_params):
         """

@@ -78,7 +78,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         elif format == ImportFormatChoices.YAML:
             self.cleaned_data['data'] = self._clean_yaml(data)
         else:
-            raise forms.ValidationError(f"Unknown data format: {format}")
+            raise forms.ValidationError(_("Unknown data format: {format}").format(format=format))
 
     def _detect_format(self, data):
         """

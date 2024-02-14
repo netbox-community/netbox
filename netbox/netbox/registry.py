@@ -11,7 +11,7 @@ class Registry(dict):
         try:
             return super().__getitem__(key)
         except KeyError:
-            raise KeyError(f"Invalid store: {key}")
+            raise KeyError(_("Invalid store: {key}").format(key=key))
 
     def __setitem__(self, key, value):
         raise TypeError(_("Cannot add stores to registry after initialization"))
