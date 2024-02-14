@@ -8,7 +8,7 @@ from dcim.choices import InterfaceModeChoices
 from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer
 from ipam.models import VLAN
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *
@@ -23,7 +23,9 @@ from .nested_serializers import *
 
 class ClusterTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
-    cluster_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    cluster_count = RelatedObjectCountField('virtualization.cluster', 'type')
 
     class Meta:
         model = ClusterType
@@ -35,7 +37,9 @@ class ClusterTypeSerializer(NetBoxModelSerializer):
 
 class ClusterGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
-    cluster_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    cluster_count = RelatedObjectCountField('virtualization.cluster', 'group')
 
     class Meta:
         model = ClusterGroup
@@ -52,8 +56,10 @@ class ClusterSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=ClusterStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True, default=None)
-    device_count = serializers.IntegerField(read_only=True)
-    virtualmachine_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    device_count = RelatedObjectCountField('dcim.device', 'cluster')
+    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'cluster')
 
     class Meta:
         model = Cluster

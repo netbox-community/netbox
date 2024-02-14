@@ -4,7 +4,6 @@ from circuits import filtersets
 from circuits.models import *
 from dcim.api.views import PassThroughPortMixin
 from netbox.api.viewsets import NetBoxModelViewSet
-from utilities.utils import count_related
 from . import serializers
 
 
@@ -21,9 +20,7 @@ class CircuitsRootView(APIRootView):
 #
 
 class ProviderViewSet(NetBoxModelViewSet):
-    queryset = Provider.objects.annotate(
-        circuit_count=count_related(Circuit, 'provider')
-    )
+    queryset = Provider.objects.all()
     serializer_class = serializers.ProviderSerializer
     filterset_class = filtersets.ProviderFilterSet
 
@@ -33,9 +30,7 @@ class ProviderViewSet(NetBoxModelViewSet):
 #
 
 class CircuitTypeViewSet(NetBoxModelViewSet):
-    queryset = CircuitType.objects.annotate(
-        circuit_count=count_related(Circuit, 'type')
-    )
+    queryset = CircuitType.objects.all()
     serializer_class = serializers.CircuitTypeSerializer
     filterset_class = filtersets.CircuitTypeFilterSet
 

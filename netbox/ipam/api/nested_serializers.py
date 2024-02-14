@@ -2,6 +2,7 @@ from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
 from ipam import models
+from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
 from .field_serializers import IPAddressField
 
@@ -58,7 +59,7 @@ class NestedASNSerializer(WritableNestedSerializer):
 )
 class NestedVRFSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
-    prefix_count = serializers.IntegerField(read_only=True)
+    prefix_count = RelatedObjectCountField('ipam.prefix', 'vrf')
 
     class Meta:
         model = models.VRF
@@ -86,7 +87,7 @@ class NestedRouteTargetSerializer(WritableNestedSerializer):
 )
 class NestedRIRSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
-    aggregate_count = serializers.IntegerField(read_only=True)
+    aggregate_count = RelatedObjectCountField('ipam.aggregate', 'rir')
 
     class Meta:
         model = models.RIR
@@ -132,8 +133,8 @@ class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
 )
 class NestedRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
-    prefix_count = serializers.IntegerField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
+    prefix_count = RelatedObjectCountField('ipam.prefix', 'role')
+    vlan_count = RelatedObjectCountField('ipam.vlan', 'role')
 
     class Meta:
         model = models.Role
@@ -145,7 +146,7 @@ class NestedRoleSerializer(WritableNestedSerializer):
 )
 class NestedVLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
-    vlan_count = serializers.IntegerField(read_only=True)
+    vlan_count = RelatedObjectCountField('ipam.vlan', 'group')
 
     class Meta:
         model = models.VLANGroup

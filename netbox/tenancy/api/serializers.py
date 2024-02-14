@@ -3,7 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.choices import ContactPriorityChoices
@@ -32,16 +32,18 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
 class TenantSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
     group = NestedTenantGroupSerializer(required=False, allow_null=True)
-    circuit_count = serializers.IntegerField(read_only=True)
-    device_count = serializers.IntegerField(read_only=True)
-    ipaddress_count = serializers.IntegerField(read_only=True)
-    prefix_count = serializers.IntegerField(read_only=True)
-    rack_count = serializers.IntegerField(read_only=True)
-    site_count = serializers.IntegerField(read_only=True)
-    virtualmachine_count = serializers.IntegerField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
-    vrf_count = serializers.IntegerField(read_only=True)
-    cluster_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    circuit_count = RelatedObjectCountField('circuits.circuit', 'tenant')
+    device_count = RelatedObjectCountField('dcim.device', 'tenant')
+    rack_count = RelatedObjectCountField('dcim.rack', 'tenant')
+    site_count = RelatedObjectCountField('dcim.site', 'tenant')
+    ipaddress_count = RelatedObjectCountField('ipam.ipaddress', 'tenant')
+    prefix_count = RelatedObjectCountField('ipam.prefix', 'tenant')
+    vlan_count = RelatedObjectCountField('ipam.vlan', 'tenant')
+    vrf_count = RelatedObjectCountField('ipam.vrf', 'tenant')
+    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'tenant')
+    cluster_count = RelatedObjectCountField('virtualization.cluster', 'tenant')
 
     class Meta:
         model = Tenant

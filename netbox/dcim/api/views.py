@@ -7,13 +7,11 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
-from circuits.models import Circuit
 from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
 from dcim.svg import CableTraceSVG
 from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
-from ipam.models import Prefix, VLAN
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
@@ -22,8 +20,6 @@ from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.query_functions import CollateAsChar
-from utilities.utils import count_related
-from virtualization.models import VirtualMachine
 from . import serializers
 from .exceptions import MissingFilterException
 
@@ -129,14 +125,7 @@ class SiteGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 #
 
 class SiteViewSet(NetBoxModelViewSet):
-    queryset = Site.objects.annotate(
-        device_count=count_related(Device, 'site'),
-        rack_count=count_related(Rack, 'site'),
-        prefix_count=count_related(Prefix, 'site'),
-        vlan_count=count_related(VLAN, 'site'),
-        circuit_count=count_related(Circuit, 'terminations__site'),
-        virtualmachine_count=count_related(VirtualMachine, 'cluster__site')
-    )
+    queryset = Site.objects.all()
     serializer_class = serializers.SiteSerializer
     filterset_class = filtersets.SiteFilterSet
 
@@ -168,9 +157,7 @@ class LocationViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 #
 
 class RackRoleViewSet(NetBoxModelViewSet):
-    queryset = RackRole.objects.annotate(
-        rack_count=count_related(Rack, 'role')
-    )
+    queryset = RackRole.objects.all()
     serializer_class = serializers.RackRoleSerializer
     filterset_class = filtersets.RackRoleFilterSet
 
@@ -180,10 +167,7 @@ class RackRoleViewSet(NetBoxModelViewSet):
 #
 
 class RackViewSet(NetBoxModelViewSet):
-    queryset = Rack.objects.annotate(
-        device_count=count_related(Device, 'rack'),
-        powerfeed_count=count_related(PowerFeed, 'rack')
-    )
+    queryset = Rack.objects.all()
     serializer_class = serializers.RackSerializer
     filterset_class = filtersets.RackFilterSet
 
@@ -255,11 +239,7 @@ class RackReservationViewSet(NetBoxModelViewSet):
 #
 
 class ManufacturerViewSet(NetBoxModelViewSet):
-    queryset = Manufacturer.objects.annotate(
-        devicetype_count=count_related(DeviceType, 'manufacturer'),
-        inventoryitem_count=count_related(InventoryItem, 'manufacturer'),
-        platform_count=count_related(Platform, 'manufacturer')
-    )
+    queryset = Manufacturer.objects.all()
     serializer_class = serializers.ManufacturerSerializer
     filterset_class = filtersets.ManufacturerFilterSet
 
@@ -269,9 +249,7 @@ class ManufacturerViewSet(NetBoxModelViewSet):
 #
 
 class DeviceTypeViewSet(NetBoxModelViewSet):
-    queryset = DeviceType.objects.annotate(
-        device_count=count_related(Device, 'device_type')
-    )
+    queryset = DeviceType.objects.all()
     serializer_class = serializers.DeviceTypeSerializer
     filterset_class = filtersets.DeviceTypeFilterSet
 
@@ -351,10 +329,7 @@ class InventoryItemTemplateViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 #
 
 class DeviceRoleViewSet(NetBoxModelViewSet):
-    queryset = DeviceRole.objects.annotate(
-        device_count=count_related(Device, 'role'),
-        virtualmachine_count=count_related(VirtualMachine, 'role')
-    )
+    queryset = DeviceRole.objects.all()
     serializer_class = serializers.DeviceRoleSerializer
     filterset_class = filtersets.DeviceRoleFilterSet
 
@@ -364,10 +339,7 @@ class DeviceRoleViewSet(NetBoxModelViewSet):
 #
 
 class PlatformViewSet(NetBoxModelViewSet):
-    queryset = Platform.objects.annotate(
-        device_count=count_related(Device, 'platform'),
-        virtualmachine_count=count_related(VirtualMachine, 'platform')
-    )
+    queryset = Platform.objects.all()
     serializer_class = serializers.PlatformSerializer
     filterset_class = filtersets.PlatformFilterSet
 
@@ -410,9 +382,7 @@ class DeviceViewSet(
 
 
 class VirtualDeviceContextViewSet(NetBoxModelViewSet):
-    queryset = VirtualDeviceContext.objects.annotate(
-        interface_count=count_related(Interface, 'vdcs'),
-    )
+    queryset = VirtualDeviceContext.objects.all()
     serializer_class = serializers.VirtualDeviceContextSerializer
     filterset_class = filtersets.VirtualDeviceContextFilterSet
 
@@ -513,9 +483,7 @@ class InventoryItemViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 #
 
 class InventoryItemRoleViewSet(NetBoxModelViewSet):
-    queryset = InventoryItemRole.objects.annotate(
-        inventoryitem_count=count_related(InventoryItem, 'role')
-    )
+    queryset = InventoryItemRole.objects.all()
     serializer_class = serializers.InventoryItemRoleSerializer
     filterset_class = filtersets.InventoryItemRoleFilterSet
 
@@ -552,9 +520,7 @@ class VirtualChassisViewSet(NetBoxModelViewSet):
 #
 
 class PowerPanelViewSet(NetBoxModelViewSet):
-    queryset = PowerPanel.objects.annotate(
-        powerfeed_count=count_related(PowerFeed, 'power_panel')
-    )
+    queryset = PowerPanel.objects.all()
     serializer_class = serializers.PowerPanelSerializer
     filterset_class = filtersets.PowerPanelFilterSet
 
