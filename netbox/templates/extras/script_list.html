@@ -26,11 +26,18 @@
         <div>
           <i class="mdi mdi-file-document-outline"></i> {{ module }}
         </div>
-        {% if perms.extras.delete_scriptmodule %}
-          <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-          </a>
-        {% endif %}
+        <div>
+          {% if perms.extras.edit_scriptmodule %}
+            <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-warning btn-sm">
+              <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
+            </a>
+          {% endif %}
+          {% if perms.extras.delete_scriptmodule %}
+            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
+            </a>
+          {% endif %}
+        </div>
       </h5>
       {% if module.scripts %}
         <table class="table table-hover scripts">
