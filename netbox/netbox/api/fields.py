@@ -139,6 +139,7 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
         return self.serializer(value, context={'request': self.context['request']}).data
 
 
+@extend_schema_field(OpenApiTypes.INT64)
 class RelatedObjectCountField(serializers.ReadOnlyField):
     """
     Represents a read-only integer count of related objects (e.g. the number of racks assigned to a site). This field
