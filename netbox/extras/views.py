@@ -1132,44 +1132,10 @@ class ScriptView(BaseScriptView):
         })
 
 
-class ScriptModuleView(ScriptView):
-
-    def get(self, request, module, name):
-        if ret := self.get_script_by_module_name(request, module, name):
-            return ret
-
-        form = None
-        if self.script_class:
-            form = self.script_class.as_form(initial=normalize_querydict(request.GET))
-
-        return render(request, 'extras/script.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
-            'script_class': self.script_class,
-            'form': form,
-        })
-
-
 class ScriptSourceView(BaseScriptView):
 
     def get(self, request, pk):
         if ret := self.get_script(request, pk):
-            return ret
-
-        return render(request, 'extras/script/source.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
-            'script_class': self.script_class,
-            'tab': 'source',
-        })
-
-
-class ScriptModuleSourceView(ScriptSourceView):
-
-    def get(self, request, module, name):
-        if ret := self.get_script_by_module_name(request, module, name):
             return ret
 
         return render(request, 'extras/script/source.html', {
@@ -1218,35 +1184,23 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         })
 
 
-class ScriptModuleJobsView(ScriptJobsView):
-    def get(self, request, module, name):
-        module = get_script_module(module, request)
-        self.script = get_object_or_404(Script.objects.all(), module=module, name=name)
+class LegacyScriptRedirectView(ContentTypePermissionRequiredMixin, View):
+    """
+    Redirect legacy (pre-v4.0) script URLs. Examples:
+        /extras/scripts/<module>/<name>/         -->  /extras/scripts/<id>/
+        /extras/scripts/<module>/<name>/source/  -->  /extras/scripts/<id>/source/
+        /extras/scripts/<module>/<name>/jobs/    -->  /extras/scripts/<id>/jobs/
+    """
+    def get_required_permission(self):
+        return 'extras.view_script'
 
-        if self.script.python_class:
-            self.script_class = self.script.python_class()
-        else:
-            self.script.delete_if_no_jobs()
-            if not self.script.id:
-                messages.error(request, _("Script class has been deleted from module: ") + str(self.script.module))
-                return redirect('extras:script_list')
+    def get(self, request, module, name, path=''):
+        module = get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
+        script = get_object_or_404(Script.objects.all(), module=module, name=name)
 
-        self.jobs = self.script.jobs.all()
+        url = reverse('extras:script', kwargs={'pk': script.pk})
 
-        jobs_table = JobTable(
-            data=self.jobs,
-            orderable=False,
-            user=request.user
-        )
-        jobs_table.configure(request)
-
-        return render(request, 'extras/script/jobs.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
-            'table': jobs_table,
-            'tab': 'jobs',
-        })
+        return redirect(f'{url}{path}')
 
 
 class ScriptResultView(BaseScriptView):
