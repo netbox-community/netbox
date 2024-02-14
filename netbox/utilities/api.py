@@ -11,7 +11,9 @@ from rest_framework import status
 from rest_framework.serializers import Serializer
 from rest_framework.utils import formatting
 
+from netbox.api.fields import RelatedObjectCountField
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
+from utilities.utils import count_related
 from .utils import dynamic_import
 
 __all__ = (
@@ -129,6 +131,23 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
                     prefetch_fields.append(f'{field_name}__{subfield}')
 
     return prefetch_fields
+
+
+def get_annotations_for_serializer(serializer_class, fields_to_include=None):
+    """
+    Return a mapping of field names to annotations to be applied to the queryset for a serializer.
+    """
+    annotations = {}
+
+    # If specific fields are not specified, default to all
+    if not fields_to_include:
+        fields_to_include = serializer_class.Meta.fields
+
+    for field_name, field in serializer_class._declared_fields.items():
+        if field_name in fields_to_include and type(field) is RelatedObjectCountField:
+            annotations[field_name] = count_related(field.model, field.related_field)
+
+    return annotations
 
 
 def rest_api_server_error(request, *args, **kwargs):
