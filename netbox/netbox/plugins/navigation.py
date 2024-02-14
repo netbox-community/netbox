@@ -1,6 +1,7 @@
 from netbox.navigation import MenuGroup
 from utilities.choices import ButtonColorChoices
 from django.utils.text import slugify
+from django.utils.translation import gettext as _
 
 __all__ = (
     'PluginMenu',
@@ -42,11 +43,11 @@ class PluginMenuItem:
         self.staff_only = staff_only
         if permissions is not None:
             if type(permissions) not in (list, tuple):
-                raise TypeError("Permissions must be passed as a tuple or list.")
+                raise TypeError(_("Permissions must be passed as a tuple or list."))
             self.permissions = permissions
         if buttons is not None:
             if type(buttons) not in (list, tuple):
-                raise TypeError("Buttons must be passed as a tuple or list.")
+                raise TypeError(_("Buttons must be passed as a tuple or list."))
             self.buttons = buttons
 
 
@@ -64,9 +65,9 @@ class PluginMenuButton:
         self.icon_class = icon_class
         if permissions is not None:
             if type(permissions) not in (list, tuple):
-                raise TypeError("Permissions must be passed as a tuple or list.")
+                raise TypeError(_("Permissions must be passed as a tuple or list."))
             self.permissions = permissions
         if color is not None:
             if color not in ButtonColorChoices.values():
-                raise ValueError("Button color must be a choice within ButtonColorChoices.")
+                raise ValueError(_("Button color must be a choice within ButtonColorChoices."))
             self.color = color

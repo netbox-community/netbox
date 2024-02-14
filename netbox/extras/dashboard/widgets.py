@@ -178,7 +178,7 @@ class ObjectCountsWidget(DashboardWidget):
                 try:
                     dict(data)
                 except TypeError:
-                    raise forms.ValidationError("Invalid format. Object filters must be passed as a dictionary.")
+                    raise forms.ValidationError(_("Invalid format. Object filters must be passed as a dictionary."))
             return data
 
     def render(self, request):
@@ -232,7 +232,7 @@ class ObjectListWidget(DashboardWidget):
                 try:
                     urlencode(data)
                 except (TypeError, ValueError):
-                    raise forms.ValidationError("Invalid format. URL parameters must be passed as a dictionary.")
+                    raise forms.ValidationError(_("Invalid format. URL parameters must be passed as a dictionary."))
             return data
 
     def render(self, request):

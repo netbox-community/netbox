@@ -1,4 +1,5 @@
 import collections
+from django.utils.translation import gettext as _
 
 
 class Registry(dict):
@@ -13,10 +14,10 @@ class Registry(dict):
             raise KeyError(f"Invalid store: {key}")
 
     def __setitem__(self, key, value):
-        raise TypeError("Cannot add stores to registry after initialization")
+        raise TypeError(_("Cannot add stores to registry after initialization"))
 
     def __delitem__(self, key):
-        raise TypeError("Cannot delete stores from registry")
+        raise TypeError(_("Cannot delete stores from registry"))
 
 
 # Initialize the global registry
