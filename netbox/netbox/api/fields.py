@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -10,6 +11,7 @@ __all__ = (
     'ChoiceField',
     'ContentTypeField',
     'IPNetworkSerializer',
+    'RelatedObjectCountField',
     'SerializedPKRelatedField',
 )
 
@@ -135,3 +137,21 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
 
     def to_representation(self, value):
         return self.serializer(value, context={'request': self.context['request']}).data
+
+
+class RelatedObjectCountField(serializers.ReadOnlyField):
+    """
+    Represents a read-only integer count of related objects (e.g. the number of racks assigned to a site). This field
+    is detected by get_annotations_for_serializer() when determining the annotations to be added to a queryset
+    depending on the serializer fields selected for inclusion in the response.
+    """
+    def __init__(self, model, related_field, **kwargs):
+        super().__init__(**kwargs)
+
+        # Set the model and field names passed on the field
+        if type(model) is str:
+            app_label, model_name = model.split('.')
+            self.model = apps.get_model(app_label, model_name)
+        else:
+            self.model = model
+        self.related_field = related_field
