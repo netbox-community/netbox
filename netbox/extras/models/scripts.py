@@ -66,7 +66,7 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
 
     def delete_if_no_jobs(self):
         if self.jobs.all():
-            self.is_valid = False
+            self.is_executable = False
             self.save()
         else:
             self.delete()
@@ -142,7 +142,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
             Script.objects.create(
                 module=self,
                 name=name,
-                is_valid=True,
+                is_executable=True,
             )
 
     def sync_data(self):
