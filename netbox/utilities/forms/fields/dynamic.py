@@ -63,8 +63,19 @@ class DynamicModelChoiceMixin:
         initial_params: A dictionary of child field references to use for selecting a parent field's initial value
         null_option: The string used to represent a null selection (if any)
         disabled_indicator: The name of the field which, if populated, will disable selection of the
-            choice (optional)
+            choice (DEPRECATED: pass `context={'disabled': '$fieldname'}` instead)
+        context: A mapping of <option> template variables to their API data keys (optional; see below)
         selector: Include an advanced object selection widget to assist the user in identifying the desired object
+
+    Context keys:
+        value: The name of the attribute which contains the option's value (default: 'id')
+        label: The name of the attribute used as the option's human-friendly label (default: 'display')
+        description: The name of the attribute to use as a description (default: 'description')
+        depth: The name of the attribute which indicates an object's depth within a recursive hierarchy; must be a
+            positive integer (default: '_depth')
+        disabled: The name of the attribute which, if true, signifies that the option should be disabled
+        parent: The name of the attribute which represents the object's parent object (e.g. device for an interface)
+        count: The name of the attribute which contains a numeric count of related objects
     """
     filter = django_filters.ModelChoiceFilter
     widget = widgets.APISelect
@@ -77,6 +88,7 @@ class DynamicModelChoiceMixin:
             initial_params=None,
             null_option=None,
             disabled_indicator=None,
+            context=None,
             selector=False,
             **kwargs
     ):
@@ -85,6 +97,7 @@ class DynamicModelChoiceMixin:
         self.initial_params = initial_params or {}
         self.null_option = null_option
         self.disabled_indicator = disabled_indicator
+        self.context = context or {}
         self.selector = selector
 
         super().__init__(queryset, **kwargs)
@@ -96,12 +109,17 @@ class DynamicModelChoiceMixin:
         if self.null_option is not None:
             attrs['data-null-option'] = self.null_option
 
-        # Set the disabled indicator, if any
+        # Set any custom template attributes for TomSelect
+        for var, accessor in self.context.items():
+            attrs[f'ts-{var}-field'] = accessor
+
+        # TODO: Remove in v4.1
+        # Legacy means of specifying the disabled indicator
         if self.disabled_indicator is not None:
-            attrs['disabled-indicator'] = self.disabled_indicator
+            attrs['ts-disabled-field'] = self.disabled_indicator
 
         # Attach any static query parameters
-        if (len(self.query_params) > 0):
+        if len(self.query_params) > 0:
             widget.add_query_params(self.query_params)
 
         # Include object selector?

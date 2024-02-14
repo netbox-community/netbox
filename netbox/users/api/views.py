@@ -34,7 +34,7 @@ class UsersRootView(APIRootView):
 #
 
 class UserViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=get_user_model()).prefetch_related('groups').order_by('username')
+    queryset = RestrictedQuerySet(model=get_user_model()).order_by('username')
     serializer_class = serializers.UserSerializer
     filterset_class = filtersets.UserFilterSet
 
@@ -50,7 +50,7 @@ class GroupViewSet(NetBoxModelViewSet):
 #
 
 class TokenViewSet(NetBoxModelViewSet):
-    queryset = Token.objects.prefetch_related('user')
+    queryset = Token.objects.all()
     serializer_class = serializers.TokenSerializer
     filterset_class = filtersets.TokenFilterSet
 
@@ -86,7 +86,7 @@ class TokenProvisionView(APIView):
 #
 
 class ObjectPermissionViewSet(NetBoxModelViewSet):
-    queryset = ObjectPermission.objects.prefetch_related('object_types', 'groups', 'users')
+    queryset = ObjectPermission.objects.all()
     serializer_class = serializers.ObjectPermissionSerializer
     filterset_class = filtersets.ObjectPermissionFilterSet
 

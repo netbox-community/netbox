@@ -5,6 +5,7 @@
 ### Breaking Changes
 
 * The deprecated `device_role` & `device_role_id` filters for devices have been removed. (Use `role` and `role_id` instead.)
+* The legacy reports functionality has been dropped. Reports will be automatically converted to custom scripts on upgrade.
 
 ### New Features
 
@@ -15,6 +16,8 @@ The NetBox user interface has been completely refreshed and updated.
 ### Enhancements
 
 * [#12851](https://github.com/netbox-community/netbox/issues/12851) - Replace bleach HTML sanitization library with nh3
+* [#13283](https://github.com/netbox-community/netbox/issues/13283) - Display additional context on API-backed dropdown fields
+* [#14237](https://github.com/netbox-community/netbox/issues/14237) - Automatically clear dependent selection fields when modifying a parent selection
 * [#14637](https://github.com/netbox-community/netbox/issues/14637) - Upgrade to Django 5.0
 * [#14672](https://github.com/netbox-community/netbox/issues/14672) - Add support for Python 3.12
 * [#14728](https://github.com/netbox-community/netbox/issues/14728) - The plugins list view has been moved from the legacy admin UI to the main NetBox UI
@@ -23,6 +26,7 @@ The NetBox user interface has been completely refreshed and updated.
 ### Other Changes
 
 * [#12325](https://github.com/netbox-community/netbox/issues/12325) - The Django admin UI is now disabled by default (set `DJANGO_ADMIN_ENABLED` to True to enable it)
+* [#12510](https://github.com/netbox-community/netbox/issues/12510) - Dropped support for legacy reports
 * [#12795](https://github.com/netbox-community/netbox/issues/12795) - NetBox now uses a custom User model rather than the stock model provided by Django
 * [#13647](https://github.com/netbox-community/netbox/issues/13647) - Squash all database migrations prior to v3.7
 * [#14092](https://github.com/netbox-community/netbox/issues/14092) - Remove backward compatibility for importing plugin resources from `extras.plugins` (now `netbox.plugins`)

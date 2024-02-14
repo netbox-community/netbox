@@ -42,7 +42,7 @@ class TunnelGroupViewSet(NetBoxModelViewSet):
 
 
 class TunnelViewSet(NetBoxModelViewSet):
-    queryset = Tunnel.objects.prefetch_related('ipsec_profile', 'tenant').annotate(
+    queryset = Tunnel.objects.annotate(
         terminations_count=count_related(TunnelTermination, 'tunnel')
     )
     serializer_class = serializers.TunnelSerializer
@@ -50,7 +50,7 @@ class TunnelViewSet(NetBoxModelViewSet):
 
 
 class TunnelTerminationViewSet(NetBoxModelViewSet):
-    queryset = TunnelTermination.objects.prefetch_related('tunnel')
+    queryset = TunnelTermination.objects.all()
     serializer_class = serializers.TunnelTerminationSerializer
     filterset_class = filtersets.TunnelTerminationFilterSet
 
@@ -86,12 +86,12 @@ class IPSecProfileViewSet(NetBoxModelViewSet):
 
 
 class L2VPNViewSet(NetBoxModelViewSet):
-    queryset = L2VPN.objects.prefetch_related('import_targets', 'export_targets', 'tenant', 'tags')
+    queryset = L2VPN.objects.all()
     serializer_class = serializers.L2VPNSerializer
     filterset_class = filtersets.L2VPNFilterSet
 
 
 class L2VPNTerminationViewSet(NetBoxModelViewSet):
-    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
+    queryset = L2VPNTermination.objects.all()
     serializer_class = serializers.L2VPNTerminationSerializer
     filterset_class = filtersets.L2VPNTerminationFilterSet

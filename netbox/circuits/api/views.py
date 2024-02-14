@@ -21,7 +21,7 @@ class CircuitsRootView(APIRootView):
 #
 
 class ProviderViewSet(NetBoxModelViewSet):
-    queryset = Provider.objects.prefetch_related('asns', 'tags').annotate(
+    queryset = Provider.objects.annotate(
         circuit_count=count_related(Circuit, 'provider')
     )
     serializer_class = serializers.ProviderSerializer
@@ -33,7 +33,7 @@ class ProviderViewSet(NetBoxModelViewSet):
 #
 
 class CircuitTypeViewSet(NetBoxModelViewSet):
-    queryset = CircuitType.objects.prefetch_related('tags').annotate(
+    queryset = CircuitType.objects.annotate(
         circuit_count=count_related(Circuit, 'type')
     )
     serializer_class = serializers.CircuitTypeSerializer
@@ -45,9 +45,7 @@ class CircuitTypeViewSet(NetBoxModelViewSet):
 #
 
 class CircuitViewSet(NetBoxModelViewSet):
-    queryset = Circuit.objects.prefetch_related(
-        'type', 'tenant', 'provider', 'provider_account', 'termination_a', 'termination_z'
-    ).prefetch_related('tags')
+    queryset = Circuit.objects.all()
     serializer_class = serializers.CircuitSerializer
     filterset_class = filtersets.CircuitFilterSet
 
@@ -57,12 +55,9 @@ class CircuitViewSet(NetBoxModelViewSet):
 #
 
 class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
-    queryset = CircuitTermination.objects.prefetch_related(
-        'circuit', 'site', 'provider_network', 'cable__terminations'
-    )
+    queryset = CircuitTermination.objects.all()
     serializer_class = serializers.CircuitTerminationSerializer
     filterset_class = filtersets.CircuitTerminationFilterSet
-    brief_prefetch_fields = ['circuit']
 
 
 #
@@ -70,7 +65,7 @@ class CircuitTerminationViewSet(PassThroughPortMixin, NetBoxModelViewSet):
 #
 
 class ProviderAccountViewSet(NetBoxModelViewSet):
-    queryset = ProviderAccount.objects.prefetch_related('provider', 'tags')
+    queryset = ProviderAccount.objects.all()
     serializer_class = serializers.ProviderAccountSerializer
     filterset_class = filtersets.ProviderAccountFilterSet
 
@@ -80,6 +75,6 @@ class ProviderAccountViewSet(NetBoxModelViewSet):
 #
 
 class ProviderNetworkViewSet(NetBoxModelViewSet):
-    queryset = ProviderNetwork.objects.prefetch_related('tags')
+    queryset = ProviderNetwork.objects.all()
     serializer_class = serializers.ProviderNetworkSerializer
     filterset_class = filtersets.ProviderNetworkFilterSet

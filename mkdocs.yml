@@ -292,6 +292,7 @@ nav:
         - git Cheat Sheet: 'development/git-cheat-sheet.md'
     - Release Notes:
         - Summary: 'release-notes/index.md'
+        - Version 4.0: 'release-notes/version-4.0.md'
         - Version 3.7: 'release-notes/version-3.7.md'
         - Version 3.6: 'release-notes/version-3.6.md'
         - Version 3.5: 'release-notes/version-3.5.md'
