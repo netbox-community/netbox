@@ -1042,7 +1042,8 @@ def get_script_module(module, request):
     return get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
 
 
-class BaseScriptView(ContentTypePermissionRequiredMixin, View):
+class BaseScriptView(ContentTypePermissionRequiredMixin, generic.ObjectView):
+    queryset = Script.objects.all()
     script = None
     script_class = None
     jobs = None
@@ -1050,8 +1051,7 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, View):
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def get_script(self, request, pk):
-        self.script = get_object_or_404(Script.objects.all(), pk=pk)
+    def _init_vars(self, request):
         if self.script.python_class:
             self.script_class = self.script.python_class()
         else:
@@ -1064,6 +1064,15 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, View):
 
         self.jobs = self.script.jobs.all()
         return None
+
+    def get_script(self, request, pk):
+        self.script = get_object_or_404(Script.objects.all(), pk=pk)
+        return self._init_vars(request)
+
+    def get_script_by_module_name(self, request, module, name):
+        module = get_script_module(module, request)
+        self.script = get_object_or_404(Script.objects.all(), module=module, name=name)
+        return self._init_vars(request)
 
 
 class ScriptView(BaseScriptView):
@@ -1123,10 +1132,44 @@ class ScriptView(BaseScriptView):
         })
 
 
+class ScriptModuleView(ScriptView):
+
+    def get(self, request, module, name):
+        if ret := self.get_script_by_module_name(request, module, name):
+            return ret
+
+        form = None
+        if self.script_class:
+            form = self.script_class.as_form(initial=normalize_querydict(request.GET))
+
+        return render(request, 'extras/script.html', {
+            'job_count': self.jobs.count(),
+            'module': self.script.module,
+            'script': self.script,
+            'script_class': self.script_class,
+            'form': form,
+        })
+
+
 class ScriptSourceView(BaseScriptView):
 
     def get(self, request, pk):
         if ret := self.get_script(request, pk):
+            return ret
+
+        return render(request, 'extras/script/source.html', {
+            'job_count': self.jobs.count(),
+            'module': self.script.module,
+            'script': self.script,
+            'script_class': self.script_class,
+            'tab': 'source',
+        })
+
+
+class ScriptModuleSourceView(ScriptSourceView):
+
+    def get(self, request, module, name):
+        if ret := self.get_script_by_module_name(request, module, name):
             return ret
 
         return render(request, 'extras/script/source.html', {
@@ -1148,6 +1191,38 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
 
     def get(self, request, pk):
         self.script = get_object_or_404(Script.objects.all(), pk=pk)
+
+        if self.script.python_class:
+            self.script_class = self.script.python_class()
+        else:
+            self.script.delete_if_no_jobs()
+            if not self.script.id:
+                messages.error(request, _("Script class has been deleted from module: ") + str(self.script.module))
+                return redirect('extras:script_list')
+
+        self.jobs = self.script.jobs.all()
+
+        jobs_table = JobTable(
+            data=self.jobs,
+            orderable=False,
+            user=request.user
+        )
+        jobs_table.configure(request)
+
+        return render(request, 'extras/script/jobs.html', {
+            'job_count': self.jobs.count(),
+            'module': self.script.module,
+            'script': self.script,
+            'table': jobs_table,
+            'tab': 'jobs',
+        })
+
+
+class ScriptModuleJobsView(ScriptJobsView):
+    def get(self, request, module, name):
+        module = get_script_module(module, request)
+        self.script = get_object_or_404(Script.objects.all(), module=module, name=name)
+
         if self.script.python_class:
             self.script_class = self.script.python_class()
         else:
