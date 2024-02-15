@@ -1,7 +1,6 @@
-from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
-from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 from netaddr import IPNetwork
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
@@ -146,13 +145,7 @@ class RelatedObjectCountField(serializers.ReadOnlyField):
     is detected by get_annotations_for_serializer() when determining the annotations to be added to a queryset
     depending on the serializer fields selected for inclusion in the response.
     """
-    def __init__(self, model, related_field, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, relation, **kwargs):
+        self.relation = relation
 
-        # Set the model and field names passed on the field
-        if type(model) is str:
-            app_label, model_name = model.split('.')
-            self.model = apps.get_model(app_label, model_name)
-        else:
-            self.model = model
-        self.related_field = related_field
+        super().__init__(**kwargs)

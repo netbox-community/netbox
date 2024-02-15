@@ -59,7 +59,7 @@ class NestedASNSerializer(WritableNestedSerializer):
 )
 class NestedVRFSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vrf-detail')
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'vrf')
+    prefix_count = RelatedObjectCountField('prefixes')
 
     class Meta:
         model = models.VRF
@@ -87,7 +87,7 @@ class NestedRouteTargetSerializer(WritableNestedSerializer):
 )
 class NestedRIRSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
-    aggregate_count = RelatedObjectCountField('ipam.aggregate', 'rir')
+    aggregate_count = RelatedObjectCountField('aggregates')
 
     class Meta:
         model = models.RIR
@@ -133,8 +133,8 @@ class NestedFHRPGroupAssignmentSerializer(WritableNestedSerializer):
 )
 class NestedRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'role')
-    vlan_count = RelatedObjectCountField('ipam.vlan', 'role')
+    prefix_count = RelatedObjectCountField('prefixes')
+    vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
         model = models.Role
@@ -146,7 +146,7 @@ class NestedRoleSerializer(WritableNestedSerializer):
 )
 class NestedVLANGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:vlangroup-detail')
-    vlan_count = RelatedObjectCountField('ipam.vlan', 'group')
+    vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
         model = models.VLANGroup

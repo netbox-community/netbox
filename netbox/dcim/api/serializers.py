@@ -144,12 +144,12 @@ class SiteSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    circuit_count = RelatedObjectCountField('circuits.circuit', 'terminations__site')
-    device_count = RelatedObjectCountField('dcim.device', 'site')
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'site')
-    rack_count = RelatedObjectCountField('dcim.rack', 'site')
-    vlan_count = RelatedObjectCountField('ipam.vlan', 'site')
-    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'site')
+    circuit_count = RelatedObjectCountField('circuit_terminations')
+    device_count = RelatedObjectCountField('devices')
+    prefix_count = RelatedObjectCountField('prefixes')
+    rack_count = RelatedObjectCountField('racks')
+    vlan_count = RelatedObjectCountField('vlans')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
         model = Site
@@ -186,7 +186,7 @@ class RackRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
 
     # Related object counts
-    rack_count = RelatedObjectCountField('dcim.rack', 'role')
+    rack_count = RelatedObjectCountField('racks')
 
     class Meta:
         model = RackRole
@@ -211,8 +211,8 @@ class RackSerializer(NetBoxModelSerializer):
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
 
     # Related object counts
-    device_count = RelatedObjectCountField('dcim.device', 'rack')
-    powerfeed_count = RelatedObjectCountField('dcim.powerfeed', 'rack')
+    device_count = RelatedObjectCountField('devices')
+    powerfeed_count = RelatedObjectCountField('powerfeeds')
 
     class Meta:
         model = Rack
@@ -305,9 +305,9 @@ class ManufacturerSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
 
     # Related object counts
-    devicetype_count = RelatedObjectCountField('dcim.devicetype', 'manufacturer')
-    inventoryitem_count = RelatedObjectCountField('dcim.inventoryitem', 'manufacturer')
-    platform_count = RelatedObjectCountField('dcim.platform', 'manufacturer')
+    devicetype_count = RelatedObjectCountField('device_types')
+    inventoryitem_count = RelatedObjectCountField('inventory_items')
+    platform_count = RelatedObjectCountField('platforms')
 
     class Meta:
         model = Manufacturer
@@ -345,7 +345,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     inventory_item_template_count = serializers.IntegerField(read_only=True)
 
     # Related object counts
-    device_count = RelatedObjectCountField('dcim.device', 'device_type')
+    device_count = RelatedObjectCountField('instances')
 
     class Meta:
         model = DeviceType
@@ -646,8 +646,8 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
     config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
 
     # Related object counts
-    device_count = RelatedObjectCountField('dcim.device', 'role')
-    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'role')
+    device_count = RelatedObjectCountField('devices')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
         model = DeviceRole
@@ -663,8 +663,8 @@ class PlatformSerializer(NetBoxModelSerializer):
     config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
 
     # Related object counts
-    device_count = RelatedObjectCountField('dcim.device', 'platform')
-    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'platform')
+    device_count = RelatedObjectCountField('devices')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
         model = Platform
@@ -773,7 +773,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=VirtualDeviceContextStatusChoices)
 
     # Related object counts
-    interface_count = RelatedObjectCountField('dcim.interface', 'vdcs')
+    interface_count = RelatedObjectCountField('interfaces')
 
     class Meta:
         model = VirtualDeviceContext
@@ -1106,7 +1106,7 @@ class InventoryItemRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
 
     # Related object counts
-    inventoryitem_count = RelatedObjectCountField('dcim.inventoryitem', 'role')
+    inventoryitem_count = RelatedObjectCountField('inventory_items')
 
     class Meta:
         model = InventoryItemRole
@@ -1220,7 +1220,7 @@ class PowerPanelSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    powerfeed_count = RelatedObjectCountField('dcim.powerfeed', 'power_panel')
+    powerfeed_count = RelatedObjectCountField('powerfeeds')
 
     class Meta:
         model = PowerPanel

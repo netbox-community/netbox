@@ -36,7 +36,7 @@ class NestedProviderNetworkSerializer(WritableNestedSerializer):
 )
 class NestedProviderSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
-    circuit_count = RelatedObjectCountField('circuits.circuit', 'provider')
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = Provider
@@ -64,7 +64,7 @@ class NestedProviderAccountSerializer(WritableNestedSerializer):
 )
 class NestedCircuitTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
-    circuit_count = RelatedObjectCountField('circuits.circuit', 'type')
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = CircuitType

@@ -31,7 +31,7 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
 
     # Related object counts
-    tunnel_count = RelatedObjectCountField('vpn.tunnel', 'group')
+    tunnel_count = RelatedObjectCountField('tunnels')
 
     class Meta:
         model = TunnelGroup
@@ -62,7 +62,7 @@ class TunnelSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    terminations_count = RelatedObjectCountField('vpn.tunneltermination', 'tunnel')
+    terminations_count = RelatedObjectCountField('terminations')
 
     class Meta:
         model = Tunnel

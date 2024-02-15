@@ -17,6 +17,7 @@ from utilities.utils import count_related
 from .utils import dynamic_import
 
 __all__ = (
+    'get_annotations_for_serializer',
     'get_graphql_type_for_model',
     'get_prefetches_for_serializer',
     'get_serializer_for_model',
@@ -143,9 +144,12 @@ def get_annotations_for_serializer(serializer_class, fields_to_include=None):
     if not fields_to_include:
         fields_to_include = serializer_class.Meta.fields
 
+    model = serializer_class.Meta.model
+
     for field_name, field in serializer_class._declared_fields.items():
         if field_name in fields_to_include and type(field) is RelatedObjectCountField:
-            annotations[field_name] = count_related(field.model, field.related_field)
+            related_field = model._meta.get_field(field.relation).field
+            annotations[field_name] = count_related(related_field.model, related_field.name)
 
     return annotations
 

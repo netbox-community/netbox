@@ -34,16 +34,16 @@ class TenantSerializer(NetBoxModelSerializer):
     group = NestedTenantGroupSerializer(required=False, allow_null=True)
 
     # Related object counts
-    circuit_count = RelatedObjectCountField('circuits.circuit', 'tenant')
-    device_count = RelatedObjectCountField('dcim.device', 'tenant')
-    rack_count = RelatedObjectCountField('dcim.rack', 'tenant')
-    site_count = RelatedObjectCountField('dcim.site', 'tenant')
-    ipaddress_count = RelatedObjectCountField('ipam.ipaddress', 'tenant')
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'tenant')
-    vlan_count = RelatedObjectCountField('ipam.vlan', 'tenant')
-    vrf_count = RelatedObjectCountField('ipam.vrf', 'tenant')
-    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'tenant')
-    cluster_count = RelatedObjectCountField('virtualization.cluster', 'tenant')
+    circuit_count = RelatedObjectCountField('circuits')
+    device_count = RelatedObjectCountField('devices')
+    rack_count = RelatedObjectCountField('racks')
+    site_count = RelatedObjectCountField('sites')
+    ipaddress_count = RelatedObjectCountField('ip_addresses')
+    prefix_count = RelatedObjectCountField('prefixes')
+    vlan_count = RelatedObjectCountField('vlans')
+    vrf_count = RelatedObjectCountField('vrfs')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
+    cluster_count = RelatedObjectCountField('clusters')
 
     class Meta:
         model = Tenant

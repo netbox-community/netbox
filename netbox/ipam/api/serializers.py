@@ -45,8 +45,8 @@ class ASNSerializer(NetBoxModelSerializer):
     tenant = NestedTenantSerializer(required=False, allow_null=True)
 
     # Related object counts
-    site_count = RelatedObjectCountField('dcim.site', 'asns')
-    provider_count = RelatedObjectCountField('circuits.provider', 'asns')
+    site_count = RelatedObjectCountField('sites')
+    provider_count = RelatedObjectCountField('providers')
 
     class Meta:
         model = ASN
@@ -94,8 +94,8 @@ class VRFSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    ipaddress_count = RelatedObjectCountField('ipam.ipaddress', 'vrf')
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'vrf')
+    ipaddress_count = RelatedObjectCountField('ip_addresses')
+    prefix_count = RelatedObjectCountField('prefixes')
 
     class Meta:
         model = VRF
@@ -130,7 +130,7 @@ class RIRSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
 
     # Related object counts
-    aggregate_count = RelatedObjectCountField('ipam.aggregate', 'rir')
+    aggregate_count = RelatedObjectCountField('aggregates')
 
     class Meta:
         model = RIR
@@ -203,8 +203,8 @@ class RoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
 
     # Related object counts
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'role')
-    vlan_count = RelatedObjectCountField('ipam.vlan', 'role')
+    prefix_count = RelatedObjectCountField('prefixes')
+    vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
         model = Role
@@ -229,7 +229,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     utilization = serializers.CharField(read_only=True)
 
     # Related object counts
-    vlan_count = RelatedObjectCountField('ipam.vlan', 'group')
+    vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
         model = VLANGroup
@@ -259,7 +259,7 @@ class VLANSerializer(NetBoxModelSerializer):
     l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
 
     # Related object counts
-    prefix_count = RelatedObjectCountField('ipam.prefix', 'vlan')
+    prefix_count = RelatedObjectCountField('prefixes')
 
     class Meta:
         model = VLAN

@@ -111,7 +111,7 @@ class NestedLocationSerializer(WritableNestedSerializer):
 )
 class NestedRackRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rackrole-detail')
-    rack_count = RelatedObjectCountField('dcim.rack', 'role')
+    rack_count = RelatedObjectCountField('racks')
 
     class Meta:
         model = models.RackRole
@@ -123,7 +123,7 @@ class NestedRackRoleSerializer(WritableNestedSerializer):
 )
 class NestedRackSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:rack-detail')
-    device_count = RelatedObjectCountField('dcim.device', 'rack')
+    device_count = RelatedObjectCountField('devices')
 
     class Meta:
         model = models.Rack
@@ -151,7 +151,7 @@ class NestedRackReservationSerializer(WritableNestedSerializer):
 )
 class NestedManufacturerSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:manufacturer-detail')
-    devicetype_count = RelatedObjectCountField('dcim.devicetype', 'manufacturer')
+    devicetype_count = RelatedObjectCountField('device_types')
 
     class Meta:
         model = models.Manufacturer
@@ -164,7 +164,7 @@ class NestedManufacturerSerializer(WritableNestedSerializer):
 class NestedDeviceTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicetype-detail')
     manufacturer = NestedManufacturerSerializer(read_only=True)
-    device_count = RelatedObjectCountField('dcim.device', 'device_type')
+    device_count = RelatedObjectCountField('instances')
 
     class Meta:
         model = models.DeviceType
@@ -274,8 +274,8 @@ class NestedInventoryItemTemplateSerializer(WritableNestedSerializer):
 )
 class NestedDeviceRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:devicerole-detail')
-    device_count = RelatedObjectCountField('dcim.device', 'role')
-    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'role')
+    device_count = RelatedObjectCountField('devices')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
         model = models.DeviceRole
@@ -287,8 +287,8 @@ class NestedDeviceRoleSerializer(WritableNestedSerializer):
 )
 class NestedPlatformSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:platform-detail')
-    device_count = RelatedObjectCountField('dcim.device', 'platform')
-    virtualmachine_count = RelatedObjectCountField('virtualization.virtualmachine', 'platform')
+    device_count = RelatedObjectCountField('devices')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
         model = models.Platform
@@ -445,7 +445,7 @@ class NestedInventoryItemSerializer(WritableNestedSerializer):
 )
 class NestedInventoryItemRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:inventoryitemrole-detail')
-    inventoryitem_count = RelatedObjectCountField('dcim.inventoryitem', 'role')
+    inventoryitem_count = RelatedObjectCountField('inventory_items')
 
     class Meta:
         model = models.InventoryItemRole
@@ -490,7 +490,7 @@ class NestedVirtualChassisSerializer(WritableNestedSerializer):
 )
 class NestedPowerPanelSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:powerpanel-detail')
-    powerfeed_count = RelatedObjectCountField('dcim.powerfeed', 'power_panel')
+    powerfeed_count = RelatedObjectCountField('powerfeeds')
 
     class Meta:
         model = models.PowerPanel

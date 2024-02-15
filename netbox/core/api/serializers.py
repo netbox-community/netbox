@@ -28,7 +28,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    file_count = RelatedObjectCountField('core.datafile', 'source')
+    file_count = RelatedObjectCountField('datafiles')
 
     class Meta:
         model = DataSource

@@ -289,7 +289,7 @@ class TagSerializer(ValidatedModelSerializer):
     )
 
     # Related object counts
-    tagged_items = RelatedObjectCountField('extras.taggeditem', 'tag')
+    tagged_items = RelatedObjectCountField('extras_taggeditem_items')
 
     class Meta:
         model = Tag

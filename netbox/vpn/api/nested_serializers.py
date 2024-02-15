@@ -24,7 +24,7 @@ __all__ = (
 )
 class NestedTunnelGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
-    tunnel_count = RelatedObjectCountField('vpn.tunnel', 'group')
+    tunnel_count = RelatedObjectCountField('tunnels')
 
     class Meta:
         model = models.TunnelGroup

@@ -32,7 +32,7 @@ class ProviderSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    circuit_count = RelatedObjectCountField('circuits.circuit', 'provider')
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = Provider
@@ -82,7 +82,7 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
 
     # Related object counts
-    circuit_count = RelatedObjectCountField('circuits.circuit', 'type')
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = CircuitType
