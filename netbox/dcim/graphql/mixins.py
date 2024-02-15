@@ -1,20 +1,40 @@
-import graphene
+import strawberry
+import strawberry_django
+from typing import TYPE_CHECKING, Annotated, List, Union
+
+__all__ = (
+    'CabledObjectMixin',
+    'PathEndpointMixin',
+)
 
 
+@strawberry.type
 class CabledObjectMixin:
-    link_peers = graphene.List('dcim.graphql.gfk_mixins.LinkPeerType')
 
-    def resolve_cable_end(self, info):
-        # Handle empty values
-        return self.cable_end or None
+    # @strawberry_django.field
+    # def cable_end(self) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
+    #     # Handle empty values
+    #     return self.cable_end or None
 
-    def resolve_link_peers(self, info):
+    @strawberry_django.field
+    def link_peers(self) -> List[Annotated[Union[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
+        Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("LinkPeerType")]]:
         return self.link_peers
 
 
+@strawberry.type
 class PathEndpointMixin:
-    connected_endpoints = graphene.List('dcim.graphql.gfk_mixins.ConnectedEndpointType')
-
-    def resolve_connected_endpoints(self, info):
-        # Handle empty values
-        return self.connected_endpoints or None
+    pass
+    # @strawberry_django.field
+    # def connected_endpoints(self) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
+    #     # Handle empty values
+    #     return self.connected_endpoints or None

@@ -1,12 +1,24 @@
+from typing import Annotated, List, Union
+
 import strawberry
 import strawberry_django
-
 from dcim import models
 from extras.graphql.mixins import (
-    ChangelogMixin, ConfigContextMixin, ContactsMixin, CustomFieldsMixin, ImageAttachmentsMixin, TagsMixin,
+    ChangelogMixin,
+    ConfigContextMixin,
+    ContactsMixin,
+    CustomFieldsMixin,
+    ImageAttachmentsMixin,
+    TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
-from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+
+from netbox.graphql.types import (
+    BaseObjectType,
+    NetBoxObjectType,
+    OrganizationalObjectType,
+)
+
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
 
@@ -89,36 +101,47 @@ class ComponentTemplateObjectType(
 #
 
 @strawberry_django.type(
+    models.CableTermination,
+    exclude=('termination_type', 'termination_id'),
+    filters=CableTerminationFilter
+)
+class CableTerminationType(NetBoxObjectType):
+
+    @strawberry_django.field
+    def termination(self) -> List[Annotated[Union[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
+        Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
+
+    ], strawberry.union("CableTerminationTerminationType")]]:
+        return self.termination
+
+
+@strawberry_django.type(
     models.Cable,
     # fields='__all__',
     exclude=('color', ),  # bug - temp
     filters=CableFilter
 )
 class CableType(NetBoxObjectType):
-    # a_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
-    # b_terminations = graphene.List('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
 
-    def resolve_type(self, info):
-        return self.type or None
+    @strawberry_django.field
+    def terminations(self) -> List[CableTerminationType]:
+        return self.terminations
 
-    def resolve_length_unit(self, info):
-        return self.length_unit or None
-
-    def resolve_a_terminations(self, info):
+    @strawberry_django.field
+    def a_terminations(self) -> List[CableTerminationType]:
         return self.a_terminations
 
-    def resolve_b_terminations(self, info):
+    @strawberry_django.field
+    def b_terminations(self) -> List[CableTerminationType]:
         return self.b_terminations
-
-
-@strawberry_django.type(
-    models.CableTermination,
-    exclude=('termination_type', 'termination_id'),
-    filters=CableTerminationFilter
-)
-class CableTerminationType(NetBoxObjectType):
-    # termination = graphene.Field('dcim.graphql.gfk_mixins.CableTerminationTerminationType')
-    pass
 
 
 @strawberry_django.type(
