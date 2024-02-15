@@ -9,7 +9,6 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from core import filtersets
 from core.models import *
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-from utilities.utils import count_related
 from . import serializers
 
 
@@ -22,9 +21,7 @@ class CoreRootView(APIRootView):
 
 
 class DataSourceViewSet(NetBoxModelViewSet):
-    queryset = DataSource.objects.annotate(
-        file_count=count_related(DataFile, 'source')
-    )
+    queryset = DataSource.objects.all()
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
 

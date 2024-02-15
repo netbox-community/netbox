@@ -1,7 +1,6 @@
 from rest_framework.routers import APIRootView
 
 from netbox.api.viewsets import NetBoxModelViewSet
-from utilities.utils import count_related
 from vpn import filtersets
 from vpn.models import *
 from . import serializers
@@ -34,17 +33,13 @@ class VPNRootView(APIRootView):
 #
 
 class TunnelGroupViewSet(NetBoxModelViewSet):
-    queryset = TunnelGroup.objects.annotate(
-        tunnel_count=count_related(Tunnel, 'group')
-    )
+    queryset = TunnelGroup.objects.all()
     serializer_class = serializers.TunnelGroupSerializer
     filterset_class = filtersets.TunnelGroupFilterSet
 
 
 class TunnelViewSet(NetBoxModelViewSet):
-    queryset = Tunnel.objects.annotate(
-        terminations_count=count_related(TunnelTermination, 'tunnel')
-    )
+    queryset = Tunnel.objects.all()
     serializer_class = serializers.TunnelSerializer
     filterset_class = filtersets.TunnelFilterSet
 

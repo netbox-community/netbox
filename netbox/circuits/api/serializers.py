@@ -6,7 +6,7 @@ from dcim.api.nested_serializers import NestedSiteSerializer
 from dcim.api.serializers import CabledObjectSerializer
 from ipam.models import ASN
 from ipam.api.nested_serializers import NestedASNSerializer
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *
@@ -32,7 +32,7 @@ class ProviderSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    circuit_count = serializers.IntegerField(read_only=True)
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = Provider
@@ -80,13 +80,15 @@ class ProviderNetworkSerializer(NetBoxModelSerializer):
 
 class CircuitTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
-    circuit_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = CircuitType
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
-            'circuit_count',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'circuit_count',
         ]
 
 
