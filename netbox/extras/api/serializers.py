@@ -287,7 +287,6 @@ class TagSerializer(ValidatedModelSerializer):
         many=True,
         required=False
     )
-    tagged_items = serializers.IntegerField(read_only=True)
 
     # Related object counts
     tagged_items = RelatedObjectCountField('extras.taggeditem', 'tag')
