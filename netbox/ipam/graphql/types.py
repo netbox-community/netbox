@@ -1,8 +1,18 @@
+from typing import List
+
 import strawberry
 import strawberry_django
-
+from circuits.graphql.types import ProviderType
+from dcim.graphql.types import SiteType
 from ipam import models
-from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+
+from netbox.graphql.scalars import BigInt
+from netbox.graphql.types import (
+    BaseObjectType,
+    NetBoxObjectType,
+    OrganizationalObjectType,
+)
+
 from .filters import *
 
 __all__ = (
@@ -25,57 +35,59 @@ __all__ = (
 )
 
 
+@strawberry.type
 class IPAddressFamilyType:
-
-    # value = graphene.Int()
-    # label = graphene.String()
-
-    def __init__(self, value):
-        self.value = value
-        self.label = f'IPv{value}'
+    value: int
+    label: str
 
 
+@strawberry.type
 class BaseIPAddressFamilyType:
     """
     Base type for models that need to expose their IPAddress family type.
     """
-    # family = graphene.Field(IPAddressFamilyType)
 
-    def resolve_family(self, _):
+    @strawberry.field
+    def family(self) -> IPAddressFamilyType:
         # Note that self, is an instance of models.IPAddress
         # thus resolves to the address family value.
-        return IPAddressFamilyType(self.family)
+        return IPAddressFamilyType(value=self.value, label=f'IPv{self.value}')
 
 
 @strawberry_django.type(
     models.ASN,
-    # fields='__all__',
-    exclude=('asn',),  # bug - temp
+    fields='__all__',
     filters=ASNFilter
 )
 class ASNType(NetBoxObjectType):
-    # asn = graphene.Field(BigInt)
-    pass
+    asn: BigInt
+
+    @strawberry_django.field
+    def sites(self) -> List[SiteType]:
+        return self.sites.all()
+
+    @strawberry_django.field
+    def providers(self) -> List[ProviderType]:
+        return self.providers.all()
 
 
 @strawberry_django.type(
     models.ASNRange,
-    # fields='__all__',
-    exclude=('start', 'end',),  # bug - temp
+    fields='__all__',
     filters=ASNRangeFilter
 )
 class ASNRangeType(NetBoxObjectType):
-    pass
+    start: BigInt
+    end: BigInt
 
 
 @strawberry_django.type(
     models.Aggregate,
-    # fields='__all__',
-    exclude=('prefix',),  # bug - temp
+    fields='__all__',
     filters=AggregateFilter
 )
 class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
-    pass
+    prefix: str
 
 
 @strawberry_django.type(
