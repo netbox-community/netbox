@@ -3,6 +3,7 @@ import logging
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db.models.fields.reverse_related import ManyToManyRel
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
@@ -15,6 +16,7 @@ from extras.models import EventRule
 from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
+from netbox.models.features import ChangeLoggingMixin
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
@@ -68,7 +70,7 @@ def handle_changed_object(sender, instance, **kwargs):
     else:
         return
 
-    # Create/update an ObejctChange record for this change
+    # Create/update an ObjectChange record for this change
     objectchange = instance.to_objectchange(action)
     # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
     # for this object by this request and update it
@@ -121,6 +123,25 @@ def handle_deleted_object(sender, instance, **kwargs):
         objectchange.user = request.user
         objectchange.request_id = request.id
         objectchange.save()
+
+    # Django does not automatically send an m2m_changed signal for the reverse direction of a
+    # many-to-many relationship (see https://code.djangoproject.com/ticket/17688), so we need to
+    # trigger one manually. We do this by checking for any reverse M2M relationships on the
+    # instance being deleted, and explicitly call .remove() on the remote M2M field to delete
+    # the association. This triggers an m2m_changed signal with the `post_remove` action type
+    # for the forward direction of the relationship, ensuring that the change is recorded.
+    for relation in instance._meta.related_objects:
+        if type(relation) is not ManyToManyRel:
+            continue
+        related_model = relation.related_model
+        related_field_name = relation.remote_field.name
+        if not issubclass(related_model, ChangeLoggingMixin):
+            # We only care about triggering the m2m_changed signal for models which support
+            # change logging
+            continue
+        for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
+            obj.snapshot()  # Ensure the change record includes the "before" state
+            getattr(obj, related_field_name).remove(instance)
 
     # Enqueue webhooks
     queue = events_queue.get()
