@@ -65,7 +65,7 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
 
     @cached_property
     def python_class(self):
-        return self.module.get_module_scripts.get(self.name)
+        return self.module.module_scripts.get(self.name)
 
     def delete(self, soft_delete=False):
         if soft_delete and self.jobs.exists():
@@ -101,7 +101,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         return self.python_name
 
     @cached_property
-    def get_module_scripts(self):
+    def module_scripts(self):
 
         def _get_name(cls):
             # For child objects in submodules use the full import path w/o the root module as the name
@@ -129,7 +129,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
             script.name: script for script in self.scripts.all()
         }
         db_classes_set = set(db_classes.keys())
-        module_classes_set = set(self.get_module_scripts.keys())
+        module_classes_set = set(self.module_scripts.keys())
 
         # remove any existing db classes if they are no longer in the file
         removed = db_classes_set - module_classes_set
