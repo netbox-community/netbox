@@ -67,12 +67,12 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     def python_class(self):
         return self.module.get_module_scripts.get(self.name)
 
-    def delete_if_no_jobs(self):
-        if self.jobs.exists():
+    def delete(self, soft_delete=False):
+        if soft_delete and self.jobs.exists():
             self.is_executable = False
             self.save()
         else:
-            self.delete()
+            super().delete()
             self.id = None
 
 
@@ -134,7 +134,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         # remove any existing db classes if they are no longer in the file
         removed = db_classes_set - module_classes_set
         for name in removed:
-            db_classes[name].delete_if_no_jobs()
+            db_classes[name].delete(soft_delete=True)
 
         added = module_classes_set - db_classes_set
         for name in added:

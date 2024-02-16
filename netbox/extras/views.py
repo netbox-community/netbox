@@ -1055,7 +1055,7 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, generic.ObjectView):
         if self.script.python_class:
             self.script_class = self.script.python_class()
         else:
-            self.script.delete_if_no_jobs()
+            self.script.delete(soft_delete=True)
             messages.error(request, _("Script class has been deleted from module: ") + str(self.script.module))
             if not self.script.id:
                 return redirect('extras:script_list')
@@ -1156,7 +1156,7 @@ class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
         if self.script.python_class:
             self.script_class = self.script.python_class()
         else:
-            self.script.delete_if_no_jobs()
+            self.script.delete(soft_delete=True)
             if not self.script.id:
                 messages.error(request, _("Script class has been deleted from module: ") + str(self.script.module))
                 return redirect('extras:script_list')
