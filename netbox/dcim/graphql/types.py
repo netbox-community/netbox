@@ -118,7 +118,6 @@ class CableTerminationType(NetBoxObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-
     ], strawberry.union("CableTerminationTerminationType")]]:
         return self.termination
 
@@ -586,12 +585,11 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
 @strawberry_django.type(
     models.VirtualChassis,
-    # fields='__all__',
-    exclude=('member_count',),  # bug - temp
+    fields='__all__',
     filters=VirtualChassisFilter
 )
 class VirtualChassisType(NetBoxObjectType):
-    pass
+    member_count: BigInt
 
 
 @strawberry_django.type(

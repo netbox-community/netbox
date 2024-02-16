@@ -131,9 +131,9 @@ social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
 social-auth-app-django
 
-# Enhanced Strawberry GraphQL integration with Django
-# https://github.com/blb-ventures/strawberry-django-plus/blob/main/CHANGELOG.md
-strawberry-graphql-django
+# Strawberry GraphQL Django extension
+# https://github.com/strawberry-graphql/strawberry-django/blob/main/CHANGELOG.md
+strawberry-django
 
 # SVG image rendering (used for rack elevations)
 # https://github.com/mozman/svgwrite/blob/master/NEWS.rst
