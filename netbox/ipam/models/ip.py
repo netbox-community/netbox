@@ -592,7 +592,7 @@ class IPRange(PrimaryModel):
                     ))
 
             # Validate maximum size
-            MAX_SIZE = 2 ** 32 - 1
+            MAX_SIZE = 2 ** 128 - 1
             if int(self.end_address.ip - self.start_address.ip) + 1 > MAX_SIZE:
                 raise ValidationError(
                     _("Defined range exceeds maximum supported size ({max_size})").format(max_size=MAX_SIZE)
