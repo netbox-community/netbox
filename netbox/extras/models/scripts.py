@@ -5,6 +5,8 @@ from functools import cached_property
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
@@ -150,5 +152,9 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
-        super().save(*args, **kwargs)
-        self.sync_classes()
+        return super().save(*args, **kwargs)
+
+
+@receiver(post_save, sender=ScriptModule)
+def script_module_post_save_handler(instance, created, **kwargs):
+    instance.sync_classes()
