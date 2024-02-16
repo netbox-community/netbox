@@ -35,14 +35,14 @@ __all__ = (
 )
 
 
-class ScriptFilterSet(NetBoxModelFilterSet):
+class ScriptFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
     )
 
     class Meta:
-        model = Webhook
+        model = Script
         fields = [
             'id', 'name',
         ]

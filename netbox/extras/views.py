@@ -1025,8 +1025,6 @@ class ScriptModuleDeleteView(generic.ObjectDeleteView):
 
 
 class ScriptListView(ContentTypePermissionRequiredMixin, View):
-    filterset = filtersets.CustomFieldFilterSet
-    filterset_form = forms.CustomFieldFilterForm
 
     def get_required_permission(self):
         return 'extras.view_script'

@@ -25,7 +25,7 @@ __all__ = (
 logger = logging.getLogger('netbox.data_backends')
 
 
-class Script(EventRulesMixin, JobsMixin, models.Model):
+class Script(EventRulesMixin, JobsMixin):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=79,  # Maximum length for a Python class name
