@@ -52,7 +52,8 @@ class Condition:
     def __init__(self, attr, value, op=EQ, negate=False):
         if op not in self.OPERATORS:
             raise ValueError(_("Unknown operator: {op}. Must be one of: {operators}").format(
-                op=op, operators=', '.join(self.OPERATORS)))
+                op=op, operators=', '.join(self.OPERATORS)
+            ))
         if type(value) not in self.TYPES:
             raise ValueError(_("Unsupported value type: {value}").format(value=type(value)))
         if op not in self.TYPES[type(value)]:

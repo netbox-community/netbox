@@ -83,7 +83,7 @@ class ChoiceField(serializers.Field):
         except TypeError:  # Input is an unhashable type
             pass
 
-        raise ValidationError(_("{data} is not a valid choice.").format(data=data))
+        raise ValidationError(_("{value} is not a valid choice.").format(value=data))
 
     @property
     def choices(self):

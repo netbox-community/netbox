@@ -872,7 +872,9 @@ class InterfaceImportForm(NetBoxModelImportForm):
             if vdc.device != self.cleaned_data['device']:
                 raise forms.ValidationError(
                     _("VDC {vdc} is not assigned to device {device}").format(
-                        vdc=vdc, device=self.cleaned_data['device']))
+                        vdc=vdc, device=self.cleaned_data['device']
+                    )
+                )
         return self.cleaned_data['vdcs']
 
 
@@ -1077,8 +1079,11 @@ class InventoryItemImportForm(NetBoxModelImportForm):
             component = model.objects.get(device=device, name=component_name)
             self.instance.component = component
         except ObjectDoesNotExist:
-            raise forms.ValidationError(_("Component not found: {device} - {component_name}").format(
-                device=device, component_name=component_name))
+            raise forms.ValidationError(
+                _("Component not found: {device} - {component_name}").format(
+                    device=device, component_name=component_name
+                )
+            )
 
 
 #
@@ -1198,12 +1203,15 @@ class CableImportForm(NetBoxModelImportForm):
             if termination_object.cable is not None and termination_object.cable != self.instance:
                 raise forms.ValidationError(
                     _("Side {side_upper}: {device} {termination_object} is already connected").format(
-                        side_upper=side.upper(), device=device, termination_object=termination_object))
+                        side_upper=side.upper(), device=device, termination_object=termination_object
+                    )
+                )
         except ObjectDoesNotExist:
             raise forms.ValidationError(
                 _("{side_upper} side termination not found: {device} {name}").format(
-                    side_upper=side.upper(), device=device, name=name))
-
+                    side_upper=side.upper(), device=device, name=name
+                )
+            )
         setattr(self.instance, f'{side}_terminations', [termination_object])
         return termination_object
 

@@ -36,7 +36,8 @@ class CustomFieldsMixin:
         """
         if not getattr(self, 'model', None):
             raise NotImplementedError(_("{class_name} must specify a model class.").format(
-                class_name=self.__class__.__name__))
+                class_name=self.__class__.__name__
+            ))
         return ContentType.objects.get_for_model(self.model)
 
     def _get_custom_fields(self, content_type):

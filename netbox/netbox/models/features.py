@@ -275,13 +275,15 @@ class CustomFieldsMixin(models.Model):
         # Validate all field values
         for field_name, value in self.custom_field_data.items():
             if field_name not in custom_fields:
-                raise ValidationError(_("Unknown field name '{field_name}' in custom field data.").format(
-                    field_name=field_name))
+                raise ValidationError(_("Unknown field name '{name}' in custom field data.").format(
+                    name=field_name
+                ))
             try:
                 custom_fields[field_name].validate(value)
             except ValidationError as e:
-                raise ValidationError(_("Invalid value for custom field '{field_name}': {message}").format(
-                    field_name=field_name, message=e.message))
+                raise ValidationError(_("Invalid value for custom field '{name}': {error}").format(
+                    name=field_name, error=e.message
+                ))
 
         # Check for missing required values
         for cf in custom_fields.values():
@@ -550,7 +552,8 @@ class SyncedDataMixin(models.Model):
         to the local instance. This method should *NOT* call save() on the instance.
         """
         raise NotImplementedError(_("{class_name} must implement a sync_data() method.").format(
-            class_name=self.__class__))
+            class_name=self.__class__
+        ))
 
 
 #

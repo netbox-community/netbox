@@ -44,14 +44,14 @@ class WritableNestedSerializer(BaseModelSerializer):
             pk = int(data)
         except (TypeError, ValueError):
             raise ValidationError(
-                _("Related objects must be referenced by numeric ID or by dictionary of attributes. Received an unrecognized value: {data}").format(data=data)
+                _("Related objects must be referenced by numeric ID or by dictionary of attributes. Received an unrecognized value: {value}").format(value=data)
             )
 
         # Look up object by PK
         try:
             return self.Meta.model.objects.get(pk=pk)
         except ObjectDoesNotExist:
-            raise ValidationError(_("Related object not found using the provided numeric ID: {pk}").format(pk=pk))
+            raise ValidationError(_("Related object not found using the provided numeric ID: {id}").format(id=pk))
 
 
 # Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers

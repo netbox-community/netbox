@@ -177,8 +177,9 @@ class Cable(PrimaryModel):
                 a_type = self.a_terminations[0]._meta.model_name
                 b_type = self.b_terminations[0]._meta.model_name
                 if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
-                    raise ValidationError(_("Incompatible termination types: ") + str(a_type) + _(" and ") + str(b_type))
-
+                    raise ValidationError(
+                        _("Incompatible termination types: {type_a} and {type_b}").format(type_a=a_type, type_b=b_type)
+                    )
                 if a_type == b_type:
                     # can't directly use self.a_terminations here as possible they
                     # don't have pk yet
@@ -327,13 +328,16 @@ class CableTermination(ChangeLoggedModel):
                     app_label=self.termination_type.app_label,
                     model=self.termination_type.model,
                     termination_id=self.termination_id,
-                    cable_pk=existing_termination.cable.pk))
+                    cable_pk=existing_termination.cable.pk
+                ))
             )
-
         # Validate interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError(_("Cables cannot be terminated to {type_display} interfaces").format(
-                type_display=self.termination.get_type_display()))
+            raise ValidationError(
+                _("Cables cannot be terminated to {type_display} interfaces").format(
+                    type_display=self.termination.get_type_display()
+                )
+            )
 
         # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
         if self.termination_type.model == 'circuittermination' and self.termination.provider_network is not None:

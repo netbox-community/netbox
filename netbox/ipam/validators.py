@@ -5,7 +5,11 @@ from django.utils.translation import gettext_lazy as _
 
 def prefix_validator(prefix):
     if prefix.ip != prefix.cidr.ip:
-        raise ValidationError(_("{} is not a valid prefix. Did you mean {}?").format(prefix, prefix.cidr))
+        raise ValidationError(
+            _("{prefix} is not a valid prefix. Did you mean {suggested}?").format(
+                prefix=prefix, suggested=prefix.cidr
+            )
+        )
 
 
 class MaxPrefixLengthValidator(BaseValidator):

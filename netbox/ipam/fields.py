@@ -33,7 +33,7 @@ class BaseIPField(models.Field):
             # Always return a netaddr.IPNetwork object. (netaddr.IPAddress does not provide a mask.)
             return IPNetwork(value)
         except AddrFormatError:
-            raise ValidationError(_("Invalid IP address format: {}").format(value))
+            raise ValidationError(_("Invalid IP address format: {address}").format(address=value))
         except (TypeError, ValueError) as e:
             raise ValidationError(e)
 

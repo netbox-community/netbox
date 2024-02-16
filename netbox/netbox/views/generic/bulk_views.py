@@ -391,7 +391,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     instance = prefetched_objects[object_id]
                 except KeyError:
-                    form.add_error('data', _("Row {i}: Object with ID {object_id} does not exist").format(i=i, object_id=object_id))
+                    form.add_error('data', _("Row {i}: Object with ID {id} does not exist").format(i=i, id=object_id))
                     raise ValidationError('')
 
                 # Take a snapshot for change logging

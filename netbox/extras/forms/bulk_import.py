@@ -202,7 +202,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
                 try:
                     webhook = Webhook.objects.get(name=action_object)
                 except Webhook.DoesNotExist:
-                    raise forms.ValidationError(_("Webhook {action_object} not found").format(action_object=action_object))
+                    raise forms.ValidationError(_("Webhook {name} not found").format(name=action_object))
                 self.instance.action_object = webhook
             # Script
             elif action_type == EventRuleActionChoices.SCRIPT:
@@ -211,7 +211,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
                 try:
                     module, script = get_module_and_script(module_name, script_name)
                 except ObjectDoesNotExist:
-                    raise forms.ValidationError(_("Script {action_object} not found").format(action_object=action_object))
+                    raise forms.ValidationError(_("Script {name} not found").format(name=action_object))
                 self.instance.action_object = module
                 self.instance.action_object_type = ContentType.objects.get_for_model(module, for_concrete_model=False)
                 self.instance.action_parameters = {

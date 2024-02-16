@@ -131,7 +131,8 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
 
         else:
             raise ValueError(_("Unknown action type for an event rule: {action_type}").format(
-                action_type=event_rule.action_type))
+                action_type=event_rule.action_type
+            ))
 
 
 def process_event_queue(events):
@@ -177,4 +178,4 @@ def flush_events(queue):
                 func = import_string(name)
                 func(queue)
             except Exception as e:
-                logger.error(_("Cannot import events pipeline {name} error: {e}").format(name=name, e=e))
+                logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))
