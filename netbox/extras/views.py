@@ -1069,11 +1069,6 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, generic.ObjectView):
         self.script = get_object_or_404(Script.objects.all(), pk=pk)
         return self._init_vars(request)
 
-    def get_script_by_module_name(self, request, module, name):
-        module = get_script_module(module, request)
-        self.script = get_object_or_404(Script.objects.all(), module=module, name=name)
-        return self._init_vars(request)
-
 
 class ScriptView(BaseScriptView):
 

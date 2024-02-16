@@ -512,12 +512,10 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
 #
 
 class ScriptSerializer(ValidatedModelSerializer):
-    id = serializers.CharField(read_only=True)
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail',)
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
     result = serializers.SerializerMethodField(read_only=True)
-    display = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Script

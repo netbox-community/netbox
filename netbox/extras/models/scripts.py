@@ -27,15 +27,18 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=79,  # Maximum length for a Python class name
+        editable=False,
     )
     module = models.ForeignKey(
         to='extras.ScriptModule',
         on_delete=models.CASCADE,
-        related_name='scripts'
+        related_name='scripts',
+        editable=False
     )
     is_executable = models.BooleanField(
         default=True,
-        verbose_name=_('is executable')
+        verbose_name=_('is executable'),
+        editable=False
     )
     events = GenericRelation(
         'extras.EventRule',
@@ -51,7 +54,7 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
         constraints = (
             models.UniqueConstraint(
                 fields=('name', 'module'),
-                name='%(app_label)s_%(class)s_unique_name_module'
+                name='extras_script_unique_name_module'
             ),
         )
         verbose_name = _('script')
@@ -65,7 +68,7 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
         return self.module.get_module_scripts.get(self.name)
 
     def delete_if_no_jobs(self):
-        if self.jobs.all():
+        if self.jobs.exists():
             self.is_executable = False
             self.save()
         else:
@@ -122,15 +125,11 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         return scripts
 
     def sync_classes(self):
-        db_classes = {}
-        for obj in self.scripts.filter(module=self):
-            db_classes[obj.name] = obj
-
-        db_classes_set = {k for k in db_classes.keys()}
-
-        module_scripts = self.get_module_scripts
-
-        module_classes_set = {k for k in module_scripts.keys()}
+        db_classes = {
+            script.name: script for script in self.scripts.all()
+        }
+        db_classes_set = set(db_classes.keys())
+        module_classes_set = set(self.get_module_scripts.keys())
 
         # remove any existing db classes if they are no longer in the file
         removed = db_classes_set - module_classes_set

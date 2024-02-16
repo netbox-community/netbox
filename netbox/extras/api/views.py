@@ -9,10 +9,9 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rq import Worker
 
-from core.choices import JobStatusChoices
 from core.models import Job
 from extras import filtersets
 from extras.models import *
@@ -216,7 +215,7 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 
 class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    queryset = Script.objects.all().prefetch_related('jobs')
+    queryset = Script.objects.prefetch_related('jobs')
     serializer_class = serializers.ScriptSerializer
     # filterset_class = filtersets.ScriptFilterSet
 
@@ -225,20 +224,9 @@ class ScriptViewSet(ModelViewSet):
     lookup_value_regex = '[^/]+'  # Allow dots
 
     def _get_script(self, pk):
-        # check if includes '.' for old module.script lookup
-        if '.' in pk:
-            try:
-                module_name, script_name = pk.split('.', maxsplit=1)
-            except ValueError:
-                raise Http404
-
-            module, script = get_module_and_script(module_name, script_name)
-            if script is None:
-                raise Http404
-        else:
-            pk = int(pk)
-            script = get_object_or_404(self.queryset, pk=pk)
-            module = script.module
+        pk = int(pk)
+        script = get_object_or_404(self.queryset, pk=pk)
+        module = script.module
 
         return module, script
 

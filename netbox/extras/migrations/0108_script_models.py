@@ -125,9 +125,9 @@ class Migration(migrations.Migration):
             name='Script',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=79)),
-                ('module', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='scripts', to='extras.scriptmodule')),
-                ('is_executable', models.BooleanField(default=True))
+                ('name', models.CharField(editable=False, max_length=79)),
+                ('module', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='scripts', to='extras.scriptmodule')),
+                ('is_executable', models.BooleanField(editable=False, default=True))
             ],
             options={
                 'ordering': ('module', 'name'),
