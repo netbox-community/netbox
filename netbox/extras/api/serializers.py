@@ -516,7 +516,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = serializers.SerializerMethodField(read_only=True)
+    result = NestedJobSerializer(read_only=True)
 
     class Meta:
         model = Script
@@ -543,15 +543,6 @@ class ScriptSerializer(ValidatedModelSerializer):
             return obj.python_class().description
         else:
             return None
-
-    @extend_schema_field(NestedJobSerializer())
-    def get_result(self, obj):
-        job = obj.jobs.all().order_by('-created').first()
-        context = {
-            'request': self.context['request']
-        }
-        data = NestedJobSerializer(job, context=context).data
-        return data
 
 
 class ScriptDetailSerializer(ScriptSerializer):
