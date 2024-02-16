@@ -297,19 +297,16 @@ class EventRuleForm(NetBoxModelForm):
         }
 
     def init_script_choice(self):
-        choices = []
-        for module in ScriptModule.objects.all():
-            script_list = []
-            for script in module.scripts.all().prefetch_related('scripts'):
-                name = f"{str(script.pk)}:{script.name}"
-                script_list.append((name, script.name))
-            if script_list:
-                choices.append((str(module), script_list))
-        self.fields['action_choice'].choices = choices
-
+        initial = None
         if self.instance.action_type == EventRuleActionChoices.SCRIPT:
-            script = self.instance.action_object
-            self.fields['action_choice'].initial = f'{script.id}:{script.name}'
+            script_id = get_field_value(self, 'action_object_id')
+            initial = Script.objects.get(pk=script_id) if script_id else None
+        self.fields['action_choice'] = DynamicModelChoiceField(
+            label=_('Script'),
+            queryset=Script.objects.all(),
+            required=True,
+            initial=initial
+        )
 
     def init_webhook_choice(self):
         initial = None
@@ -350,8 +347,7 @@ class EventRuleForm(NetBoxModelForm):
                 Script,
                 for_concrete_model=False
             )
-            script_id, script_name = action_choice.split(":", maxsplit=1)
-            self.cleaned_data['action_object_id'] = script_id
+            self.cleaned_data['action_object_id'] = action_choice.id
 
         return self.cleaned_data
 
