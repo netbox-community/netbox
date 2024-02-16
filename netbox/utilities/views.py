@@ -36,7 +36,8 @@ class ContentTypePermissionRequiredMixin(AccessMixin):
         Return the specific permission necessary to perform the requested action on an object.
         """
         raise NotImplementedError(_("{self.__class__.__name__} must implement get_required_permission()").format(
-            class_name=self.__class__.__name__))
+            class_name=self.__class__.__name__
+        ))
 
     def has_permission(self):
         user = self.request.user
@@ -71,7 +72,8 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         Return the specific permission necessary to perform the requested action on an object.
         """
         raise NotImplementedError(_("{class_name} must implement get_required_permission()").format(
-            class_name=self.__class__.__name__))
+            class_name=self.__class__.__name__
+        ))
 
     def has_permission(self):
         user = self.request.user
@@ -92,8 +94,10 @@ class ObjectPermissionRequiredMixin(AccessMixin):
 
         if not hasattr(self, 'queryset'):
             raise ImproperlyConfigured(
-                _('{} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views which define a base queryset').format(
-                    self.__class__.__name__)
+                _(
+                    '{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views which '
+                    'define a base queryset'
+                ).format(class_name=self.__class__.__name__)
             )
 
         if not self.has_permission():

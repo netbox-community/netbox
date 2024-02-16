@@ -313,8 +313,11 @@ def to_meters(length, unit):
 
     valid_units = CableLengthUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(_("Unknown unit {unit}. Must be one of the following: {valid_units}".format(
-            unit=unit, valid_units=', '.join(valid_units))))
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == CableLengthUnitChoices.UNIT_KILOMETER:
         return length * 1000
@@ -343,8 +346,11 @@ def to_grams(weight, unit):
 
     valid_units = WeightUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(_("Unknown unit {unit}. Must be one of the following: {valid_units}".format(
-            unit=unit, valid_units=', '.join(valid_units))))
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == WeightUnitChoices.UNIT_KILOGRAM:
         return weight * 1000

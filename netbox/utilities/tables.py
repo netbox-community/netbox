@@ -45,5 +45,6 @@ def register_table_column(column, name, *tables):
         reg = registry['tables'][table]
         if name in reg:
             raise ValueError(_("A column named {name} is already defined for table {table_name}").format(
-                name=name, table_name=table.__name__))
+                name=name, table_name=table.__name__
+            ))
         reg[name] = column

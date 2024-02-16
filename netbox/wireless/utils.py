@@ -23,6 +23,6 @@ def get_channel_attr(channel, attr):
         'width': Decimal(channel_values[3]),
     }
     if attr not in attrs:
-        raise ValueError(_("Invalid channel attribute: {attr}").format(attr=attr))
+        raise ValueError(_("Invalid channel attribute: {name}").format(name=attr))
 
     return attrs[attr]

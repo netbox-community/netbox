@@ -122,7 +122,9 @@ class APISelect(forms.Select):
             except IndexError as error:
                 raise RuntimeError(
                     _("Missing required value for dynamic query param: '{dynamic_params}'").format(
-                        dynamic_params=self.dynamic_params)) from error
+                        dynamic_params=self.dynamic_params
+                    )
+                ) from error
 
     def _add_static_params(self):
         """
@@ -137,7 +139,9 @@ class APISelect(forms.Select):
             except IndexError as error:
                 raise RuntimeError(
                     _("Missing required value for static query param: '{static_params}'").format(
-                        static_params=self.static_params)) from error
+                        static_params=self.static_params
+                    )
+                ) from error
 
     def add_query_params(self, query_params):
         """
