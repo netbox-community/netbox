@@ -6,7 +6,7 @@ from dcim.api.nested_serializers import NestedDeviceSerializer, NestedSiteSerial
 from ipam.choices import *
 from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS, VLANGROUP_SCOPE_TYPES
 from ipam.models import *
-from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -43,8 +43,10 @@ class ASNSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:asn-detail')
     rir = NestedRIRSerializer(required=False, allow_null=True)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
-    site_count = serializers.IntegerField(read_only=True)
-    provider_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    site_count = RelatedObjectCountField('sites')
+    provider_count = RelatedObjectCountField('providers')
 
     class Meta:
         model = ASN
@@ -90,8 +92,10 @@ class VRFSerializer(NetBoxModelSerializer):
         required=False,
         many=True
     )
-    ipaddress_count = serializers.IntegerField(read_only=True)
-    prefix_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    ipaddress_count = RelatedObjectCountField('ip_addresses')
+    prefix_count = RelatedObjectCountField('prefixes')
 
     class Meta:
         model = VRF
@@ -124,7 +128,9 @@ class RouteTargetSerializer(NetBoxModelSerializer):
 
 class RIRSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:rir-detail')
-    aggregate_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    aggregate_count = RelatedObjectCountField('aggregates')
 
     class Meta:
         model = RIR
@@ -195,8 +201,10 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
 
 class RoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:role-detail')
-    prefix_count = serializers.IntegerField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    prefix_count = RelatedObjectCountField('prefixes')
+    vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
         model = Role
@@ -218,8 +226,10 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     )
     scope_id = serializers.IntegerField(allow_null=True, required=False, default=None)
     scope = serializers.SerializerMethodField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
     utilization = serializers.CharField(read_only=True)
+
+    # Related object counts
+    vlan_count = RelatedObjectCountField('vlans')
 
     class Meta:
         model = VLANGroup
@@ -247,7 +257,9 @@ class VLANSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=VLANStatusChoices, required=False)
     role = NestedRoleSerializer(required=False, allow_null=True)
     l2vpn_termination = NestedL2VPNTerminationSerializer(read_only=True, allow_null=True)
-    prefix_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    prefix_count = RelatedObjectCountField('prefixes')
 
     class Meta:
         model = VLAN

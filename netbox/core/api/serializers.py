@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from core.choices import *
 from core.models import *
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer
 from netbox.utils import get_data_backend_choices
 from users.api.nested_serializers import NestedUserSerializer
@@ -28,9 +28,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    file_count = serializers.IntegerField(
-        read_only=True
-    )
+    file_count = RelatedObjectCountField('datafiles')
 
     class Meta:
         model = DataSource

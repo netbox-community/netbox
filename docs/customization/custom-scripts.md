@@ -304,6 +304,7 @@ A particular object within NetBox. Each ObjectVar must specify a particular mode
 
 * `model` - The model class
 * `query_params` - A dictionary of query parameters to use when retrieving available options (optional)
+* `context` - A custom dictionary mapping template context variables to fields, used when rendering `<option>` elements within the dropdown menu (optional; see below)
 * `null_option` - A label representing a "null" or empty choice (optional)
 
 To limit the selections available within the list, additional query parameters can be passed as the `query_params` dictionary. For example, to show only devices with an "active" status:
@@ -330,6 +331,22 @@ site = ObjectVar(
     }
 )
 ```
+
+#### Context Variables
+
+Custom context variables can be passed to override the default attribute names or to display additional information, such as a parent object.
+
+| Name          | Default         | Description                                                                  |
+|---------------|-----------------|------------------------------------------------------------------------------|
+| `value`       | `"id"`          | The attribute which contains the option's value                              |
+| `label`       | `"display"`     | The attribute used as the option's human-friendly label                      |
+| `description` | `"description"` | The attribute to use as a description                                        |
+| `depth`[^1]   | `"_depth"`      | The attribute which indicates an object's depth within a recursive hierarchy |
+| `disabled`    | --              | The attribute which, if true, signifies that the option should be disabled   |
+| `parent`      | --              | The attribute which represents the object's parent object                    |
+| `count`[^1]   | --              | The attribute which contains a numeric count of related objects              |
+
+[^1]: The value of this attribute must be a positive integer
 
 ### MultiObjectVar
 

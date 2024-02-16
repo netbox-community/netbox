@@ -1,4 +1,5 @@
 import logging
+from functools import cached_property
 
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
@@ -9,6 +10,7 @@ from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
+from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from . import mixins
 
@@ -39,6 +41,33 @@ class BaseViewSet(GenericViewSet):
         if request.user.is_authenticated:
             if action := HTTP_ACTIONS[request.method]:
                 self.queryset = self.queryset.restrict(request.user, action)
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        serializer_class = self.get_serializer_class()
+
+        # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
+        if prefetch := get_prefetches_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+            qs = qs.prefetch_related(*prefetch)
+
+        # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
+        if annotations := get_annotations_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+            qs = qs.annotate(**annotations)
+
+        return qs
+
+    def get_serializer(self, *args, **kwargs):
+
+        # If specific fields have been requested, pass them to the serializer
+        if self.requested_fields:
+            kwargs['requested_fields'] = self.requested_fields
+
+        return super().get_serializer(*args, **kwargs)
+
+    @cached_property
+    def requested_fields(self):
+        requested_fields = self.request.query_params.get('fields')
+        return requested_fields.split(',') if requested_fields else []
 
 
 class NetBoxReadOnlyModelViewSet(

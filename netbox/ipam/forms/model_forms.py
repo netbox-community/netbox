@@ -267,14 +267,20 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
 class IPAddressForm(TenancyForm, NetBoxModelForm):
     interface = DynamicModelChoiceField(
-        label=_('Interface'),
         queryset=Interface.objects.all(),
         required=False,
+        context={
+            'parent': 'device',
+        },
         selector=True,
+        label=_('Interface'),
     )
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
+        context={
+            'parent': 'virtual_machine',
+        },
         selector=True,
         label=_('Interface'),
     )
