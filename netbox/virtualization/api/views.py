@@ -1,10 +1,8 @@
 from rest_framework.routers import APIRootView
 
-from dcim.models import Device
 from extras.api.mixins import ConfigContextQuerySetMixin, RenderConfigMixin
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.query_functions import CollateAsChar
-from utilities.utils import count_related
 from virtualization import filtersets
 from virtualization.models import *
 from . import serializers
@@ -23,26 +21,19 @@ class VirtualizationRootView(APIRootView):
 #
 
 class ClusterTypeViewSet(NetBoxModelViewSet):
-    queryset = ClusterType.objects.annotate(
-        cluster_count=count_related(Cluster, 'type')
-    )
+    queryset = ClusterType.objects.all()
     serializer_class = serializers.ClusterTypeSerializer
     filterset_class = filtersets.ClusterTypeFilterSet
 
 
 class ClusterGroupViewSet(NetBoxModelViewSet):
-    queryset = ClusterGroup.objects.annotate(
-        cluster_count=count_related(Cluster, 'group')
-    )
+    queryset = ClusterGroup.objects.all()
     serializer_class = serializers.ClusterGroupSerializer
     filterset_class = filtersets.ClusterGroupFilterSet
 
 
 class ClusterViewSet(NetBoxModelViewSet):
-    queryset = Cluster.objects.annotate(
-        device_count=count_related(Device, 'cluster'),
-        virtualmachine_count=count_related(VirtualMachine, 'cluster')
-    )
+    queryset = Cluster.objects.all()
     serializer_class = serializers.ClusterSerializer
     filterset_class = filtersets.ClusterFilterSet
 

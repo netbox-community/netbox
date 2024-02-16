@@ -52,19 +52,6 @@ class BriefModeMixin:
 
         return self.serializer_class
 
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        if self.brief:
-            serializer_class = self.get_serializer_class()
-
-            # Clear any annotations for fields not present on the nested serializer
-            for annotation in list(qs.query.annotations.keys()):
-                if annotation not in serializer_class().fields:
-                    qs.query.annotations.pop(annotation)
-
-        return qs
-
 
 class CustomFieldsMixin:
     """

@@ -10,7 +10,7 @@ from rest_framework import mixins as drf_mixins
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
-from utilities.api import get_prefetches_for_serializer
+from utilities.api import get_annotations_for_serializer, get_prefetches_for_serializer
 from utilities.exceptions import AbortRequest
 from . import mixins
 
@@ -44,14 +44,15 @@ class BaseViewSet(GenericViewSet):
 
     def get_queryset(self):
         qs = super().get_queryset()
+        serializer_class = self.get_serializer_class()
 
         # Dynamically resolve prefetches for included serializer fields and attach them to the queryset
-        prefetch = get_prefetches_for_serializer(
-            self.get_serializer_class(),
-            fields_to_include=self.requested_fields
-        )
-        if prefetch:
+        if prefetch := get_prefetches_for_serializer(serializer_class, fields_to_include=self.requested_fields):
             qs = qs.prefetch_related(*prefetch)
+
+        # Dynamically resolve annotations for RelatedObjectCountFields on the serializer and attach them to the queryset
+        if annotations := get_annotations_for_serializer(serializer_class, fields_to_include=self.requested_fields):
+            qs = qs.annotate(**annotations)
 
         return qs
 

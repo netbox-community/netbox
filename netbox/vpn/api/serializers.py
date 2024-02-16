@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedRouteTargetSerializer
 from ipam.models import RouteTarget
-from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
@@ -29,7 +29,9 @@ __all__ = (
 
 class TunnelGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
-    tunnel_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    tunnel_count = RelatedObjectCountField('tunnels')
 
     class Meta:
         model = TunnelGroup
@@ -59,11 +61,14 @@ class TunnelSerializer(NetBoxModelSerializer):
         allow_null=True
     )
 
+    # Related object counts
+    terminations_count = RelatedObjectCountField('terminations')
+
     class Meta:
         model = Tunnel
         fields = (
             'id', 'url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'terminations_count',
         )
 
 

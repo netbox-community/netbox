@@ -84,6 +84,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
     rack = models.ForeignKey(
         to='Rack',
         on_delete=models.PROTECT,
+        related_name='powerfeeds',
         blank=True,
         null=True
     )

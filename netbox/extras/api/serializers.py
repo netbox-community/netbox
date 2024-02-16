@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
-from rest_framework.fields import ListField
 
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from core.api.serializers import JobSerializer
@@ -16,7 +15,7 @@ from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site
 from extras.choices import *
 from extras.models import *
 from netbox.api.exceptions import SerializerNotFound
-from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer, ValidatedModelSerializer
 from netbox.api.serializers.features import TaggableModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
@@ -288,7 +287,9 @@ class TagSerializer(ValidatedModelSerializer):
         many=True,
         required=False
     )
-    tagged_items = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    tagged_items = RelatedObjectCountField('extras_taggeditem_items')
 
     class Meta:
         model = Tag

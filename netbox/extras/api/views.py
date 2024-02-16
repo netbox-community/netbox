@@ -23,7 +23,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.utils import copy_safe_request, count_related
+from utilities.utils import copy_safe_request
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
 
@@ -147,9 +147,7 @@ class BookmarkViewSet(NetBoxModelViewSet):
 #
 
 class TagViewSet(NetBoxModelViewSet):
-    queryset = Tag.objects.annotate(
-        tagged_items=count_related(TaggedItem, 'tag')
-    )
+    queryset = Tag.objects.all()
     serializer_class = serializers.TagSerializer
     filterset_class = filtersets.TagFilterSet
 
