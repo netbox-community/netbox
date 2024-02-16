@@ -131,6 +131,10 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         return scripts
 
     def sync_classes(self):
+        """
+        Sync's the file based module to the database objects - adding and
+        removing python classes from the DB as appropriate.
+        """
         db_classes = {
             script.name: script for script in self.scripts.all()
         }
