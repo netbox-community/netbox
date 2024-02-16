@@ -1025,6 +1025,8 @@ class ScriptModuleDeleteView(generic.ObjectDeleteView):
 
 
 class ScriptListView(ContentTypePermissionRequiredMixin, View):
+    filterset = filtersets.CustomFieldFilterSet
+    filterset_form = forms.CustomFieldFilterForm
 
     def get_required_permission(self):
         return 'extras.view_script'
@@ -1065,7 +1067,7 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, generic.ObjectView):
         self.jobs = self.script.jobs.all()
         return None
 
-    def get_script(self, request, pk):
+    def init_vars_or_redirect(self, request, pk):
         self.script = get_object_or_404(Script.objects.all(), pk=pk)
         return self._init_vars(request)
 
@@ -1073,7 +1075,7 @@ class BaseScriptView(ContentTypePermissionRequiredMixin, generic.ObjectView):
 class ScriptView(BaseScriptView):
 
     def get(self, request, pk):
-        if ret := self.get_script(request, pk):
+        if ret := self.init_vars_or_redirect(request, pk):
             return ret
 
         form = None
@@ -1092,7 +1094,7 @@ class ScriptView(BaseScriptView):
         if not request.user.has_perm('extras.run_script'):
             return HttpResponseForbidden()
 
-        if ret := self.get_script(request, pk):
+        if ret := self.init_vars_or_redirect(request, pk):
             return ret
 
         form = None
@@ -1130,7 +1132,7 @@ class ScriptView(BaseScriptView):
 class ScriptSourceView(BaseScriptView):
 
     def get(self, request, pk):
-        if ret := self.get_script(request, pk):
+        if ret := self.init_vars_or_redirect(request, pk):
             return ret
 
         return render(request, 'extras/script/source.html', {

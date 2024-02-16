@@ -65,6 +65,10 @@ class Script(EventRulesMixin, JobsMixin, models.Model):
     def get_absolute_url(self):
         return reverse('extras:script', args=[self.pk])
 
+    @property
+    def result(self):
+        return self.jobs.all().order_by('-created').first()
+
     @cached_property
     def python_class(self):
         return self.module.module_scripts.get(self.name)

@@ -212,7 +212,7 @@ class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
     queryset = Script.objects.prefetch_related('jobs')
     serializer_class = serializers.ScriptSerializer
-    # filterset_class = filtersets.ScriptFilterSet
+    filterset_class = filtersets.ScriptFilterSet
 
     _ignore_model_permissions = True
     schema = None
