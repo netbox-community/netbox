@@ -489,10 +489,10 @@ class SyncedDataMixin(models.Model):
         # Create/delete AutoSyncRecord as needed
         content_type = ContentType.objects.get_for_model(self)
         if self.auto_sync_enabled:
-            AutoSyncRecord.objects.get_or_create(
-                datafile=self.data_file,
+            AutoSyncRecord.objects.update_or_create(
                 object_type=content_type,
-                object_id=self.pk
+                object_id=self.pk,
+                defaults={'datafile': self.data_file}
             )
         else:
             AutoSyncRecord.objects.filter(

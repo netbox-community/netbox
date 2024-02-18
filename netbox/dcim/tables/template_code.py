@@ -37,7 +37,7 @@ DEVICEBAY_STATUS = """
 INTERFACE_IPADDRESSES = """
 <div class="table-badge-group">
   {% if value.count >= 3 %}
-    <a href="{% url 'ipam:ipaddress_list' %}?interface_id={{ record.pk }}">{{ value.count }}</a>
+    <a href="{% url 'ipam:ipaddress_list' %}?{{ record|meta:"model_name" }}_id={{ record.pk }}">{{ value.count }}</a>
   {% else %}
     {% for ip in value.all %}
       {% if ip.status != 'active' %}

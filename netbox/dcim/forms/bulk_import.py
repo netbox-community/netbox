@@ -996,7 +996,7 @@ class DeviceBayImportForm(NetBoxModelImportForm):
                 device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
             ).exclude(pk=device.pk)
         else:
-            self.fields['installed_device'].queryset = Interface.objects.none()
+            self.fields['installed_device'].queryset = Device.objects.none()
 
 
 class InventoryItemImportForm(NetBoxModelImportForm):
