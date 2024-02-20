@@ -36,7 +36,7 @@
             </tr>
             <tr>
               <th scope="row">{% trans "Account Last Login" %}</th>
-              <td>{{ object.last_login|annotated_date }}</td>
+              <td>{{ request.user.last_login|annotated_date }}</td>
             </tr>
             <tr>
               <th scope="row">{% trans "Superuser" %}</th>
