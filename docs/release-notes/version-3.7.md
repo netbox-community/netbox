@@ -4,6 +4,9 @@
 
 ### Bug Fixes
 
+* [#14058](https://github.com/netbox-community/netbox/issues/14058) - Limit platform options by manufacturer when editing a device or device type
+* [#14079](https://github.com/netbox-community/netbox/issues/14079) - Ensure changes are logged on related objects when deleting an object referenced via a many-to-many relationship (e.g. tags)
+* [#14952](https://github.com/netbox-community/netbox/issues/14952) - Update existing AutoSyncRecord when changing the data file of an auto-synced object
 * [#15059](https://github.com/netbox-community/netbox/issues/15059) - Correct IP address count link in VM interfaces table
 * [#15067](https://github.com/netbox-community/netbox/issues/15067) - Fix uncaught exception when attempting invalid device bay import
 * [#15070](https://github.com/netbox-community/netbox/issues/15070) - Fix inclusion of `config_template` field on REST API serializer for virtual machines
@@ -11,6 +14,7 @@
 * [#15091](https://github.com/netbox-community/netbox/issues/15091) - Fix designation of the active tab for assigned object when modifying an L2VPN termination
 * [#15115](https://github.com/netbox-community/netbox/issues/15115) - Fix unhandled exception with invalid permission constraints
 * [#15126](https://github.com/netbox-community/netbox/issues/15126) - `group` field should be optional when creating VPN tunnel via REST API
+* [#15127](https://github.com/netbox-community/netbox/issues/15127) - Add missing group column to VPN tunnels table
 * [#15133](https://github.com/netbox-community/netbox/issues/15133) - Fix FHRP group representation on assignments REST API endpoint using brief mode
 
 ---
