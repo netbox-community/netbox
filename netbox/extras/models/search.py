@@ -58,7 +58,7 @@ class CachedValue(models.Model):
         verbose_name = _('cached value')
         verbose_name_plural = _('cached values')
         indexes = (
-            models.Index(fields=('object_type', 'object_id')),
+            models.Index(fields=('object_type', 'object_id'), name='extras_cachedvalue_object'),
         )
 
     def __str__(self):
