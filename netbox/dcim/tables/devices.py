@@ -360,15 +360,9 @@ class CableTerminationTable(NetBoxTable):
     )
 
     def value_link_peer(self, value):
-        string = ""
-        for termination in value:
-            if value and not str:
-                string += " "
-            if termination.parent_object:
-                string += f"{termination.parent_object} > "
-            string += str(termination)
-
-        return string
+        return ', '.join([
+            f"{termination.parent_object} > {termination}" for termination in value
+        ])
 
 
 class PathEndpointTable(CableTerminationTable):
