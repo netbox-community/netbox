@@ -143,7 +143,8 @@ class ConditionSet:
         logic = list(ruleset.keys())[0]
         if type(logic) is not str or logic.lower() not in (AND, OR):
             raise ValueError(_("Invalid logic type: {logic} (must be '{op_and}' or '{op_or}')").format(
-                logic=logic, op_and=AND, op_or=OR))
+                logic=logic, op_and=AND, op_or=OR
+            ))
         self.logic = logic.lower()
 
         # Compile the set of Conditions

@@ -95,8 +95,8 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         if not hasattr(self, 'queryset'):
             raise ImproperlyConfigured(
                 _(
-                    '{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views which '
-                    'define a base queryset'
+                    '{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views '
+                    'which define a base queryset'
                 ).format(class_name=self.__class__.__name__)
             )
 

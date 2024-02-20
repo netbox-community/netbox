@@ -34,7 +34,9 @@ class WritableNestedSerializer(BaseModelSerializer):
                 raise ValidationError(
                     _("Related object not found using the provided attributes: {params}").format(params=params))
             except MultipleObjectsReturned:
-                raise ValidationError(_("Multiple objects match the provided attributes: {params}").format(params=params))
+                raise ValidationError(
+                    _("Multiple objects match the provided attributes: {params}").format(params=params)
+                )
             except FieldError as e:
                 raise ValidationError(e)
 
@@ -44,7 +46,10 @@ class WritableNestedSerializer(BaseModelSerializer):
             pk = int(data)
         except (TypeError, ValueError):
             raise ValidationError(
-                _("Related objects must be referenced by numeric ID or by dictionary of attributes. Received an unrecognized value: {value}").format(value=data)
+                _(
+                    "Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
+                    "unrecognized value: {value}"
+                ).format(value=data)
             )
 
         # Look up object by PK
