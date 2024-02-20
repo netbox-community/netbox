@@ -51,6 +51,8 @@ class Script(EventRulesMixin, JobsMixin):
     def __str__(self):
         return self.name
 
+    objects = RestrictedQuerySet.as_manager()
+
     class Meta:
         ordering = ('module', 'name')
         constraints = (

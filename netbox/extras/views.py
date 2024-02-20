@@ -1042,14 +1042,11 @@ def get_script_module(module, request):
     return get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
 
 
-class BaseScriptView(ContentTypePermissionRequiredMixin, generic.ObjectView):
+class BaseScriptView(generic.ObjectView):
     queryset = Script.objects.all()
     script = None
     script_class = None
     jobs = None
-
-    def get_required_permission(self):
-        return 'extras.view_script'
 
     def _init_vars(self, request):
         if self.script.python_class:
