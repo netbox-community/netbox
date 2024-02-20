@@ -13,7 +13,9 @@ body:
   - type: dropdown
     attributes:
       label: Deployment Type
-      description: How are you running NetBox?
+      description: >
+        How are you running NetBox? (For issues with the Docker image, please go to the
+        [netbox-docker](https://github.com/netbox-community/netbox-docker) repo.)
       options:
         - Self-hosted
         - NetBox Cloud
