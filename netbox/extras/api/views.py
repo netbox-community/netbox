@@ -215,7 +215,6 @@ class ScriptViewSet(ModelViewSet):
     filterset_class = filtersets.ScriptFilterSet
 
     _ignore_model_permissions = True
-    schema = None
     lookup_value_regex = '[^/]+'  # Allow dots
 
     def _get_script(self, pk):

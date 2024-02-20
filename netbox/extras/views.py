@@ -1139,7 +1139,8 @@ class ScriptSourceView(BaseScriptView):
         })
 
 
-class ScriptJobsView(ContentTypePermissionRequiredMixin, View):
+class ScriptJobsView(generic.ObjectView):
+    queryset = Script.objects.all()
     script = None
     script_class = None
     jobs = None
