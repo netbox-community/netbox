@@ -824,10 +824,6 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         queryset=DeviceType.objects.all(),
         method='get_for_device_type'
     )
-    available_for_manufacturer = django_filters.ModelChoiceFilter(
-        queryset=Manufacturer.objects.all(),
-        method='get_for_manufacturer'
-    )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
@@ -844,13 +840,6 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         manufacturer
         """
         return queryset.filter(Q(manufacturer=None) | Q(manufacturer__device_types=value))
-
-    @extend_schema_field(OpenApiTypes.STR)
-    def get_for_manufacturer(self, queryset, name, value):
-        """
-        Return all Platforms available for a specific manufacturer and Platforms not assigned any manufacturer
-        """
-        return queryset.filter(Q(manufacturer=None) | Q(**{f'manufacturer': value}))
 
 
 class DeviceFilterSet(

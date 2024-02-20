@@ -294,7 +294,7 @@ class DeviceTypeForm(NetBoxModelForm):
         required=False,
         selector=True,
         query_params={
-            'available_for_manufacturer': '$manufacturer',
+            'manufacturer_id': ['$manufacturer', 'null'],
         }
     )
     slug = SlugField(

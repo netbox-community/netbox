@@ -1825,11 +1825,6 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'available_for_device_type': device_type.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_available_for_manufacturer(self):
-        manufacturer = Manufacturer.objects.first()
-        params = {'available_for_manufacturer': manufacturer.pk}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-
 
 class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Device.objects.all()
