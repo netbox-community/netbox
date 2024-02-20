@@ -45,6 +45,7 @@ AUTH_BACKEND_ATTRS = {
     'microsoft-graph': ('Microsoft Graph', 'microsoft'),
     'okta': ('Okta', None),
     'okta-openidconnect': ('Okta (OIDC)', None),
+    'oidc': ('OpenID Connect', None),
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
 }
 
