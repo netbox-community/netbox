@@ -16,5 +16,10 @@ class CoreConfig(AppConfig):
     name = "core"
 
     def ready(self):
+        from core.api import schema  # noqa
+        from netbox.models.features import register_model
         from . import data_backends, search
-        from core.api import schema  # noqa: E402
+
+        # Register models
+        for model in self.get_models():
+            register_model(model)

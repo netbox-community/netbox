@@ -94,6 +94,12 @@ class PluginConfig(AppConfig):
             pass
 
     def ready(self):
+        from netbox.models.features import register_model
+
+        # Register models
+        for model in self.get_models():
+            register_model(model)
+
         plugin_name = self.name.rsplit('.', 1)[-1]
 
         # Register search extensions (if defined)

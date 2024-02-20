@@ -7,9 +7,14 @@ class VirtualizationConfig(AppConfig):
     name = 'virtualization'
 
     def ready(self):
+        from netbox.models.features import register_model
+        from utilities.counters import connect_counters
         from . import search, signals
         from .models import VirtualMachine
-        from utilities.counters import connect_counters
+
+        # Register models
+        for model in self.get_models():
+            register_model(model)
 
         # Register denormalized fields
         denormalized.register(VirtualMachine, 'cluster', {
