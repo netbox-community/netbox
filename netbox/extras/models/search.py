@@ -57,6 +57,9 @@ class CachedValue(models.Model):
         ordering = ('weight', 'object_type', 'value', 'object_id')
         verbose_name = _('cached value')
         verbose_name_plural = _('cached values')
+        indexes = (
+            models.Index(fields=('object_type', 'object_id')),
+        )
 
     def __str__(self):
         return f'{self.object_type} {self.object_id}: {self.field}={self.value}'
