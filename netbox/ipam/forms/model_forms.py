@@ -751,4 +751,4 @@ class ServiceCreateForm(ServiceForm):
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
-            raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")
+            raise forms.ValidationError(_("Must specify name, protocol, and port(s) if not using a service template."))

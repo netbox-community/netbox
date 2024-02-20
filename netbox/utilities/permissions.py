@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 
 __all__ = (
     'get_permission_for_model',
@@ -36,7 +37,7 @@ def resolve_permission(name):
         action, model_name = codename.rsplit('_', 1)
     except ValueError:
         raise ValueError(
-            f"Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>"
+            _("Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>").format(name=name)
         )
 
     return app_label, action, model_name
@@ -53,7 +54,7 @@ def resolve_permission_ct(name):
     try:
         content_type = ContentType.objects.get(app_label=app_label, model=model_name)
     except ContentType.DoesNotExist:
-        raise ValueError(f"Unknown app_label/model_name for {name}")
+        raise ValueError(_("Unknown app_label/model_name for {name}").format(name=name))
 
     return content_type, action
 

@@ -93,7 +93,7 @@ class RestrictedGenericForeignKey(GenericForeignKey):
         if type(queryset) is dict:
             restrict_params = queryset
         elif queryset is not None:
-            raise ValueError("Custom queryset can't be used for this lookup.")
+            raise ValueError(_("Custom queryset can't be used for this lookup."))
 
         # For efficiency, group the instances by content type and then do one
         # query per model

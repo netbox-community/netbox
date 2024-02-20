@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
@@ -390,7 +391,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     instance = prefetched_objects[object_id]
                 except KeyError:
-                    form.add_error('data', f"Row {i}: Object with ID {object_id} does not exist")
+                    form.add_error('data', _("Row {i}: Object with ID {id} does not exist").format(i=i, id=object_id))
                     raise ValidationError('')
 
                 # Take a snapshot for change logging

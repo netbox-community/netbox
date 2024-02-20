@@ -49,7 +49,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
 
         # Determine whether we're reading from form data or an uploaded file
         if self.cleaned_data['data'] and import_method != ImportMethodChoices.DIRECT:
-            raise forms.ValidationError("Form data must be empty when uploading/selecting a file.")
+            raise forms.ValidationError(_("Form data must be empty when uploading/selecting a file."))
         if import_method == ImportMethodChoices.UPLOAD:
             self.upload_file = 'upload_file'
             file = self.files.get('upload_file')
@@ -78,7 +78,7 @@ class BulkImportForm(BootstrapMixin, SyncedDataMixin, forms.Form):
         elif format == ImportFormatChoices.YAML:
             self.cleaned_data['data'] = self._clean_yaml(data)
         else:
-            raise forms.ValidationError(f"Unknown data format: {format}")
+            raise forms.ValidationError(_("Unknown data format: {format}").format(format=format))
 
     def _detect_format(self, data):
         """
