@@ -43,6 +43,7 @@ AUTH_BACKEND_ATTRS = {
     'hubspot': ('HubSpot', 'hubspot'),
     'keycloak': ('Keycloak', None),
     'microsoft-graph': ('Microsoft Graph', 'microsoft'),
+    'oidc': ('OpenID Connect', None),
     'okta': ('Okta', None),
     'okta-openidconnect': ('Okta (OIDC)', None),
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
