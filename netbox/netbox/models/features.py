@@ -35,7 +35,7 @@ __all__ = (
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
-    'register_model',
+    'register_models',
 )
 
 
@@ -575,9 +575,9 @@ registry['model_features'].update({
 })
 
 
-def register_model(model, **kwargs):
+def register_models(*models):
     """
-    Register a model in NetBox. This entails:
+    Register one or more models in NetBox. This entails:
 
      - Determining whether the model is considered "public" (available for reference by other models)
      - Registering which features the model supports (e.g. bookmarks, custom fields, etc.)
@@ -585,38 +585,39 @@ def register_model(model, **kwargs):
 
     register_model() should be called for each relevant model under the ready() of an app's AppConfig class.
     """
-    app_label, model_name = model._meta.label_lower.split('.')
+    for model in models:
+        app_label, model_name = model._meta.label_lower.split('.')
 
-    # Register public models
-    if not getattr(model, '_netbox_private', False):
-        registry['models'][app_label].add(model_name)
+        # Register public models
+        if not getattr(model, '_netbox_private', False):
+            registry['models'][app_label].add(model_name)
 
-    # Record each applicable feature for the model in the registry
-    features = {
-        feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
-    }
-    for feature in features:
-        try:
-            registry['model_features'][feature][app_label].add(model_name)
-        except KeyError:
-            raise KeyError(
-                f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
+        # Record each applicable feature for the model in the registry
+        features = {
+            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+        }
+        for feature in features:
+            try:
+                registry['model_features'][feature][app_label].add(model_name)
+            except KeyError:
+                raise KeyError(
+                    f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
+                )
+
+        # Register applicable feature views for the model
+        if issubclass(model, JournalingMixin):
+            register_model_view(model, 'journal', kwargs={'model': model})(
+                'netbox.views.generic.ObjectJournalView'
             )
-
-    # Register applicable feature views for the model
-    if issubclass(model, JournalingMixin):
-        register_model_view(model, 'journal', kwargs={'model': model})(
-            'netbox.views.generic.ObjectJournalView'
-        )
-    if issubclass(model, ChangeLoggingMixin):
-        register_model_view(model, 'changelog', kwargs={'model': model})(
-            'netbox.views.generic.ObjectChangeLogView'
-        )
-    if issubclass(model, JobsMixin):
-        register_model_view(model, 'jobs', kwargs={'model': model})(
-            'netbox.views.generic.ObjectJobsView'
-        )
-    if issubclass(model, SyncedDataMixin):
-        register_model_view(model, 'sync', kwargs={'model': model})(
-            'netbox.views.generic.ObjectSyncDataView'
-        )
+        if issubclass(model, ChangeLoggingMixin):
+            register_model_view(model, 'changelog', kwargs={'model': model})(
+                'netbox.views.generic.ObjectChangeLogView'
+            )
+        if issubclass(model, JobsMixin):
+            register_model_view(model, 'jobs', kwargs={'model': model})(
+                'netbox.views.generic.ObjectJobsView'
+            )
+        if issubclass(model, SyncedDataMixin):
+            register_model_view(model, 'sync', kwargs={'model': model})(
+                'netbox.views.generic.ObjectSyncDataView'
+            )

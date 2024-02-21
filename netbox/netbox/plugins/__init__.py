@@ -94,11 +94,10 @@ class PluginConfig(AppConfig):
             pass
 
     def ready(self):
-        from netbox.models.features import register_model
+        from netbox.models.features import register_models
 
         # Register models
-        for model in self.get_models():
-            register_model(model)
+        register_models(*self.get_models())
 
         plugin_name = self.name.rsplit('.', 1)[-1]
 
