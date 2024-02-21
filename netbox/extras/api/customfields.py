@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from rest_framework.fields import Field
@@ -88,7 +89,7 @@ class CustomFieldsDataField(Field):
                 if serializer.is_valid():
                     data[cf.name] = [obj['id'] for obj in serializer.data] if many else serializer.data['id']
                 else:
-                    raise ValidationError(f"Unknown related object(s): {data[cf.name]}")
+                    raise ValidationError(_("Unknown related object(s): {name}").format(name=data[cf.name]))
 
         # If updating an existing instance, start with existing custom_field_data
         if self.parent.instance:

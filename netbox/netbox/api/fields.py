@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from netaddr import IPNetwork
@@ -58,11 +59,11 @@ class ChoiceField(serializers.Field):
         if data == '':
             if self.allow_blank:
                 return data
-            raise ValidationError("This field may not be blank.")
+            raise ValidationError(_("This field may not be blank."))
 
         # Provide an explicit error message if the request is trying to write a dict or list
         if isinstance(data, (dict, list)):
-            raise ValidationError('Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.')
+            raise ValidationError(_('Value must be passed directly (e.g. "foo": 123); do not use a dictionary or list.'))
 
         # Check for string representations of boolean/integer values
         if hasattr(data, 'lower'):
@@ -82,7 +83,7 @@ class ChoiceField(serializers.Field):
         except TypeError:  # Input is an unhashable type
             pass
 
-        raise ValidationError(f"{data} is not a valid choice.")
+        raise ValidationError(_("{value} is not a valid choice.").format(value=data))
 
     @property
     def choices(self):
@@ -95,8 +96,8 @@ class ContentTypeField(RelatedField):
     Represent a ContentType as '<app_label>.<model>'
     """
     default_error_messages = {
-        "does_not_exist": "Invalid content type: {content_type}",
-        "invalid": "Invalid value. Specify a content type as '<app_label>.<model_name>'.",
+        "does_not_exist": _("Invalid content type: {content_type}"),
+        "invalid": _("Invalid value. Specify a content type as '<app_label>.<model_name>'."),
     }
 
     def to_internal_value(self, data):

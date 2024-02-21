@@ -11,6 +11,7 @@ from django.conf import settings
 from django.core.validators import RegexValidator
 from django.db import transaction
 from django.utils.functional import classproperty
+from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
 from core.models import Job
@@ -356,7 +357,7 @@ class BaseScript:
         return ordered_vars
 
     def run(self, data, commit):
-        raise NotImplementedError("The script must define a run() method.")
+        raise NotImplementedError(_("The script must define a run() method."))
 
     # Form rendering
 
@@ -367,11 +368,11 @@ class BaseScript:
             fieldsets.extend(self.fieldsets)
         else:
             fields = list(name for name, _ in self._get_vars().items())
-            fieldsets.append(('Script Data', fields))
+            fieldsets.append((_('Script Data'), fields))
 
         # Append the default fieldset if defined in the Meta class
         exec_parameters = ('_schedule_at', '_interval', '_commit') if self.scheduling_enabled else ('_commit',)
-        fieldsets.append(('Script Execution Parameters', exec_parameters))
+        fieldsets.append((_('Script Execution Parameters'), exec_parameters))
 
         return fieldsets
 

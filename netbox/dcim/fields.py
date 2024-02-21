@@ -1,6 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils.translation import gettext as _
 from netaddr import AddrFormatError, EUI, eui64_unix_expanded, mac_unix_expanded
 
 from .lookups import PathContains
@@ -41,7 +42,7 @@ class MACAddressField(models.Field):
         try:
             return EUI(value, version=48, dialect=mac_unix_expanded_uppercase)
         except AddrFormatError:
-            raise ValidationError(f"Invalid MAC address format: {value}")
+            raise ValidationError(_("Invalid MAC address format: {value}").format(value=value))
 
     def db_type(self, connection):
         return 'macaddr'
@@ -67,7 +68,7 @@ class WWNField(models.Field):
         try:
             return EUI(value, version=64, dialect=eui64_unix_expanded_uppercase)
         except AddrFormatError:
-            raise ValidationError(f"Invalid WWN format: {value}")
+            raise ValidationError(_("Invalid WWN format: {value}").format(value=value))
 
     def db_type(self, connection):
         return 'macaddr8'

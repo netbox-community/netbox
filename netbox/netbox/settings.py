@@ -28,7 +28,7 @@ from netbox.plugins import PluginConfig
 # Environment setup
 #
 
-VERSION = '3.7.2'
+VERSION = '3.7.3'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -571,7 +571,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_uid',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
-    'social_core.pipeline.social_auth.associate_by_email',
     'social_core.pipeline.user.create_user',
     'social_core.pipeline.social_auth.associate_user',
     'netbox.authentication.user_default_groups_handler',

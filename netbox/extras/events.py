@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.models import Job
@@ -129,7 +130,9 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             )
 
         else:
-            raise ValueError(f"Unknown action type for an event rule: {event_rule.action_type}")
+            raise ValueError(_("Unknown action type for an event rule: {action_type}").format(
+                action_type=event_rule.action_type
+            ))
 
 
 def process_event_queue(events):
@@ -175,4 +178,4 @@ def flush_events(queue):
                 func = import_string(name)
                 func(queue)
             except Exception as e:
-                logger.error(f"Cannot import events pipeline {name} error: {e}")
+                logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))

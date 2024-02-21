@@ -159,6 +159,14 @@ class LocationImportForm(NetBoxModelImportForm):
         model = Location
         fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description', 'tags')
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit location queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
+
 
 class RackRoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
@@ -870,7 +878,11 @@ class InterfaceImportForm(NetBoxModelImportForm):
     def clean_vdcs(self):
         for vdc in self.cleaned_data['vdcs']:
             if vdc.device != self.cleaned_data['device']:
-                raise forms.ValidationError(f"VDC {vdc} is not assigned to device {self.cleaned_data['device']}")
+                raise forms.ValidationError(
+                    _("VDC {vdc} is not assigned to device {device}").format(
+                        vdc=vdc, device=self.cleaned_data['device']
+                    )
+                )
         return self.cleaned_data['vdcs']
 
 
@@ -996,7 +1008,7 @@ class DeviceBayImportForm(NetBoxModelImportForm):
                 device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
             ).exclude(pk=device.pk)
         else:
-            self.fields['installed_device'].queryset = Interface.objects.none()
+            self.fields['installed_device'].queryset = Device.objects.none()
 
 
 class InventoryItemImportForm(NetBoxModelImportForm):
@@ -1075,7 +1087,11 @@ class InventoryItemImportForm(NetBoxModelImportForm):
             component = model.objects.get(device=device, name=component_name)
             self.instance.component = component
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f"Component not found: {device} - {component_name}")
+            raise forms.ValidationError(
+                _("Component not found: {device} - {component_name}").format(
+                    device=device, component_name=component_name
+                )
+            )
 
 
 #
@@ -1193,10 +1209,17 @@ class CableImportForm(NetBoxModelImportForm):
             else:
                 termination_object = model.objects.get(device=device, name=name)
             if termination_object.cable is not None and termination_object.cable != self.instance:
-                raise forms.ValidationError(f"Side {side.upper()}: {device} {termination_object} is already connected")
+                raise forms.ValidationError(
+                    _("Side {side_upper}: {device} {termination_object} is already connected").format(
+                        side_upper=side.upper(), device=device, termination_object=termination_object
+                    )
+                )
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f"{side.upper()} side termination not found: {device} {name}")
-
+            raise forms.ValidationError(
+                _("{side_upper} side termination not found: {device} {name}").format(
+                    side_upper=side.upper(), device=device, name=name
+                )
+            )
         setattr(self.instance, f'{side}_terminations', [termination_object])
         return termination_object
 

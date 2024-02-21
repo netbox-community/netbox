@@ -166,7 +166,7 @@ class ConfigView(generic.ObjectView):
         except ConfigRevision.DoesNotExist:
             # Fall back to using the active config data if no record is found
             return ConfigRevision(
-                data=get_config()
+                data=get_config().defaults
             )
 
 

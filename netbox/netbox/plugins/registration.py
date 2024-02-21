@@ -1,5 +1,6 @@
 import inspect
 
+from django.utils.translation import gettext_lazy as _
 from netbox.registry import registry
 from .navigation import PluginMenu, PluginMenuButton, PluginMenuItem
 from .templates import PluginTemplateExtension
@@ -20,18 +21,32 @@ def register_template_extensions(class_list):
     # Validation
     for template_extension in class_list:
         if not inspect.isclass(template_extension):
-            raise TypeError(f"PluginTemplateExtension class {template_extension} was passed as an instance!")
+            raise TypeError(
+                _("PluginTemplateExtension class {template_extension} was passed as an instance!").format(
+                    template_extension=template_extension
+                )
+            )
         if not issubclass(template_extension, PluginTemplateExtension):
-            raise TypeError(f"{template_extension} is not a subclass of netbox.plugins.PluginTemplateExtension!")
+            raise TypeError(
+                _("{template_extension} is not a subclass of netbox.plugins.PluginTemplateExtension!").format(
+                    template_extension=template_extension
+                )
+            )
         if template_extension.model is None:
-            raise TypeError(f"PluginTemplateExtension class {template_extension} does not define a valid model!")
+            raise TypeError(
+                _("PluginTemplateExtension class {template_extension} does not define a valid model!").format(
+                    template_extension=template_extension
+                )
+            )
 
         registry['plugins']['template_extensions'][template_extension.model].append(template_extension)
 
 
 def register_menu(menu):
     if not isinstance(menu, PluginMenu):
-        raise TypeError(f"{menu} must be an instance of netbox.plugins.PluginMenu")
+        raise TypeError(_("{item} must be an instance of netbox.plugins.PluginMenuItem").format(
+            item=menu_link
+        ))
     registry['plugins']['menus'].append(menu)
 
 
@@ -42,10 +57,14 @@ def register_menu_items(section_name, class_list):
     # Validation
     for menu_link in class_list:
         if not isinstance(menu_link, PluginMenuItem):
-            raise TypeError(f"{menu_link} must be an instance of netbox.plugins.PluginMenuItem")
+            raise TypeError(_("{menu_link} must be an instance of netbox.plugins.PluginMenuItem").format(
+                menu_link=menu_link
+            ))
         for button in menu_link.buttons:
             if not isinstance(button, PluginMenuButton):
-                raise TypeError(f"{button} must be an instance of netbox.plugins.PluginMenuButton")
+                raise TypeError(_("{button} must be an instance of netbox.plugins.PluginMenuButton").format(
+                    button=button
+                ))
 
     registry['plugins']['menu_items'][section_name] = class_list
 
