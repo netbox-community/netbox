@@ -194,6 +194,7 @@ class RackViewSet(NetBoxModelViewSet):
     @extend_schema(
         operation_id='dcim_racks_elevation_retrieve',
         filters=False,
+        parameters=[serializers.RackElevationDetailFilterSerializer],
         responses={200: serializers.RackUnitSerializer(many=True)}
     )
     @action(detail=True)
