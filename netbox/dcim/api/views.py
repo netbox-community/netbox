@@ -191,6 +191,11 @@ class RackViewSet(NetBoxModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filtersets.RackFilterSet
 
+    @extend_schema(
+        operation_id='dcim_racks_elevation_retrieve',
+        filters=False,
+        responses={200: serializers.RackUnitSerializer(many=True)}
+    )
     @action(detail=True)
     def elevation(self, request, pk=None):
         """
