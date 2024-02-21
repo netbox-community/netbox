@@ -321,7 +321,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             if type(field.widget) is not HiddenInput
         }
 
-    def _save_object(self, model_form, request):
+    def _save_object(self, import_form, model_form, request):
 
         # Save the primary object
         obj = self.save_object(model_form, request)
@@ -346,11 +346,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     related_obj = f.save()
                     related_obj_pks.append(related_obj.pk)
                 else:
-                    # Replicate errors on the related object form to the primary form for display
+                    # Replicate errors on the related object form to the import form for display and abort
                     for subfield_name, errors in f.errors.items():
                         for err in errors:
-                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
-                            model_form.add_error(None, err_msg)
+                            if subfield_name == '__all__':
+                                err_msg = f"{field_name}[{i}]: {err}"
+                            else:
+                                err_msg = f"{field_name}[{i}] {subfield_name}: {err}"
+                            import_form.add_error(None, err_msg)
                     raise AbortTransaction()
 
             # Enforce object-level permissions on related objects
@@ -417,7 +420,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                obj = self._save_object(model_form, request)
+                obj = self._save_object(form, model_form, request)
                 saved_objects.append(obj)
             else:
                 # Replicate model form errors for display
