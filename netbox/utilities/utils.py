@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.html import escape
 from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -307,13 +308,17 @@ def to_meters(length, unit):
     """
     try:
         if length < 0:
-            raise ValueError("Length must be a positive number")
+            raise ValueError(_("Length must be a positive number"))
     except TypeError:
-        raise TypeError(f"Invalid value '{length}' for length (must be a number)")
+        raise TypeError(_("Invalid value '{length}' for length (must be a number)").format(length=length))
 
     valid_units = CableLengthUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == CableLengthUnitChoices.UNIT_KILOMETER:
         return length * 1000
@@ -327,7 +332,7 @@ def to_meters(length, unit):
         return length * Decimal(0.3048)
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * Decimal(0.0254)
-    raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
+    raise ValueError(_("Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.").format(unit=unit))
 
 
 def to_grams(weight, unit):
@@ -336,13 +341,17 @@ def to_grams(weight, unit):
     """
     try:
         if weight < 0:
-            raise ValueError("Weight must be a positive number")
+            raise ValueError(_("Weight must be a positive number"))
     except TypeError:
-        raise TypeError(f"Invalid value '{weight}' for weight (must be a number)")
+        raise TypeError(_("Invalid value '{weight}' for weight (must be a number)").format(weight=weight))
 
     valid_units = WeightUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == WeightUnitChoices.UNIT_KILOGRAM:
         return weight * 1000
@@ -352,7 +361,7 @@ def to_grams(weight, unit):
         return weight * Decimal(453.592)
     if unit == WeightUnitChoices.UNIT_OUNCE:
         return weight * Decimal(28.3495)
-    raise ValueError(f"Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.")
+    raise ValueError(_("Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.").format(unit=unit))
 
 
 def render_jinja2(template_code, context):

@@ -2,6 +2,8 @@ import django_filters
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_field
 
 from circuits.models import CircuitTermination
 from extras.filtersets import LocalConfigContextFilterSet
@@ -818,6 +820,10 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
         to_field_name='slug',
         label=_('Manufacturer (slug)'),
     )
+    available_for_device_type = django_filters.ModelChoiceFilter(
+        queryset=DeviceType.objects.all(),
+        method='get_for_device_type'
+    )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
         label=_('Config template (ID)'),
@@ -826,6 +832,14 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
     class Meta:
         model = Platform
         fields = ['id', 'name', 'slug', 'description']
+
+    @extend_schema_field(OpenApiTypes.STR)
+    def get_for_device_type(self, queryset, name, value):
+        """
+        Return all Platforms available for a specific manufacturer based on device type and Platforms not assigned any
+        manufacturer
+        """
+        return queryset.filter(Q(manufacturer=None) | Q(manufacturer__device_types=value))
 
 
 class DeviceFilterSet(

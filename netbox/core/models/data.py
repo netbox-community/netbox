@@ -177,7 +177,7 @@ class DataSource(JobsMixin, PrimaryModel):
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
         if self.status == DataSourceStatusChoices.SYNCING:
-            raise SyncError("Cannot initiate sync; syncing already in progress.")
+            raise SyncError(_("Cannot initiate sync; syncing already in progress."))
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
@@ -190,7 +190,7 @@ class DataSource(JobsMixin, PrimaryModel):
             backend = self.get_backend()
         except ModuleNotFoundError as e:
             raise SyncError(
-                f"There was an error initializing the backend. A dependency needs to be installed: {e}"
+                _("There was an error initializing the backend. A dependency needs to be installed: ") + str(e)
             )
         with backend.fetch() as local_path:
 

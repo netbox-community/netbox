@@ -105,7 +105,6 @@ class TunnelTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Tunnel 6',
                 'status': TunnelStatusChoices.STATUS_DISABLED,
-                'group': tunnel_groups[1].pk,
                 'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             },
         ]

@@ -274,16 +274,20 @@ class CustomFieldsMixin(models.Model):
         # Validate all field values
         for field_name, value in self.custom_field_data.items():
             if field_name not in custom_fields:
-                raise ValidationError(f"Unknown field name '{field_name}' in custom field data.")
+                raise ValidationError(_("Unknown field name '{name}' in custom field data.").format(
+                    name=field_name
+                ))
             try:
                 custom_fields[field_name].validate(value)
             except ValidationError as e:
-                raise ValidationError(f"Invalid value for custom field '{field_name}': {e.message}")
+                raise ValidationError(_("Invalid value for custom field '{name}': {error}").format(
+                    name=field_name, error=e.message
+                ))
 
         # Check for missing required values
         for cf in custom_fields.values():
             if cf.required and cf.name not in self.custom_field_data:
-                raise ValidationError(f"Missing required custom field '{cf.name}'.")
+                raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
 
 
 class CustomLinksMixin(models.Model):
@@ -488,10 +492,10 @@ class SyncedDataMixin(models.Model):
         # Create/delete AutoSyncRecord as needed
         content_type = ContentType.objects.get_for_model(self)
         if self.auto_sync_enabled:
-            AutoSyncRecord.objects.get_or_create(
-                datafile=self.data_file,
+            AutoSyncRecord.objects.update_or_create(
                 object_type=content_type,
-                object_id=self.pk
+                object_id=self.pk,
+                defaults={'datafile': self.data_file}
             )
         else:
             AutoSyncRecord.objects.filter(
@@ -546,7 +550,9 @@ class SyncedDataMixin(models.Model):
         Inheriting models must override this method with specific logic to copy data from the assigned DataFile
         to the local instance. This method should *NOT* call save() on the instance.
         """
-        raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
+        raise NotImplementedError(_("{class_name} must implement a sync_data() method.").format(
+            class_name=self.__class__
+        ))
 
 
 #

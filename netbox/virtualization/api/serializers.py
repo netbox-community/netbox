@@ -109,8 +109,8 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
-            'interface_count', 'virtual_disk_count',
+            'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
+            'last_updated', 'interface_count', 'virtual_disk_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

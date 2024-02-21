@@ -875,7 +875,7 @@ class Device(
             if self.position and self.device_type.u_height == 0:
                 raise ValidationError({
                     'position': _(
-                        "A U0 device type ({device_type}) cannot be assigned to a rack position."
+                        "A 0U device type ({device_type}) cannot be assigned to a rack position."
                     ).format(device_type=self.device_type)
                 })
 

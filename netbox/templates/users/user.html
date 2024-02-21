@@ -30,6 +30,10 @@
             <td>{{ object.date_joined|annotated_date }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Last Login" %}</th>
+            <td>{{ object.last_login|annotated_date }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Active" %}</th>
             <td>{% checkmark object.is_active %}</td>
           </tr>

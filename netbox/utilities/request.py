@@ -1,3 +1,4 @@
+from django.utils.translation import gettext_lazy as _
 from netaddr import AddrFormatError, IPAddress
 from urllib.parse import urlparse
 
@@ -29,7 +30,7 @@ def get_client_ip(request, additional_headers=()):
                 return IPAddress(ip)
             except AddrFormatError:
                 # We did our best
-                raise ValueError(f"Invalid IP address set for {header}: {ip}")
+                raise ValueError(_("Invalid IP address set for {header}: {ip}").format(header=header, ip=ip))
 
     # Could not determine the client IP address from request headers
     return None

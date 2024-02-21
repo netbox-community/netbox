@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -147,7 +148,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
 
     def validate_type(self, value):
         if self.instance and self.instance.type != value:
-            raise serializers.ValidationError('Changing the type of custom fields is not supported.')
+            raise serializers.ValidationError(_('Changing the type of custom fields is not supported.'))
 
         return value
 
@@ -544,12 +545,12 @@ class ReportInputSerializer(serializers.Serializer):
 
     def validate_schedule_at(self, value):
         if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this report.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this report."))
         return value
 
     def validate_interval(self, value):
         if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this report.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this report."))
         return value
 
 
@@ -594,12 +595,12 @@ class ScriptInputSerializer(serializers.Serializer):
 
     def validate_schedule_at(self, value):
         if value and not self.context['script'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
     def validate_interval(self, value):
         if value and not self.context['script'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
 

@@ -35,7 +35,7 @@ class UserSerializer(ValidatedModelSerializer):
         model = get_user_model()
         fields = (
             'id', 'url', 'display', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active',
-            'date_joined', 'groups',
+            'date_joined', 'last_login', 'groups',
         )
         extra_kwargs = {
             'password': {'write_only': True}

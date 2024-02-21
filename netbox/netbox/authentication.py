@@ -7,6 +7,7 @@ from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _Rem
 from django.contrib.auth.models import Group, AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 
 from users.constants import CONSTRAINT_TOKEN_USER
 from users.models import ObjectPermission
@@ -42,6 +43,7 @@ AUTH_BACKEND_ATTRS = {
     'hubspot': ('HubSpot', 'hubspot'),
     'keycloak': ('Keycloak', None),
     'microsoft-graph': ('Microsoft Graph', 'microsoft'),
+    'oidc': ('OpenID Connect', None),
     'okta': ('Okta', None),
     'okta-openidconnect': ('Okta (OIDC)', None),
     'salesforce-oauth2': ('Salesforce', 'salesforce'),
@@ -132,7 +134,9 @@ class ObjectPermissionMixin:
         # Sanity check: Ensure that the requested permission applies to the specified object
         model = obj._meta.concrete_model
         if model._meta.label_lower != '.'.join((app_label, model_name)):
-            raise ValueError(f"Invalid permission {perm} for model {model}")
+            raise ValueError(_("Invalid permission {permission} for model {model}").format(
+                permission=perm, model=model
+            ))
 
         # Compile a QuerySet filter that matches all instances of the specified model
         tokens = {
