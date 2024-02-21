@@ -20,6 +20,10 @@ class PluginTest(TestCase):
 
         self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
+    def test_model_registration(self):
+        self.assertIn('dummy_plugin', registry['models'])
+        self.assertIn('dummymodel', registry['models']['dummy_plugin'])
+
     def test_models(self):
         from netbox.tests.dummy_plugin.models import DummyModel
 

@@ -5,8 +5,6 @@ from functools import cached_property
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models.signals import class_prepared
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
@@ -14,7 +12,7 @@ from taggit.managers import TaggableManager
 from core.choices import JobStatusChoices
 from core.models import ContentType
 from extras.choices import *
-from extras.utils import is_taggable, register_features
+from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.registry import registry
 from netbox.signals import post_clean
@@ -37,6 +35,7 @@ __all__ = (
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'register_models',
 )
 
 
@@ -576,36 +575,49 @@ registry['model_features'].update({
 })
 
 
-@receiver(class_prepared)
-def _register_features(sender, **kwargs):
-    # Record each applicable feature for the model in the registry
-    features = {
-        feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
-    }
-    register_features(sender, features)
+def register_models(*models):
+    """
+    Register one or more models in NetBox. This entails:
 
-    # Register applicable feature views for the model
-    if issubclass(sender, JournalingMixin):
-        register_model_view(
-            sender,
-            'journal',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectJournalView')
-    if issubclass(sender, ChangeLoggingMixin):
-        register_model_view(
-            sender,
-            'changelog',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectChangeLogView')
-    if issubclass(sender, JobsMixin):
-        register_model_view(
-            sender,
-            'jobs',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectJobsView')
-    if issubclass(sender, SyncedDataMixin):
-        register_model_view(
-            sender,
-            'sync',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectSyncDataView')
+     - Determining whether the model is considered "public" (available for reference by other models)
+     - Registering which features the model supports (e.g. bookmarks, custom fields, etc.)
+     - Registering any feature-specific views for the model (e.g. ObjectJournalView instances)
+
+    register_model() should be called for each relevant model under the ready() of an app's AppConfig class.
+    """
+    for model in models:
+        app_label, model_name = model._meta.label_lower.split('.')
+
+        # Register public models
+        if not getattr(model, '_netbox_private', False):
+            registry['models'][app_label].add(model_name)
+
+        # Record each applicable feature for the model in the registry
+        features = {
+            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+        }
+        for feature in features:
+            try:
+                registry['model_features'][feature][app_label].add(model_name)
+            except KeyError:
+                raise KeyError(
+                    f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
+                )
+
+        # Register applicable feature views for the model
+        if issubclass(model, JournalingMixin):
+            register_model_view(model, 'journal', kwargs={'model': model})(
+                'netbox.views.generic.ObjectJournalView'
+            )
+        if issubclass(model, ChangeLoggingMixin):
+            register_model_view(model, 'changelog', kwargs={'model': model})(
+                'netbox.views.generic.ObjectChangeLogView'
+            )
+        if issubclass(model, JobsMixin):
+            register_model_view(model, 'jobs', kwargs={'model': model})(
+                'netbox.views.generic.ObjectJobsView'
+            )
+        if issubclass(model, SyncedDataMixin):
+            register_model_view(model, 'sync', kwargs={'model': model})(
+                'netbox.views.generic.ObjectSyncDataView'
+            )
