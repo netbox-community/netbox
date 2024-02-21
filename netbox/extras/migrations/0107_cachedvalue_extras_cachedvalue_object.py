@@ -12,6 +12,6 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddIndex(
             model_name='cachedvalue',
-            index=models.Index(fields=['object_type', 'object_id'], name='extras_cach_object__d92213_idx'),
+            index=models.Index(fields=['object_type', 'object_id'], name='extras_cachedvalue_object'),
         ),
     ]
