@@ -237,8 +237,8 @@ def parse_csv(reader):
     for i, row in enumerate(reader, start=1):
         if len(row) != len(headers):
             raise forms.ValidationError(
-                _("Row {i}: Expected {count_expected} columns but found {count_found}").format(
-                    count_expected=len(headers), count_found=len(row)
+                _("Row {row}: Expected {count_expected} columns but found {count_found}").format(
+                    row=i, count_expected=len(headers), count_found=len(row)
                 )
             )
         row = [col.strip() for col in row]
