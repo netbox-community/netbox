@@ -55,16 +55,21 @@ def run_validators(instance, validators):
 clear_events = Signal()
 
 
-def is_same_object(instance, webhook_data, request_id):
+def last_matching_index(instance, queue, request_id):
     """
-    Compare the given instance to the most recent queued webhook object, returning True
-    if they match. This check is used to avoid creating duplicate webhook entries.
+    Find the latest queued webhook object matching the given instance, returning its index.
+    If no object is found, return None. This check is used to avoid creating duplicate webhook
+    entries.
     """
-    return (
-        ContentType.objects.get_for_model(instance) == webhook_data['content_type'] and
-        instance.pk == webhook_data['object_id'] and
-        request_id == webhook_data['request_id']
-    )
+    try:
+        return max(
+            index_ for index_, webhook_data in enumerate(queue)
+            if ContentType.objects.get_for_model(instance) == webhook_data['content_type'] and
+            instance.pk == webhook_data['object_id'] and
+            request_id == webhook_data['request_id']
+        )
+    except ValueError:
+        return None
 
 
 @receiver((post_save, m2m_changed))
@@ -112,12 +117,12 @@ def handle_changed_object(sender, instance, **kwargs):
         objectchange.request_id = request.id
         objectchange.save()
 
-    # If this is an M2M change, update the previously queued webhook (from post_save)
+    # Update the previously queued webhook from a preceeding post_save
     queue = events_queue.get()
-    if m2m_changed and queue and is_same_object(instance, queue[-1], request.id):
+    if queue and (last_index := last_matching_index(instance, queue, request.id)) is not None:
         instance.refresh_from_db()  # Ensure that we're working with fresh M2M assignments
-        queue[-1]['data'] = serialize_for_event(instance)
-        queue[-1]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
+        queue[last_index]['data'] = serialize_for_event(instance)
+        queue[last_index]['snapshots']['postchange'] = get_snapshots(instance, action)['postchange']
     else:
         enqueue_object(queue, instance, request.user, request.id, action)
     events_queue.set(queue)
