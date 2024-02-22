@@ -11,13 +11,11 @@
       <a href="{% url 'dcim:rack_list' %}{% querystring request %}" class="btn btn-primary">
         <i class="mdi mdi-format-list-checkbox"></i> {% trans "View List" %}
       </a>
-      <div class="btn-group" role="group">
-        <select class="btn btn-outline-secondary rack-view">
-          <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
-          <option value="images-only">{% trans "Images only" %}</option>
-          <option value="labels-only">{% trans "Labels only" %}</option>
-        </select>
-      </div>
+      <select class="btn btn-outline-secondary no-ts rack-view">
+        <option value="images-and-labels" selected="selected">{% trans "Images and Labels" %}</option>
+        <option value="images-only">{% trans "Images only" %}</option>
+        <option value="labels-only">{% trans "Labels only" %}</option>
+      </select>
       <div class="btn-group" role="group">
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='front' %}" class="btn btn-outline-secondary{% if rack_face == 'front' %} active{% endif %}">{% trans "Front" %}</a>
         <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request face='rear' %}" class="btn btn-outline-secondary{% if rack_face == 'rear' %} active{% endif %}">{% trans "Rear" %}</a>

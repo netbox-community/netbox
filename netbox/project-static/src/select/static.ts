@@ -7,7 +7,7 @@ import { getElements } from '../util';
 // Initialize <select> elements with statically-defined options
 export function initStaticSelects(): void {
   for (const select of getElements<HTMLSelectElement>(
-    'select:not(.api-select):not(.color-select):not([size])',
+    'select:not(.no-ts):not(.api-select):not(.color-select):not([size])',
   )) {
     new TomSelect(select, {
       ...config,
