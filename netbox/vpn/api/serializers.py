@@ -48,7 +48,10 @@ class TunnelSerializer(NetBoxModelSerializer):
     status = ChoiceField(
         choices=TunnelStatusChoices
     )
-    group = NestedTunnelGroupSerializer()
+    group = NestedTunnelGroupSerializer(
+        required=False,
+        allow_null=True
+    )
     encapsulation = ChoiceField(
         choices=TunnelEncapsulationChoices
     )

@@ -291,7 +291,11 @@ class DeviceTypeForm(NetBoxModelForm):
     default_platform = DynamicModelChoiceField(
         label=_('Default platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        selector=True,
+        query_params={
+            'manufacturer_id': ['$manufacturer', 'null'],
+        }
     )
     slug = SlugField(
         label=_('Slug'),
@@ -447,7 +451,10 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         label=_('Platform'),
         queryset=Platform.objects.all(),
         required=False,
-        selector=True
+        selector=True,
+        query_params={
+            'available_for_device_type': '$device_type',
+        }
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),

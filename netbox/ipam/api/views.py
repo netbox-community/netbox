@@ -3,6 +3,7 @@ from copy import deepcopy
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from django_pglocks import advisory_lock
 from drf_spectacular.utils import extend_schema
 from netaddr import IPSet
@@ -354,7 +355,7 @@ class AvailablePrefixesView(AvailableObjectsView):
                     'vrf': parent.vrf.pk if parent.vrf else None,
                 })
             else:
-                raise ValidationError("Insufficient space is available to accommodate the requested prefix size(s)")
+                raise ValidationError(_("Insufficient space is available to accommodate the requested prefix size(s)"))
 
         return requested_objects
 

@@ -40,6 +40,10 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
+    group = tables.Column(
+        verbose_name=_('Group'),
+        linkify=True
+    )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status')
     )
@@ -63,10 +67,10 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Tunnel
         fields = (
-            'pk', 'id', 'name', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tenant_group', 'tunnel_id',
-            'termination_count', 'description', 'comments', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'group', 'status', 'encapsulation', 'ipsec_profile', 'tenant', 'tenant_group',
+            'tunnel_id', 'termination_count', 'description', 'comments', 'tags', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'status', 'encapsulation', 'tenant', 'terminations_count')
+        default_columns = ('pk', 'name', 'group', 'status', 'encapsulation', 'tenant', 'terminations_count')
 
 
 class TunnelTerminationTable(TenancyColumnsMixin, NetBoxTable):

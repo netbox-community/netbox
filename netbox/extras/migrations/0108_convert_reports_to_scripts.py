@@ -14,7 +14,7 @@ def convert_reportmodule_jobs(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('extras', '0106_bookmark_user_cascade_deletion'),
+        ('extras', '0107_cachedvalue_extras_cachedvalue_object'),
     ]
 
     operations = [

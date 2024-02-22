@@ -103,9 +103,9 @@ class ManagedFileForm(SyncedDataMixin, NetBoxModelForm):
         super().clean()
 
         if self.cleaned_data.get('upload_file') and self.cleaned_data.get('data_file'):
-            raise forms.ValidationError("Cannot upload a file and sync from an existing file")
+            raise forms.ValidationError(_("Cannot upload a file and sync from an existing file"))
         if not self.cleaned_data.get('upload_file') and not self.cleaned_data.get('data_file'):
-            raise forms.ValidationError("Must upload a file or select a data file to sync")
+            raise forms.ValidationError(_("Must upload a file or select a data file to sync"))
 
         return self.cleaned_data
 

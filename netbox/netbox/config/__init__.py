@@ -4,6 +4,7 @@ import threading
 from django.conf import settings
 from django.core.cache import cache
 from django.db.utils import DatabaseError
+from django.utils.translation import gettext_lazy as _
 
 from .parameters import PARAMS
 
@@ -63,7 +64,7 @@ class Config:
         if item in self.defaults:
             return self.defaults[item]
 
-        raise AttributeError(f"Invalid configuration parameter: {item}")
+        raise AttributeError(_("Invalid configuration parameter: {item}").format(item=item))
 
     def _populate_from_cache(self):
         """Populate config data from Redis cache"""

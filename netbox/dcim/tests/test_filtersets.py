@@ -1787,6 +1787,7 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
             Platform(name='Platform 1', slug='platform-1', manufacturer=manufacturers[0], description='foobar1'),
             Platform(name='Platform 2', slug='platform-2', manufacturer=manufacturers[1], description='foobar2'),
             Platform(name='Platform 3', slug='platform-3', manufacturer=manufacturers[2], description='foobar3'),
+            Platform(name='Platform 4', slug='platform-4'),
         )
         Platform.objects.bulk_create(platforms)
 
@@ -1811,6 +1812,17 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'manufacturer_id': [manufacturers[0].pk, manufacturers[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'manufacturer': [manufacturers[0].slug, manufacturers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_available_for_device_type(self):
+        manufacturers = Manufacturer.objects.all()[:2]
+        device_type = DeviceType.objects.create(
+            manufacturer=manufacturers[0],
+            model='Device Type 1',
+            slug='device-type-1',
+            u_height=1
+        )
+        params = {'available_for_device_type': device_type.pk}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
