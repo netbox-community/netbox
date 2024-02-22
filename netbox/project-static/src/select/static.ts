@@ -11,6 +11,7 @@ export function initStaticSelects(): void {
   )) {
     new TomSelect(select, {
       ...config,
+      maxOptions: undefined,
     });
   }
 }
@@ -26,6 +27,7 @@ export function initColorSelects(): void {
   for (const select of getElements<HTMLSelectElement>('select.color-select')) {
     new TomSelect(select, {
       ...config,
+      maxOptions: undefined,
       render: {
         option: renderColor,
         item: renderColor,
