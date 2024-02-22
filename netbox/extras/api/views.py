@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -15,7 +14,7 @@ from rq import Worker
 from core.models import Job
 from extras import filtersets
 from extras.models import *
-from extras.scripts import get_module_and_script, run_script
+from extras.scripts import run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -217,15 +216,8 @@ class ScriptViewSet(ModelViewSet):
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
 
-    def _get_script(self, pk):
-        pk = int(pk)
-        script = get_object_or_404(self.queryset, pk=pk)
-        module = script.module
-
-        return module, script
-
     def retrieve(self, request, pk):
-        module, script = self._get_script(pk)
+        script = get_object_or_404(self.queryset, pk=pk)
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
         return Response(serializer.data)
@@ -238,7 +230,7 @@ class ScriptViewSet(ModelViewSet):
         if not request.user.has_perm('extras.run_script'):
             raise PermissionDenied("This user does not have permission to run scripts.")
 
-        module, script = self._get_script(pk)
+        script = get_object_or_404(self.queryset, pk=pk)
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
             context={'script': script}
@@ -251,7 +243,7 @@ class ScriptViewSet(ModelViewSet):
         if input_serializer.is_valid():
             script.result = Job.enqueue(
                 run_script,
-                instance=module,
+                instance=script.module,
                 name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],

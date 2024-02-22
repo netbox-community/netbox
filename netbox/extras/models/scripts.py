@@ -75,12 +75,12 @@ class Script(EventRulesMixin, JobsMixin):
     def python_class(self):
         return self.module.module_scripts.get(self.name)
 
-    def delete(self, soft_delete=False):
+    def delete(self, soft_delete=False, **kwargs):
         if soft_delete and self.jobs.exists():
             self.is_executable = False
             self.save()
         else:
-            super().delete()
+            super().delete(**kwargs)
             self.id = None
 
 
@@ -134,8 +134,8 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     def sync_classes(self):
         """
-        Sync's the file based module to the database objects - adding and
-        removing python classes from the DB as appropriate.
+        Syncs the file-based module to the database, adding and removing individual Script objects
+        in the database as needed.
         """
         db_classes = {
             script.name: script for script in self.scripts.all()
