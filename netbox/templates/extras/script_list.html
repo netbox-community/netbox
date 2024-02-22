@@ -59,7 +59,9 @@
                       <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
                     {% else %}
                       <a href="{% url 'extras:script_jobs' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
-                      <i class="mdi mdi-alert"></i>
+                      <span class="text-danger">
+                        <i class="mdi mdi-alert" title="{% trans "Script is no longer present in the source file" %}"></i>
+                      </span>
                     {% endif %}
                   </td>
                   <td>{{ script.description|markdown|placeholder }}</td>
@@ -75,7 +77,7 @@
                     <td>{{ ''|placeholder }}</td>
                   {% endif %}
                   <td>
-                    {% if perms.extras.run_script %}
+                    {% if request.user|can_run:script and script.is_executable %}
                       <div class="float-end d-print-none">
                         <form action="{% url 'extras:script' script.pk %}" method="post">
                           {% csrf_token %}

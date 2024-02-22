@@ -1038,63 +1038,29 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         })
 
 
-def get_script_module(module, request):
-    return get_object_or_404(ScriptModule.objects.restrict(request.user), file_path__regex=f"^{module}\\.")
-
-
-class BaseScriptView(generic.ObjectView):
+class ScriptView(generic.ObjectView):
     queryset = Script.objects.all()
-    script = None
-    script_class = None
-    jobs = None
 
-    def _init_vars(self, request):
-        if self.script.python_class:
-            self.script_class = self.script.python_class()
-        else:
-            self.script.delete(soft_delete=True)
-            messages.error(request, _("Script class has been deleted from module: ") + str(self.script.module))
-            if not self.script.id:
-                return redirect('extras:script_list')
-            else:
-                return redirect('extras:script_jobs', pk=self.script.id)
-
-        self.jobs = self.script.jobs.all()
-        return None
-
-    def init_vars_or_redirect(self, request, pk):
-        self.script = get_object_or_404(Script.objects.all(), pk=pk)
-        return self._init_vars(request)
-
-
-class ScriptView(BaseScriptView):
-
-    def get(self, request, pk):
-        if ret := self.init_vars_or_redirect(request, pk):
-            return ret
-
-        form = None
-        if self.script_class:
-            form = self.script_class.as_form(initial=normalize_querydict(request.GET))
+    def get(self, request, **kwargs):
+        script = self.get_object(**kwargs)
+        script_class = script.python_class()
+        form = script_class.as_form(initial=normalize_querydict(request.GET))
 
         return render(request, 'extras/script.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
-            'script_class': self.script_class,
+            'script': script,
+            'script_class': script_class,
             'form': form,
+            'job_count': script.jobs.count(),
         })
 
-    def post(self, request, pk):
-        if not request.user.has_perm('extras.run_script'):
+    def post(self, request, **kwargs):
+        script = self.get_object(**kwargs)
+        script_class = script.python_class()
+
+        if not request.user.has_perm('extras.run_script', obj=script):
             return HttpResponseForbidden()
 
-        if ret := self.init_vars_or_redirect(request, pk):
-            return ret
-
-        form = None
-        if self.script_class:
-            form = self.script_class.as_form(request.POST, request.FILES)
+        form = script_class.as_form(request.POST, request.FILES)
 
         # Allow execution only if RQ worker process is running
         if not get_workers_for_queue('default'):
@@ -1102,77 +1068,58 @@ class ScriptView(BaseScriptView):
         elif form.is_valid():
             job = Job.enqueue(
                 run_script,
-                instance=self.script,
-                name=self.script_class.class_name,
+                instance=script,
+                name=script_class.class_name,
                 user=request.user,
                 schedule_at=form.cleaned_data.pop('_schedule_at'),
                 interval=form.cleaned_data.pop('_interval'),
                 data=form.cleaned_data,
                 request=copy_safe_request(request),
-                job_timeout=self.script.python_class.job_timeout,
+                job_timeout=script.python_class.job_timeout,
                 commit=form.cleaned_data.pop('_commit')
             )
 
             return redirect('extras:script_result', job_pk=job.pk)
 
         return render(request, 'extras/script.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
-            'script_class': self.script_class,
+            'script': script,
+            'script_class': script.python_class(),
             'form': form,
+            'job_count': script.jobs.count(),
         })
 
 
-class ScriptSourceView(BaseScriptView):
+class ScriptSourceView(generic.ObjectView):
+    queryset = Script.objects.all()
 
-    def get(self, request, pk):
-        if ret := self.init_vars_or_redirect(request, pk):
-            return ret
+    def get(self, request, **kwargs):
+        script = self.get_object(**kwargs)
 
         return render(request, 'extras/script/source.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
-            'script_class': self.script_class,
+            'script': script,
+            'script_class': script.python_class(),
+            'job_count': script.jobs.count(),
             'tab': 'source',
         })
 
 
 class ScriptJobsView(generic.ObjectView):
     queryset = Script.objects.all()
-    script = None
-    script_class = None
-    jobs = None
 
-    def get_required_permission(self):
-        return 'extras.view_script'
-
-    def get(self, request, pk):
-        self.script = get_object_or_404(Script.objects.all(), pk=pk)
-
-        if self.script.python_class:
-            self.script_class = self.script.python_class()
-        else:
-            self.script.delete(soft_delete=True)
-            if not self.script.id:
-                messages.error(request, _("Script class has been deleted from module: ") + str(self.script.module))
-                return redirect('extras:script_list')
-
-        self.jobs = self.script.jobs.all()
+    def get(self, request, **kwargs):
+        script = self.get_object(**kwargs)
 
         jobs_table = JobTable(
-            data=self.jobs,
+            data=script.jobs.all(),
             orderable=False,
             user=request.user
         )
         jobs_table.configure(request)
 
         return render(request, 'extras/script/jobs.html', {
-            'job_count': self.jobs.count(),
-            'module': self.script.module,
-            'script': self.script,
+            'script': script,
             'table': jobs_table,
+            'job_count': script.jobs.count(),
             'tab': 'jobs',
         })
 
@@ -1196,19 +1143,17 @@ class LegacyScriptRedirectView(ContentTypePermissionRequiredMixin, View):
         return redirect(f'{url}{path}')
 
 
-class ScriptResultView(BaseScriptView):
+class ScriptResultView(generic.ObjectView):
+    queryset = Job.objects.all()
 
     def get_required_permission(self):
         return 'extras.view_script'
 
-    def get(self, request, job_pk):
-        object_type = ContentType.objects.get_by_natural_key(app_label='extras', model='script')
-        job = get_object_or_404(Job.objects.all(), pk=job_pk, object_type=object_type)
-
-        script = job.object
+    def get(self, request, **kwargs):
+        job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
 
         context = {
-            'script': script,
+            'script': job.object,
             'job': job,
         }
         if job.data and 'log' in job.data:
