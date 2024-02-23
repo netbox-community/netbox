@@ -185,6 +185,7 @@ class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin, PathEndpoint
     filters=ConsoleServerPortTemplateFilter
 )
 class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
+    _name: str
 
     def resolve_type(self, info):
         return self.type or None
@@ -230,7 +231,7 @@ class DeviceBayType(ComponentObjectType):
     filters=DeviceBayTemplateFilter
 )
 class DeviceBayTemplateType(ComponentTemplateObjectType):
-    pass
+    _name: str
 
 
 @strawberry_django.type(
@@ -239,8 +240,7 @@ class DeviceBayTemplateType(ComponentTemplateObjectType):
     filters=InventoryItemTemplateFilter
 )
 class InventoryItemTemplateType(ComponentTemplateObjectType):
-    # component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemTemplateComponentType')
-    pass
+    _name: str
 
 
 @strawberry_django.type(
@@ -282,22 +282,21 @@ class DeviceTypeType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.FrontPort,
-    # fields='__all__',
-    exclude=('color',),  # bug - temp
+    fields='__all__',
     filters=FrontPortFilter
 )
 class FrontPortType(ComponentObjectType, CabledObjectMixin):
-    pass
+    color: str
 
 
 @strawberry_django.type(
     models.FrontPortTemplate,
-    # fields='__all__',
-    exclude=('color',),  # bug - temp
+    fields='__all__',
     filters=FrontPortTemplateFilter
 )
 class FrontPortTemplateType(ComponentTemplateObjectType):
-    pass
+    _name: str
+    color: str
 
 
 @strawberry_django.type(
@@ -330,6 +329,7 @@ class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin, Pa
     filters=InterfaceTemplateFilter
 )
 class InterfaceTemplateType(ComponentTemplateObjectType):
+    _name: str
 
     def resolve_poe_mode(self, info):
         return self.poe_mode or None
@@ -347,8 +347,7 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
     filters=InventoryItemFilter
 )
 class InventoryItemType(ComponentObjectType):
-    # component = graphene.Field('dcim.graphql.gfk_mixins.InventoryItemComponentType')
-    pass
+    _name: str
 
 
 @strawberry_django.type(
@@ -404,7 +403,7 @@ class ModuleBayType(ComponentObjectType):
     filters=ModuleBayTemplateFilter
 )
 class ModuleBayTemplateType(ComponentTemplateObjectType):
-    pass
+    _name: str
 
 
 @strawberry_django.type(
@@ -456,6 +455,7 @@ class PowerOutletType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin)
     filters=PowerOutletTemplateFilter
 )
 class PowerOutletTemplateType(ComponentTemplateObjectType):
+    _name: str
 
     def resolve_feed_leg(self, info):
         return self.feed_leg or None
@@ -490,6 +490,7 @@ class PowerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
     filters=PowerPortTemplateFilter
 )
 class PowerPortTemplateType(ComponentTemplateObjectType):
+    _name: str
 
     def resolve_type(self, info):
         return self.type or None
@@ -550,7 +551,7 @@ class RearPortType(ComponentObjectType, CabledObjectMixin):
     filters=RearPortTemplateFilter
 )
 class RearPortTemplateType(ComponentTemplateObjectType):
-    pass
+    _name: str
 
 
 @strawberry_django.type(

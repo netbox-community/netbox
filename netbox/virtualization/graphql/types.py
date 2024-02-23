@@ -75,7 +75,7 @@ class ClusterTypeType(OrganizationalObjectType):
     filters=VirtualMachineFilter
 )
 class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
-    pass
+    _name: str
 
 
 @strawberry_django.type(
