@@ -1755,7 +1755,7 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleBayTest(APIViewTestCases.APIViewTestCase):
     model = ModuleBay
-    brief_fields = ['display', 'id', 'module', 'name', 'url']
+    brief_fields = ['display', 'id', 'installed_module', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
