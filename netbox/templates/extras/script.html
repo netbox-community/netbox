@@ -2,6 +2,7 @@
 {% load helpers %}
 {% load form_helpers %}
 {% load log_levels %}
+{% load perms %}
 {% load i18n %}
 
 {% block content %}
@@ -17,7 +18,7 @@
         {% csrf_token %}
         <div class="field-group my-4">
           {# Render grouped fields according to declared fieldsets #}
-          {% for group, fields in script.get_fieldsets %}
+          {% for group, fields in script_class.get_fieldsets %}
             {% if fields %}
               <div class="field-group mb-5">
                 <div class="row">
@@ -32,9 +33,17 @@
             {% endif %}
           {% endfor %}
         </div>
-        <div class="float-end">
+        <div class="text-end">
           <a href="{% url 'extras:script_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-          <button type="submit" name="_run" class="btn btn-primary"{% if not perms.extras.run_script %} disabled="disabled"{% endif %}><i class="mdi mdi-play"></i> {% trans "Run Script" %}</button>
+          {% if not request.user|can_run:script or not script.is_executable %}
+            <button class="btn btn-primary" disabled>
+              <i class="mdi mdi-play"></i> {% trans "Run Script" %}
+            </button>
+          {% else %}
+            <button type="submit" name="_run" class="btn btn-primary">
+              <i class="mdi mdi-play"></i> {% trans "Run Script" %}
+            </button>
+          {% endif %}
         </div>
       </form>
     </div>

@@ -6,6 +6,7 @@ __all__ = (
 )
 
 
+# Required by extras/migrations/0109_script_models.py
 class Report(BaseScript):
 
     #

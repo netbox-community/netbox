@@ -16,7 +16,7 @@
       <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
         <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ script.get_absolute_url }}">{{ script }}</a></li>
         <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
       </ol>
     </nav>

@@ -44,9 +44,6 @@ __all__ = (
     'ImageAttachmentSerializer',
     'JournalEntrySerializer',
     'ObjectChangeSerializer',
-    'ReportDetailSerializer',
-    'ReportSerializer',
-    'ReportInputSerializer',
     'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
@@ -85,9 +82,9 @@ class EventRuleSerializer(NetBoxModelSerializer):
         context = {'request': self.context['request']}
         # We need to manually instantiate the serializer for scripts
         if instance.action_type == EventRuleActionChoices.SCRIPT:
-            script_name = instance.action_parameters['script_name']
-            script = instance.action_object.scripts[script_name]()
-            return NestedScriptSerializer(script, context=context).data
+            script = instance.action_object
+            instance = script.python_class() if script.python_class else None
+            return NestedScriptSerializer(instance, context=context).data
         else:
             serializer = get_serializer_for_model(
                 model=instance.action_object_type.model_class(),
@@ -513,78 +510,53 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
 
 
 #
-# Reports
-#
-
-class ReportSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
-    id = serializers.CharField(read_only=True, source="full_name")
-    module = serializers.CharField(max_length=255)
-    name = serializers.CharField(max_length=255)
-    description = serializers.CharField(max_length=255, required=False)
-    test_methods = serializers.ListField(child=serializers.CharField(max_length=255), read_only=True)
-    result = NestedJobSerializer()
-    display = serializers.SerializerMethodField(read_only=True)
-
-    @extend_schema_field(serializers.CharField())
-    def get_display(self, obj):
-        return f'{obj.name} ({obj.module})'
-
-
-class ReportDetailSerializer(ReportSerializer):
-    result = JobSerializer()
-
-
-class ReportInputSerializer(serializers.Serializer):
-    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
-    interval = serializers.IntegerField(required=False, allow_null=True)
-
-    def validate_schedule_at(self, value):
-        if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError(_("Scheduling is not enabled for this report."))
-        return value
-
-    def validate_interval(self, value):
-        if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError(_("Scheduling is not enabled for this report."))
-        return value
-
-
-#
 # Scripts
 #
 
-class ScriptSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:script-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
-    id = serializers.CharField(read_only=True, source="full_name")
-    module = serializers.CharField(max_length=255)
-    name = serializers.CharField(read_only=True)
-    description = serializers.CharField(read_only=True)
+class ScriptSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
+    description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = NestedJobSerializer()
-    display = serializers.SerializerMethodField(read_only=True)
+    result = NestedJobSerializer(read_only=True)
+
+    class Meta:
+        model = Script
+        fields = [
+            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_executable',
+        ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_vars(self, instance):
-        return {
-            k: v.__class__.__name__ for k, v in instance._get_vars().items()
-        }
+    def get_vars(self, obj):
+        if obj.python_class:
+            return {
+                k: v.__class__.__name__ for k, v in obj.python_class()._get_vars().items()
+            }
+        else:
+            return {}
 
     @extend_schema_field(serializers.CharField())
     def get_display(self, obj):
         return f'{obj.name} ({obj.module})'
 
+    @extend_schema_field(serializers.CharField())
+    def get_description(self, obj):
+        if obj.python_class:
+            return obj.python_class().description
+        else:
+            return None
+
 
 class ScriptDetailSerializer(ScriptSerializer):
-    result = JobSerializer()
+    result = serializers.SerializerMethodField(read_only=True)
+
+    @extend_schema_field(JobSerializer())
+    def get_result(self, obj):
+        job = obj.jobs.all().order_by('-created').first()
+        context = {
+            'request': self.context['request']
+        }
+        data = JobSerializer(job, context=context).data
+        return data
 
 
 class ScriptInputSerializer(serializers.Serializer):

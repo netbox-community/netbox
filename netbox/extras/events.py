@@ -116,15 +116,13 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
         # Scripts
         elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
             # Resolve the script from action parameters
-            script_module = event_rule.action_object
-            script_name = event_rule.action_parameters['script_name']
-            script = script_module.scripts[script_name]()
+            script = event_rule.action_object.python_class()
 
             # Enqueue a Job to record the script's execution
             Job.enqueue(
                 "extras.scripts.run_script",
-                instance=script_module,
-                name=script.class_name,
+                instance=script.module,
+                name=script.name,
                 user=user,
                 data=data
             )

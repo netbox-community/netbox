@@ -376,11 +376,6 @@ class ObjectPermissionForm(forms.ModelForm):
             for ct in object_types:
                 model = ct.model_class()
 
-                if model._meta.model_name in ['script', 'report']:
-                    raise forms.ValidationError({
-                        'constraints': _('Constraints are not supported for this object type.')
-                    })
-
                 try:
                     tokens = {
                         CONSTRAINT_TOKEN_USER: 0,  # Replace token with a null user ID

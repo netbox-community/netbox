@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -9,14 +8,13 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
-from rest_framework.viewsets import ReadOnlyModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rq import Worker
 
-from core.choices import JobStatusChoices
 from core.models import Job
 from extras import filtersets
 from extras.models import *
-from extras.scripts import get_module_and_script, run_script
+from extras.scripts import run_script
 from netbox.api.authentication import IsAuthenticatedOrLoginNotRequired
 from netbox.api.features import SyncedDataMixin
 from netbox.api.metadata import ContentTypeMetadata
@@ -209,66 +207,30 @@ class ConfigTemplateViewSet(SyncedDataMixin, ConfigTemplateRenderMixin, NetBoxMo
 # Scripts
 #
 
-class ScriptViewSet(ViewSet):
+class ScriptViewSet(ModelViewSet):
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
+    queryset = Script.objects.prefetch_related('jobs')
+    serializer_class = serializers.ScriptSerializer
+    filterset_class = filtersets.ScriptFilterSet
+
     _ignore_model_permissions = True
-    schema = None
     lookup_value_regex = '[^/]+'  # Allow dots
 
-    def _get_script(self, pk):
-        try:
-            module_name, script_name = pk.split('.', maxsplit=1)
-        except ValueError:
-            raise Http404
-
-        module, script = get_module_and_script(module_name, script_name)
-        if script is None:
-            raise Http404
-
-        return module, script
-
-    def list(self, request):
-        results = {
-            job.name: job
-            for job in Job.objects.filter(
-                object_type=ContentType.objects.get(app_label='extras', model='scriptmodule'),
-                status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-            ).order_by('name', '-created').distinct('name').defer('data')
-        }
-
-        script_list = []
-        for script_module in ScriptModule.objects.restrict(request.user):
-            script_list.extend(script_module.scripts.values())
-
-        # Attach Job objects to each script (if any)
-        for script in script_list:
-            script.result = results.get(script.class_name, None)
-
-        serializer = serializers.ScriptSerializer(script_list, many=True, context={'request': request})
-
-        return Response({'count': len(script_list), 'results': serializer.data})
-
     def retrieve(self, request, pk):
-        module, script = self._get_script(pk)
-        object_type = ContentType.objects.get(app_label='extras', model='scriptmodule')
-        script.result = Job.objects.filter(
-            object_type=object_type,
-            name=script.class_name,
-            status__in=JobStatusChoices.TERMINAL_STATE_CHOICES
-        ).first()
+        script = get_object_or_404(self.queryset, pk=pk)
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
         return Response(serializer.data)
 
     def post(self, request, pk):
         """
-        Run a Script identified as "<module>.<script>" and return the pending Job as the result
+        Run a Script identified by the id and return the pending Job as the result
         """
 
         if not request.user.has_perm('extras.run_script'):
             raise PermissionDenied("This user does not have permission to run scripts.")
 
-        module, script = self._get_script(pk)
+        script = get_object_or_404(self.queryset, pk=pk)
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
             context={'script': script}
@@ -281,13 +243,13 @@ class ScriptViewSet(ViewSet):
         if input_serializer.is_valid():
             script.result = Job.enqueue(
                 run_script,
-                instance=module,
-                name=script.class_name,
+                instance=script.module,
+                name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],
                 request=copy_safe_request(request),
                 commit=input_serializer.data['commit'],
-                job_timeout=script.job_timeout,
+                job_timeout=script.python_class.job_timeout,
                 schedule_at=input_serializer.validated_data.get('schedule_at'),
                 interval=input_serializer.validated_data.get('interval')
             )

@@ -11,7 +11,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Loca
 from extras.choices import *
 from extras.models import *
 from extras.reports import Report
-from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
+from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
 User = get_user_model()
@@ -748,7 +748,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class ScriptTest(APITestCase):
 
-    class TestScript(Script):
+    class TestScriptClass(PythonClass):
 
         class Meta:
             name = "Test script"
@@ -767,27 +767,36 @@ class ScriptTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ScriptModule.objects.create(
+        module = ScriptModule.objects.create(
             file_root=ManagedFileRootPathChoices.SCRIPTS,
             file_path='/var/tmp/script.py'
         )
+        Script.objects.create(
+            module=module,
+            name="Test script",
+            is_executable=True,
+        )
 
-    def get_test_script(self, *args):
-        return ScriptModule.objects.first(), self.TestScript
+    def python_class(self):
+        return self.TestScriptClass
 
     def setUp(self):
         super().setUp()
 
-        # Monkey-patch the API viewset's _get_script() method to return our test Script above
+        # Monkey-patch the Script model to return our TestScriptClass above
         from extras.api.views import ScriptViewSet
-        ScriptViewSet._get_script = self.get_test_script
+        Script.python_class = self.python_class
 
     def test_get_script(self):
-
-        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        module = ScriptModule.objects.get(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='/var/tmp/script.py'
+        )
+        script = module.scripts.all().first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['name'], self.TestScript.Meta.name)
+        self.assertEqual(response.data['name'], self.TestScriptClass.Meta.name)
         self.assertEqual(response.data['vars']['var1'], 'StringVar')
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')

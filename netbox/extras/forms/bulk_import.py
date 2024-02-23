@@ -212,11 +212,8 @@ class EventRuleImportForm(NetBoxModelImportForm):
                     module, script = get_module_and_script(module_name, script_name)
                 except ObjectDoesNotExist:
                     raise forms.ValidationError(_("Script {name} not found").format(name=action_object))
-                self.instance.action_object = module
-                self.instance.action_object_type = ContentType.objects.get_for_model(module, for_concrete_model=False)
-                self.instance.action_parameters = {
-                    'script_name': script_name,
-                }
+                self.instance.action_object = script
+                self.instance.action_object_type = ContentType.objects.get_for_model(script, for_concrete_model=False)
 
 
 class TagImportForm(CSVModelForm):
