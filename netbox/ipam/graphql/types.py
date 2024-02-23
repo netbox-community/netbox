@@ -1,4 +1,4 @@
-from typing import List
+from typing import TYPE_CHECKING, Annotated, List, Union
 
 import strawberry
 import strawberry_django
@@ -108,7 +108,13 @@ class FHRPGroupType(NetBoxObjectType):
 )
 class FHRPGroupAssignmentType(BaseObjectType):
     # interface = graphene.Field('ipam.graphql.gfk_mixins.FHRPGroupInterfaceType')
-    pass
+
+    @strawberry_django.field
+    def interface(self) -> Annotated[Union[
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("FHRPGroupInterfaceType")]:
+        return self.interface
 
 
 @strawberry_django.type(

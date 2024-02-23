@@ -1,3 +1,5 @@
+from typing import Annotated, List
+
 import strawberry
 import strawberry_django
 
@@ -62,7 +64,14 @@ class IKEProposalType(OrganizationalObjectType):
     filters=IKEPolicyFilter
 )
 class IKEPolicyType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def proposals(self) -> List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.proposals.all()
+
+    @strawberry_django.field
+    def ipsec_profiles(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ipsec_profiles.all()
 
 
 @strawberry_django.type(
