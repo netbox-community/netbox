@@ -1039,8 +1039,7 @@ class ModuleBaySerializer(NetBoxModelSerializer):
         model = ModuleBay
         fields = [
             'id', 'url', 'display', 'device', 'name', 'installed_module', 'label', 'position', 'description', 'tags',
-            'custom_fields',
-            'created', 'last_updated',
+            'custom_fields', 'created', 'last_updated',
         ]
 
 
