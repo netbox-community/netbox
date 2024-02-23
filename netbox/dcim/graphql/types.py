@@ -124,11 +124,11 @@ class CableTerminationType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Cable,
-    # fields='__all__',
-    exclude=('color', ),  # bug - temp
+    fields='__all__',
     filters=CableFilter
 )
 class CableType(NetBoxObjectType):
+    color: str
 
     @strawberry_django.field
     def terminations(self) -> List[CableTerminationType]:
@@ -161,6 +161,7 @@ class ConsolePortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin)
     filters=ConsolePortTemplateFilter
 )
 class ConsolePortTemplateType(ComponentTemplateObjectType):
+    _name: str
 
     def resolve_type(self, info):
         return self.type or None

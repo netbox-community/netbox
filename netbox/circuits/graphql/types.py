@@ -1,4 +1,4 @@
-from typing import List
+from typing import Annotated, List
 
 import strawberry
 import strawberry_django
@@ -59,12 +59,15 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
 
 @strawberry_django.type(
     models.CircuitType,
-    # fields='__all__',
-    exclude=['color',],  # bug - remove color from exclude
+    fields='__all__',
     filters=CircuitTypeFilter
 )
 class CircuitTypeType(OrganizationalObjectType):
-    pass
+    color: str
+
+    @strawberry_django.field
+    def circuits(self) -> List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
+        return self.circuits.all()
 
 
 @strawberry_django.type(

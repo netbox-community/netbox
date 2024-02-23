@@ -31,7 +31,10 @@ class BaseObjectType:
     @classmethod
     def get_queryset(cls, queryset, info, **kwargs):
         # Enforce object permissions on the queryset
-        return queryset.restrict(info.context.request.user, 'view')
+        if hasattr(queryset, 'restrict'):
+            return queryset.restrict(info.context.request.user, 'view')
+        else:
+            return queryset
 
     @strawberry_django.field
     def display(self) -> str:
