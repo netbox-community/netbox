@@ -172,6 +172,6 @@ class VirtualDiskSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualDisk
         fields = [
-            'id', 'url', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
