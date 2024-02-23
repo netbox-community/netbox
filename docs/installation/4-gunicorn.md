@@ -27,8 +27,7 @@ sudo systemctl daemon-reload
 Then, start the `netbox` and `netbox-rq` services and enable them to initiate at boot time:
 
 ```no-highlight
-sudo systemctl start netbox netbox-rq
-sudo systemctl enable netbox netbox-rq
+sudo systemctl enable --now netbox netbox-rq
 ```
 
 You can use the command `systemctl status netbox` to verify that the WSGI service is running:
