@@ -1,3 +1,5 @@
+from typing import Annotated, List
+
 import strawberry
 import strawberry_django
 
@@ -56,7 +58,10 @@ class TenantGroupType(OrganizationalObjectType):
     filters=ContactFilter
 )
 class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
+        return self.assignments.all()
 
 
 @strawberry_django.type(
@@ -65,7 +70,10 @@ class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
     filters=ContactRoleFilter
 )
 class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
+        return self.assignments.all()
 
 
 @strawberry_django.type(
@@ -75,7 +83,18 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
     filters=ContactGroupFilter
 )
 class ContactGroupType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def parent(self) -> Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')]:
+        return self.parent
+
+    @strawberry_django.field
+    def contacts(self) -> List[ContactType]:
+        return self.clusters.all()
+
+    @strawberry_django.field
+    def children(self) -> List[Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')]]:
+        return self.children.all()
 
 
 @strawberry_django.type(

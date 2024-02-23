@@ -1,3 +1,5 @@
+from typing import Annotated, List
+
 import strawberry
 import strawberry_django
 
@@ -27,4 +29,7 @@ class DataFileType(BaseObjectType):
     filters=DataSourceFilter
 )
 class DataSourceType(NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def datafiles(self) -> List[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]:
+        return self.datafiles.all()

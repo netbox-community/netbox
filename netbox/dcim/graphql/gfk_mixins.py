@@ -40,7 +40,7 @@ from dcim.models import (
 )
 
 
-class InventoryItemTemplateComponentType(graphene.Union):
+class InventoryItemTemplateComponentType:
     class Meta:
         types = (
             ConsolePortTemplateType,
@@ -70,7 +70,7 @@ class InventoryItemTemplateComponentType(graphene.Union):
             return RearPortTemplateType
 
 
-class InventoryItemComponentType(graphene.Union):
+class InventoryItemComponentType:
     class Meta:
         types = (
             ConsolePortType,
@@ -100,7 +100,7 @@ class InventoryItemComponentType(graphene.Union):
             return RearPortType
 
 
-class ConnectedEndpointType(graphene.Union):
+class ConnectedEndpointType:
     class Meta:
         types = (
             CircuitTerminationType,

@@ -130,7 +130,14 @@ class CustomFieldType(ObjectType):
     filters=CustomFieldChoiceSetFilter
 )
 class CustomFieldChoiceSetType(ObjectType):
-    pass
+
+    @strawberry_django.field
+    def choices_for(self) -> List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]:
+        return self.assignments.all()
+
+    @strawberry_django.field
+    def extra_choices(self) -> List[str]:
+        return self.assignments.all()
 
 
 @strawberry_django.type(
