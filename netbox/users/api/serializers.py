@@ -103,7 +103,7 @@ class TokenSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled', 'description',
             'allowed_ips',
         )
-        brief_fields = ('id', 'url', 'display', 'key', 'write_enabled')
+        brief_fields = ('id', 'url', 'display', 'key', 'write_enabled', 'description')
 
     def to_internal_value(self, data):
         if 'key' not in data:
@@ -184,4 +184,6 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions',
             'constraints',
         )
-        brief_fields = ('id', 'url', 'display', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions')
+        brief_fields = (
+            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions',
+        )

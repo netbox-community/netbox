@@ -33,7 +33,7 @@ class ASNRangeSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'rir', 'start', 'end', 'tenant', 'description', 'tags',
             'custom_fields', 'created', 'last_updated', 'asn_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -55,7 +55,7 @@ class ASNSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'asn', 'rir', 'tenant', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'site_count', 'provider_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'asn')
+        brief_fields = ('id', 'url', 'display', 'asn', 'description')
 
 
 class AvailableASNSerializer(serializers.Serializer):
@@ -106,7 +106,7 @@ class VRFSerializer(NetBoxModelSerializer):
             'import_targets', 'export_targets', 'tags', 'custom_fields', 'created', 'last_updated', 'ipaddress_count',
             'prefix_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'rd', 'prefix_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'rd', 'description', 'prefix_count')
 
 
 #
@@ -123,7 +123,7 @@ class RouteTargetSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'tenant', 'description', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -142,7 +142,7 @@ class RIRSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'is_private', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'aggregate_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'aggregate_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'aggregate_count')
 
 
 class AggregateSerializer(NetBoxModelSerializer):
@@ -158,7 +158,7 @@ class AggregateSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'family', 'prefix', 'rir', 'tenant', 'date_added', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'prefix')
+        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description')
 
 
 #
@@ -175,7 +175,7 @@ class FHRPGroupSerializer(NetBoxModelSerializer):
             'id', 'name', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated', 'ip_addresses',
         ]
-        brief_fields = ('id', 'url', 'display', 'protocol', 'group_id')
+        brief_fields = ('id', 'url', 'display', 'protocol', 'group_id', 'description')
 
 
 class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
@@ -220,7 +220,7 @@ class RoleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'weight', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'prefix_count', 'vlan_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'prefix_count', 'vlan_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'prefix_count', 'vlan_count')
 
 
 class VLANGroupSerializer(NetBoxModelSerializer):
@@ -246,7 +246,7 @@ class VLANGroupSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'scope_type', 'scope_id', 'scope', 'min_vid', 'max_vid',
             'description', 'tags', 'custom_fields', 'created', 'last_updated', 'vlan_count', 'utilization'
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'vlan_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'vlan_count')
         validators = []
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -277,7 +277,7 @@ class VLANSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'site', 'group', 'vid', 'name', 'tenant', 'status', 'role', 'description',
             'comments', 'l2vpn_termination', 'tags', 'custom_fields', 'created', 'last_updated', 'prefix_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'vid', 'name')
+        brief_fields = ('id', 'url', 'display', 'vid', 'name', 'description')
 
 
 class AvailableVLANSerializer(serializers.Serializer):
@@ -338,7 +338,7 @@ class PrefixSerializer(NetBoxModelSerializer):
             'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'children',
             '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'prefix', '_depth')
+        brief_fields = ('id', 'url', 'display', 'family', 'prefix', 'description', '_depth')
 
 
 class PrefixLengthSerializer(serializers.Serializer):
@@ -409,7 +409,7 @@ class IPRangeSerializer(NetBoxModelSerializer):
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'mark_utilized', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'start_address', 'end_address')
+        brief_fields = ('id', 'url', 'display', 'family', 'start_address', 'end_address', 'description')
 
 
 #
@@ -440,7 +440,7 @@ class IPAddressSerializer(NetBoxModelSerializer):
             'assigned_object_id', 'assigned_object', 'nat_inside', 'nat_outside', 'dns_name', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'family', 'address')
+        brief_fields = ('id', 'url', 'display', 'family', 'address', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, obj):
@@ -483,10 +483,10 @@ class ServiceTemplateSerializer(NetBoxModelSerializer):
     class Meta:
         model = ServiceTemplate
         fields = [
-            'id', 'url', 'display', 'name', 'ports', 'protocol', 'description', 'comments', 'tags', 'custom_fields',
+            'id', 'url', 'display', 'name', 'protocol', 'ports', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports')
+        brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports', 'description')
 
 
 class ServiceSerializer(NetBoxModelSerializer):
@@ -504,7 +504,7 @@ class ServiceSerializer(NetBoxModelSerializer):
     class Meta:
         model = Service
         fields = [
-            'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses',
+            'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'protocol', 'ports', 'ipaddresses',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports')
+        brief_fields = ('id', 'url', 'display', 'name', 'protocol', 'ports', 'description')

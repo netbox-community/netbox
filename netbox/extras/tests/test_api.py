@@ -29,7 +29,7 @@ class AppTest(APITestCase):
 
 class WebhookTest(APIViewTestCases.APIViewTestCase):
     model = Webhook
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Webhook 4',
@@ -71,7 +71,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
 class EventRuleTest(APIViewTestCases.APIViewTestCase):
     model = EventRule
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'enabled': False,
         'description': 'New description',
@@ -149,7 +149,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     model = CustomField
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
@@ -201,7 +201,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     model = CustomFieldChoiceSet
-    brief_fields = ['choices_count', 'display', 'id', 'name', 'url']
+    brief_fields = ['choices_count', 'description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Choice Set 4',
@@ -330,7 +330,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
 class SavedFilterTest(APIViewTestCases.APIViewTestCase):
     model = SavedFilter
-    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
@@ -455,7 +455,7 @@ class BookmarkTest(
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.device'],
@@ -500,7 +500,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['color', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -627,7 +627,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Context 4',
@@ -708,7 +708,7 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConfigTemplate
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Template 4',

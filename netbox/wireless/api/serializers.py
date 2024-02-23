@@ -28,7 +28,7 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'wirelesslan_count', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'wirelesslan_count', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'wirelesslan_count', '_depth')
 
 
 class WirelessLANSerializer(NetBoxModelSerializer):
@@ -46,7 +46,7 @@ class WirelessLANSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'ssid', 'description', 'group', 'status', 'vlan', 'tenant', 'auth_type',
             'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'ssid')
+        brief_fields = ('id', 'url', 'display', 'ssid', 'description')
 
 
 class WirelessLinkSerializer(NetBoxModelSerializer):
@@ -64,4 +64,4 @@ class WirelessLinkSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'interface_a', 'interface_b', 'ssid', 'status', 'tenant', 'auth_type',
             'auth_cipher', 'auth_psk', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'ssid')
+        brief_fields = ('id', 'url', 'display', 'ssid', 'description')

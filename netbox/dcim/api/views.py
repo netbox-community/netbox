@@ -378,12 +378,8 @@ class DeviceViewSet(
 
         Else, return the DeviceWithConfigContextSerializer
         """
-
         request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
-            return serializers.NestedDeviceSerializer
-
-        elif 'config_context' in request.query_params.get('exclude', []):
+        if self.brief or 'config_context' in request.query_params.get('exclude', []):
             return serializers.DeviceSerializer
 
         return serializers.DeviceWithConfigContextSerializer

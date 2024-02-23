@@ -36,7 +36,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description', 'comments',
             'parameters', 'ignore_rules', 'custom_fields', 'created', 'last_updated', 'file_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class DataFileSerializer(NetBoxModelSerializer):
