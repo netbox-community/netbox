@@ -34,6 +34,8 @@ class BaseViewSet(GenericViewSet):
     """
     Base class for all API ViewSets. This is responsible for the enforcement of object-based permissions.
     """
+    brief = False
+
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
 
@@ -41,6 +43,13 @@ class BaseViewSet(GenericViewSet):
         if request.user.is_authenticated:
             if action := HTTP_ACTIONS[request.method]:
                 self.queryset = self.queryset.restrict(request.user, action)
+
+    def initialize_request(self, request, *args, **kwargs):
+
+        # Annotate whether brief mode is active
+        self.brief = request.method == 'GET' and request.GET.get('brief')
+
+        return super().initialize_request(request, *args, **kwargs)
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -77,7 +86,6 @@ class BaseViewSet(GenericViewSet):
 
 
 class NetBoxReadOnlyModelViewSet(
-    mixins.BriefModeMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
     drf_mixins.RetrieveModelMixin,
@@ -91,7 +99,6 @@ class NetBoxModelViewSet(
     mixins.BulkUpdateModelMixin,
     mixins.BulkDestroyModelMixin,
     mixins.ObjectValidationMixin,
-    mixins.BriefModeMixin,
     mixins.CustomFieldsMixin,
     mixins.ExportTemplatesMixin,
     drf_mixins.CreateModelMixin,

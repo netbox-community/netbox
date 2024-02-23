@@ -9,7 +9,6 @@ from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
 
 __all__ = (
-    'BriefModeMixin',
     'BulkDestroyModelMixin',
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
@@ -17,20 +16,6 @@ __all__ = (
     'ObjectValidationMixin',
     'SequentialBulkCreatesMixin',
 )
-
-
-class BriefModeMixin:
-    """
-    Enables brief mode support, so that the client can invoke a model's nested serializer by passing e.g.
-        GET /api/dcim/sites/?brief=True
-    """
-    brief = False
-
-    def initialize_request(self, request, *args, **kwargs):
-        # Annotate whether brief mode is active
-        self.brief = request.method == 'GET' and request.GET.get('brief')
-
-        return super().initialize_request(request, *args, **kwargs)
 
 
 class CustomFieldsMixin:
