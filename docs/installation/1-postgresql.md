@@ -31,8 +31,7 @@ This section entails the installation and configuration of a local PostgreSQL da
     Once PostgreSQL has been installed, start the service and enable it to run at boot:
 
     ```no-highlight
-    sudo systemctl start postgresql
-    sudo systemctl enable postgresql
+    sudo systemctl enable --now postgresql
     ```
 
 Before continuing, verify that you have installed PostgreSQL 12 or later:
