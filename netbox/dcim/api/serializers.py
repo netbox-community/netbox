@@ -114,7 +114,7 @@ class RegionSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'site_count', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'site_count', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
 
 class SiteGroupSerializer(NestedGroupModelSerializer):
@@ -128,7 +128,7 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'site_count', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'site_count', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
 
 class SiteSerializer(NetBoxModelSerializer):
@@ -161,7 +161,7 @@ class SiteSerializer(NetBoxModelSerializer):
             'custom_fields', 'created', 'last_updated', 'circuit_count', 'device_count', 'prefix_count', 'rack_count',
             'virtualmachine_count', 'vlan_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'slug')
 
 
 #
@@ -183,7 +183,7 @@ class LocationSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'site', 'parent', 'status', 'tenant', 'description', 'tags',
             'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'rack_count', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')
 
 
 class RackRoleSerializer(NetBoxModelSerializer):
@@ -198,7 +198,7 @@ class RackRoleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'rack_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'rack_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count')
 
 
 class RackSerializer(NetBoxModelSerializer):
@@ -227,7 +227,7 @@ class RackSerializer(NetBoxModelSerializer):
             'desc_units', 'outer_width', 'outer_depth', 'outer_unit', 'mounting_depth', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'powerfeed_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'device_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'device_count')
 
 
 class RackUnitSerializer(serializers.Serializer):
@@ -262,7 +262,7 @@ class RackReservationSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'rack', 'units', 'created', 'last_updated', 'user', 'tenant', 'description',
             'comments', 'tags', 'custom_fields',
         ]
-        brief_fields = ('id', 'url', 'display', 'user', 'units')
+        brief_fields = ('id', 'url', 'display', 'user', 'description', 'units')
 
 
 class RackElevationDetailFilterSerializer(serializers.Serializer):
@@ -322,7 +322,7 @@ class ManufacturerSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'devicetype_count', 'inventoryitem_count', 'platform_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'devicetype_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'devicetype_count')
 
 
 class DeviceTypeSerializer(NetBoxModelSerializer):
@@ -368,7 +368,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
             'rear_port_template_count', 'device_bay_template_count', 'module_bay_template_count',
             'inventory_item_template_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'device_count')
+        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'slug', 'description', 'device_count')
 
 
 class ModuleTypeSerializer(NetBoxModelSerializer):
@@ -382,7 +382,7 @@ class ModuleTypeSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'manufacturer', 'model', 'part_number', 'weight', 'weight_unit', 'description',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model')
+        brief_fields = ('id', 'url', 'display', 'manufacturer', 'model', 'description')
 
 
 #
@@ -413,7 +413,7 @@ class ConsolePortTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'description', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
@@ -440,7 +440,7 @@ class ConsoleServerPortTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'description', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class PowerPortTemplateSerializer(ValidatedModelSerializer):
@@ -468,7 +468,7 @@ class PowerPortTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw',
             'allocated_draw', 'description', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class PowerOutletTemplateSerializer(ValidatedModelSerializer):
@@ -506,7 +506,7 @@ class PowerOutletTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg',
             'description', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class InterfaceTemplateSerializer(ValidatedModelSerializer):
@@ -551,7 +551,7 @@ class InterfaceTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only',
             'description', 'bridge', 'poe_mode', 'poe_type', 'rf_role', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class RearPortTemplateSerializer(ValidatedModelSerializer):
@@ -574,7 +574,7 @@ class RearPortTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions',
             'description', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class FrontPortTemplateSerializer(ValidatedModelSerializer):
@@ -598,7 +598,7 @@ class FrontPortTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port',
             'rear_port_position', 'description', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ModuleBayTemplateSerializer(ValidatedModelSerializer):
@@ -611,7 +611,7 @@ class ModuleBayTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'name', 'label', 'position', 'description', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class DeviceBayTemplateSerializer(ValidatedModelSerializer):
@@ -621,7 +621,7 @@ class DeviceBayTemplateSerializer(ValidatedModelSerializer):
     class Meta:
         model = DeviceBayTemplate
         fields = ['id', 'url', 'display', 'device_type', 'name', 'label', 'description', 'created', 'last_updated']
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class InventoryItemTemplateSerializer(ValidatedModelSerializer):
@@ -648,7 +648,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id',
             'description', 'component_type', 'component_id', 'component', 'created', 'last_updated', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', '_depth')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_component(self, obj):
@@ -677,7 +677,7 @@ class DeviceRoleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
             'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'device_count', 'virtualmachine_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'device_count', 'virtualmachine_count')
 
 
 class PlatformSerializer(NetBoxModelSerializer):
@@ -695,7 +695,7 @@ class PlatformSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'manufacturer', 'config_template', 'description', 'tags',
             'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'device_count', 'virtualmachine_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'device_count', 'virtualmachine_count')
 
 
 class DeviceSerializer(NetBoxModelSerializer):
@@ -752,7 +752,7 @@ class DeviceSerializer(NetBoxModelSerializer):
             'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
             'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(NestedDeviceSerializer)
     def get_parent_device(self, obj):
@@ -807,7 +807,7 @@ class VirtualDeviceContextSerializer(NetBoxModelSerializer):
             'primary_ip6', 'status', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
             'interface_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'identifier', 'device')
+        brief_fields = ('id', 'url', 'display', 'name', 'identifier', 'device', 'description')
 
 
 class ModuleSerializer(NetBoxModelSerializer):
@@ -823,7 +823,7 @@ class ModuleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'module_bay', 'module_type', 'status', 'serial', 'asset_tag',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type')
+        brief_fields = ('id', 'url', 'display', 'device', 'module_bay', 'module_type', 'description')
 
 
 #
@@ -856,7 +856,7 @@ class ConsoleServerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer,
             'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
 class ConsolePortSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
@@ -885,7 +885,7 @@ class ConsolePortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
             'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
 class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
@@ -920,7 +920,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
 class PowerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
@@ -945,7 +945,7 @@ class PowerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields',
             'created', 'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
 class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
@@ -1008,7 +1008,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'connected_endpoints_type', 'connected_endpoints_reachable', 'tags', 'custom_fields', 'created',
             'last_updated', 'count_ipaddresses', 'count_fhrp_groups', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
     def validate(self, data):
 
@@ -1040,7 +1040,7 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
             'mark_connected', 'cable', 'cable_end', 'link_peers', 'link_peers_type', 'tags', 'custom_fields', 'created',
             'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
 class FrontPortRearPortSerializer(WritableNestedSerializer):
@@ -1071,7 +1071,7 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
             'rear_port_position', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers',
             'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', 'cable', '_occupied')
 
 
 class ModuleBaySerializer(NetBoxModelSerializer):
@@ -1085,7 +1085,7 @@ class ModuleBaySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'name', 'installed_module', 'label', 'position', 'description', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'installed_module', 'name')
+        brief_fields = ('id', 'url', 'display', 'installed_module', 'name', 'description')
 
 
 class DeviceBaySerializer(NetBoxModelSerializer):
@@ -1099,7 +1099,7 @@ class DeviceBaySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'name', 'label', 'description', 'installed_device', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description')
 
 
 class InventoryItemSerializer(NetBoxModelSerializer):
@@ -1123,7 +1123,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
             'asset_tag', 'discovered', 'description', 'component_type', 'component_id', 'component', 'tags',
             'custom_fields', 'created', 'last_updated', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'device', 'name', '_depth')
+        brief_fields = ('id', 'url', 'display', 'device', 'name', 'description', '_depth')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_component(self, obj):
@@ -1150,7 +1150,7 @@ class InventoryItemRoleSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'inventoryitem_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'inventoryitem_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'inventoryitem_count')
 
 
 #
@@ -1171,7 +1171,7 @@ class CableSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant', 'label', 'color',
             'length', 'length_unit', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'label')
+        brief_fields = ('id', 'url', 'display', 'label', 'description')
 
 
 class TracedCableSerializer(serializers.ModelSerializer):
@@ -1242,7 +1242,7 @@ class VirtualChassisSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'domain', 'master', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated', 'member_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'master', 'member_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'master', 'description', 'member_count')
 
 
 #
@@ -1267,7 +1267,7 @@ class PowerPanelSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'site', 'location', 'name', 'description', 'comments', 'tags', 'custom_fields',
             'powerfeed_count', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'powerfeed_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'powerfeed_count')
 
 
 class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, ConnectedEndpointsSerializer):
@@ -1307,4 +1307,4 @@ class PowerFeedSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
             'connected_endpoints', 'connected_endpoints_type', 'connected_endpoints_reachable', 'description',
             'tenant', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'cable', '_occupied')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'cable', '_occupied')

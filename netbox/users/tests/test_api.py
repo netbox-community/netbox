@@ -129,7 +129,7 @@ class TokenTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = Token
-    brief_fields = ['display', 'id', 'key', 'url', 'write_enabled']
+    brief_fields = ['description', 'display', 'id', 'key', 'url', 'write_enabled']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -241,7 +241,9 @@ class ObjectPermissionTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = ObjectPermission
-    brief_fields = ['actions', 'display', 'enabled', 'groups', 'id', 'name', 'object_types', 'url', 'users']
+    brief_fields = [
+        'actions', 'description', 'display', 'enabled', 'groups', 'id', 'name', 'object_types', 'url', 'users',
+    ]
 
     @classmethod
     def setUpTestData(cls):

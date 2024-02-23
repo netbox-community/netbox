@@ -27,7 +27,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'tenant_count', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'tenant_count', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tenant_count', '_depth')
 
 
 class TenantSerializer(NetBoxModelSerializer):
@@ -53,7 +53,7 @@ class TenantSerializer(NetBoxModelSerializer):
             'created', 'last_updated', 'circuit_count', 'device_count', 'ipaddress_count', 'prefix_count', 'rack_count',
             'site_count', 'virtualmachine_count', 'vlan_count', 'vrf_count', 'cluster_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 #
@@ -71,7 +71,7 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'contact_count', '_depth',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'contact_count', '_depth')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'contact_count', '_depth')
 
 
 class ContactRoleSerializer(NetBoxModelSerializer):
@@ -82,7 +82,7 @@ class ContactRoleSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class ContactSerializer(NetBoxModelSerializer):
@@ -95,7 +95,7 @@ class ContactSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ContactAssignmentSerializer(NetBoxModelSerializer):

@@ -39,7 +39,7 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'tunnel_count',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'tunnel_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tunnel_count')
 
 
 class TunnelSerializer(NetBoxModelSerializer):
@@ -74,7 +74,7 @@ class TunnelSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'terminations_count',
         )
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class TunnelTerminationSerializer(NetBoxModelSerializer):
@@ -135,7 +135,7 @@ class IKEProposalSerializer(NetBoxModelSerializer):
             'authentication_algorithm', 'group', 'sa_lifetime', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         )
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IKEPolicySerializer(NetBoxModelSerializer):
@@ -161,7 +161,7 @@ class IKEPolicySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated',
         )
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IPSecProposalSerializer(NetBoxModelSerializer):
@@ -181,7 +181,7 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'encryption_algorithm', 'authentication_algorithm',
             'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IPSecPolicySerializer(NetBoxModelSerializer):
@@ -205,7 +205,7 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         )
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class IPSecProfileSerializer(NetBoxModelSerializer):
@@ -224,7 +224,7 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         )
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -254,7 +254,7 @@ class L2VPNSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
             'description', 'comments', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
-        brief_fields = ('id', 'url', 'display', 'identifier', 'name', 'slug', 'type')
+        brief_fields = ('id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'description')
 
 
 class L2VPNTerminationSerializer(NetBoxModelSerializer):

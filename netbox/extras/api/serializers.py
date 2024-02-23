@@ -76,7 +76,7 @@ class EventRuleSerializer(NetBoxModelSerializer):
             'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type',
             'action_object_id', 'action_object', 'description', 'custom_fields', 'tags', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_action_object(self, instance):
@@ -108,7 +108,7 @@ class WebhookSerializer(NetBoxModelSerializer):
             'additional_headers', 'body_template', 'secret', 'ssl_verification', 'ca_file_path', 'custom_fields',
             'tags', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -144,7 +144,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     def validate_type(self, value):
         if self.instance and self.instance.type != value:
@@ -187,7 +187,7 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
             'choices_count', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'choices_count')
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
 
 
 #
@@ -234,7 +234,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
             'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file', 'data_synced', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -254,7 +254,7 @@ class SavedFilterSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_types', 'name', 'slug', 'description', 'user', 'weight', 'enabled',
             'shared', 'parameters', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 #
@@ -303,7 +303,7 @@ class TagSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'object_types', 'tagged_items', 'created',
             'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'color')
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'color', 'description')
 
 
 #
@@ -497,7 +497,7 @@ class ConfigContextSerializer(ValidatedModelSerializer):
             'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path', 'data_file', 'data_synced', 'data',
             'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -519,7 +519,7 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
             'id', 'url', 'display', 'name', 'description', 'environment_params', 'template_code', 'data_source',
             'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -537,7 +537,7 @@ class ScriptSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_executable',
         ]
-        brief_fields = ('id', 'url', 'display', 'name')
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_vars(self, obj):
