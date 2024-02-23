@@ -39,6 +39,7 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'tunnel_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'tunnel_count')
 
 
 class TunnelSerializer(NetBoxModelSerializer):
@@ -73,6 +74,7 @@ class TunnelSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'terminations_count',
         )
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class TunnelTerminationSerializer(NetBoxModelSerializer):
@@ -100,6 +102,7 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'tunnel', 'role', 'termination_type', 'termination_id', 'termination', 'outside_ip',
             'tags', 'custom_fields', 'created', 'last_updated',
         )
+        brief_fields = ('id', 'url', 'display')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_termination(self, obj):
@@ -132,6 +135,7 @@ class IKEProposalSerializer(NetBoxModelSerializer):
             'authentication_algorithm', 'group', 'sa_lifetime', 'comments', 'tags', 'custom_fields', 'created',
             'last_updated',
         )
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class IKEPolicySerializer(NetBoxModelSerializer):
@@ -157,6 +161,7 @@ class IKEPolicySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'version', 'mode', 'proposals', 'preshared_key', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated',
         )
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class IPSecProposalSerializer(NetBoxModelSerializer):
@@ -176,6 +181,7 @@ class IPSecProposalSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'encryption_algorithm', 'authentication_algorithm',
             'sa_lifetime_seconds', 'sa_lifetime_data', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         )
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class IPSecPolicySerializer(NetBoxModelSerializer):
@@ -199,6 +205,7 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'proposals', 'pfs_group', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         )
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class IPSecProfileSerializer(NetBoxModelSerializer):
@@ -217,6 +224,7 @@ class IPSecProfileSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'mode', 'ike_policy', 'ipsec_policy', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         )
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 #
@@ -246,6 +254,7 @@ class L2VPNSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
             'description', 'comments', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
+        brief_fields = ('id', 'url', 'display', 'identifier', 'name', 'slug', 'type')
 
 
 class L2VPNTerminationSerializer(NetBoxModelSerializer):
@@ -262,6 +271,7 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'l2vpn', 'assigned_object_type', 'assigned_object_id',
             'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
         ]
+        brief_fields = ('id', 'url', 'display', 'l2vpn')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):

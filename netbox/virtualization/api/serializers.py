@@ -33,6 +33,7 @@ class ClusterTypeSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'cluster_count')
 
 
 class ClusterGroupSerializer(NetBoxModelSerializer):
@@ -47,6 +48,7 @@ class ClusterGroupSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'cluster_count')
 
 
 class ClusterSerializer(NetBoxModelSerializer):
@@ -67,6 +69,7 @@ class ClusterSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'virtualmachine_count')
 
 
 #
@@ -99,6 +102,7 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
             'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
             'interface_count', 'virtual_disk_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name')
         validators = []
 
 
@@ -152,6 +156,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
             'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination', 'tags', 'custom_fields',
             'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
         ]
+        brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name')
 
     def validate(self, data):
 
@@ -178,6 +183,7 @@ class VirtualDiskSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualDisk
         fields = [
-            'id', 'url', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'size')
