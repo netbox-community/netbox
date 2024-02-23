@@ -66,8 +66,14 @@ class BaseViewSet(GenericViewSet):
 
     @cached_property
     def requested_fields(self):
-        requested_fields = self.request.query_params.get('fields')
-        return requested_fields.split(',') if requested_fields else []
+        # An explicit list of fields was requested
+        if requested_fields := self.request.query_params.get('fields'):
+            return requested_fields.split(',')
+        # Brief mode has been enabled for this request
+        elif self.brief:
+            serializer_class = self.get_serializer_class()
+            return getattr(serializer_class.Meta, 'brief_fields', None)
+        return None
 
 
 class NetBoxReadOnlyModelViewSet(

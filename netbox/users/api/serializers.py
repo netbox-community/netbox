@@ -37,6 +37,7 @@ class UserSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active',
             'date_joined', 'last_login', 'groups',
         )
+        brief_fields = ('id', 'url', 'display', 'username')
         extra_kwargs = {
             'password': {'write_only': True}
         }
@@ -76,6 +77,7 @@ class GroupSerializer(ValidatedModelSerializer):
     class Meta:
         model = Group
         fields = ('id', 'url', 'display', 'name', 'user_count')
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 class TokenSerializer(ValidatedModelSerializer):
@@ -101,6 +103,7 @@ class TokenSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'user', 'created', 'expires', 'last_used', 'key', 'write_enabled', 'description',
             'allowed_ips',
         )
+        brief_fields = ('id', 'url', 'display', 'key', 'write_enabled')
 
     def to_internal_value(self, data):
         if 'key' not in data:
@@ -181,3 +184,4 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions',
             'constraints',
         )
+        brief_fields = ('id', 'url', 'display', 'name', 'enabled', 'object_types', 'groups', 'users', 'actions')

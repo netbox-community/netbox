@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -8,10 +6,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from extras.models import ExportTemplate
-from netbox.api.exceptions import SerializerNotFound
 from netbox.api.serializers import BulkOperationSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
-from utilities.api import get_serializer_for_model
 
 __all__ = (
     'BriefModeMixin',
@@ -36,21 +31,6 @@ class BriefModeMixin:
         self.brief = request.method == 'GET' and request.GET.get('brief')
 
         return super().initialize_request(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
-
-        # If using 'brief' mode, find and return the nested serializer for this model, if one exists
-        if self.brief:
-            logger.debug("Request is for 'brief' format; initializing nested serializer")
-            try:
-                return get_serializer_for_model(self.queryset.model, prefix=NESTED_SERIALIZER_PREFIX)
-            except SerializerNotFound:
-                logger.debug(
-                    f"Nested serializer for {self.queryset.model} not found! Using serializer {self.serializer_class}"
-                )
-
-        return self.serializer_class
 
 
 class CustomFieldsMixin:
