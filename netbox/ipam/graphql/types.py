@@ -165,7 +165,7 @@ class IPRangeType(NetBoxObjectType):
     filters=PrefixFilter
 )
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
-    pass
+    prefix: str
 
 
 @strawberry_django.type(
@@ -202,7 +202,11 @@ class RouteTargetType(NetBoxObjectType):
     filters=ServiceFilter
 )
 class ServiceType(NetBoxObjectType):
-    pass
+    ports: List[int]
+
+    @strawberry_django.field
+    def ipaddresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.ipaddresses.all()
 
 
 @strawberry_django.type(
@@ -212,7 +216,7 @@ class ServiceType(NetBoxObjectType):
     filters=ServiceTemplateFilter
 )
 class ServiceTemplateType(NetBoxObjectType):
-    pass
+    ports: List[int]
 
 
 @strawberry_django.type(

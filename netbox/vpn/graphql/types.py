@@ -28,7 +28,10 @@ __all__ = (
     filters=TunnelGroupFilter
 )
 class TunnelGroupType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.tunnels.all()
 
 
 @strawberry_django.type(
@@ -46,7 +49,10 @@ class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     filters=TunnelFilter
 )
 class TunnelType(NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.terminations.all()
 
 
 @strawberry_django.type(

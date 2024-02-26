@@ -1,3 +1,5 @@
+from typing import Annotated, List, Union
+
 import strawberry
 import strawberry_django
 
@@ -29,11 +31,9 @@ class WirelessLANGroupType(OrganizationalObjectType):
 )
 class WirelessLANType(NetBoxObjectType):
 
-    def resolve_auth_type(self, info):
-        return self.auth_type or None
-
-    def resolve_auth_cipher(self, info):
-        return self.auth_cipher or None
+    @strawberry_django.field
+    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.interfaces.all()
 
 
 @strawberry_django.type(
@@ -42,9 +42,4 @@ class WirelessLANType(NetBoxObjectType):
     filters=WirelessLinkFilter
 )
 class WirelessLinkType(NetBoxObjectType):
-
-    def resolve_auth_type(self, info):
-        return self.auth_type or None
-
-    def resolve_auth_cipher(self, info):
-        return self.auth_cipher or None
+    pass

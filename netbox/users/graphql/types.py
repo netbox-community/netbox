@@ -1,3 +1,5 @@
+from typing import List
+
 import strawberry
 import strawberry_django
 from django.contrib.auth import get_user_model
@@ -36,3 +38,7 @@ class UserType:
     @classmethod
     def get_queryset(cls, queryset, info, **kwargs):
         return RestrictedQuerySet(model=get_user_model()).restrict(info.context.request.user, 'view')
+
+    @strawberry_django.field
+    def groups(self) -> List[GroupType]:
+        return self.groups.all()
