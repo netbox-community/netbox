@@ -234,8 +234,7 @@ class RouteTargetType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Service,
-    # fields='__all__',
-    exclude=('ports',),  # bug - temp
+    fields='__all__',
     filters=ServiceFilter
 )
 class ServiceType(NetBoxObjectType):
@@ -248,8 +247,7 @@ class ServiceType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.ServiceTemplate,
-    # fields='__all__',
-    exclude=('ports',),  # bug - temp
+    fields='__all__',
     filters=ServiceTemplateFilter
 )
 class ServiceTemplateType(NetBoxObjectType):
@@ -262,7 +260,30 @@ class ServiceTemplateType(NetBoxObjectType):
     filters=VLANFilter
 )
 class VLANType(NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def interfaces_as_untagged(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.interfaces_as_untagged.all()
+
+    @strawberry_django.field
+    def vminterfaces_as_untagged(self) -> List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]:
+        return self.vminterfaces_as_untagged.all()
+
+    @strawberry_django.field
+    def wirelesslan_set(self) -> List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]:
+        return self.wirelesslan_set.all()
+
+    @strawberry_django.field
+    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.prefixes.all()
+
+    @strawberry_django.field
+    def interfaces_as_tagged(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.interfaces_as_tagged.all()
+
+    @strawberry_django.field
+    def vminterfaces_as_tagged(self) -> List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]:
+        return self.vminterfaces_as_tagged.all()
 
 
 @strawberry_django.type(
@@ -271,8 +292,22 @@ class VLANType(NetBoxObjectType):
     filters=VLANGroupFilter
 )
 class VLANGroupType(OrganizationalObjectType):
-    # scope = graphene.Field('ipam.graphql.gfk_mixins.VLANGroupScopeType')
-    pass
+
+    @strawberry_django.field
+    def vlans(self) -> List[VLANType]:
+        return self.vlans.all()
+
+    @strawberry_django.field
+    def scope(self) -> Annotated[Union[
+        Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')],
+        Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')],
+        Annotated["LocationType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RackType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RegionType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("VLANGroupScopeType")]:
+        return self.scope
 
 
 @strawberry_django.type(
@@ -281,4 +316,31 @@ class VLANGroupType(OrganizationalObjectType):
     filters=VRFFilter
 )
 class VRFType(NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.interfaces.all()
+
+    @strawberry_django.field
+    def ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.ip_addresses.all()
+
+    @strawberry_django.field
+    def vminterfaces(self) -> List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]:
+        return self.vminterfaces.all()
+
+    @strawberry_django.field
+    def ip_ranges(self) -> List[Annotated["IPRangeType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.ip_ranges.all()
+
+    @strawberry_django.field
+    def export_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.export_targets.all()
+
+    @strawberry_django.field
+    def import_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.import_targets.all()
+
+    @strawberry_django.field
+    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.prefixes.all()

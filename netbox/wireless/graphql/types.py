@@ -21,7 +21,18 @@ __all__ = (
     filters=WirelessLANGroupFilter
 )
 class WirelessLANGroupType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def parent(self) -> Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')]:
+        return self.parent
+
+    @strawberry_django.field
+    def wireless_lans(self) -> List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]:
+        return self.wireless_lans.all()
+
+    @strawberry_django.field
+    def children(self) -> List[Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')]]:
+        return self.children.all()
 
 
 @strawberry_django.type(

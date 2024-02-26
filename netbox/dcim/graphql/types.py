@@ -311,7 +311,7 @@ class InventoryItemTemplateType(ComponentTemplateObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemComponentType")]]:
+    ], strawberry.union("InventoryItemTemplateComponentType")]]:
         return self.component
 
 
