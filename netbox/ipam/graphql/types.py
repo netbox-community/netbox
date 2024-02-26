@@ -97,8 +97,9 @@ class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
 )
 class FHRPGroupType(NetBoxObjectType):
 
-    def resolve_auth_type(self, info):
-        return self.auth_type or None
+    @strawberry_django.field
+    def fhrpgroupassignment_set(self) -> List[Annotated["FHRPGroupAssignmentType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.fhrpgroupassignment_set.all()
 
 
 @strawberry_django.type(
@@ -123,10 +124,27 @@ class FHRPGroupAssignmentType(BaseObjectType):
     filters=IPAddressFilter
 )
 class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
-    # assigned_object = graphene.Field('ipam.graphql.gfk_mixins.IPAddressAssignmentType')
+    address: str
 
-    def resolve_role(self, info):
-        return self.role or None
+    @strawberry_django.field
+    def nat_outside(self) -> Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]:
+        return self.nat_outside
+
+    @strawberry_django.field
+    def tunnel_terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.tunnel_terminations.all()
+
+    @strawberry_django.field
+    def services(self) -> List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.services.all()
+
+    @strawberry_django.field
+    def assigned_object(self) -> Annotated[Union[
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')],
+        Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("IPAddressAssignmentType")]:
+        return self.assigned_object
 
 
 @strawberry_django.type(
@@ -136,9 +154,8 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     filters=IPRangeFilter
 )
 class IPRangeType(NetBoxObjectType):
-
-    def resolve_role(self, info):
-        return self.role or None
+    start_address: str
+    end_address: str
 
 
 @strawberry_django.type(

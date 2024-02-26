@@ -55,7 +55,10 @@ class TunnelType(NetBoxObjectType):
     filters=IKEProposalFilter
 )
 class IKEProposalType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def ike_policies(self) -> List[Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ike_policies.all()
 
 
 @strawberry_django.type(
@@ -80,7 +83,10 @@ class IKEPolicyType(OrganizationalObjectType):
     filters=IPSecProposalFilter
 )
 class IPSecProposalType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def ipsec_policies(self) -> List[Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ipsec_policies.all()
 
 
 @strawberry_django.type(
@@ -89,7 +95,14 @@ class IPSecProposalType(OrganizationalObjectType):
     filters=IPSecPolicyFilter
 )
 class IPSecPolicyType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def proposals(self) -> List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.proposals.all()
+
+    @strawberry_django.field
+    def ipsec_profiles(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ipsec_profiles.all()
 
 
 @strawberry_django.type(
@@ -98,7 +111,10 @@ class IPSecPolicyType(OrganizationalObjectType):
     filters=IPSecProfileFilter
 )
 class IPSecProfileType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.tunnels.all()
 
 
 @strawberry_django.type(
