@@ -174,7 +174,18 @@ class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
     filters=RIRFilter
 )
 class RIRType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def asn_ranges(self) -> List[Annotated["ASNRangeType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.asn_ranges.all()
+
+    @strawberry_django.field
+    def asns(self) -> List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.asns.all()
+
+    @strawberry_django.field
+    def aggregates(self) -> List[Annotated["AggregateType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.aggregates.all()
 
 
 @strawberry_django.type(
@@ -183,7 +194,18 @@ class RIRType(OrganizationalObjectType):
     filters=RoleFilter
 )
 class RoleType(OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.prefixes.all()
+
+    @strawberry_django.field
+    def ip_ranges(self) -> List[Annotated["IPRangeType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.ip_ranges.all()
+
+    @strawberry_django.field
+    def vlans(self) -> List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.vlans.all()
 
 
 @strawberry_django.type(
@@ -192,7 +214,22 @@ class RoleType(OrganizationalObjectType):
     filters=RouteTargetFilter
 )
 class RouteTargetType(NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def exporting_l2vpns(self) -> List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.exporting_l2vpns.all()
+
+    @strawberry_django.field
+    def exporting_vrfs(self) -> List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.exporting_vrfs.all()
+
+    @strawberry_django.field
+    def importing_vrfs(self) -> List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.importing_vrfs.all()
+
+    @strawberry_django.field
+    def importing_l2vpns(self) -> List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.importing_l2vpns.all()
 
 
 @strawberry_django.type(

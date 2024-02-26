@@ -762,6 +762,26 @@ class PowerPortTemplateType(ComponentTemplateObjectType):
 class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     _name: str
 
+    @strawberry_django.field
+    def reservations(self) -> List[Annotated["RackReservationType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.reservations.all()
+
+    @strawberry_django.field
+    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.devices.all()
+
+    @strawberry_django.field
+    def powerfeed_set(self) -> List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.powerfeed_set.all()
+
+    @strawberry_django.field
+    def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.cabletermination_set.all()
+
+    @strawberry_django.field
+    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.vlan_groups.all()
+
 
 @strawberry_django.type(
     models.RackReservation,
@@ -823,7 +843,22 @@ class RearPortTemplateType(ComponentTemplateObjectType):
     filters=RegionFilter
 )
 class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
-    pass
+
+    @strawberry_django.field
+    def parent(self) -> Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]:
+        return self.region
+
+    @strawberry_django.field
+    def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.sites.all()
+
+    @strawberry_django.field
+    def children(self) -> List[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]:
+        return self.children.all()
+
+    @strawberry_django.field
+    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.vlan_groups.all()
 
 
 @strawberry_django.type(
