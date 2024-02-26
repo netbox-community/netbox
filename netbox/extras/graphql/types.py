@@ -9,7 +9,7 @@ import strawberry_django
 
 from extras import models
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
-from netbox.graphql.types import BaseObjectType, ObjectType, OrganizationalObjectType
+from netbox.graphql.types import BaseObjectType, ContentTypeType, ObjectType, OrganizationalObjectType
 from .filters import *
 
 __all__ = (
@@ -200,7 +200,11 @@ class SavedFilterType(ObjectType):
     filters=TagFilter
 )
 class TagType(ObjectType):
-    pass
+    color: str
+
+    @strawberry_django.field
+    def object_types(self) -> List[ContentTypeType]:
+        return self.object_types.all()
 
 
 @strawberry_django.type(
