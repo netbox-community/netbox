@@ -5,8 +5,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
-from core.api.serializers import JobSerializer
+from core.api.serializers import DataFileSerializer, DataSourceSerializer, JobSerializer
 from core.models import ContentType
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
@@ -22,7 +21,7 @@ from netbox.api.serializers.features import TaggableModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer, NestedTenantGroupSerializer
 from tenancy.models import Tenant, TenantGroup
-from users.api.nested_serializers import NestedUserSerializer
+from users.api.serializers import UserSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import (
     NestedClusterGroupSerializer, NestedClusterSerializer, NestedClusterTypeSerializer,
@@ -115,6 +114,28 @@ class WebhookSerializer(NetBoxModelSerializer):
 # Custom fields
 #
 
+class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+    base_choices = ChoiceField(
+        choices=CustomFieldChoiceSetBaseChoices,
+        required=False
+    )
+    extra_choices = serializers.ListField(
+        child=serializers.ListField(
+            min_length=2,
+            max_length=2
+        )
+    )
+
+    class Meta:
+        model = CustomFieldChoiceSet
+        fields = [
+            'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
+            'choices_count', 'created', 'last_updated',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
+
+
 class CustomFieldSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
     content_types = ContentTypeField(
@@ -129,7 +150,8 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     )
     filter_logic = ChoiceField(choices=CustomFieldFilterLogicChoices, required=False)
     data_type = serializers.SerializerMethodField()
-    choice_set = NestedCustomFieldChoiceSetSerializer(
+    choice_set = CustomFieldChoiceSetSerializer(
+        nested=True,
         required=False,
         allow_null=True
     )
@@ -168,28 +190,6 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         return 'string'
 
 
-class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
-    base_choices = ChoiceField(
-        choices=CustomFieldChoiceSetBaseChoices,
-        required=False
-    )
-    extra_choices = serializers.ListField(
-        child=serializers.ListField(
-            min_length=2,
-            max_length=2
-        )
-    )
-
-    class Meta:
-        model = CustomFieldChoiceSet
-        fields = [
-            'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
-            'choices_count', 'created', 'last_updated',
-        ]
-        brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
-
-
 #
 # Custom links
 #
@@ -220,10 +220,12 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.with_feature('export_templates'),
         many=True
     )
-    data_source = NestedDataSourceSerializer(
+    data_source = DataSourceSerializer(
+        nested=True,
         required=False
     )
-    data_file = NestedDataFileSerializer(
+    data_file = DataFileSerializer(
+        nested=True,
         read_only=True
     )
 
@@ -267,7 +269,7 @@ class BookmarkSerializer(ValidatedModelSerializer):
         queryset=ContentType.objects.with_feature('bookmarks'),
     )
     object = serializers.SerializerMethodField(read_only=True)
-    user = NestedUserSerializer()
+    user = UserSerializer(nested=True)
 
     class Meta:
         model = Bookmark
@@ -482,10 +484,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
         required=False,
         many=True
     )
-    data_source = NestedDataSourceSerializer(
+    data_source = DataSourceSerializer(
+        nested=True,
         required=False
     )
-    data_file = NestedDataFileSerializer(
+    data_file = DataFileSerializer(
+        nested=True,
         read_only=True
     )
 
@@ -506,10 +510,12 @@ class ConfigContextSerializer(ValidatedModelSerializer):
 
 class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:configtemplate-detail')
-    data_source = NestedDataSourceSerializer(
+    data_source = DataSourceSerializer(
+        nested=True,
         required=False
     )
-    data_file = NestedDataFileSerializer(
+    data_file = DataFileSerializer(
+        nested=True,
         required=False
     )
 
@@ -530,7 +536,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = NestedJobSerializer(read_only=True)
+    result = JobSerializer(nested=True, read_only=True)
 
     class Meta:
         model = Script
@@ -596,7 +602,8 @@ class ScriptInputSerializer(serializers.Serializer):
 
 class ObjectChangeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:objectchange-detail')
-    user = NestedUserSerializer(
+    user = UserSerializer(
+        nested=True,
         read_only=True
     )
     action = ChoiceField(

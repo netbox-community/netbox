@@ -5,8 +5,7 @@ from core.models import *
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import BaseModelSerializer, NetBoxModelSerializer
 from netbox.utils import get_data_backend_choices
-from users.api.nested_serializers import NestedUserSerializer
-from .nested_serializers import *
+from users.api.serializers import UserSerializer
 
 __all__ = (
     'DataFileSerializer',
@@ -43,7 +42,8 @@ class DataFileSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='core-api:datafile-detail'
     )
-    source = NestedDataSourceSerializer(
+    source = DataSourceSerializer(
+        nested=True,
         read_only=True
     )
 
@@ -57,7 +57,8 @@ class DataFileSerializer(NetBoxModelSerializer):
 
 class JobSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='core-api:job-detail')
-    user = NestedUserSerializer(
+    user = UserSerializer(
+        nested=True,
         read_only=True
     )
     status = ChoiceField(choices=JobStatusChoices, read_only=True)

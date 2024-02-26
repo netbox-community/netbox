@@ -1,7 +1,8 @@
-from django.db.models import ManyToManyField
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+
+from utilities.api import get_related_object_by_attrs
 
 __all__ = (
     'BaseModelSerializer',
@@ -12,14 +13,29 @@ __all__ = (
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
-    def __init__(self, *args, requested_fields=None, **kwargs):
+    def __init__(self, *args, nested=False, requested_fields=None, **kwargs):
         super().__init__(*args, **kwargs)
+
+        self.nested = nested
+
+        if nested and not requested_fields:
+            requested_fields = getattr(self.Meta, 'brief_fields', None)
 
         # If specific fields have been requested, omit the others
         if requested_fields:
             for field in list(self.fields.keys()):
                 if field not in requested_fields:
                     self.fields.pop(field)
+
+    def to_internal_value(self, data):
+
+        # If initialized as a nested serializer, we should expect to receive the attrs or PK
+        # identifying a related object.
+        if self.nested:
+            queryset = self.Meta.model.objects.all()
+            return get_related_object_by_attrs(queryset, data)
+
+        return super().to_internal_value(data)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
@@ -32,6 +48,11 @@ class ValidatedModelSerializer(BaseModelSerializer):
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
     """
     def validate(self, data):
+
+        # Skip validation if we're being used to represent a nested object
+        if self.nested:
+            return data
+
         attrs = data.copy()
 
         # Remove custom field data (if any) prior to model validation

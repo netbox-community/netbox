@@ -2,13 +2,12 @@ from rest_framework import serializers
 
 from circuits.choices import CircuitStatusChoices
 from circuits.models import *
-from dcim.api.nested_serializers import NestedSiteSerializer
-from dcim.api.serializers import CabledObjectSerializer
+from dcim.api.serializers import CabledObjectSerializer, SiteSerializer
 from ipam.api.nested_serializers import NestedASNSerializer
 from ipam.models import ASN
 from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
-from tenancy.api.nested_serializers import NestedTenantSerializer
+from tenancy.api.serializers import TenantSerializer
 from .nested_serializers import *
 
 
@@ -49,7 +48,7 @@ class ProviderSerializer(NetBoxModelSerializer):
 
 class ProviderAccountSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
-    provider = NestedProviderSerializer()
+    provider = ProviderSerializer(nested=True)
 
     class Meta:
         model = ProviderAccount
@@ -66,7 +65,7 @@ class ProviderAccountSerializer(NetBoxModelSerializer):
 
 class ProviderNetworkSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
-    provider = NestedProviderSerializer()
+    provider = ProviderSerializer(nested=True)
 
     class Meta:
         model = ProviderNetwork
@@ -98,8 +97,8 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
-    site = NestedSiteSerializer(allow_null=True)
-    provider_network = NestedProviderNetworkSerializer(allow_null=True)
+    site = SiteSerializer(nested=True, allow_null=True)
+    provider_network = ProviderNetworkSerializer(nested=True, allow_null=True)
 
     class Meta:
         model = CircuitTermination
@@ -111,11 +110,11 @@ class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
 
 class CircuitSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
-    provider = NestedProviderSerializer()
-    provider_account = NestedProviderAccountSerializer(required=False, allow_null=True)
+    provider = ProviderSerializer(nested=True)
+    provider_account = ProviderAccountSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=CircuitStatusChoices, required=False)
-    type = NestedCircuitTypeSerializer()
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    type = CircuitTypeSerializer(nested=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     termination_a = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
     termination_z = CircuitCircuitTerminationSerializer(read_only=True, allow_null=True)
 
@@ -131,9 +130,9 @@ class CircuitSerializer(NetBoxModelSerializer):
 
 class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
-    circuit = NestedCircuitSerializer()
-    site = NestedSiteSerializer(required=False, allow_null=True)
-    provider_network = NestedProviderNetworkSerializer(required=False, allow_null=True)
+    circuit = CircuitSerializer(nested=True)
+    site = SiteSerializer(nested=True, required=False, allow_null=True)
+    provider_network = ProviderNetworkSerializer(nested=True, required=False, allow_null=True)
 
     class Meta:
         model = CircuitTermination

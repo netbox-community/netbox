@@ -32,7 +32,7 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
 
 class TenantSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
-    group = NestedTenantGroupSerializer(required=False, allow_null=True)
+    group = TenantGroupSerializer(nested=True, required=False, allow_null=True)
 
     # Related object counts
     circuit_count = RelatedObjectCountField('circuits')
@@ -87,7 +87,7 @@ class ContactRoleSerializer(NetBoxModelSerializer):
 
 class ContactSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contact-detail')
-    group = NestedContactGroupSerializer(required=False, allow_null=True, default=None)
+    group = ContactGroupSerializer(nested=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = Contact
@@ -104,8 +104,8 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
         queryset=ContentType.objects.all()
     )
     object = serializers.SerializerMethodField(read_only=True)
-    contact = NestedContactSerializer()
-    role = NestedContactRoleSerializer(required=False, allow_null=True)
+    contact = ContactSerializer(nested=True)
+    role = ContactRoleSerializer(nested=True, required=False, allow_null=True)
     priority = ChoiceField(choices=ContactPriorityChoices, allow_blank=True, required=False, default=lambda: '')
 
     class Meta:

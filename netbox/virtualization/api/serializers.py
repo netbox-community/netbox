@@ -1,16 +1,14 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from dcim.api.nested_serializers import (
-    NestedDeviceSerializer, NestedDeviceRoleSerializer, NestedPlatformSerializer, NestedSiteSerializer,
-)
+from dcim.api.serializers import DeviceSerializer, DeviceRoleSerializer, PlatformSerializer, SiteSerializer
 from dcim.choices import InterfaceModeChoices
-from extras.api.nested_serializers import NestedConfigTemplateSerializer
+from extras.api.serializers import ConfigTemplateSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
-from tenancy.api.nested_serializers import NestedTenantSerializer
+from tenancy.api.serializers import TenantSerializer
 from virtualization.choices import *
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualDisk, VirtualMachine, VMInterface
 from vpn.api.nested_serializers import NestedL2VPNTerminationSerializer
@@ -53,11 +51,11 @@ class ClusterGroupSerializer(NetBoxModelSerializer):
 
 class ClusterSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:cluster-detail')
-    type = NestedClusterTypeSerializer()
-    group = NestedClusterGroupSerializer(required=False, allow_null=True, default=None)
+    type = ClusterTypeSerializer(nested=True)
+    group = ClusterGroupSerializer(nested=True, required=False, allow_null=True, default=None)
     status = ChoiceField(choices=ClusterStatusChoices, required=False)
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
-    site = NestedSiteSerializer(required=False, allow_null=True, default=None)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    site = SiteSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Related object counts
     device_count = RelatedObjectCountField('devices')
@@ -79,16 +77,16 @@ class ClusterSerializer(NetBoxModelSerializer):
 class VirtualMachineSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualmachine-detail')
     status = ChoiceField(choices=VirtualMachineStatusChoices, required=False)
-    site = NestedSiteSerializer(required=False, allow_null=True)
-    cluster = NestedClusterSerializer(required=False, allow_null=True)
-    device = NestedDeviceSerializer(required=False, allow_null=True)
-    role = NestedDeviceRoleSerializer(required=False, allow_null=True)
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
-    platform = NestedPlatformSerializer(required=False, allow_null=True)
+    site = SiteSerializer(nested=True, required=False, allow_null=True)
+    cluster = ClusterSerializer(nested=True, required=False, allow_null=True)
+    device = DeviceSerializer(nested=True, required=False, allow_null=True)
+    role = DeviceRoleSerializer(nested=True, required=False, allow_null=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
+    platform = PlatformSerializer(nested=True, required=False, allow_null=True)
     primary_ip = NestedIPAddressSerializer(read_only=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
-    config_template = NestedConfigTemplateSerializer(required=False, allow_null=True, default=None)
+    config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)
 
     # Counter fields
     interface_count = serializers.IntegerField(read_only=True)
@@ -128,7 +126,7 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
 
 class VMInterfaceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:vminterface-detail')
-    virtual_machine = NestedVirtualMachineSerializer()
+    virtual_machine = VirtualMachineSerializer(nested=True)
     parent = NestedVMInterfaceSerializer(required=False, allow_null=True)
     bridge = NestedVMInterfaceSerializer(required=False, allow_null=True)
     mode = ChoiceField(choices=InterfaceModeChoices, allow_blank=True, required=False)
@@ -178,7 +176,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
 
 class VirtualDiskSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:virtualdisk-detail')
-    virtual_machine = NestedVirtualMachineSerializer()
+    virtual_machine = VirtualMachineSerializer(nested=True)
 
     class Meta:
         model = VirtualDisk

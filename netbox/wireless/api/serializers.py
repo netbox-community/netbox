@@ -1,11 +1,11 @@
 from rest_framework import serializers
 
 from dcim.choices import LinkStatusChoices
-from dcim.api.serializers import NestedInterfaceSerializer
-from ipam.api.serializers import NestedVLANSerializer
+from dcim.api.serializers import InterfaceSerializer
+from ipam.api.serializers import VLANSerializer
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
-from tenancy.api.nested_serializers import NestedTenantSerializer
+from tenancy.api.serializers import TenantSerializer
 from wireless.choices import *
 from wireless.models import *
 from .nested_serializers import *
@@ -33,10 +33,10 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
 
 class WirelessLANSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')
-    group = NestedWirelessLANGroupSerializer(required=False, allow_null=True)
+    group = WirelessLANGroupSerializer(nested=True, required=False, allow_null=True)
     status = ChoiceField(choices=WirelessLANStatusChoices, required=False, allow_blank=True)
-    vlan = NestedVLANSerializer(required=False, allow_null=True)
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    vlan = VLANSerializer(nested=True, required=False, allow_null=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
 
@@ -52,9 +52,9 @@ class WirelessLANSerializer(NetBoxModelSerializer):
 class WirelessLinkSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslink-detail')
     status = ChoiceField(choices=LinkStatusChoices, required=False)
-    interface_a = NestedInterfaceSerializer()
-    interface_b = NestedInterfaceSerializer()
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
+    interface_a = InterfaceSerializer(nested=True)
+    interface_b = InterfaceSerializer(nested=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     auth_type = ChoiceField(choices=WirelessAuthTypeChoices, required=False, allow_blank=True)
     auth_cipher = ChoiceField(choices=WirelessAuthCipherChoices, required=False, allow_blank=True)
 

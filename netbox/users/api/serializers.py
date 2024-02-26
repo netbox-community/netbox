@@ -89,7 +89,7 @@ class TokenSerializer(ValidatedModelSerializer):
         required=False,
         write_only=not settings.ALLOW_TOKEN_RETRIEVAL
     )
-    user = NestedUserSerializer()
+    user = UserSerializer(nested=True)
     allowed_ips = serializers.ListField(
         child=IPNetworkSerializer(),
         required=False,
@@ -122,7 +122,8 @@ class TokenSerializer(ValidatedModelSerializer):
 
 
 class TokenProvisionSerializer(TokenSerializer):
-    user = NestedUserSerializer(
+    user = UserSerializer(
+        nested=True,
         read_only=True
     )
     username = serializers.CharField(
