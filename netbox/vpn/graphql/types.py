@@ -1,4 +1,4 @@
-from typing import Annotated, List
+from typing import Annotated, List, Union
 
 import strawberry
 import strawberry_django
@@ -123,7 +123,18 @@ class IPSecProfileType(OrganizationalObjectType):
     filters=L2VPNFilter
 )
 class L2VPNType(ContactsMixin, NetBoxObjectType):
-    pass
+
+    @strawberry_django.field
+    def export_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.export_targets.all()
+
+    @strawberry_django.field
+    def terminations(self) -> List[Annotated["L2VPNTerminationType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.terminations.all()
+
+    @strawberry_django.field
+    def import_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.import_targets.all()
 
 
 @strawberry_django.type(
@@ -132,5 +143,11 @@ class L2VPNType(ContactsMixin, NetBoxObjectType):
     filters=L2VPNTerminationFilter
 )
 class L2VPNTerminationType(NetBoxObjectType):
-    # assigned_object = graphene.Field('vpn.graphql.gfk_mixins.L2VPNAssignmentType')
-    pass
+
+    @strawberry_django.field
+    def assigned_object(self) -> Annotated[Union[
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VLANType", strawberry.lazy('ipam.graphql.types')],
+        Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("L2VPNAssignmentType")]:
+        return self.assigned_object
