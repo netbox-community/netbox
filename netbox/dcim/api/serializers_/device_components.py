@@ -45,7 +45,7 @@ class ConsoleServerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer,
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -76,7 +76,7 @@ class ConsolePortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -107,7 +107,7 @@ class PowerPortSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -134,7 +134,7 @@ class PowerOutletSerializer(NetBoxModelSerializer, CabledObjectSerializer, Conne
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -179,7 +179,7 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     )
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -254,7 +254,7 @@ class RearPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -286,7 +286,7 @@ class FrontPortSerializer(NetBoxModelSerializer, CabledObjectSerializer):
     device = DeviceSerializer(nested=True)
     module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'device', 'module_bay'),
+        fields=('id', 'url', 'display', 'device', 'module_bay'),
         required=False,
         allow_null=True
     )
@@ -308,7 +308,7 @@ class ModuleBaySerializer(NetBoxModelSerializer):
     device = DeviceSerializer(nested=True)
     installed_module = ModuleSerializer(
         nested=True,
-        requested_fields=('id', 'url', 'display', 'serial', 'description'),
+        fields=('id', 'url', 'display', 'serial', 'description'),
         required=False,
         allow_null=True
     )

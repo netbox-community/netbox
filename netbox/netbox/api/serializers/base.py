@@ -13,18 +13,18 @@ __all__ = (
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
-    def __init__(self, *args, nested=False, requested_fields=None, **kwargs):
+    def __init__(self, *args, nested=False, fields=None, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.nested = nested
 
-        if nested and not requested_fields:
-            requested_fields = getattr(self.Meta, 'brief_fields', None)
+        if nested and not fields:
+            fields = getattr(self.Meta, 'brief_fields', None)
 
         # If specific fields have been requested, omit the others
-        if requested_fields:
+        if fields:
             for field in list(self.fields.keys()):
-                if field not in requested_fields:
+                if field not in fields:
                     self.fields.pop(field)
 
     def to_internal_value(self, data):
