@@ -8,7 +8,6 @@ from dcim.constants import *
 from dcim.models import Cable, CablePath, CableTermination
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import GenericObjectSerializer, NetBoxModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 
@@ -67,9 +66,9 @@ class CableTerminationSerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_termination(self, obj):
-        serializer = get_serializer_for_model(obj.termination, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.termination)
         context = {'request': self.context['request']}
-        return serializer(obj.termination, context=context).data
+        return serializer(obj.termination, nested=True, context=context).data
 
 
 class CablePathSerializer(serializers.ModelSerializer):
@@ -83,9 +82,9 @@ class CablePathSerializer(serializers.ModelSerializer):
     def get_path(self, obj):
         ret = []
         for nodes in obj.path_objects:
-            serializer = get_serializer_for_model(nodes[0], prefix=NESTED_SERIALIZER_PREFIX)
+            serializer = get_serializer_for_model(nodes[0])
             context = {'request': self.context['request']}
-            ret.append(serializer(nodes, context=context, many=True).data)
+            ret.append(serializer(nodes, nested=True, many=True, context=context).data)
         return ret
 
 
@@ -118,9 +117,9 @@ class CabledObjectSerializer(serializers.ModelSerializer):
             return []
 
         # Return serialized peer termination objects
-        serializer = get_serializer_for_model(obj.link_peers[0], prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.link_peers[0])
         context = {'request': self.context['request']}
-        return serializer(obj.link_peers, context=context, many=True).data
+        return serializer(obj.link_peers, nested=True, many=True, context=context).data
 
     @extend_schema_field(serializers.BooleanField)
     def get__occupied(self, obj):

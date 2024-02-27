@@ -6,7 +6,6 @@ from ipam.api.serializers_.vrfs import RouteTargetSerializer
 from ipam.models import RouteTarget
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from vpn.choices import *
@@ -66,6 +65,6 @@ class L2VPNTerminationSerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(instance.assigned_object)
         context = {'request': self.context['request']}
-        return serializer(instance.assigned_object, context=context).data
+        return serializer(instance.assigned_object, nested=True, context=context).data

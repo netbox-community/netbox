@@ -5,7 +5,6 @@ from rest_framework import serializers
 from ipam.models import FHRPGroup, FHRPGroupAssignment
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from .ip import IPAddressSerializer
 
@@ -48,6 +47,6 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     def get_interface(self, obj):
         if obj.interface is None:
             return None
-        serializer = get_serializer_for_model(obj.interface, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.interface)
         context = {'request': self.context['request']}
-        return serializer(obj.interface, context=context).data
+        return serializer(obj.interface, nested=True, context=context).data

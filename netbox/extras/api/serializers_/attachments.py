@@ -6,7 +6,6 @@ from core.models import ContentType
 from extras.models import ImageAttachment
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import ValidatedModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 
 __all__ = (
@@ -46,5 +45,6 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_parent(self, obj):
-        serializer = get_serializer_for_model(obj.parent, prefix=NESTED_SERIALIZER_PREFIX)
-        return serializer(obj.parent, context={'request': self.context['request']}).data
+        serializer = get_serializer_for_model(obj.parent)
+        context = {'request': self.context['request']}
+        return serializer(obj.parent, nested=True, context=context).data

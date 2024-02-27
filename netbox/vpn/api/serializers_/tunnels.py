@@ -5,12 +5,10 @@ from rest_framework import serializers
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from vpn.choices import *
 from vpn.models import Tunnel, TunnelGroup, TunnelTermination
-
 from .crypto import IPSecProfileSerializer
 
 __all__ = (
@@ -109,6 +107,6 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_termination(self, obj):
-        serializer = get_serializer_for_model(obj.termination, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.termination)
         context = {'request': self.context['request']}
-        return serializer(obj.termination, context=context).data
+        return serializer(obj.termination, nested=True, context=context).data

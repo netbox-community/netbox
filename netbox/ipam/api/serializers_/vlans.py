@@ -8,11 +8,9 @@ from ipam.constants import VLANGROUP_SCOPE_TYPES
 from ipam.models import VLAN, VLANGroup
 from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
-
 from .roles import RoleSerializer
 
 __all__ = (
@@ -53,10 +51,9 @@ class VLANGroupSerializer(NetBoxModelSerializer):
     def get_scope(self, obj):
         if obj.scope_id is None:
             return None
-        serializer = get_serializer_for_model(obj.scope, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.scope)
         context = {'request': self.context['request']}
-
-        return serializer(obj.scope, context=context).data
+        return serializer(obj.scope, nested=True, context=context).data
 
 
 class VLANSerializer(NetBoxModelSerializer):

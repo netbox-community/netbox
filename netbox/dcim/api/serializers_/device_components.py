@@ -13,10 +13,10 @@ from ipam.api.serializers_.vrfs import VRFSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
 from wireless.api.nested_serializers import NestedWirelessLinkSerializer
+from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
 from .base import ConnectedEndpointsSerializer
@@ -24,7 +24,6 @@ from .cables import CabledObjectSerializer
 from .devices import DeviceSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
 from .roles import InventoryItemRoleSerializer
-from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from ..nested_serializers import *
 
 __all__ = (
@@ -364,6 +363,6 @@ class InventoryItemSerializer(NetBoxModelSerializer):
     def get_component(self, obj):
         if obj.component is None:
             return None
-        serializer = get_serializer_for_model(obj.component, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.component)
         context = {'request': self.context['request']}
-        return serializer(obj.component, context=context).data
+        return serializer(obj.component, nested=True, context=context).data

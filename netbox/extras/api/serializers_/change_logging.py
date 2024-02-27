@@ -6,7 +6,6 @@ from extras.models import ObjectChange
 from netbox.api.exceptions import SerializerNotFound
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import BaseModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from users.api.serializers_.users import UserSerializer
 from utilities.api import get_serializer_for_model
 
@@ -48,12 +47,9 @@ class ObjectChangeSerializer(BaseModelSerializer):
             return None
 
         try:
-            serializer = get_serializer_for_model(obj.changed_object, prefix=NESTED_SERIALIZER_PREFIX)
+            serializer = get_serializer_for_model(obj.changed_object)
         except SerializerNotFound:
             return obj.object_repr
-        context = {
-            'request': self.context['request']
-        }
-        data = serializer(obj.changed_object, context=context).data
+        data = serializer(obj.changed_object, nested=True, context={'request': self.context['request']}).data
 
         return data

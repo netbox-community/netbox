@@ -10,7 +10,6 @@ from dcim.models import (
 )
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import ValidatedModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from wireless.choices import *
 from .devicetypes import DeviceTypeSerializer, ModuleTypeSerializer
@@ -323,6 +322,6 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
     def get_component(self, obj):
         if obj.component is None:
             return None
-        serializer = get_serializer_for_model(obj.component, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.component)
         context = {'request': self.context['request']}
-        return serializer(obj.component, context=context).data
+        return serializer(obj.component, nested=True, context=context).data

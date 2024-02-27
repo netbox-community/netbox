@@ -8,16 +8,14 @@ from ipam.constants import IPADDRESS_ASSIGNMENT_MODELS
 from ipam.models import Aggregate, IPAddress, IPRange, Prefix
 from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.serializers_.tenants import TenantSerializer
 from utilities.api import get_serializer_for_model
-from ..field_serializers import IPAddressField, IPNetworkField
-from ..nested_serializers import *
-
 from .asns import RIRSerializer
-from .vrfs import VRFSerializer
 from .roles import RoleSerializer
 from .vlans import VLANSerializer
+from .vrfs import VRFSerializer
+from ..field_serializers import IPAddressField, IPNetworkField
+from ..nested_serializers import *
 
 __all__ = (
     'AggregateSerializer',
@@ -174,9 +172,9 @@ class IPAddressSerializer(NetBoxModelSerializer):
     def get_assigned_object(self, obj):
         if obj.assigned_object is None:
             return None
-        serializer = get_serializer_for_model(obj.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(obj.assigned_object)
         context = {'request': self.context['request']}
-        return serializer(obj.assigned_object, context=context).data
+        return serializer(obj.assigned_object, nested=True, context=context).data
 
 
 class AvailableIPSerializer(serializers.Serializer):

@@ -2,7 +2,6 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 
 __all__ = (
@@ -29,9 +28,9 @@ class ConnectedEndpointsSerializer(serializers.ModelSerializer):
         Return the appropriate serializer for the type of connected object.
         """
         if endpoints := obj.connected_endpoints:
-            serializer = get_serializer_for_model(endpoints[0], prefix=NESTED_SERIALIZER_PREFIX)
+            serializer = get_serializer_for_model(endpoints[0])
             context = {'request': self.context['request']}
-            return serializer(endpoints, many=True, context=context).data
+            return serializer(endpoints, nested=True, many=True, context=context).data
 
     @extend_schema_field(serializers.BooleanField)
     def get_connected_endpoints_reachable(self, obj):

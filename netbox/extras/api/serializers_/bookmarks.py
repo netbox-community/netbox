@@ -5,7 +5,6 @@ from core.models import ContentType
 from extras.models import Bookmark
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import ValidatedModelSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from users.api.serializers_.users import UserSerializer
 from utilities.api import get_serializer_for_model
 
@@ -31,5 +30,6 @@ class BookmarkSerializer(ValidatedModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, instance):
-        serializer = get_serializer_for_model(instance.object, prefix=NESTED_SERIALIZER_PREFIX)
-        return serializer(instance.object, context={'request': self.context['request']}).data
+        serializer = get_serializer_for_model(instance.object)
+        context = {'request': self.context['request']}
+        return serializer(instance.object, nested=True, context=context).data
