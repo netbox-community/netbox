@@ -4,7 +4,6 @@ from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from vpn.choices import *
 from vpn.models import IKEPolicy, IKEProposal, IPSecPolicy, IPSecProfile, IPSecProposal
-from ..nested_serializers import *
 
 __all__ = (
     'IKEPolicySerializer',
@@ -54,7 +53,8 @@ class IKEPolicySerializer(NetBoxModelSerializer):
     )
     proposals = SerializedPKRelatedField(
         queryset=IKEProposal.objects.all(),
-        serializer=NestedIKEProposalSerializer,
+        serializer=IKEProposalSerializer,
+        nested=True,
         required=False,
         many=True
     )
@@ -94,7 +94,8 @@ class IPSecPolicySerializer(NetBoxModelSerializer):
     )
     proposals = SerializedPKRelatedField(
         queryset=IPSecProposal.objects.all(),
-        serializer=NestedIPSecProposalSerializer,
+        serializer=IPSecProposalSerializer,
+        nested=True,
         required=False,
         many=True
     )

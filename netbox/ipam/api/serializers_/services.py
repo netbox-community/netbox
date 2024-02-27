@@ -6,7 +6,7 @@ from ipam.models import IPAddress, Service, ServiceTemplate
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from virtualization.api.serializers_.virtualmachines import VirtualMachineSerializer
-from ..nested_serializers import *
+from .ip import IPAddressSerializer
 
 __all__ = (
     'ServiceSerializer',
@@ -34,7 +34,8 @@ class ServiceSerializer(NetBoxModelSerializer):
     protocol = ChoiceField(choices=ServiceProtocolChoices, required=False)
     ipaddresses = SerializedPKRelatedField(
         queryset=IPAddress.objects.all(),
-        serializer=NestedIPAddressSerializer,
+        serializer=IPAddressSerializer,
+        nested=True,
         required=False,
         many=True
     )

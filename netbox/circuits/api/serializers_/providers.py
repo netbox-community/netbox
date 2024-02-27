@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from circuits.models import Provider, ProviderAccount, ProviderNetwork
-from ipam.api.nested_serializers import NestedASNSerializer
+from ipam.api.serializers_.asns import ASNSerializer
 from ipam.models import ASN
 from netbox.api.fields import RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -24,7 +24,8 @@ class ProviderSerializer(NetBoxModelSerializer):
     )
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
-        serializer=NestedASNSerializer,
+        serializer=ASNSerializer,
+        nested=True,
         required=False,
         many=True
     )

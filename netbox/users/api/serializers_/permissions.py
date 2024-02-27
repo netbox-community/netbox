@@ -6,7 +6,7 @@ from rest_framework import serializers
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
 from users.models import ObjectPermission
-from ..nested_serializers import *
+from .users import GroupSerializer, UserSerializer
 
 __all__ = (
     'ObjectPermissionSerializer',
@@ -21,13 +21,15 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
     )
     groups = SerializedPKRelatedField(
         queryset=Group.objects.all(),
-        serializer=NestedGroupSerializer,
+        serializer=GroupSerializer,
+        nested=True,
         required=False,
         many=True
     )
     users = SerializedPKRelatedField(
         queryset=get_user_model().objects.all(),
-        serializer=NestedUserSerializer,
+        serializer=UserSerializer,
+        nested=True,
         required=False,
         many=True
     )

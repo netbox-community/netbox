@@ -7,7 +7,7 @@ from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
-from ..nested_serializers import *
+from .ip import IPAddressSerializer
 
 __all__ = (
     'FHRPGroupAssignmentSerializer',
@@ -17,7 +17,7 @@ __all__ = (
 
 class FHRPGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
-    ip_addresses = NestedIPAddressSerializer(many=True, read_only=True)
+    ip_addresses = IPAddressSerializer(nested=True, many=True, read_only=True)
 
     class Meta:
         model = FHRPGroup

@@ -6,7 +6,7 @@ from rest_framework import serializers
 
 from dcim.choices import *
 from dcim.models import Device, DeviceBay, Module, VirtualDeviceContext
-from extras.api.serializers_.provisioning import ConfigTemplateSerializer
+from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from netbox.api.fields import ChoiceField, RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer

@@ -10,21 +10,21 @@ from dcim.models import (
 )
 from ipam.api.serializers_.vlans import VLANSerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
-from ipam.api.nested_serializers import NestedVLANSerializer
 from ipam.models import VLAN
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
-from wireless.api.nested_serializers import NestedWirelessLANSerializer, NestedWirelessLinkSerializer
+from wireless.api.nested_serializers import NestedWirelessLinkSerializer
 from wireless.choices import *
 from wireless.models import WirelessLAN
 from .base import ConnectedEndpointsSerializer
 from .cables import CabledObjectSerializer
-from .devices import DeviceSerializer, ModuleSerializer
+from .devices import DeviceSerializer, ModuleSerializer, VirtualDeviceContextSerializer
 from .manufacturers import ManufacturerSerializer
 from .roles import InventoryItemRoleSerializer
+from wireless.api.serializers_.wirelesslans import WirelessLANSerializer
 from ..nested_serializers import *
 
 __all__ = (
@@ -173,7 +173,8 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     device = DeviceSerializer(nested=True)
     vdcs = SerializedPKRelatedField(
         queryset=VirtualDeviceContext.objects.all(),
-        serializer=NestedVirtualDeviceContextSerializer,
+        serializer=VirtualDeviceContextSerializer,
+        nested=True,
         required=False,
         many=True
     )
@@ -196,7 +197,8 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     untagged_vlan = VLANSerializer(nested=True, required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
-        serializer=NestedVLANSerializer,
+        serializer=VLANSerializer,
+        nested=True,
         required=False,
         many=True
     )
@@ -205,7 +207,8 @@ class InterfaceSerializer(NetBoxModelSerializer, CabledObjectSerializer, Connect
     wireless_link = NestedWirelessLinkSerializer(read_only=True, allow_null=True)
     wireless_lans = SerializedPKRelatedField(
         queryset=WirelessLAN.objects.all(),
-        serializer=NestedWirelessLANSerializer,
+        serializer=WirelessLANSerializer,
+        nested=True,
         required=False,
         many=True
     )

@@ -3,7 +3,7 @@ from timezone_field.rest_framework import TimeZoneSerializerField
 
 from dcim.choices import *
 from dcim.models import Location, Region, Site, SiteGroup
-from ipam.api.nested_serializers import NestedASNSerializer
+from ipam.api.serializers_.asns import ASNSerializer
 from ipam.models import ASN
 from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
@@ -55,7 +55,8 @@ class SiteSerializer(NetBoxModelSerializer):
     time_zone = TimeZoneSerializerField(required=False, allow_null=True)
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
-        serializer=NestedASNSerializer,
+        serializer=ASNSerializer,
+        nested=True,
         required=False,
         many=True
     )

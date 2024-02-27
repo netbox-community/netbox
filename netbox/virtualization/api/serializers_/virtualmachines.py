@@ -6,8 +6,7 @@ from dcim.api.serializers_.platforms import PlatformSerializer
 from dcim.api.serializers_.roles import DeviceRoleSerializer
 from dcim.api.serializers_.sites import SiteSerializer
 from dcim.choices import InterfaceModeChoices
-from extras.api.serializers_.provisioning import ConfigTemplateSerializer
-from ipam.api.nested_serializers import NestedVLANSerializer
+from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from ipam.api.serializers_.ip import IPAddressSerializer
 from ipam.api.serializers_.vlans import VLANSerializer
 from ipam.api.serializers_.vrfs import VRFSerializer
@@ -18,9 +17,8 @@ from tenancy.api.serializers_.tenants import TenantSerializer
 from virtualization.choices import *
 from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 from vpn.api.serializers_.l2vpn import L2VPNTerminationSerializer
-from ..nested_serializers import *
-
 from .clusters import ClusterSerializer
+from ..nested_serializers import *
 
 __all__ = (
     'VMInterfaceSerializer',
@@ -89,7 +87,8 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
     untagged_vlan = VLANSerializer(nested=True, required=False, allow_null=True)
     tagged_vlans = SerializedPKRelatedField(
         queryset=VLAN.objects.all(),
-        serializer=NestedVLANSerializer,
+        serializer=VLANSerializer,
+        nested=True,
         required=False,
         many=True
     )

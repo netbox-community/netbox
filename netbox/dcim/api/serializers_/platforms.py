@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from dcim.models import Platform
-from extras.api.serializers_.provisioning import ConfigTemplateSerializer
+from extras.api.serializers_.configtemplates import ConfigTemplateSerializer
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import NetBoxModelSerializer
 from .manufacturers import ManufacturerSerializer

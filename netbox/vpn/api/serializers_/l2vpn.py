@@ -2,7 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from ipam.api.nested_serializers import NestedRouteTargetSerializer
+from ipam.api.serializers_.vrfs import RouteTargetSerializer
 from ipam.models import RouteTarget
 from netbox.api.fields import ChoiceField, ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
@@ -23,13 +23,15 @@ class L2VPNSerializer(NetBoxModelSerializer):
     type = ChoiceField(choices=L2VPNTypeChoices, required=False)
     import_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
-        serializer=NestedRouteTargetSerializer,
+        serializer=RouteTargetSerializer,
+        nested=True,
         required=False,
         many=True
     )
     export_targets = SerializedPKRelatedField(
         queryset=RouteTarget.objects.all(),
-        serializer=NestedRouteTargetSerializer,
+        serializer=RouteTargetSerializer,
+        nested=True,
         required=False,
         many=True
     )

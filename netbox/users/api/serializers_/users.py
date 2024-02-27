@@ -6,7 +6,6 @@ from rest_framework import serializers
 
 from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
-from ..nested_serializers import *
 
 __all__ = (
     'GroupSerializer',
@@ -14,11 +13,22 @@ __all__ = (
 )
 
 
+class GroupSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')
+    user_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Group
+        fields = ('id', 'url', 'display', 'name', 'user_count')
+        brief_fields = ('id', 'url', 'display', 'name')
+
+
 class UserSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:user-detail')
     groups = SerializedPKRelatedField(
         queryset=Group.objects.all(),
-        serializer=NestedGroupSerializer,
+        serializer=GroupSerializer,
+        nested=True,
         required=False,
         many=True
     )
@@ -60,13 +70,3 @@ class UserSerializer(ValidatedModelSerializer):
         if full_name := obj.get_full_name():
             return f"{obj.username} ({full_name})"
         return obj.username
-
-
-class GroupSerializer(ValidatedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='users-api:group-detail')
-    user_count = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Group
-        fields = ('id', 'url', 'display', 'name', 'user_count')
-        brief_fields = ('id', 'url', 'display', 'name')

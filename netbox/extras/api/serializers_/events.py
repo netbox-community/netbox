@@ -9,7 +9,7 @@ from netbox.api.fields import ChoiceField, ContentTypeField
 from netbox.api.serializers import NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
-from ..nested_serializers import *
+from .scripts import ScriptSerializer
 
 __all__ = (
     'EventRuleSerializer',
@@ -49,7 +49,7 @@ class EventRuleSerializer(NetBoxModelSerializer):
         if instance.action_type == EventRuleActionChoices.SCRIPT:
             script = instance.action_object
             instance = script.python_class() if script.python_class else None
-            return NestedScriptSerializer(instance, context=context).data
+            return ScriptSerializer(instance, nested=True, context=context).data
         else:
             serializer = get_serializer_for_model(
                 model=instance.action_object_type.model_class(),
