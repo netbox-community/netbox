@@ -60,29 +60,28 @@ def parse_alphanumeric_range(string):
                 return []
         except ValueError:
             begin, end = dash_range, dash_range
+
+        # Value-based
         if begin == end:
             values.append(begin)
+        # Numeric range-based
         elif begin.isdigit() and end.isdigit():
             if int(begin) >= int(end):
                 raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
 
             for n in list(range(int(begin), int(end) + 1)):
                 values.append(n)
+        # Range-based
         else:
-            # Value-based
-            if begin == end:
-                values.append(begin)
-            # Range-based
-            else:
-                # Not a valid range (more than a single character)
-                if not len(begin) == len(end) == 1:
-                    raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
+            # Not a valid range (more than a single character)
+            if not len(begin) == len(end) == 1:
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
 
-                if ord(begin) >= ord(end):
-                    raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
+            if ord(begin) >= ord(end):
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
 
-                for n in list(range(ord(begin), ord(end) + 1)):
-                    values.append(chr(n))
+            for n in list(range(ord(begin), ord(end) + 1)):
+                values.append(chr(n))
     return values
 
 
