@@ -52,4 +52,9 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name='NetBoxGroup',
         ),
+
+        # Delete groups from the old table
+        migrations.RunSQL(
+            "DELETE from auth_group"
+        ),
     ]
