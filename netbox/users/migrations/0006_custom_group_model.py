@@ -2,6 +2,20 @@ import users.models
 from django.db import migrations, models
 
 
+def update_custom_fields(apps, schema_editor):
+    """
+    Update any CustomFields referencing the old Group model to use the new model.
+    """
+    ContentType = apps.get_model('contenttypes', 'ContentType')
+    CustomField = apps.get_model('extras', 'CustomField')
+    Group = apps.get_model('users', 'Group')
+
+    old_ct = ContentType.objects.get_by_natural_key('users', 'netboxgroup')
+    new_ct = ContentType.objects.get_for_model(Group)
+
+    CustomField.objects.filter(object_type=old_ct).update(object_type=new_ct)
+
+
 class Migration(migrations.Migration):
 
     dependencies = [
@@ -56,5 +70,11 @@ class Migration(migrations.Migration):
         # Delete groups from the old table
         migrations.RunSQL(
             "DELETE from auth_group"
+        ),
+
+        # Update custom fields
+        migrations.RunPython(
+            code=update_custom_fields,
+            reverse_code=migrations.RunPython.noop
         ),
     ]
