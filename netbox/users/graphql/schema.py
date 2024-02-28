@@ -1,10 +1,10 @@
 import graphene
-
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+
 from netbox.graphql.fields import ObjectField, ObjectListField
-from .types import *
+from users.models import Group
 from utilities.graphql_optimizer import gql_query_optimizer
+from .types import *
 
 
 class UsersQuery(graphene.ObjectType):

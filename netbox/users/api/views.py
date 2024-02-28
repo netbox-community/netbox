@@ -1,11 +1,9 @@
 import logging
-from django.contrib.auth import authenticate
+
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.db.models import Count
-from drf_spectacular.utils import extend_schema
 from drf_spectacular.types import OpenApiTypes
-from rest_framework.exceptions import AuthenticationFailed
+from drf_spectacular.utils import extend_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.routers import APIRootView
@@ -15,7 +13,7 @@ from rest_framework.viewsets import ViewSet
 
 from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
-from users.models import ObjectPermission, Token, UserConfig
+from users.models import Group, ObjectPermission, Token, UserConfig
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import deepmerge
 from . import serializers
@@ -40,7 +38,7 @@ class UserViewSet(NetBoxModelViewSet):
 
 
 class GroupViewSet(NetBoxModelViewSet):
-    queryset = RestrictedQuerySet(model=Group).annotate(user_count=Count('user')).order_by('name')
+    queryset = Group.objects.annotate(user_count=Count('user'))
     serializer_class = serializers.GroupSerializer
     filterset_class = filtersets.GroupFilterSet
 

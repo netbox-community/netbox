@@ -51,6 +51,7 @@ def get_viewname(model, action=None, rest_api=False):
         if is_plugin:
             viewname = f'plugins-api:{app_label}-api:{model_name}'
         else:
+            # TODO: Remove this logic
             # Alter the app_label for group and user model_name to point to users app
             if app_label == 'auth' and model_name in ['group', 'user']:
                 app_label = 'users'

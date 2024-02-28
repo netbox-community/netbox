@@ -53,7 +53,7 @@
         <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
         <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
-            <a href="{% url 'users:netboxgroup' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
+            <a href="{% url 'users:group' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}

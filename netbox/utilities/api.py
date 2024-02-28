@@ -32,6 +32,7 @@ def get_serializer_for_model(model, prefix=''):
     Dynamically resolve and return the appropriate serializer for a model.
     """
     app_name, model_name = model._meta.label.split('.')
+    # TODO: Remove this logic
     # Serializers for Django's auth models are in the users app
     if app_name == 'auth':
         app_name = 'users'

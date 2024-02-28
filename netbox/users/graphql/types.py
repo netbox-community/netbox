@@ -1,8 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from graphene_django import DjangoObjectType
 
 from users import filtersets
+from users.models import Group
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (

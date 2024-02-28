@@ -1,11 +1,10 @@
 import django_filters
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from netbox.filtersets import BaseFilterSet
-from users.models import ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token
 
 __all__ = (
     'GroupFilterSet',
