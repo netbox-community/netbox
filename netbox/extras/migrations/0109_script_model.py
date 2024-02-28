@@ -99,7 +99,7 @@ def update_scripts(apps, schema_editor):
                 object_type=scriptmodule_ct,
                 object_id=module.pk,
                 name=script_name
-            ).update(object_type=script_ct, object_id=script.pk)
+            ).update(object_type_id=script_ct.id, object_id=script.pk)
 
 
 def update_event_rules(apps, schema_editor):

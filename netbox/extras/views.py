@@ -1149,6 +1149,34 @@ class ScriptResultView(generic.ObjectView):
     def get_required_permission(self):
         return 'extras.view_script'
 
+    def job_to_result_array(self, job):
+        results = []
+        if job.data:
+            if 'log' in job.data:
+                for log in job.data['log']:
+                    result = {
+                        'method': None,
+                        'time': log.get('time', None),
+                        'level': log.get('level', None),
+                        'object': log.get('object', None),
+                        'message': log.get('message', None),
+                    }
+                    results.append(result)
+            else:
+                for test in job.data:
+                    if 'log' in test:
+                        for time, level, obj, url, message in test['log']:
+                            result = {
+                                'method': test,
+                                'time': time,
+                                'level': level,
+                                'object': obj,
+                                'url': url,
+                                'message': message,
+                            }
+
+        return data
+
     def get(self, request, **kwargs):
         job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
 
