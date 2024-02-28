@@ -96,7 +96,7 @@ def update_scripts(apps, schema_editor):
 
             # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
             Job.objects.filter(
-                object_type=scriptmodule_ct,
+                object_type_id=scriptmodule_ct.id,
                 object_id=module.pk,
                 name=script_name
             ).update(object_type_id=script_ct.id, object_id=script.pk)
