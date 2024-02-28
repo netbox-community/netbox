@@ -10,10 +10,9 @@ def update_custom_fields(apps, schema_editor):
     CustomField = apps.get_model('extras', 'CustomField')
     Group = apps.get_model('users', 'Group')
 
-    old_ct = ContentType.objects.get_by_natural_key('users', 'netboxgroup')
-    new_ct = ContentType.objects.get_for_model(Group)
-
-    CustomField.objects.filter(object_type=old_ct).update(object_type=new_ct)
+    if old_ct := ContentType.objects.filter(app_label='users', model='netboxgroup').first():
+        new_ct = ContentType.objects.get_for_model(Group)
+        CustomField.objects.filter(object_type=old_ct).update(object_type=new_ct)
 
 
 class Migration(migrations.Migration):
@@ -63,10 +62,6 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(blank=True, related_name='object_permissions', to='users.group'),
         ),
 
-        migrations.DeleteModel(
-            name='NetBoxGroup',
-        ),
-
         # Delete groups from the old table
         migrations.RunSQL(
             "DELETE from auth_group"
@@ -76,5 +71,10 @@ class Migration(migrations.Migration):
         migrations.RunPython(
             code=update_custom_fields,
             reverse_code=migrations.RunPython.noop
+        ),
+
+        # Delete the proxy model
+        migrations.DeleteModel(
+            name='NetBoxGroup',
         ),
     ]
