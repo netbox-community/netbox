@@ -702,7 +702,6 @@ class DeviceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device_type = NestedDeviceTypeSerializer()
     role = NestedDeviceRoleSerializer()
-    device_role = NestedDeviceRoleSerializer(read_only=True, help_text='Deprecated in v3.6 in favor of `role`.')
     tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
@@ -744,13 +743,13 @@ class DeviceSerializer(NetBoxModelSerializer):
     class Meta:
         model = Device
         fields = [
-            'id', 'url', 'display', 'name', 'device_type', 'role', 'device_role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
-            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'description', 'comments', 'config_template', 'local_context_data', 'tags',
-            'custom_fields', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
-            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
-            'device_bay_count', 'module_bay_count', 'inventory_item_count',
+            'id', 'url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag', 'site',
+            'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'description', 'comments', 'config_template', 'local_context_data', 'tags', 'custom_fields',
+            'created', 'last_updated', 'console_port_count', 'console_server_port_count', 'power_port_count',
+            'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count', 'device_bay_count',
+            'module_bay_count', 'inventory_item_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -765,22 +764,19 @@ class DeviceSerializer(NetBoxModelSerializer):
         data['device_bay'] = NestedDeviceBaySerializer(instance=device_bay, context=context).data
         return data
 
-    def get_device_role(self, obj):
-        return obj.role
-
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
     config_context = serializers.SerializerMethodField(read_only=True)
 
     class Meta(DeviceSerializer.Meta):
         fields = [
-            'id', 'url', 'display', 'name', 'device_type', 'role', 'device_role', 'tenant', 'platform', 'serial',
-            'asset_tag', 'site', 'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device',
-            'status', 'airflow', 'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis',
-            'vc_position', 'vc_priority', 'description', 'comments', 'config_template', 'config_context',
-            'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated', 'console_port_count',
-            'console_server_port_count', 'power_port_count', 'power_outlet_count', 'interface_count',
-            'front_port_count', 'rear_port_count', 'device_bay_count', 'module_bay_count', 'inventory_item_count',
+            'id', 'url', 'display', 'name', 'device_type', 'role', 'tenant', 'platform', 'serial', 'asset_tag', 'site',
+            'location', 'rack', 'position', 'face', 'latitude', 'longitude', 'parent_device', 'status', 'airflow',
+            'primary_ip', 'primary_ip4', 'primary_ip6', 'oob_ip', 'cluster', 'virtual_chassis', 'vc_position',
+            'vc_priority', 'description', 'comments', 'config_template', 'config_context', 'local_context_data', 'tags',
+            'custom_fields', 'created', 'last_updated', 'console_port_count', 'console_server_port_count',
+            'power_port_count', 'power_outlet_count', 'interface_count', 'front_port_count', 'rear_port_count',
+            'device_bay_count', 'module_bay_count', 'inventory_item_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
