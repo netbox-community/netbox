@@ -367,20 +367,6 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
                 'primary_for_parent', _("Only IP addresses assigned to an interface can be designated as primary IPs.")
             )
 
-        # Do not allow assigning a network ID or broadcast address to an interface.
-        if interface and (address := self.cleaned_data.get('address')):
-            if address.ip == address.network:
-                msg = _("{ip} is a network ID, which may not be assigned to an interface.").format(ip=address.ip)
-                if address.version == 4 and address.prefixlen not in (31, 32):
-                    raise ValidationError(msg)
-                if address.version == 6 and address.prefixlen not in (127, 128):
-                    raise ValidationError(msg)
-            if address.version == 4 and address.ip == address.broadcast and address.prefixlen not in (31, 32):
-                msg = _("{ip} is a broadcast address, which may not be assigned to an interface.").format(
-                    ip=address.ip
-                )
-                raise ValidationError(msg)
-
     def save(self, *args, **kwargs):
         ipaddress = super().save(*args, **kwargs)
 
