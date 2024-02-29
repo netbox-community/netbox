@@ -476,7 +476,7 @@ class NewBranchScript(Script):
                 name=f'{site.slug}-switch{i}',
                 site=site,
                 status=DeviceStatusChoices.STATUS_PLANNED,
-                device_role=switch_role
+                role=switch_role
             )
             switch.full_clean()
             switch.save()

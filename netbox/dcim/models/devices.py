@@ -815,20 +815,6 @@ class Device(
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
 
-    @property
-    def device_role(self):
-        """
-        For backwards compatibility with pre-v3.6 code expecting a device_role to be present on Device.
-        """
-        return self.role
-
-    @device_role.setter
-    def device_role(self, value):
-        """
-        For backwards compatibility with pre-v3.6 code expecting a device_role to be present on Device.
-        """
-        self.role = value
-
     def clean(self):
         super().clean()
 
