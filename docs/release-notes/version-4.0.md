@@ -13,6 +13,10 @@
 
 The NetBox user interface has been completely refreshed and updated.
 
+#### Dynamic REST API Fields ([#15087](https://github.com/netbox-community/netbox/issues/15087))
+
+The REST API now supports specifying which fields to include in the response data.
+
 ### Enhancements
 
 * [#12851](https://github.com/netbox-community/netbox/issues/12851) - Replace bleach HTML sanitization library with nh3
@@ -22,6 +26,9 @@ The NetBox user interface has been completely refreshed and updated.
 * [#14672](https://github.com/netbox-community/netbox/issues/14672) - Add support for Python 3.12
 * [#14728](https://github.com/netbox-community/netbox/issues/14728) - The plugins list view has been moved from the legacy admin UI to the main NetBox UI
 * [#14729](https://github.com/netbox-community/netbox/issues/14729) - All background task views have been moved from the legacy admin UI to the main NetBox UI
+* [#14438](https://github.com/netbox-community/netbox/issues/14438) - Track individual custom scripts as database objects
+* [#15131](https://github.com/netbox-community/netbox/issues/15131) - Automatically annotate related object counts on REST API querysets
+* [#15238](https://github.com/netbox-community/netbox/issues/15238) - Include the `description` field in "brief" REST API serializations
 
 ### Other Changes
 
@@ -34,5 +41,6 @@ The NetBox user interface has been completely refreshed and updated.
 * [#14657](https://github.com/netbox-community/netbox/issues/14657) - Remove backward compatibility for old permissions mapping under `ActionsMixin`
 * [#14658](https://github.com/netbox-community/netbox/issues/14658) - Remove backward compatibility for importing `process_webhook()` (now `extras.webhooks.send_webhook()`)
 * [#14740](https://github.com/netbox-community/netbox/issues/14740) - Remove the obsolete `BootstrapMixin` form mixin class
+* [#15042](https://github.com/netbox-community/netbox/issues/15042) - Rearchitect the logic for registering models & model features
 * [#15099](https://github.com/netbox-community/netbox/issues/15099) - Remove obsolete `device_role` and `device_role_id` filters for devices
 * [#15100](https://github.com/netbox-community/netbox/issues/15100) - Remove obsolete `NullableCharField` class
