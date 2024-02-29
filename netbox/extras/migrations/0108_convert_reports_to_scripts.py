@@ -25,7 +25,4 @@ class Migration(migrations.Migration):
         migrations.DeleteModel(
             name='Report',
         ),
-        migrations.DeleteModel(
-            name='ReportModule',
-        ),
     ]
