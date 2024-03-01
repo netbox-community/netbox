@@ -1,4 +1,7 @@
+from functools import cached_property
+
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import BindingDict
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 
@@ -14,18 +17,22 @@ class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
     def __init__(self, *args, nested=False, fields=None, **kwargs):
-        super().__init__(*args, **kwargs)
+        """
+        Extends the base __init__() method to support dynamic fields.
 
+        :param nested: Set to True if this serializer is being employed within a parent serializer
+        :param fields: An iterable of fields to include when rendering the serialized object, If nested is
+            True but no fields are specified, Meta.brief_fields will be used.
+        """
         self.nested = nested
+        self._requested_fields = fields
 
+        # If this serializer is nested but no fields have been specified,
+        # default to using Meta.brief_fields (if set)
         if nested and not fields:
-            fields = getattr(self.Meta, 'brief_fields', None)
+            self._requested_fields = getattr(self.Meta, 'brief_fields', None)
 
-        # If specific fields have been requested, omit the others
-        if fields:
-            for field in list(self.fields.keys()):
-                if field not in fields:
-                    self.fields.pop(field)
+        super().__init__(*args, **kwargs)
 
     def to_internal_value(self, data):
 
@@ -36,6 +43,21 @@ class BaseModelSerializer(serializers.ModelSerializer):
             return get_related_object_by_attrs(queryset, data)
 
         return super().to_internal_value(data)
+
+    @cached_property
+    def fields(self):
+        """
+        Override the fields property to check for requested fields. If defined,
+        return only the applicable fields.
+        """
+        if not self._requested_fields:
+            return super().fields
+
+        fields = BindingDict(self)
+        for key, value in self.get_fields().items():
+            if key in self._requested_fields:
+                fields[key] = value
+        return fields
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
