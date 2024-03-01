@@ -59,6 +59,14 @@ class CustomLinkType(ObjectType):
         filterset_class = filtersets.CustomLinkFilterSet
 
 
+class EventRuleType(OrganizationalObjectType):
+
+    class Meta:
+        model = models.EventRule
+        exclude = ('object_types',)
+        filterset_class = filtersets.EventRuleFilterSet
+
+
 class ExportTemplateType(ObjectType):
 
     class Meta:
@@ -112,11 +120,3 @@ class WebhookType(OrganizationalObjectType):
     class Meta:
         model = models.Webhook
         filterset_class = filtersets.WebhookFilterSet
-
-
-class EventRuleType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.EventRule
-        exclude = ('content_types', )
-        filterset_class = filtersets.EventRuleFilterSet

@@ -250,10 +250,10 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
 
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('content_type_id', 'action_type', 'enabled')),
+        (_('Attributes'), ('object_types_id', 'action_type', 'enabled')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
-    content_type_id = ContentTypeMultipleChoiceField(
+    object_types_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('event_rules'),
         required=False,
         label=_('Object type')

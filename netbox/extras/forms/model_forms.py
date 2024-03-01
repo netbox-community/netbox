@@ -248,8 +248,8 @@ class WebhookForm(NetBoxModelForm):
 
 
 class EventRuleForm(NetBoxModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
     action_choice = forms.ChoiceField(
@@ -266,7 +266,7 @@ class EventRuleForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Event Rule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
+        (_('Event Rule'), ('name', 'description', 'object_types', 'enabled', 'tags')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
         (_('Conditions'), ('conditions',)),
         (_('Action'), (
@@ -277,7 +277,7 @@ class EventRuleForm(NetBoxModelForm):
     class Meta:
         model = EventRule
         fields = (
-            'content_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
+            'object_types', 'name', 'description', 'type_create', 'type_update', 'type_delete', 'type_job_start',
             'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type', 'action_object_id',
             'action_data', 'comments', 'tags'
         )

@@ -38,4 +38,16 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(related_name='custom_links', to='core.objecttype'),
         ),
+
+        # Event rules
+        migrations.RenameField(
+            model_name='eventrule',
+            old_name='content_types',
+            new_name='object_types',
+        ),
+        migrations.AlterField(
+            model_name='eventrule',
+            name='object_types',
+            field=models.ManyToManyField(related_name='event_rules', to='core.objecttype'),
+        ),
     ]

@@ -397,7 +397,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         for webhook in webhooks:
             webhook.save()
 
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         event_rules = (
             EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
             EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
@@ -405,12 +405,12 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         for event in event_rules:
             event.save()
-            event.content_types.add(site_ct)
+            event.object_types.add(site_type)
 
         webhook_ct = ContentType.objects.get_for_model(Webhook)
         cls.form_data = {
             'name': 'Event X',
-            'content_types': [site_ct.pk],
+            'object_types': [site_type.pk],
             'type_create': False,
             'type_update': True,
             'type_delete': True,
@@ -423,7 +423,7 @@ class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,content_types,type_create,action_type,action_object",
+            "name,object_types,type_create,action_type,action_object",
             "Webhook 4,dcim.site,True,webhook,Webhook 1",
         )
 

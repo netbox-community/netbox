@@ -122,7 +122,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'name': 'EventRule 4',
-                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'object_types': ['dcim.device', 'dcim.devicetype'],
                 'type_create': True,
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
@@ -130,7 +130,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'name': 'EventRule 5',
-                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'object_types': ['dcim.device', 'dcim.devicetype'],
                 'type_create': True,
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
@@ -138,7 +138,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'name': 'EventRule 6',
-                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'object_types': ['dcim.device', 'dcim.devicetype'],
                 'type_create': True,
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',

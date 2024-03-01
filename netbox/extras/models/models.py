@@ -43,9 +43,9 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
     specific type of object is created, modified, or deleted. The action to be taken might entail transmitting a
     webhook or executing a custom script.
     """
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
-        related_name='eventrules',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
+        related_name='event_rules',
         verbose_name=_('object types'),
         help_text=_("The object(s) to which this rule applies.")
     )

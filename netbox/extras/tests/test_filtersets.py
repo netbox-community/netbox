@@ -241,7 +241,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(
+        object_types = ObjectType.objects.filter(
             model__in=['region', 'site', 'rack', 'location', 'device']
         )
 
@@ -334,11 +334,11 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
             ),
         )
         EventRule.objects.bulk_create(event_rules)
-        event_rules[0].content_types.add(content_types[0])
-        event_rules[1].content_types.add(content_types[1])
-        event_rules[2].content_types.add(content_types[2])
-        event_rules[3].content_types.add(content_types[3])
-        event_rules[4].content_types.add(content_types[4])
+        event_rules[0].object_types.add(object_types[0])
+        event_rules[1].object_types.add(object_types[1])
+        event_rules[2].object_types.add(object_types[2])
+        event_rules[3].object_types.add(object_types[3])
+        event_rules[4].object_types.add(object_types[4])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -352,10 +352,10 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_types(self):
-        params = {'content_types': 'dcim.region'}
+    def test_object_types(self):
+        params = {'object_types': 'dcim.region'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Region).pk]}
+        params = {'object_types_id': [ContentType.objects.get_for_model(Region).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_action_type(self):

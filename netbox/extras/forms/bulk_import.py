@@ -173,8 +173,8 @@ class WebhookImportForm(NetBoxModelImportForm):
 
 
 class EventRuleImportForm(NetBoxModelImportForm):
-    content_types = CSVMultipleContentTypeField(
-        label=_('Content types'),
+    object_types = CSVMultipleContentTypeField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
         help_text=_("One or more assigned object types")
     )
@@ -187,7 +187,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
     class Meta:
         model = EventRule
         fields = (
-            'name', 'description', 'enabled', 'conditions', 'content_types', 'type_create', 'type_update',
+            'name', 'description', 'enabled', 'conditions', 'object_types', 'type_create', 'type_update',
             'type_delete', 'type_job_start', 'type_job_end', 'action_type', 'action_object', 'comments', 'tags'
         )
 

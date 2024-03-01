@@ -89,10 +89,10 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_types_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_types = ContentTypeFilter()
     action_type = django_filters.MultipleChoiceFilter(
         choices=EventRuleActionChoices
     )
