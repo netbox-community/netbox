@@ -83,9 +83,9 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = ContactAssignment
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Assignment'), ('content_type_id', 'group_id', 'contact_id', 'role_id', 'priority')),
+        (_('Assignment'), ('object_type_id', 'group_id', 'contact_id', 'role_id', 'priority')),
     )
-    content_type_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('contacts'),
         required=False,
         label=_('Object type')

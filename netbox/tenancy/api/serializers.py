@@ -100,7 +100,7 @@ class ContactSerializer(NetBoxModelSerializer):
 
 class ContactAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
-    content_type = ContentTypeField(
+    object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
     object = serializers.SerializerMethodField(read_only=True)
@@ -111,13 +111,13 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
     class Meta:
         model = ContactAssignment
         fields = [
-            'id', 'url', 'display', 'content_type', 'object_id', 'object', 'contact', 'role', 'priority', 'tags',
+            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'contact', 'role', 'priority', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'contact', 'role', 'priority')
 
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_object(self, instance):
-        serializer = get_serializer_for_model(instance.content_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
+        serializer = get_serializer_for_model(instance.object_type.model_class(), prefix=NESTED_SERIALIZER_PREFIX)
         context = {'request': self.context['request']}
         return serializer(instance.object, context=context).data

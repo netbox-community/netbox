@@ -86,7 +86,7 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type = ContentTypeFilter()
+    object_type = ContentTypeFilter()
     contact_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Contact.objects.all(),
         label=_('Contact (ID)'),
@@ -118,7 +118,7 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'content_type_id', 'object_id', 'priority', 'tag']
+        fields = ['id', 'object_type_id', 'object_id', 'priority', 'tag']
 
     def search(self, queryset, name, value):
         if not value.strip():

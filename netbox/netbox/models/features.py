@@ -343,7 +343,9 @@ class ContactsMixin(models.Model):
     Enables the assignments of Contacts (via ContactAssignment).
     """
     contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
+        to='tenancy.ContactAssignment',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:
