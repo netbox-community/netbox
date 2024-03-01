@@ -329,7 +329,9 @@ class ImageAttachmentsMixin(models.Model):
     Enables the assignments of ImageAttachments.
     """
     images = GenericRelation(
-        to='extras.ImageAttachment'
+        to='extras.ImageAttachment',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:

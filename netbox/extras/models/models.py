@@ -598,13 +598,13 @@ class ImageAttachment(ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
-    content_type = models.ForeignKey(
+    object_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.CASCADE
     )
     object_id = models.PositiveBigIntegerField()
     parent = GenericForeignKey(
-        ct_field='content_type',
+        ct_field='object_type',
         fk_field='object_id'
     )
     image = models.ImageField(
@@ -626,12 +626,12 @@ class ImageAttachment(ChangeLoggedModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    clone_fields = ('content_type', 'object_id')
+    clone_fields = ('object_type', 'object_id')
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
         indexes = (
-            models.Index(fields=('content_type', 'object_id')),
+            models.Index(fields=('object_type', 'object_id')),
         )
         verbose_name = _('image attachment')
         verbose_name_plural = _('image attachments')
@@ -646,9 +646,9 @@ class ImageAttachment(ChangeLoggedModel):
         super().clean()
 
         # Validate the assigned object type
-        if self.content_type not in ObjectType.objects.with_feature('image_attachments'):
+        if self.object_type not in ObjectType.objects.with_feature('image_attachments'):
             raise ValidationError(
-                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.content_type)
+                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
 
     def delete(self, *args, **kwargs):

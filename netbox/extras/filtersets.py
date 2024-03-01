@@ -318,11 +318,11 @@ class ImageAttachmentFilterSet(BaseFilterSet):
         label=_('Search'),
     )
     created = django_filters.DateTimeFilter()
-    content_type = ContentTypeFilter()
+    object_type = ContentTypeFilter()
 
     class Meta:
         model = ImageAttachment
-        fields = ['id', 'content_type_id', 'object_id', 'name']
+        fields = ['id', 'object_type_id', 'object_id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():

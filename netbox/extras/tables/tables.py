@@ -174,8 +174,8 @@ class ImageAttachmentTable(NetBoxTable):
         verbose_name=_('ID'),
         linkify=False
     )
-    content_type = columns.ContentTypeColumn(
-        verbose_name=_('Content Type'),
+    object_type = columns.ContentTypeColumn(
+        verbose_name=_('Object Type'),
     )
     parent = tables.Column(
         verbose_name=_('Parent'),
@@ -193,10 +193,10 @@ class ImageAttachmentTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ImageAttachment
         fields = (
-            'pk', 'content_type', 'parent', 'image', 'name', 'image_height', 'image_width', 'size', 'created',
+            'pk', 'object_type', 'parent', 'image', 'name', 'image_height', 'image_width', 'size', 'created',
             'last_updated',
         )
-        default_columns = ('content_type', 'parent', 'image', 'name', 'size', 'created')
+        default_columns = ('object_type', 'parent', 'image', 'name', 'size', 'created')
 
 
 class SavedFilterTable(NetBoxTable):

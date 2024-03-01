@@ -693,7 +693,7 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
 
         image_attachments = (
             ImageAttachment(
-                content_type=site_ct,
+                object_type=site_ct,
                 object_id=sites[0].pk,
                 name='Image Attachment 1',
                 image='http://example.com/image1.png',
@@ -701,7 +701,7 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
                 image_width=100
             ),
             ImageAttachment(
-                content_type=site_ct,
+                object_type=site_ct,
                 object_id=sites[1].pk,
                 name='Image Attachment 2',
                 image='http://example.com/image2.png',
@@ -709,7 +709,7 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
                 image_width=100
             ),
             ImageAttachment(
-                content_type=rack_ct,
+                object_type=rack_ct,
                 object_id=racks[0].pk,
                 name='Image Attachment 3',
                 image='http://example.com/image3.png',
@@ -717,7 +717,7 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
                 image_width=100
             ),
             ImageAttachment(
-                content_type=rack_ct,
+                object_type=rack_ct,
                 object_id=racks[1].pk,
                 name='Image Attachment 4',
                 image='http://example.com/image4.png',
@@ -735,13 +735,13 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Image Attachment 1', 'Image Attachment 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_type(self):
-        params = {'content_type': 'dcim.site'}
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_type_id_and_object_id(self):
+    def test_object_type_id_and_object_id(self):
         params = {
-            'content_type_id': ContentType.objects.get(app_label='dcim', model='site').pk,
+            'object_type_id': ContentType.objects.get(app_label='dcim', model='site').pk,
             'object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)

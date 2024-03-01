@@ -548,7 +548,7 @@ class ImageAttachmentTest(
 
         image_attachments = (
             ImageAttachment(
-                content_type=ct,
+                object_type=ct,
                 object_id=site.pk,
                 name='Image Attachment 1',
                 image='http://example.com/image1.png',
@@ -556,7 +556,7 @@ class ImageAttachmentTest(
                 image_width=100
             ),
             ImageAttachment(
-                content_type=ct,
+                object_type=ct,
                 object_id=site.pk,
                 name='Image Attachment 2',
                 image='http://example.com/image2.png',
@@ -564,7 +564,7 @@ class ImageAttachmentTest(
                 image_width=100
             ),
             ImageAttachment(
-                content_type=ct,
+                object_type=ct,
                 object_id=site.pk,
                 name='Image Attachment 3',
                 image='http://example.com/image3.png',

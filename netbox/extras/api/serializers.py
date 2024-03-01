@@ -312,7 +312,7 @@ class TagSerializer(ValidatedModelSerializer):
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
-    content_type = ContentTypeField(
+    object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
     parent = serializers.SerializerMethodField(read_only=True)
@@ -320,7 +320,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
     class Meta:
         model = ImageAttachment
         fields = [
-            'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
+            'id', 'url', 'display', 'object_type', 'object_id', 'parent', 'name', 'image', 'image_height',
             'image_width', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'image')
@@ -329,10 +329,10 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         # Validate that the parent object exists
         try:
-            data['content_type'].get_object_for_this_type(id=data['object_id'])
+            data['object_type'].get_object_for_this_type(id=data['object_id'])
         except ObjectDoesNotExist:
             raise serializers.ValidationError(
-                "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
+                "Invalid parent object: {} ID {}".format(data['object_type'], data['object_id'])
             )
 
         # Enforce model validation

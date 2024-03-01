@@ -179,10 +179,10 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
 class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        (_('Attributes'), ('content_type_id', 'name',)),
+        (_('Attributes'), ('object_type_id', 'name',)),
     )
-    content_type_id = ContentTypeChoiceField(
-        label=_('Content type'),
+    object_type_id = ContentTypeChoiceField(
+        label=_('Object type'),
         queryset=ObjectType.objects.with_feature('image_attachments'),
         required=False
     )

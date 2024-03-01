@@ -74,4 +74,19 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(related_name='saved_filters', to='core.objecttype'),
         ),
+
+        # Image attachments
+        migrations.RemoveIndex(
+            model_name='imageattachment',
+            name='extras_imag_content_94728e_idx',
+        ),
+        migrations.RenameField(
+            model_name='imageattachment',
+            old_name='content_type',
+            new_name='object_type',
+        ),
+        migrations.AddIndex(
+            model_name='imageattachment',
+            index=models.Index(fields=['object_type', 'object_id'], name='extras_imag_object__96bebc_idx'),
+        ),
     ]
