@@ -7,7 +7,7 @@ from rest_framework import serializers
 
 from core.api.nested_serializers import NestedDataSourceSerializer, NestedDataFileSerializer, NestedJobSerializer
 from core.api.serializers import JobSerializer
-from core.models import ContentType
+from core.models import ObjectType
 from dcim.api.nested_serializers import (
     NestedDeviceRoleSerializer, NestedDeviceTypeSerializer, NestedLocationSerializer, NestedPlatformSerializer,
     NestedRegionSerializer, NestedSiteSerializer, NestedSiteGroupSerializer,
@@ -60,12 +60,12 @@ __all__ = (
 class EventRuleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
     content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.with_feature('event_rules'),
         many=True
     )
     action_type = ChoiceField(choices=EventRuleActionChoices)
     action_object_type = ContentTypeField(
-        queryset=ContentType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.with_feature('event_rules'),
     )
     action_object = serializers.SerializerMethodField(read_only=True)
 
@@ -118,12 +118,12 @@ class WebhookSerializer(NetBoxModelSerializer):
 class CustomFieldSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
     content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('custom_fields'),
+        queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
     object_type = ContentTypeField(
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         required=False,
         allow_null=True
     )
@@ -197,7 +197,7 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
 class CustomLinkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customlink-detail')
     content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('custom_links'),
+        queryset=ObjectType.objects.with_feature('custom_links'),
         many=True
     )
 
@@ -217,7 +217,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
 class ExportTemplateSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:exporttemplate-detail')
     content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('export_templates'),
+        queryset=ObjectType.objects.with_feature('export_templates'),
         many=True
     )
     data_source = NestedDataSourceSerializer(
@@ -244,7 +244,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 class SavedFilterSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:savedfilter-detail')
     content_types = ContentTypeField(
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         many=True
     )
 
@@ -264,7 +264,7 @@ class SavedFilterSerializer(ValidatedModelSerializer):
 class BookmarkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
     object_type = ContentTypeField(
-        queryset=ContentType.objects.with_feature('bookmarks'),
+        queryset=ObjectType.objects.with_feature('bookmarks'),
     )
     object = serializers.SerializerMethodField(read_only=True)
     user = NestedUserSerializer()
@@ -289,7 +289,7 @@ class BookmarkSerializer(ValidatedModelSerializer):
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
     object_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('tags'),
+        queryset=ObjectType.objects.with_feature('tags'),
         many=True,
         required=False
     )
@@ -313,7 +313,7 @@ class TagSerializer(ValidatedModelSerializer):
 class ImageAttachmentSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
     content_type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        queryset=ObjectType.objects.all()
     )
     parent = serializers.SerializerMethodField(read_only=True)
 
@@ -353,7 +353,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 class JournalEntrySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
     assigned_object_type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        queryset=ObjectType.objects.all()
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(
@@ -645,7 +645,7 @@ class ContentTypeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:contenttype-detail')
 
     class Meta:
-        model = ContentType
+        model = ObjectType
         fields = ['id', 'url', 'display', 'app_label', 'model']
 
 

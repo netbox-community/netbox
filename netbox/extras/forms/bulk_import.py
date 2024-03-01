@@ -6,7 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelImportForm
@@ -32,7 +32,7 @@ __all__ = (
 class CustomFieldImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('custom_fields'),
+        queryset=ObjectType.objects.with_feature('custom_fields'),
         help_text=_("One or more assigned object types")
     )
     type = CSVChoiceField(
@@ -42,7 +42,7 @@ class CustomFieldImportForm(CSVModelForm):
     )
     object_type = CSVContentTypeField(
         label=_('Object type'),
-        queryset=ContentType.objects.public(),
+        queryset=ObjectType.objects.public(),
         required=False,
         help_text=_("Object type (for object or multi-object fields)")
     )
@@ -113,7 +113,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
 class CustomLinkImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('custom_links'),
+        queryset=ObjectType.objects.with_feature('custom_links'),
         help_text=_("One or more assigned object types")
     )
 
@@ -128,7 +128,7 @@ class CustomLinkImportForm(CSVModelForm):
 class ExportTemplateImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('export_templates'),
+        queryset=ObjectType.objects.with_feature('export_templates'),
         help_text=_("One or more assigned object types")
     )
 
@@ -151,7 +151,7 @@ class ConfigTemplateImportForm(CSVModelForm):
 class SavedFilterImportForm(CSVModelForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         help_text=_("One or more assigned object types")
     )
 
@@ -175,7 +175,7 @@ class WebhookImportForm(NetBoxModelImportForm):
 class EventRuleImportForm(NetBoxModelImportForm):
     content_types = CSVMultipleContentTypeField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.with_feature('event_rules'),
         help_text=_("One or more assigned object types")
     )
     action_object = forms.CharField(
@@ -213,7 +213,7 @@ class EventRuleImportForm(NetBoxModelImportForm):
                 except ObjectDoesNotExist:
                     raise forms.ValidationError(_("Script {name} not found").format(name=action_object))
                 self.instance.action_object = script
-                self.instance.action_object_type = ContentType.objects.get_for_model(script, for_concrete_model=False)
+                self.instance.action_object_type = ObjectType.objects.get_for_model(script, for_concrete_model=False)
 
 
 class TagImportForm(CSVModelForm):
@@ -229,7 +229,7 @@ class TagImportForm(CSVModelForm):
 
 class JournalEntryImportForm(NetBoxModelImportForm):
     assigned_object_type = CSVContentTypeField(
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         label=_('Assigned object type'),
     )
     kind = CSVChoiceField(

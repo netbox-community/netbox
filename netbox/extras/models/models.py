@@ -12,7 +12,7 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
@@ -646,7 +646,7 @@ class ImageAttachment(ChangeLoggedModel):
         super().clean()
 
         # Validate the assigned object type
-        if self.content_type not in ContentType.objects.with_feature('image_attachments'):
+        if self.content_type not in ObjectType.objects.with_feature('image_attachments'):
             raise ValidationError(
                 _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.content_type)
             )
@@ -739,7 +739,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         super().clean()
 
         # Validate the assigned object type
-        if self.assigned_object_type not in ContentType.objects.with_feature('journaling'):
+        if self.assigned_object_type not in ObjectType.objects.with_feature('journaling'):
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
             )
@@ -795,7 +795,7 @@ class Bookmark(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ContentType.objects.with_feature('bookmarks'):
+        if self.object_type not in ObjectType.objects.with_feature('bookmarks'):
             raise ValidationError(
                 _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )

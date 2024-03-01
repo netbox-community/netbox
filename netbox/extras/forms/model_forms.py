@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
-from core.models import ContentType
+from core.models import ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
@@ -41,11 +41,11 @@ __all__ = (
 class CustomFieldForm(forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('custom_fields')
+        queryset=ObjectType.objects.with_feature('custom_fields')
     )
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
-        queryset=ContentType.objects.public(),
+        queryset=ObjectType.objects.public(),
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")
     )
@@ -125,7 +125,7 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
 class CustomLinkForm(forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('custom_links')
+        queryset=ObjectType.objects.with_feature('custom_links')
     )
 
     fieldsets = (
@@ -154,7 +154,7 @@ class CustomLinkForm(forms.ModelForm):
 class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('export_templates')
+        queryset=ObjectType.objects.with_feature('export_templates')
     )
     template_code = forms.CharField(
         label=_('Template code'),
@@ -195,7 +195,7 @@ class SavedFilterForm(forms.ModelForm):
     slug = SlugField()
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.all()
+        queryset=ObjectType.objects.all()
     )
     parameters = JSONField()
 
@@ -221,7 +221,7 @@ class SavedFilterForm(forms.ModelForm):
 class BookmarkForm(forms.ModelForm):
     object_type = ContentTypeChoiceField(
         label=_('Object type'),
-        queryset=ContentType.objects.with_feature('bookmarks')
+        queryset=ObjectType.objects.with_feature('bookmarks')
     )
 
     class Meta:
@@ -251,7 +251,7 @@ class WebhookForm(NetBoxModelForm):
 class EventRuleForm(NetBoxModelForm):
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.with_feature('event_rules'),
     )
     action_choice = forms.ChoiceField(
         label=_('Action choice'),
@@ -339,11 +339,11 @@ class EventRuleForm(NetBoxModelForm):
         action_choice = self.cleaned_data.get('action_choice')
         # Webhook
         if self.cleaned_data.get('action_type') == EventRuleActionChoices.WEBHOOK:
-            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(action_choice)
+            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(action_choice)
             self.cleaned_data['action_object_id'] = action_choice.id
         # Script
         elif self.cleaned_data.get('action_type') == EventRuleActionChoices.SCRIPT:
-            self.cleaned_data['action_object_type'] = ContentType.objects.get_for_model(
+            self.cleaned_data['action_object_type'] = ObjectType.objects.get_for_model(
                 Script,
                 for_concrete_model=False
             )
@@ -356,7 +356,7 @@ class TagForm(forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
-        queryset=ContentType.objects.with_feature('tags'),
+        queryset=ObjectType.objects.with_feature('tags'),
         required=False
     )
 

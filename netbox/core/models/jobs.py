@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 
 from core.choices import JobStatusChoices
-from core.models import ContentType
+from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from netbox.config import get_config
@@ -130,7 +130,7 @@ class Job(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ContentType.objects.with_feature('jobs'):
+        if self.object_type not in ObjectType.objects.with_feature('jobs'):
             raise ValidationError(
                 _("Jobs cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
@@ -210,7 +210,7 @@ class Job(models.Model):
             schedule_at: Schedule the job to be executed at the passed date and time
             interval: Recurrence interval (in minutes)
         """
-        object_type = ContentType.objects.get_for_model(instance, for_concrete_model=False)
+        object_type = ObjectType.objects.get_for_model(instance, for_concrete_model=False)
         rq_queue_name = get_queue_for_model(object_type.model)
         queue = django_rq.get_queue(rq_queue_name)
         status = JobStatusChoices.STATUS_SCHEDULED if schedule_at else JobStatusChoices.STATUS_PENDING

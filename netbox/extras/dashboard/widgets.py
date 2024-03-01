@@ -12,7 +12,7 @@ from django.template.loader import render_to_string
 from django.urls import NoReverseMatch, resolve, reverse
 from django.utils.translation import gettext as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
 from utilities.choices import ButtonColorChoices
 from utilities.permissions import get_permission_for_model
@@ -34,14 +34,14 @@ __all__ = (
 def get_object_type_choices():
     return [
         (content_type_identifier(ct), content_type_name(ct))
-        for ct in ContentType.objects.public().order_by('app_label', 'model')
+        for ct in ObjectType.objects.public().order_by('app_label', 'model')
     ]
 
 
 def get_bookmarks_object_type_choices():
     return [
         (content_type_identifier(ct), content_type_name(ct))
-        for ct in ContentType.objects.with_feature('bookmarks').order_by('app_label', 'model')
+        for ct in ObjectType.objects.with_feature('bookmarks').order_by('app_label', 'model')
     ]
 
 
@@ -52,7 +52,7 @@ def get_models_from_content_types(content_types):
     models = []
     for content_type_id in content_types:
         app_label, model_name = content_type_id.split('.')
-        content_type = ContentType.objects.get_by_natural_key(app_label, model_name)
+        content_type = ObjectType.objects.get_by_natural_key(app_label, model_name)
         models.append(content_type.model_class())
     return models
 
@@ -238,7 +238,7 @@ class ObjectListWidget(DashboardWidget):
 
     def render(self, request):
         app_label, model_name = self.config['model'].split('.')
-        model = ContentType.objects.get_by_natural_key(app_label, model_name).model_class()
+        model = ObjectType.objects.get_by_natural_key(app_label, model_name).model_class()
         viewname = get_viewname(model, action='list')
 
         # Evaluate user's permission. Note that this controls only whether the HTMX element is
@@ -371,7 +371,7 @@ class BookmarksWidget(DashboardWidget):
             bookmarks = Bookmark.objects.filter(user=request.user).order_by(self.config['order_by'])
             if object_types := self.config.get('object_types'):
                 models = get_models_from_content_types(object_types)
-                conent_types = ContentType.objects.get_for_models(*models).values()
+                conent_types = ObjectType.objects.get_for_models(*models).values()
                 bookmarks = bookmarks.filter(object_type__in=conent_types)
             if max_items := self.config.get('max_items'):
                 bookmarks = bookmarks[:max_items]

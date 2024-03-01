@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.utils import is_taggable
 from netbox.config import get_config
@@ -490,7 +490,7 @@ class SyncedDataMixin(models.Model):
         ret = super().save(*args, **kwargs)
 
         # Create/delete AutoSyncRecord as needed
-        content_type = ContentType.objects.get_for_model(self)
+        content_type = ObjectType.objects.get_for_model(self)
         if self.auto_sync_enabled:
             AutoSyncRecord.objects.update_or_create(
                 object_type=content_type,
@@ -510,7 +510,7 @@ class SyncedDataMixin(models.Model):
         from core.models import AutoSyncRecord
 
         # Delete AutoSyncRecord
-        content_type = ContentType.objects.get_for_model(self)
+        content_type = ObjectType.objects.get_for_model(self)
         AutoSyncRecord.objects.filter(
             datafile=self.data_file,
             object_type=content_type,

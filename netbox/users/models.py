@@ -22,7 +22,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from netaddr import IPNetwork
 
-from core.models import ContentType
+from core.models import ObjectType
 from ipam.fields import IPNetworkField
 from netbox.config import get_config
 from utilities.querysets import RestrictedQuerySet

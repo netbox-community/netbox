@@ -5,7 +5,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from netbox.models import NetBoxModel, PrimaryModel
 from netbox.models.features import ContactsMixin
 from vpn.choices import L2VPNTypeChoices
@@ -128,7 +128,7 @@ class L2VPNTermination(NetBoxModel):
         # Only check is assigned_object is set.  Required otherwise we have an Integrity Error thrown.
         if self.assigned_object:
             obj_id = self.assigned_object.pk
-            obj_type = ContentType.objects.get_for_model(self.assigned_object)
+            obj_type = ObjectType.objects.get_for_model(self.assigned_object)
             if L2VPNTermination.objects.filter(assigned_object_id=obj_id, assigned_object_type=obj_type).\
                     exclude(pk=self.pk).count() > 0:
                 raise ValidationError(
@@ -150,7 +150,7 @@ class L2VPNTermination(NetBoxModel):
 
     @property
     def assigned_object_parent(self):
-        obj_type = ContentType.objects.get_for_model(self.assigned_object)
+        obj_type = ObjectType.objects.get_for_model(self.assigned_object)
         if obj_type.model == 'vminterface':
             return self.assigned_object.virtual_machine
         elif obj_type.model == 'interface':

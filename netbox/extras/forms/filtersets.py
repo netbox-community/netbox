@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType, DataFile, DataSource
+from core.models import ObjectType, DataFile, DataSource
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from extras.choices import *
 from extras.models import *
@@ -43,7 +43,7 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
         )),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('custom_fields'),
+        queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
         label=_('Object type')
     )
@@ -112,7 +112,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     )
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.with_feature('custom_links'),
+        queryset=ObjectType.objects.with_feature('custom_links'),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -155,7 +155,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
         }
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('export_templates'),
+        queryset=ObjectType.objects.with_feature('export_templates'),
         required=False,
         label=_('Content types')
     )
@@ -183,7 +183,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     )
     content_type_id = ContentTypeChoiceField(
         label=_('Content type'),
-        queryset=ContentType.objects.with_feature('image_attachments'),
+        queryset=ObjectType.objects.with_feature('image_attachments'),
         required=False
     )
     name = forms.CharField(
@@ -199,7 +199,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     )
     content_types = ContentTypeMultipleChoiceField(
         label=_('Content types'),
-        queryset=ContentType.objects.public(),
+        queryset=ObjectType.objects.public(),
         required=False
     )
     enabled = forms.NullBooleanField(
@@ -254,7 +254,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.with_feature('event_rules'),
         required=False,
         label=_('Object type')
     )
@@ -310,12 +310,12 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
 class TagFilterForm(SavedFiltersMixin, FilterForm):
     model = Tag
     content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('tags'),
+        queryset=ObjectType.objects.with_feature('tags'),
         required=False,
         label=_('Tagged object type')
     )
     for_object_type_id = ContentTypeChoiceField(
-        queryset=ContentType.objects.with_feature('tags'),
+        queryset=ObjectType.objects.with_feature('tags'),
         required=False,
         label=_('Allowed object type')
     )
@@ -464,7 +464,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         label=_('User')
     )
     assigned_object_type_id = DynamicModelMultipleChoiceField(
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         required=False,
         label=_('Object Type'),
         widget=APISelectMultiple(
@@ -507,7 +507,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         label=_('User')
     )
     changed_object_type_id = DynamicModelMultipleChoiceField(
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         required=False,
         label=_('Object Type'),
         widget=APISelectMultiple(
