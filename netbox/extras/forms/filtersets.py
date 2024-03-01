@@ -139,7 +139,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Data'), ('data_source_id', 'data_file_id')),
-        (_('Attributes'), ('content_type_id', 'mime_type', 'file_extension', 'as_attachment')),
+        (_('Attributes'), ('object_types_id', 'mime_type', 'file_extension', 'as_attachment')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -154,7 +154,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
             'source_id': '$data_source_id'
         }
     )
-    content_type_id = ContentTypeMultipleChoiceField(
+    object_types_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         required=False,
         label=_('Content types')

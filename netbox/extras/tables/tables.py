@@ -139,8 +139,8 @@ class ExportTemplateTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content Types'),
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object Types'),
     )
     as_attachment = columns.BooleanColumn(
         verbose_name=_('As Attachment'),
@@ -161,11 +161,11 @@ class ExportTemplateTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = ExportTemplate
         fields = (
-            'pk', 'id', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
+            'pk', 'id', 'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment',
             'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
+            'pk', 'name', 'object_types', 'description', 'mime_type', 'file_extension', 'as_attachment', 'is_synced',
         )
 
 

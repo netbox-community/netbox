@@ -70,9 +70,9 @@
       <div class="card">
         <h5 class="card-header">{% trans "Assigned Models" %}</h5>
         <table class="table table-hover attr-table">
-          {% for ct in object.content_types.all %}
+          {% for object_type in object.object_types.all %}
             <tr>
-              <td>{{ ct }}</td>
+              <td>{{ object_type }}</td>
             </tr>
           {% endfor %}
         </table>

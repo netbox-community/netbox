@@ -50,4 +50,16 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(related_name='event_rules', to='core.objecttype'),
         ),
+
+        # Export templates
+        migrations.RenameField(
+            model_name='exporttemplate',
+            old_name='content_types',
+            new_name='object_types',
+        ),
+        migrations.AlterField(
+            model_name='exporttemplate',
+            name='object_types',
+            field=models.ManyToManyField(related_name='export_templates', to='core.objecttype'),
+        ),
     ]

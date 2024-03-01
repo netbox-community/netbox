@@ -71,7 +71,7 @@ class ExportTemplateType(ObjectType):
 
     class Meta:
         model = models.ExportTemplate
-        exclude = ('content_types', )
+        exclude = ('object_types', )
         filterset_class = filtersets.ExportTemplateFilterSet
 
 

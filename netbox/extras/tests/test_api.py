@@ -458,17 +458,17 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.device'],
+            'object_types': ['dcim.device'],
             'name': 'Test Export Template 4',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_types': ['dcim.device'],
+            'object_types': ['dcim.device'],
             'name': 'Test Export Template 5',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_types': ['dcim.device'],
+            'object_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
@@ -495,7 +495,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for et in export_templates:
-            et.content_types.set([ContentType.objects.get_for_model(Device)])
+            et.object_types.set([ObjectType.objects.get_for_model(Device)])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):

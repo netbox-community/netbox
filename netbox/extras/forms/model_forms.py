@@ -151,8 +151,8 @@ class CustomLinkForm(forms.ModelForm):
 
 
 class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('export_templates')
     )
     template_code = forms.CharField(
@@ -162,7 +162,7 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Export Template'), ('name', 'content_types', 'description', 'template_code')),
+        (_('Export Template'), ('name', 'object_types', 'description', 'template_code')),
         (_('Data Source'), ('data_source', 'data_file', 'auto_sync_enabled')),
         (_('Rendering'), ('mime_type', 'file_extension', 'as_attachment')),
     )

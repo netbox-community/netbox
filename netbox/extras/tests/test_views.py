@@ -303,7 +303,7 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         TEMPLATE_CODE = """{% for object in queryset %}{{ object }}{% endfor %}"""
 
         export_templates = (
@@ -313,16 +313,16 @@ class ExportTemplateTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for et in export_templates:
-            et.content_types.set([site_ct])
+            et.object_types.set([site_type])
 
         cls.form_data = {
             'name': 'Export Template X',
-            'content_types': [site_ct.pk],
+            'object_types': [site_type.pk],
             'template_code': TEMPLATE_CODE,
         }
 
         cls.csv_data = (
-            "name,content_types,template_code",
+            "name,object_types,template_code",
             f"Export Template 4,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 5,dcim.site,{TEMPLATE_CODE}",
             f"Export Template 6,dcim.site,{TEMPLATE_CODE}",

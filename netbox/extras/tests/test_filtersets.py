@@ -639,7 +639,7 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+        object_types = ObjectType.objects.filter(model__in=['site', 'rack', 'device'])
 
         export_templates = (
             ExportTemplate(name='Export Template 1', template_code='TESTING', description='foobar1'),
@@ -648,7 +648,7 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for i, et in enumerate(export_templates):
-            et.content_types.set([content_types[i]])
+            et.object_types.set([object_types[i]])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -658,10 +658,10 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Export Template 1', 'Export Template 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_types(self):
-        params = {'content_types': 'dcim.site'}
+    def test_object_types(self):
+        params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'object_types_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):

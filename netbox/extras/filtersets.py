@@ -217,10 +217,10 @@ class ExportTemplateFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_types_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_types = ContentTypeFilter()
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
         label=_('Data source (ID)'),
@@ -232,7 +232,7 @@ class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_types', 'name', 'description', 'data_synced']
+        fields = ['id', 'object_types', 'name', 'description', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():
