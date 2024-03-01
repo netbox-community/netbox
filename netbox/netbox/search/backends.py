@@ -11,6 +11,7 @@ from django.utils.module_loading import import_string
 import netaddr
 from netaddr.core import AddrFormatError
 
+from core.models import ObjectType
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
 from utilities.querysets import RestrictedPrefetch
@@ -134,7 +135,7 @@ class CachedValueSearchBackend(SearchBackend):
         # objects). This must be done before generating the final results list, which returns
         # a RawQuerySet.
         content_type_ids = set(queryset.values_list('object_type', flat=True))
-        content_types = ContentType.objects.filter(pk__in=content_type_ids)
+        object_types = ObjectType.objects.filter(pk__in=content_type_ids)
 
         # Construct a Prefetch to pre-fetch only those related objects for which the
         # user has permission to view.
@@ -153,7 +154,7 @@ class CachedValueSearchBackend(SearchBackend):
 
         # Iterate through each ContentType represented in the search results and prefetch any
         # related objects necessary to render the prescribed display attributes (display_attrs).
-        for ct in content_types:
+        for ct in object_types:
             model = ct.model_class()
             indexer = registry['search'].get(content_type_identifier(ct))
             if not (display_attrs := getattr(indexer, 'display_attrs', None)):
@@ -182,7 +183,7 @@ class CachedValueSearchBackend(SearchBackend):
         return ret
 
     def cache(self, instances, indexer=None, remove_existing=True):
-        content_type = None
+        object_type = None
         custom_fields = None
 
         # Convert a single instance to an iterable
@@ -204,8 +205,8 @@ class CachedValueSearchBackend(SearchBackend):
                         break
 
                 # Prefetch any associated custom fields
-                content_type = ContentType.objects.get_for_model(indexer.model)
-                custom_fields = CustomField.objects.filter(content_types=content_type).exclude(search_weight=0)
+                object_type = ObjectType.objects.get_for_model(indexer.model)
+                custom_fields = CustomField.objects.filter(object_types=object_type).exclude(search_weight=0)
 
             # Wipe out any previously cached values for the object
             if remove_existing:
@@ -215,7 +216,7 @@ class CachedValueSearchBackend(SearchBackend):
             for field in indexer.to_cache(instance, custom_fields=custom_fields):
                 buffer.append(
                     CachedValue(
-                        object_type=content_type,
+                        object_type=object_type,
                         object_id=instance.pk,
                         field=field.name,
                         type=field.type,

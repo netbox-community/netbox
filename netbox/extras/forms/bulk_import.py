@@ -30,8 +30,8 @@ __all__ = (
 
 
 class CustomFieldImportForm(CSVModelForm):
-    content_types = CSVMultipleContentTypeField(
-        label=_('Content types'),
+    object_types = CSVMultipleContentTypeField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
         help_text=_("One or more assigned object types")
     )
@@ -69,7 +69,7 @@ class CustomFieldImportForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'group_name', 'type', 'content_types', 'object_type', 'required', 'description',
+            'name', 'label', 'group_name', 'type', 'object_types', 'object_type', 'required', 'description',
             'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
             'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable',
         )

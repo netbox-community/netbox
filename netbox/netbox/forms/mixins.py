@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
@@ -32,16 +33,16 @@ class CustomFieldsMixin:
 
     def _get_content_type(self):
         """
-        Return the ContentType of the form's model.
+        Return the ObjectType of the form's model.
         """
         if not getattr(self, 'model', None):
             raise NotImplementedError(_("{class_name} must specify a model class.").format(
                 class_name=self.__class__.__name__
             ))
-        return ContentType.objects.get_for_model(self.model)
+        return ObjectType.objects.get_for_model(self.model)
 
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(content_types=content_type).exclude(
+        return CustomField.objects.filter(object_types=content_type).exclude(
             ui_editable=CustomFieldUIEditableChoices.HIDDEN
         )
 

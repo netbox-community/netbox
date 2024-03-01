@@ -88,7 +88,7 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
 
     def _get_custom_fields(self, content_type):
         return CustomField.objects.filter(
-            content_types=content_type,
+            object_types=content_type,
             ui_editable=CustomFieldUIEditableChoices.YES
         )
 

@@ -281,7 +281,7 @@ class NetBoxModelFilterSet(ChangeLoggedModelFilterSet):
 
         # Dynamically add a Filter for each CustomField applicable to the parent model
         custom_fields = CustomField.objects.filter(
-            content_types=ContentType.objects.get_for_model(self._meta.model)
+            object_types=ContentType.objects.get_for_model(self._meta.model)
         ).exclude(
             filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED
         )

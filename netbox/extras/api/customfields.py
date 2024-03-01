@@ -26,7 +26,7 @@ class CustomFieldDefaultValues:
 
         # Retrieve the CustomFields for the parent model
         content_type = ContentType.objects.get_for_model(self.model)
-        fields = CustomField.objects.filter(content_types=content_type)
+        fields = CustomField.objects.filter(object_types=content_type)
 
         # Populate the default value for each CustomField
         value = {}
@@ -48,7 +48,7 @@ class CustomFieldsDataField(Field):
         """
         if not hasattr(self, '_custom_fields'):
             content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
-            self._custom_fields = CustomField.objects.filter(content_types=content_type)
+            self._custom_fields = CustomField.objects.filter(object_types=content_type)
         return self._custom_fields
 
     def to_representation(self, obj):

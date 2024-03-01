@@ -117,7 +117,7 @@ class WebhookSerializer(NetBoxModelSerializer):
 
 class CustomFieldSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
-    content_types = ContentTypeField(
+    object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True
     )
@@ -139,7 +139,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
+            'id', 'url', 'display', 'object_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
             'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
             'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set',
             'created', 'last_updated',

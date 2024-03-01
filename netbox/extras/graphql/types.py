@@ -39,7 +39,7 @@ class CustomFieldType(ObjectType):
 
     class Meta:
         model = models.CustomField
-        exclude = ('content_types', )
+        exclude = ('object_types', 'object_type')
         filterset_class = filtersets.CustomFieldFilterSet
 
 

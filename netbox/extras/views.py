@@ -46,9 +46,9 @@ class CustomFieldView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         related_models = ()
 
-        for content_type in instance.content_types.all():
+        for object_type in instance.object_types.all():
             related_models += (
-                content_type.model_class().objects.restrict(request.user, 'view').exclude(
+                object_type.model_class().objects.restrict(request.user, 'view').exclude(
                     Q(**{f'custom_field_data__{instance.name}': ''}) |
                     Q(**{f'custom_field_data__{instance.name}': None})
                 ),

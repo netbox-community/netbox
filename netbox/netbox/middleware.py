@@ -70,8 +70,8 @@ class CoreMiddleware:
             return
 
         # Cleanly handle exceptions that occur from REST API requests
-        if is_api_request(request):
-            return rest_api_server_error(request)
+        # if is_api_request(request):
+        #     return rest_api_server_error(request)
 
         # Ignore Http404s (defer to Django's built-in 404 handling)
         if isinstance(exception, Http404):

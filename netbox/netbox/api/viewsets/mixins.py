@@ -5,6 +5,7 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 
+from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
 
@@ -26,9 +27,9 @@ class CustomFieldsMixin:
         context = super().get_serializer_context()
 
         if hasattr(self.queryset.model, 'custom_fields'):
-            content_type = ContentType.objects.get_for_model(self.queryset.model)
+            object_type = ObjectType.objects.get_for_model(self.queryset.model)
             context.update({
-                'custom_fields': content_type.custom_fields.all(),
+                'custom_fields': object_type.custom_fields.all(),
             })
 
         return context

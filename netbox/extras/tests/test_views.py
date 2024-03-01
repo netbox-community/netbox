@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
+from core.models import ObjectType
 from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
@@ -19,7 +20,7 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         CustomFieldChoiceSet.objects.create(
             name='Choice Set 1',
             extra_choices=(
@@ -36,13 +37,13 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         for customfield in custom_fields:
             customfield.save()
-            customfield.content_types.add(site_ct)
+            customfield.object_types.add(site_type)
 
         cls.form_data = {
             'name': 'field_x',
             'label': 'Field X',
             'type': 'text',
-            'content_types': [site_ct.pk],
+            'object_types': [site_type.pk],
             'search_weight': 2000,
             'filter_logic': CustomFieldFilterLogicChoices.FILTER_EXACT,
             'default': None,
@@ -53,7 +54,7 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,label,type,content_types,object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visible,ui_editable',
+            'name,label,type,object_types,object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visible,ui_editable',
             'field4,Field 4,text,dcim.site,,100,1000,exact,,,,[a-z]{3},always,yes',
             'field5,Field 5,integer,dcim.site,,100,2000,exact,,1,100,,always,yes',
             'field6,Field 6,select,dcim.site,,100,3000,exact,Choice Set 1,,,,always,yes',

@@ -7,10 +7,10 @@ from django.utils.timezone import make_aware
 from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
+from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.choices import *
 from extras.models import *
-from extras.reports import Report
 from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
@@ -152,17 +152,17 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'cf4',
             'type': 'date',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'cf5',
             'type': 'url',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'cf6',
             'type': 'text',
         },
@@ -171,14 +171,14 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     update_data = {
-        'content_types': ['dcim.device'],
+        'object_types': ['dcim.device'],
         'name': 'New_Name',
         'description': 'New description',
     }
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_ct = ObjectType.objects.get_for_model(Site)
 
         custom_fields = (
             CustomField(
@@ -196,7 +196,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         )
         CustomField.objects.bulk_create(custom_fields)
         for cf in custom_fields:
-            cf.content_types.add(site_ct)
+            cf.object_types.add(site_ct)
 
 
 class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):

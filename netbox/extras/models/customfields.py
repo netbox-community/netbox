@@ -53,7 +53,7 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         Return all CustomFields assigned to the given model.
         """
         content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
-        return self.get_queryset().filter(content_types=content_type)
+        return self.get_queryset().filter(object_types=content_type)
 
     def get_defaults_for_model(self, model):
         """
@@ -66,8 +66,8 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='custom_fields',
         help_text=_('The object(s) to which this field applies.')
     )
@@ -79,7 +79,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of data this custom field holds')
     )
     object_type = models.ForeignKey(
-        to='contenttypes.ContentType',
+        to='core.ObjectType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,
@@ -284,7 +284,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         Called when a CustomField has been renamed. Updates all assigned object data.
         """
-        for ct in self.content_types.all():
+        for ct in self.object_types.all():
             model = ct.model_class()
             params = {f'custom_field_data__{old_name}__isnull': False}
             instances = model.objects.filter(**params)

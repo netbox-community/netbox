@@ -124,10 +124,12 @@ class CustomFieldFilterSet(BaseFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=CustomFieldTypeChoices
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_types_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_types = ContentTypeFilter(
+        field_name='object_types'
+    )
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CustomFieldChoiceSet.objects.all()
     )
@@ -140,7 +142,7 @@ class CustomFieldFilterSet(BaseFilterSet):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visible',
+            'id', 'object_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visible',
             'ui_editable', 'weight', 'is_cloneable', 'description',
         ]
 

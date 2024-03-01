@@ -2,7 +2,6 @@ import json
 import re
 
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
@@ -39,8 +38,8 @@ __all__ = (
 
 
 class CustomFieldForm(forms.ModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_fields')
     )
     object_type = ContentTypeChoiceField(
@@ -56,7 +55,7 @@ class CustomFieldForm(forms.ModelForm):
 
     fieldsets = (
         (_('Custom Field'), (
-            'content_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
+            'object_types', 'name', 'label', 'group_name', 'type', 'object_type', 'required', 'description',
         )),
         (_('Behavior'), ('search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable')),
         (_('Values'), ('default', 'choice_set')),

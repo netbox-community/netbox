@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from circuits.models import Provider
 from core.choices import ManagedFileRootPathChoices
+from core.models import ObjectType
 from dcim.filtersets import SiteFilterSet
 from dcim.models import DeviceRole, DeviceType, Manufacturer, Platform, Rack, Region, Site, SiteGroup
 from dcim.models import Location
@@ -87,11 +88,11 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
             ),
         )
         CustomField.objects.bulk_create(custom_fields)
-        custom_fields[0].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'site'))
-        custom_fields[1].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'rack'))
-        custom_fields[2].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'device'))
-        custom_fields[3].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'device'))
-        custom_fields[4].content_types.add(ContentType.objects.get_by_natural_key('dcim', 'device'))
+        custom_fields[0].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'site'))
+        custom_fields[1].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
+        custom_fields[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'device'))
+        custom_fields[3].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'device'))
+        custom_fields[4].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'device'))
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -101,10 +102,10 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Custom Field 1', 'Custom Field 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_types(self):
-        params = {'content_types': 'dcim.site'}
+    def test_object_types(self):
+        params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
+        params = {'object_types_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_required(self):

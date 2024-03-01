@@ -1,0 +1,28 @@
+import django.db.models.deletion
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('core', '0010_gfk_indexes'),
+        ('extras', '0110_remove_eventrule_action_parameters'),
+    ]
+
+    operations = [
+        migrations.RenameField(
+            model_name='customfield',
+            old_name='content_types',
+            new_name='object_types',
+        ),
+        migrations.AlterField(
+            model_name='customfield',
+            name='object_types',
+            field=models.ManyToManyField(related_name='custom_fields', to='core.objecttype'),
+        ),
+        migrations.AlterField(
+            model_name='customfield',
+            name='object_type',
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'),
+        ),
+    ]
