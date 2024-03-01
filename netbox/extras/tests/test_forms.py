@@ -100,7 +100,7 @@ class SavedFilterFormTest(TestCase):
         form = SavedFilterForm({
             'name': 'test-sf',
             'slug': 'test-sf',
-            'content_types': [ContentType.objects.get_for_model(Site).pk],
+            'object_types': [ContentType.objects.get_for_model(Site).pk],
             'weight': 100,
             'parameters': {
                 "status": [

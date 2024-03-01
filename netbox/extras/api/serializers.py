@@ -243,7 +243,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
 
 class SavedFilterSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:savedfilter-detail')
-    content_types = ContentTypeField(
+    object_types = ContentTypeField(
         queryset=ObjectType.objects.all(),
         many=True
     )
@@ -251,7 +251,7 @@ class SavedFilterSerializer(ValidatedModelSerializer):
     class Meta:
         model = SavedFilter
         fields = [
-            'id', 'url', 'display', 'content_types', 'name', 'slug', 'description', 'user', 'weight', 'enabled',
+            'id', 'url', 'display', 'object_types', 'name', 'slug', 'description', 'user', 'weight', 'enabled',
             'shared', 'parameters', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')

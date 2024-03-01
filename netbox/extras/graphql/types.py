@@ -103,7 +103,7 @@ class SavedFilterType(ObjectType):
 
     class Meta:
         model = models.SavedFilter
-        exclude = ('content_types', )
+        exclude = ('object_types', )
         filterset_class = filtersets.SavedFilterFilterSet
 
 

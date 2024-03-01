@@ -333,7 +333,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Saved Filter 4',
             'slug': 'saved-filter-4',
             'weight': 100,
@@ -342,7 +342,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             'parameters': {'status': ['active']},
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Saved Filter 5',
             'slug': 'saved-filter-5',
             'weight': 200,
@@ -351,7 +351,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             'parameters': {'status': ['planned']},
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Saved Filter 6',
             'slug': 'saved-filter-6',
             'weight': 300,
@@ -368,7 +368,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
 
         saved_filters = (
             SavedFilter(
@@ -398,7 +398,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         )
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
-            savedfilter.content_types.set([site_ct])
+            savedfilter.object_types.set([site_type])
 
 
 class BookmarkTest(

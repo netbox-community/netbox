@@ -466,7 +466,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+        object_types = ObjectType.objects.filter(model__in=['site', 'rack', 'device'])
 
         users = (
             User(username='User 1'),
@@ -509,7 +509,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         )
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
-            savedfilter.content_types.set([content_types[i]])
+            savedfilter.object_types.set([object_types[i]])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -527,10 +527,10 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_types(self):
-        params = {'content_types': 'dcim.site'}
+    def test_object_types(self):
+        params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'object_types_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_user(self):

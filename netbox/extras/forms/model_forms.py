@@ -192,14 +192,14 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
 
 class SavedFilterForm(forms.ModelForm):
     slug = SlugField()
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ObjectType.objects.all()
     )
     parameters = JSONField()
 
     fieldsets = (
-        (_('Saved Filter'), ('name', 'slug', 'content_types', 'description', 'weight', 'enabled', 'shared')),
+        (_('Saved Filter'), ('name', 'slug', 'object_types', 'description', 'weight', 'enabled', 'shared')),
         (_('Parameters'), ('parameters',)),
     )
 

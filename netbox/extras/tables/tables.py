@@ -204,8 +204,8 @@ class SavedFilterTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content Types'),
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object Types'),
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
@@ -220,11 +220,11 @@ class SavedFilterTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = SavedFilter
         fields = (
-            'pk', 'id', 'name', 'slug', 'content_types', 'description', 'user', 'weight', 'enabled', 'shared',
+            'pk', 'id', 'name', 'slug', 'object_types', 'description', 'user', 'weight', 'enabled', 'shared',
             'created', 'last_updated', 'parameters'
         )
         default_columns = (
-            'pk', 'name', 'content_types', 'user', 'description', 'enabled', 'shared',
+            'pk', 'name', 'object_types', 'user', 'description', 'enabled', 'shared',
         )
 
 

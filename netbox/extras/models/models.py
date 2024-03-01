@@ -518,8 +518,8 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='saved_filters',
         help_text=_('The object type(s) to which this filter applies.')
     )

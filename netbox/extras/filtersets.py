@@ -248,10 +248,10 @@ class SavedFilterFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_types_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_types = ContentTypeFilter()
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
@@ -268,7 +268,7 @@ class SavedFilterFilterSet(BaseFilterSet):
 
     class Meta:
         model = SavedFilter
-        fields = ['id', 'content_types', 'name', 'slug', 'description', 'enabled', 'shared', 'weight']
+        fields = ['id', 'object_types', 'name', 'slug', 'description', 'enabled', 'shared', 'weight']
 
     def search(self, queryset, name, value):
         if not value.strip():

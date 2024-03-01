@@ -149,8 +149,8 @@ class ConfigTemplateImportForm(CSVModelForm):
 
 
 class SavedFilterImportForm(CSVModelForm):
-    content_types = CSVMultipleContentTypeField(
-        label=_('Content types'),
+    object_types = CSVMultipleContentTypeField(
+        label=_('Object types'),
         queryset=ObjectType.objects.all(),
         help_text=_("One or more assigned object types")
     )
@@ -158,7 +158,7 @@ class SavedFilterImportForm(CSVModelForm):
     class Meta:
         model = SavedFilter
         fields = (
-            'name', 'slug', 'content_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
+            'name', 'slug', 'object_types', 'description', 'weight', 'enabled', 'shared', 'parameters',
         )
 
 

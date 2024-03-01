@@ -62,4 +62,16 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(related_name='export_templates', to='core.objecttype'),
         ),
+
+        # Saved filters
+        migrations.RenameField(
+            model_name='savedfilter',
+            old_name='content_types',
+            new_name='object_types',
+        ),
+        migrations.AlterField(
+            model_name='savedfilter',
+            name='object_types',
+            field=models.ManyToManyField(related_name='saved_filters', to='core.objecttype'),
+        ),
     ]

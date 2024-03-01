@@ -195,10 +195,10 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        (_('Attributes'), ('content_types', 'enabled', 'shared', 'weight')),
+        (_('Attributes'), ('object_types', 'enabled', 'shared', 'weight')),
     )
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ObjectType.objects.public(),
         required=False
     )

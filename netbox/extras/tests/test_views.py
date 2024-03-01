@@ -184,7 +184,7 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
 
         users = (
             User(username='User 1'),
@@ -218,12 +218,12 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
-            savedfilter.content_types.set([site_ct])
+            savedfilter.object_types.set([site_type])
 
         cls.form_data = {
             'name': 'Saved Filter X',
             'slug': 'saved-filter-x',
-            'content_types': [site_ct.pk],
+            'object_types': [site_type.pk],
             'description': 'Foo',
             'weight': 1000,
             'enabled': True,
@@ -232,7 +232,7 @@ class SavedFilterTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,slug,content_types,weight,enabled,shared,parameters',
+            'name,slug,object_types,weight,enabled,shared,parameters',
             'Saved Filter 4,saved-filter-4,dcim.device,400,True,True,{"foo": "a"}',
             'Saved Filter 5,saved-filter-5,dcim.device,500,True,True,{"foo": "b"}',
             'Saved Filter 6,saved-filter-6,dcim.device,600,True,True,{"foo": "c"}',
