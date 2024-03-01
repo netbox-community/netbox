@@ -190,15 +190,15 @@ class CustomLinkFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_types_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_types = ContentTypeFilter()
 
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'content_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
+            'id', 'object_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
         ]
 
     def search(self, queryset, name, value):

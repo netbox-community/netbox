@@ -273,21 +273,21 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Custom Link 4',
             'enabled': True,
             'link_text': 'Link 4',
             'link_url': 'http://example.com/?4',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Custom Link 5',
             'enabled': True,
             'link_text': 'Link 5',
             'link_url': 'http://example.com/?5',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Custom Link 6',
             'enabled': False,
             'link_text': 'Link 6',
@@ -301,7 +301,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
 
         custom_links = (
             CustomLink(
@@ -325,7 +325,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
         )
         CustomLink.objects.bulk_create(custom_links)
         for i, custom_link in enumerate(custom_links):
-            custom_link.content_types.set([site_ct])
+            custom_link.object_types.set([site_type])
 
 
 class SavedFilterTest(APIViewTestCases.APIViewTestCase):

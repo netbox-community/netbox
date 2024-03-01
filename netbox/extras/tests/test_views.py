@@ -138,7 +138,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         custom_links = (
             CustomLink(name='Custom Link 1', enabled=True, link_text='Link 1', link_url='http://example.com/?1'),
             CustomLink(name='Custom Link 2', enabled=True, link_text='Link 2', link_url='http://example.com/?2'),
@@ -146,11 +146,11 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         )
         CustomLink.objects.bulk_create(custom_links)
         for i, custom_link in enumerate(custom_links):
-            custom_link.content_types.set([site_ct])
+            custom_link.object_types.set([site_type])
 
         cls.form_data = {
             'name': 'Custom Link X',
-            'content_types': [site_ct.pk],
+            'object_types': [site_type.pk],
             'enabled': False,
             'weight': 100,
             'button_class': CustomLinkButtonClassChoices.DEFAULT,
@@ -159,7 +159,7 @@ class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            "name,content_types,enabled,weight,button_class,link_text,link_url",
+            "name,object_types,enabled,weight,button_class,link_text,link_url",
             "Custom Link 4,dcim.site,True,100,blue,Link 4,http://exmaple.com/?4",
             "Custom Link 5,dcim.site,True,100,blue,Link 5,http://exmaple.com/?5",
             "Custom Link 6,dcim.site,False,100,blue,Link 6,http://exmaple.com/?6",
@@ -652,7 +652,7 @@ class CustomLinkTest(TestCase):
             new_window=False
         )
         customlink.save()
-        customlink.content_types.set([ContentType.objects.get_for_model(Site)])
+        customlink.object_types.set([ObjectType.objects.get_for_model(Site)])
 
         site = Site(name='Test Site', slug='test-site')
         site.save()

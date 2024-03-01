@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        # Custom fields
         migrations.RenameField(
             model_name='customfield',
             old_name='content_types',
@@ -24,5 +25,17 @@ class Migration(migrations.Migration):
             model_name='customfield',
             name='object_type',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'),
+        ),
+
+        # Custom links
+        migrations.RenameField(
+            model_name='customlink',
+            old_name='content_types',
+            new_name='object_types',
+        ),
+        migrations.AlterField(
+            model_name='customlink',
+            name='object_types',
+            field=models.ManyToManyField(related_name='custom_links', to='core.objecttype'),
         ),
     ]

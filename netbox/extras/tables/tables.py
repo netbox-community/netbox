@@ -40,8 +40,8 @@ class CustomFieldTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content Types')
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object Types')
     )
     required = columns.BooleanColumn(
         verbose_name=_('Required')
@@ -71,11 +71,11 @@ class CustomFieldTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'id', 'name', 'content_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
+            'pk', 'id', 'name', 'object_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
             'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable', 'weight', 'choice_set',
             'choices', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'content_types', 'label', 'group_name', 'type', 'required', 'description')
+        default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
 
 
 class CustomFieldChoiceSetTable(NetBoxTable):
@@ -115,8 +115,8 @@ class CustomLinkTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    content_types = columns.ContentTypesColumn(
-        verbose_name=_('Content Types'),
+    object_types = columns.ContentTypesColumn(
+        verbose_name=_('Object Types'),
     )
     enabled = columns.BooleanColumn(
         verbose_name=_('Enabled'),
@@ -128,10 +128,10 @@ class CustomLinkTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomLink
         fields = (
-            'pk', 'id', 'name', 'content_types', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
+            'pk', 'id', 'name', 'object_types', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'content_types', 'enabled', 'group_name', 'button_class', 'new_window')
+        default_columns = ('pk', 'name', 'object_types', 'enabled', 'group_name', 'button_class', 'new_window')
 
 
 class ExportTemplateTable(NetBoxTable):

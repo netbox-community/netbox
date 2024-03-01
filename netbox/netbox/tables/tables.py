@@ -208,7 +208,7 @@ class NetBoxTable(BaseTable):
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])
-        custom_links = CustomLink.objects.filter(content_types=object_type, enabled=True)
+        custom_links = CustomLink.objects.filter(object_types=object_type, enabled=True)
         extra_columns.extend([
             (f'cl_{cl.name}', columns.CustomLinkColumn(cl)) for cl in custom_links
         ])

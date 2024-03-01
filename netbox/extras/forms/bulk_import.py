@@ -111,8 +111,8 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
 
 
 class CustomLinkImportForm(CSVModelForm):
-    content_types = CSVMultipleContentTypeField(
-        label=_('Content types'),
+    object_types = CSVMultipleContentTypeField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
         help_text=_("One or more assigned object types")
     )
@@ -120,7 +120,7 @@ class CustomLinkImportForm(CSVModelForm):
     class Meta:
         model = CustomLink
         fields = (
-            'name', 'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
+            'name', 'object_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window', 'link_text',
             'link_url',
         )
 

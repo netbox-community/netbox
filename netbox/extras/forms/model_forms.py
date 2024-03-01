@@ -122,13 +122,13 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
 
 
 class CustomLinkForm(forms.ModelForm):
-    content_types = ContentTypeMultipleChoiceField(
-        label=_('Content types'),
+    object_types = ContentTypeMultipleChoiceField(
+        label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links')
     )
 
     fieldsets = (
-        (_('Custom Link'), ('name', 'content_types', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
+        (_('Custom Link'), ('name', 'object_types', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
         (_('Templates'), ('link_text', 'link_url')),
     )
 

@@ -313,8 +313,8 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
     """
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='custom_links',
         help_text=_('The object type(s) to which this link applies.')
     )

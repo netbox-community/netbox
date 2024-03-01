@@ -397,7 +397,7 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['site', 'rack', 'device'])
+        object_types = ObjectType.objects.filter(model__in=['site', 'rack', 'device'])
 
         custom_links = (
             CustomLink(
@@ -427,7 +427,7 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
         )
         CustomLink.objects.bulk_create(custom_links)
         for i, custom_link in enumerate(custom_links):
-            custom_link.content_types.set([content_types[i]])
+            custom_link.object_types.set([object_types[i]])
 
     def test_q(self):
         params = {'q': 'Custom Link 1'}
@@ -437,10 +437,10 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Custom Link 1', 'Custom Link 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_content_types(self):
-        params = {'content_types': 'dcim.site'}
+    def test_object_types(self):
+        params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'content_type_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'object_types_id': [ContentType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
