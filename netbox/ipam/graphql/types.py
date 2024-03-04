@@ -1,6 +1,7 @@
 import graphene
 
 from ipam import filtersets, models
+from .mixins import IPAddressesMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 
@@ -71,7 +72,7 @@ class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
         filterset_class = filtersets.AggregateFilterSet
 
 
-class FHRPGroupType(NetBoxObjectType):
+class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
 
     class Meta:
         model = models.FHRPGroup
