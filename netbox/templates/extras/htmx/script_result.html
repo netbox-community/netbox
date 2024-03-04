@@ -19,12 +19,14 @@
   </p>
   {% if job.completed %}
 
+    {% if table.logs and not table_tests %}
     <div class="card">
       <div class="table-responsive" id="object_list">
         <h5 class="card-header">{% trans "Log" %}</h5>
         {% include 'htmx/table.html' with table=table_logs %}
       </div>
     </div>
+    {% endif %}
 
     {# Script output. Legacy reports will not have this. #}
     {% if 'output' in job.data %}

@@ -1204,6 +1204,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         if job.completed:
             table_logs, table_tests = self.get_table(job, request, bulk_actions=False)
 
+        breakpoint()
         context = {
             'script': job.object,
             'job': job,
