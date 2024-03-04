@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404
@@ -41,8 +40,8 @@ class ExportTemplatesMixin:
     """
     def list(self, request, *args, **kwargs):
         if 'export' in request.GET:
-            content_type = ContentType.objects.get_for_model(self.get_serializer_class().Meta.model)
-            et = ExportTemplate.objects.filter(content_types=content_type, name=request.GET['export']).first()
+            object_type = ObjectType.objects.get_for_model(self.get_serializer_class().Meta.model)
+            et = ExportTemplate.objects.filter(object_types=object_type, name=request.GET['export']).first()
             if et is None:
                 raise Http404
             queryset = self.filter_queryset(self.get_queryset())

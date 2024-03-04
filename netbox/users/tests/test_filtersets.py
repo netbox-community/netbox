@@ -1,7 +1,6 @@
 import datetime
 
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
@@ -199,7 +198,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_types(self):
-        object_types = ContentType.objects.filter(model__in=['site', 'rack'])
+        object_types = ObjectType.objects.filter(model__in=['site', 'rack'])
         params = {'object_types': [object_types[0].pk, object_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 

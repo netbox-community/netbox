@@ -1,6 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from core.models import ObjectType
 from dcim.models import Manufacturer, Site
 from tenancy.filtersets import *
 from tenancy.models import *
@@ -296,7 +296,7 @@ class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         ContactAssignment.objects.bulk_create(assignments)
 
     def test_object_type(self):
-        params = {'object_type_id': ContentType.objects.get_by_natural_key('dcim', 'site')}
+        params = {'object_type_id': ObjectType.objects.get_by_natural_key('dcim', 'site')}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_contact(self):

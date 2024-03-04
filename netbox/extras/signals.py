@@ -257,7 +257,7 @@ def process_job_start_event_rules(sender, **kwargs):
     """
     Process event rules for jobs starting.
     """
-    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, content_types=sender.object_type)
+    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
     process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, username)
 
@@ -267,6 +267,6 @@ def process_job_end_event_rules(sender, **kwargs):
     """
     Process event rules for jobs terminating.
     """
-    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, content_types=sender.object_type)
+    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
     process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, username)

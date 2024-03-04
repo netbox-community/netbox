@@ -175,8 +175,6 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = ContentType.objects.filter(model__in=['region', 'site', 'rack', 'location', 'device'])
-
         webhooks = (
             Webhook(
                 name='Webhook 1',
@@ -355,7 +353,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
     def test_object_types(self):
         params = {'object_types': 'dcim.region'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ContentType.objects.get_for_model(Region).pk]}
+        params = {'object_types_id': [ObjectType.objects.get_for_model(Region).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_action_type(self):
@@ -440,7 +438,7 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
     def test_object_types(self):
         params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'object_types_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
@@ -530,7 +528,7 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
     def test_object_types(self):
         params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'object_types_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_user(self):
@@ -661,7 +659,7 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
     def test_object_types(self):
         params = {'object_types': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ContentType.objects.get_for_model(Site).pk]}
+        params = {'object_types_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):
@@ -1164,12 +1162,12 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_object_types(self):
-        params = {'for_object_type_id': [ContentType.objects.get_by_natural_key('dcim', 'site').pk]}
+        params = {'for_object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(
             list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
             ['Tag 1', 'Tag 3']
         )
-        params = {'for_object_type_id': [ContentType.objects.get_by_natural_key('circuits', 'provider').pk]}
+        params = {'for_object_type_id': [ObjectType.objects.get_by_natural_key('circuits', 'provider').pk]}
         self.assertEqual(
             list(self.filterset(params, self.queryset).qs.values_list('name', flat=True)),
             ['Tag 2', 'Tag 3']

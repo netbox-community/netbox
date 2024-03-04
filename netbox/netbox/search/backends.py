@@ -131,11 +131,11 @@ class CachedValueSearchBackend(SearchBackend):
             )
         )[:MAX_RESULTS]
 
-        # Gather all ContentTypes present in the search results (used for prefetching related
+        # Gather all ObjectTypes present in the search results (used for prefetching related
         # objects). This must be done before generating the final results list, which returns
         # a RawQuerySet.
-        content_type_ids = set(queryset.values_list('object_type', flat=True))
-        object_types = ObjectType.objects.filter(pk__in=content_type_ids)
+        object_type_ids = set(queryset.values_list('object_type', flat=True))
+        object_types = ObjectType.objects.filter(pk__in=object_type_ids)
 
         # Construct a Prefetch to pre-fetch only those related objects for which the
         # user has permission to view.
@@ -152,11 +152,11 @@ class CachedValueSearchBackend(SearchBackend):
             params
         )
 
-        # Iterate through each ContentType represented in the search results and prefetch any
+        # Iterate through each ObjectType represented in the search results and prefetch any
         # related objects necessary to render the prescribed display attributes (display_attrs).
-        for ct in object_types:
-            model = ct.model_class()
-            indexer = registry['search'].get(content_type_identifier(ct))
+        for object_type in object_types:
+            model = object_type.model_class()
+            indexer = registry['search'].get(content_type_identifier(object_type))
             if not (display_attrs := getattr(indexer, 'display_attrs', None)):
                 continue
 
@@ -170,7 +170,7 @@ class CachedValueSearchBackend(SearchBackend):
             # Compile a list of all CachedValues referencing this object type, and prefetch
             # any related objects
             if prefetch_fields:
-                objects = [r for r in results if r.object_type == ct]
+                objects = [r for r in results if r.object_type == object_type]
                 prefetch_related_objects(objects, *prefetch_fields)
 
         # Omit any results pertaining to an object the user does not have permission to view

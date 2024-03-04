@@ -1,5 +1,4 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
 from core.models import ObjectType
@@ -86,6 +85,6 @@ class TagsMixin(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Limit tags to those applicable to the object type
-        content_type = ContentType.objects.get_for_model(self._meta.model)
-        if content_type and hasattr(self.fields['tags'].widget, 'add_query_param'):
-            self.fields['tags'].widget.add_query_param('for_object_type_id', content_type.pk)
+        object_type = ObjectType.objects.get_for_model(self._meta.model)
+        if object_type and hasattr(self.fields['tags'].widget, 'add_query_param'):
+            self.fields['tags'].widget.add_query_param('for_object_type_id', object_type.pk)

@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from core.models import ObjectType
@@ -63,14 +62,14 @@ class CustomFieldModelFormTest(TestCase):
         cf_object = CustomField.objects.create(
             name='object',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
-            object_type=ContentType.objects.get_for_model(Site)
+            object_type=ObjectType.objects.get_for_model(Site)
         )
         cf_object.object_types.set([object_type])
 
         cf_multiobject = CustomField.objects.create(
             name='multiobject',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
-            object_type=ContentType.objects.get_for_model(Site)
+            object_type=ObjectType.objects.get_for_model(Site)
         )
         cf_multiobject.object_types.set([object_type])
 
@@ -100,7 +99,7 @@ class SavedFilterFormTest(TestCase):
         form = SavedFilterForm({
             'name': 'test-sf',
             'slug': 'test-sf',
-            'object_types': [ContentType.objects.get_for_model(Site).pk],
+            'object_types': [ObjectType.objects.get_for_model(Site).pk],
             'weight': 100,
             'parameters': {
                 "status": [

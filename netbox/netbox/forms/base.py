@@ -3,6 +3,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, Tag
 from utilities.forms import CSVModelForm
@@ -129,9 +130,9 @@ class NetBoxModelBulkEditForm(CustomFieldsMixin, forms.Form):
         self.fields['pk'].queryset = self.model.objects.all()
 
         # Restrict tag fields by model
-        ct = ContentType.objects.get_for_model(self.model)
-        self.fields['add_tags'].widget.add_query_param('for_object_type_id', ct.pk)
-        self.fields['remove_tags'].widget.add_query_param('for_object_type_id', ct.pk)
+        object_type = ObjectType.objects.get_for_model(self.model)
+        self.fields['add_tags'].widget.add_query_param('for_object_type_id', object_type.pk)
+        self.fields['remove_tags'].widget.add_query_param('for_object_type_id', object_type.pk)
 
         self._extend_nullable_fields()
 
@@ -169,9 +170,9 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
         super().__init__(*args, **kwargs)
 
         # Limit saved filters to those applicable to the form's model
-        content_type = ContentType.objects.get_for_model(self.model)
+        object_type = ObjectType.objects.get_for_model(self.model)
         self.fields['filter_id'].widget.add_query_params({
-            'content_type_id': content_type.pk,
+            'object_types_id': object_type.pk,
         })
 
     def _get_custom_fields(self, content_type):

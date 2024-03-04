@@ -1,10 +1,10 @@
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
 from rest_framework.fields import Field
 from rest_framework.serializers import ValidationError
 
+from core.models import ObjectType
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from netbox.constants import NESTED_SERIALIZER_PREFIX
@@ -25,8 +25,8 @@ class CustomFieldDefaultValues:
         self.model = serializer_field.parent.Meta.model
 
         # Retrieve the CustomFields for the parent model
-        content_type = ContentType.objects.get_for_model(self.model)
-        fields = CustomField.objects.filter(object_types=content_type)
+        object_type = ObjectType.objects.get_for_model(self.model)
+        fields = CustomField.objects.filter(object_types=object_type)
 
         # Populate the default value for each CustomField
         value = {}
@@ -47,8 +47,8 @@ class CustomFieldsDataField(Field):
         Cache CustomFields assigned to this model to avoid redundant database queries
         """
         if not hasattr(self, '_custom_fields'):
-            content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
-            self._custom_fields = CustomField.objects.filter(object_types=content_type)
+            object_type = ObjectType.objects.get_for_model(self.parent.Meta.model)
+            self._custom_fields = CustomField.objects.filter(object_types=object_type)
         return self._custom_fields
 
     def to_representation(self, obj):
