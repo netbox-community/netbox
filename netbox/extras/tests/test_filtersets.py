@@ -1114,9 +1114,9 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     @classmethod
     def setUpTestData(cls):
-        content_types = {
-            'site': ContentType.objects.get_by_natural_key('dcim', 'site'),
-            'provider': ContentType.objects.get_by_natural_key('circuits', 'provider'),
+        object_types = {
+            'site': ObjectType.objects.get_by_natural_key('dcim', 'site'),
+            'provider': ObjectType.objects.get_by_natural_key('circuits', 'provider'),
         }
 
         tags = (
@@ -1125,8 +1125,8 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
             Tag(name='Tag 3', slug='tag-3', color='0000ff'),
         )
         Tag.objects.bulk_create(tags)
-        tags[0].object_types.add(content_types['site'])
-        tags[1].object_types.add(content_types['provider'])
+        tags[0].object_types.add(object_types['site'])
+        tags[1].object_types.add(object_types['provider'])
 
         # Apply some tags so we can filter by content type
         site = Site.objects.create(name='Site 1', slug='site-1')

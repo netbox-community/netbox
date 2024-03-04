@@ -34,7 +34,7 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         blank=True,
     )
     object_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+        to='core.ObjectType',
         related_name='+',
         blank=True,
         help_text=_("The object type(s) to which this this tag can be applied.")

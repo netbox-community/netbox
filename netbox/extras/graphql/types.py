@@ -111,7 +111,7 @@ class TagType(ObjectType):
 
     class Meta:
         model = models.Tag
-        exclude = ('extras_taggeditem_items',)
+        exclude = ('object_types', 'extras_taggeditem_items',)
         filterset_class = filtersets.TagFilterSet
 
 

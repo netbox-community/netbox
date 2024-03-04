@@ -8,6 +8,7 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
@@ -240,8 +241,8 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
     """
     if action != 'pre_add':
         return
-    ct = ContentType.objects.get_for_model(instance)
-    # Retrieve any applied Tags that are restricted to certain object_types
+    ct = ObjectType.objects.get_for_model(instance)
+    # Retrieve any applied Tags that are restricted to certain object types
     for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
         if ct not in tag.object_types.all():
             raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")
