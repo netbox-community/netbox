@@ -1154,7 +1154,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
     def get_table(self, job, request, bulk_actions=True):
         data = []
         tests = None
-        table_logs = table_tests = None
+        table = None
         index = 0
         if job.data:
             if 'log' in job.data:
@@ -1171,8 +1171,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     }
                     data.append(result)
 
-                table_logs = ScriptResultsTable(data, user=request.user)
-                table_logs.configure(request)
+                table = ScriptResultsTable(data, user=request.user)
+                table.configure(request)
             else:
                 tests = job.data
 
@@ -1192,24 +1192,22 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                         }
                         data.append(result)
 
-            table_tests = ReportResultsTable(data, user=request.user)
-            table_tests.configure(request)
+            table = ReportResultsTable(data, user=request.user)
+            table.configure(request)
 
-        return table_logs, table_tests
+        return table
 
     def get(self, request, **kwargs):
         job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
         table_logs = table_tests = None
 
         if job.completed:
-            table_logs, table_tests = self.get_table(job, request, bulk_actions=False)
+            table = self.get_table(job, request, bulk_actions=False)
 
-        breakpoint()
         context = {
             'script': job.object,
             'job': job,
-            'table_logs': table_logs,
-            'table_tests': table_tests,
+            'table': table,
         }
 
         if job.data and 'log' in job.data:

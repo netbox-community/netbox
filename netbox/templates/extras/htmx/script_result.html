@@ -18,29 +18,7 @@
     <span id="pending-result-label">{% badge job.get_status_display job.get_status_color %}</span>
   </p>
   {% if job.completed %}
-
-    {% if table.logs and not table_tests %}
-    <div class="card">
-      <div class="table-responsive" id="object_list">
-        <h5 class="card-header">{% trans "Log" %}</h5>
-        {% include 'htmx/table.html' with table=table_logs %}
-      </div>
-    </div>
-    {% endif %}
-
-    {# Script output. Legacy reports will not have this. #}
-    {% if 'output' in job.data %}
-      <div class="card mb-3">
-      <h5 class="card-header">{% trans "Output" %}</h5>
-        {% if job.data.output %}
-          <pre class="card-body font-monospace">{{ job.data.output }}</pre>
-        {% else %}
-          <div class="card-body text-muted">{% trans "None" %}</div>
-        {% endif %}
-      </div>
-    {% endif %}
-
-    {% if table_tests %}
+    {% if tests %}
       {# Summary of test methods #}
       <div class="card">
         <h5 class="card-header">{% trans "Test Summary" %}</h5>
@@ -58,15 +36,29 @@
           {% endfor %}
         </table>
       </div>
+    {% endif %}
 
-      {# Detailed results for individual tests #}
-      <div class="card">
-        <div class="table-responsive" id="object_list">
-          <h5 class="card-header">{% trans "Test Details" %}</h5>
-          {% include 'htmx/table.html' with table=table_tests %}
-        </div>
+    {% if table %}
+    <div class="card">
+      <div class="table-responsive" id="object_list">
+        <h5 class="card-header">{% trans "Log" %}</h5>
+        {% include 'htmx/table.html' %}
+      </div>
+    </div>
+    {% endif %}
+
+    {# Script output. Legacy reports will not have this. #}
+    {% if 'output' in job.data %}
+      <div class="card mb-3">
+      <h5 class="card-header">{% trans "Output" %}</h5>
+        {% if job.data.output %}
+          <pre class="card-body font-monospace">{{ job.data.output }}</pre>
+        {% else %}
+          <div class="card-body text-muted">{% trans "None" %}</div>
+        {% endif %}
       </div>
     {% endif %}
+
   {% elif job.started %}
     {% include 'extras/inc/result_pending.html' %}
   {% endif %}
