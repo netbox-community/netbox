@@ -18,11 +18,12 @@ function handleSelection(link: HTMLAnchorElement): void {
   const value = link.getAttribute('data-value');
 
   //@ts-ignore
-  target.slim.setData([
-    {text: label, value: value}
-  ]);
-  const change = new Event('change');
-  target.dispatchEvent(change);
+  target.tomselect.addOption({
+    id: value,
+    display: label,
+  });
+  //@ts-ignore
+  target.tomselect.addItem(value);
 
 }
 
