@@ -5,6 +5,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from django.utils.timezone import make_aware
 
+from core.models import ObjectType
 from users import filtersets
 from users.models import Group, ObjectPermission, Token
 from utilities.testing import BaseFilterSetTests
@@ -151,9 +152,9 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
         User.objects.bulk_create(users)
 
         object_types = (
-            ContentType.objects.get(app_label='dcim', model='site'),
-            ContentType.objects.get(app_label='dcim', model='rack'),
-            ContentType.objects.get(app_label='dcim', model='device'),
+            ObjectType.objects.get(app_label='dcim', model='site'),
+            ObjectType.objects.get(app_label='dcim', model='rack'),
+            ObjectType.objects.get(app_label='dcim', model='device'),
         )
 
         permissions = (

@@ -383,7 +383,7 @@ class ObjectPermission(models.Model):
         default=True
     )
     object_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+        to='core.ObjectType',
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         related_name='object_permissions'
     )
