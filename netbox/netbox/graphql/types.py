@@ -1,5 +1,6 @@
 import graphene
 
+from core.models import ObjectType as ObjectType_
 from django.contrib.contenttypes.models import ContentType
 from extras.graphql.mixins import (
     ChangelogMixin,
@@ -11,7 +12,9 @@ from graphene_django import DjangoObjectType
 
 __all__ = (
     'BaseObjectType',
+    'ContentTypeType',
     'ObjectType',
+    'ObjectTypeType',
     'OrganizationalObjectType',
     'NetBoxObjectType',
 )
@@ -89,4 +92,11 @@ class ContentTypeType(DjangoObjectType):
 
     class Meta:
         model = ContentType
+        fields = ('id', 'app_label', 'model')
+
+
+class ObjectTypeType(DjangoObjectType):
+
+    class Meta:
+        model = ObjectType_
         fields = ('id', 'app_label', 'model')

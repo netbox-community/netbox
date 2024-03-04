@@ -39,7 +39,7 @@ class CustomFieldType(ObjectType):
 
     class Meta:
         model = models.CustomField
-        exclude = ('object_types', 'object_type')
+        fields = '__all__'
         filterset_class = filtersets.CustomFieldFilterSet
 
 
@@ -55,7 +55,7 @@ class CustomLinkType(ObjectType):
 
     class Meta:
         model = models.CustomLink
-        exclude = ('object_types', )
+        fields = '__all__'
         filterset_class = filtersets.CustomLinkFilterSet
 
 
@@ -63,7 +63,7 @@ class EventRuleType(OrganizationalObjectType):
 
     class Meta:
         model = models.EventRule
-        exclude = ('object_types',)
+        fields = '__all__'
         filterset_class = filtersets.EventRuleFilterSet
 
 
@@ -71,7 +71,7 @@ class ExportTemplateType(ObjectType):
 
     class Meta:
         model = models.ExportTemplate
-        exclude = ('object_types', )
+        fields = '__all__'
         filterset_class = filtersets.ExportTemplateFilterSet
 
 
@@ -103,7 +103,7 @@ class SavedFilterType(ObjectType):
 
     class Meta:
         model = models.SavedFilter
-        exclude = ('object_types', )
+        fields = '__all__'
         filterset_class = filtersets.SavedFilterFilterSet
 
 
@@ -111,7 +111,7 @@ class TagType(ObjectType):
 
     class Meta:
         model = models.Tag
-        exclude = ('object_types', 'extras_taggeditem_items',)
+        exclude = ('extras_taggeditem_items',)
         filterset_class = filtersets.TagFilterSet
 
 
