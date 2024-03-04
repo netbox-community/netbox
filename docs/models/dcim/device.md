@@ -18,9 +18,9 @@ When a device has one or more interfaces with IP addresses assigned, a primary I
 
 The device's configured name. This field is optional; devices can be unnamed. However, if set, the name must be unique to the assigned site and tenant.
 
-### Device Role
+### Role
 
-The functional [role](./devicerole.md) assigned to this device.
+The functional [device role](./devicerole.md) assigned to this device.
 
 ### Device Type
 

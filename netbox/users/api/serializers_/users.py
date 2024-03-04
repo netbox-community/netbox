@@ -1,11 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from netbox.api.fields import SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
+from users.models import Group
 
 __all__ = (
     'GroupSerializer',

@@ -392,19 +392,19 @@ ADMIN_MENU = Menu(
                 ),
                 # Proxy model for auth.Group
                 MenuItem(
-                    link=f'users:netboxgroup_list',
+                    link=f'users:group_list',
                     link_text=_('Groups'),
                     permissions=[f'auth.view_group'],
                     staff_only=True,
                     buttons=(
                         MenuItemButton(
-                            link=f'users:netboxgroup_add',
+                            link=f'users:group_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
                             permissions=[f'auth.add_group']
                         ),
                         MenuItemButton(
-                            link=f'users:netboxgroup_import',
+                            link=f'users:group_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
                             permissions=[f'auth.add_group']

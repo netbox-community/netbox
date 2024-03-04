@@ -4,13 +4,13 @@ from collections import defaultdict
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend, RemoteUserBackend as _RemoteUserBackend
-from django.contrib.auth.models import Group, AnonymousUser
+from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from users.constants import CONSTRAINT_TOKEN_USER
-from users.models import ObjectPermission
+from users.models import Group, ObjectPermission
 from utilities.permissions import (
     permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_ct,
 )
