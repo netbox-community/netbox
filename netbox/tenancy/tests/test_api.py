@@ -18,7 +18,7 @@ class AppTest(APITestCase):
 
 class TenantGroupTest(APIViewTestCases.APIViewTestCase):
     model = TenantGroup
-    brief_fields = ['_depth', 'display', 'id', 'name', 'slug', 'tenant_count', 'url']
+    brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'tenant_count', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -56,7 +56,7 @@ class TenantGroupTest(APIViewTestCases.APIViewTestCase):
 
 class TenantTest(APIViewTestCases.APIViewTestCase):
     model = Tenant
-    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'group': None,
         'description': 'New description',
@@ -98,7 +98,7 @@ class TenantTest(APIViewTestCases.APIViewTestCase):
 
 class ContactGroupTest(APIViewTestCases.APIViewTestCase):
     model = ContactGroup
-    brief_fields = ['_depth', 'contact_count', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['_depth', 'contact_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -136,7 +136,7 @@ class ContactGroupTest(APIViewTestCases.APIViewTestCase):
 
 class ContactRoleTest(APIViewTestCases.APIViewTestCase):
     model = ContactRole
-    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Contact Role 4',
@@ -168,7 +168,7 @@ class ContactRoleTest(APIViewTestCases.APIViewTestCase):
 
 class ContactTest(APIViewTestCases.APIViewTestCase):
     model = Contact
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'group': None,
         'comments': 'New comments',

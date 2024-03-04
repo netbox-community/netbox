@@ -533,30 +533,6 @@ class DeviceTestCase(TestCase):
         device2.full_clean()
         device2.save()
 
-    def test_old_device_role_field(self):
-        """
-        Ensure that the old device role field sets the value in the new role field.
-        """
-
-        # Test getter method
-        device = Device(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            role=DeviceRole.objects.first(),
-            name='Test Device 1',
-            device_role=DeviceRole.objects.first()
-        )
-        device.full_clean()
-        device.save()
-
-        self.assertEqual(device.role, device.device_role)
-
-        # Test setter method
-        device.device_role = DeviceRole.objects.last()
-        device.full_clean()
-        device.save()
-        self.assertEqual(device.role, device.device_role)
-
 
 class CableTestCase(TestCase):
 

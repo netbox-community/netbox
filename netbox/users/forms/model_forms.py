@@ -1,7 +1,6 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
@@ -253,7 +252,7 @@ class GroupForm(forms.ModelForm):
     )
 
     class Meta:
-        model = NetBoxGroup
+        model = Group
         fields = [
             'name', 'users', 'object_permissions',
         ]
@@ -263,14 +262,14 @@ class GroupForm(forms.ModelForm):
 
         # Populate assigned users and permissions
         if self.instance.pk:
-            self.fields['users'].initial = self.instance.user_set.values_list('id', flat=True)
+            self.fields['users'].initial = self.instance.users.values_list('id', flat=True)
             self.fields['object_permissions'].initial = self.instance.object_permissions.values_list('id', flat=True)
 
     def save(self, *args, **kwargs):
         instance = super().save(*args, **kwargs)
 
         # Update assigned users and permissions
-        instance.user_set.set(self.cleaned_data['users'])
+        instance.users.set(self.cleaned_data['users'])
         instance.object_permissions.set(self.cleaned_data['object_permissions'])
 
         return instance
@@ -375,12 +374,13 @@ class ObjectPermissionForm(forms.ModelForm):
                 constraints = [constraints]
             for ct in object_types:
                 model = ct.model_class()
+
                 try:
                     tokens = {
                         CONSTRAINT_TOKEN_USER: 0,  # Replace token with a null user ID
                     }
                     model.objects.filter(qs_filter_from_constraints(constraints, tokens)).exists()
-                except FieldError as e:
+                except (FieldError, ValueError) as e:
                     raise forms.ValidationError({
                         'constraints': _('Invalid filter for {model}: {error}').format(model=model, error=e)
                     })

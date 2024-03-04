@@ -1,5 +1,3 @@
-import logging
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
@@ -8,13 +6,9 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from extras.models import ExportTemplate
-from netbox.api.exceptions import SerializerNotFound
 from netbox.api.serializers import BulkOperationSerializer
-from netbox.constants import NESTED_SERIALIZER_PREFIX
-from utilities.api import get_serializer_for_model
 
 __all__ = (
-    'BriefModeMixin',
     'BulkDestroyModelMixin',
     'BulkUpdateModelMixin',
     'CustomFieldsMixin',
@@ -22,52 +16,6 @@ __all__ = (
     'ObjectValidationMixin',
     'SequentialBulkCreatesMixin',
 )
-
-
-class BriefModeMixin:
-    """
-    Enables brief mode support, so that the client can invoke a model's nested serializer by passing e.g.
-        GET /api/dcim/sites/?brief=True
-    """
-    brief = False
-    brief_prefetch_fields = []
-
-    def initialize_request(self, request, *args, **kwargs):
-        # Annotate whether brief mode is active
-        self.brief = request.method == 'GET' and request.GET.get('brief')
-
-        return super().initialize_request(request, *args, **kwargs)
-
-    def get_serializer_class(self):
-        logger = logging.getLogger(f'netbox.api.views.{self.__class__.__name__}')
-
-        # If using 'brief' mode, find and return the nested serializer for this model, if one exists
-        if self.brief:
-            logger.debug("Request is for 'brief' format; initializing nested serializer")
-            try:
-                return get_serializer_for_model(self.queryset.model, prefix=NESTED_SERIALIZER_PREFIX)
-            except SerializerNotFound:
-                logger.debug(
-                    f"Nested serializer for {self.queryset.model} not found! Using serializer {self.serializer_class}"
-                )
-
-        return self.serializer_class
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-
-        if self.brief:
-            serializer_class = self.get_serializer_class()
-
-            # Clear any annotations for fields not present on the nested serializer
-            for annotation in list(qs.query.annotations.keys()):
-                if annotation not in serializer_class().fields:
-                    qs.query.annotations.pop(annotation)
-
-            # Clear any prefetches from the queryset and append only brief_prefetch_fields (if any)
-            return qs.prefetch_related(None).prefetch_related(*self.brief_prefetch_fields)
-
-        return qs
 
 
 class CustomFieldsMixin:

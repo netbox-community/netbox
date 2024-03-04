@@ -4,9 +4,9 @@ from circuits.choices import CircuitStatusChoices
 from circuits.models import *
 from dcim.api.nested_serializers import NestedSiteSerializer
 from dcim.api.serializers import CabledObjectSerializer
-from ipam.models import ASN
 from ipam.api.nested_serializers import NestedASNSerializer
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from ipam.models import ASN
+from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer, WritableNestedSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from .nested_serializers import *
@@ -32,7 +32,7 @@ class ProviderSerializer(NetBoxModelSerializer):
     )
 
     # Related object counts
-    circuit_count = serializers.IntegerField(read_only=True)
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = Provider
@@ -40,6 +40,7 @@ class ProviderSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'accounts', 'description', 'comments', 'asns', 'tags',
             'custom_fields', 'created', 'last_updated', 'circuit_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
 
 
 #
@@ -56,6 +57,7 @@ class ProviderAccountSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'provider', 'name', 'account', 'description', 'comments', 'tags', 'custom_fields',
             'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'account', 'description')
 
 
 #
@@ -72,6 +74,7 @@ class ProviderNetworkSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'provider', 'name', 'service_id', 'description', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -80,14 +83,17 @@ class ProviderNetworkSerializer(NetBoxModelSerializer):
 
 class CircuitTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
-    circuit_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = CircuitType
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
-            'circuit_count',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created',
+            'last_updated', 'circuit_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'circuit_count')
 
 
 class CircuitCircuitTerminationSerializer(WritableNestedSerializer):
@@ -120,6 +126,7 @@ class CircuitSerializer(NetBoxModelSerializer):
             'termination_date', 'commit_rate', 'description', 'termination_a', 'termination_z', 'comments', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'cid', 'description')
 
 
 class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer):
@@ -135,3 +142,4 @@ class CircuitTerminationSerializer(NetBoxModelSerializer, CabledObjectSerializer
             'xconnect_id', 'pp_info', 'description', 'mark_connected', 'cable', 'cable_end', 'link_peers',
             'link_peers_type', 'tags', 'custom_fields', 'created', 'last_updated', '_occupied',
         ]
+        brief_fields = ('id', 'url', 'display', 'circuit', 'term_side', 'description', 'cable', '_occupied')

@@ -115,10 +115,6 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
         ct_field='action_object_type',
         fk_field='action_object_id'
     )
-    action_parameters = models.JSONField(
-        blank=True,
-        null=True
-    )
     action_data = models.JSONField(
         verbose_name=_('data'),
         blank=True,

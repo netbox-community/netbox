@@ -23,11 +23,11 @@ urlpatterns = [
     path('users/<int:pk>/', include(get_model_urls('users', 'user'))),
 
     # Groups
-    path('groups/', views.GroupListView.as_view(), name='netboxgroup_list'),
-    path('groups/add/', views.GroupEditView.as_view(), name='netboxgroup_add'),
-    path('groups/import/', views.GroupBulkImportView.as_view(), name='netboxgroup_import'),
-    path('groups/delete/', views.GroupBulkDeleteView.as_view(), name='netboxgroup_bulk_delete'),
-    path('groups/<int:pk>/', include(get_model_urls('users', 'netboxgroup'))),
+    path('groups/', views.GroupListView.as_view(), name='group_list'),
+    path('groups/add/', views.GroupEditView.as_view(), name='group_add'),
+    path('groups/import/', views.GroupBulkImportView.as_view(), name='group_import'),
+    path('groups/delete/', views.GroupBulkDeleteView.as_view(), name='group_bulk_delete'),
+    path('groups/<int:pk>/', include(get_model_urls('users', 'group'))),
 
     # Permissions
     path('permissions/', views.ObjectPermissionListView.as_view(), name='objectpermission_list'),

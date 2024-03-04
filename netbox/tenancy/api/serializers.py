@@ -3,7 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from netbox.api.fields import ChoiceField, ContentTypeField
+from netbox.api.fields import ChoiceField, ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import NestedGroupModelSerializer, NetBoxModelSerializer
 from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.choices import ContactPriorityChoices
@@ -27,21 +27,24 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'tenant_count', '_depth',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tenant_count', '_depth')
 
 
 class TenantSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
     group = NestedTenantGroupSerializer(required=False, allow_null=True)
-    circuit_count = serializers.IntegerField(read_only=True)
-    device_count = serializers.IntegerField(read_only=True)
-    ipaddress_count = serializers.IntegerField(read_only=True)
-    prefix_count = serializers.IntegerField(read_only=True)
-    rack_count = serializers.IntegerField(read_only=True)
-    site_count = serializers.IntegerField(read_only=True)
-    virtualmachine_count = serializers.IntegerField(read_only=True)
-    vlan_count = serializers.IntegerField(read_only=True)
-    vrf_count = serializers.IntegerField(read_only=True)
-    cluster_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    circuit_count = RelatedObjectCountField('circuits')
+    device_count = RelatedObjectCountField('devices')
+    rack_count = RelatedObjectCountField('racks')
+    site_count = RelatedObjectCountField('sites')
+    ipaddress_count = RelatedObjectCountField('ip_addresses')
+    prefix_count = RelatedObjectCountField('prefixes')
+    vlan_count = RelatedObjectCountField('vlans')
+    vrf_count = RelatedObjectCountField('vrfs')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
+    cluster_count = RelatedObjectCountField('clusters')
 
     class Meta:
         model = Tenant
@@ -50,6 +53,7 @@ class TenantSerializer(NetBoxModelSerializer):
             'created', 'last_updated', 'circuit_count', 'device_count', 'ipaddress_count', 'prefix_count', 'rack_count',
             'site_count', 'virtualmachine_count', 'vlan_count', 'vrf_count', 'cluster_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 #
@@ -67,6 +71,7 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'parent', 'description', 'tags', 'custom_fields', 'created',
             'last_updated', 'contact_count', '_depth',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'contact_count', '_depth')
 
 
 class ContactRoleSerializer(NetBoxModelSerializer):
@@ -77,6 +82,7 @@ class ContactRoleSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 class ContactSerializer(NetBoxModelSerializer):
@@ -89,6 +95,7 @@ class ContactSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description',
             'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class ContactAssignmentSerializer(NetBoxModelSerializer):
@@ -107,6 +114,7 @@ class ContactAssignmentSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'content_type', 'object_id', 'object', 'contact', 'role', 'priority', 'tags',
             'custom_fields', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'contact', 'role', 'priority')
 
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_object(self, instance):

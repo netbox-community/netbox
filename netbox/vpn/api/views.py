@@ -1,7 +1,6 @@
 from rest_framework.routers import APIRootView
 
 from netbox.api.viewsets import NetBoxModelViewSet
-from utilities.utils import count_related
 from vpn import filtersets
 from vpn.models import *
 from . import serializers
@@ -34,23 +33,19 @@ class VPNRootView(APIRootView):
 #
 
 class TunnelGroupViewSet(NetBoxModelViewSet):
-    queryset = TunnelGroup.objects.annotate(
-        tunnel_count=count_related(Tunnel, 'group')
-    )
+    queryset = TunnelGroup.objects.all()
     serializer_class = serializers.TunnelGroupSerializer
     filterset_class = filtersets.TunnelGroupFilterSet
 
 
 class TunnelViewSet(NetBoxModelViewSet):
-    queryset = Tunnel.objects.prefetch_related('ipsec_profile', 'tenant').annotate(
-        terminations_count=count_related(TunnelTermination, 'tunnel')
-    )
+    queryset = Tunnel.objects.all()
     serializer_class = serializers.TunnelSerializer
     filterset_class = filtersets.TunnelFilterSet
 
 
 class TunnelTerminationViewSet(NetBoxModelViewSet):
-    queryset = TunnelTermination.objects.prefetch_related('tunnel')
+    queryset = TunnelTermination.objects.all()
     serializer_class = serializers.TunnelTerminationSerializer
     filterset_class = filtersets.TunnelTerminationFilterSet
 
@@ -86,12 +81,12 @@ class IPSecProfileViewSet(NetBoxModelViewSet):
 
 
 class L2VPNViewSet(NetBoxModelViewSet):
-    queryset = L2VPN.objects.prefetch_related('import_targets', 'export_targets', 'tenant', 'tags')
+    queryset = L2VPN.objects.all()
     serializer_class = serializers.L2VPNSerializer
     filterset_class = filtersets.L2VPNFilterSet
 
 
 class L2VPNTerminationViewSet(NetBoxModelViewSet):
-    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
+    queryset = L2VPNTermination.objects.all()
     serializer_class = serializers.L2VPNTerminationSerializer
     filterset_class = filtersets.L2VPNTerminationFilterSet

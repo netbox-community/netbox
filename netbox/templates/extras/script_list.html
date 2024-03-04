@@ -26,11 +26,18 @@
         <div>
           <i class="mdi mdi-file-document-outline"></i> {{ module }}
         </div>
-        {% if perms.extras.delete_scriptmodule %}
-          <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
-            <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
-          </a>
-        {% endif %}
+        <div>
+          {% if perms.extras.edit_scriptmodule %}
+            <a href="{% url 'extras:scriptmodule_edit' pk=module.pk %}" class="btn btn-warning btn-sm">
+              <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit" %}
+            </a>
+          {% endif %}
+          {% if perms.extras.delete_scriptmodule %}
+            <a href="{% url 'extras:scriptmodule_delete' pk=module.pk %}" class="btn btn-danger btn-sm">
+              <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
+            </a>
+          {% endif %}
+        </div>
       </h5>
       {% if module.scripts %}
         <table class="table table-hover scripts">
@@ -44,75 +51,80 @@
             </tr>
           </thead>
           <tbody>
-            {% with jobs=module.get_latest_jobs %}
-              {% for script_name, script in module.scripts.items %}
-                {% with last_job=jobs|get_key:script.class_name %}
-                  <tr>
-                    <td>
-                      <a href="{% url 'extras:script' module=module.python_name name=script.class_name %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
-                    </td>
-                    <td>{{ script.description|markdown|placeholder }}</td>
-                    {% if last_job %}
-                      <td>
-                        <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|annotated_date }}</a>
-                      </td>
-                      <td>
-                        {% badge last_job.get_status_display last_job.get_status_color %}
-                      </td>
+            {% for script in module.scripts.all %}
+              {% with last_job=script.get_latest_jobs|get_key:script.name %}
+                <tr>
+                  <td>
+                    {% if script.is_executable %}
+                      <a href="{% url 'extras:script' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
                     {% else %}
-                      <td class="text-muted">{% trans "Never" %}</td>
-                      <td>{{ ''|placeholder }}</td>
+                      <a href="{% url 'extras:script_jobs' script.pk %}" id="{{ script.module }}.{{ script.class_name }}">{{ script.name }}</a>
+                      <span class="text-danger">
+                        <i class="mdi mdi-alert" title="{% trans "Script is no longer present in the source file" %}"></i>
+                      </span>
                     {% endif %}
-                    <td>
-                      {% if perms.extras.run_script %}
-                        <div class="float-end d-print-none">
-                          <form action="{% url 'extras:script' module=script.module name=script.class_name %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" name="_run" class="btn btn-primary btn-sm">
-                              {% if last_job %}
-                                <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
-                              {% else %}
-                                <i class="mdi mdi-play"></i> {% trans "Run Script" %}
-                              {% endif %}
-                            </button>
-                          </form>
-                        </div>
-                      {% endif %}
-                    </td>
-                  </tr>
+                  </td>
+                  <td>{{ script.description|markdown|placeholder }}</td>
                   {% if last_job %}
-                    {% for test_name, data in last_job.data.tests.items %}
-                      <tr>
-                        <td colspan="4" class="method">
-                          <span class="ps-3">{{ test_name }}</span>
-                        </td>
-                        <td class="text-end text-nowrap script-stats">
-                          <span class="badge text-bg-success">{{ data.success }}</span>
-                          <span class="badge text-bg-info">{{ data.info }}</span>
-                          <span class="badge text-bg-warning">{{ data.warning }}</span>
-                          <span class="badge text-bg-danger">{{ data.failure }}</span>
-                        </td>
-                      </tr>
-                    {% endfor %}
-                  {% elif not last_job.data.log %}
-                    {# legacy #}
-                    {% for method, stats in last_job.data.items %}
-                      <tr>
-                        <td colspan="4" class="method">
-                          <span class="ps-3">{{ method }}</span>
-                        </td>
-                        <td class="text-end text-nowrap report-stats">
-                          <span class="badge bg-success">{{ stats.success }}</span>
-                          <span class="badge bg-info">{{ stats.info }}</span>
-                          <span class="badge bg-warning">{{ stats.warning }}</span>
-                          <span class="badge bg-danger">{{ stats.failure }}</span>
-                        </td>
-                      </tr>
-                    {% endfor %}
+                    <td>
+                      <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|annotated_date }}</a>
+                    </td>
+                    <td>
+                      {% badge last_job.get_status_display last_job.get_status_color %}
+                    </td>
+                  {% else %}
+                    <td class="text-muted">{% trans "Never" %}</td>
+                    <td>{{ ''|placeholder }}</td>
                   {% endif %}
-                {% endwith %}
-              {% endfor %}
-            {% endwith %}
+                  <td>
+                    {% if request.user|can_run:script and script.is_executable %}
+                      <div class="float-end d-print-none">
+                        <form action="{% url 'extras:script' script.pk %}" method="post">
+                          {% csrf_token %}
+                          <button type="submit" name="_run" class="btn btn-primary btn-sm">
+                            {% if last_job %}
+                              <i class="mdi mdi-replay"></i> {% trans "Run Again" %}
+                            {% else %}
+                              <i class="mdi mdi-play"></i> {% trans "Run Script" %}
+                            {% endif %}
+                          </button>
+                        </form>
+                      </div>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% if last_job %}
+                  {% for test_name, data in last_job.data.tests.items %}
+                    <tr>
+                      <td colspan="4" class="method">
+                        <span class="ps-3">{{ test_name }}</span>
+                      </td>
+                      <td class="text-end text-nowrap script-stats">
+                        <span class="badge text-bg-success">{{ data.success }}</span>
+                        <span class="badge text-bg-info">{{ data.info }}</span>
+                        <span class="badge text-bg-warning">{{ data.warning }}</span>
+                        <span class="badge text-bg-danger">{{ data.failure }}</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% elif not last_job.data.log %}
+                  {# legacy #}
+                  {% for method, stats in last_job.data.items %}
+                    <tr>
+                      <td colspan="4" class="method">
+                        <span class="ps-3">{{ method }}</span>
+                      </td>
+                      <td class="text-end text-nowrap report-stats">
+                        <span class="badge bg-success">{{ stats.success }}</span>
+                        <span class="badge bg-info">{{ stats.info }}</span>
+                        <span class="badge bg-warning">{{ stats.warning }}</span>
+                        <span class="badge bg-danger">{{ stats.failure }}</span>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                {% endif %}
+              {% endwith %}
+            {% endfor %}
           </tbody>
         </table>
       {% else %}

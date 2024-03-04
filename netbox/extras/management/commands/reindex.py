@@ -1,5 +1,6 @@
 from django.contrib.contenttypes.models import ContentType
 from django.core.management.base import BaseCommand, CommandError
+from django.utils.translation import gettext as _
 
 from netbox.registry import registry
 from netbox.search.backends import search_backend
@@ -62,7 +63,7 @@ class Command(BaseCommand):
         # Determine which models to reindex
         indexers = self._get_indexers(*model_labels)
         if not indexers:
-            raise CommandError("No indexers found!")
+            raise CommandError(_("No indexers found!"))
         self.stdout.write(f'Reindexing {len(indexers)} models.')
 
         # Clear all cached values for the specified models (if not being lazy)

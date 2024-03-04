@@ -31,6 +31,15 @@ export class DynamicTomSelect extends TomSelect {
     // Glean the REST API endpoint URL from the <select> element
     this.api_url = this.input.getAttribute('data-url') as string;
 
+    // Override any field names set as widget attributes
+    this.valueField = this.input.getAttribute('ts-value-field') || this.settings.valueField;
+    this.labelField = this.input.getAttribute('ts-label-field') || this.settings.labelField;
+    this.disabledField = this.input.getAttribute('ts-disabled-field') || this.settings.disabledField;
+    this.descriptionField = this.input.getAttribute('ts-description-field') || 'description';
+    this.depthField = this.input.getAttribute('ts-depth-field') || '_depth';
+    this.parentField = this.input.getAttribute('ts-parent-field') || null;
+    this.countField = this.input.getAttribute('ts-count-field') || null;
+
     // Set the null option (if any)
     const nullOption = this.input.getAttribute('data-null-option');
     if (nullOption) {
@@ -82,10 +91,20 @@ export class DynamicTomSelect extends TomSelect {
     // Make the API request
     fetch(url)
       .then(response => response.json())
-      .then(json => {
-          self.loadCallback(json.results, []);
+      .then(apiData => {
+        const results: Dict[] = apiData.results;
+        let options: Dict[] = []
+        for (let result of results) {
+          const option = self.getOptionFromData(result);
+          options.push(option);
+        }
+        return options;
+      })
+      // Pass the options to the callback function
+      .then(options => {
+        self.loadCallback(options, []);
       }).catch(()=>{
-          self.loadCallback([], []);
+        self.loadCallback([], []);
       });
 
   }
@@ -124,6 +143,27 @@ export class DynamicTomSelect extends TomSelect {
     query['limit'] = [this.settings.maxOptions];
 
     return queryString.stringifyUrl({ url, query });
+  }
+
+  // Compile TomOption data from an API result
+  getOptionFromData(data: Dict) {
+    let option: Dict = {
+      id: data[this.valueField],
+      display: data[this.labelField],
+      depth: data[this.depthField] || null,
+      description: data[this.descriptionField] || null,
+    };
+    if (data[this.parentField]) {
+      let parent: Dict = data[this.parentField] as Dict;
+      option['parent'] = parent[this.labelField];
+    }
+    if (data[this.countField]) {
+      option['count'] = data[this.countField];
+    }
+    if (data[this.disabledField]) {
+      option['disabled'] = data[this.disabledField];
+    }
+    return option
   }
 
   /**

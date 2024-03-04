@@ -267,14 +267,20 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
 
 class IPAddressForm(TenancyForm, NetBoxModelForm):
     interface = DynamicModelChoiceField(
-        label=_('Interface'),
         queryset=Interface.objects.all(),
         required=False,
+        context={
+            'parent': 'device',
+        },
         selector=True,
+        label=_('Interface'),
     )
     vminterface = DynamicModelChoiceField(
         queryset=VMInterface.objects.all(),
         required=False,
+        context={
+            'parent': 'virtual_machine',
+        },
         selector=True,
         label=_('Interface'),
     )
@@ -750,4 +756,4 @@ class ServiceCreateForm(ServiceForm):
             if not self.cleaned_data['description']:
                 self.cleaned_data['description'] = service_template.description
         elif not all(self.cleaned_data[f] for f in ('name', 'protocol', 'ports')):
-            raise forms.ValidationError("Must specify name, protocol, and port(s) if not using a service template.")
+            raise forms.ValidationError(_("Must specify name, protocol, and port(s) if not using a service template."))

@@ -1,4 +1,5 @@
 from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -30,9 +31,12 @@ class WritableNestedSerializer(BaseModelSerializer):
             try:
                 return queryset.get(**params)
             except ObjectDoesNotExist:
-                raise ValidationError(f"Related object not found using the provided attributes: {params}")
+                raise ValidationError(
+                    _("Related object not found using the provided attributes: {params}").format(params=params))
             except MultipleObjectsReturned:
-                raise ValidationError(f"Multiple objects match the provided attributes: {params}")
+                raise ValidationError(
+                    _("Multiple objects match the provided attributes: {params}").format(params=params)
+                )
             except FieldError as e:
                 raise ValidationError(e)
 
@@ -42,15 +46,17 @@ class WritableNestedSerializer(BaseModelSerializer):
             pk = int(data)
         except (TypeError, ValueError):
             raise ValidationError(
-                f"Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
-                f"unrecognized value: {data}"
+                _(
+                    "Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
+                    "unrecognized value: {value}"
+                ).format(value=data)
             )
 
         # Look up object by PK
         try:
             return self.Meta.model.objects.get(pk=pk)
         except ObjectDoesNotExist:
-            raise ValidationError(f"Related object not found using the provided numeric ID: {pk}")
+            raise ValidationError(_("Related object not found using the provided numeric ID: {id}").format(id=pk))
 
 
 # Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers

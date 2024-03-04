@@ -11,19 +11,26 @@ export function initStaticSelects(): void {
   )) {
     new TomSelect(select, {
       ...config,
+      maxOptions: undefined,
     });
   }
 }
 
 // Initialize color selection fields
 export function initColorSelects(): void {
+  function renderColor(item: TomOption, escape: typeof escape_html) {
+    return `<div><span class="dropdown-item-indicator color-label" style="background-color: #${escape(
+      item.value,
+    )}"></span> ${escape(item.text)}</div>`;
+  }
+
   for (const select of getElements<HTMLSelectElement>('select.color-select:not(.tomselected)')) {
     new TomSelect(select, {
       ...config,
+      maxOptions: undefined,
       render: {
-        option: function (item: TomOption, escape: typeof escape_html) {
-          return `<div style="background-color: #${escape(item.value)}">${escape(item.text)}</div>`;
-        },
+        option: renderColor,
+        item: renderColor,
       },
     });
   }

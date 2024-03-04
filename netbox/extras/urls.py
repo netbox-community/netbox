@@ -120,10 +120,15 @@ urlpatterns = [
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
     path('scripts/add/', views.ScriptModuleCreateView.as_view(), name='scriptmodule_add'),
     path('scripts/results/<int:job_pk>/', views.ScriptResultView.as_view(), name='script_result'),
-    path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
-    path('scripts/<str:module>/<str:name>/', views.ScriptView.as_view(), name='script'),
-    path('scripts/<str:module>/<str:name>/source/', views.ScriptSourceView.as_view(), name='script_source'),
-    path('scripts/<str:module>/<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
+    path('scripts/<int:pk>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/<int:pk>/source/', views.ScriptSourceView.as_view(), name='script_source'),
+    path('scripts/<int:pk>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
+    path('script-modules/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
+
+    # Redirects for legacy script URLs
+    # TODO: Remove in NetBox v4.1
+    path('scripts/<str:module>/<str:name>/', views.LegacyScriptRedirectView.as_view()),
+    path('scripts/<str:module>/<str:name>/<path:path>/', views.LegacyScriptRedirectView.as_view()),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),

@@ -8,7 +8,7 @@ from dcim.choices import InterfaceModeChoices
 from extras.api.nested_serializers import NestedConfigTemplateSerializer
 from ipam.api.nested_serializers import NestedIPAddressSerializer, NestedVLANSerializer, NestedVRFSerializer
 from ipam.models import VLAN
-from netbox.api.fields import ChoiceField, SerializedPKRelatedField
+from netbox.api.fields import ChoiceField, RelatedObjectCountField, SerializedPKRelatedField
 from netbox.api.serializers import NetBoxModelSerializer
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from virtualization.choices import *
@@ -23,7 +23,9 @@ from .nested_serializers import *
 
 class ClusterTypeSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustertype-detail')
-    cluster_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    cluster_count = RelatedObjectCountField('clusters')
 
     class Meta:
         model = ClusterType
@@ -31,11 +33,14 @@ class ClusterTypeSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
 class ClusterGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='virtualization-api:clustergroup-detail')
-    cluster_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    cluster_count = RelatedObjectCountField('clusters')
 
     class Meta:
         model = ClusterGroup
@@ -43,6 +48,7 @@ class ClusterGroupSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'cluster_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'cluster_count')
 
 
 class ClusterSerializer(NetBoxModelSerializer):
@@ -52,8 +58,10 @@ class ClusterSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=ClusterStatusChoices, required=False)
     tenant = NestedTenantSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer(required=False, allow_null=True, default=None)
-    device_count = serializers.IntegerField(read_only=True)
-    virtualmachine_count = serializers.IntegerField(read_only=True)
+
+    # Related object counts
+    device_count = RelatedObjectCountField('devices')
+    virtualmachine_count = RelatedObjectCountField('virtual_machines')
 
     class Meta:
         model = Cluster
@@ -61,6 +69,7 @@ class ClusterSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'type', 'group', 'status', 'tenant', 'site', 'description', 'comments',
             'tags', 'custom_fields', 'created', 'last_updated', 'device_count', 'virtualmachine_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'virtualmachine_count')
 
 
 #
@@ -93,6 +102,7 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
             'config_template', 'local_context_data', 'tags', 'custom_fields', 'created', 'last_updated',
             'interface_count', 'virtual_disk_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
         validators = []
 
 
@@ -103,8 +113,8 @@ class VirtualMachineWithConfigContextSerializer(VirtualMachineSerializer):
         fields = [
             'id', 'url', 'display', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'platform',
             'primary_ip', 'primary_ip4', 'primary_ip6', 'vcpus', 'memory', 'disk', 'description', 'comments',
-            'local_context_data', 'tags', 'custom_fields', 'config_context', 'created', 'last_updated',
-            'interface_count', 'virtual_disk_count',
+            'config_template', 'local_context_data', 'tags', 'custom_fields', 'config_context', 'created',
+            'last_updated', 'interface_count', 'virtual_disk_count',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
@@ -146,6 +156,7 @@ class VMInterfaceSerializer(NetBoxModelSerializer):
             'description', 'mode', 'untagged_vlan', 'tagged_vlans', 'vrf', 'l2vpn_termination', 'tags', 'custom_fields',
             'created', 'last_updated', 'count_ipaddresses', 'count_fhrp_groups',
         ]
+        brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description')
 
     def validate(self, data):
 
@@ -172,6 +183,7 @@ class VirtualDiskSerializer(NetBoxModelSerializer):
     class Meta:
         model = VirtualDisk
         fields = [
-            'id', 'url', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields', 'created',
-            'last_updated',
+            'id', 'url', 'display', 'virtual_machine', 'name', 'description', 'size', 'tags', 'custom_fields',
+            'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'virtual_machine', 'name', 'description', 'size')

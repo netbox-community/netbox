@@ -1,5 +1,6 @@
 import functools
 import re
+from django.utils.translation import gettext as _
 
 __all__ = (
     'Condition',
@@ -50,11 +51,13 @@ class Condition:
 
     def __init__(self, attr, value, op=EQ, negate=False):
         if op not in self.OPERATORS:
-            raise ValueError(f"Unknown operator: {op}. Must be one of: {', '.join(self.OPERATORS)}")
+            raise ValueError(_("Unknown operator: {op}. Must be one of: {operators}").format(
+                op=op, operators=', '.join(self.OPERATORS)
+            ))
         if type(value) not in self.TYPES:
-            raise ValueError(f"Unsupported value type: {type(value)}")
+            raise ValueError(_("Unsupported value type: {value}").format(value=type(value)))
         if op not in self.TYPES[type(value)]:
-            raise ValueError(f"Invalid type for {op} operation: {type(value)}")
+            raise ValueError(_("Invalid type for {op} operation: {value}").format(op=op, value=type(value)))
 
         self.attr = attr
         self.value = value
@@ -131,14 +134,17 @@ class ConditionSet:
     """
     def __init__(self, ruleset):
         if type(ruleset) is not dict:
-            raise ValueError(f"Ruleset must be a dictionary, not {type(ruleset)}.")
+            raise ValueError(_("Ruleset must be a dictionary, not {ruleset}.").format(ruleset=type(ruleset)))
         if len(ruleset) != 1:
-            raise ValueError(f"Ruleset must have exactly one logical operator (found {len(ruleset)})")
+            raise ValueError(_("Ruleset must have exactly one logical operator (found {ruleset})").format(
+                ruleset=len(ruleset)))
 
         # Determine the logic type
         logic = list(ruleset.keys())[0]
         if type(logic) is not str or logic.lower() not in (AND, OR):
-            raise ValueError(f"Invalid logic type: {logic} (must be '{AND}' or '{OR}')")
+            raise ValueError(_("Invalid logic type: {logic} (must be '{op_and}' or '{op_or}')").format(
+                logic=logic, op_and=AND, op_or=OR
+            ))
         self.logic = logic.lower()
 
         # Compile the set of Conditions

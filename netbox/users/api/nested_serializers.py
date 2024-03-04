@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -7,7 +6,7 @@ from rest_framework import serializers
 
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import WritableNestedSerializer
-from users.models import ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token
 
 __all__ = [
     'NestedGroupSerializer',

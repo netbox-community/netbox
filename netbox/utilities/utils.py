@@ -1,11 +1,12 @@
 import datetime
 import decimal
 import json
-import nh3
 import re
 from decimal import Decimal
 from itertools import count, groupby
+from urllib.parse import urlencode
 
+import nh3
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
@@ -15,6 +16,7 @@ from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.html import escape
 from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
@@ -22,7 +24,6 @@ from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
 from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.plugins import PluginConfig
-from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
 
@@ -47,26 +48,16 @@ def get_viewname(model, action=None, rest_api=False):
     model_name = model._meta.model_name
 
     if rest_api:
+        viewname = f'{app_label}-api:{model_name}'
         if is_plugin:
-            viewname = f'plugins-api:{app_label}-api:{model_name}'
-        else:
-            # Alter the app_label for group and user model_name to point to users app
-            if app_label == 'auth' and model_name in ['group', 'user']:
-                app_label = 'users'
-            if app_label == 'users' and model._meta.proxy and model_name in ['netboxuser', 'netboxgroup']:
-                model_name = model._meta.proxy_for_model._meta.model_name
-
-            viewname = f'{app_label}-api:{model_name}'
-        # Append the action, if any
+            viewname = f'plugins-api:{viewname}'
         if action:
             viewname = f'{viewname}-{action}'
 
     else:
         viewname = f'{app_label}:{model_name}'
-        # Prepend the plugins namespace if this is a plugin model
         if is_plugin:
             viewname = f'plugins:{viewname}'
-        # Append the action, if any
         if action:
             viewname = f'{viewname}_{action}'
 
@@ -307,13 +298,17 @@ def to_meters(length, unit):
     """
     try:
         if length < 0:
-            raise ValueError("Length must be a positive number")
+            raise ValueError(_("Length must be a positive number"))
     except TypeError:
-        raise TypeError(f"Invalid value '{length}' for length (must be a number)")
+        raise TypeError(_("Invalid value '{length}' for length (must be a number)").format(length=length))
 
     valid_units = CableLengthUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == CableLengthUnitChoices.UNIT_KILOMETER:
         return length * 1000
@@ -327,7 +322,7 @@ def to_meters(length, unit):
         return length * Decimal(0.3048)
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * Decimal(0.0254)
-    raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
+    raise ValueError(_("Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.").format(unit=unit))
 
 
 def to_grams(weight, unit):
@@ -336,13 +331,17 @@ def to_grams(weight, unit):
     """
     try:
         if weight < 0:
-            raise ValueError("Weight must be a positive number")
+            raise ValueError(_("Weight must be a positive number"))
     except TypeError:
-        raise TypeError(f"Invalid value '{weight}' for weight (must be a number)")
+        raise TypeError(_("Invalid value '{weight}' for weight (must be a number)").format(weight=weight))
 
     valid_units = WeightUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == WeightUnitChoices.UNIT_KILOGRAM:
         return weight * 1000
@@ -352,7 +351,7 @@ def to_grams(weight, unit):
         return weight * Decimal(453.592)
     if unit == WeightUnitChoices.UNIT_OUNCE:
         return weight * Decimal(28.3495)
-    raise ValueError(f"Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.")
+    raise ValueError(_("Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.").format(unit=unit))
 
 
 def render_jinja2(template_code, context):
