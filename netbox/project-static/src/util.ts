@@ -245,29 +245,6 @@ export function getSelectedOptions<E extends HTMLElement>(
 }
 
 /**
- * Get data that can only be accessed via Django context, and is thus already rendered in the HTML
- * template.
- *
- * @see Templates requiring Django context data have a `{% block data %}` block.
- *
- * @param key Property name, which must exist on the HTML element. If not already prefixed with
- *            `data-`, `data-` will be prepended to the property.
- * @returns Value if it exists, `null` if not.
- */
-export function getNetboxData(key: string): string | null {
-  if (!key.startsWith('data-')) {
-    key = `data-${key}`;
-  }
-  for (const element of getElements('body > div#netbox-data > *')) {
-    const value = element.getAttribute(key);
-    if (isTruthy(value)) {
-      return value;
-    }
-  }
-  return null;
-}
-
-/**
  * Toggle visibility of an element.
  */
 export function toggleVisibility<E extends HTMLElement | SVGElement>(
