@@ -26,6 +26,9 @@ class Migration(migrations.Migration):
             name='object_type',
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'),
         ),
+        migrations.RunSQL(
+            "ALTER TABLE extras_customfield_content_types_id_seq RENAME TO extras_customfield_object_types_id_seq"
+        ),
 
         # Custom links
         migrations.RenameField(
@@ -37,6 +40,9 @@ class Migration(migrations.Migration):
             model_name='customlink',
             name='object_types',
             field=models.ManyToManyField(related_name='custom_links', to='core.objecttype'),
+        ),
+        migrations.RunSQL(
+            "ALTER TABLE extras_customlink_content_types_id_seq RENAME TO extras_customlink_object_types_id_seq"
         ),
 
         # Event rules
@@ -50,6 +56,9 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(related_name='event_rules', to='core.objecttype'),
         ),
+        migrations.RunSQL(
+            "ALTER TABLE extras_eventrule_content_types_id_seq RENAME TO extras_eventrule_object_types_id_seq"
+        ),
 
         # Export templates
         migrations.RenameField(
@@ -62,6 +71,9 @@ class Migration(migrations.Migration):
             name='object_types',
             field=models.ManyToManyField(related_name='export_templates', to='core.objecttype'),
         ),
+        migrations.RunSQL(
+            "ALTER TABLE extras_exporttemplate_content_types_id_seq RENAME TO extras_exporttemplate_object_types_id_seq"
+        ),
 
         # Saved filters
         migrations.RenameField(
@@ -73,6 +85,9 @@ class Migration(migrations.Migration):
             model_name='savedfilter',
             name='object_types',
             field=models.ManyToManyField(related_name='saved_filters', to='core.objecttype'),
+        ),
+        migrations.RunSQL(
+            "ALTER TABLE extras_savedfilter_content_types_id_seq RENAME TO extras_savedfilter_object_types_id_seq"
         ),
 
         # Image attachments
