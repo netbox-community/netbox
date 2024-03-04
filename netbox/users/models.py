@@ -4,7 +4,12 @@ import os
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import (
-    AbstractUser, Group, GroupManager, User as DjangoUser, UserManager as DjangoUserManager
+    AbstractUser,
+    Group as DjangoGroup,
+    GroupManager,
+    Permission,
+    User as DjangoUser,
+    UserManager as DjangoUserManager
 )
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -25,7 +30,7 @@ from utilities.utils import flatten_dict
 from .constants import *
 
 __all__ = (
-    'NetBoxGroup',
+    'Group',
     'ObjectPermission',
     'Token',
     'User',
@@ -33,22 +38,61 @@ __all__ = (
 )
 
 
-#
-# Proxies for Django's User and Group models
-#
+class NetBoxGroupManager(GroupManager.from_queryset(RestrictedQuerySet)):
+    pass
+
+
+class Group(models.Model):
+    name = models.CharField(
+        verbose_name=_('name'),
+        max_length=150,
+        unique=True
+    )
+    description = models.CharField(
+        verbose_name=_('description'),
+        max_length=200,
+        blank=True
+    )
+
+    # Replicate legacy Django permissions support from stock Group model
+    # to ensure authentication backend compatibility
+    permissions = models.ManyToManyField(
+        Permission,
+        verbose_name=_("permissions"),
+        blank=True,
+        related_name='groups',
+        related_query_name='group'
+    )
+
+    objects = NetBoxGroupManager()
+
+    class Meta:
+        verbose_name = _('group')
+        verbose_name_plural = _('groups')
+
+    def __str__(self):
+        return self.name
+
+    def get_absolute_url(self):
+        return reverse('users:group', args=[self.pk])
+
+    def natural_key(self):
+        return (self.name,)
+
 
 class UserManager(DjangoUserManager.from_queryset(RestrictedQuerySet)):
     pass
 
 
-class NetBoxGroupManager(GroupManager.from_queryset(RestrictedQuerySet)):
-    pass
-
-
 class User(AbstractUser):
-    """
-    Proxy contrib.auth.models.User for the UI
-    """
+    groups = models.ManyToManyField(
+        to='users.Group',
+        verbose_name=_('groups'),
+        blank=True,
+        related_name='users',
+        related_query_name='user'
+    )
+
     objects = UserManager()
 
     class Meta:
@@ -66,22 +110,6 @@ class User(AbstractUser):
         model = self._meta.model
         if model.objects.exclude(pk=self.pk).filter(username__iexact=self.username).exists():
             raise ValidationError(_("A user with this username already exists."))
-
-
-class NetBoxGroup(Group):
-    """
-    Proxy contrib.auth.models.User for the UI
-    """
-    objects = NetBoxGroupManager()
-
-    class Meta:
-        proxy = True
-        ordering = ('name',)
-        verbose_name = _('group')
-        verbose_name_plural = _('groups')
-
-    def get_absolute_url(self):
-        return reverse('users:netboxgroup', args=[self.pk])
 
 
 #
@@ -360,7 +388,7 @@ class ObjectPermission(models.Model):
         related_name='object_permissions'
     )
     groups = models.ManyToManyField(
-        to=Group,
+        to='users.Group',
         blank=True,
         related_name='object_permissions'
     )

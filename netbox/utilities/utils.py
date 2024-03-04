@@ -1,11 +1,12 @@
 import datetime
 import decimal
 import json
-import nh3
 import re
 from decimal import Decimal
 from itertools import count, groupby
+from urllib.parse import urlencode
 
+import nh3
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
 from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
@@ -23,7 +24,6 @@ from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
 from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.plugins import PluginConfig
-from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
 
@@ -48,26 +48,16 @@ def get_viewname(model, action=None, rest_api=False):
     model_name = model._meta.model_name
 
     if rest_api:
+        viewname = f'{app_label}-api:{model_name}'
         if is_plugin:
-            viewname = f'plugins-api:{app_label}-api:{model_name}'
-        else:
-            # Alter the app_label for group and user model_name to point to users app
-            if app_label == 'auth' and model_name in ['group', 'user']:
-                app_label = 'users'
-            if app_label == 'users' and model._meta.proxy and model_name in ['netboxuser', 'netboxgroup']:
-                model_name = model._meta.proxy_for_model._meta.model_name
-
-            viewname = f'{app_label}-api:{model_name}'
-        # Append the action, if any
+            viewname = f'plugins-api:{viewname}'
         if action:
             viewname = f'{viewname}-{action}'
 
     else:
         viewname = f'{app_label}:{model_name}'
-        # Prepend the plugins namespace if this is a plugin model
         if is_plugin:
             viewname = f'plugins:{viewname}'
-        # Append the action, if any
         if action:
             viewname = f'{viewname}_{action}'
 

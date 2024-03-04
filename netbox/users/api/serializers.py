@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
@@ -10,7 +9,7 @@ from rest_framework.exceptions import AuthenticationFailed, PermissionDenied
 
 from netbox.api.fields import ContentTypeField, IPNetworkSerializer, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
-from users.models import ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token
 from .nested_serializers import *
 
 

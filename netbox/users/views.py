@@ -5,7 +5,7 @@ from extras.tables import ObjectChangeTable
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import NetBoxGroup, User, ObjectPermission, Token
+from .models import Group, User, ObjectPermission, Token
 
 
 #
@@ -110,36 +110,36 @@ class UserBulkDeleteView(generic.BulkDeleteView):
 #
 
 class GroupListView(generic.ObjectListView):
-    queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
+    queryset = Group.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
     filterset_form = forms.GroupFilterForm
     table = tables.GroupTable
 
 
-@register_model_view(NetBoxGroup)
+@register_model_view(Group)
 class GroupView(generic.ObjectView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
     template_name = 'users/group.html'
 
 
-@register_model_view(NetBoxGroup, 'edit')
+@register_model_view(Group, 'edit')
 class GroupEditView(generic.ObjectEditView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
     form = forms.GroupForm
 
 
-@register_model_view(NetBoxGroup, 'delete')
+@register_model_view(Group, 'delete')
 class GroupDeleteView(generic.ObjectDeleteView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
 
 
 class GroupBulkImportView(generic.BulkImportView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
     model_form = forms.GroupImportForm
 
 
 class GroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
+    queryset = Group.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
     table = tables.GroupTable
 
