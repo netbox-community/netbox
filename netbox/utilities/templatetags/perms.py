@@ -6,6 +6,7 @@ __all__ = (
     'can_add',
     'can_change',
     'can_delete',
+    'can_run',
     'can_sync',
     'can_view',
 )
@@ -42,3 +43,8 @@ def can_delete(user, instance):
 @register.filter()
 def can_sync(user, instance):
     return _check_permission(user, instance, 'sync')
+
+
+@register.filter()
+def can_run(user, instance):
+    return _check_permission(user, instance, 'run')

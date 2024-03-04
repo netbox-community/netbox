@@ -13,7 +13,7 @@
       <div class="col-9 offset-3">
         <ul class="nav nav-pills mb-1" role="tablist">
           <li role="presentation" class="nav-item">
-            <button role="tab" type="button" id="vlan_tab" data-bs-toggle="tab" aria-controls="vlan" data-bs-target="#vlan" class="nav-link {% if not form.initial.interface or form.initial.vminterface %}active{% endif %}">
+            <button role="tab" type="button" id="vlan_tab" data-bs-toggle="tab" aria-controls="vlan" data-bs-target="#vlan" class="nav-link {% if not form.initial.interface and not form.initial.vminterface %}active{% endif %}">
               {% trans "VLAN" %}
             </button>
           </li>
@@ -32,7 +32,7 @@
     </div>
     <div class="row mb-3">
       <div class="tab-content p-0 border-0">
-        <div class="tab-pane {% if not form.initial.interface or form.initial.vminterface %}active{% endif %}" id="vlan" role="tabpanel" aria-labeled-by="vlan_tab">
+        <div class="tab-pane {% if not form.initial.interface and not form.initial.vminterface %}active{% endif %}" id="vlan" role="tabpanel" aria-labeled-by="vlan_tab">
           {% render_field form.vlan %}
         </div>
         <div class="tab-pane {% if form.initial.interface %}active{% endif %}" id="interface" role="tabpanel" aria-labeled-by="interface_tab">

@@ -17,7 +17,7 @@ from django.utils.translation import gettext as _
 from core.choices import JobStatusChoices
 from core.models import Job
 from extras.choices import LogLevelChoices
-from extras.models import ScriptModule
+from extras.models import ScriptModule, Script as ScriptModel
 from extras.signals import clear_events
 from ipam.formfields import IPAddressFormField, IPNetworkFormField
 from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, prefix_validator
@@ -411,11 +411,11 @@ class BaseScript:
             fieldsets.extend(self.fieldsets)
         else:
             fields = list(name for name, _ in self._get_vars().items())
-            fieldsets.append(('Script Data', fields))
+            fieldsets.append((_('Script Data'), fields))
 
         # Append the default fieldset if defined in the Meta class
         exec_parameters = ('_schedule_at', '_interval', '_commit') if self.scheduling_enabled else ('_commit',)
-        fieldsets.append(('Script Execution Parameters', exec_parameters))
+        fieldsets.append((_('Script Execution Parameters'), exec_parameters))
 
         return fieldsets
 
@@ -582,7 +582,7 @@ def is_variable(obj):
 
 def get_module_and_script(module_name, script_name):
     module = ScriptModule.objects.get(file_path=f'{module_name}.py')
-    script = module.scripts.get(script_name)
+    script = module.scripts.get(name=script_name)
     return module, script
 
 
@@ -599,8 +599,7 @@ def run_script(data, job, request=None, commit=True, **kwargs):
     """
     job.start()
 
-    module = ScriptModule.objects.get(pk=job.object_id)
-    script = module.scripts.get(job.name)()
+    script = ScriptModel.objects.get(pk=job.object_id).python_class()
 
     logger = logging.getLogger(f"netbox.scripts.{script.full_name}")
     logger.info(f"Running script (commit={commit})")

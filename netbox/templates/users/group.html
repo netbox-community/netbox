@@ -24,7 +24,7 @@
       <div class="card">
         <h5 class="card-header">{% trans "Users" %}</h5>
         <div class="list-group list-group-flush">
-          {% for user in object.user_set.all %}
+          {% for user in object.users.all %}
             <a href="{% url 'users:user' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>

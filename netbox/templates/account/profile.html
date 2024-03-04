@@ -34,6 +34,10 @@
             <td>{{ request.user.date_joined|annotated_date }}</td>
           </tr>
           <tr>
+            <th scope="row">{% trans "Last Login" %}</th>
+            <td>{{ request.user.last_login|annotated_date }}</td>
+          </tr>
+          <tr>
             <th scope="row">{% trans "Superuser" %}</th>
             <td>{% checkmark request.user.is_superuser %}</td>
           </tr>

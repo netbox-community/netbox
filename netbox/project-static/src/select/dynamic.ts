@@ -42,7 +42,7 @@ function renderItem(data: TomOption, escape: typeof escape_html) {
 
 // Initialize <select> elements which are populated via a REST API call
 export function initDynamicSelects(): void {
-  for (const select of getElements<HTMLSelectElement>('select.api-select')) {
+  for (const select of getElements<HTMLSelectElement>('select.api-select:not(.tomselected)')) {
     new DynamicTomSelect(select, {
       ...config,
       valueField: VALUE_FIELD,

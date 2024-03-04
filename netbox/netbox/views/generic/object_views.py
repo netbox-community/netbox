@@ -11,6 +11,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 
 from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
@@ -100,7 +101,9 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
             request: The current request
             parent: The parent object
         """
-        raise NotImplementedError(f'{self.__class__.__name__} must implement get_children()')
+        raise NotImplementedError(_('{class_name} must implement get_children()').format(
+            class_name=self.__class__.__name__
+        ))
 
     def prep_table_data(self, request, queryset, parent):
         """

@@ -11,7 +11,7 @@ from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Loca
 from extras.choices import *
 from extras.models import *
 from extras.reports import Report
-from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
+from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
 User = get_user_model()
@@ -29,7 +29,7 @@ class AppTest(APITestCase):
 
 class WebhookTest(APIViewTestCases.APIViewTestCase):
     model = Webhook
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Webhook 4',
@@ -71,7 +71,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
 class EventRuleTest(APIViewTestCases.APIViewTestCase):
     model = EventRule
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'enabled': False,
         'description': 'New description',
@@ -149,7 +149,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     model = CustomField
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
@@ -201,7 +201,7 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     model = CustomFieldChoiceSet
-    brief_fields = ['choices_count', 'display', 'id', 'name', 'url']
+    brief_fields = ['choices_count', 'description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Choice Set 4',
@@ -330,7 +330,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
 class SavedFilterTest(APIViewTestCases.APIViewTestCase):
     model = SavedFilter
-    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'content_types': ['dcim.site'],
@@ -455,7 +455,7 @@ class BookmarkTest(
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'content_types': ['dcim.device'],
@@ -500,7 +500,7 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['color', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -627,7 +627,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Context 4',
@@ -708,7 +708,7 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConfigTemplate
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Template 4',
@@ -748,7 +748,7 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
 
 class ScriptTest(APITestCase):
 
-    class TestScript(Script):
+    class TestScriptClass(PythonClass):
 
         class Meta:
             name = "Test script"
@@ -767,27 +767,36 @@ class ScriptTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ScriptModule.objects.create(
+        module = ScriptModule.objects.create(
             file_root=ManagedFileRootPathChoices.SCRIPTS,
             file_path='/var/tmp/script.py'
         )
+        Script.objects.create(
+            module=module,
+            name="Test script",
+            is_executable=True,
+        )
 
-    def get_test_script(self, *args):
-        return ScriptModule.objects.first(), self.TestScript
+    def python_class(self):
+        return self.TestScriptClass
 
     def setUp(self):
         super().setUp()
 
-        # Monkey-patch the API viewset's _get_script() method to return our test Script above
+        # Monkey-patch the Script model to return our TestScriptClass above
         from extras.api.views import ScriptViewSet
-        ScriptViewSet._get_script = self.get_test_script
+        Script.python_class = self.python_class
 
     def test_get_script(self):
-
-        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        module = ScriptModule.objects.get(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='/var/tmp/script.py'
+        )
+        script = module.scripts.all().first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['name'], self.TestScript.Meta.name)
+        self.assertEqual(response.data['name'], self.TestScriptClass.Meta.name)
         self.assertEqual(response.data['vars']['var1'], 'StringVar')
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')

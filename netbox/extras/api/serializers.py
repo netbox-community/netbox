@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
@@ -43,9 +44,6 @@ __all__ = (
     'ImageAttachmentSerializer',
     'JournalEntrySerializer',
     'ObjectChangeSerializer',
-    'ReportDetailSerializer',
-    'ReportSerializer',
-    'ReportInputSerializer',
     'SavedFilterSerializer',
     'ScriptDetailSerializer',
     'ScriptInputSerializer',
@@ -78,15 +76,16 @@ class EventRuleSerializer(NetBoxModelSerializer):
             'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type',
             'action_object_id', 'action_object', 'description', 'custom_fields', 'tags', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(OpenApiTypes.OBJECT)
     def get_action_object(self, instance):
         context = {'request': self.context['request']}
         # We need to manually instantiate the serializer for scripts
         if instance.action_type == EventRuleActionChoices.SCRIPT:
-            script_name = instance.action_parameters['script_name']
-            script = instance.action_object.scripts[script_name]()
-            return NestedScriptSerializer(script, context=context).data
+            script = instance.action_object
+            instance = script.python_class() if script.python_class else None
+            return NestedScriptSerializer(instance, context=context).data
         else:
             serializer = get_serializer_for_model(
                 model=instance.action_object_type.model_class(),
@@ -109,6 +108,7 @@ class WebhookSerializer(NetBoxModelSerializer):
             'additional_headers', 'body_template', 'secret', 'ssl_verification', 'ca_file_path', 'custom_fields',
             'tags', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -144,10 +144,11 @@ class CustomFieldSerializer(ValidatedModelSerializer):
             'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set',
             'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     def validate_type(self, value):
         if self.instance and self.instance.type != value:
-            raise serializers.ValidationError('Changing the type of custom fields is not supported.')
+            raise serializers.ValidationError(_('Changing the type of custom fields is not supported.'))
 
         return value
 
@@ -186,6 +187,7 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
             'choices_count', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
 
 
 #
@@ -205,6 +207,7 @@ class CustomLinkSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name',
             'button_class', 'new_window', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name')
 
 
 #
@@ -231,6 +234,7 @@ class ExportTemplateSerializer(ValidatedModelSerializer):
             'file_extension', 'as_attachment', 'data_source', 'data_path', 'data_file', 'data_synced', 'created',
             'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -250,6 +254,7 @@ class SavedFilterSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_types', 'name', 'slug', 'description', 'user', 'weight', 'enabled',
             'shared', 'parameters', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description')
 
 
 #
@@ -269,6 +274,7 @@ class BookmarkSerializer(ValidatedModelSerializer):
         fields = [
             'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
         ]
+        brief_fields = ('id', 'url', 'display', 'object_id', 'object_type')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, instance):
@@ -297,6 +303,7 @@ class TagSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'object_types', 'tagged_items', 'created',
             'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'slug', 'color', 'description')
 
 
 #
@@ -316,6 +323,7 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
             'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
             'image_width', 'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'image')
 
     def validate(self, data):
 
@@ -365,6 +373,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
             'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'created')
 
     def validate(self, data):
 
@@ -488,6 +497,7 @@ class ConfigContextSerializer(ValidatedModelSerializer):
             'tenant_groups', 'tenants', 'tags', 'data_source', 'data_path', 'data_file', 'data_synced', 'data',
             'created', 'last_updated',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
@@ -509,81 +519,58 @@ class ConfigTemplateSerializer(TaggableModelSerializer, ValidatedModelSerializer
             'id', 'url', 'display', 'name', 'description', 'environment_params', 'template_code', 'data_source',
             'data_path', 'data_file', 'data_synced', 'tags', 'created', 'last_updated',
         ]
-
-
-#
-# Reports
-#
-
-class ReportSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:report-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
-    id = serializers.CharField(read_only=True, source="full_name")
-    module = serializers.CharField(max_length=255)
-    name = serializers.CharField(max_length=255)
-    description = serializers.CharField(max_length=255, required=False)
-    test_methods = serializers.ListField(child=serializers.CharField(max_length=255), read_only=True)
-    result = NestedJobSerializer()
-    display = serializers.SerializerMethodField(read_only=True)
-
-    @extend_schema_field(serializers.CharField())
-    def get_display(self, obj):
-        return f'{obj.name} ({obj.module})'
-
-
-class ReportDetailSerializer(ReportSerializer):
-    result = JobSerializer()
-
-
-class ReportInputSerializer(serializers.Serializer):
-    schedule_at = serializers.DateTimeField(required=False, allow_null=True)
-    interval = serializers.IntegerField(required=False, allow_null=True)
-
-    def validate_schedule_at(self, value):
-        if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this report.")
-        return value
-
-    def validate_interval(self, value):
-        if value and not self.context['report'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this report.")
-        return value
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 #
 # Scripts
 #
 
-class ScriptSerializer(serializers.Serializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name='extras-api:script-detail',
-        lookup_field='full_name',
-        lookup_url_kwarg='pk'
-    )
-    id = serializers.CharField(read_only=True, source="full_name")
-    module = serializers.CharField(max_length=255)
-    name = serializers.CharField(read_only=True)
-    description = serializers.CharField(read_only=True)
+class ScriptSerializer(ValidatedModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
+    description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
-    result = NestedJobSerializer()
-    display = serializers.SerializerMethodField(read_only=True)
+    result = NestedJobSerializer(read_only=True)
+
+    class Meta:
+        model = Script
+        fields = [
+            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_executable',
+        ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_vars(self, instance):
-        return {
-            k: v.__class__.__name__ for k, v in instance._get_vars().items()
-        }
+    def get_vars(self, obj):
+        if obj.python_class:
+            return {
+                k: v.__class__.__name__ for k, v in obj.python_class()._get_vars().items()
+            }
+        else:
+            return {}
 
     @extend_schema_field(serializers.CharField())
     def get_display(self, obj):
         return f'{obj.name} ({obj.module})'
 
+    @extend_schema_field(serializers.CharField())
+    def get_description(self, obj):
+        if obj.python_class:
+            return obj.python_class().description
+        else:
+            return None
+
 
 class ScriptDetailSerializer(ScriptSerializer):
-    result = JobSerializer()
+    result = serializers.SerializerMethodField(read_only=True)
+
+    @extend_schema_field(JobSerializer())
+    def get_result(self, obj):
+        job = obj.jobs.all().order_by('-created').first()
+        context = {
+            'request': self.context['request']
+        }
+        data = JobSerializer(job, context=context).data
+        return data
 
 
 class ScriptInputSerializer(serializers.Serializer):
@@ -594,12 +581,12 @@ class ScriptInputSerializer(serializers.Serializer):
 
     def validate_schedule_at(self, value):
         if value and not self.context['script'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
     def validate_interval(self, value):
         if value and not self.context['script'].scheduling_enabled:
-            raise serializers.ValidationError("Scheduling is not enabled for this script.")
+            raise serializers.ValidationError(_("Scheduling is not enabled for this script."))
         return value
 
 

@@ -1,7 +1,5 @@
 from taggit.managers import _TaggableManager
 
-from netbox.registry import registry
-
 
 def is_taggable(obj):
     """
@@ -27,24 +25,6 @@ def image_upload(instance, filename):
         filename = instance.name
 
     return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
-
-
-def register_features(model, features):
-    """
-    Register model features in the application registry.
-    """
-    app_label, model_name = model._meta.label_lower.split('.')
-    for feature in features:
-        try:
-            registry['model_features'][feature][app_label].add(model_name)
-        except KeyError:
-            raise KeyError(
-                f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
-            )
-
-    # Register public models
-    if not getattr(model, '_netbox_private', False):
-        registry['models'][app_label].add(model_name)
 
 
 def is_script(obj):

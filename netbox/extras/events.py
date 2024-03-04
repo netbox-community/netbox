@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.module_loading import import_string
+from django.utils.translation import gettext as _
 from django_rq import get_queue
 
 from core.models import Job
@@ -115,21 +116,21 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
         # Scripts
         elif event_rule.action_type == EventRuleActionChoices.SCRIPT:
             # Resolve the script from action parameters
-            script_module = event_rule.action_object
-            script_name = event_rule.action_parameters['script_name']
-            script = script_module.scripts[script_name]()
+            script = event_rule.action_object.python_class()
 
             # Enqueue a Job to record the script's execution
             Job.enqueue(
                 "extras.scripts.run_script",
-                instance=script_module,
-                name=script.class_name,
+                instance=script.module,
+                name=script.name,
                 user=user,
                 data=data
             )
 
         else:
-            raise ValueError(f"Unknown action type for an event rule: {event_rule.action_type}")
+            raise ValueError(_("Unknown action type for an event rule: {action_type}").format(
+                action_type=event_rule.action_type
+            ))
 
 
 def process_event_queue(events):
@@ -175,4 +176,4 @@ def flush_events(queue):
                 func = import_string(name)
                 func(queue)
             except Exception as e:
-                logger.error(f"Cannot import events pipeline {name} error: {e}")
+                logger.error(_("Cannot import events pipeline {name} error: {error}").format(name=name, error=e))

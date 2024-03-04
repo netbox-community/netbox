@@ -173,6 +173,12 @@ class RackViewSet(NetBoxModelViewSet):
     serializer_class = serializers.RackSerializer
     filterset_class = filtersets.RackFilterSet
 
+    @extend_schema(
+        operation_id='dcim_racks_elevation_retrieve',
+        filters=False,
+        parameters=[serializers.RackElevationDetailFilterSerializer],
+        responses={200: serializers.RackUnitSerializer(many=True)}
+    )
     @action(detail=True)
     def elevation(self, request, pk=None):
         """
@@ -372,12 +378,8 @@ class DeviceViewSet(
 
         Else, return the DeviceWithConfigContextSerializer
         """
-
         request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
-            return serializers.NestedDeviceSerializer
-
-        elif 'config_context' in request.query_params.get('exclude', []):
+        if self.brief or 'config_context' in request.query_params.get('exclude', []):
             return serializers.DeviceSerializer
 
         return serializers.DeviceWithConfigContextSerializer

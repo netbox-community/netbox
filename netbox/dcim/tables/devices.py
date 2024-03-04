@@ -359,6 +359,11 @@ class CableTerminationTable(NetBoxTable):
         verbose_name=_('Mark Connected'),
     )
 
+    def value_link_peer(self, value):
+        return ', '.join([
+            f"{termination.parent_object} > {termination}" for termination in value
+        ])
+
 
 class PathEndpointTable(CableTerminationTable):
     connection = columns.TemplateColumn(

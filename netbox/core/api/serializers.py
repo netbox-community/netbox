@@ -36,6 +36,7 @@ class DataSourceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'name', 'type', 'source_url', 'enabled', 'status', 'description', 'comments',
             'parameters', 'ignore_rules', 'custom_fields', 'created', 'last_updated', 'file_count',
         ]
+        brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
 class DataFileSerializer(NetBoxModelSerializer):
@@ -51,6 +52,7 @@ class DataFileSerializer(NetBoxModelSerializer):
         fields = [
             'id', 'url', 'display', 'source', 'path', 'last_updated', 'size', 'hash',
         ]
+        brief_fields = ('id', 'url', 'display', 'path')
 
 
 class JobSerializer(BaseModelSerializer):
@@ -69,3 +71,4 @@ class JobSerializer(BaseModelSerializer):
             'id', 'url', 'display', 'object_type', 'object_id', 'name', 'status', 'created', 'scheduled', 'interval',
             'started', 'completed', 'user', 'data', 'error', 'job_id',
         ]
+        brief_fields = ('url', 'created', 'completed', 'user', 'status')

@@ -29,7 +29,7 @@ from netbox.plugins import PluginConfig
 # Environment setup
 #
 
-VERSION = '3.7.3-dev'
+VERSION = '4.0.0-dev'
 
 # Hostname
 HOSTNAME = platform.node()
@@ -156,6 +156,7 @@ REMOTE_AUTH_SUPERUSERS = getattr(configuration, 'REMOTE_AUTH_SUPERUSERS', [])
 REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, 'REMOTE_AUTH_STAFF_GROUPS', [])
 REMOTE_AUTH_STAFF_USERS = getattr(configuration, 'REMOTE_AUTH_STAFF_USERS', [])
 REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
+# Required by extras/migrations/0109_script_models.py
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
 RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
@@ -579,7 +580,6 @@ SOCIAL_AUTH_PIPELINE = (
     'social_core.pipeline.social_auth.social_uid',
     'social_core.pipeline.social_auth.social_user',
     'social_core.pipeline.user.get_username',
-    'social_core.pipeline.social_auth.associate_by_email',
     'social_core.pipeline.user.create_user',
     'social_core.pipeline.social_auth.associate_user',
     'netbox.authentication.user_default_groups_handler',

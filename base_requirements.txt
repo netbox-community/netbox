@@ -100,7 +100,7 @@ mkdocs-material
 mkdocstrings[python-legacy]
 
 # Library for manipulating IP prefixes and addresses
-# https://github.com/netaddr/netaddr/blob/master/CHANGELOG
+# https://github.com/netaddr/netaddr/blob/master/CHANGELOG.rst
 netaddr
 
 # Python bindings to the ammonia HTML sanitization library.

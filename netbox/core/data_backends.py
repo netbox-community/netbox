@@ -102,7 +102,7 @@ class GitBackend(DataBackend):
         try:
             porcelain.clone(self.url, local_path.name, **clone_args)
         except BaseException as e:
-            raise SyncError(f"Fetching remote data failed ({type(e).__name__}): {e}")
+            raise SyncError(_("Fetching remote data failed ({name}): {error}").format(name=type(e).__name__, error=e))
 
         yield local_path.name
 

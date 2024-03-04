@@ -56,12 +56,8 @@ class VirtualMachineViewSet(ConfigContextQuerySetMixin, RenderConfigMixin, NetBo
 
         Else, return the VirtualMachineWithConfigContextSerializer
         """
-
         request = self.get_serializer_context()['request']
-        if request.query_params.get('brief', False):
-            return serializers.NestedVirtualMachineSerializer
-
-        elif 'config_context' in request.query_params.get('exclude', []):
+        if self.brief or 'config_context' in request.query_params.get('exclude', []):
             return serializers.VirtualMachineSerializer
 
         return serializers.VirtualMachineWithConfigContextSerializer

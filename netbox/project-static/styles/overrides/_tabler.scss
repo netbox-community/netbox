@@ -9,6 +9,10 @@ pre {
   // Tabler sets display: flex
   display: inline-block;
 }
+.btn-sm {
+  // $border-radius-sm (2px) is too small
+  border-radius: $border-radius;
+}
 
 // Tabs
 .nav-tabs {

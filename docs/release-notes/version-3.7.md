@@ -1,6 +1,41 @@
 # NetBox v3.7
 
-## v3.7.3 (FUTURE)
+## v3.7.4 (FUTURE)
+
+---
+
+## v3.7.3 (2024-02-21)
+
+### Enhancements
+
+* [#14587](https://github.com/netbox-community/netbox/issues/14587) - Display a human-friendly name for the OpenID Connect remote auth backend
+* [#14946](https://github.com/netbox-community/netbox/issues/14946) - Remove `associate_by_email()` from default social auth pipeline
+* [#14966](https://github.com/netbox-community/netbox/issues/14966) - Add PostgreSQL index for object type & ID on CachedValue table to improve performance
+* [#15177](https://github.com/netbox-community/netbox/issues/15177) - Add "last login" time to user display & REST API serializer
+
+### Bug Fixes
+
+* [#14058](https://github.com/netbox-community/netbox/issues/14058) - Limit platform options by manufacturer when editing a device or device type
+* [#14064](https://github.com/netbox-community/netbox/issues/14064) - Resolving parent location should consider assigned site when bulk importing locations
+* [#14079](https://github.com/netbox-community/netbox/issues/14079) - Ensure changes are logged on related objects when deleting an object referenced via a many-to-many relationship (e.g. tags)
+* [#14405](https://github.com/netbox-community/netbox/issues/14405) - Clean up formatting of link peers in bulk CSV export of cable termination objects
+* [#14689](https://github.com/netbox-community/netbox/issues/14689) - Preserve "empty" default values for JSON custom fields
+* [#14952](https://github.com/netbox-community/netbox/issues/14952) - Update existing AutoSyncRecord when changing the data file of an auto-synced object
+* [#15059](https://github.com/netbox-community/netbox/issues/15059) - Correct IP address count link in VM interfaces table
+* [#15067](https://github.com/netbox-community/netbox/issues/15067) - Fix uncaught exception when attempting invalid device bay import
+* [#15070](https://github.com/netbox-community/netbox/issues/15070) - Fix inclusion of `config_template` field on REST API serializer for virtual machines
+* [#15084](https://github.com/netbox-community/netbox/issues/15084) - Fix "add export template" link under "export" button on object list views
+* [#15090](https://github.com/netbox-community/netbox/issues/15090) - Ensure protection rules are evaluated prior to enqueueing events when deleting an object
+* [#15091](https://github.com/netbox-community/netbox/issues/15091) - Fix designation of the active tab for assigned object when modifying an L2VPN termination
+* [#15101](https://github.com/netbox-community/netbox/issues/15101) - Correct OpenAPI schema for rack elevation REST API endpoint
+* [#15115](https://github.com/netbox-community/netbox/issues/15115) - Fix unhandled exception with invalid permission constraints
+* [#15126](https://github.com/netbox-community/netbox/issues/15126) - `group` field should be optional when creating VPN tunnel via REST API
+* [#15127](https://github.com/netbox-community/netbox/issues/15127) - Add missing group column to VPN tunnels table
+* [#15133](https://github.com/netbox-community/netbox/issues/15133) - Fix FHRP group representation on assignments REST API endpoint using brief mode
+* [#15174](https://github.com/netbox-community/netbox/issues/15174) - Warn that permission constraints are not supported for reports or scripts
+* [#15184](https://github.com/netbox-community/netbox/issues/15184) - Correct REST API schema definition for `front_image` & `rear_image` on DeviceType
+* [#15185](https://github.com/netbox-community/netbox/issues/15185) - Ensure error messages pertaining to related objects are displayed on the bulk import form
+* [#15192](https://github.com/netbox-community/netbox/issues/15192) - Fix exception when viewing current config when no history is present
 
 ---
 
