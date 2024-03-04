@@ -359,7 +359,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     )
 
     clone_fields = (
-        'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'object_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -448,7 +448,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
     )
 
     clone_fields = (
-        'content_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
+        'object_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
     )
 
     class Meta:
@@ -561,7 +561,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     )
 
     clone_fields = (
-        'content_types', 'weight', 'enabled', 'parameters',
+        'object_types', 'weight', 'enabled', 'parameters',
     )
 
     class Meta:

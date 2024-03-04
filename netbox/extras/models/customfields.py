@@ -209,7 +209,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     objects = CustomFieldManager()
 
     clone_fields = (
-        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
+        'object_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
         'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )

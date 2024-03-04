@@ -314,7 +314,7 @@ class EventRuleTable(NetBoxTable):
             'last_updated',
         )
         default_columns = (
-            'pk', 'name', 'enabled', 'action_type', 'action_object', 'content_types', 'type_create', 'type_update',
+            'pk', 'name', 'enabled', 'action_type', 'action_object', 'object_types', 'type_create', 'type_update',
             'type_delete', 'type_job_start', 'type_job_end',
         )
 

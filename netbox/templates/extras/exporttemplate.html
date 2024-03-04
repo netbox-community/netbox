@@ -5,11 +5,6 @@
 
 {% block title %}{{ object.name }}{% endblock %}
 
-{% block breadcrumbs %}
-  {{ block.super }}
-  <li class="breadcrumb-item"><a href="{% url 'extras:exporttemplate_list' %}?content_type={{ object.content_type.pk }}">{{ object.content_type }}</a></li>
-{% endblock %}
-
 {% block content %}
   <div class="row mb-3">
     <div class="col col-md-5">
