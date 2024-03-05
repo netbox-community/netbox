@@ -120,7 +120,7 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = TunnelTermination
-        fields = ['id']
+        fields = ('id', 'termination_id')
 
 
 class IKEProposalFilterSet(NetBoxModelFilterSet):
@@ -402,7 +402,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = L2VPNTermination
-        fields = ('id', 'assigned_object_type_id')
+        fields = ('id', 'assigned_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

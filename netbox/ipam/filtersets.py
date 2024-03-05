@@ -183,7 +183,7 @@ class ASNRangeFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = ASNRange
-        fields = ['id', 'name', 'start', 'end', 'description']
+        fields = ('id', 'name', 'slug', 'start', 'end', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -234,7 +234,7 @@ class RoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = Role
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description', 'weight')
 
 
 class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -475,7 +475,7 @@ class IPRangeFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = IPRange
-        fields = ['id', 'mark_utilized', 'description']
+        fields = ('id', 'mark_utilized', 'size', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -631,7 +631,7 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = IPAddress
-        fields = ['id', 'dns_name', 'description']
+        fields = ('id', 'dns_name', 'description', 'assigned_object_type', 'assigned_object_id', 'nat_inside_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1008,7 +1008,7 @@ class ServiceTemplateFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ServiceTemplate
-        fields = ['id', 'name', 'protocol', 'description']
+        fields = ('id', 'name', 'protocol', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1052,7 +1052,6 @@ class ServiceFilterSet(NetBoxModelFilterSet):
         to_field_name='address',
         label=_('IP address'),
     )
-
     port = NumericArrayFilter(
         field_name='ports',
         lookup_expr='contains'
@@ -1060,7 +1059,7 @@ class ServiceFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Service
-        fields = ['id', 'name', 'protocol', 'description']
+        fields = ('id', 'name', 'protocol', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

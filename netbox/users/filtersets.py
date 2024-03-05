@@ -22,7 +22,7 @@ class GroupFilterSet(BaseFilterSet):
 
     class Meta:
         model = Group
-        fields = ['id', 'name']
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -49,7 +49,10 @@ class UserFilterSet(BaseFilterSet):
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'is_superuser']
+        fields = (
+            'id', 'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_staff', 'is_active',
+            'is_superuser',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -99,7 +102,7 @@ class TokenFilterSet(BaseFilterSet):
 
     class Meta:
         model = Token
-        fields = ['id', 'key', 'write_enabled', 'description']
+        fields = ('id', 'key', 'write_enabled', 'description', 'last_used')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -152,7 +155,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
 
     class Meta:
         model = ObjectPermission
-        fields = ['id', 'name', 'enabled', 'object_types', 'description']
+        fields = ('id', 'name', 'enabled', 'object_types', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

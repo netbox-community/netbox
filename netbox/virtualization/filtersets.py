@@ -240,7 +240,7 @@ class VirtualMachineFilterSet(
 
     class Meta:
         model = VirtualMachine
-        fields = ['id', 'cluster', 'vcpus', 'memory', 'disk', 'description']
+        fields = ('id', 'cluster', 'vcpus', 'memory', 'disk', 'description', 'interface_count', 'virtual_disk_count')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -299,7 +299,7 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
 
     class Meta:
         model = VMInterface
-        fields = ['id', 'name', 'enabled', 'mtu', 'description']
+        fields = ('id', 'name', 'enabled', 'mtu', 'mode', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
