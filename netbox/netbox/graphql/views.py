@@ -2,19 +2,21 @@ from django.conf import settings
 from django.contrib.auth.views import redirect_to_login
 from django.http import HttpResponseNotFound, HttpResponseForbidden
 from django.urls import reverse
-from graphene_django.views import GraphQLView as GraphQLView_
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.exceptions import AuthenticationFailed
+from strawberry.django.views import GraphQLView
 
 from netbox.api.authentication import TokenAuthentication
 from netbox.config import get_config
 
 
-class GraphQLView(GraphQLView_):
+class NetBoxGraphQLView(GraphQLView):
     """
-    Extends graphene_django's GraphQLView to support DRF's token-based authentication.
+    Extends strawberry's GraphQLView to support DRF's token-based authentication.
     """
     graphiql_template = 'graphiql.html'
 
+    @csrf_exempt
     def dispatch(self, request, *args, **kwargs):
         config = get_config()
 

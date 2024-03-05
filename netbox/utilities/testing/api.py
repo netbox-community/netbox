@@ -1,5 +1,6 @@
 import inspect
 import json
+import strawberry_django
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -18,7 +19,7 @@ from .base import ModelTestCase
 from .utils import disable_warnings
 
 from ipam.graphql.types import IPAddressFamilyType
-
+from strawberry.type import StrawberryList
 
 __all__ = (
     'APITestCase',
@@ -447,36 +448,26 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
 
-            for field_name, field in type_class.__dataclass_fields__.items():
+            for field in type_class.__strawberry_definition__.fields:
                 # for field_name, field in type_class._meta.fields.items():
-                print(f"field_name: {field_name} field: {field}")
-                is_string_array = False
-                if type(field.type) is GQLList:
-                    if field.type.of_type is GQLString:
-                        is_string_array = True
-                    elif type(field.type.of_type) is GQLNonNull and field.type.of_type.of_type is GQLString:
-                        is_string_array = True
+                print(f"field_name: {field.name} type: {field.type}")
 
-                if type(field) is GQLDynamic:
+                if type(field.type) is StrawberryList:
+                    fields_string += f'{field.name} {{ id }}\n'
+                elif field.type is strawberry_django.fields.types.DjangoModelType:
                     # Dynamic fields must specify a subselection
-                    fields_string += f'{field_name} {{ id }}\n'
+                    fields_string += f'{field.name} {{ id }}\n'
                 # TODO: Improve field detection logic to avoid nested ArrayFields
-                elif field_name == 'extra_choices':
+                elif field.name == 'extra_choices':
                     continue
-                elif inspect.isclass(field.type) and issubclass(field.type, GQLUnion):
-                    # Union types dont' have an id or consistent values
-                    continue
-                elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
-                    # Union types dont' have an id or consistent values
-                    continue
-                elif type(field.type) is GQLList and not is_string_array:
-                    # TODO: Come up with something more elegant
-                    # Temporary hack to support automated testing of reverse generic relations
-                    fields_string += f'{field_name} {{ id }}\n'
+                # elif type(field.type) is GQLList and not is_string_array:
+                #     # TODO: Come up with something more elegant
+                #     # Temporary hack to support automated testing of reverse generic relations
+                #     fields_string += f'{field_name} {{ id }}\n'
                 elif inspect.isclass(field.type) and issubclass(field.type, IPAddressFamilyType):
-                    fields_string += f'{field_name} {{ value, label }}\n'
+                    fields_string += f'{field.name} {{ value, label }}\n'
                 else:
-                    fields_string += f'{field_name}\n'
+                    fields_string += f'{field.name}\n'
 
             query = f"""
             {{
@@ -486,6 +477,7 @@ class APIViewTestCases:
             }}
             """
 
+            print(query)
             return query
 
         @override_settings(LOGIN_REQUIRED=True)
@@ -498,6 +490,7 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
+                print(f"url: {url}")
                 self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission

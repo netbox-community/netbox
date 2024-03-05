@@ -541,7 +541,7 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
         return self.vlan_groups.all()
 
     @strawberry_django.field
-    def parent(self) -> Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]:
+    def parent(self) -> Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
     @strawberry_django.field

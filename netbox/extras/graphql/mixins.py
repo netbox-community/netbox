@@ -24,13 +24,13 @@ if TYPE_CHECKING:
 class ChangelogMixin:
 
     @strawberry_django.field
-    def changelog(self) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
+    def changelog(self, info) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
         content_type = ContentType.objects.get_for_model(self)
         object_changes = ObjectChange.objects.filter(
             changed_object_type=content_type,
             changed_object_id=self.pk
         )
-        return object_changes.restrict(info.context.user, 'view')
+        return object_changes.restrict(info.context.request.user, 'view')
 
 
 @strawberry.type
@@ -53,16 +53,16 @@ class CustomFieldsMixin:
 class ImageAttachmentsMixin:
 
     @strawberry_django.field
-    def image_attachments(self) -> List[Annotated["ImageAttachmentType", strawberry.lazy('.types')]]:
-        return self.images.restrict(info.context.user, 'view')
+    def image_attachments(self, info) -> List[Annotated["ImageAttachmentType", strawberry.lazy('.types')]]:
+        return self.images.restrict(info.context.request.user, 'view')
 
 
 @strawberry.type
 class JournalEntriesMixin:
 
     @strawberry_django.field
-    def journal_entries(self) -> List[Annotated["JournalEntryType", strawberry.lazy('.types')]]:
-        return self.journal_entries.restrict(info.context.user, 'view')
+    def journal_entries(self, info) -> List[Annotated["JournalEntryType", strawberry.lazy('.types')]]:
+        return self.journal_entries.restrict(info.context.request.user, 'view')
 
 
 @strawberry.type
