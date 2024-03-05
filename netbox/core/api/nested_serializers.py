@@ -4,7 +4,7 @@ from core.choices import JobStatusChoices
 from core.models import *
 from netbox.api.fields import ChoiceField
 from netbox.api.serializers import WritableNestedSerializer
-from users.api.nested_serializers import NestedUserSerializer
+from users.api.serializers import UserSerializer
 
 __all__ = (
     'NestedDataFileSerializer',
@@ -32,7 +32,8 @@ class NestedDataFileSerializer(WritableNestedSerializer):
 class NestedJobSerializer(serializers.ModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='core-api:job-detail')
     status = ChoiceField(choices=JobStatusChoices)
-    user = NestedUserSerializer(
+    user = UserSerializer(
+        nested=True,
         read_only=True
     )
 

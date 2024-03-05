@@ -69,7 +69,7 @@ class BaseViewSet(GenericViewSet):
 
         # If specific fields have been requested, pass them to the serializer
         if self.requested_fields:
-            kwargs['requested_fields'] = self.requested_fields
+            kwargs['fields'] = self.requested_fields
 
         return super().get_serializer(*args, **kwargs)
 
