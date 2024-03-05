@@ -3,23 +3,26 @@ import sys
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import (
+    FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
+)
 from django.db.models.fields.related import ManyToOneRel, RelatedField
 from django.http import JsonResponse
 from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
 from rest_framework import status
 from rest_framework.serializers import Serializer
 from rest_framework.utils import formatting
 
 from netbox.api.fields import RelatedObjectCountField
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
-from utilities.utils import count_related
-from .utils import dynamic_import
+from .utils import count_related, dict_to_filter_params, dynamic_import
 
 __all__ = (
     'get_annotations_for_serializer',
     'get_graphql_type_for_model',
     'get_prefetches_for_serializer',
+    'get_related_object_by_attrs',
     'get_serializer_for_model',
     'get_view_name',
     'is_api_request',
@@ -93,7 +96,7 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
     """
     model = serializer_class.Meta.model
 
-    # If specific fields are not specified, default to all
+    # If fields are not specified, default to all
     if not fields_to_include:
         fields_to_include = serializer_class.Meta.fields
 
@@ -118,7 +121,9 @@ def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
         # for the related object.
         if serializer_field:
             if issubclass(type(serializer_field), Serializer):
-                for subfield in get_prefetches_for_serializer(type(serializer_field)):
+                # Determine which fields to prefetch for the nested object
+                subfields = serializer_field.Meta.brief_fields if serializer_field.nested else None
+                for subfield in get_prefetches_for_serializer(type(serializer_field), subfields):
                     prefetch_fields.append(f'{field_name}__{subfield}')
 
     return prefetch_fields
@@ -142,6 +147,48 @@ def get_annotations_for_serializer(serializer_class, fields_to_include=None):
             annotations[field_name] = count_related(related_field.model, related_field.name)
 
     return annotations
+
+
+def get_related_object_by_attrs(queryset, attrs):
+    """
+    Return an object identified by either a dictionary of attributes or its numeric primary key (ID). This is used
+    for referencing related objects when creating/updating objects via the REST API.
+    """
+    if attrs is None:
+        return None
+
+    # Dictionary of related object attributes
+    if isinstance(attrs, dict):
+        params = dict_to_filter_params(attrs)
+        try:
+            return queryset.get(**params)
+        except ObjectDoesNotExist:
+            raise ValidationError(
+                _("Related object not found using the provided attributes: {params}").format(params=params))
+        except MultipleObjectsReturned:
+            raise ValidationError(
+                _("Multiple objects match the provided attributes: {params}").format(params=params)
+            )
+        except FieldError as e:
+            raise ValidationError(e)
+
+    # Integer PK of related object
+    try:
+        # Cast as integer in case a PK was mistakenly sent as a string
+        pk = int(attrs)
+    except (TypeError, ValueError):
+        raise ValidationError(
+            _(
+                "Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
+                "unrecognized value: {value}"
+            ).format(value=attrs)
+        )
+
+    # Look up object by PK
+    try:
+        return queryset.get(pk=pk)
+    except ObjectDoesNotExist:
+        raise ValidationError(_("Related object not found using the provided numeric ID: {id}").format(id=pk))
 
 
 def rest_api_server_error(request, *args, **kwargs):

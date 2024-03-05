@@ -1,7 +1,11 @@
-from django.db.models import ManyToManyField
+from functools import cached_property
+
 from rest_framework import serializers
+from rest_framework.utils.serializer_helpers import BindingDict
 from drf_spectacular.utils import extend_schema_field
 from drf_spectacular.types import OpenApiTypes
+
+from utilities.api import get_related_object_by_attrs
 
 __all__ = (
     'BaseModelSerializer',
@@ -12,14 +16,48 @@ __all__ = (
 class BaseModelSerializer(serializers.ModelSerializer):
     display = serializers.SerializerMethodField(read_only=True)
 
-    def __init__(self, *args, requested_fields=None, **kwargs):
+    def __init__(self, *args, nested=False, fields=None, **kwargs):
+        """
+        Extends the base __init__() method to support dynamic fields.
+
+        :param nested: Set to True if this serializer is being employed within a parent serializer
+        :param fields: An iterable of fields to include when rendering the serialized object, If nested is
+            True but no fields are specified, Meta.brief_fields will be used.
+        """
+        self.nested = nested
+        self._requested_fields = fields
+
+        # If this serializer is nested but no fields have been specified,
+        # default to using Meta.brief_fields (if set)
+        if nested and not fields:
+            self._requested_fields = getattr(self.Meta, 'brief_fields', None)
+
         super().__init__(*args, **kwargs)
 
-        # If specific fields have been requested, omit the others
-        if requested_fields:
-            for field in list(self.fields.keys()):
-                if field not in requested_fields:
-                    self.fields.pop(field)
+    def to_internal_value(self, data):
+
+        # If initialized as a nested serializer, we should expect to receive the attrs or PK
+        # identifying a related object.
+        if self.nested:
+            queryset = self.Meta.model.objects.all()
+            return get_related_object_by_attrs(queryset, data)
+
+        return super().to_internal_value(data)
+
+    @cached_property
+    def fields(self):
+        """
+        Override the fields property to check for requested fields. If defined,
+        return only the applicable fields.
+        """
+        if not self._requested_fields:
+            return super().fields
+
+        fields = BindingDict(self)
+        for key, value in self.get_fields().items():
+            if key in self._requested_fields:
+                fields[key] = value
+        return fields
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):
@@ -32,6 +70,11 @@ class ValidatedModelSerializer(BaseModelSerializer):
     validation. (DRF does not do this by default; see https://github.com/encode/django-rest-framework/issues/3144)
     """
     def validate(self, data):
+
+        # Skip validation if we're being used to represent a nested object
+        if self.nested:
+            return data
+
         attrs = data.copy()
 
         # Remove custom field data (if any) prior to model validation
