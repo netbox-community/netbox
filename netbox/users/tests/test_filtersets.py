@@ -15,6 +15,7 @@ User = get_user_model()
 class UserTestCase(TestCase, BaseFilterSetTests):
     queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
+    ignore_fields = ('password',)
 
     @classmethod
     def setUpTestData(cls):
@@ -132,6 +133,7 @@ class GroupTestCase(TestCase, BaseFilterSetTests):
 class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet
+    ignore_fields = ('actions', 'constraints')
 
     @classmethod
     def setUpTestData(cls):
@@ -226,6 +228,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
 class TokenTestCase(TestCase, BaseFilterSetTests):
     queryset = Token.objects.all()
     filterset = filtersets.TokenFilterSet
+    ignore_fields = ('allowed_ips',)
 
     @classmethod
     def setUpTestData(cls):

@@ -848,8 +848,8 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'l2vpn': [l2vpns[0].slug, l2vpns[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
-    def test_content_type(self):
-        params = {'assigned_object_type_id': ContentType.objects.get(model='vlan').pk}
+    def test_termination_type(self):
+        params = {'assigned_object_type': 'ipam.vlan'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_interface(self):

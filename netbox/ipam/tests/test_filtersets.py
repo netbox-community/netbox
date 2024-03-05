@@ -1733,6 +1733,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ServiceTemplate.objects.all()
     filterset = ServiceTemplateFilterSet
+    ignore_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1797,6 +1798,7 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
+    ignore_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
