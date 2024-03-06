@@ -62,7 +62,7 @@ class JournalEntriesMixin:
 
     @strawberry_django.field
     def journal_entries(self, info) -> List[Annotated["JournalEntryType", strawberry.lazy('.types')]]:
-        return self.journal_entries.restrict(info.context.request.user, 'view')
+        return self.journal_entries.all()
 
 
 @strawberry.type

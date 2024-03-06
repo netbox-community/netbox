@@ -19,7 +19,8 @@ from .base import ModelTestCase
 from .utils import disable_warnings
 
 from ipam.graphql.types import IPAddressFamilyType
-from strawberry.type import StrawberryList
+from strawberry.lazy_type import LazyType
+from strawberry.type import StrawberryList, StrawberryOptional
 
 __all__ = (
     'APITestCase',
@@ -450,13 +451,22 @@ class APIViewTestCases:
 
             for field in type_class.__strawberry_definition__.fields:
                 # for field_name, field in type_class._meta.fields.items():
-                print(f"field_name: {field.name} type: {field.type}")
+                # print(f"field_name: {field.name} type: {field.type}")
+
+                if field.name == 'site':
+                    # breakpoint()
+                    pass
 
                 if type(field.type) is StrawberryList:
                     fields_string += f'{field.name} {{ id }}\n'
                 elif field.type is strawberry_django.fields.types.DjangoModelType:
                     # Dynamic fields must specify a subselection
-                    fields_string += f'{field.name} {{ id }}\n'
+                    fields_string += f'{field.name} {{ pk }}\n'
+                elif type(field.type) is StrawberryOptional:
+                    if type(field.type.of_type) is LazyType:
+                        fields_string += f'{field.name} {{ id }}\n'
+                    elif field.type.of_type == strawberry_django.fields.types.DjangoModelType:
+                        fields_string += f'{field.name} {{ pk }}\n'
                 # TODO: Improve field detection logic to avoid nested ArrayFields
                 elif field.name == 'extra_choices':
                     continue
@@ -477,7 +487,15 @@ class APIViewTestCases:
             }}
             """
 
-            print(query)
+            if "_list" not in name:
+                query = f"""
+                {{
+                    {name}_list {{
+                        {fields_string}
+                    }}
+                }}
+                """
+
             return query
 
         @override_settings(LOGIN_REQUIRED=True)
@@ -490,8 +508,7 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
-                print(f"url: {url}")
-                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json"), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -502,7 +519,7 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            response = self.client.post(url, data={'query': query}, **self.header)
+            response = self.client.post(url, data={'query': query}, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
@@ -516,7 +533,7 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json"), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -527,7 +544,7 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
 
-            response = self.client.post(url, data={'query': query}, **self.header)
+            response = self.client.post(url, data={'query': query}, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
