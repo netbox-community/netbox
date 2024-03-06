@@ -1,4 +1,5 @@
 # Prefix for nested serializers
+# TODO: Remove in v4.1
 NESTED_SERIALIZER_PREFIX = 'Nested'
 
 # RQ queue names

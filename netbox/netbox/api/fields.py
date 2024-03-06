@@ -132,13 +132,15 @@ class SerializedPKRelatedField(PrimaryKeyRelatedField):
     Extends PrimaryKeyRelatedField to return a serialized object on read. This is useful for representing related
     objects in a ManyToManyField while still allowing a set of primary keys to be written.
     """
-    def __init__(self, serializer, **kwargs):
+    def __init__(self, serializer, nested=False, **kwargs):
         self.serializer = serializer
+        self.nested = nested
         self.pk_field = kwargs.pop('pk_field', None)
+
         super().__init__(**kwargs)
 
     def to_representation(self, value):
-        return self.serializer(value, context={'request': self.context['request']}).data
+        return self.serializer(value, nested=self.nested, context={'request': self.context['request']}).data
 
 
 @extend_schema_field(OpenApiTypes.INT64)

@@ -3,7 +3,6 @@ from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from netbox.api.fields import ContentTypeField
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.utils import content_type_identifier
 
@@ -40,6 +39,5 @@ class GenericObjectSerializer(serializers.Serializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, obj):
-        serializer = get_serializer_for_model(obj, prefix=NESTED_SERIALIZER_PREFIX)
-        # context = {'request': self.context['request']}
-        return serializer(obj, context=self.context).data
+        serializer = get_serializer_for_model(obj)
+        return serializer(obj, nested=True, context=self.context).data

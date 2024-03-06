@@ -7,7 +7,6 @@ from rest_framework.response import Response
 from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ViewSet
 
-from circuits.models import Circuit
 from dcim import filtersets
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
 from dcim.models import *
@@ -18,10 +17,8 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.pagination import StripCountAnnotationsPaginator
 from netbox.api.viewsets import NetBoxModelViewSet, MPTTLockedMixin
 from netbox.api.viewsets.mixins import SequentialBulkCreatesMixin
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
 from utilities.query_functions import CollateAsChar
-from utilities.utils import count_related
 from . import serializers
 from .exceptions import MissingFilterException
 
@@ -60,16 +57,16 @@ class PathEndpointMixin(object):
         # Serialize path objects, iterating over each three-tuple in the path
         for near_ends, cable, far_ends in obj.trace():
             if near_ends:
-                serializer_a = get_serializer_for_model(near_ends[0], prefix=NESTED_SERIALIZER_PREFIX)
-                near_ends = serializer_a(near_ends, many=True, context={'request': request}).data
+                serializer_a = get_serializer_for_model(near_ends[0])
+                near_ends = serializer_a(near_ends, nested=True, many=True, context={'request': request}).data
             else:
                 # Path is split; stop here
                 break
             if cable:
                 cable = serializers.TracedCableSerializer(cable[0], context={'request': request}).data
             if far_ends:
-                serializer_b = get_serializer_for_model(far_ends[0], prefix=NESTED_SERIALIZER_PREFIX)
-                far_ends = serializer_b(far_ends, many=True, context={'request': request}).data
+                serializer_b = get_serializer_for_model(far_ends[0])
+                far_ends = serializer_b(far_ends, nested=True, many=True, context={'request': request}).data
 
             path.append((near_ends, cable, far_ends))
 
