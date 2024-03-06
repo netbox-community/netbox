@@ -8,11 +8,17 @@ from .types import *
 
 @strawberry.type
 class WirelessQuery:
-    wireless_lan: WirelessLANType = strawberry_django.field()
+    @strawberry.field
+    def wireless_lan(self, id: int) -> WirelessLANType:
+        return models.WirelessLAN.objects.get(id=id)
     wireless_lan_list: List[WirelessLANType] = strawberry_django.field()
 
-    wireless_lan_group: WirelessLANGroupType = strawberry_django.field()
+    @strawberry.field
+    def wireless_lan_group(self, id: int) -> WirelessLANGroupType:
+        return models.WirelessLANGroup.objects.get(id=id)
     wireless_lan_group_list: List[WirelessLANGroupType] = strawberry_django.field()
 
-    wireless_link: WirelessLinkType = strawberry_django.field()
+    @strawberry.field
+    def wireless_link(self, id: int) -> WirelessLinkType:
+        return models.WirelessLink.objects.get(id=id)
     wireless_link_list: List[WirelessLinkType] = strawberry_django.field()

@@ -8,8 +8,12 @@ from .types import *
 
 @strawberry.type
 class CoreQuery:
-    data_file: DataFileType = strawberry_django.field()
+    @strawberry.field
+    def data_file(self, id: int) -> DataFileType:
+        return models.DataFile.objects.get(id=id)
     data_file_list: List[DataFileType] = strawberry_django.field()
 
-    data_source: DataSourceType = strawberry_django.field()
+    @strawberry.field
+    def data_source(self, id: int) -> DataSourceType:
+        return models.DataSource.objects.get(id=id)
     data_source_list: List[DataSourceType] = strawberry_django.field()
