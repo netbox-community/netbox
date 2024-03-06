@@ -876,17 +876,17 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
 
-class ContentTypeTest(APITestCase):
+class ObjectTypeTest(APITestCase):
 
     def test_list_objects(self):
-        contenttype_count = ContentType.objects.count()
+        object_type_count = ObjectType.objects.count()
 
-        response = self.client.get(reverse('extras-api:contenttype-list'), **self.header)
+        response = self.client.get(reverse('extras-api:objecttype-list'), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], contenttype_count)
+        self.assertEqual(response.data['count'], object_type_count)
 
     def test_get_object(self):
-        contenttype = ContentType.objects.first()
+        object_type = ObjectType.objects.first()
 
-        url = reverse('extras-api:contenttype-detail', kwargs={'pk': contenttype.pk})
+        url = reverse('extras-api:objecttype-detail', kwargs={'pk': object_type.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)

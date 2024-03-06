@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -11,7 +10,7 @@ from rest_framework.routers import APIRootView
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rq import Worker
 
-from core.models import Job
+from core.models import Job, ObjectType
 from extras import filtersets
 from extras.models import *
 from extras.scripts import run_script
@@ -275,17 +274,17 @@ class ObjectChangeViewSet(ReadOnlyModelViewSet):
 
 
 #
-# ContentTypes
+# Object types
 #
 
-class ContentTypeViewSet(ReadOnlyModelViewSet):
+class ObjectTypeViewSet(ReadOnlyModelViewSet):
     """
-    Read-only list of ContentTypes. Limit results to ContentTypes pertinent to NetBox objects.
+    Read-only list of ObjectTypes.
     """
     permission_classes = [IsAuthenticatedOrLoginNotRequired]
-    queryset = ContentType.objects.order_by('app_label', 'model')
-    serializer_class = serializers.ContentTypeSerializer
-    filterset_class = filtersets.ContentTypeFilterSet
+    queryset = ObjectType.objects.order_by('app_label', 'model')
+    serializer_class = serializers.ObjectTypeSerializer
+    filterset_class = filtersets.ObjectTypeFilterSet
 
 
 #

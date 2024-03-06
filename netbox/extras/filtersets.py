@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from core.models import DataSource
+from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
@@ -18,7 +18,6 @@ __all__ = (
     'BookmarkFilterSet',
     'ConfigContextFilterSet',
     'ConfigTemplateFilterSet',
-    'ContentTypeFilterSet',
     'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
@@ -28,6 +27,7 @@ __all__ = (
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
+    'ObjectTypeFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
     'TagFilterSet',
@@ -662,14 +662,14 @@ class ObjectChangeFilterSet(BaseFilterSet):
 # ContentTypes
 #
 
-class ContentTypeFilterSet(django_filters.FilterSet):
+class ObjectTypeFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
     )
 
     class Meta:
-        model = ContentType
+        model = ObjectType
         fields = ['id', 'app_label', 'model']
 
     def search(self, queryset, name, value):

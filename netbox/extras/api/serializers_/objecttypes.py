@@ -4,12 +4,12 @@ from core.models import ObjectType
 from netbox.api.serializers import BaseModelSerializer
 
 __all__ = (
-    'ContentTypeSerializer',
+    'ObjectTypeSerializer',
 )
 
 
-class ContentTypeSerializer(BaseModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:contenttype-detail')
+class ObjectTypeSerializer(BaseModelSerializer):
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:objecttype-detail')
 
     class Meta:
         model = ObjectType
