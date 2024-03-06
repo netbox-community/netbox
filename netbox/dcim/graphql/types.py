@@ -486,8 +486,6 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
     filters=InventoryItemFilter
 )
 class InventoryItemType(ComponentObjectType):
-    _name: str
-
     @strawberry_django.field
     def parent(self) -> Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
@@ -596,7 +594,7 @@ class ManufacturerType(OrganizationalObjectType, ContactsMixin):
     fields='__all__',
     filters=ModuleFilter
 )
-class ModuleType(ComponentObjectType):
+class ModuleType(NetBoxObjectType):
 
     @strawberry_django.field
     def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
