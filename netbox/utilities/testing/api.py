@@ -19,6 +19,7 @@ from .base import ModelTestCase
 from .utils import disable_warnings
 
 from ipam.graphql.types import IPAddressFamilyType
+from strawberry.field import StrawberryField
 from strawberry.lazy_type import LazyType
 from strawberry.type import StrawberryList, StrawberryOptional
 from strawberry.union import StrawberryUnion
@@ -478,15 +479,9 @@ class APIViewTestCases:
                         fields_string += f'{field.name} {{ id }}\n'
                     elif field.type.of_type == strawberry_django.fields.types.DjangoModelType:
                         fields_string += f'{field.name} {{ pk }}\n'
-                elif field.is_relation:
+                elif hasattr(field, 'is_relation') and field.is_relation:
+                    # Note: StrawberryField types do not have is_relation
                     fields_string += f'{field.name} {{ id }}\n'
-                # TODO: Improve field detection logic to avoid nested ArrayFields
-                elif field.name == 'extra_choices':
-                    continue
-                # elif type(field.type) is GQLList and not is_string_array:
-                #     # TODO: Come up with something more elegant
-                #     # Temporary hack to support automated testing of reverse generic relations
-                #     fields_string += f'{field_name} {{ id }}\n'
                 elif inspect.isclass(field.type) and issubclass(field.type, IPAddressFamilyType):
                     fields_string += f'{field.name} {{ value, label }}\n'
                 else:

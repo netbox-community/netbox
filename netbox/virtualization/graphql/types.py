@@ -110,10 +110,6 @@ class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
         return self.tagged_vlans.all()
 
     @strawberry_django.field
-    def mac_address(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.mac_address.all()
-
-    @strawberry_django.field
     def bridge_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
         return self.bridge_interfaces.all()
 

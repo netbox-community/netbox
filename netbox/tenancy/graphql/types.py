@@ -184,7 +184,7 @@ class ContactGroupType(OrganizationalObjectType):
 
     @strawberry_django.field
     def contacts(self) -> List[ContactType]:
-        return self.clusters.all()
+        return self.contacts.all()
 
 
 @strawberry_django.type(

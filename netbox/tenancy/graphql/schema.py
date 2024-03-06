@@ -9,7 +9,7 @@ from .types import *
 @strawberry.type
 class TenancyQuery:
     @strawberry.field
-    def circutenantit(self, id: int) -> TenantType:
+    def tenant(self, id: int) -> TenantType:
         return models.Tenant.objects.get(id=id)
     tenant_list: List[TenantType] = strawberry_django.field()
 

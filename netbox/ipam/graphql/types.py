@@ -51,7 +51,7 @@ class BaseIPAddressFamilyType:
     def family(self) -> IPAddressFamilyType:
         # Note that self, is an instance of models.IPAddress
         # thus resolves to the address family value.
-        return IPAddressFamilyType(value=self.value, label=f'IPv{self.value}')
+        return IPAddressFamilyType(value=self.family, label=f'IPv{self.family}')
 
 
 @strawberry_django.type(
@@ -127,8 +127,8 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     address: str
 
     @strawberry_django.field
-    def nat_outside(self) -> Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]:
-        return self.nat_outside
+    def nat_outside(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.nat_outside.all()
 
     @strawberry_django.field
     def tunnel_terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
