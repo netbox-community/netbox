@@ -99,7 +99,7 @@ class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
 )
 class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
     _name: str
-    mac_address: str
+    mac_address: str | None
 
     @strawberry_django.field
     def ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:

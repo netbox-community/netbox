@@ -39,55 +39,55 @@ class ConfigContextType(ObjectType):
 
     @strawberry_django.field
     def roles(self) -> List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.roles.all()
 
     @strawberry_django.field
     def device_types(self) -> List[Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.device_types.all()
 
     @strawberry_django.field
     def tags(self) -> List[Annotated["TagType", strawberry.lazy('extras.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.tags.all()
 
     @strawberry_django.field
     def platforms(self) -> List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.platforms.all()
 
     @strawberry_django.field
     def regions(self) -> List[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.regions.all()
 
     @strawberry_django.field
     def cluster_groups(self) -> List[Annotated["ClusterGroupType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.cluster_groups.all()
 
     @strawberry_django.field
     def tenant_groups(self) -> List[Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.tenant_groups.all()
 
     @strawberry_django.field
     def cluster_types(self) -> List[Annotated["ClusterTypeType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.cluster_types.all()
 
     @strawberry_django.field
     def clusters(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.clusters.all()
 
     @strawberry_django.field
     def locations(self) -> List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.locations.all()
 
     @strawberry_django.field
     def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.sites.all()
 
     @strawberry_django.field
     def tenants(self) -> List[Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.tenants.all()
 
     @strawberry_django.field
     def site_groups(self) -> List[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.site_groups.all()
 
 
 @strawberry_django.type(
@@ -99,19 +99,19 @@ class ConfigTemplateType(TagsMixin, ObjectType):
 
     @strawberry_django.field
     def virtualmachines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.virtualmachines.all()
 
     @strawberry_django.field
     def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.devices.all()
 
     @strawberry_django.field
     def platforms(self) -> List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.platforms.all()
 
     @strawberry_django.field
     def device_roles(self) -> List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vlan_groups.all()
+        return self.device_roles.all()
 
 
 @strawberry_django.type(
@@ -133,11 +133,11 @@ class CustomFieldChoiceSetType(ObjectType):
 
     @strawberry_django.field
     def choices_for(self) -> List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]:
-        return self.assignments.all()
+        return self.choices_for.all()
 
     @strawberry_django.field
     def extra_choices(self) -> List[str]:
-        return self.assignments.all()
+        return self.extra_choices
 
 
 @strawberry_django.type(
