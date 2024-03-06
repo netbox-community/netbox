@@ -4,6 +4,7 @@ import strawberry_django
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
+from users import models
 from .types import *
 
 

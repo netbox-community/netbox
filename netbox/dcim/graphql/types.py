@@ -853,8 +853,7 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 )
 class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
     _name: str
-    asn: BigInt
-    time_zone: str
+    time_zone: str | None
 
     @strawberry_django.field
     def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
@@ -870,7 +869,7 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
 
     @strawberry_django.field
     def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.cabletermiantion_set.all()
+        return self.cabletermination_set.all()
 
     @strawberry_django.field
     def powerpanel_set(self) -> List[Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]]:

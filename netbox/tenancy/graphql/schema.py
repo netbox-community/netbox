@@ -2,7 +2,7 @@ from typing import List
 import strawberry
 import strawberry_django
 
-from circuits import models
+from tenancy import models
 from .types import *
 
 
