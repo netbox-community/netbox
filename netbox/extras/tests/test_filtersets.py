@@ -102,10 +102,10 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Custom Field 1', 'Custom Field 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_object_types(self):
-        params = {'object_types': 'dcim.site'}
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
+        params = {'object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_required(self):
@@ -350,10 +350,10 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_object_types(self):
-        params = {'object_types': 'dcim.region'}
+    def test_object_type(self):
+        params = {'object_type': 'dcim.region'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ObjectType.objects.get_for_model(Region).pk]}
+        params = {'object_type_id': [ObjectType.objects.get_for_model(Region).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_action_type(self):
@@ -435,10 +435,10 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Custom Link 1', 'Custom Link 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_object_types(self):
-        params = {'object_types': 'dcim.site'}
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ObjectType.objects.get_for_model(Site).pk]}
+        params = {'object_type_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_weight(self):
@@ -525,10 +525,10 @@ class SavedFilterTestCase(TestCase, BaseFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_object_types(self):
-        params = {'object_types': 'dcim.site'}
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ObjectType.objects.get_for_model(Site).pk]}
+        params = {'object_type_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_user(self):
@@ -656,10 +656,10 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Export Template 1', 'Export Template 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_object_types(self):
-        params = {'object_types': 'dcim.site'}
+    def test_object_type(self):
+        params = {'object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-        params = {'object_types_id': [ObjectType.objects.get_for_model(Site).pk]}
+        params = {'object_type_id': [ObjectType.objects.get_for_model(Site).pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_description(self):

@@ -38,11 +38,11 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Attributes'), (
-            'type', 'object_types_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible', 'ui_editable',
+            'type', 'object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible', 'ui_editable',
             'is_cloneable',
         )),
     )
-    object_types_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
         label=_('Object type')
@@ -108,9 +108,9 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        (_('Attributes'), ('object_types', 'enabled', 'new_window', 'weight')),
+        (_('Attributes'), ('object_type', 'enabled', 'new_window', 'weight')),
     )
-    object_types = ContentTypeMultipleChoiceField(
+    object_type = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
         required=False
@@ -139,7 +139,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Data'), ('data_source_id', 'data_file_id')),
-        (_('Attributes'), ('object_types_id', 'mime_type', 'file_extension', 'as_attachment')),
+        (_('Attributes'), ('object_type_id', 'mime_type', 'file_extension', 'as_attachment')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -154,7 +154,7 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
             'source_id': '$data_source_id'
         }
     )
-    object_types_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         required=False,
         label=_('Content types')
@@ -195,9 +195,9 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
-        (_('Attributes'), ('object_types', 'enabled', 'shared', 'weight')),
+        (_('Attributes'), ('object_type', 'enabled', 'shared', 'weight')),
     )
-    object_types = ContentTypeMultipleChoiceField(
+    object_type = ContentTypeMultipleChoiceField(
         label=_('Object types'),
         queryset=ObjectType.objects.public(),
         required=False
@@ -250,10 +250,10 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
 
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('object_types_id', 'action_type', 'enabled')),
+        (_('Attributes'), ('object_type_id', 'action_type', 'enabled')),
         (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
     )
-    object_types_id = ContentTypeMultipleChoiceField(
+    object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('event_rules'),
         required=False,
         label=_('Object type')
