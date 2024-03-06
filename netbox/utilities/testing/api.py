@@ -21,6 +21,7 @@ from .utils import disable_warnings
 from ipam.graphql.types import IPAddressFamilyType
 from strawberry.lazy_type import LazyType
 from strawberry.type import StrawberryList, StrawberryOptional
+from strawberry.union import StrawberryUnion
 
 __all__ = (
     'APITestCase',
@@ -450,14 +451,18 @@ class APIViewTestCases:
             fields_string = ''
 
             for field in type_class.__strawberry_definition__.fields:
-                # for field_name, field in type_class._meta.fields.items():
-                # print(f"field_name: {field.name} type: {field.type}")
+                """
+                print(f"field_name: {field.name} type: {field.type}")
 
-                if field.name == 'site':
-                    # breakpoint()
+                if field.name == 'provider':
+                    breakpoint()
                     pass
+                """
 
                 if type(field.type) is StrawberryList:
+                    if type(field.type.of_type) is StrawberryUnion:
+                        # this would require a fragment query
+                        continue
                     fields_string += f'{field.name} {{ id }}\n'
                 elif field.type is strawberry_django.fields.types.DjangoModelType:
                     # Dynamic fields must specify a subselection
@@ -467,6 +472,8 @@ class APIViewTestCases:
                         fields_string += f'{field.name} {{ id }}\n'
                     elif field.type.of_type == strawberry_django.fields.types.DjangoModelType:
                         fields_string += f'{field.name} {{ pk }}\n'
+                elif field.is_relation:
+                    fields_string += f'{field.name} {{ id }}\n'
                 # TODO: Improve field detection logic to avoid nested ArrayFields
                 elif field.name == 'extra_choices':
                     continue
@@ -486,15 +493,6 @@ class APIViewTestCases:
                 }}
             }}
             """
-
-            if "_list" not in name:
-                query = f"""
-                {{
-                    {name}_list {{
-                        {fields_string}
-                    }}
-                }}
-                """
 
             return query
 
