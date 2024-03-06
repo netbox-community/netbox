@@ -20,7 +20,7 @@ __all__ = (
     filters=DataFileFilter
 )
 class DataFileType(BaseObjectType):
-    pass
+    source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')]
 
 
 @strawberry_django.type(

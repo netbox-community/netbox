@@ -473,7 +473,9 @@ class APIViewTestCases:
                     continue
                 elif field.type is strawberry_django.fields.types.DjangoModelType:
                     print("")
+                    print("")
                     print("DjangoModelType")
+                    print("--------------------------")
                     print(f"{self.model} -> {field.name}")
                     print("")
                     # Dynamic fields must specify a subselection
@@ -483,7 +485,9 @@ class APIViewTestCases:
                         fields_string += f'{field.name} {{ id }}\n'
                     elif field.type.of_type == strawberry_django.fields.types.DjangoModelType:
                         print("")
+                        print("")
                         print("DjangoModelType")
+                        print("--------------------------")
                         print(f"{self.model} -> {field.name}")
                         print("")
                         fields_string += f'{field.name} {{ id }}\n'
