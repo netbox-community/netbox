@@ -454,16 +454,19 @@ class APIViewTestCases:
                 """
                 print(f"field_name: {field.name} type: {field.type}")
 
-                if field.name == 'provider':
+                if field.name == 'front_image':
                     breakpoint()
                     pass
                 """
 
-                if type(field.type) is StrawberryList:
-                    if type(field.type.of_type) is StrawberryUnion:
-                        # this would require a fragment query
-                        continue
+                if field.type in (strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType):
+                    fields_string += f'{field.name} {{ name }}\n'
+                elif type(field.type) is StrawberryList and type(field.type.of_type) is LazyType:
+                    # List of related objects (queryset)
                     fields_string += f'{field.name} {{ id }}\n'
+                elif type(field.type) is StrawberryList and type(field.type.of_type) is StrawberryUnion:
+                    # this would require a fragment query
+                    continue
                 elif field.type is strawberry_django.fields.types.DjangoModelType:
                     # Dynamic fields must specify a subselection
                     fields_string += f'{field.name} {{ pk }}\n'
