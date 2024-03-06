@@ -80,6 +80,10 @@ class BaseFilterSetTests:
             if model_field.name in chain(self.ignore_fields, IGNORE_FIELDS):
                 continue
 
+            # Skip reverse ForeignKey relationships
+            if type(model_field) is ManyToOneRel:
+                continue
+
             # One-to-one & one-to-many relationships
             if issubclass(model_field.__class__, ForeignKey) or type(model_field) is OneToOneRel:
                 if model_field.related_model is ContentType:
@@ -90,10 +94,14 @@ class BaseFilterSetTests:
                     filter_name = model_field.name
                 else:
                     filter_name = f'{model_field.name}_id'
-                self.assertIn(filter_name, filterset_fields, f'No filter found for {model_field.name}!')
+                self.assertIn(filter_name, filterset_fields, f'No filter found for {filter_name}!')
 
-            # TODO: Many-to-one & many-to-many relationships
-            elif type(model_field) in (ManyToOneRel, ManyToManyField, ManyToManyRel):
+            # TODO: Many-to-many relationships
+            elif type(model_field) is ManyToManyField:
+                related_model = model_field.related_model._meta.model_name
+                filter_name = f'{related_model}_id'
+                self.assertIn(filter_name, filterset_fields, f'M2M: No filter found for {filter_name}!')
+            elif type(model_field) is ManyToManyRel:
                 continue
 
             # TODO: Generic relationships
