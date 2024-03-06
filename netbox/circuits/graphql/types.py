@@ -51,6 +51,7 @@ class ProviderType(NetBoxObjectType, ContactsMixin):
     filters=ProviderAccountFilter
 )
 class ProviderAccountType(NetBoxObjectType):
+    provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
 
     @strawberry_django.field
     def circuits(self) -> List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
@@ -63,6 +64,7 @@ class ProviderAccountType(NetBoxObjectType):
     filters=ProviderNetworkFilter
 )
 class ProviderNetworkType(NetBoxObjectType):
+    provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
 
     @strawberry_django.field
     def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
@@ -75,7 +77,9 @@ class ProviderNetworkType(NetBoxObjectType):
     filters=CircuitTerminationFilter
 )
 class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, ObjectType):
-    pass
+    circuit: Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]
+    provider_network: Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')] | None
+    site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')] | None
 
 
 @strawberry_django.type(

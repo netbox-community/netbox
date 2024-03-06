@@ -21,8 +21,8 @@ class DummyQuery:
         return None
     dummymodel_list: List[DummyModelType] = strawberry_django.field()
 
-
-schema = strawberry.Schema(
-    query=DummyQuery,
-    config=StrawberryConfig(auto_camel_case=False),
-)
+# bug - temp - FIXME!
+# schema = strawberry.Schema(
+#     query=DummyQuery,
+#     config=StrawberryConfig(auto_camel_case=False),
+# )

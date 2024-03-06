@@ -11,11 +11,7 @@ __all__ = (
 
 @strawberry.type
 class CabledObjectMixin:
-
-    # @strawberry_django.field
-    # def cable_end(self) -> List[Annotated["ObjectChangeType", strawberry.lazy('.types')]]:
-    #     # Handle empty values
-    #     return self.cable_end or None
+    cable: Annotated["CableType", strawberry.lazy('dcim.graphql.types')] | None
 
     @strawberry_django.field
     def link_peers(self) -> List[Annotated[Union[
