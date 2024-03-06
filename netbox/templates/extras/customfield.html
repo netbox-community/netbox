@@ -89,7 +89,7 @@
     <div class="card">
       <h5 class="card-header">{% trans "Object Types" %}</h5>
       <table class="table table-hover attr-table">
-        {% for ct in object.content_types.all %}
+        {% for ct in object.object_types.all %}
           <tr>
             <td>{{ ct }}</td>
           </tr>

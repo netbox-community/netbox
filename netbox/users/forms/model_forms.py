@@ -1,12 +1,12 @@
 from django import forms
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
 from django.utils.html import mark_safe
 from django.utils.translation import gettext_lazy as _
 
+from core.models import ObjectType
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
@@ -278,7 +278,7 @@ class GroupForm(forms.ModelForm):
 class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
         label=_('Object types'),
-        queryset=ContentType.objects.all(),
+        queryset=ObjectType.objects.all(),
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         widget=forms.SelectMultiple(attrs={'size': 6})
     )

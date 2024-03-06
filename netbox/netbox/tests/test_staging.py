@@ -1,9 +1,11 @@
+from django.db.models.signals import post_save
 from django.test import TransactionTestCase
 
 from circuits.models import Provider, Circuit, CircuitType
 from extras.choices import ChangeActionChoices
 from extras.models import Branch, StagedChange, Tag
 from ipam.models import ASN, RIR
+from netbox.search.backends import search_backend
 from netbox.staging import checkout
 from utilities.testing import create_tags
 
@@ -11,6 +13,10 @@ from utilities.testing import create_tags
 class StagingTestCase(TransactionTestCase):
 
     def setUp(self):
+        # Disconnect search backend to avoid issues with cached ObjectTypes being deleted
+        # from the database upon transaction rollback
+        post_save.disconnect(search_backend.caching_handler)
+
         create_tags('Alpha', 'Bravo', 'Charlie')
 
         rir = RIR.objects.create(name='RIR 1', slug='rir-1')

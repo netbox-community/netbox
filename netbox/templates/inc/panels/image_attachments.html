@@ -6,7 +6,7 @@
     {% trans "Images" %}
     {% if perms.extras.add_imageattachment %}
       <div class="card-actions">
-        <a href="{% url 'extras:imageattachment_add' %}?content_type={{ object|content_type_id }}&object_id={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+        <a href="{% url 'extras:imageattachment_add' %}?object_type={{ object|content_type_id }}&object_id={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
           <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Attach an image" %}
         </a>
       </div>

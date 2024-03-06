@@ -46,9 +46,9 @@ class CustomFieldView(generic.ObjectView):
     def get_extra_context(self, request, instance):
         related_models = ()
 
-        for content_type in instance.content_types.all():
+        for object_type in instance.object_types.all():
             related_models += (
-                content_type.model_class().objects.restrict(request.user, 'view').exclude(
+                object_type.model_class().objects.restrict(request.user, 'view').exclude(
                     Q(**{f'custom_field_data__{instance.name}': ''}) |
                     Q(**{f'custom_field_data__{instance.name}': None})
                 ),
@@ -762,8 +762,8 @@ class ImageAttachmentEditView(generic.ObjectEditView):
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the parent object based on URL kwargs
-            content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
-            instance.parent = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+            object_type = get_object_or_404(ContentType, pk=request.GET.get('object_type'))
+            instance.parent = get_object_or_404(object_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
     def get_return_url(self, request, obj=None):
@@ -771,7 +771,7 @@ class ImageAttachmentEditView(generic.ObjectEditView):
 
     def get_extra_addanother_params(self, request):
         return {
-            'content_type': request.GET.get('content_type'),
+            'object_type': request.GET.get('object_type'),
             'object_id': request.GET.get('object_id'),
         }
 

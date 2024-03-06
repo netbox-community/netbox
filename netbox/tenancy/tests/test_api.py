@@ -246,21 +246,21 @@ class ContactAssignmentTest(APIViewTestCases.APIViewTestCase):
 
         cls.create_data = [
             {
-                'content_type': 'dcim.site',
+                'object_type': 'dcim.site',
                 'object_id': sites[1].pk,
                 'contact': contacts[3].pk,
                 'role': contact_roles[0].pk,
                 'priority': ContactPriorityChoices.PRIORITY_PRIMARY,
             },
             {
-                'content_type': 'dcim.site',
+                'object_type': 'dcim.site',
                 'object_id': sites[1].pk,
                 'contact': contacts[4].pk,
                 'role': contact_roles[1].pk,
                 'priority': ContactPriorityChoices.PRIORITY_SECONDARY,
             },
             {
-                'content_type': 'dcim.site',
+                'object_type': 'dcim.site',
                 'object_id': sites[1].pk,
                 'contact': contacts[5].pk,
                 'role': contact_roles[2].pk,

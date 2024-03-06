@@ -3,7 +3,6 @@ from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
@@ -2982,7 +2981,6 @@ class CableTestCase(
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
-        interface_ct = ContentType.objects.get_for_model(Interface)
         cls.form_data = {
             # TODO: Revisit this limitation
             # Changing terminations not supported when editing an existing Cable

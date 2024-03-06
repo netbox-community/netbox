@@ -12,7 +12,7 @@ from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.data import CHOICE_SETS
 from netbox.models import ChangeLoggedModel
@@ -52,8 +52,8 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
         """
         Return all CustomFields assigned to the given model.
         """
-        content_type = ContentType.objects.get_for_model(model._meta.concrete_model)
-        return self.get_queryset().filter(content_types=content_type)
+        content_type = ObjectType.objects.get_for_model(model._meta.concrete_model)
+        return self.get_queryset().filter(object_types=content_type)
 
     def get_defaults_for_model(self, model):
         """
@@ -66,8 +66,8 @@ class CustomFieldManager(models.Manager.from_queryset(RestrictedQuerySet)):
 
 
 class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='custom_fields',
         help_text=_('The object(s) to which this field applies.')
     )
@@ -79,7 +79,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         help_text=_('The type of data this custom field holds')
     )
     object_type = models.ForeignKey(
-        to='contenttypes.ContentType',
+        to='core.ObjectType',
         on_delete=models.PROTECT,
         blank=True,
         null=True,
@@ -209,7 +209,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     objects = CustomFieldManager()
 
     clone_fields = (
-        'content_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
+        'object_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
         'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
@@ -284,7 +284,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         """
         Called when a CustomField has been renamed. Updates all assigned object data.
         """
-        for ct in self.content_types.all():
+        for ct in self.object_types.all():
             model = ct.model_class()
             params = {f'custom_field_data__{old_name}__isnull': False}
             instances = model.objects.filter(**params)

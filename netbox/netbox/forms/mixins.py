@@ -1,7 +1,7 @@
 from django import forms
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import *
 from utilities.forms.fields import DynamicModelMultipleChoiceField
@@ -32,16 +32,16 @@ class CustomFieldsMixin:
 
     def _get_content_type(self):
         """
-        Return the ContentType of the form's model.
+        Return the ObjectType of the form's model.
         """
         if not getattr(self, 'model', None):
             raise NotImplementedError(_("{class_name} must specify a model class.").format(
                 class_name=self.__class__.__name__
             ))
-        return ContentType.objects.get_for_model(self.model)
+        return ObjectType.objects.get_for_model(self.model)
 
     def _get_custom_fields(self, content_type):
-        return CustomField.objects.filter(content_types=content_type).exclude(
+        return CustomField.objects.filter(object_types=content_type).exclude(
             ui_editable=CustomFieldUIEditableChoices.HIDDEN
         )
 
@@ -85,6 +85,6 @@ class TagsMixin(forms.Form):
         super().__init__(*args, **kwargs)
 
         # Limit tags to those applicable to the object type
-        content_type = ContentType.objects.get_for_model(self._meta.model)
-        if content_type and hasattr(self.fields['tags'].widget, 'add_query_param'):
-            self.fields['tags'].widget.add_query_param('for_object_type_id', content_type.pk)
+        object_type = ObjectType.objects.get_for_model(self._meta.model)
+        if object_type and hasattr(self.fields['tags'].widget, 'add_query_param'):
+            self.fields['tags'].widget.add_query_param('for_object_type_id', object_type.pk)

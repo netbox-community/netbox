@@ -4,7 +4,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
-from core.models import DataSource
+from core.models import DataSource, ObjectType
 from dcim.models import DeviceRole, DeviceType, Location, Platform, Region, Site, SiteGroup
 from netbox.filtersets import BaseFilterSet, ChangeLoggedModelFilterSet, NetBoxModelFilterSet
 from tenancy.models import Tenant, TenantGroup
@@ -18,7 +18,6 @@ __all__ = (
     'BookmarkFilterSet',
     'ConfigContextFilterSet',
     'ConfigTemplateFilterSet',
-    'ContentTypeFilterSet',
     'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
@@ -28,6 +27,7 @@ __all__ = (
     'JournalEntryFilterSet',
     'LocalConfigContextFilterSet',
     'ObjectChangeFilterSet',
+    'ObjectTypeFilterSet',
     'SavedFilterFilterSet',
     'ScriptFilterSet',
     'TagFilterSet',
@@ -89,10 +89,12 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_type = ContentTypeFilter(
+        field_name='object_types'
+    )
     action_type = django_filters.MultipleChoiceFilter(
         choices=EventRuleActionChoices
     )
@@ -124,10 +126,12 @@ class CustomFieldFilterSet(BaseFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=CustomFieldTypeChoices
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_type = ContentTypeFilter(
+        field_name='object_types'
+    )
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CustomFieldChoiceSet.objects.all()
     )
@@ -140,8 +144,8 @@ class CustomFieldFilterSet(BaseFilterSet):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visible',
-            'ui_editable', 'weight', 'is_cloneable', 'description',
+            'id', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
+            'weight', 'is_cloneable', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -188,15 +192,17 @@ class CustomLinkFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_type = ContentTypeFilter(
+        field_name='object_types'
+    )
 
     class Meta:
         model = CustomLink
         fields = [
-            'id', 'content_types', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
+            'id', 'name', 'enabled', 'link_text', 'link_url', 'weight', 'group_name', 'new_window',
         ]
 
     def search(self, queryset, name, value):
@@ -215,10 +221,12 @@ class ExportTemplateFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_type = ContentTypeFilter(
+        field_name='object_types'
+    )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
         label=_('Data source (ID)'),
@@ -230,7 +238,7 @@ class ExportTemplateFilterSet(BaseFilterSet):
 
     class Meta:
         model = ExportTemplate
-        fields = ['id', 'content_types', 'name', 'description', 'data_synced']
+        fields = ['id', 'name', 'description', 'data_synced']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -246,10 +254,12 @@ class SavedFilterFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
     )
-    content_types = ContentTypeFilter()
+    object_type = ContentTypeFilter(
+        field_name='object_types'
+    )
     user_id = django_filters.ModelMultipleChoiceFilter(
         queryset=get_user_model().objects.all(),
         label=_('User (ID)'),
@@ -266,7 +276,7 @@ class SavedFilterFilterSet(BaseFilterSet):
 
     class Meta:
         model = SavedFilter
-        fields = ['id', 'content_types', 'name', 'slug', 'description', 'enabled', 'shared', 'weight']
+        fields = ['id', 'name', 'slug', 'description', 'enabled', 'shared', 'weight']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -316,11 +326,11 @@ class ImageAttachmentFilterSet(BaseFilterSet):
         label=_('Search'),
     )
     created = django_filters.DateTimeFilter()
-    content_type = ContentTypeFilter()
+    object_type = ContentTypeFilter()
 
     class Meta:
         model = ImageAttachment
-        fields = ['id', 'content_type_id', 'object_id', 'name']
+        fields = ['id', 'object_type_id', 'object_id', 'name']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -660,14 +670,14 @@ class ObjectChangeFilterSet(BaseFilterSet):
 # ContentTypes
 #
 
-class ContentTypeFilterSet(django_filters.FilterSet):
+class ObjectTypeFilterSet(django_filters.FilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
     )
 
     class Meta:
-        model = ContentType
+        model = ObjectType
         fields = ['id', 'app_label', 'model']
 
     def search(self, queryset, name, value):

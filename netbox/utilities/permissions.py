@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
@@ -50,13 +49,14 @@ def resolve_permission_ct(name):
 
     :param name: Permission name in the format <app_label>.<action>_<model>
     """
+    from core.models import ObjectType
     app_label, action, model_name = resolve_permission(name)
     try:
-        content_type = ContentType.objects.get(app_label=app_label, model=model_name)
-    except ContentType.DoesNotExist:
+        object_type = ObjectType.objects.get(app_label=app_label, model=model_name)
+    except ObjectType.DoesNotExist:
         raise ValueError(_("Unknown app_label/model_name for {name}").format(name=name))
 
-    return content_type, action
+    return object_type, action
 
 
 def permission_is_exempt(name):

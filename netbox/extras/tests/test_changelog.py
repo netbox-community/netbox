@@ -3,6 +3,7 @@ from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import *
@@ -23,14 +24,14 @@ class ChangeLogViewTest(ModelViewTestCase):
         )
 
         # Create a custom field on the Site model
-        ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         cf = CustomField(
             type=CustomFieldTypeChoices.TYPE_TEXT,
             name='cf1',
             required=False
         )
         cf.save()
-        cf.content_types.set([ct])
+        cf.object_types.set([site_type])
 
         # Create a select custom field on the Site model
         cf_select = CustomField(
@@ -40,7 +41,7 @@ class ChangeLogViewTest(ModelViewTestCase):
             choice_set=choice_set
         )
         cf_select.save()
-        cf_select.content_types.set([ct])
+        cf_select.object_types.set([site_type])
 
     def test_create_object(self):
         tags = create_tags('Tag 1', 'Tag 2')
@@ -275,14 +276,14 @@ class ChangeLogAPITest(APITestCase):
     def setUpTestData(cls):
 
         # Create a custom field on the Site model
-        ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         cf = CustomField(
             type=CustomFieldTypeChoices.TYPE_TEXT,
             name='cf1',
             required=False
         )
         cf.save()
-        cf.content_types.set([ct])
+        cf.object_types.set([site_type])
 
         # Create a select custom field on the Site model
         choice_set = CustomFieldChoiceSet.objects.create(
@@ -296,7 +297,7 @@ class ChangeLogAPITest(APITestCase):
             choice_set=choice_set
         )
         cf_select.save()
-        cf_select.content_types.set([ct])
+        cf_select.object_types.set([site_type])
 
         # Create some tags
         tags = (

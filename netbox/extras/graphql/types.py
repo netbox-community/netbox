@@ -39,7 +39,7 @@ class CustomFieldType(ObjectType):
 
     class Meta:
         model = models.CustomField
-        exclude = ('content_types', )
+        fields = '__all__'
         filterset_class = filtersets.CustomFieldFilterSet
 
 
@@ -55,15 +55,23 @@ class CustomLinkType(ObjectType):
 
     class Meta:
         model = models.CustomLink
-        exclude = ('content_types', )
+        fields = '__all__'
         filterset_class = filtersets.CustomLinkFilterSet
+
+
+class EventRuleType(OrganizationalObjectType):
+
+    class Meta:
+        model = models.EventRule
+        fields = '__all__'
+        filterset_class = filtersets.EventRuleFilterSet
 
 
 class ExportTemplateType(ObjectType):
 
     class Meta:
         model = models.ExportTemplate
-        exclude = ('content_types', )
+        fields = '__all__'
         filterset_class = filtersets.ExportTemplateFilterSet
 
 
@@ -95,7 +103,7 @@ class SavedFilterType(ObjectType):
 
     class Meta:
         model = models.SavedFilter
-        exclude = ('content_types', )
+        fields = '__all__'
         filterset_class = filtersets.SavedFilterFilterSet
 
 
@@ -112,11 +120,3 @@ class WebhookType(OrganizationalObjectType):
     class Meta:
         model = models.Webhook
         filterset_class = filtersets.WebhookFilterSet
-
-
-class EventRuleType(OrganizationalObjectType):
-
-    class Meta:
-        model = models.EventRule
-        exclude = ('content_types', )
-        filterset_class = filtersets.EventRuleFilterSet

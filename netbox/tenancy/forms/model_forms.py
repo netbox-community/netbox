@@ -143,9 +143,9 @@ class ContactAssignmentForm(NetBoxModelForm):
     class Meta:
         model = ContactAssignment
         fields = (
-            'content_type', 'object_id', 'group', 'contact', 'role', 'priority', 'tags'
+            'object_type', 'object_id', 'group', 'contact', 'role', 'priority', 'tags'
         )
         widgets = {
-            'content_type': forms.HiddenInput(),
+            'object_type': forms.HiddenInput(),
             'object_id': forms.HiddenInput(),
         }

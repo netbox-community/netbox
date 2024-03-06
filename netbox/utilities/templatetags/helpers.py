@@ -1,16 +1,16 @@
 import datetime
 import json
-from urllib.parse import quote
 from typing import Dict, Any
+from urllib.parse import quote
 
 from django import template
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 
+from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
 from utilities.utils import get_viewname
 
@@ -322,10 +322,10 @@ def applied_filters(context, model, form, query_params):
 
     save_link = None
     if user.has_perm('extras.add_savedfilter') and 'filter_id' not in context['request'].GET:
-        content_type = ContentType.objects.get_for_model(model).pk
+        object_type = ObjectType.objects.get_for_model(model).pk
         parameters = json.dumps(dict(context['request'].GET.lists()))
         url = reverse('extras:savedfilter_add')
-        save_link = f"{url}?content_types={content_type}&parameters={quote(parameters)}"
+        save_link = f"{url}?object_types={object_type}&parameters={quote(parameters)}"
 
     return {
         'applied_filters': applied_filters,

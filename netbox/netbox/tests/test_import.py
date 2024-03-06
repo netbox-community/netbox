@@ -1,6 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 
+from core.models import ObjectType
 from dcim.models import *
 from users.models import ObjectPermission
 from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
@@ -67,7 +67,7 @@ class CSVImportTestCase(ModelViewTestCase):
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
         self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
@@ -108,7 +108,7 @@ class CSVImportTestCase(ModelViewTestCase):
         obj_perm = ObjectPermission(name='Test permission', actions=['add'])
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         # Try GET with model-level permission
         self.assertHttpStatus(self.client.get(self._get_url('import')), 200)

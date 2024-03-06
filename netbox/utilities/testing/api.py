@@ -10,6 +10,7 @@ from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLU
 from rest_framework import status
 from rest_framework.test import APIClient
 
+from core.models import ObjectType
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
 from users.models import ObjectPermission, Token
@@ -109,7 +110,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try GET to permitted object
             url = self._get_detail_url(instance1)
@@ -183,7 +184,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Try GET to permitted objects
             response = self.client.get(self._get_list_url(), **self.header)
@@ -224,7 +225,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             initial_count = self._get_queryset().count()
             response = self.client.post(self._get_list_url(), self.create_data[0], format='json', **self.header)
@@ -258,7 +259,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             initial_count = self._get_queryset().count()
             response = self.client.post(self._get_list_url(), self.create_data, format='json', **self.header)
@@ -309,7 +310,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             response = self.client.patch(url, update_data, format='json', **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -344,7 +345,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             id_list = list(self._get_queryset().values_list('id', flat=True)[:3])
             self.assertEqual(len(id_list), 3, "Insufficient number of objects to test bulk update")
@@ -387,7 +388,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             response = self.client.delete(url, **self.header)
             self.assertHttpStatus(response, status.HTTP_204_NO_CONTENT)
@@ -413,7 +414,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             # Target the three most recently created objects to avoid triggering recursive deletions
             # (e.g. with MPTT objects)
@@ -504,7 +505,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             response = self.client.post(url, data={'query': query}, **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
@@ -529,7 +530,7 @@ class APIViewTestCases:
             )
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
             response = self.client.post(url, data={'query': query}, **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)

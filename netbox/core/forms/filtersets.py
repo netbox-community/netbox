@@ -68,7 +68,7 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
     )
     object_type = ContentTypeChoiceField(
         label=_('Object Type'),
-        queryset=ContentType.objects.with_feature('jobs'),
+        queryset=ObjectType.objects.with_feature('jobs'),
         required=False,
     )
     status = forms.MultipleChoiceField(

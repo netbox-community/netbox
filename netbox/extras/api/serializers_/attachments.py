@@ -2,7 +2,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.models import ImageAttachment
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import ValidatedModelSerializer
@@ -15,15 +15,15 @@ __all__ = (
 
 class ImageAttachmentSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:imageattachment-detail')
-    content_type = ContentTypeField(
-        queryset=ContentType.objects.all()
+    object_type = ContentTypeField(
+        queryset=ObjectType.objects.all()
     )
     parent = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = ImageAttachment
         fields = [
-            'id', 'url', 'display', 'content_type', 'object_id', 'parent', 'name', 'image', 'image_height',
+            'id', 'url', 'display', 'object_type', 'object_id', 'parent', 'name', 'image', 'image_height',
             'image_width', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'image')
@@ -32,10 +32,10 @@ class ImageAttachmentSerializer(ValidatedModelSerializer):
 
         # Validate that the parent object exists
         try:
-            data['content_type'].get_object_for_this_type(id=data['object_id'])
+            data['object_type'].get_object_for_this_type(id=data['object_id'])
         except ObjectDoesNotExist:
             raise serializers.ValidationError(
-                "Invalid parent object: {} ID {}".format(data['content_type'], data['object_id'])
+                "Invalid parent object: {} ID {}".format(data['object_type'], data['object_id'])
             )
 
         # Enforce model validation

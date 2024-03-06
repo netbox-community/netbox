@@ -8,6 +8,7 @@ from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
@@ -205,13 +206,13 @@ def handle_cf_deleted(instance, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is deleted.
     """
-    instance.remove_stale_data(instance.content_types.all())
+    instance.remove_stale_data(instance.object_types.all())
 
 
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
-m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.content_types.through)
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
+m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.object_types.through)
+m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.object_types.through)
 
 
 #
@@ -240,8 +241,8 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
     """
     if action != 'pre_add':
         return
-    ct = ContentType.objects.get_for_model(instance)
-    # Retrieve any applied Tags that are restricted to certain object_types
+    ct = ObjectType.objects.get_for_model(instance)
+    # Retrieve any applied Tags that are restricted to certain object types
     for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
         if ct not in tag.object_types.all():
             raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")
@@ -256,7 +257,7 @@ def process_job_start_event_rules(sender, **kwargs):
     """
     Process event rules for jobs starting.
     """
-    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, content_types=sender.object_type)
+    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
     process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, username)
 
@@ -266,6 +267,6 @@ def process_job_end_event_rules(sender, **kwargs):
     """
     Process event rules for jobs terminating.
     """
-    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, content_types=sender.object_type)
+    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, object_types=sender.object_type)
     username = sender.user.username if sender.user else None
     process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, username)

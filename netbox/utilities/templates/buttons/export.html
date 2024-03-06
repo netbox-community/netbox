@@ -25,7 +25,7 @@
         <hr class="dropdown-divider">
       </li>
       <li>
-        <a class="dropdown-item" href="{% url 'extras:exporttemplate_add' %}?content_types={{ content_type.pk }}">{% trans "Add export template" %}...</a>
+        <a class="dropdown-item" href="{% url 'extras:exporttemplate_add' %}?object_types={{ object_type.pk }}">{% trans "Add export template" %}...</a>
       </li>
     {% endif %}
   </ul>
