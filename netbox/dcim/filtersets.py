@@ -1004,6 +1004,11 @@ class DeviceFilterSet(
         queryset=Rack.objects.all(),
         label=_('Rack (ID)'),
     )
+    parent_bay_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent_bay',
+        queryset=DeviceBay.objects.all(),
+        label=_('Parent bay (ID)'),
+    )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
         label=_('VM cluster (ID)'),
@@ -1695,6 +1700,11 @@ class RearPortFilterSet(
 
 
 class ModuleBayFilterSet(DeviceComponentFilterSet, NetBoxModelFilterSet):
+    installed_module_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='installed_module',
+        queryset=ModuleBay.objects.all(),
+        label=_('Installed module (ID)'),
+    )
 
     class Meta:
         model = ModuleBay

@@ -849,7 +849,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     region = django_filters.NumberFilter(
         method='filter_scope'
     )
-    sitegroup = django_filters.NumberFilter(
+    site_group = django_filters.NumberFilter(
         method='filter_scope'
     )
     site = django_filters.NumberFilter(
@@ -861,12 +861,16 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
     rack = django_filters.NumberFilter(
         method='filter_scope'
     )
-    clustergroup = django_filters.NumberFilter(
+    cluster_group = django_filters.NumberFilter(
         method='filter_scope'
     )
     cluster = django_filters.NumberFilter(
         method='filter_scope'
     )
+
+    # TODO: Remove in v4.1
+    sitegroup = site_group
+    clustergroup = cluster_group
 
     class Meta:
         model = VLANGroup
@@ -882,8 +886,9 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
         return queryset.filter(qs_filter)
 
     def filter_scope(self, queryset, name, value):
+        model_name = name.replace('_', '')
         return queryset.filter(
-            scope_type=ContentType.objects.get(model=name),
+            scope_type=ContentType.objects.get(model=model_name),
             scope_id=value
         )
 

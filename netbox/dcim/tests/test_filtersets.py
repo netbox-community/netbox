@@ -1884,7 +1884,7 @@ class PlatformTestCase(TestCase, ChangeLoggedFilterSetTests):
 class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Device.objects.all()
     filterset = DeviceFilterSet
-    ignore_fields = ('primary_ip4', 'primary_ip6', 'oob_ip', 'local_context_data')
+    ignore_fields = ('local_context_data', 'oob_ip', 'primary_ip4', 'primary_ip6', 'vc_master_for')
 
     @classmethod
     def setUpTestData(cls):

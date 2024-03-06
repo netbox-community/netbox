@@ -106,7 +106,11 @@ class BaseFilterSetTests:
 
             # All other fields
             else:
-                self.assertIn(model_field.name, filterset_fields, f'No filter found for {model_field.name}!')
+                self.assertIn(
+                    model_field.name,
+                    filterset_fields,
+                    f'No filter found for {model_field.name} ({type(model_field)})!'
+                )
 
 
 class ChangeLoggedFilterSetTests(BaseFilterSetTests):

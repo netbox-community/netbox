@@ -15,7 +15,7 @@ User = get_user_model()
 class UserTestCase(TestCase, BaseFilterSetTests):
     queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
-    ignore_fields = ('password',)
+    ignore_fields = ('config', 'dashboard', 'password')
 
     @classmethod
     def setUpTestData(cls):

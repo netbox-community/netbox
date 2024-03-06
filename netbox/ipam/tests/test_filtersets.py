@@ -922,6 +922,7 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
+    ignore_fields = ('fhrpgroup',)
 
     @classmethod
     def setUpTestData(cls):
