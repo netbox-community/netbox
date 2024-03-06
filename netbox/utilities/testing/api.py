@@ -454,7 +454,7 @@ class APIViewTestCases:
                 """
                 print(f"field_name: {field.name} type: {field.type}")
 
-                if field.name == 'front_image':
+                if field.name == 'assigned_object':
                     breakpoint()
                     pass
                 """
@@ -465,6 +465,9 @@ class APIViewTestCases:
                     # List of related objects (queryset)
                     fields_string += f'{field.name} {{ id }}\n'
                 elif type(field.type) is StrawberryList and type(field.type.of_type) is StrawberryUnion:
+                    # this would require a fragment query
+                    continue
+                elif type(field.type) is StrawberryUnion:
                     # this would require a fragment query
                     continue
                 elif field.type is strawberry_django.fields.types.DjangoModelType:

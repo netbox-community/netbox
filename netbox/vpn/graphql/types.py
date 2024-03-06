@@ -103,11 +103,11 @@ class IPSecProposalType(OrganizationalObjectType):
 class IPSecPolicyType(OrganizationalObjectType):
 
     @strawberry_django.field
-    def proposals(self) -> List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]:
+    def proposals(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
         return self.proposals.all()
 
     @strawberry_django.field
-    def ipsec_profiles(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
+    def ipsec_profiles(self) -> List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]:
         return self.ipsec_profiles.all()
 
 
