@@ -521,10 +521,6 @@ class InventoryItemRoleType(OrganizationalObjectType):
 class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, OrganizationalObjectType):
 
     @strawberry_django.field
-    def children(self) -> List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.children.all()
-
-    @strawberry_django.field
     def powerpanel_set(self) -> List[Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]]:
         return self.powerpanel_set.all()
 
@@ -539,10 +535,6 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
     @strawberry_django.field
     def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
         return self.vlan_groups.all()
-
-    @strawberry_django.field
-    def parent(self) -> Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None:
-        return self.parent
 
     @strawberry_django.field
     def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
@@ -845,16 +837,8 @@ class RearPortTemplateType(ComponentTemplateObjectType):
 class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
     @strawberry_django.field
-    def parent(self) -> Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]:
-        return self.region
-
-    @strawberry_django.field
     def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:
         return self.sites.all()
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.children.all()
 
     @strawberry_django.field
     def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
@@ -928,14 +912,6 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     filters=SiteGroupFilter
 )
 class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
-
-    @strawberry_django.field
-    def parent(self) -> Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]:
-        return self.region
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.children.all()
 
     @strawberry_django.field
     def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:

@@ -1,3 +1,5 @@
+from typing import Annotated, List
+
 import strawberry
 from strawberry import auto
 import strawberry_django
@@ -64,7 +66,13 @@ class OrganizationalObjectType(
     """
     Base type for organizational models
     """
-    pass
+    @strawberry_django.field
+    def parent(self) -> Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None:
+        return self.parent
+
+    @strawberry_django.field
+    def children(self) -> List[Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')]]:
+        return self.children.all()
 
 
 class NetBoxObjectType(

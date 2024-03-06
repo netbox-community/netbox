@@ -142,16 +142,8 @@ class TenantType(NetBoxObjectType):
 class TenantGroupType(OrganizationalObjectType):
 
     @strawberry_django.field
-    def parent(self) -> Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')]:
-        return self.parent
-
-    @strawberry_django.field
     def tenants(self) -> List[TenantType]:
         return self.tenants.all()
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.children.all()
 
 
 #
@@ -191,16 +183,8 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
 class ContactGroupType(OrganizationalObjectType):
 
     @strawberry_django.field
-    def parent(self) -> Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')]:
-        return self.parent
-
-    @strawberry_django.field
     def contacts(self) -> List[ContactType]:
         return self.clusters.all()
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.children.all()
 
 
 @strawberry_django.type(
