@@ -5409,15 +5409,22 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         VirtualDeviceContext.objects.bulk_create(vdcs)
 
         interfaces = (
-            Interface(device=devices[0], name='Interface 1', type='virtual'),
-            Interface(device=devices[0], name='Interface 2', type='virtual'),
+            Interface(device=devices[0], name='Interface 1', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[0], name='Interface 2', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[1], name='Interface 3', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[1], name='Interface 4', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[2], name='Interface 5', type=InterfaceTypeChoices.TYPE_VIRTUAL),
+            Interface(device=devices[2], name='Interface 6', type=InterfaceTypeChoices.TYPE_VIRTUAL),
         )
         Interface.objects.bulk_create(interfaces)
-
         interfaces[0].vdcs.set([vdcs[0]])
         interfaces[1].vdcs.set([vdcs[1]])
+        interfaces[2].vdcs.set([vdcs[2]])
+        interfaces[3].vdcs.set([vdcs[3]])
+        interfaces[4].vdcs.set([vdcs[4]])
+        interfaces[5].vdcs.set([vdcs[5]])
 
-        addresses = (
+        ip_addresses = (
             IPAddress(assigned_object=interfaces[0], address='10.1.1.1/24'),
             IPAddress(assigned_object=interfaces[1], address='10.1.1.2/24'),
             IPAddress(assigned_object=None, address='10.1.1.3/24'),
@@ -5425,13 +5432,12 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
             IPAddress(assigned_object=interfaces[1], address='2001:db8::2/64'),
             IPAddress(assigned_object=None, address='2001:db8::3/64'),
         )
-        IPAddress.objects.bulk_create(addresses)
-
-        vdcs[0].primary_ip4 = addresses[0]
-        vdcs[0].primary_ip6 = addresses[3]
+        IPAddress.objects.bulk_create(ip_addresses)
+        vdcs[0].primary_ip4 = ip_addresses[0]
+        vdcs[0].primary_ip6 = ip_addresses[3]
         vdcs[0].save()
-        vdcs[1].primary_ip4 = addresses[1]
-        vdcs[1].primary_ip6 = addresses[4]
+        vdcs[1].primary_ip4 = ip_addresses[1]
+        vdcs[1].primary_ip6 = ip_addresses[4]
         vdcs[1].save()
 
     def test_q(self):
@@ -5439,8 +5445,11 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_device(self):
-        params = {'device': ['Device 1', 'Device 2']}
+        devices = Device.objects.filter(name__in=['Device 1', 'Device 2'])
+        params = {'device': [devices[0].name, devices[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
+        params = {'device_id': [devices[0].pk, devices[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_status(self):
         params = {'status': ['active']}
@@ -5450,10 +5459,10 @@ class VirtualDeviceContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_device_id(self):
-        devices = Device.objects.filter(name__in=['Device 1', 'Device 2'])
-        params = {'device_id': [devices[0].pk, devices[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+    def test_interface(self):
+        interfaces = Interface.objects.filter(name__in=['Interface 1', 'Interface 3'])
+        params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_has_primary_ip(self):
         params = {'has_primary_ip': True}

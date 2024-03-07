@@ -20,6 +20,16 @@ class GroupFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='user',
+        queryset=get_user_model().objects.all(),
+        label=_('User (ID)'),
+    )
+    permission_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='object_permissions',
+        queryset=ObjectPermission.objects.all(),
+        label=_('Permission (ID)'),
+    )
 
     class Meta:
         model = Group
@@ -46,6 +56,11 @@ class UserFilterSet(BaseFilterSet):
         queryset=Group.objects.all(),
         to_field_name='name',
         label=_('Group (name)'),
+    )
+    permission_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='object_permissions',
+        queryset=ObjectPermission.objects.all(),
+        label=_('Permission (ID)'),
     )
 
     class Meta:

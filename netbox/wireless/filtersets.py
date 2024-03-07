@@ -2,6 +2,7 @@ import django_filters
 from django.db.models import Q
 
 from dcim.choices import LinkStatusChoices
+from dcim.models import Interface
 from ipam.models import VLAN
 from netbox.filtersets import OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
@@ -59,6 +60,10 @@ class WirelessLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     )
     vlan_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VLAN.objects.all()
+    )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Interface.objects.all(),
+        field_name='interfaces'
     )
     auth_type = django_filters.MultipleChoiceFilter(
         choices=WirelessAuthTypeChoices

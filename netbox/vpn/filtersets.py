@@ -124,6 +124,17 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
 
 
 class IKEProposalFilterSet(NetBoxModelFilterSet):
+    ike_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policies',
+        queryset=IKEPolicy.objects.all(),
+        label=_('IKE policy (ID)'),
+    )
+    ike_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policies__name',
+        queryset=IKEPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IKE policy (name)'),
+    )
     authentication_method = django_filters.MultipleChoiceFilter(
         choices=AuthenticationMethodChoices
     )
@@ -184,6 +195,17 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
 
 
 class IPSecProposalFilterSet(NetBoxModelFilterSet):
+    ipsec_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipsec_policies',
+        queryset=IPSecPolicy.objects.all(),
+        label=_('IPSec policy (ID)'),
+    )
+    ipsec_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipsec_policies__name',
+        queryset=IPSecPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IPSec policy (name)'),
+    )
     encryption_algorithm = django_filters.MultipleChoiceFilter(
         choices=EncryptionAlgorithmChoices
     )

@@ -1184,6 +1184,11 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, Prim
         queryset=Device.objects.all(),
         label='Device model',
     )
+    interface_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='interfaces',
+        queryset=Interface.objects.all(),
+        label='Interface (ID)',
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualDeviceContextStatusChoices
     )

@@ -8,6 +8,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from netaddr.core import AddrFormatError
 
+from circuits.models import Provider
 from dcim.models import Device, Interface, Region, Site, SiteGroup
 from netbox.filtersets import ChangeLoggedModelFilterSet, OrganizationalModelFilterSet, NetBoxModelFilterSet
 from tenancy.filtersets import TenancyFilterSet
@@ -100,6 +101,28 @@ class RouteTargetFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=VRF.objects.all(),
         to_field_name='rd',
         label=_('Export VRF (RD)'),
+    )
+    importing_l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='importing_l2vpns',
+        queryset=L2VPN.objects.all(),
+        label=_('Importing L2VPN'),
+    )
+    importing_l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='importing_l2vpns__identifier',
+        queryset=L2VPN.objects.all(),
+        to_field_name='identifier',
+        label=_('Importing L2VPN (identifier)'),
+    )
+    exporting_l2vpn_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='exporting_l2vpns',
+        queryset=L2VPN.objects.all(),
+        label=_('Exporting L2VPN'),
+    )
+    exporting_l2vpn = django_filters.ModelMultipleChoiceFilter(
+        field_name='exporting_l2vpns__identifier',
+        queryset=L2VPN.objects.all(),
+        to_field_name='identifier',
+        label=_('Exporting L2VPN (identifier)'),
     )
 
     def search(self, queryset, name, value):
@@ -213,6 +236,17 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
         queryset=Site.objects.all(),
         to_field_name='slug',
         label=_('Site (slug)'),
+    )
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='providers',
+        queryset=Provider.objects.all(),
+        label=_('Provider (ID)'),
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='providers__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label=_('Provider (slug)'),
     )
 
     class Meta:
@@ -627,6 +661,11 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     )
     role = django_filters.MultipleChoiceFilter(
         choices=IPAddressRoleChoices
+    )
+    service_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='services',
+        queryset=Service.objects.all(),
+        label=_('Service (ID)'),
     )
 
     class Meta:

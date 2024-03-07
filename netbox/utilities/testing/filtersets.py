@@ -109,7 +109,7 @@ class BaseFilterSetTests:
                     f'No filter defined for {filter_name} ({model_field.name})!'
                 )
 
-            elif type(model_field) is ManyToManyField:
+            elif type(model_field) in (ManyToManyField, ManyToManyRel):
                 filter_name = self.get_m2m_filter_name(model_field)
                 filter_name = f'{filter_name}_id'
                 self.assertIn(
@@ -117,10 +117,6 @@ class BaseFilterSetTests:
                     filterset_fields,
                     f'No filter defined for {filter_name} ({model_field.name})!'
                 )
-
-            # TODO: Many-to-many relationships
-            elif type(model_field) is ManyToManyRel:
-                continue
 
             # TODO: Generic relationships
             elif type(model_field) in (GenericForeignKey, GenericRelation):
