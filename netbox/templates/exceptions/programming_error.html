@@ -12,6 +12,11 @@
       When upgrading to a new NetBox release, the upgrade script must be run to apply any new database migrations. You
       can run migrations manually by executing <code>python3 manage.py migrate</code> from the command line.
     {% endblocktrans %}
+    <br/>
+    {% blocktrans trimmed %}
+      This can also happen when installing or upgrading a plugin if the plugin requires database changes present
+      in its migrations.
+    {% endblocktrans %}
   </p>
   <p>
     <i class="mdi mdi-alert"></i>
