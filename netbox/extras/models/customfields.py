@@ -78,7 +78,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         default=CustomFieldTypeChoices.TYPE_TEXT,
         help_text=_('The type of data this custom field holds')
     )
-    object_type = models.ForeignKey(
+    related_object_type = models.ForeignKey(
         to='core.ObjectType',
         on_delete=models.PROTECT,
         blank=True,
@@ -209,7 +209,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     objects = CustomFieldManager()
 
     clone_fields = (
-        'object_types', 'type', 'object_type', 'group_name', 'description', 'required', 'search_weight',
+        'object_types', 'type', 'related_object_type', 'group_name', 'description', 'required', 'search_weight',
         'filter_logic', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
         'choice_set', 'ui_visible', 'ui_editable', 'is_cloneable',
     )
@@ -344,11 +344,11 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Object fields must define an object_type; other fields must not
         if self.type in (CustomFieldTypeChoices.TYPE_OBJECT, CustomFieldTypeChoices.TYPE_MULTIOBJECT):
-            if not self.object_type:
+            if not self.related_object_type:
                 raise ValidationError({
                     'object_type': _("Object fields must define an object type.")
                 })
-        elif self.object_type:
+        elif self.related_object_type:
             raise ValidationError({
                 'object_type': _(
                     "{type} fields may not define an object type.")
@@ -388,10 +388,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
             except ValueError:
                 return value
         if self.type == CustomFieldTypeChoices.TYPE_OBJECT:
-            model = self.object_type.model_class()
+            model = self.related_object_type.model_class()
             return model.objects.filter(pk=value).first()
         if self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            model = self.object_type.model_class()
+            model = self.related_object_type.model_class()
             return model.objects.filter(pk__in=value)
         return value
 
@@ -488,7 +488,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
-            model = self.object_type.model_class()
+            model = self.related_object_type.model_class()
             field_class = CSVModelChoiceField if for_csv_import else DynamicModelChoiceField
             field = field_class(
                 queryset=model.objects.all(),
@@ -498,7 +498,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # Multiple objects
         elif self.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-            model = self.object_type.model_class()
+            model = self.related_object_type.model_class()
             field_class = CSVModelMultipleChoiceField if for_csv_import else DynamicModelMultipleChoiceField
             field = field_class(
                 queryset=model.objects.all(),

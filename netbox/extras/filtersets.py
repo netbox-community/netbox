@@ -132,6 +132,10 @@ class CustomFieldFilterSet(BaseFilterSet):
     object_type = ContentTypeFilter(
         field_name='object_types'
     )
+    related_object_type_id = MultiValueNumberFilter(
+        field_name='related_object_type__id'
+    )
+    related_object_type = ContentTypeFilter()
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CustomFieldChoiceSet.objects.all()
     )

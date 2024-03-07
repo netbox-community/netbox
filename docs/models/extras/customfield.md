@@ -38,7 +38,7 @@ The type of data this field holds. This must be one of the following:
 | Object             | A single NetBox object of the type defined by `object_type`        |
 | Multiple object    | One or more NetBox objects of the type defined by `object_type`    |
 
-### Object Type
+### Related Object Type
 
 For object and multiple-object fields only. Designates the type of NetBox object being referenced.
 
