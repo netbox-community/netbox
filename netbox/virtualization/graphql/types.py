@@ -3,7 +3,6 @@ from typing import Annotated, List
 import strawberry
 import strawberry_django
 
-from dcim.graphql.types import ComponentType
 from extras.graphql.mixins import ConfigContextMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
@@ -19,6 +18,15 @@ __all__ = (
     'VirtualMachineType',
     'VMInterfaceType',
 )
+
+
+@strawberry.type
+class ComponentType(NetBoxObjectType):
+    """
+    Base type for device/VM components
+    """
+    _name: str
+    virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]
 
 
 @strawberry_django.type(
@@ -114,7 +122,6 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     mac_address: str | None
     parent: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     bridge: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
-    virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
 
@@ -141,4 +148,4 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     filters=VirtualDiskFilter
 )
 class VirtualDiskType(ComponentType):
-    virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]
+    pass
