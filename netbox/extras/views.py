@@ -1165,15 +1165,16 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     index += 1
                     result = {
                         'index': index,
-                        'time': log.get('time', None),
-                        'status': log.get('status', None),
-                        'message': log.get('message', None),
+                        'time': log.get('time'),
+                        'status': log.get('status'),
+                        'message': log.get('message'),
                     }
                     data.append(result)
 
                 table = ScriptResultsTable(data, user=request.user)
                 table.configure(request)
             else:
+                # for legacy reports
                 tests = job.data
 
         if tests:
@@ -1198,8 +1199,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
         return table
 
     def get(self, request, **kwargs):
+        table = None
         job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
-        table_logs = table_tests = None
 
         if job.completed:
             table = self.get_table(job, request, bulk_actions=False)

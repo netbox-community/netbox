@@ -531,9 +531,6 @@ class ScriptResultsTable(BaseTable):
         fields = (
             'index', 'time', 'status', 'message',
         )
-        default_columns = (
-            'index', 'time', 'status', 'message',
-        )
 
 
 class ReportResultsTable(BaseTable):
@@ -559,7 +556,7 @@ class ReportResultsTable(BaseTable):
         verbose_name=_('Object')
     )
     url = tables.Column(
-        verbose_name=_('Url')
+        verbose_name=_('URL')
     )
     message = tables.Column(
         verbose_name=_('Message')
@@ -568,8 +565,5 @@ class ReportResultsTable(BaseTable):
     class Meta(BaseTable.Meta):
         empty_text = _('No results found')
         fields = (
-            'index', 'method', 'time', 'status', 'object', 'url', 'message',
-        )
-        default_columns = (
             'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )
