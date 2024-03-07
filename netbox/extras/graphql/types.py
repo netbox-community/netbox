@@ -35,7 +35,8 @@ __all__ = (
     filters=ConfigContextFilter
 )
 class ConfigContextType(ObjectType):
-    pass
+    data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
+    data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
 
     @strawberry_django.field
     def roles(self) -> List[Annotated["DeviceRoleType", strawberry.lazy('dcim.graphql.types')]]:
@@ -96,6 +97,8 @@ class ConfigContextType(ObjectType):
     filters=ConfigTemplateFilter
 )
 class ConfigTemplateType(TagsMixin, ObjectType):
+    data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
+    data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
 
     @strawberry_django.field
     def virtualmachines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
@@ -120,7 +123,8 @@ class ConfigTemplateType(TagsMixin, ObjectType):
     filters=CustomFieldFilter
 )
 class CustomFieldType(ObjectType):
-    pass
+    object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    choice_set: Annotated["CustomFieldChoiceSetType", strawberry.lazy('extras.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -155,7 +159,8 @@ class CustomLinkType(ObjectType):
     filters=ExportTemplateFilter
 )
 class ExportTemplateType(ObjectType):
-    pass
+    data_source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')] | None
+    data_file: Annotated["DataFileType", strawberry.lazy('core.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -164,7 +169,7 @@ class ExportTemplateType(ObjectType):
     filters=ImageAttachmentFilter
 )
 class ImageAttachmentType(BaseObjectType):
-    pass
+    content_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -173,7 +178,8 @@ class ImageAttachmentType(BaseObjectType):
     filters=JournalEntryFilter
 )
 class JournalEntryType(CustomFieldsMixin, TagsMixin, ObjectType):
-    pass
+    assigned_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    created_by: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -191,7 +197,7 @@ class ObjectChangeType(BaseObjectType):
     filters=SavedFilterFilter
 )
 class SavedFilterType(ObjectType):
-    pass
+    user: Annotated["UserType", strawberry.lazy('users.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -222,4 +228,4 @@ class WebhookType(OrganizationalObjectType):
     filters=EventRuleFilter
 )
 class EventRuleType(OrganizationalObjectType):
-    pass
+    action_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
