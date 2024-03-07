@@ -87,8 +87,12 @@ class WirelessLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
 
 class WirelessLinkFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
-    interface_a_id = MultiValueNumberFilter()
-    interface_b_id = MultiValueNumberFilter()
+    interface_a_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Interface.objects.all()
+    )
+    interface_b_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Interface.objects.all()
+    )
     status = django_filters.MultipleChoiceFilter(
         choices=LinkStatusChoices
     )

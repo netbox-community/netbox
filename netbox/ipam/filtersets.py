@@ -667,10 +667,15 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=Service.objects.all(),
         label=_('Service (ID)'),
     )
+    nat_inside_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='nat_inside',
+        queryset=IPAddress.objects.all(),
+        label=_('NAT inside IP address (ID)'),
+    )
 
     class Meta:
         model = IPAddress
-        fields = ('id', 'dns_name', 'description', 'assigned_object_type', 'assigned_object_id', 'nat_inside_id')
+        fields = ('id', 'dns_name', 'description', 'assigned_object_type', 'assigned_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
