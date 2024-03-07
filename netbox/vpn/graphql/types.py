@@ -40,7 +40,9 @@ class TunnelGroupType(OrganizationalObjectType):
     filters=TunnelTerminationFilter
 )
 class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
-    pass
+    tunnel: Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]
+    termination_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    outside_ip: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -49,6 +51,9 @@ class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
     filters=TunnelFilter
 )
 class TunnelType(NetBoxObjectType):
+    group: Annotated["TunnelGroupType", strawberry.lazy('vpn.graphql.types')] | None
+    ipsec_profile: Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')] | None
+    tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
@@ -117,6 +122,8 @@ class IPSecPolicyType(OrganizationalObjectType):
     filters=IPSecProfileFilter
 )
 class IPSecProfileType(OrganizationalObjectType):
+    ike_policy: Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]
+    ipsec_policy: Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]
 
     @strawberry_django.field
     def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
@@ -129,6 +136,7 @@ class IPSecProfileType(OrganizationalObjectType):
     filters=L2VPNFilter
 )
 class L2VPNType(ContactsMixin, NetBoxObjectType):
+    tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def export_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
@@ -149,6 +157,7 @@ class L2VPNType(ContactsMixin, NetBoxObjectType):
     filters=L2VPNTerminationFilter
 )
 class L2VPNTerminationType(NetBoxObjectType):
+    l2vpn: Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]
 
     @strawberry_django.field
     def assigned_object(self) -> Annotated[Union[
