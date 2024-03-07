@@ -472,25 +472,21 @@ class APIViewTestCases:
                     # this would require a fragment query
                     continue
                 elif field.type is strawberry_django.fields.types.DjangoModelType:
-                    print("")
-                    print("")
                     print("DjangoModelType")
                     print("--------------------------")
                     print(f"{self.model} -> {field.name}")
                     print("")
                     # Dynamic fields must specify a subselection
-                    fields_string += f'{field.name} {{ id }}\n'
+                    fields_string += f'{field.name} {{ pk }}\n'
                 elif type(field.type) is StrawberryOptional:
                     if type(field.type.of_type) is LazyType:
                         fields_string += f'{field.name} {{ id }}\n'
                     elif field.type.of_type == strawberry_django.fields.types.DjangoModelType:
-                        print("")
-                        print("")
                         print("DjangoModelType")
                         print("--------------------------")
                         print(f"{self.model} -> {field.name}")
                         print("")
-                        fields_string += f'{field.name} {{ id }}\n'
+                        fields_string += f'{field.name} {{ pk }}\n'
                 elif hasattr(field, 'is_relation') and field.is_relation:
                     # Note: StrawberryField types do not have is_relation
                     fields_string += f'{field.name} {{ id }}\n'

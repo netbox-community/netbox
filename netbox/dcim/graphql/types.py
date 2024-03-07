@@ -129,6 +129,7 @@ class CableTerminationType(NetBoxObjectType):
 )
 class CableType(NetBoxObjectType):
     color: str
+    tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def terminations(self) -> List[CableTerminationType]:
