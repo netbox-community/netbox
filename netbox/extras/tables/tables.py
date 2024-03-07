@@ -5,7 +5,7 @@ from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
-from netbox.tables import NetBoxTable, columns
+from netbox.tables import BaseTable, NetBoxTable, columns
 from .template_code import *
 
 __all__ = (
@@ -21,6 +21,8 @@ __all__ = (
     'JournalEntryTable',
     'ObjectChangeTable',
     'SavedFilterTable',
+    'ReportResultsTable',
+    'ScriptResultsTable',
     'TaggedItemTable',
     'TagTable',
     'WebhookTable',
@@ -506,4 +508,62 @@ class JournalEntryTable(NetBoxTable):
         )
         default_columns = (
             'pk', 'created', 'created_by', 'assigned_object_type', 'assigned_object', 'kind', 'comments'
+        )
+
+
+class ScriptResultsTable(BaseTable):
+    index = tables.Column(
+        verbose_name=_('Line')
+    )
+    time = tables.Column(
+        verbose_name=_('Time')
+    )
+    status = tables.TemplateColumn(
+        template_code="""{% load log_levels %}{% log_level record.status %}""",
+        verbose_name=_('Level')
+    )
+    message = tables.Column(
+        verbose_name=_('Message')
+    )
+
+    class Meta(BaseTable.Meta):
+        empty_text = _('No results found')
+        fields = (
+            'index', 'time', 'status', 'message',
+        )
+
+
+class ReportResultsTable(BaseTable):
+    index = tables.Column(
+        verbose_name=_('Line')
+    )
+    method = tables.Column(
+        verbose_name=_('Method')
+    )
+    time = tables.Column(
+        verbose_name=_('Time')
+    )
+    status = tables.Column(
+        empty_values=(),
+        verbose_name=_('Level')
+    )
+    status = tables.TemplateColumn(
+        template_code="""{% load log_levels %}{% log_level record.status %}""",
+        verbose_name=_('Level')
+    )
+
+    object = tables.Column(
+        verbose_name=_('Object')
+    )
+    url = tables.Column(
+        verbose_name=_('URL')
+    )
+    message = tables.Column(
+        verbose_name=_('Message')
+    )
+
+    class Meta(BaseTable.Meta):
+        empty_text = _('No results found')
+        fields = (
+            'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )

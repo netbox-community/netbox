@@ -17,6 +17,7 @@ from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
+from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.rqworker import get_workers_for_queue
@@ -26,6 +27,7 @@ from utilities.views import ContentTypePermissionRequiredMixin, register_model_v
 from . import filtersets, forms, tables
 from .models import *
 from .scripts import run_script
+from .tables import ReportResultsTable, ScriptResultsTable
 
 
 #
@@ -1143,19 +1145,72 @@ class LegacyScriptRedirectView(ContentTypePermissionRequiredMixin, View):
         return redirect(f'{url}{path}')
 
 
-class ScriptResultView(generic.ObjectView):
+class ScriptResultView(TableMixin, generic.ObjectView):
     queryset = Job.objects.all()
 
     def get_required_permission(self):
         return 'extras.view_script'
 
+    def get_table(self, job, request, bulk_actions=True):
+        data = []
+        tests = None
+        table = None
+        index = 0
+        if job.data:
+            if 'log' in job.data:
+                if 'tests' in job.data:
+                    tests = job.data['tests']
+
+                for log in job.data['log']:
+                    index += 1
+                    result = {
+                        'index': index,
+                        'time': log.get('time'),
+                        'status': log.get('status'),
+                        'message': log.get('message'),
+                    }
+                    data.append(result)
+
+                table = ScriptResultsTable(data, user=request.user)
+                table.configure(request)
+            else:
+                # for legacy reports
+                tests = job.data
+
+        if tests:
+            for method, test_data in tests.items():
+                if 'log' in test_data:
+                    for time, status, obj, url, message in test_data['log']:
+                        index += 1
+                        result = {
+                            'index': index,
+                            'method': method,
+                            'time': time,
+                            'status': status,
+                            'object': obj,
+                            'url': url,
+                            'message': message,
+                        }
+                        data.append(result)
+
+            table = ReportResultsTable(data, user=request.user)
+            table.configure(request)
+
+        return table
+
     def get(self, request, **kwargs):
+        table = None
         job = get_object_or_404(Job.objects.all(), pk=kwargs.get('job_pk'))
+
+        if job.completed:
+            table = self.get_table(job, request, bulk_actions=False)
 
         context = {
             'script': job.object,
             'job': job,
+            'table': table,
         }
+
         if job.data and 'log' in job.data:
             # Script
             context['tests'] = job.data.get('tests', {})
