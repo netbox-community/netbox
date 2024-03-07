@@ -452,15 +452,13 @@ class APIViewTestCases:
             fields_string = ''
 
             for field in type_class.__strawberry_definition__.fields:
-                """
-                print(f"field_name: {field.name} type: {field.type}")
-
-                if field.name == 'assigned_object':
-                    breakpoint()
-                    pass
-                """
-
-                if field.type in (strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType):
+                if (
+                    type(field.type) in (
+                        strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType) or
+                    type(field.type) is StrawberryOptional and field.type.of_type in (
+                        strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType)
+                ):
+                    # image / file fields nullable or not...
                     fields_string += f'{field.name} {{ name }}\n'
                 elif type(field.type) is StrawberryList and type(field.type.of_type) is LazyType:
                     # List of related objects (queryset)
@@ -471,22 +469,8 @@ class APIViewTestCases:
                 elif type(field.type) is StrawberryUnion:
                     # this would require a fragment query
                     continue
-                elif field.type is strawberry_django.fields.types.DjangoModelType:
-                    print("DjangoModelType")
-                    print("--------------------------")
-                    print(f"{self.model} -> {field.name}")
-                    print("")
-                    # Dynamic fields must specify a subselection
-                    fields_string += f'{field.name} {{ pk }}\n'
-                elif type(field.type) is StrawberryOptional:
-                    if type(field.type.of_type) is LazyType:
-                        fields_string += f'{field.name} {{ id }}\n'
-                    elif field.type.of_type == strawberry_django.fields.types.DjangoModelType:
-                        print("DjangoModelType")
-                        print("--------------------------")
-                        print(f"{self.model} -> {field.name}")
-                        print("")
-                        fields_string += f'{field.name} {{ pk }}\n'
+                elif type(field.type) is StrawberryOptional and type(field.type.of_type) is LazyType:
+                    fields_string += f'{field.name} {{ id }}\n'
                 elif hasattr(field, 'is_relation') and field.is_relation:
                     # Note: StrawberryField types do not have is_relation
                     fields_string += f'{field.name} {{ id }}\n'
