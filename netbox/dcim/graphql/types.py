@@ -25,7 +25,7 @@ from .mixins import CabledObjectMixin, PathEndpointMixin
 
 __all__ = (
     'CableType',
-    'ComponentObjectType',
+    'ComponentType',
     'ConsolePortType',
     'ConsolePortTemplateType',
     'ConsoleServerPortType',
@@ -44,6 +44,7 @@ __all__ = (
     'InventoryItemTemplateType',
     'LocationType',
     'ManufacturerType',
+    'ModularComponentType',
     'ModuleType',
     'ModuleBayType',
     'ModuleBayTemplateType',
@@ -74,7 +75,7 @@ __all__ = (
 
 
 @strawberry.type
-class ComponentObjectType(
+class ComponentType(
     ChangelogMixin,
     CustomFieldsMixin,
     TagsMixin,
@@ -84,9 +85,16 @@ class ComponentObjectType(
     Base type for device/VM components
     """
     _name: str
+    device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]
 
 
-class ComponentTemplateObjectType(
+@strawberry.type
+class ModularComponentType(ComponentType):
+    module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
+
+
+@strawberry.type
+class ComponentTemplateType(
     ChangelogMixin,
     BaseObjectType
 ):
@@ -94,11 +102,21 @@ class ComponentTemplateObjectType(
     Base type for device/VM components
     """
     _name: str
+    device_type: Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')]
 
+
+@strawberry.type
+class ModularComponentTemplateType(ComponentTemplateType):
+    """
+    Base type for ComponentTemplateModel which supports optional assignment to a ModuleType.
+    """
+    device_type: Annotated["DeviceTypeType", strawberry.lazy('dcim.graphql.types')] | None
+    module_type: Annotated["ModuleTypeType", strawberry.lazy('dcim.graphql.types')] | None
 
 #
 # Model types
 #
+
 
 @strawberry_django.type(
     models.CableTermination,
@@ -169,7 +187,7 @@ class CableType(NetBoxObjectType):
     exclude=('_path',),
     filters=ConsolePortFilter
 )
-class ConsolePortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
+class ConsolePortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     pass
 
 
@@ -178,7 +196,7 @@ class ConsolePortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin)
     fields='__all__',
     filters=ConsolePortTemplateFilter
 )
-class ConsolePortTemplateType(ComponentTemplateObjectType):
+class ConsolePortTemplateType(ModularComponentTemplateType):
     _name: str
 
 
@@ -187,7 +205,7 @@ class ConsolePortTemplateType(ComponentTemplateObjectType):
     exclude=('_path',),
     filters=ConsoleServerPortFilter
 )
-class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
+class ConsoleServerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     pass
 
 
@@ -196,7 +214,7 @@ class ConsoleServerPortType(ComponentObjectType, CabledObjectMixin, PathEndpoint
     fields='__all__',
     filters=ConsoleServerPortTemplateFilter
 )
-class ConsoleServerPortTemplateType(ComponentTemplateObjectType):
+class ConsoleServerPortTemplateType(ModularComponentTemplateType):
     _name: str
 
 
@@ -288,8 +306,8 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBo
     fields='__all__',
     filters=DeviceBayFilter
 )
-class DeviceBayType(ComponentObjectType):
-    pass
+class DeviceBayType(ComponentType):
+    installed_device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -297,7 +315,7 @@ class DeviceBayType(ComponentObjectType):
     fields='__all__',
     filters=DeviceBayTemplateFilter
 )
-class DeviceBayTemplateType(ComponentTemplateObjectType):
+class DeviceBayTemplateType(ComponentTemplateType):
     _name: str
 
 
@@ -306,7 +324,7 @@ class DeviceBayTemplateType(ComponentTemplateObjectType):
     exclude=('component_type', 'component_id', 'parent'),
     filters=InventoryItemTemplateFilter
 )
-class InventoryItemTemplateType(ComponentTemplateObjectType):
+class InventoryItemTemplateType(ComponentTemplateType):
     _name: str
 
     @strawberry_django.field
@@ -337,6 +355,7 @@ class InventoryItemTemplateType(ComponentTemplateObjectType):
 )
 class DeviceRoleType(OrganizationalObjectType):
     color: str
+    config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 
     @strawberry_django.field
     def virtual_machines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
@@ -416,7 +435,7 @@ class DeviceTypeType(NetBoxObjectType):
     fields='__all__',
     filters=FrontPortFilter
 )
-class FrontPortType(ComponentObjectType, CabledObjectMixin):
+class FrontPortType(ModularComponentType, CabledObjectMixin):
     color: str
 
 
@@ -425,7 +444,7 @@ class FrontPortType(ComponentObjectType, CabledObjectMixin):
     fields='__all__',
     filters=FrontPortTemplateFilter
 )
-class FrontPortTemplateType(ComponentTemplateObjectType):
+class FrontPortTemplateType(ModularComponentTemplateType):
     _name: str
     color: str
 
@@ -435,7 +454,7 @@ class FrontPortTemplateType(ComponentTemplateObjectType):
     fields='__all__',
     filters=InterfaceFilter
 )
-class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
+class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     mac_address: str | None
     wwn: str | None
 
@@ -473,7 +492,7 @@ class InterfaceType(IPAddressesMixin, ComponentObjectType, CabledObjectMixin, Pa
     fields='__all__',
     filters=InterfaceTemplateFilter
 )
-class InterfaceTemplateType(ComponentTemplateObjectType):
+class InterfaceTemplateType(ModularComponentTemplateType):
     _name: str
 
     @strawberry_django.field
@@ -486,7 +505,7 @@ class InterfaceTemplateType(ComponentTemplateObjectType):
     exclude=('component_type', 'component_id', 'parent'),
     filters=InventoryItemFilter
 )
-class InventoryItemType(ComponentObjectType):
+class InventoryItemType(ComponentType):
     @strawberry_django.field
     def parent(self) -> Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
@@ -631,7 +650,7 @@ class ModuleType(NetBoxObjectType):
     fields='__all__',
     filters=ModuleBayFilter
 )
-class ModuleBayType(ComponentObjectType):
+class ModuleBayType(ComponentType):
 
     @strawberry_django.field
     def installed_module(self) -> Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None:
@@ -643,7 +662,7 @@ class ModuleBayType(ComponentObjectType):
     fields='__all__',
     filters=ModuleBayTemplateFilter
 )
-class ModuleBayTemplateType(ComponentTemplateObjectType):
+class ModuleBayTemplateType(ComponentTemplateType):
     _name: str
 
 
@@ -717,7 +736,7 @@ class PowerFeedType(NetBoxObjectType, CabledObjectMixin, PathEndpointMixin):
     fields='__all__',
     filters=PowerOutletFilter
 )
-class PowerOutletType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
+class PowerOutletType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
     pass
 
 
@@ -726,7 +745,7 @@ class PowerOutletType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin)
     fields='__all__',
     filters=PowerOutletTemplateFilter
 )
-class PowerOutletTemplateType(ComponentTemplateObjectType):
+class PowerOutletTemplateType(ModularComponentTemplateType):
     _name: str
 
 
@@ -747,7 +766,7 @@ class PowerPanelType(NetBoxObjectType, ContactsMixin):
     exclude=('_path',),
     filters=PowerPortFilter
 )
-class PowerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
+class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
 
     @strawberry_django.field
     def poweroutlets(self) -> List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]:
@@ -759,7 +778,7 @@ class PowerPortType(ComponentObjectType, CabledObjectMixin, PathEndpointMixin):
     fields='__all__',
     filters=PowerPortTemplateFilter
 )
-class PowerPortTemplateType(ComponentTemplateObjectType):
+class PowerPortTemplateType(ModularComponentTemplateType):
     _name: str
 
     @strawberry_django.field
@@ -823,7 +842,7 @@ class RackRoleType(OrganizationalObjectType):
     fields='__all__',
     filters=RearPortFilter
 )
-class RearPortType(ComponentObjectType, CabledObjectMixin):
+class RearPortType(ModularComponentType, CabledObjectMixin):
     color: str
 
     @strawberry_django.field
@@ -836,7 +855,7 @@ class RearPortType(ComponentObjectType, CabledObjectMixin):
     fields='__all__',
     filters=RearPortTemplateFilter
 )
-class RearPortTemplateType(ComponentTemplateObjectType):
+class RearPortTemplateType(ModularComponentTemplateType):
     _name: str
     color: str
 

@@ -3,7 +3,7 @@ from typing import Annotated, List
 import strawberry
 import strawberry_django
 
-from dcim.graphql.types import ComponentObjectType
+from dcim.graphql.types import ComponentType
 from extras.graphql.mixins import ConfigContextMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
@@ -110,8 +110,7 @@ class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
     fields='__all__',
     filters=VMInterfaceFilter
 )
-class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
-    _name: str
+class VMInterfaceType(IPAddressesMixin, ComponentType):
     mac_address: str | None
     parent: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
     bridge: Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')] | None
@@ -141,6 +140,5 @@ class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
     fields='__all__',
     filters=VirtualDiskFilter
 )
-class VirtualDiskType(ComponentObjectType):
-    _name: str
+class VirtualDiskType(ComponentType):
     virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]

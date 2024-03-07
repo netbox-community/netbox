@@ -158,8 +158,7 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
 
 @strawberry_django.type(
     models.IPRange,
-    # fields='__all__',
-    exclude=('start_address', 'end_address',),  # bug - temp
+    fields='__all__',
     filters=IPRangeFilter
 )
 class IPRangeType(NetBoxObjectType):
@@ -172,8 +171,7 @@ class IPRangeType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.Prefix,
-    # fields='__all__',
-    exclude=('prefix',),  # bug - temp
+    fields='__all__',
     filters=PrefixFilter
 )
 class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
