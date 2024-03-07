@@ -453,7 +453,7 @@ class APIViewTestCases:
 
             for field in type_class.__strawberry_definition__.fields:
                 if (
-                    type(field.type) in (
+                    field.type in (
                         strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType) or
                     type(field.type) is StrawberryOptional and field.type.of_type in (
                         strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType)
