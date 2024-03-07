@@ -181,6 +181,15 @@ class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
 
+    @staticmethod
+    def get_m2m_filter_name(field):
+        # Override filter names for import & export RouteTargets
+        if field.name == 'import_targets':
+            return 'import_target'
+        if field.name == 'export_targets':
+            return 'export_target'
+        return super().get_m2m_filter_name(field)
+
     @classmethod
     def setUpTestData(cls):
 
@@ -1886,9 +1895,9 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_ipaddress(self):
+    def test_ip_address(self):
         ips = IPAddress.objects.all()[:2]
-        params = {'ipaddress_id': [ips[0].pk, ips[1].pk]}
+        params = {'ip_address_id': [ips[0].pk, ips[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'ipaddress': [str(ips[0].address), str(ips[1].address)]}
+        params = {'ip_address': [str(ips[0].address), str(ips[1].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

@@ -15,7 +15,7 @@ User = get_user_model()
 class UserTestCase(TestCase, BaseFilterSetTests):
     queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
-    ignore_fields = ('config', 'dashboard', 'password')
+    ignore_fields = ('config', 'dashboard', 'password', 'user_permissions')
 
     @classmethod
     def setUpTestData(cls):
@@ -110,6 +110,7 @@ class UserTestCase(TestCase, BaseFilterSetTests):
 class GroupTestCase(TestCase, BaseFilterSetTests):
     queryset = Group.objects.all()
     filterset = filtersets.GroupFilterSet
+    ignore_fields = ('permissions',)
 
     @classmethod
     def setUpTestData(cls):

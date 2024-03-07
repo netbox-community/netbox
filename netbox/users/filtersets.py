@@ -5,6 +5,7 @@ from django.utils.translation import gettext as _
 
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Token
+from utilities.filters import ContentTypeFilter, MultiValueNumberFilter
 
 __all__ = (
     'GroupFilterSet',
@@ -117,6 +118,12 @@ class ObjectPermissionFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
+    )
+    object_type_id = MultiValueNumberFilter(
+        field_name='object_types__id'
+    )
+    object_type = ContentTypeFilter(
+        field_name='object_types'
     )
     can_view = django_filters.BooleanFilter(
         method='_check_action'

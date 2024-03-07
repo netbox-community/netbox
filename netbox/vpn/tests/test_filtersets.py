@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
@@ -446,11 +445,11 @@ class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mode': [IKEModeChoices.MAIN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_proposal(self):
+    def test_ike_proposal(self):
         proposals = IKEProposal.objects.all()[:2]
-        params = {'proposal_id': [proposals[0].pk, proposals[1].pk]}
+        params = {'ike_proposal_id': [proposals[0].pk, proposals[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'proposal': [proposals[0].name, proposals[1].name]}
+        params = {'ike_proposal': [proposals[0].name, proposals[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -584,11 +583,11 @@ class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'pfs_group': [DHGroupChoices.GROUP_1, DHGroupChoices.GROUP_2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_proposal(self):
+    def test_ipsec_proposal(self):
         proposals = IPSecProposal.objects.all()[:2]
-        params = {'proposal_id': [proposals[0].pk, proposals[1].pk]}
+        params = {'ipsec_proposal_id': [proposals[0].pk, proposals[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'proposal': [proposals[0].name, proposals[1].name]}
+        params = {'ipsec_proposal': [proposals[0].name, proposals[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -709,6 +708,15 @@ class IPSecProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
 class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = L2VPN.objects.all()
     filterset = L2VPNFilterSet
+
+    @staticmethod
+    def get_m2m_filter_name(field):
+        # Override filter names for import & export RouteTargets
+        if field.name == 'import_targets':
+            return 'import_target'
+        if field.name == 'export_targets':
+            return 'export_target'
+        return super().get_m2m_filter_name(field)
 
     @classmethod
     def setUpTestData(cls):

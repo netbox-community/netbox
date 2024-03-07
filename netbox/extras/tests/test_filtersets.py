@@ -1043,11 +1043,11 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_role(self):
+    def test_device_role(self):
         device_roles = DeviceRole.objects.all()[:2]
-        params = {'role_id': [device_roles[0].pk, device_roles[1].pk]}
+        params = {'device_role_id': [device_roles[0].pk, device_roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'role': [device_roles[0].slug, device_roles[1].slug]}
+        params = {'device_role': [device_roles[0].slug, device_roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_platform(self):
@@ -1128,6 +1128,7 @@ class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
+    ignore_fields = ('object_types',)
 
     @classmethod
     def setUpTestData(cls):

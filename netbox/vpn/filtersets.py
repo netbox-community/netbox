@@ -158,12 +158,16 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
     mode = django_filters.MultipleChoiceFilter(
         choices=IKEModeChoices
     )
-    proposal_id = MultiValueNumberFilter(
+    ike_proposal_id = MultiValueNumberFilter(
         field_name='proposals__id'
     )
-    proposal = MultiValueCharFilter(
+    ike_proposal = MultiValueCharFilter(
         field_name='proposals__name'
     )
+
+    # TODO: Remove in v4.1
+    proposal = ike_proposal
+    proposal_id = ike_proposal_id
 
     class Meta:
         model = IKEPolicy
@@ -205,12 +209,16 @@ class IPSecPolicyFilterSet(NetBoxModelFilterSet):
     pfs_group = django_filters.MultipleChoiceFilter(
         choices=DHGroupChoices
     )
-    proposal_id = MultiValueNumberFilter(
+    ipsec_proposal_id = MultiValueNumberFilter(
         field_name='proposals__id'
     )
-    proposal = MultiValueCharFilter(
+    ipsec_proposal = MultiValueCharFilter(
         field_name='proposals__name'
     )
+
+    # TODO: Remove in v4.1
+    proposal = ipsec_proposal
+    proposal_id = ipsec_proposal_id
 
     class Meta:
         model = IPSecPolicy

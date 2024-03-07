@@ -3235,7 +3235,7 @@ class PowerOutletTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedF
 class InterfaceTestCase(TestCase, DeviceComponentFilterSetTests, ChangeLoggedFilterSetTests):
     queryset = Interface.objects.all()
     filterset = InterfaceFilterSet
-    ignore_fields = ('untagged_vlan',)
+    ignore_fields = ('untagged_vlan', 'vdcs')
 
     @classmethod
     def setUpTestData(cls):

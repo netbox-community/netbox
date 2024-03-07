@@ -491,12 +491,12 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=DeviceType.objects.all(),
         label=_('Device type'),
     )
-    role_id = django_filters.ModelMultipleChoiceFilter(
+    device_role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='roles',
         queryset=DeviceRole.objects.all(),
         label=_('Role'),
     )
-    role = django_filters.ModelMultipleChoiceFilter(
+    device_role = django_filters.ModelMultipleChoiceFilter(
         field_name='roles__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
@@ -581,6 +581,10 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         queryset=DataSource.objects.all(),
         label=_('Data file (ID)'),
     )
+
+    # TODO: Remove in v4.1
+    role = device_role
+    role_id = device_role_id
 
     class Meta:
         model = ConfigContext

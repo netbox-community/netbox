@@ -23,6 +23,7 @@ from utilities.filters import (
 from virtualization.models import Cluster
 from vpn.models import L2VPN
 from wireless.choices import WirelessRoleChoices, WirelessChannelChoices
+from wireless.models import WirelessLAN, WirelessLink
 from .choices import *
 from .constants import *
 from .models import *
@@ -1637,13 +1638,22 @@ class InterfaceFilterSet(
         to_field_name='name',
         label='Virtual Device Context',
     )
+    wireless_lan_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='wireless_lans',
+        queryset=WirelessLAN.objects.all(),
+        label='Wireless LAN',
+    )
+    wireless_link_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=WirelessLink.objects.all(),
+        label='Wireless link',
+    )
 
     class Meta:
         model = Interface
         fields = (
             'id', 'name', 'label', 'type', 'enabled', 'mtu', 'mgmt_only', 'poe_mode', 'poe_type', 'mode', 'rf_role',
             'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'tx_power', 'description', 'mark_connected',
-            'cable_id', 'cable_end', 'wireless_link_id',
+            'cable_id', 'cable_end',
         )
 
     def filter_virtual_chassis_member(self, queryset, name, value):

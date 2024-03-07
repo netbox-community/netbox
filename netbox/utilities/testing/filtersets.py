@@ -43,6 +43,15 @@ class BaseFilterSetTests:
     filterset = None
     ignore_fields = tuple()
 
+    @staticmethod
+    def get_m2m_filter_name(field):
+        """
+        Given a ManyToManyField, determine the correct name for its corresponding Filter. Individual test
+        cases may override this method to prescribe deviations for specific fields.
+        """
+        related_model_name = field.related_model._meta.verbose_name
+        return related_model_name.lower().replace(' ', '_')
+
     def test_id(self):
         """
         Test filtering for two PKs from a set of >2 objects.
@@ -94,13 +103,22 @@ class BaseFilterSetTests:
                     filter_name = model_field.name
                 else:
                     filter_name = f'{model_field.name}_id'
-                self.assertIn(filter_name, filterset_fields, f'No filter found for {filter_name}!')
+                self.assertIn(
+                    filter_name,
+                    filterset_fields,
+                    f'No filter defined for {filter_name} ({model_field.name})!'
+                )
+
+            elif type(model_field) is ManyToManyField:
+                filter_name = self.get_m2m_filter_name(model_field)
+                filter_name = f'{filter_name}_id'
+                self.assertIn(
+                    filter_name,
+                    filterset_fields,
+                    f'No filter defined for {filter_name} ({model_field.name})!'
+                )
 
             # TODO: Many-to-many relationships
-            elif type(model_field) is ManyToManyField:
-                related_model = model_field.related_model._meta.model_name
-                filter_name = f'{related_model}_id'
-                self.assertIn(filter_name, filterset_fields, f'M2M: No filter found for {filter_name}!')
             elif type(model_field) is ManyToManyRel:
                 continue
 
@@ -110,14 +128,14 @@ class BaseFilterSetTests:
 
             # Tags
             elif type(model_field) is TaggableManager:
-                self.assertIn('tag', filterset_fields, f'No filter found for {model_field.name}!')
+                self.assertIn('tag', filterset_fields, f'No filter defined for {model_field.name}!')
 
             # All other fields
             else:
                 self.assertIn(
                     model_field.name,
                     filterset_fields,
-                    f'No filter found for {model_field.name} ({type(model_field)})!'
+                    f'No defined found for {model_field.name} ({type(model_field)})!'
                 )
 
 
