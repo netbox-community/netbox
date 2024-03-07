@@ -35,6 +35,7 @@ class ContactAssignmentsMixin:
     filters=TenantFilter
 )
 class TenantType(NetBoxObjectType):
+    group: Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def asns(self) -> List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]:
@@ -156,6 +157,7 @@ class TenantGroupType(OrganizationalObjectType):
     filters=ContactFilter
 )
 class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
+    group: Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
@@ -193,4 +195,6 @@ class ContactGroupType(OrganizationalObjectType):
     filters=ContactAssignmentFilter
 )
 class ContactAssignmentType(CustomFieldsMixin, TagsMixin, BaseObjectType):
-    pass
+    content_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    contact: Annotated["ContactType", strawberry.lazy('tenancy.graphql.types')] | None
+    role: Annotated["ContactRoleType", strawberry.lazy('tenancy.graphql.types')] | None
