@@ -2,6 +2,10 @@
 
 ## v3.7.4 (FUTURE)
 
+### Enhancements
+
+* [#15297](https://github.com/netbox-community/netbox/issues/15297) - Linkify platform column in device & virtual machine tables
+
 ---
 
 ## v3.7.3 (2024-02-21)
