@@ -9,6 +9,11 @@
 
 ### Bug Fixes
 
+* [#15220](https://github.com/netbox-community/netbox/issues/15220) - Fix validation check when bulk editing the mask length of IP addresses
+* [#15232](https://github.com/netbox-community/netbox/issues/15232) - Permit user with sufficient permissions to assign an inventory item to a device type
+* [#15241](https://github.com/netbox-community/netbox/issues/15241) - Restore missing `display` field on VirtualDisk serialization in REST API
+* [#15243](https://github.com/netbox-community/netbox/issues/15243) - Correct representation of installed module when listing module bays using REST API brief mode
+* [#15316](https://github.com/netbox-community/netbox/issues/15316) - Fix selection of 3DES encryption for IKE & IPSec proposals
 * [#15336](https://github.com/netbox-community/netbox/issues/15336) - Correct label for recurring scheduled jobs
 
 ---
