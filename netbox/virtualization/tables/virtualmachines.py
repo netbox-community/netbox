@@ -33,6 +33,15 @@ VMINTERFACE_BUTTONS = """
     </ul>
   </span>
 {% endif %}
+{% if perms.vpn.add_tunnel and not record.tunnel_termination %}
+  <a href="{% url 'vpn:tunnel_add' %}?termination1_type=virtualization.virtualmachine&termination1_parent={{ record.virtual_machine.pk }}&termination1_termination={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Create a tunnel" class="btn btn-success btn-sm">
+    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
+  </a>
+{% elif perms.vpn.delete_tunneltermination and record.tunnel_termination %}
+  <a href="{% url 'vpn:tunneltermination_delete' pk=record.tunnel_termination.pk %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Remove tunnel" class="btn btn-danger btn-sm">
+    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
+  </a>
+{% endif %}
 """
 
 

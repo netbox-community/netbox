@@ -4,6 +4,7 @@
 
 ### Enhancements
 
+* [#15291](https://github.com/netbox-community/netbox/issues/15291) - Add tunnel termination buttons to VM interfaces table
 * [#15297](https://github.com/netbox-community/netbox/issues/15297) - Linkify platform column in device & virtual machine tables
 
 ---
