@@ -7,6 +7,10 @@
 * [#15291](https://github.com/netbox-community/netbox/issues/15291) - Add tunnel termination buttons to VM interfaces table
 * [#15297](https://github.com/netbox-community/netbox/issues/15297) - Linkify platform column in device & virtual machine tables
 
+### Bug Fixes
+
+* [#15336](https://github.com/netbox-community/netbox/issues/15336) - Correct label for recurring scheduled jobs
+
 ---
 
 ## v3.7.3 (2024-02-21)
