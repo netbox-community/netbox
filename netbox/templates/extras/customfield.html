@@ -17,7 +17,9 @@
           <th scope="row">Type</th>
           <td>
             {{ object.get_type_display }}
-            {% if object.object_type %}({{ object.object_type.model|bettertitle }}){% endif %}
+            {% if object.related_object_type %}
+              ({{ object.related_object_type.model|bettertitle }})
+            {% endif %}
           </td>
         </tr>
         <tr>

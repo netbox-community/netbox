@@ -86,6 +86,16 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
                 ui_editable=CustomFieldUIEditableChoices.HIDDEN,
                 choice_set=choice_sets[1]
             ),
+            CustomField(
+                name='Custom Field 6',
+                type=CustomFieldTypeChoices.TYPE_OBJECT,
+                related_object_type=ObjectType.objects.get_by_natural_key('dcim', 'site'),
+                required=False,
+                weight=600,
+                filter_logic=CustomFieldFilterLogicChoices.FILTER_DISABLED,
+                ui_visible=CustomFieldUIVisibleChoices.HIDDEN,
+                ui_editable=CustomFieldUIEditableChoices.HIDDEN
+            ),
         )
         CustomField.objects.bulk_create(custom_fields)
         custom_fields[0].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'site'))
@@ -106,6 +116,12 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
         params = {'object_type': 'dcim.site'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
         params = {'object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_related_object_type(self):
+        params = {'related_object_type': 'dcim.site'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+        params = {'related_object_type_id': [ObjectType.objects.get_by_natural_key('dcim', 'site').pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_required(self):

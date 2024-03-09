@@ -38,14 +38,14 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
         (None, ('q', 'filter_id')),
         (_('Attributes'), (
-            'type', 'object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible', 'ui_editable',
-            'is_cloneable',
+            'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible',
+            'ui_editable', 'is_cloneable',
         )),
     )
-    object_type_id = ContentTypeMultipleChoiceField(
+    related_object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
-        label=_('Object type')
+        label=_('Related object type')
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,

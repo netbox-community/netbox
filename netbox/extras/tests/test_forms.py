@@ -62,14 +62,14 @@ class CustomFieldModelFormTest(TestCase):
         cf_object = CustomField.objects.create(
             name='object',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
-            object_type=ObjectType.objects.get_for_model(Site)
+            related_object_type=ObjectType.objects.get_for_model(Site)
         )
         cf_object.object_types.set([object_type])
 
         cf_multiobject = CustomField.objects.create(
             name='multiobject',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
-            object_type=ObjectType.objects.get_for_model(Site)
+            related_object_type=ObjectType.objects.get_for_model(Site)
         )
         cf_multiobject.object_types.set([object_type])
 

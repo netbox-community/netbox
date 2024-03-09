@@ -57,10 +57,10 @@ class CustomFieldsDataField(Field):
         for cf in self._get_custom_fields():
             value = cf.deserialize(obj.get(cf.name))
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class())
+                serializer = get_serializer_for_model(cf.related_object_type.model_class())
                 value = serializer(value, nested=True, context=self.parent.context).data
             elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class())
+                serializer = get_serializer_for_model(cf.related_object_type.model_class())
                 value = serializer(value, nested=True, many=True, context=self.parent.context).data
             data[cf.name] = value
 
@@ -79,7 +79,7 @@ class CustomFieldsDataField(Field):
                     CustomFieldTypeChoices.TYPE_OBJECT,
                     CustomFieldTypeChoices.TYPE_MULTIOBJECT
             ):
-                serializer_class = get_serializer_for_model(cf.object_type.model_class())
+                serializer_class = get_serializer_for_model(cf.related_object_type.model_class())
                 many = cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT
                 serializer = serializer_class(data=data[cf.name], nested=True, many=many, context=self.parent.context)
                 if serializer.is_valid():

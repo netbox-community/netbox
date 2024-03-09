@@ -350,7 +350,7 @@ class CustomFieldTest(TestCase):
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
-            object_type=ObjectType.objects.get_for_model(VLAN),
+            related_object_type=ObjectType.objects.get_for_model(VLAN),
             required=False
         )
         cf.object_types.set([self.object_type])
@@ -382,7 +382,7 @@ class CustomFieldTest(TestCase):
         cf = CustomField.objects.create(
             name='object_field',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
-            object_type=ObjectType.objects.get_for_model(VLAN),
+            related_object_type=ObjectType.objects.get_for_model(VLAN),
             required=False
         )
         cf.object_types.set([self.object_type])
@@ -498,16 +498,28 @@ class CustomFieldTest(TestCase):
             ).full_clean()
 
         # Object
-        CustomField(name='test', type='object', required=True, object_type=object_type, default=site.pk).full_clean()
-        with self.assertRaises(ValidationError):
-            CustomField(name='test', type='object', required=True, object_type=object_type, default="xxx").full_clean()
+        CustomField(
+            name='test',
+            type='object',
+            required=True,
+            related_object_type=object_type,
+            default=site.pk
+        ).full_clean()
+        with (self.assertRaises(ValidationError)):
+            CustomField(
+                name='test',
+                type='object',
+                required=True,
+                related_object_type=object_type,
+                default="xxx"
+            ).full_clean()
 
         # Multi-object
         CustomField(
             name='test',
             type='multiobject',
             required=True,
-            object_type=object_type,
+            related_object_type=object_type,
             default=[site.pk]
         ).full_clean()
         with self.assertRaises(ValidationError):
@@ -515,7 +527,7 @@ class CustomFieldTest(TestCase):
                 name='test',
                 type='multiobject',
                 required=True,
-                object_type=object_type,
+                related_object_type=object_type,
                 default=["xxx"]
             ).full_clean()
 
@@ -581,13 +593,13 @@ class CustomFieldAPITest(APITestCase):
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_OBJECT,
                 name='object_field',
-                object_type=ObjectType.objects.get_for_model(VLAN),
+                related_object_type=ObjectType.objects.get_for_model(VLAN),
                 default=vlans[0].pk,
             ),
             CustomField(
                 type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
                 name='multiobject_field',
-                object_type=ObjectType.objects.get_for_model(VLAN),
+                related_object_type=ObjectType.objects.get_for_model(VLAN),
                 default=[vlans[0].pk, vlans[1].pk],
             ),
         )
@@ -1410,7 +1422,7 @@ class CustomFieldModelFilterTest(TestCase):
         cf = CustomField(
             name='cf11',
             type=CustomFieldTypeChoices.TYPE_OBJECT,
-            object_type=ObjectType.objects.get_for_model(Manufacturer)
+            related_object_type=ObjectType.objects.get_for_model(Manufacturer)
         )
         cf.save()
         cf.object_types.set([object_type])
@@ -1419,7 +1431,7 @@ class CustomFieldModelFilterTest(TestCase):
         cf = CustomField(
             name='cf12',
             type=CustomFieldTypeChoices.TYPE_MULTIOBJECT,
-            object_type=ObjectType.objects.get_for_model(Manufacturer)
+            related_object_type=ObjectType.objects.get_for_model(Manufacturer)
         )
         cf.save()
         cf.object_types.set([object_type])

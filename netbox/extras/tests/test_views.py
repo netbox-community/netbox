@@ -54,7 +54,7 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
         cls.csv_data = (
-            'name,label,type,object_types,object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visible,ui_editable',
+            'name,label,type,object_types,related_object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visible,ui_editable',
             'field4,Field 4,text,dcim.site,,100,1000,exact,,,,[a-z]{3},always,yes',
             'field5,Field 5,integer,dcim.site,,100,2000,exact,,1,100,,always,yes',
             'field6,Field 6,select,dcim.site,,100,3000,exact,Choice Set 1,,,,always,yes',

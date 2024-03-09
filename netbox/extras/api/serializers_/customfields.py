@@ -44,7 +44,7 @@ class CustomFieldSerializer(ValidatedModelSerializer):
         many=True
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
-    object_type = ContentTypeField(
+    related_object_type = ContentTypeField(
         queryset=ObjectType.objects.all(),
         required=False,
         allow_null=True
@@ -62,10 +62,10 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'object_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
-            'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'object_types', 'type', 'related_object_type', 'data_type', 'name', 'label',
+            'group_name', 'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
+            'is_cloneable', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'choice_set', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

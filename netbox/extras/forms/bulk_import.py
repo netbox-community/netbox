@@ -40,7 +40,7 @@ class CustomFieldImportForm(CSVModelForm):
         choices=CustomFieldTypeChoices,
         help_text=_('Field data type (e.g. text, integer, etc.)')
     )
-    object_type = CSVContentTypeField(
+    related_object_type = CSVContentTypeField(
         label=_('Object type'),
         queryset=ObjectType.objects.public(),
         required=False,
@@ -69,7 +69,7 @@ class CustomFieldImportForm(CSVModelForm):
     class Meta:
         model = CustomField
         fields = (
-            'name', 'label', 'group_name', 'type', 'object_types', 'object_type', 'required', 'description',
+            'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'description',
             'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
             'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable',
         )

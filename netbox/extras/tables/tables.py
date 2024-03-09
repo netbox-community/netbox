@@ -57,6 +57,9 @@ class CustomFieldTable(NetBoxTable):
     description = columns.MarkdownColumn(
         verbose_name=_('Description')
     )
+    related_object_type = columns.ContentTypeColumn(
+        verbose_name=_('Related Object Type')
+    )
     choice_set = tables.Column(
         linkify=True,
         verbose_name=_('Choice Set')
@@ -73,9 +76,9 @@ class CustomFieldTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = CustomField
         fields = (
-            'pk', 'id', 'name', 'object_types', 'label', 'type', 'group_name', 'required', 'default', 'description',
-            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable', 'weight', 'choice_set',
-            'choices', 'created', 'last_updated',
+            'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
+            'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
+            'weight', 'choice_set', 'choices', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
 
