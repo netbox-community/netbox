@@ -12,7 +12,7 @@ def update_custom_fields(apps, schema_editor):
 
     if old_ct := ContentType.objects.filter(app_label='users', model='netboxgroup').first():
         new_ct = ContentType.objects.get_for_model(Group)
-        CustomField.objects.filter(object_type=old_ct).update(object_type=new_ct)
+        CustomField.objects.filter(related_object_type=old_ct).update(related_object_type=new_ct)
 
 
 class Migration(migrations.Migration):
