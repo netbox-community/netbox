@@ -25,6 +25,17 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
         queryset=WirelessLANGroup.objects.all(),
         to_field_name='slug'
     )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=WirelessLANGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in'
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=WirelessLANGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug'
+    )
 
     class Meta:
         model = WirelessLANGroup

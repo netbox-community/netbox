@@ -26,11 +26,24 @@ __all__ = (
 class ContactGroupFilterSet(OrganizationalModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ContactGroup.objects.all(),
-        label=_('Contact group (ID)'),
+        label=_('Parent contact group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=ContactGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Parent contact group (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Contact group (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=ContactGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Contact group (slug)'),
     )
@@ -155,11 +168,24 @@ class ContactModelFilterSet(django_filters.FilterSet):
 class TenantGroupFilterSet(OrganizationalModelFilterSet):
     parent_id = django_filters.ModelMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
-        label=_('Tenant group (ID)'),
+        label=_('Parent tenant group (ID)'),
     )
     parent = django_filters.ModelMultipleChoiceFilter(
         field_name='parent__slug',
         queryset=TenantGroup.objects.all(),
+        to_field_name='slug',
+        label=_('Parent tenant group (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=TenantGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Tenant group (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=TenantGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
         to_field_name='slug',
         label=_('Tenant group (slug)'),
     )
