@@ -89,6 +89,19 @@ class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
         to_field_name='slug',
         label=_('Parent region (slug)'),
     )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Region (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=Region.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Region (slug)'),
+    )
 
     class Meta:
         model = Region
@@ -105,6 +118,19 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
         queryset=SiteGroup.objects.all(),
         to_field_name='slug',
         label=_('Parent site group (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        label=_('Site group (ID)'),
+    )
+    ancestor = TreeNodeMultipleChoiceFilter(
+        queryset=SiteGroup.objects.all(),
+        field_name='parent',
+        lookup_expr='in',
+        to_field_name='slug',
+        label=_('Site group (slug)'),
     )
 
     class Meta:
@@ -214,13 +240,23 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
         to_field_name='slug',
         label=_('Site (slug)'),
     )
-    parent_id = TreeNodeMultipleChoiceFilter(
+    parent_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=Location.objects.all(),
+        label=_('Parent location (ID)'),
+    )
+    parent = django_filters.ModelMultipleChoiceFilter(
+        field_name='parent__slug',
+        queryset=Location.objects.all(),
+        to_field_name='slug',
+        label=_('Parent location (slug)'),
+    )
+    ancestor_id = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
         field_name='parent',
         lookup_expr='in',
         label=_('Location (ID)'),
     )
-    parent = TreeNodeMultipleChoiceFilter(
+    ancestor = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
         field_name='parent',
         lookup_expr='in',
