@@ -198,8 +198,7 @@ class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
 
-    @staticmethod
-    def get_m2m_filter_name(field):
+    def get_m2m_filter_name(self, field):
         # Override filter names for import & export RouteTargets
         if field.name == 'import_targets':
             return 'import_target'
@@ -303,8 +302,7 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RouteTarget.objects.all()
     filterset = RouteTargetFilterSet
 
-    @staticmethod
-    def get_m2m_filter_name(field):
+    def get_m2m_filter_name(self, field):
         # Override filter names for import & export VRFs and L2VPNs
         if field.name == 'importing_vrfs':
             return 'importing_vrf'

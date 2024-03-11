@@ -743,8 +743,7 @@ class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = L2VPN.objects.all()
     filterset = L2VPNFilterSet
 
-    @staticmethod
-    def get_m2m_filter_name(field):
+    def get_m2m_filter_name(self, field):
         # Override filter names for import & export RouteTargets
         if field.name == 'import_targets':
             return 'import_target'

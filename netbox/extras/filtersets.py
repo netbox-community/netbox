@@ -91,8 +91,9 @@ class EventRuleFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
     )
     object_type = ContentTypeFilter(
         field_name='object_types'
@@ -128,14 +129,16 @@ class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
     type = django_filters.MultipleChoiceFilter(
         choices=CustomFieldTypeChoices
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
     )
     object_type = ContentTypeFilter(
         field_name='object_types'
     )
-    related_object_type_id = MultiValueNumberFilter(
-        field_name='related_object_type__id'
+    related_object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='related_object_type'
     )
     related_object_type = ContentTypeFilter()
     choice_set_id = django_filters.ModelMultipleChoiceFilter(
@@ -199,8 +202,9 @@ class CustomLinkFilterSet(ChangeLoggedModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
     )
     object_type = ContentTypeFilter(
         field_name='object_types'
@@ -228,8 +232,9 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
     )
     object_type = ContentTypeFilter(
         field_name='object_types'
@@ -264,8 +269,9 @@ class SavedFilterFilterSet(ChangeLoggedModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
     )
     object_type = ContentTypeFilter(
         field_name='object_types'

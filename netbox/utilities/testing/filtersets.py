@@ -8,7 +8,9 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import ForeignKey, ManyToManyField, ManyToManyRel, ManyToOneRel, OneToOneRel
 from django.utils.module_loading import import_string
 from taggit.managers import TaggableManager
-from utilities.filters import TreeNodeMultipleChoiceFilter
+
+from extras.filters import TagFilter
+from utilities.filters import ContentTypeFilter, TreeNodeMultipleChoiceFilter
 
 from core.models import ObjectType
 
@@ -46,8 +48,7 @@ class BaseFilterSetTests:
     filterset = None
     ignore_fields = tuple()
 
-    @staticmethod
-    def get_m2m_filter_name(field):
+    def get_m2m_filter_name(self, field):
         """
         Given a ManyToManyField, determine the correct name for its corresponding Filter. Individual test
         cases may override this method to prescribe deviations for specific fields.
@@ -55,20 +56,50 @@ class BaseFilterSetTests:
         related_model_name = field.related_model._meta.verbose_name
         return related_model_name.lower().replace(' ', '_')
 
-    @staticmethod
-    def get_filter_class_for_field(field):
-
+    def get_filters_for_model_field(self, field):
+        """
+        Given a model field, return an iterable of (name, class) for each filter that should be defined on
+        the model's FilterSet class. If the appropriate filter class cannot be determined, it will be None.
+        """
         # ForeignKey & OneToOneField
         if issubclass(field.__class__, ForeignKey) or type(field) is OneToOneRel:
 
+            # Relationships to ContentType (used as part of a GFK) do not need a filter
+            if field.related_model is ContentType:
+                return [(None, None)]
+
+            # ForeignKeys to ObjectType need two filters: 'app.model' & PK
+            if field.related_model is ObjectType:
+                return [
+                    (field.name, ContentTypeFilter),
+                    (f'{field.name}_id', django_filters.ModelMultipleChoiceFilter),
+                ]
+
             # ForeignKey to an MPTT-enabled model
             if issubclass(field.related_model, MPTTModel) and field.model is not field.related_model:
-                return TreeNodeMultipleChoiceFilter
+                return [(f'{field.name}_id', TreeNodeMultipleChoiceFilter)]
 
-            return django_filters.ModelMultipleChoiceFilter
+            return [(f'{field.name}_id', django_filters.ModelMultipleChoiceFilter)]
+
+        # Many-to-many relationships (forward & backward)
+        elif type(field) in (ManyToManyField, ManyToManyRel):
+            filter_name = self.get_m2m_filter_name(field)
+
+            # ManyToManyFields to ObjectType need two filters: 'app.model' & PK
+            if field.related_model is ObjectType:
+                return [
+                    (filter_name, ContentTypeFilter),
+                    (f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter),
+                ]
+
+            return [(f'{filter_name}_id', django_filters.ModelMultipleChoiceFilter)]
+
+        # Tag manager
+        if type(field) is TaggableManager:
+            return [('tag', TagFilter)]
 
         # Unable to determine the correct filter class
-        return None
+        return [(field.name, None)]
 
     def test_id(self):
         """
@@ -111,56 +142,31 @@ class BaseFilterSetTests:
             if type(model_field) is ManyToOneRel:
                 continue
 
-            # One-to-one & one-to-many relationships
-            if issubclass(model_field.__class__, ForeignKey) or type(model_field) is OneToOneRel:
-
-                # Relationships to ContentType (used as part of a GFK) do not need a filter
-                if model_field.related_model is ContentType:
-                    continue
-
-                # Filters to ObjectType use 'app.model' rather than numeric PK, so we omit the _id suffix
-                if model_field.related_model is ObjectType:
-                    filter_name = model_field.name
-                else:
-                    filter_name = f'{model_field.name}_id'
-
-                self.assertIn(
-                    filter_name,
-                    filters,
-                    f'No filter defined for {filter_name} ({model_field.name})!'
-                )
-                if filter_class := self.get_filter_class_for_field(model_field):
-                    self.assertIs(
-                        type(filters[filter_name]),
-                        filter_class,
-                        f"Invalid filter class for {filter_name}!"
-                    )
-
-            # Many-to-many relationships (forward & backward)
-            elif type(model_field) in (ManyToManyField, ManyToManyRel):
-                filter_name = self.get_m2m_filter_name(model_field)
-                filter_name = f'{filter_name}_id'
-                self.assertIn(
-                    filter_name,
-                    filters,
-                    f'No filter defined for {filter_name} ({model_field.name})!'
-                )
-
             # TODO: Generic relationships
-            elif type(model_field) in (GenericForeignKey, GenericRelation):
+            if type(model_field) in (GenericForeignKey, GenericRelation):
                 continue
 
-            # Tags
-            elif type(model_field) is TaggableManager:
-                self.assertIn('tag', filters, f'No filter defined for {model_field.name}!')
+            for filter_name, filter_class in self.get_filters_for_model_field(model_field):
 
-            # All other fields
-            else:
+                if filter_name is None:
+                    # Field is exempt
+                    continue
+
+                # Check that the filter is defined
                 self.assertIn(
-                    model_field.name,
-                    filters,
-                    f'No defined found for {model_field.name} ({type(model_field)})!'
+                    filter_name,
+                    filters.keys(),
+                    f'No filter defined for {filter_name} ({model_field.name})!'
                 )
+
+                # Check that the filter class is correct
+                filter = filters[filter_name]
+                if filter_class is not None:
+                    self.assertIs(
+                        type(filter),
+                        filter_class,
+                        f"Invalid filter class {type(filter)} for {filter_name} (should be {filter_class})!"
+                    )
 
 
 class ChangeLoggedFilterSetTests(BaseFilterSetTests):

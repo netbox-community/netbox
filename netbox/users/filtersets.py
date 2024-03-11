@@ -3,9 +3,10 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from core.models import ObjectType
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Token
-from utilities.filters import ContentTypeFilter, MultiValueNumberFilter
+from utilities.filters import ContentTypeFilter
 
 __all__ = (
     'GroupFilterSet',
@@ -134,8 +135,9 @@ class ObjectPermissionFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
-    object_type_id = MultiValueNumberFilter(
-        field_name='object_types__id'
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
     )
     object_type = ContentTypeFilter(
         field_name='object_types'
