@@ -1,4 +1,6 @@
-import graphene
+import strawberry
+import strawberry_django
+from typing import TYPE_CHECKING, Annotated, List, Union
 
 __all__ = (
     'IPAddressesMixin',
@@ -6,15 +8,15 @@ __all__ = (
 )
 
 
+@strawberry.type
 class IPAddressesMixin:
-    ip_addresses = graphene.List('ipam.graphql.types.IPAddressType')
+    @strawberry_django.field
+    def ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.ip_addresses.all()
 
-    def resolve_ip_addresses(self, info):
-        return self.ip_addresses.restrict(info.context.request.user, 'view')
 
-
+@strawberry.type
 class VLANGroupsMixin:
-    vlan_groups = graphene.List('ipam.graphql.types.VLANGroupType')
-
-    def resolve_vlan_groups(self, info):
-        return self.vlan_groups.restrict(info.context.request.user, 'view')
+    @strawberry_django.field
+    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.vlan_groups.all()

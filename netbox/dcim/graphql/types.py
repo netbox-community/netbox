@@ -507,10 +507,6 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     def child_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
         return self.child_interfaces.all()
 
-    @strawberry_django.field
-    def ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.ip_addresses.all()
-
 
 @strawberry_django.type(
     models.InterfaceTemplate,
@@ -595,10 +591,6 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
     @strawberry_django.field
     def racks(self) -> List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]:
         return self.racks.all()
-
-    @strawberry_django.field
-    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlan_groups.all()
 
     @strawberry_django.field
     def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
@@ -853,10 +845,6 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
         return self.cabletermination_set.all()
 
-    @strawberry_django.field
-    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlan_groups.all()
-
 
 @strawberry_django.type(
     models.RackReservation,
@@ -923,10 +911,6 @@ class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
         return self.sites.all()
 
     @strawberry_django.field
-    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlan_groups.all()
-
-    @strawberry_django.field
     def parent(self) -> Annotated["RegionType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
@@ -991,10 +975,6 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     def vlans(self) -> List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]:
         return self.vlans.all()
 
-    @strawberry_django.field
-    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlan_groups.all()
-
 
 @strawberry_django.type(
     models.SiteGroup,
@@ -1007,10 +987,6 @@ class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
     @strawberry_django.field
     def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:
         return self.sites.all()
-
-    @strawberry_django.field
-    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlan_groups.all()
 
     @strawberry_django.field
     def parent(self) -> Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None:

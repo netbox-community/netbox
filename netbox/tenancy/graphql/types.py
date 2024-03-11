@@ -18,11 +18,12 @@ __all__ = (
 )
 
 
+@strawberry.type
 class ContactAssignmentsMixin:
-    # assignments = graphene.List('tenancy.graphql.types.ContactAssignmentType')
 
-    def resolve_assignments(self, info):
-        return self.assignments.restrict(info.context.user, 'view')
+    @strawberry_django.field
+    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
+        return self.assignments.all()
 
 
 #
@@ -159,10 +160,6 @@ class TenantGroupType(OrganizationalObjectType):
 class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
     group: Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.assignments.all()
-
 
 @strawberry_django.type(
     models.ContactRole,
@@ -170,10 +167,7 @@ class ContactType(ContactAssignmentsMixin, NetBoxObjectType):
     filters=ContactRoleFilter
 )
 class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
-
-    @strawberry_django.field
-    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.assignments.all()
+    pass
 
 
 @strawberry_django.type(
