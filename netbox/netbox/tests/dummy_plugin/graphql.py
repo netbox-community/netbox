@@ -1,7 +1,6 @@
 from typing import List
 import strawberry
 import strawberry_django
-from strawberry.schema.config import StrawberryConfig
 
 from . import models
 

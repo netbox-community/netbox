@@ -8,23 +8,32 @@ A plugin can extend NetBox's GraphQL API by registering its own schema class. By
 
 ```python
 # graphql.py
-import graphene
-from netbox.graphql.types import NetBoxObjectType
-from netbox.graphql.fields import ObjectField, ObjectListField
-from . import filtersets, models
+from typing import List
+import strawberry
+import strawberry_django
 
-class MyModelType(NetBoxObjectType):
+from . import models
 
-    class Meta:
-        model = models.MyModel
-        fields = '__all__'
-        filterset_class = filtersets.MyModelFilterSet
 
-class MyQuery(graphene.ObjectType):
-    mymodel = ObjectField(MyModelType)
-    mymodel_list = ObjectListField(MyModelType)
+@strawberry_django.type(
+    models.MyModel,
+    fields='__all__',
+)
+class MyModelType:
+    pass
 
-schema = MyQuery
+
+@strawberry.type
+class MyQuery:
+    @strawberry.field
+    def dummymodel(self, id: int) -> DummyModelType:
+        return None
+    dummymodel_list: List[DummyModelType] = strawberry_django.field()
+
+
+schema = [
+    MyQuery,
+]
 ```
 
 ## GraphQL Objects
