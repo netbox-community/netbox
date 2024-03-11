@@ -47,15 +47,3 @@ NetBox provides two object type classes for use by plugins.
 ::: netbox.graphql.types.NetBoxObjectType
     options:
       members: false
-
-## GraphQL Fields
-
-NetBox provides two field classes for use by plugins.
-
-::: netbox.graphql.fields.ObjectField
-    options:
-      members: false
-
-::: netbox.graphql.fields.ObjectListField
-    options:
-      members: false
