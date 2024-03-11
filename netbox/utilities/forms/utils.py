@@ -51,36 +51,43 @@ def parse_alphanumeric_range(string):
     '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
     """
     values = []
-    for dash_range in string.split(','):
+    for value in string.split(','):
+        if '-' not in value:
+            # Item is not a range
+            values.append(value)
+            continue
+
+        # Find the range's beginning & end values
         try:
-            begin, end = dash_range.split('-')
+            begin, end = value.split('-')
             vals = begin + end
             # Break out of loop if there's an invalid pattern to return an error
             if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
                 return []
         except ValueError:
-            begin, end = dash_range, dash_range
+            raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=value))
+
+        # Numeric range
         if begin.isdigit() and end.isdigit():
             if int(begin) >= int(end):
-                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
-
+                raise forms.ValidationError(
+                    _('Invalid range: Ending value ({end}) must be greater than beginning value ({begin}).').format(
+                        begin=begin, end=end
+                    )
+                )
             for n in list(range(int(begin), int(end) + 1)):
                 values.append(n)
+
+        # Alphanumeric range
         else:
-            # Value-based
-            if begin == end:
-                values.append(begin)
-            # Range-based
-            else:
-                # Not a valid range (more than a single character)
-                if not len(begin) == len(end) == 1:
-                    raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
+            # Not a valid range (more than a single character)
+            if not len(begin) == len(end) == 1:
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=value))
+            if ord(begin) >= ord(end):
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=value))
+            for n in list(range(ord(begin), ord(end) + 1)):
+                values.append(chr(n))
 
-                if ord(begin) >= ord(end):
-                    raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
-
-                for n in list(range(ord(begin), ord(end) + 1)):
-                    values.append(chr(n))
     return values
 
 
