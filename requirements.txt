@@ -30,7 +30,7 @@ PyYAML==6.0.1
 requests==2.31.0
 social-auth-app-django==5.4.0
 social-auth-core[openidconnect]==4.5.3
-strawberry-graphql-django==0.31.0
+strawberry-graphql-django==0.33.0
 svgwrite==1.4.3
 tablib==3.5.0
 tzdata==2024.1
