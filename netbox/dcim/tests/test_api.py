@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from rest_framework import status
 
 from dcim.choices import *
@@ -45,7 +46,7 @@ class Mixins:
                 name='Peer Device'
             )
             if self.peer_termination_type is None:
-                raise NotImplementedError("Test case must set peer_termination_type")
+                raise NotImplementedError(_("Test case must set peer_termination_type"))
             peer_obj = self.peer_termination_type.objects.create(
                 device=peer_device,
                 name='Peer Termination'
@@ -1754,7 +1755,7 @@ class RearPortTest(APIViewTestCases.APIViewTestCase):
 
 class ModuleBayTest(APIViewTestCases.APIViewTestCase):
     model = ModuleBay
-    brief_fields = ['display', 'id', 'module', 'name', 'url']
+    brief_fields = ['display', 'id', 'installed_module', 'name', 'url']
     bulk_update_data = {
         'description': 'New description',
     }

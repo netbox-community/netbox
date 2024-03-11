@@ -2,6 +2,7 @@ import re
 
 from django.core.exceptions import ValidationError
 from django.core.validators import BaseValidator, RegexValidator, URLValidator, _lazy_re_compile
+from django.utils.translation import gettext_lazy as _
 
 from netbox.config import get_config
 
@@ -61,4 +62,4 @@ def validate_regex(value):
     try:
         re.compile(value)
     except re.error:
-        raise ValidationError(f"{value} is not a valid regular expression.")
+        raise ValidationError(_("{value} is not a valid regular expression.").format(value=value))

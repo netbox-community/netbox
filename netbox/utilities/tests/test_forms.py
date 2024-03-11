@@ -191,7 +191,16 @@ class ExpandAlphanumeric(TestCase):
 
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-    def test_set(self):
+    def test_set_numeric(self):
+        input = 'r[1,2]a'
+        output = sorted([
+            'r1a',
+            'r2a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_set_alpha(self):
         input = '[r,t]1a'
         output = sorted([
             'r1a',

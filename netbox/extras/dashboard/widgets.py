@@ -112,7 +112,9 @@ class DashboardWidget:
         Params:
             request: The current request
         """
-        raise NotImplementedError(f"{self.__class__} must define a render() method.")
+        raise NotImplementedError(_("{class_name} must define a render() method.").format(
+            class_name=self.__class__
+        ))
 
     @property
     def name(self):
@@ -178,7 +180,7 @@ class ObjectCountsWidget(DashboardWidget):
                 try:
                     dict(data)
                 except TypeError:
-                    raise forms.ValidationError("Invalid format. Object filters must be passed as a dictionary.")
+                    raise forms.ValidationError(_("Invalid format. Object filters must be passed as a dictionary."))
             return data
 
     def render(self, request):
@@ -232,7 +234,7 @@ class ObjectListWidget(DashboardWidget):
                 try:
                     urlencode(data)
                 except (TypeError, ValueError):
-                    raise forms.ValidationError("Invalid format. URL parameters must be passed as a dictionary.")
+                    raise forms.ValidationError(_("Invalid format. URL parameters must be passed as a dictionary."))
             return data
 
     def render(self, request):

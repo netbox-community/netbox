@@ -1,4 +1,3 @@
-import importlib
 import logging
 
 from django.contrib.contenttypes.models import ContentType
@@ -13,7 +12,7 @@ from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
 from extras.models import EventRule
-from extras.validators import CustomValidator
+from extras.validators import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
@@ -110,6 +109,18 @@ def handle_deleted_object(sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
+    # Run any deletion protection rules for the object. Note that this must occur prior
+    # to queueing any events for the object being deleted, in case a validation error is
+    # raised, causing the deletion to fail.
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = get_config().PROTECTION_RULES.get(model_name, [])
+    try:
+        run_validators(instance, validators)
+    except ValidationError as e:
+        raise AbortRequest(
+            _("Deletion is prevented by a protection rule: {message}").format(message=e)
+        )
+
     # Get the current request, or bail if not set
     request = current_request.get()
     if request is None:
@@ -207,43 +218,15 @@ m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_type
 # Custom validation
 #
 
-def run_validators(instance, validators):
-
-    for validator in validators:
-
-        # Loading a validator class by dotted path
-        if type(validator) is str:
-            module, cls = validator.rsplit('.', 1)
-            validator = getattr(importlib.import_module(module), cls)()
-
-        # Constructing a new instance on the fly from a ruleset
-        elif type(validator) is dict:
-            validator = CustomValidator(validator)
-
-        validator(instance)
-
-
 @receiver(post_clean)
 def run_save_validators(sender, instance, **kwargs):
+    """
+    Run any custom validation rules for the model prior to calling save().
+    """
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
     validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
 
     run_validators(instance, validators)
-
-
-@receiver(pre_delete)
-def run_delete_validators(sender, instance, **kwargs):
-    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().PROTECTION_RULES.get(model_name, [])
-
-    try:
-        run_validators(instance, validators)
-    except ValidationError as e:
-        raise AbortRequest(
-            _("Deletion is prevented by a protection rule: {message}").format(
-                message=e
-            )
-        )
 
 
 #

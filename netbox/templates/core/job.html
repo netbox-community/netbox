@@ -63,7 +63,7 @@
               <td>
                 {{ object.scheduled|annotated_date|placeholder }}
                 {% if object.interval %}
-                  ({% blocktrans with interval=object.interval %}every {{ interval }} seconds{% endblocktrans %})
+                  ({% blocktrans with interval=object.interval %}every {{ interval }} minutes{% endblocktrans %})
                 {% endif %}
               </td>
             </tr>

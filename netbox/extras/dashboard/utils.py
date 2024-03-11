@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
 
 from netbox.registry import registry
 from extras.constants import DEFAULT_DASHBOARD
@@ -32,7 +33,7 @@ def get_widget_class(name):
     try:
         return registry['widgets'][name]
     except KeyError:
-        raise ValueError(f"Unregistered widget class: {name}")
+        raise ValueError(_("Unregistered widget class: {name}").format(name=name))
 
 
 def get_dashboard(user):
