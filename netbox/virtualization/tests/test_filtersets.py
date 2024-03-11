@@ -522,7 +522,7 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
 class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VMInterface.objects.all()
     filterset = VMInterfaceFilterSet
-    ignore_fields = ('untagged_vlan',)
+    ignore_fields = ('tagged_vlans', 'untagged_vlan',)
 
     @classmethod
     def setUpTestData(cls):

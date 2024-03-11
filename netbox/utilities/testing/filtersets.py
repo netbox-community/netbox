@@ -19,21 +19,7 @@ __all__ = (
     'ChangeLoggedFilterSetTests',
 )
 
-IGNORE_MODELS = (
-    ('core', 'AutoSyncRecord'),
-    ('core', 'ManagedFile'),
-    ('core', 'ObjectType'),
-    ('dcim', 'CablePath'),
-    ('extras', 'Branch'),
-    ('extras', 'CachedValue'),
-    ('extras', 'Dashboard'),
-    ('extras', 'ScriptModule'),
-    ('extras', 'StagedChange'),
-    ('extras', 'TaggedItem'),
-    ('users', 'UserConfig'),
-)
-
-IGNORE_FIELDS = (
+EXEMPT_MODEL_FIELDS = (
     'comments',
     'custom_field_data',
     'level',    # MPTT
@@ -117,10 +103,6 @@ class BaseFilterSetTests:
         model = self.queryset.model
         model_name = model.__name__
 
-        # Skip ignored models
-        if (app_label, model_name) in IGNORE_MODELS:
-            return
-
         # Import the FilterSet class & sanity check it
         filterset = import_string(f'{app_label}.filtersets.{model_name}FilterSet')
         self.assertEqual(model, filterset.Meta.model, "FilterSet model does not match!")
@@ -135,14 +117,14 @@ class BaseFilterSetTests:
                 continue
 
             # Skip ignored fields
-            if model_field.name in chain(self.ignore_fields, IGNORE_FIELDS):
+            if model_field.name in chain(self.ignore_fields, EXEMPT_MODEL_FIELDS):
                 continue
 
             # Skip reverse ForeignKey relationships
             if type(model_field) is ManyToOneRel:
                 continue
 
-            # TODO: Generic relationships
+            # Skip generic relationships
             if type(model_field) in (GenericForeignKey, GenericRelation):
                 continue
 
