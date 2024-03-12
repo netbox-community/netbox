@@ -17,8 +17,9 @@ body:
         How are you running NetBox? (For issues with the Docker image, please go to the
         [netbox-docker](https://github.com/netbox-community/netbox-docker) repo.)
       options:
-        - Self-hosted
         - NetBox Cloud
+        - NetBox Enterprise
+        - Self-hosted
     validations:
       required: true
   - type: input
