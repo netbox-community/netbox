@@ -9,21 +9,8 @@
   {% endfor %}
 
   {# Render grouped fields according to Form #}
-  {% for group, fields in form.fieldsets %}
-    <div class="field-group mb-5">
-      {% if group %}
-        <div class="row">
-          <h5 class="col-9 offset-3">{{ group }}</h5>
-        </div>
-      {% endif %}
-      {% for name in fields %}
-        {% with field=form|getfield:name %}
-          {% if field and not field.field.widget.is_hidden %}
-            {% render_field field %}
-          {% endif %}
-        {% endwith %}
-      {% endfor %}
-    </div>
+  {% for group, items in form.fieldsets %}
+    {% render_fieldset form items heading=group %}
   {% endfor %}
 
   {% if form.custom_fields %}
