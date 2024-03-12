@@ -1180,24 +1180,24 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, Prim
     device_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
         queryset=Device.objects.all(),
-        label='VDC (ID)',
+        label=_('VDC (ID)')
     )
     device = django_filters.ModelMultipleChoiceFilter(
         field_name='device',
         queryset=Device.objects.all(),
-        label='Device model',
+        label=_('Device model')
     )
     interface_id = django_filters.ModelMultipleChoiceFilter(
         field_name='interfaces',
         queryset=Interface.objects.all(),
-        label='Interface (ID)',
+        label=_('Interface (ID)')
     )
     status = django_filters.MultipleChoiceFilter(
         choices=VirtualDeviceContextStatusChoices
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
-        label='Has a primary IP',
+        label=_('Has a primary IP')
     )
 
     class Meta:
@@ -1632,28 +1632,28 @@ class InterfaceFilterSet(
     vdc_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs',
         queryset=VirtualDeviceContext.objects.all(),
-        label='Virtual Device Context',
+        label=_('Virtual Device Context')
     )
     vdc_identifier = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs__identifier',
         queryset=VirtualDeviceContext.objects.all(),
         to_field_name='identifier',
-        label='Virtual Device Context (Identifier)',
+        label=_('Virtual Device Context (Identifier)')
     )
     vdc = django_filters.ModelMultipleChoiceFilter(
         field_name='vdcs__name',
         queryset=VirtualDeviceContext.objects.all(),
         to_field_name='name',
-        label='Virtual Device Context',
+        label=_('Virtual Device Context')
     )
     wireless_lan_id = django_filters.ModelMultipleChoiceFilter(
         field_name='wireless_lans',
         queryset=WirelessLAN.objects.all(),
-        label='Wireless LAN',
+        label=_('Wireless LAN')
     )
     wireless_link_id = django_filters.ModelMultipleChoiceFilter(
         queryset=WirelessLink.objects.all(),
-        label='Wireless link',
+        label=_('Wireless link')
     )
 
     class Meta:

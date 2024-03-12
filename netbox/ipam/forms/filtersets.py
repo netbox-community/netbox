@@ -304,7 +304,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
                 'placeholder': 'Prefix',
             }
         ),
-        label='Parent Prefix'
+        label=_('Parent Prefix')
     )
     family = forms.ChoiceField(
         required=False,
