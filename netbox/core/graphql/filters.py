@@ -1,9 +1,7 @@
 import strawberry
 import strawberry_django
+from core import filtersets, models
 from strawberry import auto
-from core import models, filtersets
-from netbox.graphql import filters
-
 
 __all__ = (
     'DataFileFilter',

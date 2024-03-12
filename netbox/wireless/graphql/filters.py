@@ -1,9 +1,7 @@
 import strawberry
 import strawberry_django
 from strawberry import auto
-from wireless import models, filtersets
-from netbox.graphql import filters
-
+from wireless import filtersets, models
 
 __all__ = (
     'WirelessLANGroupFilter',

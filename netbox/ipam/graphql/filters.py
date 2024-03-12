@@ -2,7 +2,6 @@ import strawberry
 import strawberry_django
 from strawberry import auto
 from ipam import models, filtersets
-from netbox.graphql import filters
 
 
 __all__ = (

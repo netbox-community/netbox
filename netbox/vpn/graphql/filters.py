@@ -1,9 +1,7 @@
 import strawberry
 import strawberry_django
 from strawberry import auto
-from vpn import models, filtersets
-from netbox.graphql import filters
-
+from vpn import filtersets, models
 
 __all__ = (
     'TunnelGroupFilter',

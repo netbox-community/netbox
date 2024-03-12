@@ -1,9 +1,13 @@
+from typing import List
+
 import strawberry
 import strawberry_django
+from circuits import filtersets, models
 from strawberry import auto
-from circuits import models, filtersets
-from netbox.graphql import filters
+from strawberry_django.filters import FilterLookup
+from tenancy.graphql.filter_mixins import ContactModelFilterMixin, TenancyFilterMixin
 
+from netbox.graphql.filter_mixins import NetBoxModelFilterMixin
 
 __all__ = (
     'CircuitTerminationFilter',
@@ -32,37 +36,64 @@ class CircuitTerminationFilter(filtersets.CircuitTerminationFilterSet):
 
 
 @strawberry_django.filter(models.Circuit, lookups=True)
-class CircuitFilter(filtersets.CircuitFilterSet, filters.NetBoxModelFilter):
-    # NetBoxModelFilterSet
-    q: str | None
-    # tag:
-    # ChangeLoggedModelFilterSet
-    created: auto
-    last_updated: auto
-    created_by_request: str | None
-    updated_by_request: str | None
-    modified_by_request: str | None
+class CircuitFilter(NetBoxModelFilterMixin, TenancyFilterMixin, ContactModelFilterMixin):
+    filterset = filtersets.CircuitFilterSet
 
-    id: auto
     cid: auto
     description: auto
     install_date: auto
     termination_date: auto
     commit_rate: auto
-    provider_id: auto
-    provider: auto
-    provider_account_id: auto
-    type_id: auto
-    # provider_network_id: auto
-    type_id: auto
-    type: auto
+
+    provider_id: List[str] | None
+    provider: List[str] | None
+    provider_account_id: List[str] | None
+    provider_network_id: List[str] | None
+    type_id: List[str] | None
+    type: List[str] | None
     status: auto
-    # region_id: auto
-    # region: auto
-    # site_group_id: auto
-    # site_group: auto
-    # site_id: auto
-    # site: auto
+    region_id: List[str] | None
+    region: List[str] | None
+    site_group_id: List[str] | None
+    site_group: List[str] | None
+    site_id: List[str] | None
+    site: List[str] | None
+
+    def filter_provider_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'provider_id')
+
+    def filter_provider(self, queryset):
+        return self.filter_by_filterset(queryset, 'provider')
+
+    def filter_provider_account_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'provider_account_id')
+
+    def filter_provider_network_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'provider_network_id')
+
+    def filter_type_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'type_id')
+
+    def filter_type(self, queryset):
+        return self.filter_by_filterset(queryset, 'type')
+
+    def filter_region_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'region_id')
+
+    def filter_region(self, queryset):
+        return self.filter_by_filterset(queryset, 'region')
+
+    def filter_site_group_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'site_group_id')
+
+    def filter_site_group(self, queryset):
+        return self.filter_by_filterset(queryset, 'site_group')
+
+    def filter_site_id(self, queryset):
+        return self.filter_by_filterset(queryset, 'site_id')
+
+    def filter_site(self, queryset):
+        return self.filter_by_filterset(queryset, 'site')
 
 
 # @strawberry_django.filter(models.Circuit, lookups=True)

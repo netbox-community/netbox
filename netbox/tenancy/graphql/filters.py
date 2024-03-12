@@ -1,9 +1,9 @@
 import strawberry
 import strawberry_django
 from strawberry import auto
-from tenancy import models, filtersets
-from netbox.graphql import filters
+from tenancy import filtersets, models
 
+from netbox.graphql import filter_mixins
 
 __all__ = (
     'TenantFilter',
