@@ -169,7 +169,7 @@ class ExportTemplateType(ObjectType):
     filters=ImageAttachmentFilter
 )
 class ImageAttachmentType(BaseObjectType):
-    content_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
 
 
 @strawberry_django.type(
