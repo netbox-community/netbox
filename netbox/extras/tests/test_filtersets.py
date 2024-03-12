@@ -23,9 +23,10 @@ from virtualization.models import Cluster, ClusterGroup, ClusterType
 User = get_user_model()
 
 
-class CustomFieldTestCase(TestCase, BaseFilterSetTests):
+class CustomFieldTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CustomField.objects.all()
     filterset = CustomFieldFilterSet
+    ignore_fields = ('default',)
 
     @classmethod
     def setUpTestData(cls):
@@ -155,9 +156,10 @@ class CustomFieldTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class CustomFieldChoiceSetTestCase(TestCase, BaseFilterSetTests):
+class CustomFieldChoiceSetTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CustomFieldChoiceSet.objects.all()
     filterset = CustomFieldChoiceSetFilterSet
+    ignore_fields = ('extra_choices',)
 
     @classmethod
     def setUpTestData(cls):
@@ -188,6 +190,7 @@ class CustomFieldChoiceSetTestCase(TestCase, BaseFilterSetTests):
 class WebhookTestCase(TestCase, BaseFilterSetTests):
     queryset = Webhook.objects.all()
     filterset = WebhookFilterSet
+    ignore_fields = ('additional_headers', 'body_template')
 
     @classmethod
     def setUpTestData(cls):
@@ -252,6 +255,7 @@ class WebhookTestCase(TestCase, BaseFilterSetTests):
 class EventRuleTestCase(TestCase, BaseFilterSetTests):
     queryset = EventRule.objects.all()
     filterset = EventRuleFilterSet
+    ignore_fields = ('action_data', 'conditions')
 
     @classmethod
     def setUpTestData(cls):
@@ -405,7 +409,7 @@ class EventRuleTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class CustomLinkTestCase(TestCase, BaseFilterSetTests):
+class CustomLinkTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = CustomLink.objects.all()
     filterset = CustomLinkFilterSet
 
@@ -474,9 +478,10 @@ class CustomLinkTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
 
-class SavedFilterTestCase(TestCase, BaseFilterSetTests):
+class SavedFilterTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = SavedFilter.objects.all()
     filterset = SavedFilterFilterSet
+    ignore_fields = ('parameters',)
 
     @classmethod
     def setUpTestData(cls):
@@ -647,9 +652,10 @@ class BookmarkTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
-class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
+class ExportTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ExportTemplate.objects.all()
     filterset = ExportTemplateFilterSet
+    ignore_fields = ('template_code', 'data_path')
 
     @classmethod
     def setUpTestData(cls):
@@ -683,9 +689,10 @@ class ExportTemplateTestCase(TestCase, BaseFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
+class ImageAttachmentTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ImageAttachment.objects.all()
     filterset = ImageAttachmentFilterSet
+    ignore_fields = ('image',)
 
     @classmethod
     def setUpTestData(cls):
@@ -759,12 +766,6 @@ class ImageAttachmentTestCase(TestCase, BaseFilterSetTests):
             'object_id': [Site.objects.first().pk],
         }
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
-
-    def test_created(self):
-        pk_list = self.queryset.values_list('pk', flat=True)[:2]
-        self.queryset.filter(pk__in=pk_list).update(created=datetime(2021, 1, 1, 0, 0, 0, tzinfo=timezone.utc))
-        params = {'created': '2021-01-01T00:00:00'}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -873,6 +874,7 @@ class JournalEntryTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConfigContext.objects.all()
     filterset = ConfigContextFilterSet
+    ignore_fields = ('data', 'data_path')
 
     @classmethod
     def setUpTestData(cls):
@@ -1041,11 +1043,11 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'device_type_id': [device_types[0].pk, device_types[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_role(self):
+    def test_device_role(self):
         device_roles = DeviceRole.objects.all()[:2]
-        params = {'role_id': [device_roles[0].pk, device_roles[1].pk]}
+        params = {'device_role_id': [device_roles[0].pk, device_roles[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'role': [device_roles[0].slug, device_roles[1].slug]}
+        params = {'device_role': [device_roles[0].slug, device_roles[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_platform(self):
@@ -1096,9 +1098,10 @@ class ConfigContextTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
-class ConfigTemplateTestCase(TestCase, BaseFilterSetTests):
+class ConfigTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ConfigTemplate.objects.all()
     filterset = ConfigTemplateFilterSet
+    ignore_fields = ('template_code', 'environment_params', 'data_path')
 
     @classmethod
     def setUpTestData(cls):
@@ -1125,6 +1128,93 @@ class ConfigTemplateTestCase(TestCase, BaseFilterSetTests):
 class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Tag.objects.all()
     filterset = TagFilterSet
+    ignore_fields = (
+        'object_types',
+
+        # Reverse relationships (to tagged models) we can ignore
+        'aggregate',
+        'asn',
+        'asnrange',
+        'cable',
+        'circuit',
+        'circuittermination',
+        'circuittype',
+        'cluster',
+        'clustergroup',
+        'clustertype',
+        'configtemplate',
+        'consoleport',
+        'consoleserverport',
+        'contact',
+        'contactassignment',
+        'contactgroup',
+        'contactrole',
+        'datasource',
+        'device',
+        'devicebay',
+        'devicerole',
+        'devicetype',
+        'dummymodel',  # From dummy_plugin
+        'eventrule',
+        'fhrpgroup',
+        'frontport',
+        'ikepolicy',
+        'ikeproposal',
+        'interface',
+        'inventoryitem',
+        'inventoryitemrole',
+        'ipaddress',
+        'iprange',
+        'ipsecpolicy',
+        'ipsecprofile',
+        'ipsecproposal',
+        'journalentry',
+        'l2vpn',
+        'l2vpntermination',
+        'location',
+        'manufacturer',
+        'module',
+        'modulebay',
+        'moduletype',
+        'platform',
+        'powerfeed',
+        'poweroutlet',
+        'powerpanel',
+        'powerport',
+        'prefix',
+        'provider',
+        'provideraccount',
+        'providernetwork',
+        'rack',
+        'rackreservation',
+        'rackrole',
+        'rearport',
+        'region',
+        'rir',
+        'role',
+        'routetarget',
+        'service',
+        'servicetemplate',
+        'site',
+        'sitegroup',
+        'tenant',
+        'tenantgroup',
+        'tunnel',
+        'tunnelgroup',
+        'tunneltermination',
+        'virtualchassis',
+        'virtualdevicecontext',
+        'virtualdisk',
+        'virtualmachine',
+        'vlan',
+        'vlangroup',
+        'vminterface',
+        'vrf',
+        'webhook',
+        'wirelesslan',
+        'wirelesslangroup',
+        'wirelesslink',
+    )
 
     @classmethod
     def setUpTestData(cls):
@@ -1193,6 +1283,7 @@ class TagTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ObjectChangeTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectChange.objects.all()
     filterset = ObjectChangeFilterSet
+    ignore_fields = ('prechange_data', 'postchange_data')
 
     @classmethod
     def setUpTestData(cls):

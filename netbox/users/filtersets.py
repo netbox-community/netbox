@@ -3,8 +3,10 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils.translation import gettext as _
 
+from core.models import ObjectType
 from netbox.filtersets import BaseFilterSet
 from users.models import Group, ObjectPermission, Token
+from utilities.filters import ContentTypeFilter
 
 __all__ = (
     'GroupFilterSet',
@@ -19,10 +21,20 @@ class GroupFilterSet(BaseFilterSet):
         method='search',
         label=_('Search'),
     )
+    user_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='user',
+        queryset=get_user_model().objects.all(),
+        label=_('User (ID)'),
+    )
+    permission_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='object_permissions',
+        queryset=ObjectPermission.objects.all(),
+        label=_('Permission (ID)'),
+    )
 
     class Meta:
         model = Group
-        fields = ['id', 'name']
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -46,10 +58,18 @@ class UserFilterSet(BaseFilterSet):
         to_field_name='name',
         label=_('Group (name)'),
     )
+    permission_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='object_permissions',
+        queryset=ObjectPermission.objects.all(),
+        label=_('Permission (ID)'),
+    )
 
     class Meta:
         model = get_user_model()
-        fields = ['id', 'username', 'first_name', 'last_name', 'email', 'is_staff', 'is_active', 'is_superuser']
+        fields = (
+            'id', 'username', 'first_name', 'last_name', 'email', 'date_joined', 'last_login', 'is_staff', 'is_active',
+            'is_superuser',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -99,7 +119,7 @@ class TokenFilterSet(BaseFilterSet):
 
     class Meta:
         model = Token
-        fields = ['id', 'key', 'write_enabled', 'description']
+        fields = ('id', 'key', 'write_enabled', 'description', 'last_used')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -114,6 +134,13 @@ class ObjectPermissionFilterSet(BaseFilterSet):
     q = django_filters.CharFilter(
         method='search',
         label=_('Search'),
+    )
+    object_type_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=ObjectType.objects.all(),
+        field_name='object_types'
+    )
+    object_type = ContentTypeFilter(
+        field_name='object_types'
     )
     can_view = django_filters.BooleanFilter(
         method='_check_action'
@@ -152,7 +179,7 @@ class ObjectPermissionFilterSet(BaseFilterSet):
 
     class Meta:
         model = ObjectPermission
-        fields = ['id', 'name', 'enabled', 'object_types', 'description']
+        fields = ('id', 'name', 'enabled', 'object_types', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
