@@ -27,14 +27,14 @@ class ClusterTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ClusterType
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class ClusterGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = ClusterGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
@@ -101,7 +101,7 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
 
     class Meta:
         model = Cluster
-        fields = ['id', 'name', 'description']
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -325,7 +325,7 @@ class VirtualDiskFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = VirtualDisk
-        fields = ['id', 'name', 'size', 'description']
+        fields = ('id', 'name', 'size', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

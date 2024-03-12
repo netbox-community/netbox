@@ -106,7 +106,7 @@ class RegionFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Region
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
@@ -136,7 +136,7 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = SiteGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class SiteFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
@@ -270,7 +270,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
 
     class Meta:
         model = Location
-        fields = ['id', 'name', 'slug', 'status', 'description']
+        fields = ('id', 'name', 'slug', 'status', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -285,7 +285,7 @@ class RackRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = RackRole
-        fields = ['id', 'name', 'slug', 'color', 'description']
+        fields = ('id', 'name', 'slug', 'color', 'description')
 
 
 class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
@@ -364,10 +364,10 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
 
     class Meta:
         model = Rack
-        fields = [
+        fields = (
             'id', 'name', 'facility_id', 'asset_tag', 'u_height', 'starting_unit', 'desc_units', 'outer_width',
             'outer_depth', 'outer_unit', 'mounting_depth', 'weight', 'max_weight', 'weight_unit', 'description',
-        ]
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -471,7 +471,7 @@ class ManufacturerFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet)
 
     class Meta:
         model = Manufacturer
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class DeviceTypeFilterSet(NetBoxModelFilterSet):
@@ -651,7 +651,7 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ModuleType
-        fields = ['id', 'model', 'part_number', 'weight', 'weight_unit', 'description']
+        fields = ('id', 'model', 'part_number', 'weight', 'weight_unit', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -849,7 +849,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
 
     class Meta:
         model = InventoryItemTemplate
-        fields = ['id', 'name', 'label', 'part_id', 'description']
+        fields = ('id', 'name', 'label', 'part_id', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -870,7 +870,7 @@ class DeviceRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = DeviceRole
-        fields = ['id', 'name', 'slug', 'color', 'vm_role', 'description']
+        fields = ('id', 'name', 'slug', 'color', 'vm_role', 'description')
 
 
 class PlatformFilterSet(OrganizationalModelFilterSet):
@@ -896,7 +896,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = Platform
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_for_device_type(self, queryset, name, value):
@@ -1800,7 +1800,7 @@ class InventoryItemRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = InventoryItemRole
-        fields = ['id', 'name', 'slug', 'color', 'description']
+        fields = ('id', 'name', 'slug', 'color', 'description')
 
 
 class VirtualChassisFilterSet(NetBoxModelFilterSet):
@@ -1970,7 +1970,7 @@ class CableFilterSet(TenancyFilterSet, NetBoxModelFilterSet):
 
     class Meta:
         model = Cable
-        fields = ['id', 'label', 'length', 'length_unit', 'description']
+        fields = ('id', 'label', 'length', 'length_unit', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -2102,7 +2102,7 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = PowerPanel
-        fields = ['id', 'name', 'description']
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -2230,18 +2230,18 @@ class ConsoleConnectionFilterSet(ConnectionFilterSet):
 
     class Meta:
         model = ConsolePort
-        fields = ['name']
+        fields = ('name',)
 
 
 class PowerConnectionFilterSet(ConnectionFilterSet):
 
     class Meta:
         model = PowerPort
-        fields = ['name']
+        fields = ('name',)
 
 
 class InterfaceConnectionFilterSet(ConnectionFilterSet):
 
     class Meta:
         model = Interface
-        fields = []
+        fields = tuple()

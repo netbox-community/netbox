@@ -40,7 +40,7 @@ class WirelessLANGroupFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = WirelessLANGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class WirelessLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -74,7 +74,7 @@ class WirelessLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = WirelessLAN
-        fields = ['id', 'ssid', 'auth_psk', 'description']
+        fields = ('id', 'ssid', 'auth_psk', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -105,7 +105,7 @@ class WirelessLinkFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = WirelessLink
-        fields = ['id', 'ssid', 'auth_psk', 'description']
+        fields = ('id', 'ssid', 'auth_psk', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

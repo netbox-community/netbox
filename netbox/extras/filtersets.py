@@ -333,7 +333,7 @@ class BookmarkFilterSet(BaseFilterSet):
 
     class Meta:
         model = Bookmark
-        fields = ['id', 'object_id']
+        fields = ('id', 'object_id')
 
 
 class ImageAttachmentFilterSet(ChangeLoggedModelFilterSet):
@@ -375,7 +375,7 @@ class JournalEntryFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = JournalEntry
-        fields = ['id', 'assigned_object_type_id', 'assigned_object_id', 'created', 'kind']
+        fields = ('id', 'assigned_object_type_id', 'assigned_object_id', 'created', 'kind')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -400,7 +400,7 @@ class TagFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = Tag
-        fields = ['id', 'name', 'slug', 'color', 'description', 'object_types']
+        fields = ('id', 'name', 'slug', 'color', 'description', 'object_types')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -697,7 +697,7 @@ class ObjectTypeFilterSet(django_filters.FilterSet):
 
     class Meta:
         model = ObjectType
-        fields = ['id', 'app_label', 'model']
+        fields = ('id', 'app_label', 'model')
 
     def search(self, queryset, name, value):
         if not value.strip():

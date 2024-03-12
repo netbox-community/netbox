@@ -76,7 +76,7 @@ class VRFFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VRF
-        fields = ['id', 'name', 'rd', 'enforce_unique', 'description']
+        fields = ('id', 'name', 'rd', 'enforce_unique', 'description')
 
 
 class RouteTargetFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -135,14 +135,14 @@ class RouteTargetFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = RouteTarget
-        fields = ['id', 'name', 'description']
+        fields = ('id', 'name', 'description')
 
 
 class RIRFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = RIR
-        fields = ['id', 'name', 'slug', 'is_private', 'description']
+        fields = ('id', 'name', 'slug', 'is_private', 'description')
 
 
 class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -167,7 +167,7 @@ class AggregateFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Aggregate
-        fields = ['id', 'date_added', 'description']
+        fields = ('id', 'date_added', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -251,7 +251,7 @@ class ASNFilterSet(OrganizationalModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = ASN
-        fields = ['id', 'asn', 'description']
+        fields = ('id', 'asn', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -393,7 +393,7 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Prefix
-        fields = ['id', 'is_pool', 'mark_utilized', 'description']
+        fields = ('id', 'is_pool', 'mark_utilized', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -802,7 +802,7 @@ class FHRPGroupFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = FHRPGroup
-        fields = ['id', 'group_id', 'name', 'auth_key', 'description']
+        fields = ('id', 'group_id', 'name', 'auth_key', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -863,7 +863,7 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = FHRPGroupAssignment
-        fields = ['id', 'group_id', 'interface_type', 'interface_id', 'priority']
+        fields = ('id', 'group_id', 'interface_type', 'interface_id', 'priority')
 
     def filter_device(self, queryset, name, value):
         devices = Device.objects.filter(**{f'{name}__in': value})
@@ -918,7 +918,7 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = VLANGroup
-        fields = ['id', 'name', 'slug', 'min_vid', 'max_vid', 'description', 'scope_id']
+        fields = ('id', 'name', 'slug', 'min_vid', 'max_vid', 'description', 'scope_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -1024,7 +1024,7 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = VLAN
-        fields = ['id', 'vid', 'name', 'description']
+        fields = ('id', 'vid', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
