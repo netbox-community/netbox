@@ -22,8 +22,11 @@ class Migration(migrations.Migration):
         migrations.RunSQL("ALTER INDEX ipam_l2vpn_name_5e1c080f_like RENAME TO vpn_l2vpn_name_8824eda5_like"),
         migrations.RunSQL("ALTER INDEX ipam_l2vpn_name_key RENAME TO vpn_l2vpn_name_key"),
         migrations.RunSQL("ALTER INDEX ipam_l2vpn_slug_24008406_like RENAME TO vpn_l2vpn_slug_76b5a174_like"),
-        migrations.RunSQL("ALTER INDEX ipam_l2vpn_slug_24008406_uniq RENAME TO vpn_l2vpn_slug_76b5a174_uniq"),
         migrations.RunSQL("ALTER INDEX ipam_l2vpn_tenant_id_bb2564a6 RENAME TO vpn_l2vpn_tenant_id_57ec8f92"),
+        # The unique index for L2VPN.slug may have one of two names, depending on how it was created,
+        # so we check for both.
+        migrations.RunSQL("ALTER INDEX IF EXISTS ipam_l2vpn_slug_24008406_uniq RENAME TO vpn_l2vpn_slug_76b5a174_uniq"),
+        migrations.RunSQL("ALTER INDEX IF EXISTS ipam_l2vpn_slug_key RENAME TO vpn_l2vpn_slug_key"),
 
         # Rename vpn_l2vpntermination constraints
         migrations.RunSQL("ALTER TABLE vpn_l2vpntermination RENAME CONSTRAINT ipam_l2vpntermination_assigned_object_id_check TO vpn_l2vpntermination_assigned_object_id_check"),
