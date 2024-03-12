@@ -16,7 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
     NumericArrayField, SlugField,
 )
-from utilities.forms.rendering import InlineFields
+from utilities.forms.rendering import InlineFields, TabbedFieldGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -237,8 +237,8 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'width',
             'starting_unit',
             'u_height',
-            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
-            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            InlineFields(_('Outer Dimensions'), 'outer_width', 'outer_depth', 'outer_unit'),
+            InlineFields(_('Weight'), 'weight', 'max_weight', 'weight_unit'),
             'mounting_depth',
             'desc_units',
         )),
@@ -1414,6 +1414,17 @@ class InventoryItemForm(DeviceComponentForm):
     fieldsets = (
         (_('Inventory Item'), ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
         (_('Hardware'), ('manufacturer', 'part_id', 'serial', 'asset_tag')),
+        (_('Component Assignment'), (
+            TabbedFieldGroups(
+                (_('Interface'), 'interface'),
+                (_('Console Port'), 'consoleport'),
+                (_('Console Server Port'), 'consoleserverport'),
+                (_('Front Port'), 'frontport'),
+                (_('Rear Port'), 'rearport'),
+                (_('Power Port'), 'powerport'),
+                (_('Power Outlet'), 'poweroutlet'),
+            ),
+        ))
     )
 
     class Meta:
@@ -1429,22 +1440,17 @@ class InventoryItemForm(DeviceComponentForm):
         component_type = initial.get('component_type')
         component_id = initial.get('component_id')
 
-        # Used for picking the default active tab for component selection
-        self.no_component = True
-
         if instance:
-            # When editing set the initial value for component selectin
+            # When editing set the initial value for component selection
             for component_model in ContentType.objects.filter(MODULAR_COMPONENT_MODELS):
                 if type(instance.component) is component_model.model_class():
                     initial[component_model.model] = instance.component
-                    self.no_component = False
                     break
         elif component_type and component_id:
             # When adding the InventoryItem from a component page
             if content_type := ContentType.objects.filter(MODULAR_COMPONENT_MODELS).filter(pk=component_type).first():
                 if component := content_type.model_class().objects.filter(pk=component_id).first():
                     initial[content_type.model] = component
-                    self.no_component = False
 
         kwargs['initial'] = initial
 
