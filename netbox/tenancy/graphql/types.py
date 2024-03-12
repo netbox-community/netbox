@@ -189,6 +189,6 @@ class ContactGroupType(OrganizationalObjectType):
     filters=ContactAssignmentFilter
 )
 class ContactAssignmentType(CustomFieldsMixin, TagsMixin, BaseObjectType):
-    content_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
     contact: Annotated["ContactType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["ContactRoleType", strawberry.lazy('tenancy.graphql.types')] | None

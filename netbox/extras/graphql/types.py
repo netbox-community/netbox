@@ -123,7 +123,7 @@ class ConfigTemplateType(TagsMixin, ObjectType):
     filters=CustomFieldFilter
 )
 class CustomFieldType(ObjectType):
-    object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    related_object_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
     choice_set: Annotated["CustomFieldChoiceSetType", strawberry.lazy('extras.graphql.types')] | None
 
 
