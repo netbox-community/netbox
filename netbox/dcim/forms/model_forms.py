@@ -16,6 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
     NumericArrayField, SlugField,
 )
+from utilities.forms.rendering import InlineFields
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -226,6 +227,22 @@ class RackForm(TenancyForm, NetBoxModelForm):
         required=False
     )
     comments = CommentField()
+
+    fieldsets = (
+        (_('Rack'), ('site', 'location', 'name', 'status', 'role', 'description', 'tags')),
+        (_('Inventory Control'), ('facility_id', 'serial', 'asset_tag')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
+        (_('Dimensions'), (
+            'type',
+            'width',
+            'starting_unit',
+            'u_height',
+            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
+            'mounting_depth',
+            'desc_units',
+        )),
+    )
 
     class Meta:
         model = Rack

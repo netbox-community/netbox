@@ -1,5 +1,7 @@
 from django import template
 
+from utilities.forms.rendering import InlineFields
+
 __all__ = (
     'getfield',
     'render_custom_fields',
@@ -44,6 +46,28 @@ def widget_type(field):
 #
 # Inclusion tags
 #
+
+@register.inclusion_tag('form_helpers/render_fieldset.html')
+def render_fieldset(form, fieldset, heading=None):
+    """
+    Render a group set of fields.
+    """
+    rows = []
+    for item in fieldset:
+        if type(item) is InlineFields:
+            rows.append(
+                ('inline', item.label, [form[name] for name in item.field_names])
+            )
+        else:
+            rows.append(
+                ('field', None, [form[item]])
+            )
+
+    return {
+        'heading': heading,
+        'rows': rows,
+    }
+
 
 @register.inclusion_tag('form_helpers/render_field.html')
 def render_field(field, bulk_nullable=False, label=None):

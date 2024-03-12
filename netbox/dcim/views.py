@@ -727,7 +727,6 @@ class RackNonRackedView(generic.ObjectChildrenView):
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
     form = forms.RackForm
-    template_name = 'dcim/rack_edit.html'
 
 
 @register_model_view(Rack, 'delete')
