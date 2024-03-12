@@ -1,6 +1,6 @@
 from django import template
 
-from utilities.forms.rendering import InlineFields
+from utilities.forms.rendering import InlineFields, TabbedFieldGroups
 
 __all__ = (
     'getfield',
@@ -57,6 +57,21 @@ def render_fieldset(form, fieldset, heading=None):
         if type(item) is InlineFields:
             rows.append(
                 ('inline', item.label, [form[name] for name in item.field_names])
+            )
+        elif type(item) is TabbedFieldGroups:
+            tabs = [
+                {
+                    'id': tab['id'],
+                    'title': tab['title'],
+                    'active': bool(form.initial.get(tab['fields'][0], False)),
+                    'fields': [form[name] for name in tab['fields']]
+                } for tab in item.tabs
+            ]
+            # If none of the tabs has been marked as active, activate the first one
+            if not any(tab['active'] for tab in tabs):
+                tabs[0]['active'] = True
+            rows.append(
+                ('tabs', None, tabs)
             )
         else:
             rows.append(
