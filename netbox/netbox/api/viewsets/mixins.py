@@ -1,10 +1,10 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
 
+from core.models import ObjectType
 from extras.models import ExportTemplate
 from netbox.api.serializers import BulkOperationSerializer
 
@@ -26,9 +26,9 @@ class CustomFieldsMixin:
         context = super().get_serializer_context()
 
         if hasattr(self.queryset.model, 'custom_fields'):
-            content_type = ContentType.objects.get_for_model(self.queryset.model)
+            object_type = ObjectType.objects.get_for_model(self.queryset.model)
             context.update({
-                'custom_fields': content_type.custom_fields.all(),
+                'custom_fields': object_type.custom_fields.all(),
             })
 
         return context
@@ -40,8 +40,8 @@ class ExportTemplatesMixin:
     """
     def list(self, request, *args, **kwargs):
         if 'export' in request.GET:
-            content_type = ContentType.objects.get_for_model(self.get_serializer_class().Meta.model)
-            et = ExportTemplate.objects.filter(content_types=content_type, name=request.GET['export']).first()
+            object_type = ObjectType.objects.get_for_model(self.get_serializer_class().Meta.model)
+            et = ExportTemplate.objects.filter(object_types=object_type, name=request.GET['export']).first()
             if et is None:
                 raise Http404
             queryset = self.filter_queryset(self.get_queryset())

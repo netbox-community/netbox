@@ -12,7 +12,7 @@ from django.utils.formats import date_format
 from django.utils.translation import gettext_lazy as _
 from rest_framework.utils.encoders import JSONEncoder
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.conditions import ConditionSet
 from extras.constants import *
@@ -43,9 +43,9 @@ class EventRule(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLogged
     specific type of object is created, modified, or deleted. The action to be taken might entail transmitting a
     webhook or executing a custom script.
     """
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
-        related_name='eventrules',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
+        related_name='event_rules',
         verbose_name=_('object types'),
         help_text=_("The object(s) to which this rule applies.")
     )
@@ -313,8 +313,8 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     A custom link to an external representation of a NetBox object. The link text and URL fields accept Jinja2 template
     code to be rendered with an object as context.
     """
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='custom_links',
         help_text=_('The object type(s) to which this link applies.')
     )
@@ -359,7 +359,7 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     )
 
     clone_fields = (
-        'content_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
+        'object_types', 'enabled', 'weight', 'group_name', 'button_class', 'new_window',
     )
 
     class Meta:
@@ -409,8 +409,8 @@ class CustomLink(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
 
 class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='export_templates',
         help_text=_('The object type(s) to which this template applies.')
     )
@@ -448,7 +448,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
     )
 
     clone_fields = (
-        'content_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
+        'object_types', 'template_code', 'mime_type', 'file_extension', 'as_attachment',
     )
 
     class Meta:
@@ -518,8 +518,8 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     """
     A set of predefined keyword parameters that can be reused to filter for specific objects.
     """
-    content_types = models.ManyToManyField(
-        to='contenttypes.ContentType',
+    object_types = models.ManyToManyField(
+        to='core.ObjectType',
         related_name='saved_filters',
         help_text=_('The object type(s) to which this filter applies.')
     )
@@ -561,7 +561,7 @@ class SavedFilter(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
     )
 
     clone_fields = (
-        'content_types', 'weight', 'enabled', 'parameters',
+        'object_types', 'weight', 'enabled', 'parameters',
     )
 
     class Meta:
@@ -598,13 +598,13 @@ class ImageAttachment(ChangeLoggedModel):
     """
     An uploaded image which is associated with an object.
     """
-    content_type = models.ForeignKey(
+    object_type = models.ForeignKey(
         to='contenttypes.ContentType',
         on_delete=models.CASCADE
     )
     object_id = models.PositiveBigIntegerField()
     parent = GenericForeignKey(
-        ct_field='content_type',
+        ct_field='object_type',
         fk_field='object_id'
     )
     image = models.ImageField(
@@ -626,12 +626,12 @@ class ImageAttachment(ChangeLoggedModel):
 
     objects = RestrictedQuerySet.as_manager()
 
-    clone_fields = ('content_type', 'object_id')
+    clone_fields = ('object_type', 'object_id')
 
     class Meta:
         ordering = ('name', 'pk')  # name may be non-unique
         indexes = (
-            models.Index(fields=('content_type', 'object_id')),
+            models.Index(fields=('object_type', 'object_id')),
         )
         verbose_name = _('image attachment')
         verbose_name_plural = _('image attachments')
@@ -646,9 +646,9 @@ class ImageAttachment(ChangeLoggedModel):
         super().clean()
 
         # Validate the assigned object type
-        if self.content_type not in ContentType.objects.with_feature('image_attachments'):
+        if self.object_type not in ObjectType.objects.with_feature('image_attachments'):
             raise ValidationError(
-                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.content_type)
+                _("Image attachments cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )
 
     def delete(self, *args, **kwargs):
@@ -739,7 +739,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
         super().clean()
 
         # Validate the assigned object type
-        if self.assigned_object_type not in ContentType.objects.with_feature('journaling'):
+        if self.assigned_object_type not in ObjectType.objects.with_feature('journaling'):
             raise ValidationError(
                 _("Journaling is not supported for this object type ({type}).").format(type=self.assigned_object_type)
             )
@@ -795,7 +795,7 @@ class Bookmark(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.object_type not in ContentType.objects.with_feature('bookmarks'):
+        if self.object_type not in ObjectType.objects.with_feature('bookmarks'):
             raise ValidationError(
                 _("Bookmarks cannot be assigned to this object type ({type}).").format(type=self.object_type)
             )

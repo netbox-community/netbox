@@ -1,7 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.models import Bookmark
 from netbox.api.fields import ContentTypeField
 from netbox.api.serializers import ValidatedModelSerializer
@@ -16,7 +16,7 @@ __all__ = (
 class BookmarkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
     object_type = ContentTypeField(
-        queryset=ContentType.objects.with_feature('bookmarks'),
+        queryset=ObjectType.objects.with_feature('bookmarks'),
     )
     object = serializers.SerializerMethodField(read_only=True)
     user = UserSerializer(nested=True)

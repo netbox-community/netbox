@@ -39,7 +39,7 @@ class ConfigTemplateFilter(filtersets.ConfigTemplateFilterSet):
 @strawberry_django.filter(models.CustomField, lookups=True)
 class CustomFieldFilter(filtersets.CustomFieldFilterSet):
     id: auto
-    content_types: auto
+    object_types: auto
     name: auto
     group_name: auto
     required: auto
@@ -62,7 +62,7 @@ class CustomFieldChoiceSetFilter(filtersets.CustomFieldChoiceSetFilterSet):
 @strawberry_django.filter(models.CustomLink, lookups=True)
 class CustomLinkFilter(filtersets.CustomLinkFilterSet):
     id: auto
-    content_types: auto
+    object_types: auto
     name: auto
     enabled: auto
     link_text: auto
@@ -75,7 +75,7 @@ class CustomLinkFilter(filtersets.CustomLinkFilterSet):
 @strawberry_django.filter(models.ExportTemplate, lookups=True)
 class ExportTemplateFilter(filtersets.ExportTemplateFilterSet):
     id: auto
-    content_types: auto
+    object_types: auto
     name: auto
     description: auto
     data_synced: auto
@@ -84,7 +84,7 @@ class ExportTemplateFilter(filtersets.ExportTemplateFilterSet):
 @strawberry_django.filter(models.ImageAttachment, lookups=True)
 class ImageAttachmentFilter(filtersets.ImageAttachmentFilterSet):
     id: auto
-    content_type_id: auto
+    object_type_id: auto
     object_id: auto
     name: auto
 
@@ -113,7 +113,7 @@ class ObjectChangeFilter(filtersets.ObjectChangeFilterSet):
 @strawberry_django.filter(models.SavedFilter, lookups=True)
 class SavedFilterFilter(filtersets.SavedFilterFilterSet):
     id: auto
-    content_types: auto
+    object_types: auto
     name: auto
     slug: auto
     description: auto

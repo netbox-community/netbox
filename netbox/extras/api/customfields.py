@@ -1,10 +1,10 @@
-from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework.fields import Field
 from rest_framework.serializers import ValidationError
 
+from core.models import ObjectType
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
 from utilities.api import get_serializer_for_model
@@ -24,8 +24,8 @@ class CustomFieldDefaultValues:
         self.model = serializer_field.parent.Meta.model
 
         # Retrieve the CustomFields for the parent model
-        content_type = ContentType.objects.get_for_model(self.model)
-        fields = CustomField.objects.filter(content_types=content_type)
+        object_type = ObjectType.objects.get_for_model(self.model)
+        fields = CustomField.objects.filter(object_types=object_type)
 
         # Populate the default value for each CustomField
         value = {}
@@ -46,8 +46,8 @@ class CustomFieldsDataField(Field):
         Cache CustomFields assigned to this model to avoid redundant database queries
         """
         if not hasattr(self, '_custom_fields'):
-            content_type = ContentType.objects.get_for_model(self.parent.Meta.model)
-            self._custom_fields = CustomField.objects.filter(content_types=content_type)
+            object_type = ObjectType.objects.get_for_model(self.parent.Meta.model)
+            self._custom_fields = CustomField.objects.filter(object_types=object_type)
         return self._custom_fields
 
     def to_representation(self, obj):
@@ -57,10 +57,10 @@ class CustomFieldsDataField(Field):
         for cf in self._get_custom_fields():
             value = cf.deserialize(obj.get(cf.name))
             if value is not None and cf.type == CustomFieldTypeChoices.TYPE_OBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class())
+                serializer = get_serializer_for_model(cf.related_object_type.model_class())
                 value = serializer(value, nested=True, context=self.parent.context).data
             elif value is not None and cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT:
-                serializer = get_serializer_for_model(cf.object_type.model_class())
+                serializer = get_serializer_for_model(cf.related_object_type.model_class())
                 value = serializer(value, nested=True, many=True, context=self.parent.context).data
             data[cf.name] = value
 
@@ -79,7 +79,7 @@ class CustomFieldsDataField(Field):
                     CustomFieldTypeChoices.TYPE_OBJECT,
                     CustomFieldTypeChoices.TYPE_MULTIOBJECT
             ):
-                serializer_class = get_serializer_for_model(cf.object_type.model_class())
+                serializer_class = get_serializer_for_model(cf.related_object_type.model_class())
                 many = cf.type == CustomFieldTypeChoices.TYPE_MULTIOBJECT
                 serializer = serializer_class(data=data[cf.name], nested=True, many=many, context=self.parent.context)
                 if serializer.is_valid():

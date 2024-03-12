@@ -10,7 +10,7 @@ from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.utils import is_taggable
 from netbox.config import get_config
@@ -329,7 +329,9 @@ class ImageAttachmentsMixin(models.Model):
     Enables the assignments of ImageAttachments.
     """
     images = GenericRelation(
-        to='extras.ImageAttachment'
+        to='extras.ImageAttachment',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:
@@ -341,7 +343,9 @@ class ContactsMixin(models.Model):
     Enables the assignments of Contacts (via ContactAssignment).
     """
     contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
+        to='tenancy.ContactAssignment',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:
@@ -490,17 +494,17 @@ class SyncedDataMixin(models.Model):
         ret = super().save(*args, **kwargs)
 
         # Create/delete AutoSyncRecord as needed
-        content_type = ContentType.objects.get_for_model(self)
+        object_type = ObjectType.objects.get_for_model(self)
         if self.auto_sync_enabled:
             AutoSyncRecord.objects.update_or_create(
-                object_type=content_type,
+                object_type=object_type,
                 object_id=self.pk,
                 defaults={'datafile': self.data_file}
             )
         else:
             AutoSyncRecord.objects.filter(
                 datafile=self.data_file,
-                object_type=content_type,
+                object_type=object_type,
                 object_id=self.pk
             ).delete()
 
@@ -510,10 +514,10 @@ class SyncedDataMixin(models.Model):
         from core.models import AutoSyncRecord
 
         # Delete AutoSyncRecord
-        content_type = ContentType.objects.get_for_model(self)
+        object_type = ObjectType.objects.get_for_model(self)
         AutoSyncRecord.objects.filter(
             datafile=self.data_file,
-            object_type=content_type,
+            object_type=object_type,
             object_id=self.pk
         ).delete()
 

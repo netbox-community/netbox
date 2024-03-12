@@ -4,7 +4,6 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRel
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
@@ -17,6 +16,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
 
+from core.models import ObjectType
 from extras.models import ExportTemplate
 from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
@@ -124,7 +124,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             request: The current request
         """
         model = self.queryset.model
-        content_type = ContentType.objects.get_for_model(model)
+        object_type = ObjectType.objects.get_for_model(model)
 
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset, request=request).qs
@@ -143,7 +143,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             elif request.GET['export']:
-                template = get_object_or_404(ExportTemplate, content_types=content_type, name=request.GET['export'])
+                template = get_object_or_404(ExportTemplate, object_types=object_type, name=request.GET['export'])
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model

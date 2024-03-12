@@ -12,4 +12,7 @@ class Migration(migrations.Migration):
             model_name='eventrule',
             name='action_parameters',
         ),
+        migrations.DeleteModel(
+            name='ReportModule',
+        ),
     ]

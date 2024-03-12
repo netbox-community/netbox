@@ -24,7 +24,7 @@ def image_upload(instance, filename):
     elif instance.name:
         filename = instance.name
 
-    return '{}{}_{}_{}'.format(path, instance.content_type.name, instance.object_id, filename)
+    return '{}{}_{}_{}'.format(path, instance.object_type.name, instance.object_id, filename)
 
 
 def is_script(obj):

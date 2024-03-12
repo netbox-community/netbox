@@ -1,6 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Location, Manufacturer, Platform, Region, Site, SiteGroup
 from extras.models import ConfigContext, Tag
 from tenancy.models import Tenant, TenantGroup
@@ -22,7 +22,7 @@ class TagTest(TestCase):
 
         # Create a Tag that can only be applied to Regions
         tag = Tag.objects.create(name='Tag 1', slug='tag-1')
-        tag.object_types.add(ContentType.objects.get_by_natural_key('dcim', 'region'))
+        tag.object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'region'))
 
         # Apply the Tag to a Region
         region.tags.add(tag)

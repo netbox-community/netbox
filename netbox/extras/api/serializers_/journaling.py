@@ -3,7 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import JournalEntry
 from netbox.api.fields import ChoiceField, ContentTypeField
@@ -18,7 +18,7 @@ __all__ = (
 class JournalEntrySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
     assigned_object_type = ContentTypeField(
-        queryset=ContentType.objects.all()
+        queryset=ObjectType.objects.all()
     )
     assigned_object = serializers.SerializerMethodField(read_only=True)
     created_by = serializers.PrimaryKeyRelatedField(

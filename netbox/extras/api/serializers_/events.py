@@ -2,7 +2,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import EventRule, Webhook
 from netbox.api.fields import ChoiceField, ContentTypeField
@@ -22,20 +22,20 @@ __all__ = (
 
 class EventRuleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:eventrule-detail')
-    content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('event_rules'),
+    object_types = ContentTypeField(
+        queryset=ObjectType.objects.with_feature('event_rules'),
         many=True
     )
     action_type = ChoiceField(choices=EventRuleActionChoices)
     action_object_type = ContentTypeField(
-        queryset=ContentType.objects.with_feature('event_rules'),
+        queryset=ObjectType.objects.with_feature('event_rules'),
     )
     action_object = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = EventRule
         fields = [
-            'id', 'url', 'display', 'content_types', 'name', 'type_create', 'type_update', 'type_delete',
+            'id', 'url', 'display', 'object_types', 'name', 'type_create', 'type_update', 'type_delete',
             'type_job_start', 'type_job_end', 'enabled', 'conditions', 'action_type', 'action_object_type',
             'action_object_id', 'action_object', 'description', 'custom_fields', 'tags', 'created', 'last_updated',
         ]

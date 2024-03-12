@@ -3,7 +3,7 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from netbox.api.fields import ChoiceField, ContentTypeField
@@ -39,13 +39,13 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
 
 class CustomFieldSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
-    content_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('custom_fields'),
+    object_types = ContentTypeField(
+        queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True
     )
     type = ChoiceField(choices=CustomFieldTypeChoices)
-    object_type = ContentTypeField(
-        queryset=ContentType.objects.all(),
+    related_object_type = ContentTypeField(
+        queryset=ObjectType.objects.all(),
         required=False,
         allow_null=True
     )
@@ -62,10 +62,10 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'content_types', 'type', 'object_type', 'data_type', 'name', 'label', 'group_name',
-            'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex', 'choice_set',
-            'created', 'last_updated',
+            'id', 'url', 'display', 'object_types', 'type', 'related_object_type', 'data_type', 'name', 'label',
+            'group_name', 'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
+            'is_cloneable', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
+            'choice_set', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
+from core.models import ObjectType
 from users.models import Group, ObjectPermission, Token
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
 from utilities.utils import deepmerge
@@ -64,7 +64,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         user_credentials = {
             'username': 'user1',
@@ -261,7 +261,7 @@ class ObjectPermissionTest(
         )
         User.objects.bulk_create(users)
 
-        object_type = ContentType.objects.get(app_label='dcim', model='device')
+        object_type = ObjectType.objects.get(app_label='dcim', model='device')
 
         for i in range(3):
             objectpermission = ObjectPermission(

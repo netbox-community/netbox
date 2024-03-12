@@ -1,11 +1,9 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 
 from dcim.models import *
-from users.models import ObjectPermission
 from utilities.testing.base import TestCase
-from utilities.testing.utils import create_test_device, create_test_user
+from utilities.testing.utils import create_test_device
 
 
 class CountersTest(TestCase):

@@ -1,8 +1,8 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from circuits.models import *
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
@@ -293,8 +293,8 @@ class DeviceTestCase(TestCase):
 
         # Create a CustomField with a default value & assign it to all component models
         cf1 = CustomField.objects.create(name='cf1', default='foo')
-        cf1.content_types.set(
-            ContentType.objects.filter(app_label='dcim', model__in=[
+        cf1.object_types.set(
+            ObjectType.objects.filter(app_label='dcim', model__in=[
                 'consoleport',
                 'consoleserverport',
                 'powerport',

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.models import Tag
 from netbox.api.fields import ContentTypeField, RelatedObjectCountField
 from netbox.api.serializers import ValidatedModelSerializer
@@ -13,7 +13,7 @@ __all__ = (
 class TagSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
     object_types = ContentTypeField(
-        queryset=ContentType.objects.with_feature('tags'),
+        queryset=ObjectType.objects.with_feature('tags'),
         many=True,
         required=False
     )

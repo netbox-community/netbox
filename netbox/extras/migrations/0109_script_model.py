@@ -82,10 +82,12 @@ def update_scripts(apps, schema_editor):
     ContentType = apps.get_model('contenttypes', 'ContentType')
     Script = apps.get_model('extras', 'Script')
     ScriptModule = apps.get_model('extras', 'ScriptModule')
+    ReportModule = apps.get_model('extras', 'ReportModule')
     Job = apps.get_model('core', 'Job')
 
-    script_ct = ContentType.objects.get_for_model(Script)
-    scriptmodule_ct = ContentType.objects.get_for_model(ScriptModule)
+    script_ct = ContentType.objects.get_for_model(Script, for_concrete_model=False)
+    scriptmodule_ct = ContentType.objects.get_for_model(ScriptModule, for_concrete_model=False)
+    reportmodule_ct = ContentType.objects.get_for_model(ReportModule, for_concrete_model=False)
 
     for module in ScriptModule.objects.all():
         for script_name in get_module_scripts(module):
@@ -96,10 +98,16 @@ def update_scripts(apps, schema_editor):
 
             # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
             Job.objects.filter(
-                object_type=scriptmodule_ct,
+                object_type_id=scriptmodule_ct.id,
                 object_id=module.pk,
                 name=script_name
-            ).update(object_type=script_ct, object_id=script.pk)
+            ).update(object_type_id=script_ct.id, object_id=script.pk)
+            # Update all Jobs associated with this ScriptModule & script name to point to the new Script object
+            Job.objects.filter(
+                object_type_id=reportmodule_ct.id,
+                object_id=module.pk,
+                name=script_name
+            ).update(object_type_id=script_ct.id, object_id=script.pk)
 
 
 def update_event_rules(apps, schema_editor):

@@ -10,6 +10,7 @@ from django.test import Client, TestCase as _TestCase
 from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
+from core.models import ObjectType
 from users.models import ObjectPermission
 from utilities.permissions import resolve_permission_ct
 from utilities.utils import content_type_identifier
@@ -112,7 +113,7 @@ class ModelTestCase(TestCase):
             # Handle ManyToManyFields
             if value and type(field) in (ManyToManyField, TaggableManager):
 
-                if field.related_model is ContentType and api:
+                if field.related_model in (ContentType, ObjectType) and api:
                     model_dict[key] = sorted([content_type_identifier(ct) for ct in value])
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
@@ -120,8 +121,8 @@ class ModelTestCase(TestCase):
             elif api:
 
                 # Replace ContentType numeric IDs with <app_label>.<model>
-                if type(getattr(instance, key)) is ContentType:
-                    ct = ContentType.objects.get(pk=value)
+                if type(getattr(instance, key)) in (ContentType, ObjectType):
+                    ct = ObjectType.objects.get(pk=value)
                     model_dict[key] = content_type_identifier(ct)
 
                 # Convert IPNetwork instances to strings
