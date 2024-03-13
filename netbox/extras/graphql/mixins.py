@@ -7,6 +7,7 @@ from extras.models import ObjectChange
 __all__ = (
     'ChangelogMixin',
     'ConfigContextMixin',
+    'ContactsMixin',
     'CustomFieldsMixin',
     'ImageAttachmentsMixin',
     'JournalEntriesMixin',
