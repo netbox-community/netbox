@@ -1079,7 +1079,7 @@ class DeviceTypeInventoryItemsView(DeviceTypeComponentsView):
     tab = ViewTab(
         label=_('Inventory Items'),
         badge=lambda obj: obj.inventory_item_template_count,
-        permission='dcim.view_invenotryitemtemplate',
+        permission='dcim.view_inventoryitemtemplate',
         weight=590,
         hide_if_empty=True
     )

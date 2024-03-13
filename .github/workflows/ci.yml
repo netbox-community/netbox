@@ -84,4 +84,4 @@ jobs:
       run: coverage run --source="netbox/" netbox/manage.py test netbox/ --parallel
 
     - name: Show coverage report
-      run: coverage report --skip-covered --omit *migrations*
+      run: coverage report --skip-covered --omit '*/migrations/*,*/tests/*'
