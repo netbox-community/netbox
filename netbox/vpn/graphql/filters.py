@@ -1,7 +1,8 @@
 import strawberry
 import strawberry_django
-from strawberry import auto
 from vpn import filtersets, models
+
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 __all__ = (
     'TunnelGroupFilter',
@@ -18,50 +19,60 @@ __all__ = (
 
 
 @strawberry_django.filter(models.TunnelGroup, lookups=True)
-class TunnelGroupFilter(filtersets.TunnelGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.TunnelGroupFilterSet)
+class TunnelGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.TunnelTermination, lookups=True)
-class TunnelTerminationFilter(filtersets.TunnelTerminationFilterSet):
-    id: auto
+@autotype_decorator(filtersets.TunnelTerminationFilterSet)
+class TunnelTerminationFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Tunnel, lookups=True)
-class TunnelFilter(filtersets.TunnelFilterSet):
-    id: auto
+@autotype_decorator(filtersets.TunnelFilterSet)
+class TunnelFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IKEProposal, lookups=True)
-class IKEProposalFilter(filtersets.IKEProposalFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IKEProposalFilterSet)
+class IKEProposalFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IKEPolicy, lookups=True)
-class IKEPolicyFilter(filtersets.IKEPolicyFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IKEPolicyFilterSet)
+class IKEPolicyFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IPSecProposal, lookups=True)
-class IPSecProposalFilter(filtersets.IPSecProposalFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IPSecProposalFilterSet)
+class IPSecProposalFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IPSecPolicy, lookups=True)
-class IPSecPolicyFilter(filtersets.IPSecPolicyFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IPSecPolicyFilterSet)
+class IPSecPolicyFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IPSecProfile, lookups=True)
-class IPSecProfileFilter(filtersets.IPSecProfileFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IPSecProfileFilterSet)
+class IPSecProfileFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.L2VPN, lookups=True)
-class L2VPNFilter(filtersets.L2VPNFilterSet):
-    id: auto
+@autotype_decorator(filtersets.L2VPNFilterSet)
+class L2VPNFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.L2VPNTermination, lookups=True)
-class L2VPNTerminationFilter(filtersets.L2VPNTerminationFilterSet):
-    id: auto
+@autotype_decorator(filtersets.L2VPNTerminationFilterSet)
+class L2VPNTerminationFilter(BaseFilterMixin):
+    pass

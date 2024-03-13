@@ -1,7 +1,8 @@
 import strawberry
 import strawberry_django
-from strawberry import auto
 from wireless import filtersets, models
+
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 __all__ = (
     'WirelessLANGroupFilter',
@@ -11,15 +12,18 @@ __all__ = (
 
 
 @strawberry_django.filter(models.WirelessLANGroup, lookups=True)
-class WirelessLANGroupFilter(filtersets.WirelessLANGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.WirelessLANGroupFilterSet)
+class WirelessLANGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.WirelessLAN, lookups=True)
-class WirelessLANFilter(filtersets.WirelessLANFilterSet):
-    id: auto
+@autotype_decorator(filtersets.WirelessLANFilterSet)
+class WirelessLANFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.WirelessLink, lookups=True)
-class WirelessLinkFilter(filtersets.WirelessLinkFilterSet):
-    id: auto
+@autotype_decorator(filtersets.WirelessLinkFilterSet)
+class WirelessLinkFilter(BaseFilterMixin):
+    pass

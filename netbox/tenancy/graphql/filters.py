@@ -1,9 +1,8 @@
 import strawberry
 import strawberry_django
-from strawberry import auto
 from tenancy import filtersets, models
 
-from netbox.graphql import filter_mixins
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 __all__ = (
     'TenantFilter',
@@ -16,30 +15,35 @@ __all__ = (
 
 
 @strawberry_django.filter(models.Tenant, lookups=True)
-class TenantFilter(filtersets.TenantFilterSet):
-    id: auto
+@autotype_decorator(filtersets.TenantFilterSet)
+class TenantFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.TenantGroup, lookups=True)
-class TenantGroupFilter(filtersets.TenantGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.TenantGroupFilterSet)
+class TenantGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Contact, lookups=True)
-class ContactFilter(filtersets.ContactFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ContactFilterSet)
+class ContactFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ContactRole, lookups=True)
-class ContactRoleFilter(filtersets.ContactRoleFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ContactRoleFilterSet)
+class ContactRoleFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ContactGroup, lookups=True)
-class ContactGroupFilter(filtersets.ContactGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ContactGroupFilterSet)
+class ContactGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ContactAssignment, lookups=True)
-class ContactAssignmentFilter(filtersets.ContactAssignmentFilterSet):
-    id: auto
+class ContactAssignmentFilter(BaseFilterMixin):
+    pass

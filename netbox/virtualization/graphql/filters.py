@@ -1,7 +1,8 @@
 import strawberry
 import strawberry_django
-from strawberry import auto
-from virtualization import models, filtersets
+from virtualization import filtersets, models
+
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 
 __all__ = (
@@ -15,30 +16,36 @@ __all__ = (
 
 
 @strawberry_django.filter(models.Cluster, lookups=True)
-class ClusterFilter(filtersets.ClusterFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ClusterFilterSet)
+class ClusterFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ClusterGroup, lookups=True)
-class ClusterGroupFilter(filtersets.ClusterGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ClusterGroupFilterSet)
+class ClusterGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ClusterType, lookups=True)
-class ClusterTypeFilter(filtersets.ClusterTypeFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ClusterTypeFilterSet)
+class ClusterTypeFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VirtualMachine, lookups=True)
-class VirtualMachineFilter(filtersets.VirtualMachineFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VirtualMachineFilterSet)
+class VirtualMachineFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VMInterface, lookups=True)
-class VMInterfaceFilter(filtersets.VMInterfaceFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VMInterfaceFilterSet)
+class VMInterfaceFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VirtualDisk, lookups=True)
-class VirtualDiskFilter(filtersets.VirtualDiskFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VirtualDiskFilterSet)
+class VirtualDiskFilter(BaseFilterMixin):
+    pass
