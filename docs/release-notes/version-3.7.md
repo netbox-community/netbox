@@ -4,17 +4,24 @@
 
 ### Enhancements
 
+* [#14206](https://github.com/netbox-community/netbox/issues/14206) - Add additional FibreChannel SFP+ interface types
+* [#14366](https://github.com/netbox-community/netbox/issues/14366) - Enable custom links for config contexts & templates
 * [#15291](https://github.com/netbox-community/netbox/issues/15291) - Add tunnel termination buttons to VM interfaces table
 * [#15297](https://github.com/netbox-community/netbox/issues/15297) - Linkify platform column in device & virtual machine tables
 
 ### Bug Fixes
 
+* [#13722](https://github.com/netbox-community/netbox/issues/13722) - Fix range expansion for comma-separated numerical values
+* [#14832](https://github.com/netbox-community/netbox/issues/14832) - Enable querying IP addresses for an FHRP group via GraphQL
 * [#15220](https://github.com/netbox-community/netbox/issues/15220) - Fix validation check when bulk editing the mask length of IP addresses
 * [#15232](https://github.com/netbox-community/netbox/issues/15232) - Permit user with sufficient permissions to assign an inventory item to a device type
 * [#15241](https://github.com/netbox-community/netbox/issues/15241) - Restore missing `display` field on VirtualDisk serialization in REST API
 * [#15243](https://github.com/netbox-community/netbox/issues/15243) - Correct representation of installed module when listing module bays using REST API brief mode
 * [#15316](https://github.com/netbox-community/netbox/issues/15316) - Fix selection of 3DES encryption for IKE & IPSec proposals
+* [#15322](https://github.com/netbox-community/netbox/issues/15322) - Add description field to YAML export for device & module types
 * [#15336](https://github.com/netbox-community/netbox/issues/15336) - Correct label for recurring scheduled jobs
+* [#15347](https://github.com/netbox-community/netbox/issues/15347) - Fix querying virtual machine contacts via GraphQL
+* [#15356](https://github.com/netbox-community/netbox/issues/15356) - Fix assignment of front & rear images to device types via REST API
 
 ---
 
