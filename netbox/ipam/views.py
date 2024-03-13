@@ -1059,7 +1059,6 @@ class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
 class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     queryset = FHRPGroupAssignment.objects.all()
     form = forms.FHRPGroupAssignmentForm
-    template_name = 'ipam/fhrpgroupassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:

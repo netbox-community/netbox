@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
+from utilities.forms.rendering import ObjectAttribute
 
 __all__ = (
     'ContactAssignmentForm',
@@ -138,6 +139,10 @@ class ContactAssignmentForm(NetBoxModelForm):
     role = DynamicModelChoiceField(
         label=_('Role'),
         queryset=ContactRole.objects.all()
+    )
+
+    fieldsets = (
+        (None, (ObjectAttribute('object'), 'group', 'contact', 'role', 'priority', 'tags')),
     )
 
     class Meta:

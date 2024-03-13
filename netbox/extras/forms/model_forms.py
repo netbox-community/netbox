@@ -17,6 +17,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms.rendering import ObjectAttribute
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -526,6 +527,9 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
 
 
 class ImageAttachmentForm(forms.ModelForm):
+    fieldsets = (
+        (None, (ObjectAttribute('parent'), 'name', 'image')),
+    )
 
     class Meta:
         model = ImageAttachment
