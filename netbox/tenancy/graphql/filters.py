@@ -44,7 +44,7 @@ class ContactGroupFilter(BaseFilterMixin):
     pass
 
 
-# bug - fixme!
 @strawberry_django.filter(models.ContactAssignment, lookups=True)
+@autotype_decorator(filtersets.ContactAssignmentFilterSet)
 class ContactAssignmentFilter(BaseFilterMixin):
     pass

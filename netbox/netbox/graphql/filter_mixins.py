@@ -5,6 +5,7 @@ import django_filters
 import strawberry
 import strawberry_django
 from strawberry import auto
+from ipam.fields import ASNField
 from netbox.graphql.scalars import BigInt
 from utilities.fields import ColorField, CounterCacheField
 from utilities.filters import *
@@ -39,7 +40,11 @@ def autotype_decorator(filterset):
                 if isinstance(field, CounterCacheField):
                     create_function = True
                     attr_type = BigInt
+                elif isinstance(field, ASNField):
+                    create_function = True
+                    attr_type = List[str] | None
                 elif isinstance(field, ColorField):
+                    create_function = True
                     attr_type = List[str] | None
 
                 create_attribute_and_function(cls, fieldname, attr_type, create_function)
