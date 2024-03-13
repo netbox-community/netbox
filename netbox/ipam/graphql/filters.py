@@ -31,7 +31,6 @@ class ASNFilter(BaseFilterMixin):
     pass
 
 
-# bug - fixme!
 @strawberry_django.filter(models.ASNRange, lookups=True)
 @autotype_decorator(filtersets.ASNRangeFilterSet)
 class ASNRangeFilter(BaseFilterMixin):

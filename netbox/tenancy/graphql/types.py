@@ -137,11 +137,11 @@ class TenantType(NetBoxObjectType):
 
 @strawberry_django.type(
     models.TenantGroup,
-    # fields='__all__',
-    exclude=('parent',),  # bug - temp
+    fields='__all__',
     filters=TenantGroupFilter
 )
 class TenantGroupType(OrganizationalObjectType):
+    parent: Annotated["TenantGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def tenants(self) -> List[TenantType]:
@@ -172,11 +172,11 @@ class ContactRoleType(ContactAssignmentsMixin, OrganizationalObjectType):
 
 @strawberry_django.type(
     models.ContactGroup,
-    # fields='__all__',
-    exclude=('parent',),  # bug - temp
+    fields='__all__',
     filters=ContactGroupFilter
 )
 class ContactGroupType(OrganizationalObjectType):
+    parent: Annotated["ContactGroupType", strawberry.lazy('tenancy.graphql.types')] | None
 
     @strawberry_django.field
     def contacts(self) -> List[ContactType]:

@@ -129,11 +129,11 @@ class CustomFieldType(ObjectType):
 
 @strawberry_django.type(
     models.CustomFieldChoiceSet,
-    # fields='__all__',
-    exclude=('extra_choices', ),  # bug - temp
+    fields='__all__',
     filters=CustomFieldChoiceSetFilter
 )
 class CustomFieldChoiceSetType(ObjectType):
+    extra_choices: List[List[str]]
 
     @strawberry_django.field
     def choices_for(self) -> List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]:
@@ -202,7 +202,7 @@ class SavedFilterType(ObjectType):
 
 @strawberry_django.type(
     models.Tag,
-    exclude=['extras_taggeditem_items', 'color'],  # bug - remove color from exclude
+    exclude=['extras_taggeditem_items', ],
     filters=TagFilter
 )
 class TagType(ObjectType):
