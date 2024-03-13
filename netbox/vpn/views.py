@@ -479,7 +479,6 @@ class L2VPNTerminationView(generic.ObjectView):
 class L2VPNTerminationEditView(generic.ObjectEditView):
     queryset = L2VPNTermination.objects.all()
     form = forms.L2VPNTerminationForm
-    template_name = 'vpn/l2vpntermination_edit.html'
 
 
 @register_model_view(L2VPNTermination, 'delete')

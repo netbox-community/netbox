@@ -26,7 +26,7 @@
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
       <div class="row mb-3">
-        <label class="col col-form-label text-lg-end">{{ title|default:'' }}</label>
+        <label class="col col-3 col-form-label text-lg-end">{{ title|default:'' }}</label>
         {% for field in items %}
           <div class="col mb-1">
             {{ field }}
@@ -37,16 +37,18 @@
 
     {% elif layout == 'tabs' %}
       {# Tabbed groups of fields #}
-      <div class="row offset-sm-3">
-        <ul class="nav nav-pills mb-1" role="tablist">
-          {% for tab in items %}
-            <li role="presentation" class="nav-item">
-              <button role="tab" type="button" id="{{ tab.id }}_tab" data-bs-toggle="tab" aria-controls="{{ tab.id }}" data-bs-target="#{{ tab.id }}" class="nav-link {% if tab.active %}active{% endif %}">
-                {% trans tab.title %}
-              </button>
-            </li>
-          {% endfor %}
-        </ul>
+      <div class="row">
+        <div class="col offset-3">
+          <ul class="nav nav-pills mb-1" role="tablist">
+            {% for tab in items %}
+              <li role="presentation" class="nav-item">
+                <button role="tab" type="button" id="{{ tab.id }}_tab" data-bs-toggle="tab" aria-controls="{{ tab.id }}" data-bs-target="#{{ tab.id }}" class="nav-link {% if tab.active %}active{% endif %}">
+                  {% trans tab.title %}
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
       </div>
       <div class="tab-content p-0 border-0">
         {% for tab in items %}

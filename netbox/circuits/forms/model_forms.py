@@ -7,6 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.rendering import TabbedFieldGroups
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -144,6 +145,21 @@ class CircuitTerminationForm(NetBoxModelForm):
         queryset=ProviderNetwork.objects.all(),
         required=False,
         selector=True
+    )
+
+    fieldsets = (
+        (_('Circuit Termination'), (
+            'circuit',
+            'term_side',
+            'description',
+            'tags',
+            TabbedFieldGroups(
+                (_('Site'), 'site'),
+                (_('Provider Network'), 'provider_network'),
+            ),
+            'mark_connected',
+        )),
+        (_('Termination Details'), ('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info')),
     )
 
     class Meta:
