@@ -33,4 +33,5 @@ class GraphQLTestCase(TestCase):
         self.client.logout()
         response = self.client.get(url, **header)
         with disable_warnings('django.request'):
-            self.assertHttpStatus(response, 302)  # Redirect to login page
+            # self.assertHttpStatus(response, 302)  # Redirect to login page
+            self.assertHttpStatus(response, 403)  # Redirect to login page
