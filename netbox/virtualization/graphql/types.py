@@ -82,6 +82,7 @@ class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
     _name: str
     interface_count: BigInt
     virtual_disk_count: BigInt
+    interface_count: BigInt
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')] | None
     cluster: Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')] | None

@@ -5,7 +5,8 @@ import django_filters
 import strawberry
 import strawberry_django
 from strawberry import auto
-from utilities.fields import ColorField
+from netbox.graphql.scalars import BigInt
+from utilities.fields import ColorField, CounterCacheField
 from utilities.filters import *
 
 
@@ -17,18 +18,31 @@ def autotype_decorator(filterset):
         print(field_type)
         print("")
 
+    def create_attribute_and_function(cls, fieldname, attr_type, create_function):
+        if fieldname not in cls.__annotations__ and attr_type:
+            cls.__annotations__[fieldname] = attr_type
+
+        fname = f"filter_{fieldname}"
+        if create_function and not hasattr(cls, fname):
+            filter_by_filterset = getattr(cls, 'filter_by_filterset')
+            setattr(cls, fname, partialmethod(filter_by_filterset, key=fieldname))
+
     def wrapper(cls):
         cls.filterset = filterset
         fields = filterset.get_fields()
         model = filterset._meta.model
         for fieldname in fields.keys():
+            create_function = False
             attr_type = auto
             if fieldname not in cls.__annotations__:
                 field = model._meta.get_field(fieldname)
-                if isinstance(field, ColorField):
+                if isinstance(field, CounterCacheField):
+                    create_function = True
+                    attr_type = BigInt
+                elif isinstance(field, ColorField):
                     attr_type = List[str] | None
 
-                cls.__annotations__[fieldname] = attr_type
+                create_attribute_and_function(cls, fieldname, attr_type, create_function)
 
         declared_filters = filterset.declared_filters
         for fieldname, v in declared_filters.items():
@@ -145,13 +159,7 @@ def autotype_decorator(filterset):
             else:
                 show_field("unknown type!", fieldname, v, cls)
 
-            if fieldname not in cls.__annotations__ and attr_type:
-                cls.__annotations__[fieldname] = attr_type
-
-            fname = f"filter_{fieldname}"
-            if create_function and not hasattr(cls, fname):
-                filter_by_filterset = getattr(cls, 'filter_by_filterset')
-                setattr(cls, fname, partialmethod(filter_by_filterset, key=fieldname))
+            create_attribute_and_function(cls, fieldname, attr_type, create_function)
 
         return cls
 
