@@ -3,8 +3,8 @@ import string
 from functools import cached_property
 
 __all__ = (
-    'FieldGroup',
     'InlineFields',
+    'ObjectAttribute',
     'TabbedFieldGroups',
 )
 
@@ -41,3 +41,9 @@ class TabbedFieldGroups:
                 'fields': group.field_names,
             } for i, group in enumerate(self.groups, start=1)
         ]
+
+
+class ObjectAttribute:
+
+    def __init__(self, name):
+        self.name = name

@@ -16,6 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     SlugField,
 )
+from utilities.forms.rendering import ObjectAttribute
 from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
@@ -500,6 +501,10 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
     group = DynamicModelChoiceField(
         label=_('Group'),
         queryset=FHRPGroup.objects.all()
+    )
+
+    fieldsets = (
+        (None, (ObjectAttribute('interface'), 'group', 'priority')),
     )
 
     class Meta:

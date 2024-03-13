@@ -369,7 +369,6 @@ class ContactAssignmentListView(generic.ObjectListView):
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
     form = forms.ContactAssignmentForm
-    template_name = 'tenancy/contactassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:

@@ -1,6 +1,6 @@
 from django import template
 
-from utilities.forms.rendering import InlineFields, TabbedFieldGroups
+from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedFieldGroups
 
 __all__ = (
     'getfield',
@@ -79,6 +79,13 @@ def render_fieldset(form, fieldset, heading=None):
                 tabs[0]['active'] = True
             rows.append(
                 ('tabs', None, tabs)
+            )
+
+        elif type(item) is ObjectAttribute:
+            value = getattr(form.instance, item.name)
+            label = value._meta.verbose_name if hasattr(value, '_meta') else item.name
+            rows.append(
+                ('attribute', label.title(), [value])
             )
 
         # A single form field

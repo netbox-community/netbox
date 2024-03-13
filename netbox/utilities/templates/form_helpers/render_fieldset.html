@@ -12,6 +12,17 @@
       {# Single form field #}
       {% render_field items.0 %}
 
+    {% elif layout == 'attribute' %}
+      {# A static attribute of the form's instance #}
+      <div class="row mb-3">
+        <label class="col-sm-3 col-form-label text-lg-end required">{{ title }}</label>
+        <div class="col">
+          <div class="form-control-plaintext">
+            {{ items.0|linkify }}
+          </div>
+        </div>
+      </div>
+
     {% elif layout == 'inline' %}
       {# Multiple form fields on the same line #}
       <div class="row mb-3">
