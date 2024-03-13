@@ -12,19 +12,32 @@ from utilities.filters import *
 
 
 def autotype_decorator(filterset):
+    """
+    Decorator used to auto creates a dataclass used by Strawberry based on a filterset.
+    Must go after the Strawberry decorator as follows:
 
-    def show_field(field_type, fieldname, v, cls):
-        print(f"cls: {cls}")
-        print(f"{fieldname}: {v}")
-        print(field_type)
-        print("")
+    @strawberry_django.filter(models.Example, lookups=True)
+    @autotype_decorator(filtersets.ExampleFilterSet)
+    class ExampleFilter(BaseFilterMixin):
+        pass
 
-    def create_attribute_and_function(cls, fieldname, attr_type, create_function):
+    The Filter itself must be derived from BaseFilterMixin.  For items listed in meta.fields
+    of the filterset, usually just a type specifier is generated, so for
+    `fields = [created, ]` the dataclass would be:
+
+    class ExampleFilter(BaseFilterMixin):
+        created: auto
+
+    For other filter fields a function needs to be created for Strawberry with the
+    naming convention `filter_{fieldname}` which is auto detected and called by
+    Strawberry, this function uses the filterset to handle the query.
+    """
+    def create_attribute_and_function(cls, fieldname, attr_type, should_create_function):
         if fieldname not in cls.__annotations__ and attr_type:
             cls.__annotations__[fieldname] = attr_type
 
         fname = f"filter_{fieldname}"
-        if create_function and not hasattr(cls, fname):
+        if should_create_function and not hasattr(cls, fname):
             filter_by_filterset = getattr(cls, 'filter_by_filterset')
             setattr(cls, fname, partialmethod(filter_by_filterset, key=fieldname))
 
@@ -33,138 +46,141 @@ def autotype_decorator(filterset):
         fields = filterset.get_fields()
         model = filterset._meta.model
         for fieldname in fields.keys():
-            create_function = False
+            should_create_function = False
             attr_type = auto
             if fieldname not in cls.__annotations__:
                 field = model._meta.get_field(fieldname)
                 if isinstance(field, CounterCacheField):
-                    create_function = True
-                    attr_type = BigInt
+                    should_create_function = True
+                    attr_type = BigInt | None
                 elif isinstance(field, ASNField):
-                    create_function = True
+                    should_create_function = True
                     attr_type = List[str] | None
                 elif isinstance(field, ColorField):
-                    create_function = True
+                    should_create_function = True
                     attr_type = List[str] | None
 
-                create_attribute_and_function(cls, fieldname, attr_type, create_function)
+                create_attribute_and_function(cls, fieldname, attr_type, should_create_function)
 
         declared_filters = filterset.declared_filters
-        for fieldname, v in declared_filters.items():
-            create_function = False
+        for fieldname, field in declared_filters.items():
+            should_create_function = False
             attr_type = None
 
             # NetBox Filter types - put base classes after derived classes
-            if isinstance(v, ContentTypeFilter):
-                create_function = True
+            if isinstance(field, ContentTypeFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif isinstance(v, MACAddressFilter):
-                show_field("MACAddressFilter", fieldname, v, cls)
-            elif isinstance(v, MultiValueArrayFilter):
-                show_field("MultiValueArrayFilter", fieldname, v, cls)
-            elif isinstance(v, MultiValueCharFilter):
-                create_function = True
+            elif isinstance(field, MACAddressFilter):
+                pass
+            elif isinstance(field, MultiValueArrayFilter):
+                pass
+            elif isinstance(field, MultiValueCharFilter):
+                should_create_function = True
                 attr_type = List[str] | None
-            elif isinstance(v, MultiValueDateFilter):
+            elif isinstance(field, MultiValueDateFilter):
                 attr_type = auto
-            elif isinstance(v, MultiValueDateTimeFilter):
+            elif isinstance(field, MultiValueDateTimeFilter):
                 attr_type = auto
-            elif isinstance(v, MultiValueDecimalFilter):
-                show_field("MultiValueDecimalFilter", fieldname, v, cls)
-            elif isinstance(v, MultiValueMACAddressFilter):
-                create_function = True
+            elif isinstance(field, MultiValueDecimalFilter):
+                pass
+            elif isinstance(field, MultiValueMACAddressFilter):
+                should_create_function = True
                 attr_type = List[str] | None
-            elif isinstance(v, MultiValueNumberFilter):
-                create_function = True
+            elif isinstance(field, MultiValueNumberFilter):
+                should_create_function = True
                 attr_type = List[str] | None
-            elif isinstance(v, MultiValueTimeFilter):
-                show_field("MultiValueTimeFilter", fieldname, v, cls)
-            elif isinstance(v, MultiValueWWNFilter):
-                create_function = True
+            elif isinstance(field, MultiValueTimeFilter):
+                pass
+            elif isinstance(field, MultiValueWWNFilter):
+                should_create_function = True
                 attr_type = List[str] | None
-            elif isinstance(v, NullableCharFieldFilter):
-                show_field("NullableCharFieldFilter", fieldname, v, cls)
-            elif isinstance(v, NumericArrayFilter):
-                create_function = True
+            elif isinstance(field, NullableCharFieldFilter):
+                pass
+            elif isinstance(field, NumericArrayFilter):
+                should_create_function = True
                 attr_type = int
-            elif isinstance(v, TreeNodeMultipleChoiceFilter):
-                create_function = True
+            elif isinstance(field, TreeNodeMultipleChoiceFilter):
+                should_create_function = True
                 attr_type = List[str] | None
 
             # From django_filters - ordering of these matters as base classes must
             # come after derived classes so the base class doesn't get matched first
-            elif issubclass(type(v), django_filters.OrderingFilter):
-                show_field("OrderingFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.BaseRangeFilter):
-                show_field("BaseRangeFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.BaseInFilter):
-                show_field("BaseInFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.LookupChoiceFilter):
-                show_field("LookupChoiceFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.AllValuesMultipleFilter):
-                show_field("AllValuesMultipleFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.AllValuesFilter):
-                show_field("AllValuesFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.TimeRangeFilter):
-                show_field("TimeRangeFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.IsoDateTimeFromToRangeFilter):
-                create_function = True
+            # a pass for the check (no attr_type) means we don't currently handle
+            # or use that type
+            elif issubclass(type(field), django_filters.OrderingFilter):
+                pass
+            elif issubclass(type(field), django_filters.BaseRangeFilter):
+                pass
+            elif issubclass(type(field), django_filters.BaseInFilter):
+                pass
+            elif issubclass(type(field), django_filters.LookupChoiceFilter):
+                pass
+            elif issubclass(type(field), django_filters.AllValuesMultipleFilter):
+                pass
+            elif issubclass(type(field), django_filters.AllValuesFilter):
+                pass
+            elif issubclass(type(field), django_filters.TimeRangeFilter):
+                pass
+            elif issubclass(type(field), django_filters.IsoDateTimeFromToRangeFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif issubclass(type(v), django_filters.DateTimeFromToRangeFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.DateTimeFromToRangeFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif issubclass(type(v), django_filters.DateFromToRangeFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.DateFromToRangeFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif issubclass(type(v), django_filters.DateRangeFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.DateRangeFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif issubclass(type(v), django_filters.RangeFilter):
-                show_field("RangeFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.NumericRangeFilter):
-                show_field("NumericRangeFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.NumberFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.RangeFilter):
+                pass
+            elif issubclass(type(field), django_filters.NumericRangeFilter):
+                pass
+            elif issubclass(type(field), django_filters.NumberFilter):
+                should_create_function = True
                 attr_type = int
-            elif issubclass(type(v), django_filters.ModelMultipleChoiceFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.ModelMultipleChoiceFilter):
+                should_create_function = True
                 attr_type = List[str] | None
-            elif issubclass(type(v), django_filters.ModelChoiceFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.ModelChoiceFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif issubclass(type(v), django_filters.DurationFilter):
-                show_field("DurationFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.IsoDateTimeFilter):
-                show_field("IsoDateTimeFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.DateTimeFilter):
+            elif issubclass(type(field), django_filters.DurationFilter):
+                pass
+            elif issubclass(type(field), django_filters.IsoDateTimeFilter):
+                pass
+            elif issubclass(type(field), django_filters.DateTimeFilter):
                 attr_type = auto
-            elif issubclass(type(v), django_filters.TimeFilter):
+            elif issubclass(type(field), django_filters.TimeFilter):
                 attr_type = auto
-            elif issubclass(type(v), django_filters.DateFilter):
+            elif issubclass(type(field), django_filters.DateFilter):
                 attr_type = auto
-            elif issubclass(type(v), django_filters.TypedMultipleChoiceFilter):
-                show_field("TypedMultipleChoiceFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.MultipleChoiceFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.TypedMultipleChoiceFilter):
+                pass
+            elif issubclass(type(field), django_filters.MultipleChoiceFilter):
+                should_create_function = True
                 attr_type = List[str] | None
-            elif issubclass(type(v), django_filters.TypedChoiceFilter):
-                show_field("TypedChoiceFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.ChoiceFilter):
-                show_field("ChoiceFilter", fieldname, v, cls)
-            elif issubclass(type(v), django_filters.BooleanFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.TypedChoiceFilter):
+                pass
+            elif issubclass(type(field), django_filters.ChoiceFilter):
+                pass
+            elif issubclass(type(field), django_filters.BooleanFilter):
+                should_create_function = True
                 attr_type = bool | None
-            elif issubclass(type(v), django_filters.UUIDFilter):
-                create_function = True
+            elif issubclass(type(field), django_filters.UUIDFilter):
+                should_create_function = True
                 attr_type = str | None
-            elif issubclass(type(v), django_filters.CharFilter):
+            elif issubclass(type(field), django_filters.CharFilter):
                 # looks like only used by 'q'
-                create_function = True
+                should_create_function = True
                 attr_type = str | None
-            else:
-                show_field("unknown type!", fieldname, v, cls)
 
-            create_attribute_and_function(cls, fieldname, attr_type, create_function)
+            if attr_type is None:
+                raise NotImplementedError(f"GraphQL Filter field unknown: {fieldname}: {field}")
+
+            create_attribute_and_function(cls, fieldname, attr_type, should_create_function)
 
         return cls
 
