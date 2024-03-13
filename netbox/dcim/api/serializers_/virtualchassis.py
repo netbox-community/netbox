@@ -12,6 +12,7 @@ __all__ = (
 class VirtualChassisSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualchassis-detail')
     master = NestedDeviceSerializer(required=False, allow_null=True, default=None)
+    members = NestedDeviceSerializer(many=True, read_only=True)
 
     # Counter fields
     member_count = serializers.IntegerField(read_only=True)
@@ -20,6 +21,6 @@ class VirtualChassisSerializer(NetBoxModelSerializer):
         model = VirtualChassis
         fields = [
             'id', 'url', 'display', 'name', 'domain', 'master', 'description', 'comments', 'tags', 'custom_fields',
-            'created', 'last_updated', 'member_count',
+            'created', 'last_updated', 'member_count', 'members',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'master', 'description', 'member_count')
