@@ -15,8 +15,6 @@ class GraphQLTestCase(TestCase):
         response = self.client.get(url)
         self.assertHttpStatus(response, 404)
 
-    '''
-    BUG TODO - Re-enable
     @override_settings(LOGIN_REQUIRED=True)
     def test_graphiql_interface(self):
         """
@@ -36,4 +34,3 @@ class GraphQLTestCase(TestCase):
         response = self.client.get(url, **header)
         with disable_warnings('django.request'):
             self.assertHttpStatus(response, 302)  # Redirect to login page
-    '''
