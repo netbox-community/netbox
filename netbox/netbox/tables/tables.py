@@ -263,9 +263,11 @@ class SearchTable(tables.Table):
         super().__init__(data, **kwargs)
 
     def render_field(self, value, record):
-        if hasattr(record.object, value):
-            return title(record.object._meta.get_field(value).verbose_name)
-        return value
+        try:
+            model_field = record.object._meta.get_field(value)
+            return title(model_field.verbose_name)
+        except FieldDoesNotExist:
+            return value
 
     def render_value(self, value):
         if not self.highlight:
