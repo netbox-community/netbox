@@ -1,7 +1,8 @@
 import strawberry
 import strawberry_django
 from dcim import filtersets, models
-from strawberry import auto
+
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 __all__ = (
     'CableFilter',
@@ -49,205 +50,246 @@ __all__ = (
 
 
 @strawberry_django.filter(models.Cable, lookups=True)
-class CableFilter(filtersets.CableFilterSet):
-    id: auto
+@autotype_decorator(filtersets.CableFilterSet)
+class CableFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.CableTermination, lookups=True)
-class CableTerminationFilter(filtersets.CableTerminationFilterSet):
-    id: auto
+@autotype_decorator(filtersets.CableTerminationFilterSet)
+class CableTerminationFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ConsolePort, lookups=True)
-class ConsolePortFilter(filtersets.ConsolePortFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ConsolePortFilterSet)
+class ConsolePortFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ConsolePortTemplate, lookups=True)
-class ConsolePortTemplateFilter(filtersets.ConsolePortTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ConsolePortTemplateFilterSet)
+class ConsolePortTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ConsoleServerPort, lookups=True)
-class ConsoleServerPortFilter(filtersets.ConsoleServerPortFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ConsoleServerPortFilterSet)
+class ConsoleServerPortFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ConsoleServerPortTemplate, lookups=True)
-class ConsoleServerPortTemplateFilter(filtersets.ConsoleServerPortTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ConsoleServerPortTemplateFilterSet)
+class ConsoleServerPortTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Device, lookups=True)
-class DeviceFilter(filtersets.DeviceFilterSet):
-    id: auto
+@autotype_decorator(filtersets.DeviceFilterSet)
+class DeviceFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.DeviceBay, lookups=True)
-class DeviceBayFilter(filtersets.DeviceBayFilterSet):
-    id: auto
+@autotype_decorator(filtersets.DeviceBayFilterSet)
+class DeviceBayFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.DeviceBayTemplate, lookups=True)
-class DeviceBayTemplateFilter(filtersets.DeviceBayTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.DeviceBayTemplateFilterSet)
+class DeviceBayTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.InventoryItemTemplate, lookups=True)
-class InventoryItemTemplateFilter(filtersets.InventoryItemTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.InventoryItemTemplateFilterSet)
+class InventoryItemTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.DeviceRole, lookups=True)
-class DeviceRoleFilter(filtersets.DeviceRoleFilterSet):
-    id: auto
+@autotype_decorator(filtersets.DeviceRoleFilterSet)
+class DeviceRoleFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.DeviceType, lookups=True)
-class DeviceTypeFilter(filtersets.DeviceTypeFilterSet):
-    id: auto
+@autotype_decorator(filtersets.DeviceTypeFilterSet)
+class DeviceTypeFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.FrontPort, lookups=True)
-class FrontPortFilter(filtersets.FrontPortFilterSet):
-    id: auto
+@autotype_decorator(filtersets.FrontPortFilterSet)
+class FrontPortFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.FrontPortTemplate, lookups=True)
-class FrontPortTemplateFilter(filtersets.FrontPortTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.FrontPortTemplateFilterSet)
+class FrontPortTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Interface, lookups=True)
-class InterfaceFilter(filtersets.InterfaceFilterSet):
-    id: auto
+@autotype_decorator(filtersets.InterfaceFilterSet)
+class InterfaceFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.InterfaceTemplate, lookups=True)
-class InterfaceTemplateFilter(filtersets.InterfaceTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.InterfaceTemplateFilterSet)
+class InterfaceTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.InventoryItem, lookups=True)
-class InventoryItemFilter(filtersets.InventoryItemFilterSet):
-    id: auto
+@autotype_decorator(filtersets.InventoryItemFilterSet)
+class InventoryItemFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.InventoryItemRole, lookups=True)
-class InventoryItemRoleFilter(filtersets.InventoryItemRoleFilterSet):
-    id: auto
+@autotype_decorator(filtersets.InventoryItemRoleFilterSet)
+class InventoryItemRoleFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Location, lookups=True)
-class LocationFilter(filtersets.LocationFilterSet):
-    id: auto
+@autotype_decorator(filtersets.LocationFilterSet)
+class LocationFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Manufacturer, lookups=True)
-class ManufacturerFilter(filtersets.ManufacturerFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ManufacturerFilterSet)
+class ManufacturerFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Module, lookups=True)
-class ModuleFilter(filtersets.ModuleFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ModuleFilterSet)
+class ModuleFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ModuleBay, lookups=True)
-class ModuleBayFilter(filtersets.ModuleBayFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ModuleBayFilterSet)
+class ModuleBayFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ModuleBayTemplate, lookups=True)
-class ModuleBayTemplateFilter(filtersets.ModuleBayTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ModuleBayTemplateFilterSet)
+class ModuleBayTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ModuleType, lookups=True)
-class ModuleTypeFilter(filtersets.ModuleTypeFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ModuleTypeFilterSet)
+class ModuleTypeFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Platform, lookups=True)
-class PlatformFilter(filtersets.PlatformFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PlatformFilterSet)
+class PlatformFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.PowerFeed, lookups=True)
-class PowerFeedFilter(filtersets.PowerFeedFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PowerFeedFilterSet)
+class PowerFeedFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.PowerOutlet, lookups=True)
-class PowerOutletFilter(filtersets.PowerOutletFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PowerOutletFilterSet)
+class PowerOutletFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.PowerOutletTemplate, lookups=True)
-class PowerOutletTemplateFilter(filtersets.PowerOutletTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PowerOutletTemplateFilterSet)
+class PowerOutletTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.PowerPanel, lookups=True)
-class PowerPanelFilter(filtersets.PowerPanelFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PowerPanelFilterSet)
+class PowerPanelFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.PowerPort, lookups=True)
-class PowerPortFilter(filtersets.PowerPortFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PowerPortFilterSet)
+class PowerPortFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.PowerPortTemplate, lookups=True)
-class PowerPortTemplateFilter(filtersets.PowerPortTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PowerPortTemplateFilterSet)
+class PowerPortTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Rack, lookups=True)
-class RackFilter(filtersets.RackFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RackFilterSet)
+class RackFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.RackReservation, lookups=True)
-class RackReservationFilter(filtersets.RackReservationFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RackReservationFilterSet)
+class RackReservationFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.RackRole, lookups=True)
-class RackRoleFilter(filtersets.RackRoleFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RackRoleFilterSet)
+class RackRoleFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.RearPort, lookups=True)
-class RearPortFilter(filtersets.RearPortFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RearPortFilterSet)
+class RearPortFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.RearPortTemplate, lookups=True)
-class RearPortTemplateFilter(filtersets.RearPortTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RearPortTemplateFilterSet)
+class RearPortTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Region, lookups=True)
-class RegionFilter(filtersets.RegionFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RegionFilterSet)
+class RegionFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Site, lookups=True)
-class SiteFilter(filtersets.SiteFilterSet):
-    id: auto
+@autotype_decorator(filtersets.SiteFilterSet)
+class SiteFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.SiteGroup, lookups=True)
-class SiteGroupFilter(filtersets.SiteGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.SiteGroupFilterSet)
+class SiteGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VirtualChassis, lookups=True)
-class VirtualChassisFilter(filtersets.VirtualChassisFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VirtualChassisFilterSet)
+class VirtualChassisFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VirtualDeviceContext, lookups=True)
-class VirtualDeviceContextFilter(filtersets.VirtualDeviceContextFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VirtualDeviceContextFilterSet)
+class VirtualDeviceContextFilter(BaseFilterMixin):
+    pass

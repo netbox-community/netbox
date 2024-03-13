@@ -1,7 +1,8 @@
 import strawberry
 import strawberry_django
-from strawberry import auto
-from ipam import models, filtersets
+from ipam import filtersets, models
+
+from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
 
 
 __all__ = (
@@ -25,80 +26,94 @@ __all__ = (
 
 
 @strawberry_django.filter(models.ASN, lookups=True)
-class ASNFilter(filtersets.ASNFilterSet):
-    id: auto
+class ASNFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ASNRange, lookups=True)
-class ASNRangeFilter(filtersets.ASNRangeFilterSet):
-    id: auto
+class ASNRangeFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Aggregate, lookups=True)
-class AggregateFilter(filtersets.AggregateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.AggregateFilterSet)
+class AggregateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.FHRPGroup, lookups=True)
-class FHRPGroupFilter(filtersets.FHRPGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.FHRPGroupFilterSet)
+class FHRPGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.FHRPGroupAssignment, lookups=True)
-class FHRPGroupAssignmentFilter(filtersets.FHRPGroupAssignmentFilterSet):
-    id: auto
+@autotype_decorator(filtersets.FHRPGroupAssignmentFilterSet)
+class FHRPGroupAssignmentFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IPAddress, lookups=True)
-class IPAddressFilter(filtersets.IPAddressFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IPAddressFilterSet)
+class IPAddressFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.IPRange, lookups=True)
-class IPRangeFilter(filtersets.IPRangeFilterSet):
-    id: auto
+@autotype_decorator(filtersets.IPRangeFilterSet)
+class IPRangeFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Prefix, lookups=True)
-class PrefixFilter(filtersets.PrefixFilterSet):
-    id: auto
+@autotype_decorator(filtersets.PrefixFilterSet)
+class PrefixFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.RIR, lookups=True)
-class RIRFilter(filtersets.RIRFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RIRFilterSet)
+class RIRFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Role, lookups=True)
-class RoleFilter(filtersets.RoleFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RoleFilterSet)
+class RoleFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.RouteTarget, lookups=True)
-class RouteTargetFilter(filtersets.RouteTargetFilterSet):
-    id: auto
+@autotype_decorator(filtersets.RouteTargetFilterSet)
+class RouteTargetFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.Service, lookups=True)
-class ServiceFilter(filtersets.ServiceFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ServiceFilterSet)
+class ServiceFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.ServiceTemplate, lookups=True)
-class ServiceTemplateFilter(filtersets.ServiceTemplateFilterSet):
-    id: auto
+@autotype_decorator(filtersets.ServiceTemplateFilterSet)
+class ServiceTemplateFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VLAN, lookups=True)
-class VLANFilter(filtersets.VLANFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VLANFilterSet)
+class VLANFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VLANGroup, lookups=True)
-class VLANGroupFilter(filtersets.VLANGroupFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VLANGroupFilterSet)
+class VLANGroupFilter(BaseFilterMixin):
+    pass
 
 
 @strawberry_django.filter(models.VRF, lookups=True)
-class VRFFilter(filtersets.VRFFilterSet):
-    id: auto
+@autotype_decorator(filtersets.VRFFilterSet)
+class VRFFilter(BaseFilterMixin):
+    pass
