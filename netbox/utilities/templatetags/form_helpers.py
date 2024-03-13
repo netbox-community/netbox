@@ -54,17 +54,24 @@ def render_fieldset(form, fieldset, heading=None):
     """
     rows = []
     for item in fieldset:
+
+        # Multiple fields side-by-side
         if type(item) is InlineFields:
+            fields = [
+                form[name] for name in item.field_names if name in form.fields
+            ]
             rows.append(
-                ('inline', item.label, [form[name] for name in item.field_names])
+                ('inline', item.label, fields)
             )
+
+        # Tabbed groups of fields
         elif type(item) is TabbedFieldGroups:
             tabs = [
                 {
                     'id': tab['id'],
                     'title': tab['title'],
                     'active': bool(form.initial.get(tab['fields'][0], False)),
-                    'fields': [form[name] for name in tab['fields']]
+                    'fields': [form[name] for name in tab['fields'] if name in form.fields]
                 } for tab in item.tabs
             ]
             # If none of the tabs has been marked as active, activate the first one
@@ -73,7 +80,9 @@ def render_fieldset(form, fieldset, heading=None):
             rows.append(
                 ('tabs', None, tabs)
             )
-        else:
+
+        # A single form field
+        elif item in form.fields:
             rows.append(
                 ('field', None, [form[item]])
             )
