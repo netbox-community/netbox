@@ -129,19 +129,18 @@ class CustomFieldType(ObjectType):
 
 @strawberry_django.type(
     models.CustomFieldChoiceSet,
-    fields='__all__',
+    exclude=('extra_choices', ),
     filters=CustomFieldChoiceSetFilter
 )
 class CustomFieldChoiceSetType(ObjectType):
-    extra_choices: List[List[str]]
 
     @strawberry_django.field
     def choices_for(self) -> List[Annotated["CustomFieldType", strawberry.lazy('extras.graphql.types')]]:
         return self.choices_for.all()
 
     @strawberry_django.field
-    def extra_choices(self) -> List[str]:
-        return self.extra_choices
+    def extra_choices(self) -> List[str] | None:
+        return list(self.extra_choices)
 
 
 @strawberry_django.type(
