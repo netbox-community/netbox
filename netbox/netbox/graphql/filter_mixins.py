@@ -11,9 +11,11 @@ from utilities.filters import *
 
 def autotype_decorator(filterset):
 
-    def show_field(fieldname, v, cls):
+    def show_field(field_type, fieldname, v, cls):
         print(f"cls: {cls}")
         print(f"{fieldname}: {v}")
+        print(field_type)
+        print("")
 
     def wrapper(cls):
         cls.filterset = filterset
@@ -38,9 +40,9 @@ def autotype_decorator(filterset):
                 create_function = True
                 attr_type = str | None
             elif isinstance(v, MACAddressFilter):
-                show_field("MACAddressFilter", v, cls)
+                show_field("MACAddressFilter", fieldname, v, cls)
             elif isinstance(v, MultiValueArrayFilter):
-                show_field("MultiValueArrayFilter", v, cls)
+                show_field("MultiValueArrayFilter", fieldname, v, cls)
             elif isinstance(v, MultiValueCharFilter):
                 create_function = True
                 attr_type = List[str] | None
@@ -49,7 +51,7 @@ def autotype_decorator(filterset):
             elif isinstance(v, MultiValueDateTimeFilter):
                 attr_type = auto
             elif isinstance(v, MultiValueDecimalFilter):
-                show_field("MultiValueDecimalFilter", v, cls)
+                show_field("MultiValueDecimalFilter", fieldname, v, cls)
             elif isinstance(v, MultiValueMACAddressFilter):
                 create_function = True
                 attr_type = List[str] | None
@@ -57,14 +59,15 @@ def autotype_decorator(filterset):
                 create_function = True
                 attr_type = List[str] | None
             elif isinstance(v, MultiValueTimeFilter):
-                show_field("MultiValueTimeFilter", v, cls)
+                show_field("MultiValueTimeFilter", fieldname, v, cls)
             elif isinstance(v, MultiValueWWNFilter):
                 create_function = True
                 attr_type = List[str] | None
             elif isinstance(v, NullableCharFieldFilter):
-                show_field("NullableCharFieldFilter", v, cls)
+                show_field("NullableCharFieldFilter", fieldname, v, cls)
             elif isinstance(v, NumericArrayFilter):
-                show_field("NumericArrayFilter", v, cls)
+                create_function = True
+                attr_type = int
             elif isinstance(v, TreeNodeMultipleChoiceFilter):
                 create_function = True
                 attr_type = List[str] | None
@@ -72,19 +75,19 @@ def autotype_decorator(filterset):
             # From django_filters - ordering of these matters as base classes must
             # come after derived classes so the base class doesn't get matched first
             elif issubclass(type(v), django_filters.OrderingFilter):
-                show_field("OrderingFilter", v, cls)
+                show_field("OrderingFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.BaseRangeFilter):
-                show_field("BaseRangeFilter", v, cls)
+                show_field("BaseRangeFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.BaseInFilter):
-                show_field("BaseInFilter", v, cls)
+                show_field("BaseInFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.LookupChoiceFilter):
-                show_field("LookupChoiceFilter", v, cls)
+                show_field("LookupChoiceFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.AllValuesMultipleFilter):
-                show_field("AllValuesMultipleFilter", v, cls)
+                show_field("AllValuesMultipleFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.AllValuesFilter):
-                show_field("AllValuesFilter", v, cls)
+                show_field("AllValuesFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.TimeRangeFilter):
-                show_field("TimeRangeFilter", v, cls)
+                show_field("TimeRangeFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.IsoDateTimeFromToRangeFilter):
                 create_function = True
                 attr_type = str | None
@@ -98,11 +101,12 @@ def autotype_decorator(filterset):
                 create_function = True
                 attr_type = str | None
             elif issubclass(type(v), django_filters.RangeFilter):
-                show_field("RangeFilter", v, cls)
+                show_field("RangeFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.NumericRangeFilter):
-                show_field("NumericRangeFilter", v, cls)
+                show_field("NumericRangeFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.NumberFilter):
-                show_field("NumberFilter", v, cls)
+                create_function = True
+                attr_type = int
             elif issubclass(type(v), django_filters.ModelMultipleChoiceFilter):
                 create_function = True
                 attr_type = List[str] | None
@@ -110,9 +114,9 @@ def autotype_decorator(filterset):
                 create_function = True
                 attr_type = str | None
             elif issubclass(type(v), django_filters.DurationFilter):
-                show_field("DurationFilter", v, cls)
+                show_field("DurationFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.IsoDateTimeFilter):
-                show_field("IsoDateTimeFilter", v, cls)
+                show_field("IsoDateTimeFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.DateTimeFilter):
                 attr_type = auto
             elif issubclass(type(v), django_filters.TimeFilter):
@@ -120,14 +124,14 @@ def autotype_decorator(filterset):
             elif issubclass(type(v), django_filters.DateFilter):
                 attr_type = auto
             elif issubclass(type(v), django_filters.TypedMultipleChoiceFilter):
-                show_field("TypedMultipleChoiceFilter", v, cls)
+                show_field("TypedMultipleChoiceFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.MultipleChoiceFilter):
                 create_function = True
                 attr_type = List[str] | None
             elif issubclass(type(v), django_filters.TypedChoiceFilter):
-                show_field("TypedChoiceFilter", v, cls)
+                show_field("TypedChoiceFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.ChoiceFilter):
-                show_field("ChoiceFilter", v, cls)
+                show_field("ChoiceFilter", fieldname, v, cls)
             elif issubclass(type(v), django_filters.BooleanFilter):
                 create_function = True
                 attr_type = bool | None
@@ -139,7 +143,7 @@ def autotype_decorator(filterset):
                 create_function = True
                 attr_type = str | None
             else:
-                show_field("unknown type!", v, cls)
+                show_field("unknown type!", fieldname, v, cls)
 
             if fieldname not in cls.__annotations__ and attr_type:
                 cls.__annotations__[fieldname] = attr_type

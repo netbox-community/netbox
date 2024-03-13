@@ -25,11 +25,13 @@ __all__ = (
 )
 
 
+# bug - fixme!
 @strawberry_django.filter(models.ASN, lookups=True)
 class ASNFilter(BaseFilterMixin):
     pass
 
 
+# bug - fixme!
 @strawberry_django.filter(models.ASNRange, lookups=True)
 class ASNRangeFilter(BaseFilterMixin):
     pass
