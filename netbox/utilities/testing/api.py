@@ -499,7 +499,10 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json"), status.HTTP_403_FORBIDDEN)
+                header = {
+                    'HTTP_ACCEPT': 'application/json',
+                }
+                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -524,7 +527,10 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json"), status.HTTP_403_FORBIDDEN)
+                header = {
+                    'HTTP_ACCEPT': 'application/json',
+                }
+                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
