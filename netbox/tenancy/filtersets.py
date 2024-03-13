@@ -50,14 +50,14 @@ class ContactGroupFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ContactGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class ContactRoleFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = ContactRole
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class ContactFilterSet(NetBoxModelFilterSet):
@@ -77,7 +77,7 @@ class ContactFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = Contact
-        fields = ['id', 'name', 'title', 'phone', 'email', 'address', 'link', 'description']
+        fields = ('id', 'name', 'title', 'phone', 'email', 'address', 'link', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -131,7 +131,7 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'object_type_id', 'object_id', 'priority', 'tag']
+        fields = ('id', 'object_type_id', 'object_id', 'priority', 'tag')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -192,7 +192,7 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class TenantFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
@@ -212,7 +212,7 @@ class TenantFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Tenant
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():

@@ -15,6 +15,7 @@ User = get_user_model()
 class UserTestCase(TestCase, BaseFilterSetTests):
     queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
+    ignore_fields = ('config', 'dashboard', 'password', 'user_permissions')
 
     @classmethod
     def setUpTestData(cls):
@@ -66,6 +67,16 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         users[1].groups.set([groups[1]])
         users[2].groups.set([groups[2]])
 
+        object_permissions = (
+            ObjectPermission(name='Permission 1', actions=['add']),
+            ObjectPermission(name='Permission 2', actions=['change']),
+            ObjectPermission(name='Permission 3', actions=['delete']),
+        )
+        ObjectPermission.objects.bulk_create(object_permissions)
+        object_permissions[0].users.add(users[0])
+        object_permissions[1].users.add(users[1])
+        object_permissions[2].users.add(users[2])
+
     def test_q(self):
         params = {'q': 'user1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -105,10 +116,16 @@ class UserTestCase(TestCase, BaseFilterSetTests):
         params = {'group': [groups[0].name, groups[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_permission(self):
+        object_permissions = ObjectPermission.objects.all()[:2]
+        params = {'permission_id': [object_permissions[0].pk, object_permissions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class GroupTestCase(TestCase, BaseFilterSetTests):
     queryset = Group.objects.all()
     filterset = filtersets.GroupFilterSet
+    ignore_fields = ('permissions',)
 
     @classmethod
     def setUpTestData(cls):
@@ -120,6 +137,26 @@ class GroupTestCase(TestCase, BaseFilterSetTests):
         )
         Group.objects.bulk_create(groups)
 
+        users = (
+            User(username='User 1'),
+            User(username='User 2'),
+            User(username='User 3'),
+        )
+        User.objects.bulk_create(users)
+        users[0].groups.set([groups[0]])
+        users[1].groups.set([groups[1]])
+        users[2].groups.set([groups[2]])
+
+        object_permissions = (
+            ObjectPermission(name='Permission 1', actions=['add']),
+            ObjectPermission(name='Permission 2', actions=['change']),
+            ObjectPermission(name='Permission 3', actions=['delete']),
+        )
+        ObjectPermission.objects.bulk_create(object_permissions)
+        object_permissions[0].groups.add(groups[0])
+        object_permissions[1].groups.add(groups[1])
+        object_permissions[2].groups.add(groups[2])
+
     def test_q(self):
         params = {'q': 'group 1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -128,10 +165,21 @@ class GroupTestCase(TestCase, BaseFilterSetTests):
         params = {'name': ['Group 1', 'Group 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_user(self):
+        users = User.objects.all()[:2]
+        params = {'user_id': [users[0].pk, users[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_permission(self):
+        object_permissions = ObjectPermission.objects.all()[:2]
+        params = {'permission_id': [object_permissions[0].pk, object_permissions[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
     queryset = ObjectPermission.objects.all()
     filterset = filtersets.ObjectPermissionFilterSet
+    ignore_fields = ('actions', 'constraints')
 
     @classmethod
     def setUpTestData(cls):
@@ -226,6 +274,7 @@ class ObjectPermissionTestCase(TestCase, BaseFilterSetTests):
 class TokenTestCase(TestCase, BaseFilterSetTests):
     queryset = Token.objects.all()
     filterset = filtersets.TokenFilterSet
+    ignore_fields = ('allowed_ips',)
 
     @classmethod
     def setUpTestData(cls):

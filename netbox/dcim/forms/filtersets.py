@@ -754,7 +754,7 @@ class DeviceFilterForm(
     )
     has_oob_ip = forms.NullBooleanField(
         required=False,
-        label='Has an OOB IP',
+        label=_('Has an OOB IP'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )

@@ -28,7 +28,7 @@ class DataSourceFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = DataSource
-        fields = ('id', 'name', 'enabled', 'description')
+        fields = ('id', 'name', 'enabled', 'description', 'source_url', 'last_synced')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -115,7 +115,7 @@ class JobFilterSet(BaseFilterSet):
 
     class Meta:
         model = Job
-        fields = ('id', 'object_type', 'object_id', 'name', 'interval', 'status', 'user')
+        fields = ('id', 'object_type', 'object_id', 'name', 'interval', 'status', 'user', 'job_id')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -134,9 +134,7 @@ class ConfigRevisionFilterSet(BaseFilterSet):
 
     class Meta:
         model = ConfigRevision
-        fields = [
-            'id',
-        ]
+        fields = ('id', 'created', 'comment')
 
     def search(self, queryset, name, value):
         if not value.strip():
