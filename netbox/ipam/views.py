@@ -781,7 +781,6 @@ class IPAddressView(generic.ObjectView):
 class IPAddressEditView(generic.ObjectEditView):
     queryset = IPAddress.objects.all()
     form = forms.IPAddressForm
-    template_name = 'ipam/ipaddress_edit.html'
 
     def alter_object(self, obj, request, url_args, url_kwargs):
 
@@ -1235,14 +1234,12 @@ class ServiceView(generic.ObjectView):
 class ServiceCreateView(generic.ObjectEditView):
     queryset = Service.objects.all()
     form = forms.ServiceCreateForm
-    template_name = 'ipam/service_create.html'
 
 
 @register_model_view(Service, 'edit')
 class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.all()
     form = forms.ServiceForm
-    template_name = 'ipam/service_edit.html'
 
 
 @register_model_view(Service, 'delete')

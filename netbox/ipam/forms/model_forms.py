@@ -16,7 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     SlugField,
 )
-from utilities.forms.rendering import ObjectAttribute
+from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedFieldGroups
 from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
@@ -307,6 +307,20 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         label=_('Make this the primary IP for the device/VM')
     )
     comments = CommentField()
+
+    fieldsets = (
+        (_('IP Address'), ('address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
+        (_('Assignment'), (
+            TabbedFieldGroups(
+                (_('Device'), 'interface'),
+                (_('Virtual Machine'), 'vminterface'),
+                (_('FHRP Group'), 'fhrpgroup'),
+            ),
+            'primary_for_parent',
+        )),
+        (_('NAT IP (Inside)'), ('nat_inside',)),
+    )
 
     class Meta:
         model = IPAddress
@@ -709,6 +723,20 @@ class ServiceForm(NetBoxModelForm):
     )
     comments = CommentField()
 
+    fieldsets = (
+        (_('Service'), (
+            TabbedFieldGroups(
+                (_('Device'), 'device'),
+                (_('Virtual Machine'), 'virtual_machine'),
+            ),
+            'name',
+            InlineFields(_('Port(s)'), 'protocol', 'ports'),
+            'ipaddresses',
+            'description',
+            'tags',
+        )),
+    )
+
     class Meta:
         model = Service
         fields = [
@@ -721,6 +749,22 @@ class ServiceCreateForm(ServiceForm):
         label=_('Service template'),
         queryset=ServiceTemplate.objects.all(),
         required=False
+    )
+
+    fieldsets = (
+        (_('Service'), (
+            TabbedFieldGroups(
+                (_('Device'), 'device'),
+                (_('Virtual Machine'), 'virtual_machine'),
+            ),
+            TabbedFieldGroups(
+                (_('From Template'), 'service_template'),
+                (_('Custom'), 'name', 'protocol', 'ports'),
+            ),
+            'ipaddresses',
+            'description',
+            'tags',
+        )),
     )
 
     class Meta(ServiceForm.Meta):
