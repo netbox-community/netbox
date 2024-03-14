@@ -52,7 +52,7 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
     def __str__(self):
         return self.python_name
 
-    @cached_property
+    @property
     def reports(self):
 
         def _get_name(cls):
