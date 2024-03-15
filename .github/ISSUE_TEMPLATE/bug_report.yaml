@@ -17,15 +17,16 @@ body:
         How are you running NetBox? (For issues with the Docker image, please go to the
         [netbox-docker](https://github.com/netbox-community/netbox-docker) repo.)
       options:
-        - Self-hosted
         - NetBox Cloud
+        - NetBox Enterprise
+        - Self-hosted
     validations:
       required: true
   - type: input
     attributes:
       label: NetBox Version
       description: What version of NetBox are you currently running?
-      placeholder: v3.7.3
+      placeholder: v3.7.4
     validations:
       required: true
   - type: dropdown
