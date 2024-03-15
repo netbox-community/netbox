@@ -229,15 +229,16 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'slug': self.slug,
+            'description': self.description,
             'default_platform': self.default_platform.name if self.default_platform else None,
             'part_number': self.part_number,
             'u_height': float(self.u_height),
             'is_full_depth': self.is_full_depth,
             'subdevice_role': self.subdevice_role,
             'airflow': self.airflow,
-            'comments': self.comments,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'comments': self.comments,
         }
 
         # Component templates
@@ -415,9 +416,10 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'part_number': self.part_number,
-            'comments': self.comments,
+            'description': self.description,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'comments': self.comments,
         }
 
         # Component templates
