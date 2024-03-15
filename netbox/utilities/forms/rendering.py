@@ -3,28 +3,39 @@ import string
 from functools import cached_property
 
 __all__ = (
+    'FieldSet',
     'InlineFields',
     'ObjectAttribute',
-    'TabbedFieldGroups',
+    'TabbedGroups',
 )
 
 
-class FieldGroup:
+class FieldSet:
+    """
+    A generic grouping of fields, with an optional name. Each field will be rendered
+    on its own row under the heading (name).
+    """
+    def __init__(self, *fields, name=None):
+        self.fields = fields
+        self.name = name
 
-    def __init__(self, label, *field_names):
-        self.field_names = field_names
+
+class InlineFields:
+    """
+    A set of fields rendered inline (side-by-side) with a shared label; typically nested within a FieldSet.
+    """
+    def __init__(self, *fields, label=None):
+        self.fields = fields
         self.label = label
 
 
-class InlineFields(FieldGroup):
-    pass
-
-
-class TabbedFieldGroups:
-
+class TabbedGroups:
+    """
+    Two or more groups of fields (FieldSets) arranged under tabs among which the user can navigate.
+    """
     def __init__(self, *groups):
         self.groups = [
-            FieldGroup(*group) for group in groups
+            FieldSet(*group, name=name) for name, *group in groups
         ]
 
         # Initialize a random ID for the group (for tab selection)
@@ -37,13 +48,15 @@ class TabbedFieldGroups:
         return [
             {
                 'id': f'{self.id}_{i}',
-                'title': group.label,
-                'fields': group.field_names,
+                'title': group.name,
+                'fields': group.fields,
             } for i, group in enumerate(self.groups, start=1)
         ]
 
 
 class ObjectAttribute:
-
+    """
+    Renders the value for a specific attribute on the form's instance.
+    """
     def __init__(self, name):
         self.name = name

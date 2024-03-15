@@ -7,7 +7,7 @@ from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
-from utilities.forms.rendering import TabbedFieldGroups
+from utilities.forms.rendering import TabbedGroups
 from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import VirtualMachine, VMInterface
@@ -448,7 +448,7 @@ class L2VPNTerminationForm(NetBoxModelForm):
     fieldsets = (
         (None, (
             'l2vpn',
-            TabbedFieldGroups(
+            TabbedGroups(
                 (_('VLAN'), 'vlan'),
                 (_('Device'), 'interface'),
                 (_('Virtual Machine'), 'vminterface'),

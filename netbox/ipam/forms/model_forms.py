@@ -16,7 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     SlugField,
 )
-from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedFieldGroups
+from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
@@ -312,7 +312,7 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
         (_('IP Address'), ('address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags')),
         (_('Tenancy'), ('tenant_group', 'tenant')),
         (_('Assignment'), (
-            TabbedFieldGroups(
+            TabbedGroups(
                 (_('Device'), 'interface'),
                 (_('Virtual Machine'), 'vminterface'),
                 (_('FHRP Group'), 'fhrpgroup'),
@@ -725,12 +725,12 @@ class ServiceForm(NetBoxModelForm):
 
     fieldsets = (
         (_('Service'), (
-            TabbedFieldGroups(
+            TabbedGroups(
                 (_('Device'), 'device'),
                 (_('Virtual Machine'), 'virtual_machine'),
             ),
             'name',
-            InlineFields(_('Port(s)'), 'protocol', 'ports'),
+            InlineFields('protocol', 'ports', label=_('Port(s)')),
             'ipaddresses',
             'description',
             'tags',
@@ -753,11 +753,11 @@ class ServiceCreateForm(ServiceForm):
 
     fieldsets = (
         (_('Service'), (
-            TabbedFieldGroups(
+            TabbedGroups(
                 (_('Device'), 'device'),
                 (_('Virtual Machine'), 'virtual_machine'),
             ),
-            TabbedFieldGroups(
+            TabbedGroups(
                 (_('From Template'), 'service_template'),
                 (_('Custom'), 'name', 'protocol', 'ports'),
             ),
