@@ -16,7 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
     NumericArrayField, SlugField,
 )
-from utilities.forms.rendering import InlineFields, TabbedFieldGroups
+from utilities.forms.rendering import InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -237,8 +237,8 @@ class RackForm(TenancyForm, NetBoxModelForm):
             'width',
             'starting_unit',
             'u_height',
-            InlineFields(_('Outer Dimensions'), 'outer_width', 'outer_depth', 'outer_unit'),
-            InlineFields(_('Weight'), 'weight', 'max_weight', 'weight_unit'),
+            InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
+            InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
             'mounting_depth',
             'desc_units',
         )),
@@ -1415,7 +1415,7 @@ class InventoryItemForm(DeviceComponentForm):
         (_('Inventory Item'), ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
         (_('Hardware'), ('manufacturer', 'part_id', 'serial', 'asset_tag')),
         (_('Component Assignment'), (
-            TabbedFieldGroups(
+            TabbedGroups(
                 (_('Interface'), 'interface'),
                 (_('Console Port'), 'consoleport'),
                 (_('Console Server Port'), 'consoleserverport'),

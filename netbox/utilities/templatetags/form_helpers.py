@@ -1,6 +1,6 @@
 from django import template
 
-from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedFieldGroups
+from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 
 __all__ = (
     'getfield',
@@ -48,24 +48,29 @@ def widget_type(field):
 #
 
 @register.inclusion_tag('form_helpers/render_fieldset.html')
-def render_fieldset(form, fieldset, heading=None):
+def render_fieldset(form, fieldset):
     """
     Render a group set of fields.
     """
+    # Handle legacy tuple-based fieldset definitions, e.g. (_('Label'), ('field1, 'field2', 'field3'))
+    if type(fieldset) is not FieldSet:
+        name, fields = fieldset
+        fieldset = FieldSet(*fields, name=name)
+
     rows = []
-    for item in fieldset:
+    for item in fieldset.fields:
 
         # Multiple fields side-by-side
         if type(item) is InlineFields:
             fields = [
-                form[name] for name in item.field_names if name in form.fields
+                form[name] for name in item.fields if name in form.fields
             ]
             rows.append(
                 ('inline', item.label, fields)
             )
 
         # Tabbed groups of fields
-        elif type(item) is TabbedFieldGroups:
+        elif type(item) is TabbedGroups:
             tabs = [
                 {
                     'id': tab['id'],
@@ -95,7 +100,7 @@ def render_fieldset(form, fieldset, heading=None):
             )
 
     return {
-        'heading': heading,
+        'heading': fieldset.name,
         'rows': rows,
     }
 
