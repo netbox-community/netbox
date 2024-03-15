@@ -399,11 +399,12 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
-    # Direct current (DC)
-    TYPE_DC = 'dc-terminal'
+    # Molex
     TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
     TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
     TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
     TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20'
@@ -523,11 +524,13 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
-        ('DC', (
-            (TYPE_DC, 'DC Terminal'),
+        ('Molex', (
             (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
             (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
             (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
         )),
         (_('Proprietary'), (
             (TYPE_SAF_D_GRID, 'Saf-D-Grid'),
@@ -641,11 +644,12 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
-    # Direct current (DC)
-    TYPE_DC = 'dc-terminal'
+    # Molex
     TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
     TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
     TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
+    # Direct current (DC)
+    TYPE_DC = 'dc-terminal'
     # Proprietary
     TYPE_HDOT_CX = 'hdot-cx'
     TYPE_SAF_D_GRID = 'saf-d-grid'
@@ -758,11 +762,13 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
         )),
-        ('DC', (
-            (TYPE_DC, 'DC Terminal'),
+        ('Molex', (
             (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
             (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
             (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
+        ('DC', (
+            (TYPE_DC, 'DC Terminal'),
         )),
         (_('Proprietary'), (
             (TYPE_HDOT_CX, 'HDOT Cx'),
