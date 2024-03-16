@@ -270,7 +270,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
 
     class Meta:
         model = Location
-        fields = ('id', 'name', 'slug', 'status', 'description')
+        fields = ('id', 'name', 'slug', 'status', 'facility', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
