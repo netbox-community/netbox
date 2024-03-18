@@ -11,16 +11,7 @@
       {# List filters by group #}
       {% for fieldset in filter_form.fieldsets %}
         <div class="col col-12">
-          {% if fieldset.name %}
-            <div class="hr-text">
-              <span>{{ fieldset.name }}</span>
-            </div>
-          {% endif %}
-          {% for name in fieldset.fields %}
-            {% with field=filter_form|get_item:name %}
-              {% render_field field %}
-            {% endwith %}
-          {% endfor %}
+          {% render_fieldset filter_form fieldset %}
         </div>
       {% empty %}
         {# List all non-customfield filters as declared in the form class #}

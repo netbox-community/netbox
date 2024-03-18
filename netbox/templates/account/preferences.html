@@ -10,15 +10,8 @@
     {% csrf_token %}
 
     {# Built-in preferences #}
-    {% for group, fields in form.fieldsets %}
-      <div class="field-group my-5">
-        <div class="row">
-          <h5 class="col-9 offset-3">{{ group }}</h5>
-        </div>
-        {% for name in fields %}
-          {% render_field form|getfield:name %}
-        {% endfor %}
-      </div>
+    {% for fieldset in form.fieldsets %}
+      {% render_fieldset form fieldset %}
     {% endfor %}
 
     {# Plugin preferences #}
