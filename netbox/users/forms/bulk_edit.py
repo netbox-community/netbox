@@ -6,6 +6,7 @@ from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from users.models import *
 from utilities.forms import BulkEditForm
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DateTimePicker
 
 __all__ = (
@@ -48,7 +49,7 @@ class UserBulkEditForm(forms.Form):
 
     model = User
     fieldsets = (
-        (None, ('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')),
+        FieldSet('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser'),
     )
     nullable_fields = ('first_name', 'last_name')
 
@@ -71,7 +72,7 @@ class ObjectPermissionBulkEditForm(forms.Form):
 
     model = ObjectPermission
     fieldsets = (
-        (None, ('enabled', 'description')),
+        FieldSet('enabled', 'description'),
     )
     nullable_fields = ('description',)
 
@@ -104,7 +105,7 @@ class TokenBulkEditForm(BulkEditForm):
 
     model = Token
     fieldsets = (
-        (None, ('write_enabled', 'description', 'expires', 'allowed_ips')),
+        FieldSet('write_enabled', 'description', 'expires', 'allowed_ips'),
     )
     nullable_fields = (
         'expires', 'description', 'allowed_ips',

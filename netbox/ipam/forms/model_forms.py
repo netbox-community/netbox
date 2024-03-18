@@ -16,7 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
     SlugField,
 )
-from utilities.forms.rendering import InlineFields, ObjectAttribute, TabbedGroups
+from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 from utilities.forms.widgets import DatePicker
 from virtualization.models import Cluster, ClusterGroup, VirtualMachine, VMInterface
 
@@ -57,9 +57,9 @@ class VRFForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('VRF'), ('name', 'rd', 'enforce_unique', 'description', 'tags')),
-        (_('Route Targets'), ('import_targets', 'export_targets')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('name', 'rd', 'enforce_unique', 'description', 'tags', name=_('VRF')),
+        FieldSet('import_targets', 'export_targets', name=_('Route Targets')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -75,8 +75,8 @@ class VRFForm(TenancyForm, NetBoxModelForm):
 
 class RouteTargetForm(TenancyForm, NetBoxModelForm):
     fieldsets = (
-        ('Route Target', ('name', 'description', 'tags')),
-        ('Tenancy', ('tenant_group', 'tenant')),
+        FieldSet('name', 'description', 'tags', name=_('Route Target')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
     comments = CommentField()
 
@@ -91,9 +91,7 @@ class RIRForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('RIR'), (
-            'name', 'slug', 'is_private', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'is_private', 'description', 'tags', name=_('RIR')),
     )
 
     class Meta:
@@ -111,8 +109,8 @@ class AggregateForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Aggregate'), ('prefix', 'rir', 'date_added', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('prefix', 'rir', 'date_added', 'description', 'tags', name=_('Aggregate')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -132,8 +130,8 @@ class ASNRangeForm(TenancyForm, NetBoxModelForm):
     )
     slug = SlugField()
     fieldsets = (
-        (_('ASN Range'), ('name', 'slug', 'rir', 'start', 'end', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('name', 'slug', 'rir', 'start', 'end', 'description', 'tags', name=_('ASN Range')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -156,8 +154,8 @@ class ASNForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('ASN'), ('asn', 'rir', 'sites', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('asn', 'rir', 'sites', 'description', 'tags', name=_('ASN')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -185,9 +183,7 @@ class RoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Role'), (
-            'name', 'slug', 'weight', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'weight', 'description', 'tags', name=_('Role')),
     )
 
     class Meta:
@@ -227,9 +223,11 @@ class PrefixForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Prefix'), ('prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags')),
-        (_('Site/VLAN Assignment'), ('site', 'vlan')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet(
+            'prefix', 'status', 'vrf', 'role', 'is_pool', 'mark_utilized', 'description', 'tags', name=_('Prefix')
+        ),
+        FieldSet('site', 'vlan', name=_('Site/VLAN Assignment')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -254,8 +252,11 @@ class IPRangeForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('IP Range'), ('vrf', 'start_address', 'end_address', 'role', 'status', 'mark_utilized', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet(
+            'vrf', 'start_address', 'end_address', 'role', 'status', 'mark_utilized', 'description', 'tags',
+            name=_('IP Range')
+        ),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -309,17 +310,17 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('IP Address'), ('address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Assignment'), (
+        FieldSet('address', 'status', 'role', 'vrf', 'dns_name', 'description', 'tags', name=_('IP Address')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet(
             TabbedGroups(
-                (_('Device'), 'interface'),
-                (_('Virtual Machine'), 'vminterface'),
-                (_('FHRP Group'), 'fhrpgroup'),
+                FieldSet('interface', name=_('Device')),
+                FieldSet('vminterface', name=_('Virtual Machine')),
+                FieldSet('fhrpgroup', name=_('FHRP Group')),
             ),
-            'primary_for_parent',
-        )),
-        (_('NAT IP (Inside)'), ('nat_inside',)),
+            'primary_for_parent', name=_('Assignment')
+        ),
+        FieldSet('nat_inside', name=_('NAT IP (Inside)')),
     )
 
     class Meta:
@@ -458,9 +459,9 @@ class FHRPGroupForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('FHRP Group'), ('protocol', 'group_id', 'name', 'description', 'tags')),
-        (_('Authentication'), ('auth_type', 'auth_key')),
-        (_('Virtual IP Address'), ('ip_vrf', 'ip_address', 'ip_status'))
+        FieldSet('protocol', 'group_id', 'name', 'description', 'tags', name=_('FHRP Group')),
+        FieldSet('auth_type', 'auth_key', name=_('Authentication')),
+        FieldSet('ip_vrf', 'ip_address', 'ip_status', name=_('Virtual IP Address'))
     )
 
     class Meta:
@@ -518,7 +519,7 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
     )
 
     fieldsets = (
-        (None, (ObjectAttribute('interface'), 'group', 'priority')),
+        FieldSet(ObjectAttribute('interface'), 'group', 'priority'),
     )
 
     class Meta:
@@ -606,9 +607,12 @@ class VLANGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('VLAN Group'), ('name', 'slug', 'description', 'tags')),
-        (_('Child VLANs'), ('min_vid', 'max_vid')),
-        (_('Scope'), ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('VLAN Group')),
+        FieldSet('min_vid', 'max_vid', name=_('Child VLANs')),
+        FieldSet(
+            'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster',
+            name=_('Scope')
+        ),
     )
 
     class Meta:
@@ -681,9 +685,7 @@ class ServiceTemplateForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Service Template'), (
-            'name', 'protocol', 'ports', 'description', 'tags',
-        )),
+        FieldSet('name', 'protocol', 'ports', 'description', 'tags', name=_('Service Template')),
     )
 
     class Meta:
@@ -724,17 +726,15 @@ class ServiceForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Service'), (
+        FieldSet(
             TabbedGroups(
-                (_('Device'), 'device'),
-                (_('Virtual Machine'), 'virtual_machine'),
+                FieldSet('device', name=_('Device')),
+                FieldSet('virtual_machine', name=_('Virtual Machine')),
             ),
             'name',
             InlineFields('protocol', 'ports', label=_('Port(s)')),
-            'ipaddresses',
-            'description',
-            'tags',
-        )),
+            'ipaddresses', 'description', 'tags', name=_('Service')
+        ),
     )
 
     class Meta:
@@ -752,19 +752,17 @@ class ServiceCreateForm(ServiceForm):
     )
 
     fieldsets = (
-        (_('Service'), (
+        FieldSet(
             TabbedGroups(
-                (_('Device'), 'device'),
-                (_('Virtual Machine'), 'virtual_machine'),
+                FieldSet('device', name=_('Device')),
+                FieldSet('virtual_machine', name=_('Virtual Machine')),
             ),
             TabbedGroups(
-                (_('From Template'), 'service_template'),
-                (_('Custom'), 'name', 'protocol', 'ports'),
+                FieldSet('service_template', name=_('From Template')),
+                FieldSet('name', 'protocol', 'ports', name=_('Custom')),
             ),
-            'ipaddresses',
-            'description',
-            'tags',
-        )),
+            'ipaddresses', 'description', 'tags', name=_('Service')
+        ),
     )
 
     class Meta(ServiceForm.Meta):

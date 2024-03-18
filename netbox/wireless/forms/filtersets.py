@@ -6,6 +6,7 @@ from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.rendering import FieldSet
 from wireless.choices import *
 from wireless.models import *
 
@@ -29,10 +30,10 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
 class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLAN
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('ssid', 'group_id', 'status')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('ssid', 'group_id', 'status', name=_('Attributes')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
     ssid = forms.CharField(
         required=False,
@@ -69,10 +70,10 @@ class WirelessLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
 class WirelessLinkFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     model = WirelessLink
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('ssid', 'status',)),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('ssid', 'status', name=_('Attributes')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
     ssid = forms.CharField(
         required=False,

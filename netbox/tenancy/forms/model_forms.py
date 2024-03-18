@@ -4,7 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from netbox.forms import NetBoxModelForm
 from tenancy.models import *
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
-from utilities.forms.rendering import ObjectAttribute
+from utilities.forms.rendering import FieldSet, ObjectAttribute
 
 __all__ = (
     'ContactAssignmentForm',
@@ -29,9 +29,7 @@ class TenantGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Tenant Group'), (
-            'parent', 'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Tenant Group')),
     )
 
     class Meta:
@@ -51,7 +49,7 @@ class TenantForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Tenant'), ('name', 'slug', 'group', 'description', 'tags')),
+        FieldSet('name', 'slug', 'group', 'description', 'tags', name=_('Tenant')),
     )
 
     class Meta:
@@ -74,9 +72,7 @@ class ContactGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Contact Group'), (
-            'parent', 'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Contact Group')),
     )
 
     class Meta:
@@ -88,9 +84,7 @@ class ContactRoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Contact Role'), (
-            'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Contact Role')),
     )
 
     class Meta:
@@ -107,7 +101,10 @@ class ContactForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Contact'), ('group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'tags')),
+        FieldSet(
+            'group', 'name', 'title', 'phone', 'email', 'address', 'link', 'description', 'tags',
+            name=_('Contact')
+        ),
     )
 
     class Meta:
@@ -142,7 +139,7 @@ class ContactAssignmentForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (None, (ObjectAttribute('object'), 'group', 'contact', 'role', 'priority', 'tags')),
+        FieldSet(ObjectAttribute('object'), 'group', 'contact', 'role', 'priority', 'tags'),
     )
 
     class Meta:
