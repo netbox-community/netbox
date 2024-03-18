@@ -33,10 +33,11 @@ class TabbedGroups:
     """
     Two or more groups of fields (FieldSets) arranged under tabs among which the user can navigate.
     """
-    def __init__(self, *groups):
-        self.groups = [
-            FieldSet(*group, name=name) for name, *group in groups
-        ]
+    def __init__(self, *fieldsets):
+        for fs in fieldsets:
+            if not fs.name:
+                raise ValueError(f"Grouped fieldset {fs} must have a name.")
+        self.groups = fieldsets
 
         # Initialize a random ID for the group (for tab selection)
         self.id = ''.join(

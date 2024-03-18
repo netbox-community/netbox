@@ -9,14 +9,14 @@
         {{ field }}
       {% endfor %}
       {# List filters by group #}
-      {% for heading, fields in filter_form.fieldsets %}
+      {% for fieldset in filter_form.fieldsets %}
         <div class="col col-12">
-          {% if heading %}
+          {% if fieldset.name %}
             <div class="hr-text">
-              <span>{{ heading }}</span>
+              <span>{{ fieldset.name }}</span>
             </div>
           {% endif %}
-          {% for name in fields %}
+          {% for name in fieldset.fields %}
             {% with field=filter_form|get_item:name %}
               {% render_field field %}
             {% endwith %}

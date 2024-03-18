@@ -10,6 +10,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import BulkRenameForm, add_blank_choice
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.choices import *
 from virtualization.models import *
@@ -35,7 +36,7 @@ class ClusterTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ClusterType
     fieldsets = (
-        (None, ('description',)),
+        FieldSet('description'),
     )
     nullable_fields = ('description',)
 
@@ -49,7 +50,7 @@ class ClusterGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ClusterGroup
     fieldsets = (
-        (None, ('description',)),
+        FieldSet('description'),
     )
     nullable_fields = ('description',)
 
@@ -104,8 +105,8 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Cluster
     fieldsets = (
-        (None, ('type', 'group', 'status', 'tenant', 'description')),
-        (_('Site'), ('region', 'site_group', 'site')),
+        FieldSet('type', 'group', 'status', 'tenant', 'description'),
+        FieldSet('region', 'site_group', 'site', name=_('Site')),
     )
     nullable_fields = (
         'group', 'site', 'tenant', 'description', 'comments',
@@ -185,9 +186,9 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VirtualMachine
     fieldsets = (
-        (None, ('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform', 'description')),
-        (_('Resources'), ('vcpus', 'memory', 'disk')),
-        ('Configuration', ('config_template',)),
+        FieldSet('site', 'cluster', 'device', 'status', 'role', 'tenant', 'platform', 'description'),
+        FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
+        FieldSet('config_template', name=_('Configuration')),
     )
     nullable_fields = (
         'site', 'cluster', 'device', 'role', 'tenant', 'platform', 'vcpus', 'memory', 'disk', 'description', 'comments',
@@ -262,9 +263,9 @@ class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VMInterface
     fieldsets = (
-        (None, ('mtu', 'enabled', 'vrf', 'description')),
-        (_('Related Interfaces'), ('parent', 'bridge')),
-        (_('802.1Q Switching'), ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+        FieldSet('mtu', 'enabled', 'vrf', 'description'),
+        FieldSet('parent', 'bridge', name=_('Related Interfaces')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
     )
     nullable_fields = (
         'parent', 'bridge', 'mtu', 'vrf', 'description',
@@ -340,7 +341,7 @@ class VirtualDiskBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VirtualDisk
     fieldsets = (
-        (None, ('size', 'description')),
+        FieldSet('size', 'description'),
     )
     nullable_fields = ('description',)
 

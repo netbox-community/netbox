@@ -1,3 +1,5 @@
+import warnings
+
 from django import template
 
 from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
@@ -52,8 +54,12 @@ def render_fieldset(form, fieldset):
     """
     Render a group set of fields.
     """
+    # TODO: Remove in NetBox v4.1
     # Handle legacy tuple-based fieldset definitions, e.g. (_('Label'), ('field1, 'field2', 'field3'))
     if type(fieldset) is not FieldSet:
+        warnings.warn(
+            f"{form.__class__} fieldsets contains a non-FieldSet item: {fieldset}"
+        )
         name, fields = fieldset
         fieldset = FieldSet(*fields, name=name)
 

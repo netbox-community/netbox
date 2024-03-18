@@ -13,6 +13,7 @@ from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm, add_blank_ch
 from utilities.forms.fields import (
     ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import APISelectMultiple, DateTimePicker
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -36,11 +37,11 @@ __all__ = (
 
 class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Attributes'), (
+        FieldSet('q', 'filter_id'),
+        FieldSet(
             'type', 'related_object_type_id', 'group_name', 'weight', 'required', 'choice_set_id', 'ui_visible',
-            'ui_editable', 'is_cloneable',
-        )),
+            'ui_editable', 'is_cloneable', name=_('Attributes')
+        ),
     )
     related_object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
@@ -93,8 +94,8 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
 
 class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Choices'), ('base_choices', 'choice')),
+        FieldSet('q', 'filter_id'),
+        FieldSet('base_choices', 'choice', name=_('Choices')),
     )
     base_choices = forms.MultipleChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
@@ -107,8 +108,8 @@ class CustomFieldChoiceSetFilterForm(SavedFiltersMixin, FilterForm):
 
 class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Attributes'), ('object_type', 'enabled', 'new_window', 'weight')),
+        FieldSet('q', 'filter_id'),
+        FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
     )
     object_type = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -137,9 +138,9 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
 
 class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Data'), ('data_source_id', 'data_file_id')),
-        (_('Attributes'), ('object_type_id', 'mime_type', 'file_extension', 'as_attachment')),
+        FieldSet('q', 'filter_id'),
+        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+        FieldSet('object_type_id', 'mime_type', 'file_extension', 'as_attachment', name=_('Attributes')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -178,8 +179,8 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
 
 class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Attributes'), ('object_type_id', 'name',)),
+        FieldSet('q', 'filter_id'),
+        FieldSet('object_type_id', 'name', name=_('Attributes')),
     )
     object_type_id = ContentTypeChoiceField(
         label=_('Object type'),
@@ -194,8 +195,8 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
 
 class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Attributes'), ('object_type', 'enabled', 'shared', 'weight')),
+        FieldSet('q', 'filter_id'),
+        FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
     object_type = ContentTypeMultipleChoiceField(
         label=_('Object types'),
@@ -225,8 +226,8 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
 class WebhookFilterForm(NetBoxModelFilterSetForm):
     model = Webhook
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('payload_url', 'http_method', 'http_content_type')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
     )
     http_content_type = forms.CharField(
         label=_('HTTP content type'),
@@ -249,9 +250,9 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     tag = TagFilterField(model)
 
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('object_type_id', 'action_type', 'enabled')),
-        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('object_type_id', 'action_type', 'enabled', name=_('Attributes')),
+        FieldSet('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', name=_('Events')),
     )
     object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('event_rules'),
@@ -323,12 +324,12 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
 
 class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag_id')),
-        (_('Data'), ('data_source_id', 'data_file_id')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id', 'location_id')),
-        (_('Device'), ('device_type_id', 'platform_id', 'role_id')),
-        (_('Cluster'), ('cluster_type_id', 'cluster_group_id', 'cluster_id')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id'))
+        FieldSet('q', 'filter_id', 'tag_id'),
+        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
+        FieldSet('region_id', 'site_group_id', 'site_id', 'location_id', name=_('Location')),
+        FieldSet('device_type_id', 'platform_id', 'role_id', name=_('Device')),
+        FieldSet('cluster_type_id', 'cluster_group_id', 'cluster_id', name=_('Cluster')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant'))
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -412,8 +413,8 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
 
 class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Data'), ('data_source_id', 'data_file_id')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('data_source_id', 'data_file_id', name=_('Data')),
     )
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -444,9 +445,9 @@ class LocalConfigContextFilterForm(forms.Form):
 class JournalEntryFilterForm(NetBoxModelFilterSetForm):
     model = JournalEntry
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Creation'), ('created_before', 'created_after', 'created_by_id')),
-        (_('Attributes'), ('assigned_object_type_id', 'kind'))
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('created_before', 'created_after', 'created_by_id', name=_('Creation')),
+        FieldSet('assigned_object_type_id', 'kind', name=_('Attributes')),
     )
     created_after = forms.DateTimeField(
         required=False,
@@ -482,9 +483,9 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
 class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
     model = ObjectChange
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Time'), ('time_before', 'time_after')),
-        (_('Attributes'), ('action', 'user_id', 'changed_object_type_id')),
+        FieldSet('q', 'filter_id'),
+        FieldSet('time_before', 'time_after', name=_('Time')),
+        FieldSet('action', 'user_id', 'changed_object_type_id', name=_('Attributes')),
     )
     time_after = forms.DateTimeField(
         required=False,

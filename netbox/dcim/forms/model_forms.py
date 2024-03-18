@@ -16,7 +16,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
     NumericArrayField, SlugField,
 )
-from utilities.forms.rendering import InlineFields, TabbedGroups
+from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
 from wireless.models import WirelessLAN, WirelessLANGroup
@@ -78,9 +78,7 @@ class RegionForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Region'), (
-            'parent', 'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('parent', 'name', 'slug', 'description', 'tags'),
     )
 
     class Meta:
@@ -99,9 +97,7 @@ class SiteGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Site Group'), (
-            'parent', 'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('parent', 'name', 'slug', 'description', 'tags'),
     )
 
     class Meta:
@@ -136,11 +132,12 @@ class SiteForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Site'), (
+        FieldSet(
             'name', 'slug', 'status', 'region', 'group', 'facility', 'asns', 'time_zone', 'description', 'tags',
-        )),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Contact Info'), ('physical_address', 'shipping_address', 'latitude', 'longitude')),
+            name=_('Site')
+        ),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet('physical_address', 'shipping_address', 'latitude', 'longitude', name=_('Contact Info')),
     )
 
     class Meta:
@@ -180,8 +177,8 @@ class LocationForm(TenancyForm, NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Location'), ('site', 'parent', 'name', 'slug', 'status', 'facility', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('site', 'parent', 'name', 'slug', 'status', 'facility', 'description', 'tags', name=_('Location')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -195,9 +192,7 @@ class RackRoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Rack Role'), (
-            'name', 'slug', 'color', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Rack Role')),
     )
 
     class Meta:
@@ -229,19 +224,15 @@ class RackForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Rack'), ('site', 'location', 'name', 'status', 'role', 'description', 'tags')),
-        (_('Inventory Control'), ('facility_id', 'serial', 'asset_tag')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Dimensions'), (
-            'type',
-            'width',
-            'starting_unit',
-            'u_height',
+        FieldSet('site', 'location', 'name', 'status', 'role', 'description', 'tags', name=_('Rack')),
+        FieldSet('facility_id', 'serial', 'asset_tag', name=_('Inventory Control')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet(
+            'type', 'width', 'starting_unit', 'u_height',
             InlineFields('outer_width', 'outer_depth', 'outer_unit', label=_('Outer Dimensions')),
             InlineFields('weight', 'max_weight', 'weight_unit', label=_('Weight')),
-            'mounting_depth',
-            'desc_units',
-        )),
+            'mounting_depth', 'desc_units', name=_('Dimensions')
+        ),
     )
 
     class Meta:
@@ -273,8 +264,8 @@ class RackReservationForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Reservation'), ('rack', 'units', 'user', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('rack', 'units', 'user', 'description', 'tags', name=_('Reservation')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -288,9 +279,7 @@ class ManufacturerForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Manufacturer'), (
-            'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Manufacturer')),
     )
 
     class Meta:
@@ -321,12 +310,12 @@ class DeviceTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Device Type'), ('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags')),
-        (_('Chassis'), (
+        FieldSet('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags', name=_('Device Type')),
+        FieldSet(
             'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
-            'weight', 'weight_unit',
-        )),
-        (_('Images'), ('front_image', 'rear_image')),
+            'weight', 'weight_unit', name=_('Chassis')
+        ),
+        FieldSet('front_image', 'rear_image', name=_('Images')),
     )
 
     class Meta:
@@ -354,8 +343,8 @@ class ModuleTypeForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Module Type'), ('manufacturer', 'model', 'part_number', 'description', 'tags')),
-        (_('Weight'), ('weight', 'weight_unit'))
+        FieldSet('manufacturer', 'model', 'part_number', 'description', 'tags', name=_('Module Type')),
+        FieldSet('weight', 'weight_unit', name=_('Weight'))
     )
 
     class Meta:
@@ -374,9 +363,9 @@ class DeviceRoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Device Role'), (
-            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags',
-        )),
+        FieldSet(
+            'name', 'slug', 'color', 'vm_role', 'config_template', 'description', 'tags', name=_('Device Role')
+        ),
     )
 
     class Meta:
@@ -403,7 +392,7 @@ class PlatformForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Platform'), ('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags')),
+        FieldSet('name', 'slug', 'manufacturer', 'config_template', 'description', 'tags', name=_('Platform')),
     )
 
     class Meta:
@@ -618,10 +607,8 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Module'), ('device', 'module_bay', 'module_type', 'status', 'description', 'tags')),
-        (_('Hardware'), (
-            'serial', 'asset_tag', 'replicate_components', 'adopt_components',
-        )),
+        FieldSet('device', 'module_bay', 'module_type', 'status', 'description', 'tags', name=_('Module')),
+        FieldSet('serial', 'asset_tag', 'replicate_components', 'adopt_components', name=_('Hardware')),
     )
 
     class Meta:
@@ -675,7 +662,7 @@ class PowerPanelForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        ('Power Panel', ('site', 'location', 'name', 'description', 'tags')),
+        FieldSet('site', 'location', 'name', 'description', 'tags', name=_('Power Panel')),
     )
 
     class Meta:
@@ -700,9 +687,12 @@ class PowerFeedForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Power Feed'), ('power_panel', 'rack', 'name', 'status', 'type', 'description', 'mark_connected', 'tags')),
-        (_('Characteristics'), ('supply', 'voltage', 'amperage', 'phase', 'max_utilization')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet(
+            'power_panel', 'rack', 'name', 'status', 'type', 'description', 'mark_connected', 'tags',
+            name=_('Power Feed')
+        ),
+        FieldSet('supply', 'voltage', 'amperage', 'phase', 'max_utilization', name=_('Characteristics')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -849,7 +839,7 @@ class ModularComponentTemplateForm(ComponentTemplateForm):
 
 class ConsolePortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'description')),
+        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'description'),
     )
 
     class Meta:
@@ -861,7 +851,7 @@ class ConsolePortTemplateForm(ModularComponentTemplateForm):
 
 class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'description')),
+        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'description'),
     )
 
     class Meta:
@@ -873,9 +863,9 @@ class ConsoleServerPortTemplateForm(ModularComponentTemplateForm):
 
 class PowerPortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        (None, (
+        FieldSet(
             'device_type', 'module_type', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'description',
-        )),
+        ),
     )
 
     class Meta:
@@ -896,7 +886,7 @@ class PowerOutletTemplateForm(ModularComponentTemplateForm):
     )
 
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description')),
+        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'power_port', 'feed_leg', 'description'),
     )
 
     class Meta:
@@ -918,9 +908,11 @@ class InterfaceTemplateForm(ModularComponentTemplateForm):
     )
 
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge')),
-        (_('PoE'), ('poe_mode', 'poe_type')),
-        (_('Wireless'), ('rf_role',)),
+        FieldSet(
+            'device_type', 'module_type', 'name', 'label', 'type', 'enabled', 'mgmt_only', 'description', 'bridge',
+        ),
+        FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('rf_role', name=_('Wireless')),
     )
 
     class Meta:
@@ -942,10 +934,10 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
     )
 
     fieldsets = (
-        (None, (
+        FieldSet(
             'device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position',
             'description',
-        )),
+        ),
     )
 
     class Meta:
@@ -958,7 +950,7 @@ class FrontPortTemplateForm(ModularComponentTemplateForm):
 
 class RearPortTemplateForm(ModularComponentTemplateForm):
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description')),
+        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'color', 'positions', 'description'),
     )
 
     class Meta:
@@ -970,7 +962,7 @@ class RearPortTemplateForm(ModularComponentTemplateForm):
 
 class ModuleBayTemplateForm(ComponentTemplateForm):
     fieldsets = (
-        (None, ('device_type', 'name', 'label', 'position', 'description')),
+        FieldSet('device_type', 'name', 'label', 'position', 'description'),
     )
 
     class Meta:
@@ -982,7 +974,7 @@ class ModuleBayTemplateForm(ComponentTemplateForm):
 
 class DeviceBayTemplateForm(ComponentTemplateForm):
     fieldsets = (
-        (None, ('device_type', 'name', 'label', 'description')),
+        FieldSet('device_type', 'name', 'label', 'description'),
     )
 
     class Meta:
@@ -1023,10 +1015,10 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
     )
 
     fieldsets = (
-        (None, (
+        FieldSet(
             'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
             'component_type', 'component_id',
-        )),
+        ),
     )
 
     class Meta:
@@ -1069,9 +1061,9 @@ class ModularDeviceComponentForm(DeviceComponentForm):
 
 class ConsolePortForm(ModularDeviceComponentForm):
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
-        )),
+        ),
     )
 
     class Meta:
@@ -1082,11 +1074,10 @@ class ConsolePortForm(ModularDeviceComponentForm):
 
 
 class ConsoleServerPortForm(ModularDeviceComponentForm):
-
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'speed', 'mark_connected', 'description', 'tags',
-        )),
+        ),
     )
 
     class Meta:
@@ -1097,12 +1088,11 @@ class ConsoleServerPortForm(ModularDeviceComponentForm):
 
 
 class PowerPortForm(ModularDeviceComponentForm):
-
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'maximum_draw', 'allocated_draw', 'mark_connected',
             'description', 'tags',
-        )),
+        ),
     )
 
     class Meta:
@@ -1124,10 +1114,10 @@ class PowerOutletForm(ModularDeviceComponentForm):
     )
 
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'power_port', 'feed_leg', 'mark_connected', 'description',
             'tags',
-        )),
+        ),
     )
 
     class Meta:
@@ -1223,15 +1213,18 @@ class InterfaceForm(InterfaceCommonForm, ModularDeviceComponentForm):
     )
 
     fieldsets = (
-        (_('Interface'), ('device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags')),
-        (_('Addressing'), ('vrf', 'mac_address', 'wwn')),
-        (_('Operation'), ('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected')),
-        (_('Related Interfaces'), ('parent', 'bridge', 'lag')),
-        (_('PoE'), ('poe_mode', 'poe_type')),
-        (_('802.1Q Switching'), ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
-        (_('Wireless'), (
+        FieldSet(
+            'device', 'module', 'name', 'label', 'type', 'speed', 'duplex', 'description', 'tags', name=_('Interface')
+        ),
+        FieldSet('vrf', 'mac_address', 'wwn', name=_('Addressing')),
+        FieldSet('vdcs', 'mtu', 'tx_power', 'enabled', 'mgmt_only', 'mark_connected', name=_('Operation')),
+        FieldSet('parent', 'bridge', 'lag', name=_('Related Interfaces')),
+        FieldSet('poe_mode', 'poe_type', name=_('PoE')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
+        FieldSet(
             'rf_role', 'rf_channel', 'rf_channel_frequency', 'rf_channel_width', 'wireless_lan_group', 'wireless_lans',
-        )),
+            name=_('Wireless')
+        ),
     )
 
     class Meta:
@@ -1262,10 +1255,10 @@ class FrontPortForm(ModularDeviceComponentForm):
     )
 
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'rear_port_position', 'mark_connected',
             'description', 'tags',
-        )),
+        ),
     )
 
     class Meta:
@@ -1278,9 +1271,9 @@ class FrontPortForm(ModularDeviceComponentForm):
 
 class RearPortForm(ModularDeviceComponentForm):
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'positions', 'mark_connected', 'description', 'tags',
-        )),
+        ),
     )
 
     class Meta:
@@ -1292,7 +1285,7 @@ class RearPortForm(ModularDeviceComponentForm):
 
 class ModuleBayForm(DeviceComponentForm):
     fieldsets = (
-        (None, ('device', 'name', 'label', 'position', 'description', 'tags',)),
+        FieldSet('device', 'name', 'label', 'position', 'description', 'tags',),
     )
 
     class Meta:
@@ -1304,7 +1297,7 @@ class ModuleBayForm(DeviceComponentForm):
 
 class DeviceBayForm(DeviceComponentForm):
     fieldsets = (
-        (None, ('device', 'name', 'label', 'description', 'tags',)),
+        FieldSet('device', 'name', 'label', 'description', 'tags',),
     )
 
     class Meta:
@@ -1412,19 +1405,20 @@ class InventoryItemForm(DeviceComponentForm):
     )
 
     fieldsets = (
-        (_('Inventory Item'), ('device', 'parent', 'name', 'label', 'role', 'description', 'tags')),
-        (_('Hardware'), ('manufacturer', 'part_id', 'serial', 'asset_tag')),
-        (_('Component Assignment'), (
+        FieldSet('device', 'parent', 'name', 'label', 'role', 'description', 'tags', name=_('Inventory Item')),
+        FieldSet('manufacturer', 'part_id', 'serial', 'asset_tag', name=_('Hardware')),
+        FieldSet(
             TabbedGroups(
-                (_('Interface'), 'interface'),
-                (_('Console Port'), 'consoleport'),
-                (_('Console Server Port'), 'consoleserverport'),
-                (_('Front Port'), 'frontport'),
-                (_('Rear Port'), 'rearport'),
-                (_('Power Port'), 'powerport'),
-                (_('Power Outlet'), 'poweroutlet'),
+                FieldSet('interface', name=_('Interface')),
+                FieldSet('consoleport', name=_('Console Port')),
+                FieldSet('consoleserverport', name=_('Console Server Port')),
+                FieldSet('frontport', name=_('Front Port')),
+                FieldSet('rearport', name=_('Rear Port')),
+                FieldSet('powerport', name=_('Power Port')),
+                FieldSet('poweroutlet', name=_('Power Outlet')),
             ),
-        ))
+            name=_('Component Assignment')
+        )
     )
 
     class Meta:
@@ -1484,9 +1478,7 @@ class InventoryItemRoleForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Inventory Item Role'), (
-            'name', 'slug', 'color', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'color', 'description', 'tags', name=_('Inventory Item Role')),
     )
 
     class Meta:
@@ -1522,8 +1514,11 @@ class VirtualDeviceContextForm(TenancyForm, NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Virtual Device Context'), ('device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant'))
+        FieldSet(
+            'device', 'name', 'status', 'identifier', 'primary_ip4', 'primary_ip6', 'tags',
+            name=_('Virtual Device Context')
+        ),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy'))
     )
 
     class Meta:
