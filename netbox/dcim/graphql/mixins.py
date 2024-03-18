@@ -1,7 +1,7 @@
+from typing import Annotated, List, Union
+
 import strawberry
 import strawberry_django
-from typing import TYPE_CHECKING, Annotated, List, Union
-
 
 __all__ = (
     'CabledObjectMixin',

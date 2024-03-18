@@ -1,9 +1,7 @@
-import strawberry
 import strawberry_django
-from virtualization import filtersets, models
 
 from netbox.graphql.filter_mixins import autotype_decorator, BaseFilterMixin
-
+from virtualization import filtersets, models
 
 __all__ = (
     'ClusterFilter',

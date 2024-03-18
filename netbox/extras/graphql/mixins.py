@@ -1,7 +1,7 @@
-import strawberry
-import strawberry_django
 from typing import TYPE_CHECKING, Annotated, List
 
+import strawberry
+import strawberry_django
 from django.contrib.contenttypes.models import ContentType
 
 from extras.models import ObjectChange
@@ -9,6 +9,7 @@ from extras.models import ObjectChange
 __all__ = (
     'ChangelogMixin',
     'ConfigContextMixin',
+    'ContactsMixin',
     'CustomFieldsMixin',
     'ImageAttachmentsMixin',
     'JournalEntriesMixin',

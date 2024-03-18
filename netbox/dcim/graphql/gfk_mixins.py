@@ -1,7 +1,3 @@
-from typing import TYPE_CHECKING, Annotated, List, Union
-
-import strawberry
-import strawberry_django
 from circuits.graphql.types import CircuitTerminationType, ProviderNetworkType
 from circuits.models import CircuitTermination, ProviderNetwork
 from dcim.graphql.types import (

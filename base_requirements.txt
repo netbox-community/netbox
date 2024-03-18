@@ -96,7 +96,7 @@ markdown-include
 mkdocs-material
 
 # Introspection for embedded code
-# https://github.com/mkdocstrings/mkdocstrings/blob/master/CHANGELOG.md
+# https://github.com/mkdocstrings/mkdocstrings/blob/main/CHANGELOG.md
 mkdocstrings[python-legacy]
 
 # Library for manipulating IP prefixes and addresses

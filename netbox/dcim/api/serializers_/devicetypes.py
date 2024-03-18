@@ -28,8 +28,8 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False, allow_null=True)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False, allow_null=True)
     weight_unit = ChoiceField(choices=WeightUnitChoices, allow_blank=True, required=False, allow_null=True)
-    front_image = serializers.URLField(allow_null=True, required=False)
-    rear_image = serializers.URLField(allow_null=True, required=False)
+    front_image = serializers.ImageField(required=False, allow_null=True)
+    rear_image = serializers.ImageField(required=False, allow_null=True)
 
     # Counter fields
     console_port_template_count = serializers.IntegerField(read_only=True)

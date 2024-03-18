@@ -3,7 +3,7 @@ from typing import Annotated, List
 import strawberry
 import strawberry_django
 
-from extras.graphql.mixins import ConfigContextMixin
+from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
@@ -78,7 +78,7 @@ class ClusterTypeType(OrganizationalObjectType):
     fields='__all__',
     filters=VirtualMachineFilter
 )
-class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
+class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     _name: str
     interface_count: BigInt
     virtual_disk_count: BigInt

@@ -2,13 +2,12 @@ from typing import Annotated, List
 
 import strawberry
 import strawberry_django
+
 from circuits import models
 from dcim.graphql.mixins import CabledObjectMixin
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
-from tenancy.graphql.types import TenantType
-
 from netbox.graphql.types import NetBoxObjectType, ObjectType, OrganizationalObjectType
-
+from tenancy.graphql.types import TenantType
 from .filters import *
 
 __all__ = (

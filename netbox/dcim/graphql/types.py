@@ -2,6 +2,7 @@ from typing import Annotated, List, Union
 
 import strawberry
 import strawberry_django
+
 from dcim import models
 from extras.graphql.mixins import (
     ChangelogMixin,
@@ -12,14 +13,8 @@ from extras.graphql.mixins import (
     TagsMixin,
 )
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
-
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import (
-    BaseObjectType,
-    NetBoxObjectType,
-    OrganizationalObjectType,
-)
-
+from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
 from .filters import *
 from .mixins import CabledObjectMixin, PathEndpointMixin
 

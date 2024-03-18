@@ -1,10 +1,10 @@
-from typing import Annotated, List, Union
+from typing import Annotated, List
 
 import strawberry
 import strawberry_django
 
-from wireless import models
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
+from wireless import models
 from .filters import *
 
 __all__ = (

@@ -1,19 +1,15 @@
-from typing import TYPE_CHECKING, Annotated, List, Union
+from typing import Annotated, List, Union
 
 import strawberry
 import strawberry_django
+
 from circuits.graphql.types import ProviderType
 from dcim.graphql.types import SiteType
 from ipam import models
-
 from netbox.graphql.scalars import BigInt
-from netbox.graphql.types import (
-    BaseObjectType,
-    NetBoxObjectType,
-    OrganizationalObjectType,
-)
-
+from netbox.graphql.types import BaseObjectType, NetBoxObjectType, OrganizationalObjectType
 from .filters import *
+from .mixins import IPAddressesMixin
 
 __all__ = (
     'ASNType',
@@ -101,7 +97,7 @@ class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
     fields='__all__',
     filters=FHRPGroupFilter
 )
-class FHRPGroupType(NetBoxObjectType):
+class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
 
     @strawberry_django.field
     def fhrpgroupassignment_set(self) -> List[Annotated["FHRPGroupAssignmentType", strawberry.lazy('ipam.graphql.types')]]:

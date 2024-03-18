@@ -4,8 +4,8 @@ import strawberry
 import strawberry_django
 
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
-from tenancy import models
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
+from tenancy import models
 from .filters import *
 
 __all__ = (
