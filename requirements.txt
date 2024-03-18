@@ -26,7 +26,7 @@ mkdocstrings[python-legacy]==0.24.1
 netaddr==1.2.1
 nh3==0.2.15
 Pillow==10.2.0
-psycopg[binary,pool]==3.1.18
+psycopg[c,pool]==3.1.18
 PyYAML==6.0.1
 requests==2.31.0
 social-auth-app-django==5.4.0
