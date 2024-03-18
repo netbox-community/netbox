@@ -24,9 +24,9 @@ A unique URL-friendly identifier. (This value can be used for filtering.)
 
 The location's operational status.
 
+!!! tip
+    Additional statuses may be defined by setting `Location.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.
+
 ### Facility
 
 Data center or facility designation for identifying the location.
-
-!!! tip
-    Additional statuses may be defined by setting `Location.status` under the [`FIELD_CHOICES`](../../configuration/data-validation.md#field_choices) configuration parameter.

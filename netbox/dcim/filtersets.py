@@ -277,6 +277,7 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(facility__icontains=value) |
             Q(description__icontains=value)
         )
 
