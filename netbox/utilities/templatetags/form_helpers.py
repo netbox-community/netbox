@@ -101,8 +101,12 @@ def render_fieldset(form, fieldset):
 
         # A single form field
         elif item in form.fields:
+            field = form[item]
+            # Annotate nullability for bulk editing
+            if field.name in getattr(form, 'nullable_fields', []):
+                field._nullable = True
             rows.append(
-                ('field', None, [form[item]])
+                ('field', None, [field])
             )
 
     return {
@@ -119,7 +123,7 @@ def render_field(field, bulk_nullable=False, label=None):
     return {
         'field': field,
         'label': label or field.label,
-        'bulk_nullable': bulk_nullable,
+        'bulk_nullable': bulk_nullable or getattr(field, '_nullable', False),
     }
 
 
