@@ -213,6 +213,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'location-x',
             'site': site.pk,
             'status': LocationStatusChoices.STATUS_PLANNED,
+            'facility': 'Facility X',
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
