@@ -11,30 +11,30 @@ from .types import *
 class VirtualizationQuery:
     @strawberry.field
     def cluster(self, id: int) -> ClusterType:
-        return models.Cluster.objects.get(id=id)
+        return models.Cluster.objects.get(pk=id)
     cluster_list: List[ClusterType] = strawberry_django.field()
 
     @strawberry.field
     def cluster_group(self, id: int) -> ClusterGroupType:
-        return models.ClusterGroup.objects.get(id=id)
+        return models.ClusterGroup.objects.get(pk=id)
     cluster_group_list: List[ClusterGroupType] = strawberry_django.field()
 
     @strawberry.field
     def cluster_type(self, id: int) -> ClusterTypeType:
-        return models.ClusterType.objects.get(id=id)
+        return models.ClusterType.objects.get(pk=id)
     cluster_type_list: List[ClusterTypeType] = strawberry_django.field()
 
     @strawberry.field
     def virtual_machine(self, id: int) -> VirtualMachineType:
-        return models.VirtualMachine.objects.get(id=id)
+        return models.VirtualMachine.objects.get(pk=id)
     virtual_machine_list: List[VirtualMachineType] = strawberry_django.field()
 
     @strawberry.field
     def vm_interface(self, id: int) -> VMInterfaceType:
-        return models.VMInterface.objects.get(id=id)
+        return models.VMInterface.objects.get(pk=id)
     vm_interface_list: List[VMInterfaceType] = strawberry_django.field()
 
     @strawberry.field
     def virtual_disk(self, id: int) -> VirtualDiskType:
-        return models.VirtualDisk.objects.get(id=id)
+        return models.VirtualDisk.objects.get(pk=id)
     virtual_disk_list: List[VirtualDiskType] = strawberry_django.field()

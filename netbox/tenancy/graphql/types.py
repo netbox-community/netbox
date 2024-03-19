@@ -6,6 +6,7 @@ import strawberry_django
 from extras.graphql.mixins import CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 from tenancy import models
+from .mixins import ContactAssignmentsMixin
 from .filters import *
 
 __all__ = (
@@ -16,14 +17,6 @@ __all__ = (
     'TenantType',
     'TenantGroupType',
 )
-
-
-@strawberry.type
-class ContactAssignmentsMixin:
-
-    @strawberry_django.field
-    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.assignments.all()
 
 
 #

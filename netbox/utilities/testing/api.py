@@ -451,12 +451,12 @@ class APIViewTestCases:
             # Compile list of fields to include
             fields_string = ''
 
+            file_fields = (strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType)
             for field in type_class.__strawberry_definition__.fields:
                 if (
-                    field.type in (
-                        strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType) or
-                    type(field.type) is StrawberryOptional and field.type.of_type in (
-                        strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType)
+                    field.type in file_fields or (
+                        type(field.type) is StrawberryOptional and field.type.of_type in file_fields
+                    )
                 ):
                     # image / file fields nullable or not...
                     fields_string += f'{field.name} {{ name }}\n'

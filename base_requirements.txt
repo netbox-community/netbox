@@ -131,6 +131,10 @@ social-auth-core
 # https://github.com/python-social-auth/social-app-django/blob/master/CHANGELOG.md
 social-auth-app-django
 
+# Strawberry GraphQL
+# https://github.com/strawberry-graphql/strawberry/blob/main/CHANGELOG.md
+strawberry-graphql
+
 # Strawberry GraphQL Django extension
 # https://github.com/strawberry-graphql/strawberry-django/blob/main/CHANGELOG.md
 strawberry-django

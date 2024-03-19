@@ -15,7 +15,7 @@ __all__ = (
 
 @strawberry_django.type(
     models.DataFile,
-    exclude=('data',),
+    exclude=['data',],
     filters=DataFileFilter
 )
 class DataFileType(BaseObjectType):

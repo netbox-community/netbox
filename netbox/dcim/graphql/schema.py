@@ -11,137 +11,137 @@ from .types import *
 class DCIMQuery:
     @strawberry.field
     def cable(self, id: int) -> CableType:
-        return models.Cable.objects.get(id=id)
+        return models.Cable.objects.get(pk=id)
     cable_list: List[CableType] = strawberry_django.field()
 
     @strawberry.field
     def console_port(self, id: int) -> ConsolePortType:
-        return models.ConsolePort.objects.get(id=id)
+        return models.ConsolePort.objects.get(pk=id)
     console_port_list: List[ConsolePortType] = strawberry_django.field()
 
     @strawberry.field
     def console_port_template(self, id: int) -> ConsolePortTemplateType:
-        return models.ConsolePortTemplate.objects.get(id=id)
+        return models.ConsolePortTemplate.objects.get(pk=id)
     console_port_template_list: List[ConsolePortTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def console_server_port(self, id: int) -> ConsoleServerPortType:
-        return models.ConsoleServerPort.objects.get(id=id)
+        return models.ConsoleServerPort.objects.get(pk=id)
     console_server_port_list: List[ConsoleServerPortType] = strawberry_django.field()
 
     @strawberry.field
     def console_server_port_template(self, id: int) -> ConsoleServerPortTemplateType:
-        return models.ConsoleServerPortTemplate.objects.get(id=id)
+        return models.ConsoleServerPortTemplate.objects.get(pk=id)
     console_server_port_template_list: List[ConsoleServerPortTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def device(self, id: int) -> DeviceType:
-        return models.Device.objects.get(id=id)
+        return models.Device.objects.get(pk=id)
     device_list: List[DeviceType] = strawberry_django.field()
 
     @strawberry.field
     def device_bay(self, id: int) -> DeviceBayType:
-        return models.DeviceBay.objects.get(id=id)
+        return models.DeviceBay.objects.get(pk=id)
     device_bay_list: List[DeviceBayType] = strawberry_django.field()
 
     @strawberry.field
     def device_bay_template(self, id: int) -> DeviceBayTemplateType:
-        return models.DeviceBayTemplate.objects.get(id=id)
+        return models.DeviceBayTemplate.objects.get(pk=id)
     device_bay_template_list: List[DeviceBayTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def device_role(self, id: int) -> DeviceRoleType:
-        return models.DeviceRole.objects.get(id=id)
+        return models.DeviceRole.objects.get(pk=id)
     device_role_list: List[DeviceRoleType] = strawberry_django.field()
 
     @strawberry.field
     def device_type(self, id: int) -> DeviceTypeType:
-        return models.DeviceType.objects.get(id=id)
+        return models.DeviceType.objects.get(pk=id)
     device_type_list: List[DeviceTypeType] = strawberry_django.field()
 
     @strawberry.field
     def front_port(self, id: int) -> FrontPortType:
-        return models.FrontPort.objects.get(id=id)
+        return models.FrontPort.objects.get(pk=id)
     front_port_list: List[FrontPortType] = strawberry_django.field()
 
     @strawberry.field
     def front_port_template(self, id: int) -> FrontPortTemplateType:
-        return models.FrontPortTemplate.objects.get(id=id)
+        return models.FrontPortTemplate.objects.get(pk=id)
     front_port_template_list: List[FrontPortTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def interface(self, id: int) -> InterfaceType:
-        return models.Interface.objects.get(id=id)
+        return models.Interface.objects.get(pk=id)
     interface_list: List[InterfaceType] = strawberry_django.field()
 
     @strawberry.field
     def interface_template(self, id: int) -> InterfaceTemplateType:
-        return models.InterfaceTemplate.objects.get(id=id)
+        return models.InterfaceTemplate.objects.get(pk=id)
     interface_template_list: List[InterfaceTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def inventory_item(self, id: int) -> InventoryItemType:
-        return models.InventoryItem.objects.get(id=id)
+        return models.InventoryItem.objects.get(pk=id)
     inventory_item_list: List[InventoryItemType] = strawberry_django.field()
 
     @strawberry.field
     def inventory_item_role(self, id: int) -> InventoryItemRoleType:
-        return models.InventoryItemRole.objects.get(id=id)
+        return models.InventoryItemRole.objects.get(pk=id)
     inventory_item_role_list: List[InventoryItemRoleType] = strawberry_django.field()
 
     @strawberry.field
     def inventory_item_template(self, id: int) -> InventoryItemTemplateType:
-        return models.InventoryItemTemplate.objects.get(id=id)
+        return models.InventoryItemTemplate.objects.get(pk=id)
     inventory_item_template_list: List[InventoryItemTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def location(self, id: int) -> LocationType:
-        return models.Location.objects.get(id=id)
+        return models.Location.objects.get(pk=id)
     location_list: List[LocationType] = strawberry_django.field()
 
     @strawberry.field
     def manufacturer(self, id: int) -> ManufacturerType:
-        return models.Manufacturer.objects.get(id=id)
+        return models.Manufacturer.objects.get(pk=id)
     manufacturer_list: List[ManufacturerType] = strawberry_django.field()
 
     @strawberry.field
     def module(self, id: int) -> ModuleType:
-        return models.Module.objects.get(id=id)
+        return models.Module.objects.get(pk=id)
     module_list: List[ModuleType] = strawberry_django.field()
 
     @strawberry.field
     def module_bay(self, id: int) -> ModuleBayType:
-        return models.ModuleBay.objects.get(id=id)
+        return models.ModuleBay.objects.get(pk=id)
     module_bay_list: List[ModuleBayType] = strawberry_django.field()
 
     @strawberry.field
     def module_bay_template(self, id: int) -> ModuleBayTemplateType:
-        return models.ModuleBayTemplate.objects.get(id=id)
+        return models.ModuleBayTemplate.objects.get(pk=id)
     module_bay_template_list: List[ModuleBayTemplateType] = strawberry_django.field()
 
     @strawberry.field
     def module_type(self, id: int) -> ModuleTypeType:
-        return models.ModuleType.objects.get(id=id)
+        return models.ModuleType.objects.get(pk=id)
     module_type_list: List[ModuleTypeType] = strawberry_django.field()
 
     @strawberry.field
     def platform(self, id: int) -> PlatformType:
-        return models.Platform.objects.get(id=id)
+        return models.Platform.objects.get(pk=id)
     platform_list: List[PlatformType] = strawberry_django.field()
 
     @strawberry.field
     def power_feed(self, id: int) -> PowerFeedType:
-        return models.PowerFeed.objects.get(id=id)
+        return models.PowerFeed.objects.get(pk=id)
     power_feed_list: List[PowerFeedType] = strawberry_django.field()
 
     @strawberry.field
     def power_outlet(self, id: int) -> PowerOutletType:
-        return models.PowerOutlet.objects.get(id=id)
+        return models.PowerOutlet.objects.get(pk=id)
     power_outlet_list: List[PowerOutletType] = strawberry_django.field()
 
     @strawberry.field
     def power_outlet_template(self, id: int) -> PowerOutletTemplateType:
-        return models.PowerOutletTemplate.objects.get(id=id)
+        return models.PowerOutletTemplate.objects.get(pk=id)
     power_outlet_template_list: List[PowerOutletTemplateType] = strawberry_django.field()
 
     @strawberry.field
