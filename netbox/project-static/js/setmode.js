@@ -5,10 +5,11 @@
  * @param inferred {boolean} Value is inferred from browser/system preference.
  */
 function setMode(mode, inferred) {
-    document.documentElement.setAttribute("data-netbox-color-mode", mode);
+    document.documentElement.setAttribute("data-bs-theme", mode);
     localStorage.setItem("netbox-color-mode", mode);
     localStorage.setItem("netbox-color-mode-inferred", inferred);
 }
+
 /**
  * Determine the best initial color mode to use prior to rendering.
  */
@@ -69,4 +70,4 @@ function initMode() {
         console.error(error);
     }
     return setMode("light", true);
-};
+}
