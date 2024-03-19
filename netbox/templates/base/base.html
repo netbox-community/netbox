@@ -9,13 +9,7 @@
   data-netbox-url-name="{{ request.resolver_match.url_name }}"
   data-netbox-base-path="{{ settings.BASE_PATH }}"
   {% with preferences|get_key:'ui.colormode' as color_mode %}
-    {% if color_mode == 'dark'%}
-      data-netbox-color-mode="dark"
-    {% elif color_mode == 'light' %}
-      data-netbox-color-mode="light"
-    {% else %}
-      data-netbox-color-mode="unset"
-    {% endif %}
+    data-netbox-color-mode="{{ color_mode|default:"unset" }}"
   {% endwith %}
   >
   <head>
@@ -25,7 +19,16 @@
     {# Page title #}
     <title>{% block title %}{% trans "Home" %}{% endblock %} | NetBox</title>
 
+    {# Initialize color mode #}
+    <script
+      type="text/javascript"
+      src="{% static 'setmode.js' %}"
+      onerror="window.location='{% url 'media_failure' %}?filename=setmode.js'">
+    </script>
     <script type="text/javascript">
+      (function () {
+        initMode()
+      })();
       window.CSRF_TOKEN = "{{ csrf_token }}";
     </script>
 
@@ -53,13 +56,9 @@
 
     {# Additional <head> content #}
     {% block head %}{% endblock %}
-  </head>
 
-  <body
-    {% if preferences|get_key:'ui.colormode' == 'dark' %}
-      data-bs-theme="dark"
-    {% endif %}
-  >
+  </head>
+  <body>
 
     {# Page layout #}
     {% block layout %}{% endblock %}
