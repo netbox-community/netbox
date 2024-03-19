@@ -62,10 +62,11 @@ class Circuit(PrimaryModel):
 
 1. Import `gettext_lazy` as `_`.
 2. All form fields must specify a `label` wrapped with `gettext_lazy()`.
-3. All headers under a form's `fieldsets` property must be wrapped with `gettext_lazy()`.
+3. The name of each FieldSet on a form must be wrapped with `gettext_lazy()`.
 
 ```python
 from django.utils.translation import gettext_lazy as _
+from utilities.forms.rendering import FieldSet
 
 class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     description = forms.CharField(
@@ -74,7 +75,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
     )
 
     fieldsets = (
-        (_('Circuit'), ('provider', 'type', 'status', 'description')),
+        FieldSet('provider', 'type', 'status', 'description', name=_('Circuit')),
     )
 ```
 
