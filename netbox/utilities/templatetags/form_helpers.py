@@ -64,7 +64,7 @@ def render_fieldset(form, fieldset):
         fieldset = FieldSet(*fields, name=name)
 
     rows = []
-    for item in fieldset.fields:
+    for item in fieldset.items:
 
         # Multiple fields side-by-side
         if type(item) is InlineFields:
