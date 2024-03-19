@@ -4,6 +4,7 @@ import strawberry
 from strawberry import auto
 import strawberry_django
 
+from core.models import ObjectType as ObjectType_
 from django.contrib.contenttypes.models import ContentType
 from extras.graphql.mixins import (
     ChangelogMixin,
@@ -91,4 +92,12 @@ class NetBoxObjectType(
     fields=['id', 'app_label', 'model'],
 )
 class ContentTypeType:
+    pass
+
+
+@strawberry_django.type(
+    ObjectType_,
+    fields=['id', 'app_label', 'model'],
+)
+class ObjectTypeType:
     pass
