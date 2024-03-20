@@ -4,7 +4,7 @@ NetBox validates every object prior to it being written to the database to ensur
 
 ## Custom Validation Rules
 
-Custom validation rules are expressed as a mapping of model attributes to a set of rules to which that attribute must conform. For example:
+Custom validation rules are expressed as a mapping of object attributes to a set of rules to which that attribute must conform. For example:
 
 ```json
 {
@@ -16,6 +16,8 @@ Custom validation rules are expressed as a mapping of model attributes to a set 
 ```
 
 This defines a custom validator which checks that the length of the `name` attribute for an object is at least five characters long, and no longer than 30 characters. This validation is executed _after_ NetBox has performed its own internal validation.
+
+### Validation Types
 
 The `CustomValidator` class supports several validation types:
 
@@ -34,16 +36,33 @@ The `min` and `max` types should be defined for numeric values, whereas `min_len
 !!! warning
     Bear in mind that these validators merely supplement NetBox's own validation: They will not override it. For example, if a certain model field is required by NetBox, setting a validator for it with `{'prohibited': True}` will not work.
 
+### Validating Request Parameters
+
+!!! info "This feature was introduced in NetBox v4.0."
+
+In addition to validating object attributes, custom validators can also match against parameters of the current request (where available). For example, the following rule will permit only the user named "admin" to modify an object:
+
+```json
+{
+  "request.user.username": {
+    "eq": "admin"
+  }
+}
+```
+
+!!! tip
+    Custom validation should generally not be used to enforce permissions. NetBox provides a robust [object-based permissions](../administration/permissions.md) mechanism which should be used for this purpose.
+
 ### Custom Validation Logic
 
-There may be instances where the provided validation types are insufficient. NetBox provides a `CustomValidator` class which can be extended to enforce arbitrary validation logic by overriding its `validate()` method, and calling `fail()` when an unsatisfactory condition is detected.
+There may be instances where the provided validation types are insufficient. NetBox provides a `CustomValidator` class which can be extended to enforce arbitrary validation logic by overriding its `validate()` method, and calling `fail()` when an unsatisfactory condition is detected. The `validate()` method should accept an instance (the object being saved) as well as the current request effecting the change.
 
 ```python
 from extras.validators import CustomValidator
 
 class MyValidator(CustomValidator):
 
-    def validate(self, instance):
+    def validate(self, instance, request):
         if instance.status == 'active' and not instance.description:
             self.fail("Active sites must have a description set!", field='status')
 ```
