@@ -12,7 +12,7 @@ Group=netbox
 PIDFile=/var/tmp/netbox.pid
 WorkingDirectory=/opt/netbox
 
-ExecStart=/opt/netbox/venv/bin/gunicorn --pid /var/tmp/netbox.pid --pythonpath /opt/netbox/netbox --config /opt/netbox/gunicorn.py netbox.wsgi
+ExecStart=/opt/netbox/venv/bin/uwsgi --ini /opt/netbox/netbox/local/uwsgi.ini
 
 Restart=on-failure
 RestartSec=30
