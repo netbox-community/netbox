@@ -73,7 +73,6 @@ class ObjectView(BaseObjectView):
         return render(request, self.get_template_name(), {
             'object': instance,
             'tab': self.tab,
-            'page_width': 'xl',
             **self.get_extra_context(request, instance),
         })
 
