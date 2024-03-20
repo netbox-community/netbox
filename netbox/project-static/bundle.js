@@ -1,5 +1,8 @@
 const esbuild = require('esbuild');
 const { sassPlugin } = require('esbuild-sass-plugin');
+const util = require('util');
+const fs = require('fs');
+const copyFilePromise = util.promisify(fs.copyFile);
 
 // Bundler options common to all bundle jobs.
 const options = {
@@ -14,24 +17,49 @@ const options = {
 // Get CLI arguments for optional overrides.
 const ARGS = process.argv.slice(2);
 
+function copyFiles(files) {
+    return Promise.all(files.map(f => {
+       return copyFilePromise(f.source, f.dest);
+    }));
+}
+
 async function bundleGraphIQL() {
-  try {
-    const result = await esbuild.build({
-      ...options,
-      entryPoints: {
-        graphiql: 'netbox-graphiql/index.ts',
-      },
-      target: 'es2016',
-      define: {
-        global: 'window',
-      },
-    });
-    if (result.errors.length === 0) {
-      console.log(`✅ Bundled source file 'netbox-graphiql/index.ts' to 'graphiql.js'`);
+  fileMap = [
+    {
+      source: './node_modules/react/umd/react.production.min.js',
+      dest: './dist/react.production.min.js'
+    },
+    {
+      source: './node_modules/react-dom/umd/react-dom.production.min.js',
+      dest: './dist/react-dom.production.min.js'
+    },
+    {
+      source: './node_modules/js-cookie/dist/js.cookie.min.js',
+      dest: './dist/js.cookie.min.js'
+    },
+    {
+      source: './node_modules/graphiql/graphiql.min.js',
+      dest: './dist/graphiql.min.js'
+    },
+    {
+      source: './node_modules/@graphiql/plugin-explorer/dist/index.umd.js',
+      dest: './dist/index.umd.js'
+    },
+    {
+      source: './node_modules/graphiql/graphiql.min.css',
+      dest: './dist/graphiql.min.css'
+    },
+    {
+      source: './node_modules/@graphiql/plugin-explorer/dist/style.css',
+      dest: './dist/plugin-explorer-style.css'
     }
-  } catch (err) {
-    console.error(err);
-  }
+  ]
+
+  copyFiles(fileMap).then(() => {
+     console.log('✅ Copied graphiql files');
+  }).catch(err => {
+     console.error(err);
+  });
 }
 
 /**
@@ -77,7 +105,6 @@ async function bundleStyles() {
       'netbox': 'styles/netbox.scss',
       rack_elevation: 'styles/svg/rack_elevation.scss',
       cable_trace: 'styles/svg/cable_trace.scss',
-      graphiql: 'netbox-graphiql/graphiql.scss',
     };
     const pluginOptions = { outputStyle: 'compressed' };
     // Allow cache disabling.

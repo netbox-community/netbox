@@ -474,6 +474,10 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'project-static', 'img'),
     os.path.join(BASE_DIR, 'project-static', 'js'),
     ('docs', os.path.join(BASE_DIR, 'project-static', 'docs')),  # Prefix with /docs
+    # os.path.join(ROOT_DIR, 'node_modules', 'graphiql-explorer'),
+    # os.path.join(ROOT_DIR, 'node_modules', 'react', 'cjs'),
+    # os.path.join(ROOT_DIR, 'node_modules', 'react_dom', 'cjs'),
+    # os.path.join(ROOT_DIR, 'node_modules', 'js-cookie', 'dist'),
 )
 
 # Media
