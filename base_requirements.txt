@@ -14,10 +14,6 @@ django-debug-toolbar
 # https://github.com/carltongibson/django-filter/blob/main/CHANGES.rst
 django-filter
 
-# Django debug toolbar extension with support for GraphiQL
-# https://github.com/flavors/django-graphiql-debug-toolbar/blob/main/CHANGES.rst
-django-graphiql-debug-toolbar
-
 # HTMX utilities for Django
 # https://django-htmx.readthedocs.io/en/latest/changelog.html
 django-htmx

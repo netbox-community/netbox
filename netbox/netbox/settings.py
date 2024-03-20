@@ -365,7 +365,6 @@ INSTALLED_APPS = [
     'django.forms',
     'corsheaders',
     'debug_toolbar',
-    'graphiql_debug_toolbar',
     'django_filters',
     'django_htmx',
     'django_tables2',
