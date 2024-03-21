@@ -1,9 +1,12 @@
+from urllib.parse import urlencode
+
 from django.http import QueryDict
 from django.utils.datastructures import MultiValueDict
 
 __all__ = (
     'dict_to_querydict',
     'normalize_querydict',
+    'prepare_cloned_fields',
 )
 
 
@@ -36,3 +39,26 @@ def normalize_querydict(querydict):
     return {
         k: v if len(v) > 1 else v[0] for k, v in querydict.lists()
     }
+
+
+def prepare_cloned_fields(instance):
+    """
+    Generate a QueryDict comprising attributes from an object's clone() method.
+    """
+    # Generate the clone attributes from the instance
+    if not hasattr(instance, 'clone'):
+        return QueryDict(mutable=True)
+    attrs = instance.clone()
+
+    # Prepare QueryDict parameters
+    params = []
+    for key, value in attrs.items():
+        if type(value) in (list, tuple):
+            params.extend([(key, v) for v in value])
+        elif value not in (False, None):
+            params.append((key, value))
+        else:
+            params.append((key, ''))
+
+    # Return a QueryDict with the parameters
+    return QueryDict(urlencode(params), mutable=True)
