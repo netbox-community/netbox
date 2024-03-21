@@ -21,10 +21,11 @@ from netbox.views.generic.mixins import TableMixin
 from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.querydict import normalize_querydict
 from utilities.request import copy_safe_request
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import count_related, normalize_querydict
+from utilities.utils import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
 from . import filtersets, forms, tables
 from .models import *

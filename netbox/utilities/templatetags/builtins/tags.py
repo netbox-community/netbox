@@ -1,8 +1,7 @@
 from django import template
-from django.http import QueryDict
 
 from extras.choices import CustomFieldTypeChoices
-from utilities.utils import dict_to_querydict
+from utilities.querydict import dict_to_querydict
 
 __all__ = (
     'badge',

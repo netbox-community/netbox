@@ -23,9 +23,9 @@ from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
 from utilities.html import clean_html
+from utilities.querydict import dict_to_querydict
 from utilities.querysets import RestrictedQuerySet
 from utilities.jinja2 import render_jinja2
-from utilities.utils import dict_to_querydict
 
 __all__ = (
     'Bookmark',
