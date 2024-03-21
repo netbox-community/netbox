@@ -7,7 +7,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from core.forms.mixins import SyncedDataMixin
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices, ImportMethodChoices
 from utilities.constants import CSV_DELIMITERS
 from utilities.forms.utils import parse_csv
 

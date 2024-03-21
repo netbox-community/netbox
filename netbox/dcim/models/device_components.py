@@ -12,8 +12,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
+from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
-from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface

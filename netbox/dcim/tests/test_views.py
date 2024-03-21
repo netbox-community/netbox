@@ -11,11 +11,10 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
-
 
 User = get_user_model()
 

@@ -2,7 +2,8 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 
-from utilities.choices import ButtonColorChoices, ChoiceSet
+from netbox.choices import ButtonColorChoices
+from utilities.choices import ChoiceSet
 
 
 #

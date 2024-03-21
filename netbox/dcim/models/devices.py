@@ -18,10 +18,10 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
+from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
-from utilities.choices import ColorChoices
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
