@@ -21,7 +21,6 @@ from mptt.models import MPTTModel
 from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
 from extras.utils import is_taggable
 from netbox.config import get_config
-from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
 from .string import title
 
@@ -433,41 +432,6 @@ def content_type_identifier(ct):
     Return a "raw" ContentType identifier string suitable for bulk import/export (e.g. "dcim.site").
     """
     return f'{ct.app_label}.{ct.model}'
-
-
-#
-# Fake request object
-#
-
-class NetBoxFakeRequest:
-    """
-    A fake request object which is explicitly defined at the module level so it is able to be pickled. It simply
-    takes what is passed to it as kwargs on init and sets them as instance variables.
-    """
-    def __init__(self, _dict):
-        self.__dict__ = _dict
-
-
-def copy_safe_request(request):
-    """
-    Copy selected attributes from a request object into a new fake request object. This is needed in places where
-    thread safe pickling of the useful request data is needed.
-    """
-    meta = {
-        k: request.META[k]
-        for k in HTTP_REQUEST_META_SAFE_COPY
-        if k in request.META and isinstance(request.META[k], str)
-    }
-    return NetBoxFakeRequest({
-        'META': meta,
-        'COOKIES': request.COOKIES,
-        'POST': request.POST,
-        'GET': request.GET,
-        'FILES': request.FILES,
-        'user': request.user,
-        'path': request.path,
-        'id': getattr(request, 'id', None),  # UUID assigned by middleware
-    })
 
 
 def clean_html(html, schemes):
