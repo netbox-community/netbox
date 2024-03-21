@@ -3,7 +3,6 @@ import decimal
 from itertools import count, groupby
 from urllib.parse import urlencode
 
-import nh3
 from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
@@ -13,7 +12,6 @@ from django.utils.timezone import localtime
 from jinja2.sandbox import SandboxedEnvironment
 
 from netbox.config import get_config
-from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
 from .string import title
 
 
@@ -45,22 +43,6 @@ def csv_format(data):
             csv.append('{}'.format(value))
 
     return ','.join(csv)
-
-
-def foreground_color(bg_color, dark='000000', light='ffffff'):
-    """
-    Return the ideal foreground color (dark or light) for a given background color in hexadecimal RGB format.
-
-    :param dark: RBG color code for dark text
-    :param light: RBG color code for light text
-    """
-    THRESHOLD = 150
-    bg_color = bg_color.strip('#')
-    r, g, b = [int(bg_color[c:c + 2], 16) for c in (0, 2, 4)]
-    if r * 0.299 + g * 0.587 + b * 0.114 > THRESHOLD:
-        return dark
-    else:
-        return light
 
 
 def dynamic_import(name):
@@ -299,19 +281,6 @@ def content_type_identifier(ct):
     Return a "raw" ContentType identifier string suitable for bulk import/export (e.g. "dcim.site").
     """
     return f'{ct.app_label}.{ct.model}'
-
-
-def clean_html(html, schemes):
-    """
-    Sanitizes HTML based on a whitelist of allowed tags and attributes.
-    Also takes a list of allowed URI schemes.
-    """
-    return nh3.clean(
-        html,
-        tags=HTML_ALLOWED_TAGS,
-        attributes=HTML_ALLOWED_ATTRIBUTES,
-        url_schemes=set(schemes)
-    )
 
 
 def local_now():
