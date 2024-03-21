@@ -3,11 +3,11 @@ from jinja2 import BaseLoader, TemplateNotFound
 from jinja2.meta import find_referenced_templates
 
 __all__ = (
-    'ConfigTemplateLoader',
+    'DataFileLoader',
 )
 
 
-class ConfigTemplateLoader(BaseLoader):
+class DataFileLoader(BaseLoader):
     """
     Custom Jinja2 loader to facilitate populating template content from DataFiles.
     """
