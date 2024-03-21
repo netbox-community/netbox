@@ -17,7 +17,7 @@ from netbox.config import get_config
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
-from utilities.utils import serialize_object
+from utilities.serialization import serialize_object
 from utilities.views import register_model_view
 
 __all__ = (
