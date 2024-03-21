@@ -26,13 +26,7 @@ from netbox.config import get_config
 from netbox.plugins import PluginConfig
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 from .constants import HTML_ALLOWED_ATTRIBUTES, HTML_ALLOWED_TAGS
-
-
-def title(value):
-    """
-    Improved implementation of str.title(); retains all existing uppercase letters.
-    """
-    return ' '.join([w[0].upper() + w[1:] for w in str(value).split()])
+from .string import title
 
 
 def get_viewname(model, action=None, rest_api=False):

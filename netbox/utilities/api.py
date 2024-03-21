@@ -11,7 +11,8 @@ from rest_framework.views import get_view_name as drf_get_view_name
 from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from netbox.api.fields import RelatedObjectCountField
-from .utils import count_related, dict_to_filter_params, dynamic_import, title
+from .string import title
+from .utils import count_related, dict_to_filter_params, dynamic_import
 
 __all__ = (
     'get_annotations_for_serializer',
