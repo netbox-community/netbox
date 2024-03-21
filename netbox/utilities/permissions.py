@@ -7,7 +7,7 @@ __all__ = (
     'permission_is_exempt',
     'qs_filter_from_constraints',
     'resolve_permission',
-    'resolve_permission_ct',
+    'resolve_permission_type',
 )
 
 
@@ -42,9 +42,9 @@ def resolve_permission(name):
     return app_label, action, model_name
 
 
-def resolve_permission_ct(name):
+def resolve_permission_type(name):
     """
-    Given a permission name, return the relevant ContentType and action. For example, "dcim.view_site" returns
+    Given a permission name, return the relevant ObjectType and action. For example, "dcim.view_site" returns
     (Site, "view").
 
     :param name: Permission name in the format <app_label>.<action>_<model>
@@ -52,7 +52,7 @@ def resolve_permission_ct(name):
     from core.models import ObjectType
     app_label, action, model_name = resolve_permission(name)
     try:
-        object_type = ObjectType.objects.get(app_label=app_label, model=model_name)
+        object_type = ObjectType.objects.get_by_natural_key(app_label=app_label, model=model_name)
     except ObjectType.DoesNotExist:
         raise ValueError(_("Unknown app_label/model_name for {name}").format(name=name))
 
