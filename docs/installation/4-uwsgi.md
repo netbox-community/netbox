@@ -1,6 +1,6 @@
-# Gunicorn
+# uWSGI
 
-Like most Django applications, NetBox runs as a [WSGI application](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) behind an HTTP server. This documentation shows how to install and configure [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) (which is automatically installed with NetBox) for this role, however other WSGI servers are available and should work similarly well.  [gunicorn](http://gunicorn.org/) is a popular alternative.
+Like most Django applications, NetBox runs as a [WSGI application](https://en.wikipedia.org/wiki/Web_Server_Gateway_Interface) behind an HTTP server. This documentation shows how to install and configure [uWSGI](https://uwsgi-docs.readthedocs.io/en/latest/) (which is automatically installed with NetBox) for this role, however other WSGI servers are available and should work similarly well.  [gunicorn](http://gunicorn.org/) is a popular alternative and [installation instructions for gunicorn](gunicorn.md) are provided if you wish to use that instead of uWSGI.
 
 ## Configuration
 
