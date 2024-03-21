@@ -15,10 +15,10 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
 from netbox.choices import ButtonColorChoices
+from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import dict_to_querydict
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import object_type_identifier, object_type_name
 from utilities.views import get_viewname
 from .utils import register_widget
 

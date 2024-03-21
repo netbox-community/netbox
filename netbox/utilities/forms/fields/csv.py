@@ -5,7 +5,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
 
 from utilities.choices import unpack_grouped_choices
-from utilities.utils import object_type_identifier
+from utilities.object_types import object_type_identifier
 
 __all__ = (
     'CSVChoiceField',

@@ -1,6 +1,6 @@
 from django import forms
 
-from utilities.utils import object_type_name
+from utilities.object_types import object_type_name
 
 __all__ = (
     'ContentTypeChoiceField',

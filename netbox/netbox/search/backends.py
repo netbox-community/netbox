@@ -14,9 +14,9 @@ from netaddr.core import AddrFormatError
 from core.models import ObjectType
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
+from utilities.object_types import object_type_identifier
 from utilities.querysets import RestrictedPrefetch
 from utilities.string import title
-from utilities.utils import object_type_identifier
 from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
