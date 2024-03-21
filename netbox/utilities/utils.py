@@ -16,27 +16,27 @@ def dynamic_import(name):
     return mod
 
 
-def content_type_name(ct, include_app=True):
+def object_type_name(object_type, include_app=True):
     """
-    Return a human-friendly ContentType name (e.g. "DCIM > Site").
+    Return a human-friendly ObjectType name (e.g. "DCIM > Site").
     """
     try:
-        meta = ct.model_class()._meta
+        meta = object_type.model_class()._meta
         app_label = title(meta.app_config.verbose_name)
         model_name = title(meta.verbose_name)
         if include_app:
             return f'{app_label} > {model_name}'
         return model_name
     except AttributeError:
-        # Model no longer exists
-        return f'{ct.app_label} > {ct.model}'
+        # Model does not exist
+        return f'{object_type.app_label} > {object_type.model}'
 
 
-def content_type_identifier(ct):
+def object_type_identifier(object_type):
     """
-    Return a "raw" ContentType identifier string suitable for bulk import/export (e.g. "dcim.site").
+    Return a "raw" ObjectType identifier string suitable for bulk import/export (e.g. "dcim.site").
     """
-    return f'{ct.app_label}.{ct.model}'
+    return f'{object_type.app_label}.{object_type.model}'
 
 
 def local_now():

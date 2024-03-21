@@ -1,14 +1,14 @@
 from netbox.registry import registry
-from utilities.utils import content_type_identifier
+from utilities.utils import object_type_identifier
 
 __all__ = (
     'get_indexer',
 )
 
 
-def get_indexer(content_type):
+def get_indexer(object_type):
     """
     Return the registered search indexer for the given ContentType.
     """
-    ct_identifier = content_type_identifier(content_type)
-    return registry['search'].get(ct_identifier)
+    identifier = object_type_identifier(object_type)
+    return registry['search'].get(identifier)
