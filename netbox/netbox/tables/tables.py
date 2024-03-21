@@ -19,7 +19,7 @@ from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.html import highlight
 from utilities.string import title
-from utilities.utils import get_viewname
+from utilities.views import get_viewname
 from .template_code import *
 
 __all__ = (

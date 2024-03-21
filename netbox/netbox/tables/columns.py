@@ -20,7 +20,8 @@ from django_tables2.utils import Accessor
 from extras.choices import CustomFieldTypeChoices
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import content_type_identifier, content_type_name, get_viewname
+from utilities.utils import content_type_identifier, content_type_name
+from utilities.views import get_viewname
 
 __all__ = (
     'ActionsColumn',
