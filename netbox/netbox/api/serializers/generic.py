@@ -5,7 +5,7 @@ from rest_framework import serializers
 from core.models import ObjectType
 from netbox.api.fields import ContentTypeField
 from utilities.api import get_serializer_for_model
-from utilities.utils import object_type_identifier
+from utilities.object_types import object_type_identifier
 
 __all__ = (
     'GenericObjectSerializer',

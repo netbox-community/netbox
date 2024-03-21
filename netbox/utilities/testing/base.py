@@ -12,8 +12,8 @@ from taggit.managers import TaggableManager
 
 from core.models import ObjectType
 from users.models import ObjectPermission
+from utilities.object_types import object_type_identifier
 from utilities.permissions import resolve_permission_type
-from utilities.utils import object_type_identifier
 from .utils import extract_form_failures
 
 __all__ = (
