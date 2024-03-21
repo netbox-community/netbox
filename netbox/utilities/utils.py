@@ -1,6 +1,4 @@
 from django.db.models import ManyToOneRel
-from django.utils import timezone
-from django.utils.timezone import localtime
 
 
 def dynamic_import(name):
@@ -12,13 +10,6 @@ def dynamic_import(name):
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
-
-
-def local_now():
-    """
-    Return the current date & time in the system timezone.
-    """
-    return localtime(timezone.now())
 
 
 def get_related_models(model, ordered=True):
