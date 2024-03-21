@@ -14,8 +14,8 @@ from django.urls import reverse
 from django.utils.http import urlencode
 
 from netbox.config import get_config
+from utilities.data import array_to_ranges
 from utilities.html import foreground_color
-from utilities.utils import array_to_ranges
 from dcim.constants import RACK_ELEVATION_BORDER_WIDTH
 
 

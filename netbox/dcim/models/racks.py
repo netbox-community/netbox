@@ -18,8 +18,8 @@ from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
 from utilities.conversion import to_grams
+from utilities.data import array_to_string, drange
 from utilities.fields import ColorField, NaturalOrderingField
-from utilities.utils import array_to_string, drange
 from .device_components import PowerPort
 from .devices import Device, Module
 from .mixins import WeightMixin

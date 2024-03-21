@@ -25,8 +25,8 @@ from netaddr import IPNetwork
 from core.models import ObjectType
 from ipam.fields import IPNetworkField
 from netbox.config import get_config
+from utilities.data import flatten_dict
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import flatten_dict
 from .constants import *
 
 __all__ = (
