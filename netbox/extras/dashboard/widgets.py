@@ -14,7 +14,7 @@ from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
-from utilities.choices import ButtonColorChoices
+from netbox.choices import ButtonColorChoices
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import content_type_identifier, content_type_name, dict_to_querydict, get_viewname

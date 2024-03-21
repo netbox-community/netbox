@@ -5,9 +5,9 @@ from django.utils.text import slugify
 from django.utils.translation import gettext_lazy as _
 from taggit.models import TagBase, GenericTaggedItemBase
 
+from netbox.choices import ColorChoices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, ExportTemplatesMixin
-from utilities.choices import ColorChoices
 from utilities.fields import ColorField
 
 __all__ = (

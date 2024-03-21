@@ -5,7 +5,7 @@ from circuits.api.serializers import ProviderSerializer
 from circuits.forms import ProviderForm
 from circuits.models import Provider
 from ipam.models import ASN, RIR
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import APITestCase, ModelViewTestCase, create_tags, post_data
 
 
