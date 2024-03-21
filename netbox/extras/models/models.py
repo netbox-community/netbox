@@ -22,8 +22,9 @@ from netbox.models import ChangeLoggedModel
 from netbox.models.features import (
     CloningMixin, CustomFieldsMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin,
 )
+from utilities.html import clean_html
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import clean_html, dict_to_querydict, render_jinja2
+from utilities.utils import dict_to_querydict, render_jinja2
 
 __all__ = (
     'Bookmark',
