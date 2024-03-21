@@ -15,7 +15,8 @@ from core.models import ObjectType
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
 from utilities.querysets import RestrictedPrefetch
-from utilities.utils import content_type_identifier, title
+from utilities.string import title
+from utilities.utils import content_type_identifier
 from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL

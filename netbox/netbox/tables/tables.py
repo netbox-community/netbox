@@ -17,7 +17,8 @@ from extras.models import CustomField, CustomLink
 from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import get_viewname, highlight_string, title
+from utilities.string import title
+from utilities.utils import get_viewname, highlight_string
 from .template_code import *
 
 __all__ = (
