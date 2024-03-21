@@ -1,5 +1,4 @@
-from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
-from django.db.models.functions import Coalesce
+from django.db.models import ManyToOneRel
 from django.utils import timezone
 from django.utils.timezone import localtime
 
@@ -15,55 +14,6 @@ def dynamic_import(name):
     for comp in components[1:]:
         mod = getattr(mod, comp)
     return mod
-
-
-def count_related(model, field):
-    """
-    Return a Subquery suitable for annotating a child object count.
-    """
-    subquery = Subquery(
-        model.objects.filter(
-            **{field: OuterRef('pk')}
-        ).order_by().values(
-            field
-        ).annotate(
-            c=Count('*')
-        ).values('c')
-    )
-
-    return Coalesce(subquery, 0)
-
-
-def dict_to_filter_params(d, prefix=''):
-    """
-    Translate a dictionary of attributes to a nested set of parameters suitable for QuerySet filtering. For example:
-
-        {
-            "name": "Foo",
-            "rack": {
-                "facility_id": "R101"
-            }
-        }
-
-    Becomes:
-
-        {
-            "name": "Foo",
-            "rack__facility_id": "R101"
-        }
-
-    And can be employed as filter parameters:
-
-        Device.objects.filter(**dict_to_filter(attrs_dict))
-    """
-    params = {}
-    for key, val in d.items():
-        k = prefix + key
-        if isinstance(val, dict):
-            params.update(dict_to_filter_params(val, k + '__'))
-        else:
-            params[k] = val
-    return params
 
 
 def content_type_name(ct, include_app=True):
