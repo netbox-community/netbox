@@ -9,11 +9,11 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
-from netbox.registry import registry
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from netbox.registry import registry
+from utilities.data import deepmerge
 from utilities.jinja2 import DataFileLoader
-from utilities.utils import deepmerge
 
 __all__ = (
     'ConfigContext',
