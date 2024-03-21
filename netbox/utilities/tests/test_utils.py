@@ -2,7 +2,8 @@ from django.http import QueryDict
 from django.test import TestCase
 
 from utilities.data import deepmerge
-from utilities.utils import dict_to_filter_params, normalize_querydict
+from utilities.querydict import normalize_querydict
+from utilities.utils import dict_to_filter_params
 
 
 class DictToFilterParamsTest(TestCase):
