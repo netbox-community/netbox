@@ -8,9 +8,7 @@ from django.http import QueryDict
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.timezone import localtime
-from jinja2.sandbox import SandboxedEnvironment
 
-from netbox.config import get_config
 from .string import title
 
 
@@ -131,15 +129,6 @@ def drange(start, end, step=decimal.Decimal(1)):
         while start > end:
             yield start
             start += step
-
-
-def render_jinja2(template_code, context):
-    """
-    Render a Jinja2 template with the provided context. Return the rendered content.
-    """
-    environment = SandboxedEnvironment()
-    environment.filters.update(get_config().JINJA2_FILTERS)
-    return environment.from_string(source=template_code).render(**context)
 
 
 def prepare_cloned_fields(instance):
