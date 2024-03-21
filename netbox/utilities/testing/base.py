@@ -12,7 +12,7 @@ from taggit.managers import TaggableManager
 
 from core.models import ObjectType
 from users.models import ObjectPermission
-from utilities.permissions import resolve_permission_ct
+from utilities.permissions import resolve_permission_type
 from utilities.utils import content_type_identifier
 from .utils import extract_form_failures
 
@@ -44,11 +44,11 @@ class TestCase(_TestCase):
         Assign a set of permissions to the test user. Accepts permission names in the form <app>.<action>_<model>.
         """
         for name in names:
-            ct, action = resolve_permission_ct(name)
+            object_type, action = resolve_permission_type(name)
             obj_perm = ObjectPermission(name=name, actions=[action])
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ct)
+            obj_perm.object_types.add(object_type)
 
     #
     # Custom assertions
