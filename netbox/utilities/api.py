@@ -1,22 +1,16 @@
-import platform
-import sys
-
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import (
     FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
-from django.http import JsonResponse
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
-from rest_framework import status
 from rest_framework.serializers import Serializer
 from rest_framework.views import get_view_name as drf_get_view_name
 
 from extras.constants import HTTP_CONTENT_TYPE_JSON
-from netbox.api.fields import RelatedObjectCountField
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
+from netbox.api.fields import RelatedObjectCountField
 from .utils import count_related, dict_to_filter_params, dynamic_import, title
 
 __all__ = (
@@ -27,7 +21,6 @@ __all__ = (
     'get_serializer_for_model',
     'get_view_name',
     'is_api_request',
-    'rest_api_server_error',
 )
 
 
@@ -180,17 +173,3 @@ def get_related_object_by_attrs(queryset, attrs):
         return queryset.get(pk=pk)
     except ObjectDoesNotExist:
         raise ValidationError(_("Related object not found using the provided numeric ID: {id}").format(id=pk))
-
-
-def rest_api_server_error(request, *args, **kwargs):
-    """
-    Handle exceptions and return a useful error message for REST API requests.
-    """
-    type_, error, traceback = sys.exc_info()
-    data = {
-        'error': str(error),
-        'exception': type_.__name__,
-        'netbox_version': settings.VERSION,
-        'python_version': platform.python_version(),
-    }
-    return JsonResponse(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
