@@ -7,12 +7,12 @@ from django.utils.translation import gettext_lazy as _
 from jinja2.loaders import BaseLoader
 from jinja2.sandbox import SandboxedEnvironment
 
+from extras.jinja2 import ConfigTemplateLoader
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
 from netbox.registry import registry
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
-from utilities.jinja2 import ConfigTemplateLoader
 from utilities.utils import deepmerge
 
 __all__ = (
