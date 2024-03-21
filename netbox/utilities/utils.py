@@ -1,8 +1,5 @@
-from urllib.parse import urlencode
-
 from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
 from django.db.models.functions import Coalesce
-from django.http import QueryDict
 from django.utils import timezone
 from django.utils.timezone import localtime
 
@@ -67,29 +64,6 @@ def dict_to_filter_params(d, prefix=''):
         else:
             params[k] = val
     return params
-
-
-def prepare_cloned_fields(instance):
-    """
-    Generate a QueryDict comprising attributes from an object's clone() method.
-    """
-    # Generate the clone attributes from the instance
-    if not hasattr(instance, 'clone'):
-        return QueryDict(mutable=True)
-    attrs = instance.clone()
-
-    # Prepare querydict parameters
-    params = []
-    for key, value in attrs.items():
-        if type(value) in (list, tuple):
-            params.extend([(key, v) for v in value])
-        elif value not in (False, None):
-            params.append((key, value))
-        else:
-            params.append((key, ''))
-
-    # Return a QueryDict with the parameters
-    return QueryDict(urlencode(params), mutable=True)
 
 
 def content_type_name(ct, include_app=True):

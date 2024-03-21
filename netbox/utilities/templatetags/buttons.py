@@ -4,7 +4,7 @@ from django.urls import NoReverseMatch, reverse
 
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate
-from utilities.utils import prepare_cloned_fields
+from utilities.querydict import prepare_cloned_fields
 from utilities.views import get_viewname
 
 __all__ = (
