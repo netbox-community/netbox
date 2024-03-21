@@ -9,8 +9,8 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from utilities.query import count_related
 from utilities.tables import get_table_ordering
-from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface

@@ -3,7 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from netbox.views import generic
-from utilities.utils import count_related, get_related_models
+from utilities.query import count_related
+from utilities.utils import get_related_models
 from utilities.views import register_model_view, ViewTab
 from . import filtersets, forms, tables
 from .models import *
