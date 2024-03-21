@@ -20,7 +20,7 @@ from django_tables2.utils import Accessor
 from extras.choices import CustomFieldTypeChoices
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import content_type_identifier, content_type_name
+from utilities.utils import object_type_identifier, object_type_name
 from utilities.views import get_viewname
 
 __all__ = (
@@ -339,12 +339,12 @@ class ContentTypeColumn(tables.Column):
     def render(self, value):
         if value is None:
             return None
-        return content_type_name(value, include_app=False)
+        return object_type_name(value, include_app=False)
 
     def value(self, value):
         if value is None:
             return None
-        return content_type_identifier(value)
+        return object_type_identifier(value)
 
 
 class ContentTypesColumn(tables.ManyToManyColumn):
@@ -358,11 +358,11 @@ class ContentTypesColumn(tables.ManyToManyColumn):
         super().__init__(separator=separator, *args, **kwargs)
 
     def transform(self, obj):
-        return content_type_name(obj, include_app=False)
+        return object_type_name(obj, include_app=False)
 
     def value(self, value):
         return ','.join([
-            content_type_identifier(ct) for ct in self.filter(value)
+            object_type_identifier(ot) for ot in self.filter(value)
         ])
 
 
