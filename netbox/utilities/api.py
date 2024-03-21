@@ -4,6 +4,7 @@ from django.core.exceptions import (
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
 from rest_framework.serializers import Serializer
 from rest_framework.views import get_view_name as drf_get_view_name
@@ -13,7 +14,6 @@ from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
 from netbox.api.fields import RelatedObjectCountField
 from .query import count_related, dict_to_filter_params
 from .string import title
-from .utils import dynamic_import
 
 __all__ = (
     'get_annotations_for_serializer',
@@ -33,8 +33,8 @@ def get_serializer_for_model(model, prefix=''):
     app_label, model_name = model._meta.label.split('.')
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
     try:
-        return dynamic_import(serializer_name)
-    except AttributeError:
+        return import_string(serializer_name)
+    except ImportError:
         raise SerializerNotFound(
             f"Could not determine serializer for {app_label}.{model_name} with prefix '{prefix}'"
         )
@@ -47,8 +47,8 @@ def get_graphql_type_for_model(model):
     app_label, model_name = model._meta.label.split('.')
     class_name = f'{app_label}.graphql.types.{model_name}Type'
     try:
-        return dynamic_import(class_name)
-    except AttributeError:
+        return import_string(class_name)
+    except ImportError:
         raise GraphQLTypeNotFound(f"Could not find GraphQL type for {app_label}.{model_name}")
 
 
