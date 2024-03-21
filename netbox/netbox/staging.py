@@ -6,7 +6,7 @@ from django.db.models.signals import m2m_changed, pre_delete, post_save
 
 from extras.choices import ChangeActionChoices
 from extras.models import StagedChange
-from utilities.utils import serialize_object
+from utilities.serialization import serialize_object
 
 logger = logging.getLogger('netbox.staging')
 
