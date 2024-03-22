@@ -15,25 +15,17 @@ from django.core.validators import URLValidator
 from django.utils.encoding import force_str
 from django.utils.translation import gettext_lazy as _
 
-try:
-    import sentry_sdk
-except ModuleNotFoundError:
-    pass
-
-from netbox.config import PARAMS
+from netbox.config import PARAMS as CONFIG_PARAMS
 from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
-
+from utilities.string import trailing_slash
 
 #
 # Environment setup
 #
 
 VERSION = '4.0.0-dev'
-
-# Hostname
 HOSTNAME = platform.node()
-
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -47,7 +39,7 @@ if sys.version_info < (3, 10):
 # Configuration import
 #
 
-# Import configuration parameters
+# Import the configuration module
 config_path = os.getenv('NETBOX_CONFIGURATION', 'netbox.configuration')
 try:
     configuration = importlib.import_module(config_path)
@@ -59,45 +51,28 @@ except ModuleNotFoundError as e:
         )
     raise
 
-# Enforce required configuration parameters
-for parameter in ['ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS']:
+# Check for missing required configuration parameters
+for parameter in ('ALLOWED_HOSTS', 'DATABASE', 'SECRET_KEY', 'REDIS'):
     if not hasattr(configuration, parameter):
         raise ImproperlyConfigured(f"Required parameter {parameter} is missing from configuration.")
-
-# Set required parameters
-ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')
-DATABASE = getattr(configuration, 'DATABASE')
-REDIS = getattr(configuration, 'REDIS')
-SECRET_KEY = getattr(configuration, 'SECRET_KEY')
-
-# Enforce minimum length for SECRET_KEY
-if type(SECRET_KEY) is not str:
-    raise ImproperlyConfigured(f"SECRET_KEY must be a string (found {type(SECRET_KEY).__name__})")
-if len(SECRET_KEY) < 50:
-    raise ImproperlyConfigured(
-        f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
-        f"  python {BASE_DIR}/generate_secret_key.py"
-    )
-
-# Calculate a unique deployment ID from the secret key
-DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 
 # Set static config parameters
 ADMINS = getattr(configuration, 'ADMINS', [])
 ALLOW_TOKEN_RETRIEVAL = getattr(configuration, 'ALLOW_TOKEN_RETRIEVAL', True)
+ALLOWED_HOSTS = getattr(configuration, 'ALLOWED_HOSTS')  # Required
 AUTH_PASSWORD_VALIDATORS = getattr(configuration, 'AUTH_PASSWORD_VALIDATORS', [])
-BASE_PATH = getattr(configuration, 'BASE_PATH', '')
-if BASE_PATH:
-    BASE_PATH = BASE_PATH.strip('/') + '/'  # Enforce trailing slash only
-CSRF_COOKIE_PATH = LANGUAGE_COOKIE_PATH = SESSION_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
+BASE_PATH = trailing_slash(getattr(configuration, 'BASE_PATH', ''))
+CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 CENSUS_REPORTING_ENABLED = getattr(configuration, 'CENSUS_REPORTING_ENABLED', True)
 CORS_ORIGIN_ALLOW_ALL = getattr(configuration, 'CORS_ORIGIN_ALLOW_ALL', False)
 CORS_ORIGIN_REGEX_WHITELIST = getattr(configuration, 'CORS_ORIGIN_REGEX_WHITELIST', [])
 CORS_ORIGIN_WHITELIST = getattr(configuration, 'CORS_ORIGIN_WHITELIST', [])
 CSRF_COOKIE_NAME = getattr(configuration, 'CSRF_COOKIE_NAME', 'csrftoken')
+CSRF_COOKIE_PATH = f'/{BASE_PATH.rstrip("/")}'
 CSRF_COOKIE_SECURE = getattr(configuration, 'CSRF_COOKIE_SECURE', False)
 CSRF_TRUSTED_ORIGINS = getattr(configuration, 'CSRF_TRUSTED_ORIGINS', [])
 DATA_UPLOAD_MAX_MEMORY_SIZE = getattr(configuration, 'DATA_UPLOAD_MAX_MEMORY_SIZE', 2621440)
+DATABASE = getattr(configuration, 'DATABASE')  # Required
 DATE_FORMAT = getattr(configuration, 'DATE_FORMAT', 'N j, Y')
 DATETIME_FORMAT = getattr(configuration, 'DATETIME_FORMAT', 'N j, Y g:i a')
 DEBUG = getattr(configuration, 'DEBUG', False)
@@ -118,6 +93,7 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
+ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
     'extras.events.process_event_queue',
 ))
@@ -128,6 +104,7 @@ HTTP_PROXIES = getattr(configuration, 'HTTP_PROXIES', None)
 INTERNAL_IPS = getattr(configuration, 'INTERNAL_IPS', ('127.0.0.1', '::1'))
 JINJA2_FILTERS = getattr(configuration, 'JINJA2_FILTERS', {})
 LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
+LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
 LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
@@ -138,24 +115,25 @@ METRICS_ENABLED = getattr(configuration, 'METRICS_ENABLED', False)
 PLUGINS = getattr(configuration, 'PLUGINS', [])
 PLUGINS_CONFIG = getattr(configuration, 'PLUGINS_CONFIG', {})
 QUEUE_MAPPINGS = getattr(configuration, 'QUEUE_MAPPINGS', {})
+REDIS = getattr(configuration, 'REDIS')  # Required
 RELEASE_CHECK_URL = getattr(configuration, 'RELEASE_CHECK_URL', None)
-REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_AUTO_CREATE_GROUPS = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_GROUPS', False)
+REMOTE_AUTH_AUTO_CREATE_USER = getattr(configuration, 'REMOTE_AUTH_AUTO_CREATE_USER', False)
 REMOTE_AUTH_BACKEND = getattr(configuration, 'REMOTE_AUTH_BACKEND', 'netbox.authentication.RemoteUserBackend')
 REMOTE_AUTH_DEFAULT_GROUPS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_GROUPS', [])
 REMOTE_AUTH_DEFAULT_PERMISSIONS = getattr(configuration, 'REMOTE_AUTH_DEFAULT_PERMISSIONS', {})
 REMOTE_AUTH_ENABLED = getattr(configuration, 'REMOTE_AUTH_ENABLED', False)
-REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
-REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
-REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
-REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL')
 REMOTE_AUTH_GROUP_HEADER = getattr(configuration, 'REMOTE_AUTH_GROUP_HEADER', 'HTTP_REMOTE_USER_GROUP')
+REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
 REMOTE_AUTH_GROUP_SYNC_ENABLED = getattr(configuration, 'REMOTE_AUTH_GROUP_SYNC_ENABLED', False)
+REMOTE_AUTH_HEADER = getattr(configuration, 'REMOTE_AUTH_HEADER', 'HTTP_REMOTE_USER')
 REMOTE_AUTH_SUPERUSER_GROUPS = getattr(configuration, 'REMOTE_AUTH_SUPERUSER_GROUPS', [])
 REMOTE_AUTH_SUPERUSERS = getattr(configuration, 'REMOTE_AUTH_SUPERUSERS', [])
+REMOTE_AUTH_USER_EMAIL = getattr(configuration, 'REMOTE_AUTH_USER_EMAIL', 'HTTP_REMOTE_USER_EMAIL')
+REMOTE_AUTH_USER_FIRST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_FIRST_NAME', 'HTTP_REMOTE_USER_FIRST_NAME')
+REMOTE_AUTH_USER_LAST_NAME = getattr(configuration, 'REMOTE_AUTH_USER_LAST_NAME', 'HTTP_REMOTE_USER_LAST_NAME')
 REMOTE_AUTH_STAFF_GROUPS = getattr(configuration, 'REMOTE_AUTH_STAFF_GROUPS', [])
 REMOTE_AUTH_STAFF_USERS = getattr(configuration, 'REMOTE_AUTH_STAFF_USERS', [])
-REMOTE_AUTH_GROUP_SEPARATOR = getattr(configuration, 'REMOTE_AUTH_GROUP_SEPARATOR', '|')
 # Required by extras/migrations/0109_script_models.py
 REPORTS_ROOT = getattr(configuration, 'REPORTS_ROOT', os.path.join(BASE_DIR, 'reports')).rstrip('/')
 RQ_DEFAULT_TIMEOUT = getattr(configuration, 'RQ_DEFAULT_TIMEOUT', 300)
@@ -163,15 +141,17 @@ RQ_RETRY_INTERVAL = getattr(configuration, 'RQ_RETRY_INTERVAL', 60)
 RQ_RETRY_MAX = getattr(configuration, 'RQ_RETRY_MAX', 0)
 SCRIPTS_ROOT = getattr(configuration, 'SCRIPTS_ROOT', os.path.join(BASE_DIR, 'scripts')).rstrip('/')
 SEARCH_BACKEND = getattr(configuration, 'SEARCH_BACKEND', 'netbox.search.backends.CachedValueSearchBackend')
+SECRET_KEY = getattr(configuration, 'SECRET_KEY')  # Required
 SECURE_SSL_REDIRECT = getattr(configuration, 'SECURE_SSL_REDIRECT', False)
 SENTRY_DSN = getattr(configuration, 'SENTRY_DSN', None)
 SENTRY_ENABLED = getattr(configuration, 'SENTRY_ENABLED', False)
 SENTRY_SAMPLE_RATE = getattr(configuration, 'SENTRY_SAMPLE_RATE', 1.0)
-SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SENTRY_TAGS = getattr(configuration, 'SENTRY_TAGS', {})
-SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
+SENTRY_TRACES_SAMPLE_RATE = getattr(configuration, 'SENTRY_TRACES_SAMPLE_RATE', 0)
 SESSION_COOKIE_NAME = getattr(configuration, 'SESSION_COOKIE_NAME', 'sessionid')
+SESSION_COOKIE_PATH = CSRF_COOKIE_PATH
 SESSION_COOKIE_SECURE = getattr(configuration, 'SESSION_COOKIE_SECURE', False)
+SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 SHORT_DATE_FORMAT = getattr(configuration, 'SHORT_DATE_FORMAT', 'Y-m-d')
 SHORT_DATETIME_FORMAT = getattr(configuration, 'SHORT_DATETIME_FORMAT', 'Y-m-d H:i')
 SHORT_TIME_FORMAT = getattr(configuration, 'SHORT_TIME_FORMAT', 'H:i:s')
@@ -179,50 +159,50 @@ STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_FORMAT = getattr(configuration, 'TIME_FORMAT', 'g:i a')
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
-ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
-CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 
-# Check for hard-coded dynamic config parameters
-for param in PARAMS:
+# Load any dynamic configuration parameters which have been hard-coded in the configuration file
+for param in CONFIG_PARAMS:
     if hasattr(configuration, param.name):
         globals()[param.name] = getattr(configuration, param.name)
 
+# Enforce minimum length for SECRET_KEY
+if type(SECRET_KEY) is not str:
+    raise ImproperlyConfigured(f"SECRET_KEY must be a string (found {type(SECRET_KEY).__name__})")
+if len(SECRET_KEY) < 50:
+    raise ImproperlyConfigured(
+        f"SECRET_KEY must be at least 50 characters in length. To generate a suitable key, run the following command:\n"
+        f"  python {BASE_DIR}/generate_secret_key.py"
+    )
+
 # Validate update repo URL and timeout
 if RELEASE_CHECK_URL:
-    validator = URLValidator(
-        message=(
-            "RELEASE_CHECK_URL must be a valid API URL. Example: "
-            "https://api.github.com/repos/netbox-community/netbox"
-        )
-    )
     try:
-        validator(RELEASE_CHECK_URL)
-    except ValidationError as err:
-        raise ImproperlyConfigured(str(err))
+        URLValidator()(RELEASE_CHECK_URL)
+    except ValidationError as e:
+        raise ImproperlyConfigured(
+            "RELEASE_CHECK_URL must be a valid URL. Example: https://api.github.com/repos/netbox-community/netbox"
+        )
 
 
 #
 # Database
 #
 
+# Set the database engine
 if 'ENGINE' not in DATABASE:
-    # Only PostgreSQL is supported
     if METRICS_ENABLED:
-        DATABASE.update({
-            'ENGINE': 'django_prometheus.db.backends.postgresql'
-        })
+        DATABASE.update({'ENGINE': 'django_prometheus.db.backends.postgresql'})
     else:
-        DATABASE.update({
-            'ENGINE': 'django.db.backends.postgresql'
-        })
+        DATABASE.update({'ENGINE': 'django.db.backends.postgresql'})
 
+# Define the DATABASES setting for Django
 DATABASES = {
     'default': DATABASE,
 }
 
 
 #
-# Media storage
+# Storage backend
 #
 
 if STORAGE_BACKEND is not None:
@@ -230,7 +210,6 @@ if STORAGE_BACKEND is not None:
 
     # django-storages
     if STORAGE_BACKEND.startswith('storages.'):
-
         try:
             import storages.utils  # type: ignore
         except ModuleNotFoundError as e:
@@ -261,9 +240,7 @@ if STORAGE_CONFIG and STORAGE_BACKEND is None:
 
 # Background task queuing
 if 'tasks' not in REDIS:
-    raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing the 'tasks' subsection."
-    )
+    raise ImproperlyConfigured("REDIS section in configuration.py is missing the 'tasks' subsection.")
 TASKS_REDIS = REDIS['tasks']
 TASKS_REDIS_HOST = TASKS_REDIS.get('HOST', 'localhost')
 TASKS_REDIS_PORT = TASKS_REDIS.get('PORT', 6379)
@@ -283,9 +260,7 @@ TASKS_REDIS_CA_CERT_PATH = TASKS_REDIS.get('CA_CERT_PATH', False)
 
 # Caching
 if 'caching' not in REDIS:
-    raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing caching subsection."
-    )
+    raise ImproperlyConfigured("REDIS section in configuration.py is missing caching subsection.")
 CACHING_REDIS_HOST = REDIS['caching'].get('HOST', 'localhost')
 CACHING_REDIS_PORT = REDIS['caching'].get('PORT', 6379)
 CACHING_REDIS_DATABASE = REDIS['caching'].get('DATABASE', 0)
@@ -297,18 +272,19 @@ CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'defau
 CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
 CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
 CACHING_REDIS_CA_CERT_PATH = REDIS['caching'].get('CA_CERT_PATH', False)
+CACHING_REDIS_URL = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}'
 
+# Configure Django's default cache to use Redis
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}',
+        'LOCATION': CACHING_REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             'PASSWORD': CACHING_REDIS_PASSWORD,
         }
     }
 }
-
 
 if CACHING_REDIS_SENTINELS:
     DJANGO_REDIS_CONNECTION_FACTORY = 'django_redis.pool.SentinelConnectionFactory'
@@ -321,6 +297,7 @@ if CACHING_REDIS_SKIP_TLS_VERIFY:
 if CACHING_REDIS_CA_CERT_PATH:
     CACHES['default']['OPTIONS'].setdefault('CONNECTION_POOL_KWARGS', {})
     CACHES['default']['OPTIONS']['CONNECTION_POOL_KWARGS']['ssl_ca_certs'] = CACHING_REDIS_CA_CERT_PATH
+
 
 #
 # Sessions
@@ -352,10 +329,11 @@ SERVER_EMAIL = EMAIL.get('FROM_EMAIL')
 
 
 #
-# Django
+# Django core settings
 #
 
 INSTALLED_APPS = [
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -391,9 +369,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
 ]
-
-if DJANGO_ADMIN_ENABLED:
-    INSTALLED_APPS.insert(0, 'django.contrib.admin')
+if not DJANGO_ADMIN_ENABLED:
+    INSTALLED_APPS.remove('django.contrib.admin')
 
 # Middleware
 MIDDLEWARE = [
@@ -414,12 +391,13 @@ MIDDLEWARE = [
     'netbox.middleware.MaintenanceModeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
-
 if not ENABLE_LOCALIZATION:
-    MIDDLEWARE.remove("django.middleware.locale.LocaleMiddleware")
+    MIDDLEWARE.remove('django.middleware.locale.LocaleMiddleware')
 
+# URLs
 ROOT_URLCONF = 'netbox.urls'
 
+# Templates
 TEMPLATES_DIR = BASE_DIR + '/templates'
 TEMPLATES = [
     {
@@ -454,9 +432,14 @@ AUTHENTICATION_BACKENDS = [
     'netbox.authentication.ObjectPermissionBackend',
 ]
 
+# Use our custom User model
 AUTH_USER_MODEL = 'users.User'
 
-# Time zones
+# Authentication URLs
+LOGIN_URL = f'/{BASE_PATH}login/'
+LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
+
+# Use timezone-aware datetime objects
 USE_TZ = True
 
 # WSGI
@@ -475,8 +458,8 @@ STATICFILES_DIRS = (
     ('docs', os.path.join(BASE_DIR, 'project-static', 'docs')),  # Prefix with /docs
 )
 
-# Media
-MEDIA_URL = '/{}media/'.format(BASE_PATH)
+# Media URL
+MEDIA_URL = f'/{BASE_PATH}media/'
 
 # Disable default limit of 1000 fields per request. Needed for bulk deletion of objects. (Added in Django 1.10.)
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
@@ -486,11 +469,16 @@ MESSAGE_TAGS = {
     messages.ERROR: 'danger',
 }
 
-# Authentication URLs
-LOGIN_URL = f'/{BASE_PATH}login/'
-LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SERIALIZATION_MODULES = {
+    'json': 'utilities.serializers.json',
+}
+
+
+#
+# Permissions & authentication
+#
 
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
@@ -520,10 +508,6 @@ MAINTENANCE_EXEMPT_PATHS = (
     LOGOUT_REDIRECT_URL
 )
 
-SERIALIZATION_MODULES = {
-    'json': 'utilities.serializers.json',
-}
-
 
 #
 # Sentry
@@ -531,7 +515,7 @@ SERIALIZATION_MODULES = {
 
 if SENTRY_ENABLED:
     try:
-        from sentry_sdk.integrations.django import DjangoIntegration
+        import sentry_sdk
     except ModuleNotFoundError:
         raise ImproperlyConfigured("SENTRY_ENABLED is True but the sentry-sdk package is not installed.")
     if not SENTRY_DSN:
@@ -540,7 +524,7 @@ if SENTRY_ENABLED:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         release=VERSION,
-        integrations=[DjangoIntegration()],
+        integrations=[sentry_sdk.integrations.django.DjangoIntegration()],
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,
@@ -556,6 +540,8 @@ if SENTRY_ENABLED:
 # Census collection
 #
 
+# Calculate a unique deployment ID from the secret key
+DEPLOYMENT_ID = hashlib.sha256(SECRET_KEY.encode('utf-8')).hexdigest()[:16]
 CENSUS_URL = 'https://census.netbox.dev/api/v1/'
 CENSUS_PARAMS = {
     'version': VERSION,
@@ -699,17 +685,16 @@ RQ_PARAMS.update({
     'PASSWORD': TASKS_REDIS_PASSWORD,
     'DEFAULT_TIMEOUT': RQ_DEFAULT_TIMEOUT,
 })
-
 if TASKS_REDIS_CA_CERT_PATH:
     RQ_PARAMS.setdefault('REDIS_CLIENT_KWARGS', {})
     RQ_PARAMS['REDIS_CLIENT_KWARGS']['ssl_ca_certs'] = TASKS_REDIS_CA_CERT_PATH
 
+# Define named RQ queues
 RQ_QUEUES = {
     RQ_QUEUE_HIGH: RQ_PARAMS,
     RQ_QUEUE_DEFAULT: RQ_PARAMS,
     RQ_QUEUE_LOW: RQ_PARAMS,
 }
-
 # Add any queues defined in QUEUE_MAPPINGS
 RQ_QUEUES.update({
     queue: RQ_PARAMS for queue in set(QUEUE_MAPPINGS.values()) if queue not in RQ_QUEUES
@@ -719,6 +704,7 @@ RQ_QUEUES.update({
 # Localization
 #
 
+# Supported translation languages
 LANGUAGES = (
     ('en', _('English')),
     ('es', _('Spanish')),
@@ -728,11 +714,9 @@ LANGUAGES = (
     ('ru', _('Russian')),
     ('tr', _('Turkish')),
 )
-
 LOCALE_PATHS = (
     BASE_DIR + '/translations',
 )
-
 if not ENABLE_LOCALIZATION:
     USE_I18N = False
     USE_L10N = False
@@ -748,25 +732,26 @@ STRAWBERRY_DJANGO = {
 # Plugins
 #
 
+# Register any configured plugins
 for plugin_name in PLUGINS:
-    # Import plugin module
     try:
+        # Import the plugin module
         plugin = importlib.import_module(plugin_name)
     except ModuleNotFoundError as e:
         if getattr(e, 'name') == plugin_name:
             raise ImproperlyConfigured(
-                "Unable to import plugin {}: Module not found. Check that the plugin module has been installed within the "
-                "correct Python environment.".format(plugin_name)
+                f"Unable to import plugin {plugin_name}: Module not found. Check that the plugin module has been "
+                f"installed within the correct Python environment."
             )
         raise e
 
-    # Determine plugin config and add to INSTALLED_APPS.
     try:
+        # Load the PluginConfig
         plugin_config: PluginConfig = plugin.config
     except AttributeError:
         raise ImproperlyConfigured(
-            "Plugin {} does not provide a 'config' variable. This should be defined in the plugin's __init__.py file "
-            "and point to the PluginConfig subclass.".format(plugin_name)
+            f"Plugin {plugin_name} does not provide a 'config' variable. This should be defined in the plugin's "
+            f"__init__.py file and point to the PluginConfig subclass."
         )
 
     plugin_module = "{}.{}".format(plugin_config.__module__, plugin_config.__name__)  # type: ignore
@@ -789,12 +774,12 @@ for plugin_name in PLUGINS:
             raise ImproperlyConfigured(
                 f"Failed to load django_apps specified by plugin {plugin_name}: {django_apps} "
                 f"The module {app} cannot be imported. Check that the necessary package has been "
-                "installed within the correct Python environment."
+                f"installed within the correct Python environment."
             )
 
     INSTALLED_APPS.extend(django_apps)
 
-    # Preserve uniqueness of the INSTALLED_APPS list, we keep the last occurence
+    # Preserve uniqueness of the INSTALLED_APPS list, we keep the last occurrence
     sorted_apps = reversed(list(dict.fromkeys(reversed(INSTALLED_APPS))))
     INSTALLED_APPS = list(sorted_apps)
 
@@ -812,9 +797,7 @@ for plugin_name in PLUGINS:
     # we use the plugin name as a prefix for queue name's defined in the plugin config
     # ex: mysuperplugin.mysuperqueue1
     if type(plugin_config.queues) is not list:
-        raise ImproperlyConfigured(
-            "Plugin {} queues must be a list.".format(plugin_name)
-        )
+        raise ImproperlyConfigured(f"Plugin {plugin_name} queues must be a list.")
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
