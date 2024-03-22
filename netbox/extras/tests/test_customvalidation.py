@@ -7,7 +7,9 @@ from ipam.models import ASN, RIR
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.validators import CustomValidator
+from users.models import User
 from utilities.exceptions import AbortRequest
+from utilities.utils import NetBoxFakeRequest
 
 
 class MyValidator(CustomValidator):
@@ -76,6 +78,13 @@ required_validator = CustomValidator({
 prohibited_validator = CustomValidator({
     'description': {
         'prohibited': True
+    }
+})
+
+
+request_validator = CustomValidator({
+    'request.user.username': {
+        'eq': 'Bob'
     }
 })
 
@@ -153,6 +162,28 @@ class CustomValidatorTest(TestCase):
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_validator]})
     def test_custom_valid(self):
         Site(name='foo', slug='foo').clean()
+
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [request_validator]})
+    def test_request_validation(self):
+        alice = User.objects.create(username='Alice')
+        bob = User.objects.create(username='Bob')
+        request = NetBoxFakeRequest({
+            'META': {},
+            'POST': {},
+            'GET': {},
+            'FILES': {},
+            'user': alice,
+            'path': '',
+        })
+        site = Site(name='abc', slug='abc')
+
+        # Attempt to create the Site as Alice
+        with self.assertRaises(ValidationError):
+            request_validator(site, request)
+
+        # Creating the Site as Bob should succeed
+        request.user = bob
+        request_validator(site, request)
 
 
 class CustomValidatorConfigTest(TestCase):
