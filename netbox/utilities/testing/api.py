@@ -1,12 +1,12 @@
 import inspect
 import json
+import strawberry_django
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.test import override_settings
-from graphene.types import Dynamic as GQLDynamic, List as GQLList, Union as GQLUnion, String as GQLString, NonNull as GQLNonNull
 from rest_framework import status
 from rest_framework.test import APIClient
 
@@ -19,7 +19,10 @@ from .base import ModelTestCase
 from .utils import disable_warnings
 
 from ipam.graphql.types import IPAddressFamilyType
-
+from strawberry.field import StrawberryField
+from strawberry.lazy_type import LazyType
+from strawberry.type import StrawberryList, StrawberryOptional
+from strawberry.union import StrawberryUnion
 
 __all__ = (
     'APITestCase',
@@ -447,34 +450,34 @@ class APIViewTestCases:
 
             # Compile list of fields to include
             fields_string = ''
-            for field_name, field in type_class._meta.fields.items():
-                is_string_array = False
-                if type(field.type) is GQLList:
-                    if field.type.of_type is GQLString:
-                        is_string_array = True
-                    elif type(field.type.of_type) is GQLNonNull and field.type.of_type.of_type is GQLString:
-                        is_string_array = True
 
-                if type(field) is GQLDynamic:
-                    # Dynamic fields must specify a subselection
-                    fields_string += f'{field_name} {{ id }}\n'
-                # TODO: Improve field detection logic to avoid nested ArrayFields
-                elif field_name == 'extra_choices':
+            file_fields = (strawberry_django.fields.types.DjangoFileType, strawberry_django.fields.types.DjangoImageType)
+            for field in type_class.__strawberry_definition__.fields:
+                if (
+                    field.type in file_fields or (
+                        type(field.type) is StrawberryOptional and field.type.of_type in file_fields
+                    )
+                ):
+                    # image / file fields nullable or not...
+                    fields_string += f'{field.name} {{ name }}\n'
+                elif type(field.type) is StrawberryList and type(field.type.of_type) is LazyType:
+                    # List of related objects (queryset)
+                    fields_string += f'{field.name} {{ id }}\n'
+                elif type(field.type) is StrawberryList and type(field.type.of_type) is StrawberryUnion:
+                    # this would require a fragment query
                     continue
-                elif inspect.isclass(field.type) and issubclass(field.type, GQLUnion):
-                    # Union types dont' have an id or consistent values
+                elif type(field.type) is StrawberryUnion:
+                    # this would require a fragment query
                     continue
-                elif type(field.type) is GQLList and inspect.isclass(field.type.of_type) and issubclass(field.type.of_type, GQLUnion):
-                    # Union types dont' have an id or consistent values
-                    continue
-                elif type(field.type) is GQLList and not is_string_array:
-                    # TODO: Come up with something more elegant
-                    # Temporary hack to support automated testing of reverse generic relations
-                    fields_string += f'{field_name} {{ id }}\n'
+                elif type(field.type) is StrawberryOptional and type(field.type.of_type) is LazyType:
+                    fields_string += f'{field.name} {{ id }}\n'
+                elif hasattr(field, 'is_relation') and field.is_relation:
+                    # Note: StrawberryField types do not have is_relation
+                    fields_string += f'{field.name} {{ id }}\n'
                 elif inspect.isclass(field.type) and issubclass(field.type, IPAddressFamilyType):
-                    fields_string += f'{field_name} {{ value, label }}\n'
+                    fields_string += f'{field.name} {{ value, label }}\n'
                 else:
-                    fields_string += f'{field_name}\n'
+                    fields_string += f'{field.name}\n'
 
             query = f"""
             {{
@@ -496,7 +499,10 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+                header = {
+                    'HTTP_ACCEPT': 'application/json',
+                }
+                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -507,7 +513,7 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-            response = self.client.post(url, data={'query': query}, **self.header)
+            response = self.client.post(url, data={'query': query}, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)
@@ -521,7 +527,10 @@ class APIViewTestCases:
 
             # Non-authenticated requests should fail
             with disable_warnings('django.request'):
-                self.assertHttpStatus(self.client.post(url, data={'query': query}), status.HTTP_403_FORBIDDEN)
+                header = {
+                    'HTTP_ACCEPT': 'application/json',
+                }
+                self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
@@ -532,7 +541,7 @@ class APIViewTestCases:
             obj_perm.users.add(self.user)
             obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
-            response = self.client.post(url, data={'query': query}, **self.header)
+            response = self.client.post(url, data={'query': query}, format="json", **self.header)
             self.assertHttpStatus(response, status.HTTP_200_OK)
             data = json.loads(response.content)
             self.assertNotIn('errors', data)

@@ -365,12 +365,11 @@ INSTALLED_APPS = [
     'django.forms',
     'corsheaders',
     'debug_toolbar',
-    'graphiql_debug_toolbar',
     'django_filters',
     'django_htmx',
     'django_tables2',
     'django_prometheus',
-    'graphene_django',
+    'strawberry_django',
     'mptt',
     'rest_framework',
     'social_django',
@@ -398,7 +397,7 @@ if DJANGO_ADMIN_ENABLED:
 
 # Middleware
 MIDDLEWARE = [
-    'graphiql_debug_toolbar.middleware.DebugToolbarMiddleware',
+    "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -675,17 +674,6 @@ SPECTACULAR_SETTINGS = {
 }
 
 #
-# Graphene
-#
-
-GRAPHENE = {
-    # Avoids naming collision on models with 'type' field; see
-    # https://github.com/graphql-python/graphene-django/issues/185
-    'DJANGO_CHOICE_FIELD_ENUM_V3_NAMING': True,
-}
-
-
-#
 # Django RQ (events backend)
 #
 
@@ -748,6 +736,13 @@ LOCALE_PATHS = (
 if not ENABLE_LOCALIZATION:
     USE_I18N = False
     USE_L10N = False
+
+#
+# Strawberry (GraphQL)
+#
+STRAWBERRY_DJANGO = {
+    "TYPE_DESCRIPTION_FROM_MODEL_DOCSTRING": True,
+}
 
 #
 # Plugins

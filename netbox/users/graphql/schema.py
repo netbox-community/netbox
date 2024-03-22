@@ -1,21 +1,21 @@
-import graphene
-from django.contrib.auth import get_user_model
+from typing import List
+import strawberry
+import strawberry_django
 
-from netbox.graphql.fields import ObjectField, ObjectListField
-from users.models import Group
-from utilities.graphql_optimizer import gql_query_optimizer
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Group
+from users import models
 from .types import *
 
 
-class UsersQuery(graphene.ObjectType):
-    group = ObjectField(GroupType)
-    group_list = ObjectListField(GroupType)
+@strawberry.type
+class UsersQuery:
+    @strawberry.field
+    def group(self, id: int) -> GroupType:
+        return models.Group.objects.get(pk=id)
+    group_list: List[GroupType] = strawberry_django.field()
 
-    def resolve_group_list(root, info, **kwargs):
-        return gql_query_optimizer(Group.objects.all(), info)
-
-    user = ObjectField(UserType)
-    user_list = ObjectListField(UserType)
-
-    def resolve_user_list(root, info, **kwargs):
-        return gql_query_optimizer(get_user_model().objects.all(), info)
+    @strawberry.field
+    def user(self, id: int) -> UserType:
+        return models.User.objects.get(pk=id)
+    user_list: List[UserType] = strawberry_django.field()
