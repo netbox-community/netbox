@@ -3,13 +3,13 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.test import TestCase, override_settings
 
-from ipam.models import ASN, RIR
 from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.validators import CustomValidator
+from ipam.models import ASN, RIR
 from users.models import User
 from utilities.exceptions import AbortRequest
-from utilities.utils import NetBoxFakeRequest
+from utilities.request import NetBoxFakeRequest
 
 
 class MyValidator(CustomValidator):
