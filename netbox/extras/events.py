@@ -1,9 +1,6 @@
-import logging
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
@@ -15,9 +12,9 @@ from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
-from utilities.utils import serialize_object
+from utilities.serialization import serialize_object
 from .choices import *
-from .models import EventRule, ScriptModule
+from .models import EventRule
 
 logger = logging.getLogger('netbox.events_processor')
 

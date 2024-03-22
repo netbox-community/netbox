@@ -49,23 +49,8 @@ Context:
       {% if form.fieldsets %}
 
         {# Render grouped fields according to declared fieldsets #}
-        {% for group, fields in form.fieldsets %}
-          <div class="field-group mb-5">
-            <div class="row">
-              <h5 class="col-9 offset-3">
-                {% if group %}{{ group }}{% else %}{{ model|meta:"verbose_name"|bettertitle }}{% endif %}
-              </h5>
-            </div>
-            {% for name in fields %}
-              {% with field=form|getfield:name %}
-                {% if field.name in form.nullable_fields %}
-                  {% render_field field bulk_nullable=True %}
-                {% else %}
-                  {% render_field field %}
-                {% endif %}
-              {% endwith %}
-            {% endfor %}
-          </div>
+        {% for fieldset in form.fieldsets %}
+          {% render_fieldset form fieldset %}
         {% endfor %}
 
         {# Render tag add/remove fields #}

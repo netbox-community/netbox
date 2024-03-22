@@ -3,7 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from netbox.views import generic
-from utilities.utils import count_related, get_related_models
+from utilities.query import count_related
+from utilities.relations import get_related_models
 from utilities.views import register_model_view, ViewTab
 from . import filtersets, forms, tables
 from .models import *
@@ -369,7 +370,6 @@ class ContactAssignmentListView(generic.ObjectListView):
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
     form = forms.ContactAssignmentForm
-    template_name = 'tenancy/contactassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:

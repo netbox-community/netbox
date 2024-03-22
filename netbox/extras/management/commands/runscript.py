@@ -14,7 +14,7 @@ from extras.context_managers import event_tracking
 from extras.scripts import get_module_and_script
 from extras.signals import clear_events
 from utilities.exceptions import AbortTransaction
-from utilities.utils import NetBoxFakeRequest
+from utilities.request import NetBoxFakeRequest
 
 
 class Command(BaseCommand):

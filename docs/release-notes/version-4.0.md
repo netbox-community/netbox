@@ -6,6 +6,7 @@
 
 * The deprecated `device_role` & `device_role_id` filters for devices have been removed. (Use `role` and `role_id` instead.)
 * The legacy reports functionality has been dropped. Reports will be automatically converted to custom scripts on upgrade.
+* The `parent` and `parent_id` filters for locations now return only immediate children of the specified location. (Use `ancestor` and `ancestor_id` to return _all_ descendants.)
 
 ### New Features
 
@@ -17,18 +18,26 @@ The NetBox user interface has been completely refreshed and updated.
 
 The REST API now supports specifying which fields to include in the response data.
 
+#### Advanced FieldSet Functionality ([#14739](https://github.com/netbox-community/netbox/issues/14739))
+
+New resources have been introduced to enable advanced form rendering without a need for custom HTML templates.
+
 ### Enhancements
 
 * [#12851](https://github.com/netbox-community/netbox/issues/12851) - Replace bleach HTML sanitization library with nh3
 * [#13283](https://github.com/netbox-community/netbox/issues/13283) - Display additional context on API-backed dropdown fields
+* [#13918](https://github.com/netbox-community/netbox/issues/13918) - Add `facility` field to Location model
 * [#14237](https://github.com/netbox-community/netbox/issues/14237) - Automatically clear dependent selection fields when modifying a parent selection
+* [#14454](https://github.com/netbox-community/netbox/issues/14454) - Include member devices for virtual chassis in REST API
 * [#14637](https://github.com/netbox-community/netbox/issues/14637) - Upgrade to Django 5.0
 * [#14672](https://github.com/netbox-community/netbox/issues/14672) - Add support for Python 3.12
 * [#14728](https://github.com/netbox-community/netbox/issues/14728) - The plugins list view has been moved from the legacy admin UI to the main NetBox UI
 * [#14729](https://github.com/netbox-community/netbox/issues/14729) - All background task views have been moved from the legacy admin UI to the main NetBox UI
 * [#14438](https://github.com/netbox-community/netbox/issues/14438) - Track individual custom scripts as database objects
 * [#15131](https://github.com/netbox-community/netbox/issues/15131) - Automatically annotate related object counts on REST API querysets
+* [#15237](https://github.com/netbox-community/netbox/issues/15237) - Ensure consistent filtering ability for all model fields
 * [#15238](https://github.com/netbox-community/netbox/issues/15238) - Include the `description` field in "brief" REST API serializations
+* [#15383](https://github.com/netbox-community/netbox/issues/15383) - Standardize filtering logic for the parents of recursively-nested models (parent & ancestor filters)
 
 ### Other Changes
 
@@ -44,6 +53,7 @@ The REST API now supports specifying which fields to include in the response dat
 * [#15042](https://github.com/netbox-community/netbox/issues/15042) - Rearchitect the logic for registering models & model features
 * [#15099](https://github.com/netbox-community/netbox/issues/15099) - Remove obsolete `device_role` and `device_role_id` filters for devices
 * [#15100](https://github.com/netbox-community/netbox/issues/15100) - Remove obsolete `NullableCharField` class
+* [#15193](https://github.com/netbox-community/netbox/issues/15193) - Switch to compiled distribution of the `psycopg` library
 * [#15277](https://github.com/netbox-community/netbox/issues/15277) - Replace references to ContentType without ObjectType proxy model & standardize field names
 * [#15292](https://github.com/netbox-community/netbox/issues/15292) - Remove obsolete `device_role` attribute from Device model (this field was renamed to `role` in v3.6)
 

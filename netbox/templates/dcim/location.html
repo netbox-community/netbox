@@ -54,6 +54,10 @@
             {{ object.tenant|linkify|placeholder }}
           </td>
         </tr>
+        <tr>
+          <th scope="row">{% trans "Facility" %}</th>
+          <td>{{ object.facility|placeholder }}</td>
+        </tr>
       </table>
     </div>
     {% include 'inc/panels/tags.html' %}

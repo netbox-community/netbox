@@ -2,8 +2,8 @@ from django.test import override_settings
 
 from core.models import ObjectType
 from dcim.models import *
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from users.models import ObjectPermission
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import ModelViewTestCase, create_tags
 
 

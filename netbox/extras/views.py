@@ -18,12 +18,15 @@ from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
+from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.paginator import EnhancedPaginator, get_paginate_count
+from utilities.query import count_related
+from utilities.querydict import normalize_querydict
+from utilities.request import copy_safe_request
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
-from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
+from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
 from . import filtersets, forms, tables
 from .models import *
 from .scripts import run_script
@@ -759,7 +762,6 @@ class ImageAttachmentListView(generic.ObjectListView):
 class ImageAttachmentEditView(generic.ObjectEditView):
     queryset = ImageAttachment.objects.all()
     form = forms.ImageAttachmentForm
-    template_name = 'extras/imageattachment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:

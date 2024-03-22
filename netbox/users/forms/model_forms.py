@@ -12,10 +12,11 @@ from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
 from users.constants import *
 from users.models import *
+from utilities.data import flatten_dict
 from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 from utilities.permissions import qs_filter_from_constraints
-from utilities.utils import flatten_dict
 
 __all__ = (
     'UserTokenForm',
@@ -53,15 +54,10 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 
 class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
-        (_('User Interface'), (
-            'locale.language',
-            'pagination.per_page',
-            'pagination.placement',
-            'ui.colormode',
-        )),
-        (_('Miscellaneous'), (
-            'data_format',
-        )),
+        FieldSet(
+            'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.colormode', name=_('User Interface')
+        ),
+        FieldSet('data_format', name=_('Miscellaneous')),
     )
     # List of clearable preferences
     pk = forms.MultipleChoiceField(
@@ -189,10 +185,10 @@ class UserForm(forms.ModelForm):
     )
 
     fieldsets = (
-        (_('User'), ('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email')),
-        (_('Groups'), ('groups', )),
-        (_('Status'), ('is_active', 'is_staff', 'is_superuser')),
-        (_('Permissions'), ('object_permissions',)),
+        FieldSet('username', 'password', 'confirm_password', 'first_name', 'last_name', 'email', name=_('User')),
+        FieldSet('groups', name=_('Groups')),
+        FieldSet('is_active', 'is_staff', 'is_superuser', name=_('Status')),
+        FieldSet('object_permissions', name=_('Permissions')),
     )
 
     class Meta:
@@ -246,9 +242,9 @@ class GroupForm(forms.ModelForm):
     )
 
     fieldsets = (
-        (None, ('name', )),
-        (_('Users'), ('users', )),
-        (_('Permissions'), ('object_permissions', )),
+        FieldSet('name'),
+        FieldSet('users', name=_('Users')),
+        FieldSet('object_permissions', name=_('Permissions')),
     )
 
     class Meta:
@@ -312,11 +308,11 @@ class ObjectPermissionForm(forms.ModelForm):
     )
 
     fieldsets = (
-        (None, ('name', 'description', 'enabled',)),
-        (_('Actions'), ('can_view', 'can_add', 'can_change', 'can_delete', 'actions')),
-        (_('Objects'), ('object_types', )),
-        (_('Assignment'), ('groups', 'users')),
-        (_('Constraints'), ('constraints',))
+        FieldSet('name', 'description', 'enabled'),
+        FieldSet('can_view', 'can_add', 'can_change', 'can_delete', 'actions', name=_('Actions')),
+        FieldSet('object_types', name=_('Objects')),
+        FieldSet('groups', 'users', name=_('Assignment')),
+        FieldSet('constraints', name=_('Constraints'))
     )
 
     class Meta:

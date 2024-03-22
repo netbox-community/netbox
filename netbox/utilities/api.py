@@ -1,22 +1,19 @@
-import platform
-import sys
-
-from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import (
     FieldDoesNotExist, FieldError, MultipleObjectsReturned, ObjectDoesNotExist, ValidationError,
 )
 from django.db.models.fields.related import ManyToOneRel, RelatedField
-from django.http import JsonResponse
 from django.urls import reverse
+from django.utils.module_loading import import_string
 from django.utils.translation import gettext_lazy as _
-from rest_framework import status
 from rest_framework.serializers import Serializer
-from rest_framework.utils import formatting
+from rest_framework.views import get_view_name as drf_get_view_name
 
-from netbox.api.fields import RelatedObjectCountField
+from extras.constants import HTTP_CONTENT_TYPE_JSON
 from netbox.api.exceptions import GraphQLTypeNotFound, SerializerNotFound
-from .utils import count_related, dict_to_filter_params, dynamic_import
+from netbox.api.fields import RelatedObjectCountField
+from .query import count_related, dict_to_filter_params
+from .string import title
 
 __all__ = (
     'get_annotations_for_serializer',
@@ -26,19 +23,18 @@ __all__ = (
     'get_serializer_for_model',
     'get_view_name',
     'is_api_request',
-    'rest_api_server_error',
 )
 
 
 def get_serializer_for_model(model, prefix=''):
     """
-    Dynamically resolve and return the appropriate serializer for a model.
+    Return the appropriate REST API serializer for the given model.
     """
     app_label, model_name = model._meta.label.split('.')
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
     try:
-        return dynamic_import(serializer_name)
-    except AttributeError:
+        return import_string(serializer_name)
+    except ImportError:
         raise SerializerNotFound(
             f"Could not determine serializer for {app_label}.{model_name} with prefix '{prefix}'"
         )
@@ -48,15 +44,12 @@ def get_graphql_type_for_model(model):
     """
     Return the GraphQL type class for the given model.
     """
-    app_name, model_name = model._meta.label.split('.')
-    # Object types for Django's auth models are in the users app
-    if app_name == 'auth':
-        app_name = 'users'
-    class_name = f'{app_name}.graphql.types.{model_name}Type'
+    app_label, model_name = model._meta.label.split('.')
+    class_name = f'{app_label}.graphql.types.{model_name}Type'
     try:
-        return dynamic_import(class_name)
-    except AttributeError:
-        raise GraphQLTypeNotFound(f"Could not find GraphQL type for {app_name}.{model_name}")
+        return import_string(class_name)
+    except ImportError:
+        raise GraphQLTypeNotFound(f"Could not find GraphQL type for {app_label}.{model_name}")
 
 
 def is_api_request(request):
@@ -64,30 +57,23 @@ def is_api_request(request):
     Return True of the request is being made via the REST API.
     """
     api_path = reverse('api-root')
+    return request.path_info.startswith(api_path) and request.content_type == HTTP_CONTENT_TYPE_JSON
 
-    return request.path_info.startswith(api_path) and request.content_type == 'application/json'
 
-
-def get_view_name(view, suffix=None):
+def get_view_name(view):
     """
-    Derive the view name from its associated model, if it has one. Fall back to DRF's built-in `get_view_name`.
+    Derive the view name from its associated model, if it has one. Fall back to DRF's built-in `get_view_name()`.
+    This function is provided to DRF as its VIEW_NAME_FUNCTION.
     """
     if hasattr(view, 'queryset'):
-        # Determine the model name from the queryset.
-        name = view.queryset.model._meta.verbose_name
-        name = ' '.join([w[0].upper() + w[1:] for w in name.split()])  # Capitalize each word
+        # Derive the model name from the queryset.
+        name = title(view.queryset.model._meta.verbose_name)
+        if suffix := getattr(view, 'suffix', None):
+            name = f'{name} {suffix}'
+        return name
 
-    else:
-        # Replicate DRF's built-in behavior.
-        name = view.__class__.__name__
-        name = formatting.remove_trailing_string(name, 'View')
-        name = formatting.remove_trailing_string(name, 'ViewSet')
-        name = formatting.camelcase_to_spaces(name)
-
-    if suffix:
-        name += ' ' + suffix
-
-    return name
+    # Fall back to DRF's default behavior
+    return drf_get_view_name(view)
 
 
 def get_prefetches_for_serializer(serializer_class, fields_to_include=None):
@@ -189,17 +175,3 @@ def get_related_object_by_attrs(queryset, attrs):
         return queryset.get(pk=pk)
     except ObjectDoesNotExist:
         raise ValidationError(_("Related object not found using the provided numeric ID: {id}").format(id=pk))
-
-
-def rest_api_server_error(request, *args, **kwargs):
-    """
-    Handle exceptions and return a useful error message for REST API requests.
-    """
-    type_, error, traceback = sys.exc_info()
-    data = {
-        'error': str(error),
-        'exception': type_.__name__,
-        'netbox_version': settings.VERSION,
-        'python_version': platform.python_version(),
-    }
-    return JsonResponse(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

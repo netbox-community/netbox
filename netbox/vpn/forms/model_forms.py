@@ -7,6 +7,7 @@ from ipam.models import IPAddress, RouteTarget, VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.utils import add_blank_choice, get_field_value
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import VirtualMachine, VMInterface
@@ -32,7 +33,7 @@ class TunnelGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Tunnel Group'), ('name', 'slug', 'description', 'tags')),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Tunnel Group')),
     )
 
     class Meta:
@@ -56,9 +57,9 @@ class TunnelForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Tunnel'), ('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags')),
-        (_('Security'), ('ipsec_profile',)),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags', name=_('Tunnel')),
+        FieldSet('ipsec_profile', name=_('Security')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -141,17 +142,15 @@ class TunnelCreateForm(TunnelForm):
     )
 
     fieldsets = (
-        (_('Tunnel'), ('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags')),
-        (_('Security'), ('ipsec_profile',)),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('First Termination'), (
+        FieldSet('name', 'status', 'group', 'encapsulation', 'description', 'tunnel_id', 'tags', name=_('Tunnel')),
+        FieldSet('ipsec_profile', name=_('Security')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet(
             'termination1_role', 'termination1_type', 'termination1_parent', 'termination1_termination',
-            'termination1_outside_ip',
-        )),
-        (_('Second Termination'), (
+            'termination1_outside_ip', name=_('First Termination')),
+        FieldSet(
             'termination2_role', 'termination2_type', 'termination2_parent', 'termination2_termination',
-            'termination2_outside_ip',
-        )),
+            'termination2_outside_ip', name=_('Second Termination')),
     )
 
     def __init__(self, *args, initial=None, **kwargs):
@@ -253,7 +252,7 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (None, ('tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags')),
+        FieldSet('tunnel', 'role', 'type', 'parent', 'termination', 'outside_ip', 'tags'),
     )
 
     class Meta:
@@ -296,10 +295,11 @@ class TunnelTerminationForm(NetBoxModelForm):
 class IKEProposalForm(NetBoxModelForm):
 
     fieldsets = (
-        (_('Proposal'), ('name', 'description', 'tags')),
-        (_('Parameters'), (
+        FieldSet('name', 'description', 'tags', name=_('Proposal')),
+        FieldSet(
             'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime',
-        )),
+            name=_('Parameters')
+        ),
     )
 
     class Meta:
@@ -317,8 +317,8 @@ class IKEPolicyForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Policy'), ('name', 'description', 'tags')),
-        (_('Parameters'), ('version', 'mode', 'proposals', 'preshared_key')),
+        FieldSet('name', 'description', 'tags', name=_('Policy')),
+        FieldSet('version', 'mode', 'proposals', 'preshared_key', name=_('Parameters')),
     )
 
     class Meta:
@@ -331,10 +331,11 @@ class IKEPolicyForm(NetBoxModelForm):
 class IPSecProposalForm(NetBoxModelForm):
 
     fieldsets = (
-        (_('Proposal'), ('name', 'description', 'tags')),
-        (_('Parameters'), (
+        FieldSet('name', 'description', 'tags', name=_('Proposal')),
+        FieldSet(
             'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data',
-        )),
+            name=_('Parameters')
+        ),
     )
 
     class Meta:
@@ -352,8 +353,8 @@ class IPSecPolicyForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Policy'), ('name', 'description', 'tags')),
-        (_('Parameters'), ('proposals', 'pfs_group')),
+        FieldSet('name', 'description', 'tags', name=_('Policy')),
+        FieldSet('proposals', 'pfs_group', name=_('Parameters')),
     )
 
     class Meta:
@@ -375,8 +376,8 @@ class IPSecProfileForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Profile'), ('name', 'description', 'tags')),
-        (_('Parameters'), ('mode', 'ike_policy', 'ipsec_policy')),
+        FieldSet('name', 'description', 'tags', name=_('Profile')),
+        FieldSet('mode', 'ike_policy', 'ipsec_policy', name=_('Parameters')),
     )
 
     class Meta:
@@ -405,9 +406,9 @@ class L2VPNForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('L2VPN'), ('name', 'slug', 'type', 'identifier', 'description', 'tags')),
-        (_('Route Targets'), ('import_targets', 'export_targets')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('name', 'slug', 'type', 'identifier', 'description', 'tags', name=_('L2VPN')),
+        FieldSet('import_targets', 'export_targets', name=_('Route Targets')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -442,6 +443,18 @@ class L2VPNTerminationForm(NetBoxModelForm):
         required=False,
         selector=True,
         label=_('Interface')
+    )
+
+    fieldsets = (
+        FieldSet(
+            'l2vpn',
+            TabbedGroups(
+                FieldSet('vlan', name=_('VLAN')),
+                FieldSet('interface', name=_('Device')),
+                FieldSet('vminterface', name=_('Virtual Machine')),
+            ),
+            'tags',
+        ),
     )
 
     class Meta:

@@ -9,18 +9,9 @@
         {{ field }}
       {% endfor %}
       {# List filters by group #}
-      {% for heading, fields in filter_form.fieldsets %}
+      {% for fieldset in filter_form.fieldsets %}
         <div class="col col-12">
-          {% if heading %}
-            <div class="hr-text">
-              <span>{{ heading }}</span>
-            </div>
-          {% endif %}
-          {% for name in fields %}
-            {% with field=filter_form|get_item:name %}
-              {% render_field field %}
-            {% endwith %}
-          {% endfor %}
+          {% render_fieldset filter_form fieldset %}
         </div>
       {% empty %}
         {# List all non-customfield filters as declared in the form class #}

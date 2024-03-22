@@ -17,6 +17,7 @@ from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, ContentTypeMultipleChoiceField, DynamicModelChoiceField,
     DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms.rendering import FieldSet, ObjectAttribute
 from utilities.forms.widgets import ChoicesWidget, HTMXSelect
 from virtualization.models import Cluster, ClusterGroup, ClusterType
 
@@ -54,12 +55,15 @@ class CustomFieldForm(forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Custom Field'), (
+        FieldSet(
             'object_types', 'name', 'label', 'group_name', 'type', 'related_object_type', 'required', 'description',
-        )),
-        (_('Behavior'), ('search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable')),
-        (_('Values'), ('default', 'choice_set')),
-        (_('Validation'), ('validation_minimum', 'validation_maximum', 'validation_regex')),
+            name=_('Custom Field')
+        ),
+        FieldSet(
+            'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'weight', 'is_cloneable', name=_('Behavior')
+        ),
+        FieldSet('default', 'choice_set', name=_('Values')),
+        FieldSet('validation_minimum', 'validation_maximum', 'validation_regex', name=_('Validation')),
     )
 
     class Meta:
@@ -128,8 +132,11 @@ class CustomLinkForm(forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Custom Link'), ('name', 'object_types', 'weight', 'group_name', 'button_class', 'enabled', 'new_window')),
-        (_('Templates'), ('link_text', 'link_url')),
+        FieldSet(
+            'name', 'object_types', 'weight', 'group_name', 'button_class', 'enabled', 'new_window',
+            name=_('Custom Link')
+        ),
+        FieldSet('link_text', 'link_url', name=_('Templates')),
     )
 
     class Meta:
@@ -162,9 +169,9 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Export Template'), ('name', 'object_types', 'description', 'template_code')),
-        (_('Data Source'), ('data_source', 'data_file', 'auto_sync_enabled')),
-        (_('Rendering'), ('mime_type', 'file_extension', 'as_attachment')),
+        FieldSet('name', 'object_types', 'description', 'template_code', name=_('Export Template')),
+        FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
+        FieldSet('mime_type', 'file_extension', 'as_attachment', name=_('Rendering')),
     )
 
     class Meta:
@@ -199,8 +206,8 @@ class SavedFilterForm(forms.ModelForm):
     parameters = JSONField()
 
     fieldsets = (
-        (_('Saved Filter'), ('name', 'slug', 'object_types', 'description', 'weight', 'enabled', 'shared')),
-        (_('Parameters'), ('parameters',)),
+        FieldSet('name', 'slug', 'object_types', 'description', 'weight', 'enabled', 'shared', name=_('Saved Filter')),
+        FieldSet('parameters', name=_('Parameters')),
     )
 
     class Meta:
@@ -231,11 +238,12 @@ class BookmarkForm(forms.ModelForm):
 class WebhookForm(NetBoxModelForm):
 
     fieldsets = (
-        (_('Webhook'), ('name', 'description', 'tags',)),
-        (_('HTTP Request'), (
+        FieldSet('name', 'description', 'tags', name=_('Webhook')),
+        FieldSet(
             'payload_url', 'http_method', 'http_content_type', 'additional_headers', 'body_template', 'secret',
-        )),
-        (_('SSL'), ('ssl_verification', 'ca_file_path')),
+            name=_('HTTP Request')
+        ),
+        FieldSet('ssl_verification', 'ca_file_path', name=_('SSL')),
     )
 
     class Meta:
@@ -266,12 +274,13 @@ class EventRuleForm(NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('Event Rule'), ('name', 'description', 'object_types', 'enabled', 'tags')),
-        (_('Events'), ('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end')),
-        (_('Conditions'), ('conditions',)),
-        (_('Action'), (
+        FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
+        FieldSet('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', name=_('Events')),
+        FieldSet('conditions', name=_('Conditions')),
+        FieldSet(
             'action_type', 'action_choice', 'action_object_type', 'action_object_id', 'action_data',
-        )),
+            name=_('Action')
+        ),
     )
 
     class Meta:
@@ -360,7 +369,7 @@ class TagForm(forms.ModelForm):
     )
 
     fieldsets = (
-        ('Tag', ('name', 'slug', 'color', 'description', 'object_types')),
+        FieldSet('name', 'slug', 'color', 'description', 'object_types', name=_('Tag')),
     )
 
     class Meta:
@@ -442,12 +451,13 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Config Context'), ('name', 'weight', 'description', 'data', 'is_active')),
-        (_('Data Source'), ('data_source', 'data_file', 'auto_sync_enabled')),
-        (_('Assignment'), (
+        FieldSet('name', 'weight', 'description', 'data', 'is_active', name=_('Config Context')),
+        FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
+        FieldSet(
             'regions', 'site_groups', 'sites', 'locations', 'device_types', 'roles', 'platforms', 'cluster_types',
             'cluster_groups', 'clusters', 'tenant_groups', 'tenants', 'tags',
-        )),
+            name=_('Assignment')
+        ),
     )
 
     class Meta:
@@ -494,9 +504,9 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
     )
 
     fieldsets = (
-        (_('Config Template'), ('name', 'description', 'environment_params', 'tags')),
-        (_('Content'), ('template_code',)),
-        (_('Data Source'), ('data_source', 'data_file', 'auto_sync_enabled')),
+        FieldSet('name', 'description', 'environment_params', 'tags', name=_('Config Template')),
+        FieldSet('template_code', name=_('Content')),
+        FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
     )
 
     class Meta:
@@ -526,6 +536,9 @@ class ConfigTemplateForm(SyncedDataMixin, forms.ModelForm):
 
 
 class ImageAttachmentForm(forms.ModelForm):
+    fieldsets = (
+        FieldSet(ObjectAttribute('parent'), 'name', 'image'),
+    )
 
     class Meta:
         model = ImageAttachment

@@ -6,12 +6,11 @@ from dcim.choices import *
 from dcim.filtersets import *
 from dcim.models import *
 from ipam.models import ASN, IPAddress, RIR, VRF
+from netbox.choices import ColorChoices
 from tenancy.models import Tenant, TenantGroup
-from utilities.choices import ColorChoices
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices, WirelessRoleChoices
-
 
 User = get_user_model()
 
@@ -359,9 +358,9 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
             location.save()
 
         locations = (
-            Location(name='Location 1A', slug='location-1a', site=sites[0], parent=parent_locations[0], status=LocationStatusChoices.STATUS_PLANNED, description='foobar1'),
-            Location(name='Location 2A', slug='location-2a', site=sites[1], parent=parent_locations[1], status=LocationStatusChoices.STATUS_STAGING, description='foobar2'),
-            Location(name='Location 3A', slug='location-3a', site=sites[2], parent=parent_locations[2], status=LocationStatusChoices.STATUS_DECOMMISSIONING, description='foobar3'),
+            Location(name='Location 1A', slug='location-1a', site=sites[0], parent=parent_locations[0], status=LocationStatusChoices.STATUS_PLANNED, facility='Facility 1', description='foobar1'),
+            Location(name='Location 2A', slug='location-2a', site=sites[1], parent=parent_locations[1], status=LocationStatusChoices.STATUS_STAGING, facility='Facility 2', description='foobar2'),
+            Location(name='Location 3A', slug='location-3a', site=sites[2], parent=parent_locations[2], status=LocationStatusChoices.STATUS_DECOMMISSIONING, facility='Facility 3', description='foobar3'),
         )
         for location in locations:
             location.save()
@@ -388,6 +387,10 @@ class LocationTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_status(self):
         params = {'status': [LocationStatusChoices.STATUS_PLANNED, LocationStatusChoices.STATUS_STAGING]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_facility(self):
+        params = {'facility': ['Facility 1', 'Facility 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

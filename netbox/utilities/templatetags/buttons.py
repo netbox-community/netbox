@@ -4,7 +4,8 @@ from django.urls import NoReverseMatch, reverse
 
 from core.models import ObjectType
 from extras.models import Bookmark, ExportTemplate
-from utilities.utils import get_viewname, prepare_cloned_fields
+from utilities.querydict import prepare_cloned_fields
+from utilities.views import get_viewname
 
 __all__ = (
     'add_button',

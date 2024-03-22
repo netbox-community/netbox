@@ -2,7 +2,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from dcim.choices import *
-from utilities.utils import to_grams
+from utilities.conversion import to_grams
 
 __all__ = (
     'RenderConfigMixin',

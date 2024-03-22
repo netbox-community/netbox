@@ -14,8 +14,9 @@ from netaddr.core import AddrFormatError
 from core.models import ObjectType
 from extras.models import CachedValue, CustomField
 from netbox.registry import registry
+from utilities.object_types import object_type_identifier
 from utilities.querysets import RestrictedPrefetch
-from utilities.utils import content_type_identifier, title
+from utilities.string import title
 from . import FieldTypes, LookupTypes, get_indexer
 
 DEFAULT_LOOKUP_TYPE = LookupTypes.PARTIAL
@@ -156,7 +157,7 @@ class CachedValueSearchBackend(SearchBackend):
         # related objects necessary to render the prescribed display attributes (display_attrs).
         for object_type in object_types:
             model = object_type.model_class()
-            indexer = registry['search'].get(content_type_identifier(object_type))
+            indexer = registry['search'].get(object_type_identifier(object_type))
             if not (display_attrs := getattr(indexer, 'display_attrs', None)):
                 continue
 

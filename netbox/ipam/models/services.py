@@ -8,8 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from ipam.choices import *
 from ipam.constants import *
 from netbox.models import PrimaryModel
-from utilities.utils import array_to_string
-
+from utilities.data import array_to_string
 
 __all__ = (
     'Service',

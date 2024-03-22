@@ -12,7 +12,7 @@ from dcim.models import Manufacturer, Rack, Site
 from extras.choices import *
 from extras.models import CustomField, CustomFieldChoiceSet
 from ipam.models import VLAN
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import APITestCase, TestCase
 from virtualization.models import VirtualMachine
 

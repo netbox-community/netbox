@@ -20,7 +20,7 @@ from netbox.api.metadata import ContentTypeMetadata
 from netbox.api.renderers import TextRenderer
 from netbox.api.viewsets import NetBoxModelViewSet
 from utilities.exceptions import RQWorkerNotRunningException
-from utilities.utils import copy_safe_request
+from utilities.request import copy_safe_request
 from . import serializers
 from .mixins import ConfigTemplateRenderMixin
 
