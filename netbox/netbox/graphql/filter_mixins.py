@@ -19,8 +19,9 @@ def map_strawberry_type(field):
     if isinstance(field, ContentTypeFilter):
         should_create_function = True
         attr_type = str | None
-    elif isinstance(field, MACAddressFilter):
-        pass
+    elif isinstance(field, MultiValueMACAddressFilter):
+        should_create_function = True
+        attr_type = List[str] | None
     elif isinstance(field, MultiValueArrayFilter):
         pass
     elif isinstance(field, MultiValueCharFilter):

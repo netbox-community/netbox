@@ -53,18 +53,18 @@ add "&raw" to the end of the URL within a browser.
       }
     </style>
 
-    <script src="{% static 'react.production.min.js' %}"></script>
-    <script src="{% static 'react-dom.production.min.js' %}"></script>
-    <script src="{% static 'js.cookie.min.js' %}"></script>
+    <script src="{% static 'graphiql/react.production.min.js' %}"></script>
+    <script src="{% static 'graphiql/react-dom.production.min.js' %}"></script>
+    <script src="{% static 'graphiql/js.cookie.min.js' %}"></script>
 
-    <link rel="stylesheet" href="{% static 'graphiql.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'plugin-explorer-style.css' %}"/>
+    <link rel="stylesheet" href="{% static 'graphiql/graphiql.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'graphiql/plugin-explorer-style.css' %}"/>
   </head>
 
   <body>
     <div id="graphiql" class="graphiql-container">Loading...</div>
-    <script src="{% static 'graphiql.min.js' %}"></script>
-    <script src="{% static 'index.umd.js' %}"></script>
+    <script src="{% static 'graphiql/graphiql.min.js' %}"></script>
+    <script src="{% static 'graphiql/index.umd.js' %}"></script>
 
     <script>
       const EXAMPLE_QUERY = `# Welcome to GraphiQL 🍓

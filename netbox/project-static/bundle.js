@@ -24,36 +24,44 @@ function copyFiles(files) {
 }
 
 async function bundleGraphIQL() {
-  fileMap = [
+  let fileMap = [
     {
       source: './node_modules/react/umd/react.production.min.js',
-      dest: './dist/react.production.min.js'
+      dest: './dist/graphiql/react.production.min.js'
     },
     {
       source: './node_modules/react-dom/umd/react-dom.production.min.js',
-      dest: './dist/react-dom.production.min.js'
+      dest: './dist/graphiql/react-dom.production.min.js'
     },
     {
       source: './node_modules/js-cookie/dist/js.cookie.min.js',
-      dest: './dist/js.cookie.min.js'
+      dest: './dist/graphiql/js.cookie.min.js'
     },
     {
       source: './node_modules/graphiql/graphiql.min.js',
-      dest: './dist/graphiql.min.js'
+      dest: './dist/graphiql/graphiql.min.js'
     },
     {
       source: './node_modules/@graphiql/plugin-explorer/dist/index.umd.js',
-      dest: './dist/index.umd.js'
+      dest: './dist/graphiql/index.umd.js'
     },
     {
       source: './node_modules/graphiql/graphiql.min.css',
-      dest: './dist/graphiql.min.css'
+      dest: './dist/graphiql/graphiql.min.css'
     },
     {
       source: './node_modules/@graphiql/plugin-explorer/dist/style.css',
-      dest: './dist/plugin-explorer-style.css'
+      dest: './dist/graphiql/plugin-explorer-style.css'
     }
-  ]
+  ];
+
+  try {
+    if (!fs.existsSync('./dist/graphiql/')) {
+      fs.mkdirSync('./dist/graphiql/');
+    }
+  } catch (err) {
+    console.error(err);
+  }
 
   copyFiles(fileMap).then(() => {
      console.log('✅ Copied graphiql files');
