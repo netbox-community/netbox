@@ -2,7 +2,7 @@ import importlib
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
@@ -40,6 +40,9 @@ def run_validators(instance, validators):
         # Constructing a new instance on the fly from a ruleset
         elif type(validator) is dict:
             validator = CustomValidator(validator)
+
+        elif not issubclass(validator.__class__, CustomValidator):
+            raise ImproperlyConfigured(f"Invalid value for custom validator: {validator}")
 
         validator(instance, request)
 
