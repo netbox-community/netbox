@@ -6,7 +6,7 @@ from dcim.views import PathTraceView
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
-from utilities.utils import count_related
+from utilities.query import count_related
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import *

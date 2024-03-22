@@ -5,7 +5,7 @@ from django.forms import BoundField
 from django.urls import reverse
 
 from utilities.forms import widgets
-from utilities.utils import get_viewname
+from utilities.views import get_viewname
 
 __all__ = (
     'DynamicChoiceField',

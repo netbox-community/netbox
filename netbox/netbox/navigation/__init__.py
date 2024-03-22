@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Sequence, Optional
 
-from utilities.choices import ButtonColorChoices
-
 
 __all__ = (
     'get_model_item',

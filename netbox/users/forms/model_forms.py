@@ -12,11 +12,11 @@ from ipam.validators import prefix_validator
 from netbox.preferences import PREFERENCES
 from users.constants import *
 from users.models import *
+from utilities.data import flatten_dict
 from utilities.forms.fields import ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField
 from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 from utilities.permissions import qs_filter_from_constraints
-from utilities.utils import flatten_dict
 
 __all__ = (
     'UserTokenForm',

@@ -1,6 +1,6 @@
 from django import forms
 
-from utilities.choices import ColorChoices
+from netbox.choices import ColorChoices
 from ..utils import add_blank_choice
 
 __all__ = (

@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 from users.constants import CONSTRAINT_TOKEN_USER
 from users.models import Group, ObjectPermission
 from utilities.permissions import (
-    permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_ct,
+    permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_type,
 )
 
 UserModel = get_user_model()
@@ -284,11 +284,9 @@ class RemoteUserBackend(_RemoteUserBackend):
             permissions_list = []
             for permission_name, constraints in settings.REMOTE_AUTH_DEFAULT_PERMISSIONS.items():
                 try:
-                    object_type, action = resolve_permission_ct(
-                        permission_name)
-                    # TODO: Merge multiple actions into a single ObjectPermission per content type
-                    obj_perm = ObjectPermission(
-                        actions=[action], constraints=constraints)
+                    object_type, action = resolve_permission_type(permission_name)
+                    # TODO: Merge multiple actions into a single ObjectPermission per object type
+                    obj_perm = ObjectPermission(actions=[action], constraints=constraints)
                     obj_perm.save()
                     obj_perm.users.add(user)
                     obj_perm.object_types.add(object_type)
@@ -303,7 +301,9 @@ class RemoteUserBackend(_RemoteUserBackend):
                     f"Assigned permissions to remotely-authenticated user {user}: {permissions_list}")
         else:
             logger.debug(
-                f"Skipped initial assignment of permissions and groups to remotely-authenticated user {user} as Group sync is enabled")
+                f"Skipped initial assignment of permissions and groups to remotely-authenticated user {user} as "
+                f"Group sync is enabled"
+            )
 
         return user
 

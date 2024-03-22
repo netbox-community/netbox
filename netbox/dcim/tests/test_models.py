@@ -7,7 +7,7 @@ from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
 from tenancy.models import Tenant
-from utilities.utils import drange
+from utilities.data import drange
 
 
 class LocationTestCase(TestCase):

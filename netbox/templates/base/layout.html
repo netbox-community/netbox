@@ -41,7 +41,7 @@ Blocks:
 
     {# Top menu #}
     <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none">
-      <div class="container-xl">
+      <div class="container-fluid">
 
         {# Nav menu toggle #}
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-menu" aria-controls="navbar-menu" aria-expanded="false" aria-label="Toggle navigation">
@@ -105,7 +105,7 @@ Blocks:
       {# Page body #}
       {% block page %}
         <div class="page-body my-1">
-          <div class="container-xl tab-content py-3">
+          <div class="container-fluid tab-content py-3">
 
             {# Page content #}
             {% block content %}{% endblock %}
@@ -124,7 +124,7 @@ Blocks:
 
       {# Page footer #}
       <footer class="footer footer-transparent d-print-none py-2">
-        <div class="container-xl d-flex justify-content-between align-items-center">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
           {% block footer %}
 
             {# Footer links #}

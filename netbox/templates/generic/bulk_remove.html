@@ -33,9 +33,11 @@
         </div>
       </div>
     </div>
-    <div class="container-xl px-0">
-      <div class="table-responsive">
-        {% render_table table 'inc/table.html' %}
+    <div class="container-fluid px-0">
+      <div class="card">
+        <div class="table-responsive">
+          {% render_table table 'inc/table.html' %}
+        </div>
       </div>
       <form action="." method="post" class="form">
         {% csrf_token %}

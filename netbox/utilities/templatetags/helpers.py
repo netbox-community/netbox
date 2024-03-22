@@ -12,7 +12,7 @@ from django.utils.safestring import mark_safe
 
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
-from utilities.utils import get_viewname
+from utilities.views import get_viewname
 
 __all__ = (
     'annotated_date',

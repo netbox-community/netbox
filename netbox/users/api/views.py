@@ -14,8 +14,8 @@ from rest_framework.viewsets import ViewSet
 from netbox.api.viewsets import NetBoxModelViewSet
 from users import filtersets
 from users.models import Group, ObjectPermission, Token, UserConfig
+from utilities.data import deepmerge
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import deepmerge
 from . import serializers
 
 

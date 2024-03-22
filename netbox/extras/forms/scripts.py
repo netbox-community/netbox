@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 
 from extras.choices import DurationChoices
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
-from utilities.utils import local_now
+from utilities.datetime import local_now
 
 __all__ = (
     'ScriptForm',

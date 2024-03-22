@@ -1,7 +1,7 @@
 from django import forms
 from django.test import TestCase
 
-from utilities.choices import ImportFormatChoices
+from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern

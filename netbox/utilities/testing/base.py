@@ -12,8 +12,8 @@ from taggit.managers import TaggableManager
 
 from core.models import ObjectType
 from users.models import ObjectPermission
-from utilities.permissions import resolve_permission_ct
-from utilities.utils import content_type_identifier
+from utilities.object_types import object_type_identifier
+from utilities.permissions import resolve_permission_type
 from .utils import extract_form_failures
 
 __all__ = (
@@ -44,11 +44,11 @@ class TestCase(_TestCase):
         Assign a set of permissions to the test user. Accepts permission names in the form <app>.<action>_<model>.
         """
         for name in names:
-            ct, action = resolve_permission_ct(name)
+            object_type, action = resolve_permission_type(name)
             obj_perm = ObjectPermission(name=name, actions=[action])
             obj_perm.save()
             obj_perm.users.add(self.user)
-            obj_perm.object_types.add(ct)
+            obj_perm.object_types.add(object_type)
 
     #
     # Custom assertions
@@ -114,7 +114,7 @@ class ModelTestCase(TestCase):
             if value and type(field) in (ManyToManyField, TaggableManager):
 
                 if field.related_model in (ContentType, ObjectType) and api:
-                    model_dict[key] = sorted([content_type_identifier(ct) for ct in value])
+                    model_dict[key] = sorted([object_type_identifier(ot) for ot in value])
                 else:
                     model_dict[key] = sorted([obj.pk for obj in value])
 
@@ -122,8 +122,8 @@ class ModelTestCase(TestCase):
 
                 # Replace ContentType numeric IDs with <app_label>.<model>
                 if type(getattr(instance, key)) in (ContentType, ObjectType):
-                    ct = ObjectType.objects.get(pk=value)
-                    model_dict[key] = content_type_identifier(ct)
+                    object_type = ObjectType.objects.get(pk=value)
+                    model_dict[key] = object_type_identifier(object_type)
 
                 # Convert IPNetwork instances to strings
                 elif type(value) is IPNetwork:
