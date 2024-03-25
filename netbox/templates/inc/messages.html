@@ -1,6 +1,6 @@
 {% load helpers %}
 
-<div id="django-messages" class="toast-container position-fixed bottom-0 end-0 p-3">
+<div id="django-messages" class="toast-container position-fixed bottom-0 end-0 p-3" hx-swap-oob="true">
 
   {# Non-Field Form Errors #}
   {% if form and form.non_field_errors %}
