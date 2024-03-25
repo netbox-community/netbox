@@ -12,7 +12,7 @@ Group=netbox
 PIDFile=/var/tmp/netbox.pid
 WorkingDirectory=/opt/netbox
 
-ExecStart=/opt/netbox/venv/bin/uwsgi --ini /opt/netbox/netbox/local/uwsgi.ini
+ExecStart=/opt/netbox/venv/bin/uwsgi --ini /opt/netbox/uwsgi.ini
 
 Restart=on-failure
 RestartSec=30
