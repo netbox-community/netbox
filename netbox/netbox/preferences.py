@@ -26,8 +26,8 @@ PREFERENCES = {
     'ui.htmx_navigation': UserPreference(
         label=_('HTMX Navigation'),
         choices=(
+            ('', _('Disabled')),
             ('true', _('Enabled')),
-            ('false', _('Disabled')),
         ),
         default=False
     ),
