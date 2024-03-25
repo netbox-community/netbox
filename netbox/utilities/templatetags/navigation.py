@@ -1,11 +1,11 @@
-from typing import Dict
 from django import template
-from django.template import Context
+from django.utils.safestring import mark_safe
 
 from netbox.navigation.menu import MENUS
 
 __all__ = (
     'nav',
+    'htmx_boost',
 )
 
 
@@ -13,7 +13,7 @@ register = template.Library()
 
 
 @register.inclusion_tag("navigation/menu.html", takes_context=True)
-def nav(context: Context) -> Dict:
+def nav(context):
     """
     Render the navigation menu.
     """
@@ -43,3 +43,19 @@ def nav(context: Context) -> Dict:
         'nav_items': nav_items,
         'htmx_navigation': context['htmx_navigation']
     }
+
+
+@register.simple_tag(takes_context=True)
+def htmx_boost(context, target='#page-content', select='#page-content'):
+    if not context.get('htmx_navigation'):
+        return ''
+    hx_params = {
+        'hx-boost': 'true',
+        'hx-target': target,
+        'hx-select': select,
+        'hx-swap': 'outerHTML show:window:top',
+    }
+    htmx_params = ' '.join([
+        f'{k}="{v}"' for k, v in hx_params.items()
+    ])
+    return mark_safe(htmx_params)
