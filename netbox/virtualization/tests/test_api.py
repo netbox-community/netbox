@@ -239,7 +239,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
         vm.config_template = configtemplate
         vm.save()
 
-        self.add_permissions('virtualization.add_virtualmachine')
+        self.add_permissions('virtualization.view_virtualmachine')
         url = reverse('virtualization-api:virtualmachine-detail', kwargs={'pk': vm.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)

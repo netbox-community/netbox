@@ -4,6 +4,8 @@ from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.status import HTTP_400_BAD_REQUEST
 
+from dcim.models import Device
+from netbox.api.authentication import ViewOnlyPermissions
 from netbox.api.renderers import TextRenderer
 from .nested_serializers import NestedConfigTemplateSerializer
 
@@ -62,13 +64,22 @@ class ConfigTemplateRenderMixin:
 
 class RenderConfigMixin(ConfigTemplateRenderMixin):
     """
+    Override initial() to save a copy of the queryset for "un-restricting" the queryset when rendering.
+    """
+    def initial(self, request, *args, **kwargs):
+        self.original_queryset = self.queryset
+        super().initial(request, *args, **kwargs)
+
+    """
     Provides a /render-config/ endpoint for REST API views whose model may have a ConfigTemplate assigned.
     """
-    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer])
+    @action(detail=True, methods=['post'], url_path='render-config', renderer_classes=[JSONRenderer, TextRenderer],
+            permission_classes=[ViewOnlyPermissions])
     def render_config(self, request, pk):
         """
         Resolve and render the preferred ConfigTemplate for this Device.
         """
+        self.queryset = self.original_queryset.restrict(request.user, 'view')
         instance = self.get_object()
         object_type = instance._meta.model_name
         configtemplate = instance.get_config_template()

@@ -1277,7 +1277,7 @@ class DeviceTest(APIViewTestCases.APIViewTestCase):
         device.config_template = configtemplate
         device.save()
 
-        self.add_permissions('dcim.add_device')
+        self.add_permissions('dcim.view_device')
         url = reverse('dcim-api:device-detail', kwargs={'pk': device.pk}) + 'render-config/'
         response = self.client.post(url, {}, format='json', **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)

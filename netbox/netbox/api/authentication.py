@@ -124,6 +124,21 @@ class TokenPermissions(DjangoObjectPermissions):
         return super().has_object_permission(request, view, obj)
 
 
+class ViewOnlyPermissions(TokenPermissions):
+    """
+    Override the stock perm_map to require only view permissions
+    """
+    perms_map = {
+        'GET': ['%(app_label)s.view_%(model_name)s'],
+        'OPTIONS': [],
+        'HEAD': ['%(app_label)s.view_%(model_name)s'],
+        'POST': ['%(app_label)s.view_%(model_name)s'],
+        'PUT': ['%(app_label)s.view_%(model_name)s'],
+        'PATCH': ['%(app_label)s.view_%(model_name)s'],
+        'DELETE': ['%(app_label)s.view_%(model_name)s'],
+    }
+
+
 class IsAuthenticatedOrLoginNotRequired(BasePermission):
     """
     Returns True if the user is authenticated or LOGIN_REQUIRED is False.
