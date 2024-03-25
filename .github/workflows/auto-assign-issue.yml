@@ -1,0 +1,20 @@
+# auto-assign-issue (https://github.com/marketplace/actions/auto-assign-issue)
+name: Issue assignment
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pozil/auto-assign-issue@v1
+        with:
+          # Some assignees are listed multiple times to effect a weighted rotation
+          assignees: jeremystretch,jeremystretch,jeremystretch,jeremystretch,arthanson,arthanson,arthanson,arthanson,DanSheps,abhi1693
+          numOfAssignee: 1
+          abortIfPreviousAssignees: true
