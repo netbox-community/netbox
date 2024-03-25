@@ -10,7 +10,7 @@ NetBox ships with a default configuration file for uWSGI. To use it, copy `/opt/
 sudo cp /opt/netbox/contrib/uwsgi.ini /opt/netbox/uwsgi.ini
 ```
 
-While the provided configuration should suffice for most initial installations, you may wish to edit this file to change the bound IP address and/or port number, or to make performance-related adjustments. See [the uWSGI documentation](https://uwsgi-docs-additions.readthedocs.io/en/latest/Options.html) for the available configuration parameters.  Django also provides [additional documentation](https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/uwsgi/) on configuring uWSGI with a Django app.
+While the provided configuration should suffice for most initial installations, you may wish to edit this file to change the bound IP address and/or port number, or to make performance-related adjustments. See [the uWSGI documentation](https://uwsgi-docs-additions.readthedocs.io/en/latest/Options.html) for the available configuration parameters and check the [Things to know](https://uwsgi-docs.readthedocs.io/en/latest/ThingsToKnow.html) page in the uWSGI documentation.  Django also provides [additional documentation](https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/uwsgi/) on configuring uWSGI with a Django app.
 
 ## systemd Setup
 
