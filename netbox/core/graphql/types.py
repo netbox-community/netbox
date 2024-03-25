@@ -1,5 +1,11 @@
-from core import filtersets, models
+from typing import Annotated, List
+
+import strawberry
+import strawberry_django
+
+from core import models
 from netbox.graphql.types import BaseObjectType, NetBoxObjectType
+from .filters import *
 
 __all__ = (
     'DataFileType',
@@ -7,15 +13,22 @@ __all__ = (
 )
 
 
+@strawberry_django.type(
+    models.DataFile,
+    exclude=['data',],
+    filters=DataFileFilter
+)
 class DataFileType(BaseObjectType):
-    class Meta:
-        model = models.DataFile
-        exclude = ('data',)
-        filterset_class = filtersets.DataFileFilterSet
+    source: Annotated["DataSourceType", strawberry.lazy('core.graphql.types')]
 
 
+@strawberry_django.type(
+    models.DataSource,
+    fields='__all__',
+    filters=DataSourceFilter
+)
 class DataSourceType(NetBoxObjectType):
-    class Meta:
-        model = models.DataSource
-        fields = '__all__'
-        filterset_class = filtersets.DataSourceFilterSet
+
+    @strawberry_django.field
+    def datafiles(self) -> List[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]:
+        return self.datafiles.all()

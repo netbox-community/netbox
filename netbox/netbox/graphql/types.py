@@ -1,4 +1,8 @@
-import graphene
+from typing import Annotated, List
+
+import strawberry
+from strawberry import auto
+import strawberry_django
 
 from core.models import ObjectType as ObjectType_
 from django.contrib.contenttypes.models import ContentType
@@ -8,13 +12,10 @@ from extras.graphql.mixins import (
     JournalEntriesMixin,
     TagsMixin,
 )
-from graphene_django import DjangoObjectType
 
 __all__ = (
     'BaseObjectType',
-    'ContentTypeType',
     'ObjectType',
-    'ObjectTypeType',
     'OrganizationalObjectType',
     'NetBoxObjectType',
 )
@@ -24,26 +25,27 @@ __all__ = (
 # Base types
 #
 
-class BaseObjectType(DjangoObjectType):
+@strawberry.type
+class BaseObjectType:
     """
     Base GraphQL object type for all NetBox objects. Restricts the model queryset to enforce object permissions.
     """
-    display = graphene.String()
-    class_type = graphene.String()
-
-    class Meta:
-        abstract = True
 
     @classmethod
-    def get_queryset(cls, queryset, info):
+    def get_queryset(cls, queryset, info, **kwargs):
         # Enforce object permissions on the queryset
-        return queryset.restrict(info.context.user, 'view')
+        if hasattr(queryset, 'restrict'):
+            return queryset.restrict(info.context.request.user, 'view')
+        else:
+            return queryset
 
-    def resolve_display(parent, info, **kwargs):
-        return str(parent)
+    @strawberry_django.field
+    def display(self) -> str:
+        return str(self)
 
-    def resolve_class_type(parent, info, **kwargs):
-        return parent.__class__.__name__
+    @strawberry_django.field
+    def class_type(self) -> str:
+        return self.__class__.__name__
 
 
 class ObjectType(
@@ -53,8 +55,7 @@ class ObjectType(
     """
     Base GraphQL object type for unclassified models which support change logging
     """
-    class Meta:
-        abstract = True
+    pass
 
 
 class OrganizationalObjectType(
@@ -66,8 +67,7 @@ class OrganizationalObjectType(
     """
     Base type for organizational models
     """
-    class Meta:
-        abstract = True
+    pass
 
 
 class NetBoxObjectType(
@@ -80,23 +80,24 @@ class NetBoxObjectType(
     """
     GraphQL type for most NetBox models. Includes support for custom fields, change logging, journaling, and tags.
     """
-    class Meta:
-        abstract = True
+    pass
 
 
 #
 # Miscellaneous types
 #
 
-class ContentTypeType(DjangoObjectType):
+@strawberry_django.type(
+    ContentType,
+    fields=['id', 'app_label', 'model'],
+)
+class ContentTypeType:
+    pass
 
-    class Meta:
-        model = ContentType
-        fields = ('id', 'app_label', 'model')
 
-
-class ObjectTypeType(DjangoObjectType):
-
-    class Meta:
-        model = ObjectType_
-        fields = ('id', 'app_label', 'model')
+@strawberry_django.type(
+    ObjectType_,
+    fields=['id', 'app_label', 'model'],
+)
+class ObjectTypeType:
+    pass

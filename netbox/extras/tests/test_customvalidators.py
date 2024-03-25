@@ -4,7 +4,7 @@ from django.db import transaction
 from django.test import TestCase, override_settings
 
 from dcim.choices import SiteStatusChoices
-from dcim.models import Site
+from dcim.models import Site, Region
 from extras.validators import CustomValidator
 from ipam.models import ASN, RIR
 from users.models import User
@@ -82,6 +82,13 @@ prohibited_validator = CustomValidator({
 })
 
 
+region_validator = CustomValidator({
+    'region.name': {
+        'eq': 'Bar',
+    }
+})
+
+
 request_validator = CustomValidator({
     'request.user.username': {
         'eq': 'Bob'
@@ -154,6 +161,20 @@ class CustomValidatorTest(TestCase):
     def test_valid(self):
         Site(name='abcdef123', slug='abcdef123').clean()
 
+    @override_settings(CUSTOM_VALIDATORS={'dcim.site': [region_validator]})
+    def test_valid(self):
+        region1 = Region(name='Foo', slug='foo')
+        region1.save()
+        region2 = Region(name='Bar', slug='bar')
+        region2.save()
+
+        # Invalid region
+        with self.assertRaises(ValidationError):
+            Site(name='abcdef123', slug='abcdef123', region=region1).clean()
+
+        # Valid region
+        Site(name='abcdef123', slug='abcdef123', region=region2).clean()
+
     @override_settings(CUSTOM_VALIDATORS={'dcim.site': [custom_validator]})
     def test_custom_invalid(self):
         with self.assertRaises(ValidationError):
@@ -207,7 +228,7 @@ class CustomValidatorConfigTest(TestCase):
     @override_settings(
         CUSTOM_VALIDATORS={
             'dcim.site': (
-                'extras.tests.test_customvalidation.MyValidator',
+                'extras.tests.test_customvalidators.MyValidator',
             )
         }
     )
@@ -254,7 +275,7 @@ class ProtectionRulesConfigTest(TestCase):
     @override_settings(
         PROTECTION_RULES={
             'dcim.site': (
-                'extras.tests.test_customvalidation.MyValidator',
+                'extras.tests.test_customvalidators.MyValidator',
             )
         }
     )

@@ -151,13 +151,13 @@ class CustomValidator:
             return []
 
         # Raise a ValidationError for unknown attributes
-        if not hasattr(instance, name):
+        try:
+            return operator.attrgetter(name)(instance)
+        except AttributeError:
             raise ValidationError(_('Invalid attribute "{name}" for {model}').format(
                 name=name,
                 model=instance.__class__.__name__
             ))
-
-        return getattr(instance, name)
 
     def get_validator(self, descriptor, value):
         """
