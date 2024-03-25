@@ -89,6 +89,6 @@ If you are unable to connect to the HTTP server, check that:
 
 If you are able to connect but receive a 502 (bad gateway) error, check the following:
 
-* The WSGI worker processes (gunicorn) are running (`systemctl status netbox` should show a status of "active (running)")
+* The WSGI worker processes (uWSGI) are running (`systemctl status netbox` should show a status of "active (running)")
 * Nginx/Apache is configured to connect to the port on which gunicorn is listening (default is 8001).
 * SELinux is not preventing the reverse proxy connection. You may need to allow HTTP network connections with the command `setsebool -P httpd_can_network_connect 1`
