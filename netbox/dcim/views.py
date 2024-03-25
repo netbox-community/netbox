@@ -25,8 +25,8 @@ from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
-from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
@@ -727,7 +727,6 @@ class RackNonRackedView(generic.ObjectChildrenView):
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
     form = forms.RackForm
-    template_name = 'dcim/rack_edit.html'
 
 
 @register_model_view(Rack, 'delete')
@@ -2925,14 +2924,12 @@ class InventoryItemView(generic.ObjectView):
 class InventoryItemEditView(generic.ObjectEditView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemForm
-    template_name = 'dcim/inventoryitem_edit.html'
 
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
-    template_name = 'dcim/inventoryitem_edit.html'
 
 
 @register_model_view(InventoryItem, 'delete')

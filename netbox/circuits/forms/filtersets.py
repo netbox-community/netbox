@@ -8,6 +8,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -22,10 +23,10 @@ __all__ = (
 class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('ASN'), ('asn',)),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('asn', name=_('ASN')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -61,8 +62,8 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('provider_id', 'account')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'account', name=_('Attributes')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -79,8 +80,8 @@ class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
 class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('provider_id', 'service_id')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'service_id', name=_('Attributes')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -98,8 +99,8 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
 class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('color',)),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('color', name=_('Attributes')),
     )
     tag = TagFilterField(model)
 
@@ -112,12 +113,12 @@ class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Provider'), ('provider_id', 'provider_account_id', 'provider_network_id')),
-        (_('Attributes'), ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
+        FieldSet('type_id', 'status', 'install_date', 'termination_date', 'commit_rate', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     selector_fields = ('filter_id', 'q', 'region_id', 'site_group_id', 'site_id', 'provider_id', 'provider_network_id')
     type_id = DynamicModelMultipleChoiceField(

@@ -127,11 +127,10 @@ class ContactAssignmentFilterSet(NetBoxModelFilterSet):
         to_field_name='slug',
         label=_('Contact role (slug)'),
     )
-    tag = TagFilter()
 
     class Meta:
         model = ContactAssignment
-        fields = ('id', 'object_type_id', 'object_id', 'priority', 'tag')
+        fields = ('id', 'object_type_id', 'object_id', 'priority')
 
     def search(self, queryset, name, value):
         if not value.strip():

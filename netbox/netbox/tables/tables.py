@@ -17,7 +17,9 @@ from extras.models import CustomField, CustomLink
 from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
-from utilities.utils import get_viewname, highlight_string, title
+from utilities.html import highlight
+from utilities.string import title
+from utilities.views import get_viewname
 from .template_code import *
 
 __all__ = (
@@ -273,6 +275,6 @@ class SearchTable(tables.Table):
         if not self.highlight:
             return value
 
-        value = highlight_string(value, self.highlight, trim_pre=self.trim_length, trim_post=self.trim_length)
+        value = highlight(value, self.highlight, trim_pre=self.trim_length, trim_post=self.trim_length)
 
         return mark_safe(value)

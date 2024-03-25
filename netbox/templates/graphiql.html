@@ -1,6 +1,6 @@
 {% comment %}
-  This template derives from the graphene-django project:
-  https://github.com/graphql-python/graphene-django/blob/main/graphene_django/templates/graphene/graphiql.html
+  This template derives from the strawberry-graphql project:
+  https://github.com/strawberry-graphql/strawberry/blob/main/strawberry/static/graphiql.html
 {% endcomment %}
 <!--
 The request to this GraphQL server provided the header "Accept: text/html"
@@ -11,36 +11,130 @@ add "&raw" to the end of the URL within a browser.
 -->
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
+    <title>GraphiQL | NetBox</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,
+        <svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22>
+            <!-- Strawberry Emoji as a HTML Entity (hex)  -->
+            <text y=%22.9em%22 font-size=%2280%22>&#x1f353;</text>
+        </svg>"
+    />
     <style>
-      html, body, #editor {
+      body {
         height: 100%;
         margin: 0;
-        overflow: hidden;
         width: 100%;
+        overflow: hidden;
+      }
+
+      #graphiql {
+        height: 100vh;
+        display: flex;
+      }
+
+      .docExplorerHide {
+        display: none;
+      }
+
+      .doc-explorer-contents {
+        overflow-y: hidden !important;
+      }
+
+      .docExplorerWrap {
+        width: unset !important;
+        min-width: unset !important;
+      }
+
+      .graphiql-explorer-actions select {
+        margin-left: 4px;
       }
     </style>
-    <link href="{% static 'graphiql.css'%}" rel="stylesheet" />
-    <link rel="icon" type="image/png" href="{% static 'graphql.ico' %}" />
-    <title>GraphiQL | NetBox</title>
+
+    <script src="{% static 'graphiql/react.production.min.js' %}"></script>
+    <script src="{% static 'graphiql/react-dom.production.min.js' %}"></script>
+    <script src="{% static 'graphiql/js.cookie.min.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'graphiql/graphiql.min.css' %}"/>
+    <link rel="stylesheet" href="{% static 'graphiql/plugin-explorer-style.css' %}"/>
   </head>
+
   <body>
-    <div id="editor"></div>
-    {% csrf_token %}
-    <script type="application/javascript">
-      window.GRAPHENE_SETTINGS = {
-      {% if subscription_path %}
-        subscriptionPath: "{{subscription_path}}",
-      {% endif %}
-        graphiqlHeaderEditorEnabled: {{ graphiql_header_editor_enabled|yesno:"true,false" }},
-      };
+    <div id="graphiql" class="graphiql-container">Loading...</div>
+    <script src="{% static 'graphiql/graphiql.min.js' %}"></script>
+    <script src="{% static 'graphiql/index.umd.js' %}"></script>
+
+    <script>
+      const EXAMPLE_QUERY = `# Welcome to GraphiQL 🍓
+#
+# GraphiQL is an in-browser tool for writing, validating, and
+# testing GraphQL queries.
+#
+# Type queries into this side of the screen, and you will see intelligent
+# typeaheads aware of the current GraphQL type schema and live syntax and
+# validation errors highlighted within the text.
+#
+# GraphQL queries typically start with a "{" character. Lines that starts
+# with a # are ignored.
+#
+# An example GraphQL query might look like:
+#
+#     {
+#       field(arg: "value") {
+#         subField
+#       }
+#     }
+#
+# Keyboard shortcuts:
+#
+#       Run Query:  Ctrl-Enter (or press the play button above)
+#
+#   Auto Complete:  Ctrl-Space (or just start typing)
+#
+`;
+
+      const fetchURL = window.location.href;
+
+      function httpUrlToWebSockeUrl(url) {
+        const parsedURL = new URL(url);
+        const protocol = parsedURL.protocol === "http:" ? "ws:" : "wss:";
+        parsedURL.protocol = protocol;
+        parsedURL.hash = "";
+        return parsedURL.toString();
+      }
+
+      const headers = {};
+      const csrfToken = Cookies.get("csrftoken");
+
+      if (csrfToken) {
+        headers["x-csrftoken"] = csrfToken;
+      }
+
+      const subscriptionsEnabled = JSON.parse("{{ SUBSCRIPTION_ENABLED }}");
+      const subscriptionUrl = subscriptionsEnabled
+        ? httpUrlToWebSockeUrl(fetchURL)
+        : null;
+
+      const fetcher = GraphiQL.createFetcher({
+        url: fetchURL,
+        headers: headers,
+        subscriptionUrl,
+      });
+
+      const explorerPlugin = GraphiQLPluginExplorer.explorerPlugin();
+
+      const root = ReactDOM.createRoot(document.getElementById("graphiql"));
+
+      root.render(
+        React.createElement(GraphiQL, {
+          fetcher: fetcher,
+          defaultEditorToolsVisibility: true,
+          plugins: [explorerPlugin],
+          inputValueDeprecation: true,
+        }),
+      );
     </script>
-    <script
-      type="text/javascript"
-      src="{% static 'graphiql.js' %}"
-      onerror="window.location='{% url 'media_failure' %}?filename=graphiql.js'">
-    </script>
-    <script src="{% static 'graphene_django/graphiql.js' %}"></script>
   </body>
 </html>

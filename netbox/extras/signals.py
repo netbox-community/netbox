@@ -1,7 +1,8 @@
+import importlib
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
@@ -13,7 +14,6 @@ from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
 from extras.models import EventRule
-from extras.validators import run_validators
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
 from netbox.models.features import ChangeLoggingMixin
@@ -22,6 +22,30 @@ from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
 from .events import enqueue_object, get_snapshots, serialize_for_event
 from .models import CustomField, ObjectChange, TaggedItem
+from .validators import CustomValidator
+
+
+def run_validators(instance, validators):
+    """
+    Run the provided iterable of validators for the instance.
+    """
+    request = current_request.get()
+    for validator in validators:
+
+        # Loading a validator class by dotted path
+        if type(validator) is str:
+            module, cls = validator.rsplit('.', 1)
+            validator = getattr(importlib.import_module(module), cls)()
+
+        # Constructing a new instance on the fly from a ruleset
+        elif type(validator) is dict:
+            validator = CustomValidator(validator)
+
+        elif not issubclass(validator.__class__, CustomValidator):
+            raise ImproperlyConfigured(f"Invalid value for custom validator: {validator}")
+
+        validator(instance, request)
+
 
 #
 # Change logging/webhooks

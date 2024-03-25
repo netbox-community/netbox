@@ -9,6 +9,7 @@ from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import ContactModelFilterForm, TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES
 from utilities.forms.fields import DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.rendering import FieldSet
 from virtualization.choices import *
 from virtualization.models import *
 from vpn.models import L2VPN
@@ -32,19 +33,19 @@ class ClusterGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = ClusterGroup
     tag = TagFilterField(model)
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
 
 
 class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Cluster
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('group_id', 'type_id', 'status')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('group_id', 'type_id', 'status', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     selector_fields = ('filter_id', 'q', 'group_id')
     type_id = DynamicModelMultipleChoiceField(
@@ -94,12 +95,15 @@ class VirtualMachineFilterForm(
 ):
     model = VirtualMachine
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Cluster'), ('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('Attributes'), ('status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id', 'local_context_data')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('cluster_group_id', 'cluster_type_id', 'cluster_id', 'device_id', name=_('Cluster')),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet(
+            'status', 'role_id', 'platform_id', 'mac_address', 'has_primary_ip', 'config_template_id',
+            'local_context_data', name=_('Attributes')
+        ),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
@@ -185,9 +189,9 @@ class VirtualMachineFilterForm(
 class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     model = VMInterface
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Virtual Machine'), ('cluster_id', 'virtual_machine_id')),
-        (_('Attributes'), ('enabled', 'mac_address', 'vrf_id', 'l2vpn_id')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('cluster_id', 'virtual_machine_id', name=_('Virtual Machine')),
+        FieldSet('enabled', 'mac_address', 'vrf_id', 'l2vpn_id', name=_('Attributes')),
     )
     selector_fields = ('filter_id', 'q', 'virtual_machine_id')
     cluster_id = DynamicModelMultipleChoiceField(
@@ -230,9 +234,9 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
 class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
     model = VirtualDisk
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Virtual Machine'), ('virtual_machine_id',)),
-        (_('Attributes'), ('size',)),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('virtual_machine_id', name=_('Virtual Machine')),
+        FieldSet('size', name=_('Attributes')),
     )
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),

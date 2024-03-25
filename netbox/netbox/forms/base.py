@@ -24,7 +24,7 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
     Base form for creating & editing NetBox models. Extends Django's ModelForm to add support for custom fields.
 
     Attributes:
-        fieldsets: An iterable of two-tuples which define a heading and field set to display per section of
+        fieldsets: An iterable of FieldSets which define a name and set of fields to display per section of
             the rendered form (optional). If not defined, the all fields will be rendered as a single section.
     """
     fieldsets = ()

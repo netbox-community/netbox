@@ -1,4 +1,8 @@
+import warnings
+
 from django import template
+
+from utilities.forms.rendering import FieldSet, InlineFields, ObjectAttribute, TabbedGroups
 
 __all__ = (
     'getfield',
@@ -45,6 +49,72 @@ def widget_type(field):
 # Inclusion tags
 #
 
+@register.inclusion_tag('form_helpers/render_fieldset.html')
+def render_fieldset(form, fieldset):
+    """
+    Render a group set of fields.
+    """
+    # TODO: Remove in NetBox v4.1
+    # Handle legacy tuple-based fieldset definitions, e.g. (_('Label'), ('field1, 'field2', 'field3'))
+    if type(fieldset) is not FieldSet:
+        warnings.warn(
+            f"{form.__class__} fieldsets contains a non-FieldSet item: {fieldset}"
+        )
+        name, fields = fieldset
+        fieldset = FieldSet(*fields, name=name)
+
+    rows = []
+    for item in fieldset.items:
+
+        # Multiple fields side-by-side
+        if type(item) is InlineFields:
+            fields = [
+                form[name] for name in item.fields if name in form.fields
+            ]
+            rows.append(
+                ('inline', item.label, fields)
+            )
+
+        # Tabbed groups of fields
+        elif type(item) is TabbedGroups:
+            tabs = [
+                {
+                    'id': tab['id'],
+                    'title': tab['title'],
+                    'active': bool(form.initial.get(tab['fields'][0], False)),
+                    'fields': [form[name] for name in tab['fields'] if name in form.fields]
+                } for tab in item.tabs
+            ]
+            # If none of the tabs has been marked as active, activate the first one
+            if not any(tab['active'] for tab in tabs):
+                tabs[0]['active'] = True
+            rows.append(
+                ('tabs', None, tabs)
+            )
+
+        elif type(item) is ObjectAttribute:
+            value = getattr(form.instance, item.name)
+            label = value._meta.verbose_name if hasattr(value, '_meta') else item.name
+            rows.append(
+                ('attribute', label.title(), [value])
+            )
+
+        # A single form field
+        elif item in form.fields:
+            field = form[item]
+            # Annotate nullability for bulk editing
+            if field.name in getattr(form, 'nullable_fields', []):
+                field._nullable = True
+            rows.append(
+                ('field', None, [field])
+            )
+
+    return {
+        'heading': fieldset.name,
+        'rows': rows,
+    }
+
+
 @register.inclusion_tag('form_helpers/render_field.html')
 def render_field(field, bulk_nullable=False, label=None):
     """
@@ -53,7 +123,7 @@ def render_field(field, bulk_nullable=False, label=None):
     return {
         'field': field,
         'label': label or field.label,
-        'bulk_nullable': bulk_nullable,
+        'bulk_nullable': bulk_nullable or getattr(field, '_nullable', False),
     }
 
 

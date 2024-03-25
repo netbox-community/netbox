@@ -9,7 +9,8 @@ from netbox.forms.mixins import SavedFiltersMixin
 from netbox.utils import get_data_backend_choices
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import ContentTypeChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.widgets import APISelectMultiple, DateTimePicker
+from utilities.forms.rendering import FieldSet
+from utilities.forms.widgets import DateTimePicker
 
 __all__ = (
     'ConfigRevisionFilterForm',
@@ -22,8 +23,8 @@ __all__ = (
 class DataSourceFilterForm(NetBoxModelFilterSetForm):
     model = DataSource
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Data Source'), ('type', 'status')),
+        FieldSet('q', 'filter_id'),
+        FieldSet('type', 'status', name=_('Data Source')),
     )
     type = forms.MultipleChoiceField(
         label=_('Type'),
@@ -47,8 +48,8 @@ class DataSourceFilterForm(NetBoxModelFilterSetForm):
 class DataFileFilterForm(NetBoxModelFilterSetForm):
     model = DataFile
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('File'), ('source_id',)),
+        FieldSet('q', 'filter_id'),
+        FieldSet('source_id', name=_('File')),
     )
     source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
@@ -59,12 +60,12 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
 
 class JobFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
-        (_('Attributes'), ('object_type', 'status')),
-        (_('Creation'), (
+        FieldSet('q', 'filter_id'),
+        FieldSet('object_type', 'status', name=_('Attributes')),
+        FieldSet(
             'created__before', 'created__after', 'scheduled__before', 'scheduled__after', 'started__before',
-            'started__after', 'completed__before', 'completed__after', 'user',
-        )),
+            'started__after', 'completed__before', 'completed__after', 'user', name=_('Creation')
+        ),
     )
     object_type = ContentTypeChoiceField(
         label=_('Object Type'),
@@ -125,5 +126,5 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
 
 class ConfigRevisionFilterForm(SavedFiltersMixin, FilterForm):
     fieldsets = (
-        (None, ('q', 'filter_id')),
+        FieldSet('q', 'filter_id'),
     )

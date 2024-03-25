@@ -1,8 +1,12 @@
-import graphene
+from typing import Annotated, List, Union
+
+import strawberry
+import strawberry_django
 
 from extras.graphql.mixins import ContactsMixin, CustomFieldsMixin, TagsMixin
 from netbox.graphql.types import ObjectType, OrganizationalObjectType, NetBoxObjectType
-from vpn import filtersets, models
+from vpn import models
+from .filters import *
 
 __all__ = (
     'IKEPolicyType',
@@ -18,81 +22,147 @@ __all__ = (
 )
 
 
+@strawberry_django.type(
+    models.TunnelGroup,
+    fields='__all__',
+    filters=TunnelGroupFilter
+)
 class TunnelGroupType(OrganizationalObjectType):
 
-    class Meta:
-        model = models.TunnelGroup
-        fields = '__all__'
-        filterset_class = filtersets.TunnelGroupFilterSet
+    @strawberry_django.field
+    def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.tunnels.all()
 
 
+@strawberry_django.type(
+    models.TunnelTermination,
+    fields='__all__',
+    filters=TunnelTerminationFilter
+)
 class TunnelTerminationType(CustomFieldsMixin, TagsMixin, ObjectType):
-
-    class Meta:
-        model = models.TunnelTermination
-        fields = '__all__'
-        filterset_class = filtersets.TunnelTerminationFilterSet
+    tunnel: Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]
+    termination_type: Annotated["ContentTypeType", strawberry.lazy('netbox.graphql.types')] | None
+    outside_ip: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
 
 
+@strawberry_django.type(
+    models.Tunnel,
+    fields='__all__',
+    filters=TunnelFilter
+)
 class TunnelType(NetBoxObjectType):
+    group: Annotated["TunnelGroupType", strawberry.lazy('vpn.graphql.types')] | None
+    ipsec_profile: Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')] | None
+    tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    class Meta:
-        model = models.Tunnel
-        fields = '__all__'
-        filterset_class = filtersets.TunnelFilterSet
+    @strawberry_django.field
+    def terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.terminations.all()
 
 
+@strawberry_django.type(
+    models.IKEProposal,
+    fields='__all__',
+    filters=IKEProposalFilter
+)
 class IKEProposalType(OrganizationalObjectType):
 
-    class Meta:
-        model = models.IKEProposal
-        fields = '__all__'
-        filterset_class = filtersets.IKEProposalFilterSet
+    @strawberry_django.field
+    def ike_policies(self) -> List[Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ike_policies.all()
 
 
+@strawberry_django.type(
+    models.IKEPolicy,
+    fields='__all__',
+    filters=IKEPolicyFilter
+)
 class IKEPolicyType(OrganizationalObjectType):
 
-    class Meta:
-        model = models.IKEPolicy
-        fields = '__all__'
-        filterset_class = filtersets.IKEPolicyFilterSet
+    @strawberry_django.field
+    def proposals(self) -> List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.proposals.all()
+
+    @strawberry_django.field
+    def ipsec_profiles(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ipsec_profiles.all()
 
 
+@strawberry_django.type(
+    models.IPSecProposal,
+    fields='__all__',
+    filters=IPSecProposalFilter
+)
 class IPSecProposalType(OrganizationalObjectType):
 
-    class Meta:
-        model = models.IPSecProposal
-        fields = '__all__'
-        filterset_class = filtersets.IPSecProposalFilterSet
+    @strawberry_django.field
+    def ipsec_policies(self) -> List[Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ipsec_policies.all()
 
 
+@strawberry_django.type(
+    models.IPSecPolicy,
+    fields='__all__',
+    filters=IPSecPolicyFilter
+)
 class IPSecPolicyType(OrganizationalObjectType):
 
-    class Meta:
-        model = models.IPSecPolicy
-        fields = '__all__'
-        filterset_class = filtersets.IPSecPolicyFilterSet
+    @strawberry_django.field
+    def proposals(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.proposals.all()
+
+    @strawberry_django.field
+    def ipsec_profiles(self) -> List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.ipsec_profiles.all()
 
 
+@strawberry_django.type(
+    models.IPSecProfile,
+    fields='__all__',
+    filters=IPSecProfileFilter
+)
 class IPSecProfileType(OrganizationalObjectType):
+    ike_policy: Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]
+    ipsec_policy: Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]
 
-    class Meta:
-        model = models.IPSecProfile
-        fields = '__all__'
-        filterset_class = filtersets.IPSecProfileFilterSet
+    @strawberry_django.field
+    def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.tunnels.all()
 
 
+@strawberry_django.type(
+    models.L2VPN,
+    fields='__all__',
+    filters=L2VPNFilter
+)
 class L2VPNType(ContactsMixin, NetBoxObjectType):
-    class Meta:
-        model = models.L2VPN
-        fields = '__all__'
-        filtersets_class = filtersets.L2VPNFilterSet
+    tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
+
+    @strawberry_django.field
+    def export_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.export_targets.all()
+
+    @strawberry_django.field
+    def terminations(self) -> List[Annotated["L2VPNTerminationType", strawberry.lazy('vpn.graphql.types')]]:
+        return self.terminations.all()
+
+    @strawberry_django.field
+    def import_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
+        return self.import_targets.all()
 
 
+@strawberry_django.type(
+    models.L2VPNTermination,
+    exclude=('assigned_object_type', 'assigned_object_id'),
+    filters=L2VPNTerminationFilter
+)
 class L2VPNTerminationType(NetBoxObjectType):
-    assigned_object = graphene.Field('vpn.graphql.gfk_mixins.L2VPNAssignmentType')
+    l2vpn: Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]
 
-    class Meta:
-        model = models.L2VPNTermination
-        exclude = ('assigned_object_type', 'assigned_object_id')
-        filtersets_class = filtersets.L2VPNTerminationFilterSet
+    @strawberry_django.field
+    def assigned_object(self) -> Annotated[Union[
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["VLANType", strawberry.lazy('ipam.graphql.types')],
+        Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
+    ], strawberry.union("L2VPNAssignmentType")]:
+        return self.assigned_object

@@ -26,7 +26,7 @@ from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm
 from utilities.htmx import render_partial
-from utilities.utils import count_related
+from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .models import *

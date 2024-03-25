@@ -1,44 +1,40 @@
-import graphene
+from typing import List
 
-from netbox.graphql.fields import ObjectField, ObjectListField
-from .types import *
-from utilities.graphql_optimizer import gql_query_optimizer
+import strawberry
+import strawberry_django
+
 from virtualization import models
+from .types import *
 
 
-class VirtualizationQuery(graphene.ObjectType):
-    cluster = ObjectField(ClusterType)
-    cluster_list = ObjectListField(ClusterType)
+@strawberry.type
+class VirtualizationQuery:
+    @strawberry.field
+    def cluster(self, id: int) -> ClusterType:
+        return models.Cluster.objects.get(pk=id)
+    cluster_list: List[ClusterType] = strawberry_django.field()
 
-    def resolve_cluster_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Cluster.objects.all(), info)
+    @strawberry.field
+    def cluster_group(self, id: int) -> ClusterGroupType:
+        return models.ClusterGroup.objects.get(pk=id)
+    cluster_group_list: List[ClusterGroupType] = strawberry_django.field()
 
-    cluster_group = ObjectField(ClusterGroupType)
-    cluster_group_list = ObjectListField(ClusterGroupType)
+    @strawberry.field
+    def cluster_type(self, id: int) -> ClusterTypeType:
+        return models.ClusterType.objects.get(pk=id)
+    cluster_type_list: List[ClusterTypeType] = strawberry_django.field()
 
-    def resolve_cluster_group_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ClusterGroup.objects.all(), info)
+    @strawberry.field
+    def virtual_machine(self, id: int) -> VirtualMachineType:
+        return models.VirtualMachine.objects.get(pk=id)
+    virtual_machine_list: List[VirtualMachineType] = strawberry_django.field()
 
-    cluster_type = ObjectField(ClusterTypeType)
-    cluster_type_list = ObjectListField(ClusterTypeType)
+    @strawberry.field
+    def vm_interface(self, id: int) -> VMInterfaceType:
+        return models.VMInterface.objects.get(pk=id)
+    vm_interface_list: List[VMInterfaceType] = strawberry_django.field()
 
-    def resolve_cluster_type_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ClusterType.objects.all(), info)
-
-    virtual_machine = ObjectField(VirtualMachineType)
-    virtual_machine_list = ObjectListField(VirtualMachineType)
-
-    def resolve_virtual_machine_list(root, info, **kwargs):
-        return gql_query_optimizer(models.VirtualMachine.objects.all(), info)
-
-    vm_interface = ObjectField(VMInterfaceType)
-    vm_interface_list = ObjectListField(VMInterfaceType)
-
-    def resolve_vm_interface_list(root, info, **kwargs):
-        return gql_query_optimizer(models.VMInterface.objects.all(), info)
-
-    virtual_disk = ObjectField(VirtualDiskType)
-    virtual_disk_list = ObjectListField(VirtualDiskType)
-
-    def resolve_virtual_disk_list(root, info, **kwargs):
-        return gql_query_optimizer(models.VirtualDisk.objects.all(), info)
+    @strawberry.field
+    def virtual_disk(self, id: int) -> VirtualDiskType:
+        return models.VirtualDisk.objects.get(pk=id)
+    virtual_disk_list: List[VirtualDiskType] = strawberry_django.field()

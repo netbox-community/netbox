@@ -8,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from extras.choices import ChangeActionChoices
 from netbox.models import ChangeLoggedModel
 from netbox.models.features import *
-from utilities.utils import deserialize_object
+from utilities.serialization import deserialize_object
 
 __all__ = (
     'Branch',

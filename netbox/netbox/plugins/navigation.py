@@ -1,7 +1,8 @@
-from netbox.navigation import MenuGroup
-from utilities.choices import ButtonColorChoices
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
+
+from netbox.choices import ButtonColorChoices
+from netbox.navigation import MenuGroup
 
 __all__ = (
     'PluginMenu',

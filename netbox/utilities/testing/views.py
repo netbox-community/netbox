@@ -11,9 +11,9 @@ from django.utils.translation import gettext as _
 from core.models import ObjectType
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from .base import ModelTestCase
 from .utils import disable_warnings, post_data
 

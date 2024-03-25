@@ -5,6 +5,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.rendering import FieldSet
 from vpn.choices import *
 from vpn.models import *
 
@@ -72,9 +73,9 @@ class TunnelBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Tunnel
     fieldsets = (
-        (_('Tunnel'), ('status', 'group', 'encapsulation', 'tunnel_id', 'description')),
-        (_('Security'), ('ipsec_profile',)),
-        (_('Tenancy'), ('tenant',)),
+        FieldSet('status', 'group', 'encapsulation', 'tunnel_id', 'description', name=_('Tunnel')),
+        FieldSet('ipsec_profile', name=_('Security')),
+        FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (
         'group', 'ipsec_profile', 'tunnel_id', 'tenant', 'description', 'comments',
@@ -125,10 +126,10 @@ class IKEProposalBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IKEProposal
     fieldsets = (
-        (None, (
+        FieldSet(
             'authentication_method', 'encryption_algorithm', 'authentication_algorithm', 'group', 'sa_lifetime',
             'description',
-        )),
+        ),
     )
     nullable_fields = (
         'sa_lifetime', 'description', 'comments',
@@ -159,9 +160,7 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IKEPolicy
     fieldsets = (
-        (None, (
-            'version', 'mode', 'preshared_key', 'description',
-        )),
+        FieldSet('version', 'mode', 'preshared_key', 'description'),
     )
     nullable_fields = (
         'mode', 'preshared_key', 'description', 'comments',
@@ -196,10 +195,10 @@ class IPSecProposalBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IPSecProposal
     fieldsets = (
-        (None, (
+        FieldSet(
             'encryption_algorithm', 'authentication_algorithm', 'sa_lifetime_seconds', 'sa_lifetime_data',
             'description',
-        )),
+        ),
     )
     nullable_fields = (
         'sa_lifetime_seconds', 'sa_lifetime_data', 'description', 'comments',
@@ -221,7 +220,7 @@ class IPSecPolicyBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IPSecPolicy
     fieldsets = (
-        (None, ('pfs_group', 'description',)),
+        FieldSet('pfs_group', 'description'),
     )
     nullable_fields = (
         'pfs_group', 'description', 'comments',
@@ -253,9 +252,7 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IPSecProfile
     fieldsets = (
-        (_('Profile'), (
-            'mode', 'ike_policy', 'ipsec_policy', 'description',
-        )),
+        FieldSet('mode', 'ike_policy', 'ipsec_policy', 'description', name=_('Profile')),
     )
     nullable_fields = (
         'description', 'comments',
@@ -282,7 +279,7 @@ class L2VPNBulkEditForm(NetBoxModelBulkEditForm):
 
     model = L2VPN
     fieldsets = (
-        (None, ('type', 'tenant', 'description')),
+        FieldSet('type', 'tenant', 'description'),
     )
     nullable_fields = ('tenant', 'description', 'comments')
 

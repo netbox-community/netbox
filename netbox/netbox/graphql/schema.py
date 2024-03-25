@@ -1,4 +1,6 @@
-import graphene
+import strawberry
+from strawberry_django.optimizer import DjangoOptimizerExtension
+from strawberry.schema.config import StrawberryConfig
 
 from circuits.graphql.schema import CircuitsQuery
 from core.graphql.schema import CoreQuery
@@ -13,6 +15,7 @@ from vpn.graphql.schema import VPNQuery
 from wireless.graphql.schema import WirelessQuery
 
 
+@strawberry.type
 class Query(
     UsersQuery,
     CircuitsQuery,
@@ -25,9 +28,14 @@ class Query(
     VPNQuery,
     WirelessQuery,
     *registry['plugins']['graphql_schemas'],  # Append plugin schemas
-    graphene.ObjectType
 ):
     pass
 
 
-schema = graphene.Schema(query=Query, auto_camelcase=False)
+schema = strawberry.Schema(
+    query=Query,
+    config=StrawberryConfig(auto_camel_case=False),
+    extensions=[
+        DjangoOptimizerExtension,
+    ]
+)

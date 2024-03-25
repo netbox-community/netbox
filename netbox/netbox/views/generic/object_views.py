@@ -19,8 +19,8 @@ from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
 from utilities.htmx import render_partial
 from utilities.permissions import get_permission_for_model
-from utilities.utils import get_viewname, normalize_querydict, prepare_cloned_fields
-from utilities.views import GetReturnURLMixin
+from utilities.querydict import normalize_querydict, prepare_cloned_fields
+from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model

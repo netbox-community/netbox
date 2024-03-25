@@ -14,10 +14,12 @@ from django.utils.translation import gettext as _
 
 from core.models import ObjectType
 from extras.choices import BookmarkOrderingChoices
-from utilities.choices import ButtonColorChoices
+from netbox.choices import ButtonColorChoices
+from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
+from utilities.querydict import dict_to_querydict
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import content_type_identifier, content_type_name, dict_to_querydict, get_viewname
+from utilities.views import get_viewname
 from .utils import register_widget
 
 __all__ = (
@@ -33,15 +35,15 @@ __all__ = (
 
 def get_object_type_choices():
     return [
-        (content_type_identifier(ct), content_type_name(ct))
-        for ct in ObjectType.objects.public().order_by('app_label', 'model')
+        (object_type_identifier(ot), object_type_name(ot))
+        for ot in ObjectType.objects.public().order_by('app_label', 'model')
     ]
 
 
 def get_bookmarks_object_type_choices():
     return [
-        (content_type_identifier(ct), content_type_name(ct))
-        for ct in ObjectType.objects.with_feature('bookmarks').order_by('app_label', 'model')
+        (object_type_identifier(ot), object_type_name(ot))
+        for ot in ObjectType.objects.with_feature('bookmarks').order_by('app_label', 'model')
     ]
 
 

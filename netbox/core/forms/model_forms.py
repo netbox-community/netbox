@@ -13,6 +13,7 @@ from netbox.registry import registry
 from netbox.utils import get_data_backend_choices
 from utilities.forms import get_field_value
 from utilities.forms.fields import CommentField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
 
 __all__ = (
@@ -49,11 +50,11 @@ class DataSourceForm(NetBoxModelForm):
     @property
     def fieldsets(self):
         fieldsets = [
-            (_('Source'), ('name', 'type', 'source_url', 'enabled', 'description', 'tags', 'ignore_rules')),
+            FieldSet('name', 'type', 'source_url', 'enabled', 'description', 'tags', 'ignore_rules', name=_('Source')),
         ]
         if self.backend_fields:
             fieldsets.append(
-                (_('Backend Parameters'), self.backend_fields)
+                FieldSet(*self.backend_fields, name=_('Backend Parameters'))
             )
 
         return fieldsets
@@ -91,8 +92,8 @@ class ManagedFileForm(SyncedDataMixin, NetBoxModelForm):
     )
 
     fieldsets = (
-        (_('File Upload'), ('upload_file',)),
-        (_('Data Source'), ('data_source', 'data_file', 'auto_sync_enabled')),
+        FieldSet('upload_file', name=_('File Upload')),
+        FieldSet('data_source', 'data_file', 'auto_sync_enabled', name=_('Data Source')),
     )
 
     class Meta:
@@ -144,18 +145,24 @@ class ConfigRevisionForm(forms.ModelForm, metaclass=ConfigFormMetaclass):
     """
 
     fieldsets = (
-        (_('Rack Elevations'), ('RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH')),
-        (_('Power'), ('POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION')),
-        (_('IPAM'), ('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4')),
-        (_('Security'), ('ALLOWED_URL_SCHEMES',)),
-        (_('Banners'), ('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM')),
-        (_('Pagination'), ('PAGINATE_COUNT', 'MAX_PAGE_SIZE')),
-        (_('Validation'), ('CUSTOM_VALIDATORS', 'PROTECTION_RULES')),
-        (_('User Preferences'), ('DEFAULT_USER_PREFERENCES',)),
-        (_('Miscellaneous'), (
+        FieldSet(
+            'RACK_ELEVATION_DEFAULT_UNIT_HEIGHT', 'RACK_ELEVATION_DEFAULT_UNIT_WIDTH', name=_('Rack Elevations')
+        ),
+        FieldSet(
+            'POWERFEED_DEFAULT_VOLTAGE', 'POWERFEED_DEFAULT_AMPERAGE', 'POWERFEED_DEFAULT_MAX_UTILIZATION',
+            name=_('Power')
+        ),
+        FieldSet('ENFORCE_GLOBAL_UNIQUE', 'PREFER_IPV4', name=_('IPAM')),
+        FieldSet('ALLOWED_URL_SCHEMES', name=_('Security')),
+        FieldSet('BANNER_LOGIN', 'BANNER_MAINTENANCE', 'BANNER_TOP', 'BANNER_BOTTOM', name=_('Banners')),
+        FieldSet('PAGINATE_COUNT', 'MAX_PAGE_SIZE', name=_('Pagination')),
+        FieldSet('CUSTOM_VALIDATORS', 'PROTECTION_RULES', name=_('Validation')),
+        FieldSet('DEFAULT_USER_PREFERENCES', name=_('User Preferences')),
+        FieldSet(
             'MAINTENANCE_MODE', 'GRAPHQL_ENABLED', 'CHANGELOG_RETENTION', 'JOB_RETENTION', 'MAPS_URL',
-        )),
-        (_('Config Revision'), ('comment',))
+            name=_('Miscellaneous')
+        ),
+        FieldSet('comment', name=_('Config Revision'))
     )
 
     class Meta:

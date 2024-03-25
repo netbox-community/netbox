@@ -3,8 +3,8 @@ from django.urls import reverse
 
 from core.models import ObjectType
 from users.models import Group, ObjectPermission, Token
+from utilities.data import deepmerge
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
-from utilities.utils import deepmerge
 
 
 User = get_user_model()

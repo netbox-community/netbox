@@ -1,23 +1,10 @@
-from graphene import Scalar
-from graphql.language import ast
-from graphene.types.scalars import MAX_INT, MIN_INT
+from typing import Union
 
+import strawberry
 
-class BigInt(Scalar):
-    """
-    Handle any BigInts
-    """
-    @staticmethod
-    def to_float(value):
-        num = int(value)
-        if num > MAX_INT or num < MIN_INT:
-            return float(num)
-        return num
-
-    serialize = to_float
-    parse_value = to_float
-
-    @staticmethod
-    def parse_literal(node):
-        if isinstance(node, ast.IntValue):
-            return BigInt.to_float(node.value)
+BigInt = strawberry.scalar(
+    Union[int, str],  # type: ignore
+    serialize=lambda v: int(v),
+    parse_value=lambda v: str(v),
+    description="BigInt field",
+)

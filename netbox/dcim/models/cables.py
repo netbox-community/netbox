@@ -15,9 +15,9 @@ from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.models import ChangeLoggedModel, PrimaryModel
+from utilities.conversion import to_meters
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import to_meters
 from wireless.models import WirelessLink
 from .device_components import FrontPort, RearPort, PathEndpoint
 

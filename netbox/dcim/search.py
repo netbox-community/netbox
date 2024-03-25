@@ -132,10 +132,11 @@ class LocationIndex(SearchIndex):
     model = models.Location
     fields = (
         ('name', 100),
+        ('facility', 100),
         ('slug', 110),
         ('description', 500),
     )
-    display_attrs = ('site', 'status', 'tenant', 'description')
+    display_attrs = ('site', 'status', 'tenant', 'facility', 'description')
 
 
 @register_search

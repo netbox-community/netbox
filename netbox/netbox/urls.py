@@ -1,16 +1,16 @@
 from django.conf import settings
 from django.conf.urls import include
 from django.urls import path
-from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from account.views import LoginView, LogoutView
 from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
-from netbox.graphql.views import GraphQLView
+from netbox.graphql.views import NetBoxGraphQLView
 from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
 from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
+from strawberry.django.views import GraphQLView
 
 _patterns = [
 
@@ -60,7 +60,7 @@ _patterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='api_redocs'),
 
     # GraphQL
-    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema)), name='graphql'),
+    path('graphql/', NetBoxGraphQLView.as_view(schema=schema), name='graphql'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
