@@ -47,9 +47,8 @@ You should see output similar to the following:
       Tasks: 19 (limit: 4683)
      Memory: 666.2M
      CGroup: /system.slice/netbox.service
-             ├─1140492 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/uwsgi --pid /va>
-             ├─1140513 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/uwsgi --pid /va>
-             ├─1140514 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/uwsgi --pid /va>
+             ├─1061 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/uwsgi --ini /opt/netbox/uwsgi.ini
+             ├─1976 /opt/netbox/venv/bin/python3 /opt/netbox/venv/bin/uwsgi --ini /opt/netbox/uwsgi.ini
 ...
 ```
 
