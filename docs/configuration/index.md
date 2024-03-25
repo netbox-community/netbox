@@ -40,7 +40,7 @@ Some configuration parameters are primarily controlled via NetBox's admin interf
 
 ## Modifying the Configuration
 
-The configuration file may be modified at any time. However, the WSGI service (e.g. Gunicorn) must be restarted before these changes will take effect:
+The configuration file may be modified at any time. However, the WSGI service (e.g. uWSGI) must be restarted before these changes will take effect:
 
 ```no-highlight
 $ sudo systemctl restart netbox

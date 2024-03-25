@@ -77,7 +77,7 @@ NetBox is built on the [Django](https://djangoproject.com/) Python framework and
 | Function           | Component         |
 |--------------------|-------------------|
 | HTTP service       | nginx or Apache   |
-| WSGI service       | gunicorn or uWSGI |
+| WSGI service       | uWSGI or gunicorn |
 | Application        | Django/Python     |
 | Database           | PostgreSQL 12+    |
 | Task queuing       | Redis/django-rq   |
