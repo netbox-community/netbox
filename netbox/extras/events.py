@@ -1,4 +1,5 @@
 import logging
+import json
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -15,7 +16,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT
 from netbox.registry import registry
 from utilities.api import get_serializer_for_model
 from utilities.rqworker import get_rq_retry
-from utilities.utils import serialize_object
+from utilities.utils import serialize_object, render_jinja2
 from .choices import *
 from .models import EventRule, ScriptModule
 
@@ -119,6 +120,22 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             script_module = event_rule.action_object
             script_name = event_rule.action_parameters['script_name']
             script = script_module.scripts[script_name]()
+
+            # Process Action Data
+
+            if event_rule.action_data:
+                context = {
+                    'event': event,
+                    'timestamp': timezone.now().isoformat(),
+                    'model': model_name,
+                    'username': username,
+                    'request_id': request_id,
+                    'model': data,
+                }
+                rendered_data = render_jinja2(json.dumps(event_rule.action_data), context)
+                form = script.as_form(json.loads(rendered_data))
+                if form.is_valid():
+                    data = form.cleaned_data
 
             # Enqueue a Job to record the script's execution
             Job.enqueue(
