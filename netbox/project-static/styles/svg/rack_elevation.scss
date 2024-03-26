@@ -1,9 +1,13 @@
-@import '../old/theme-light';
+@import '../../node_modules/bootstrap/scss/functions';
+@import '../../node_modules/bootstrap/scss/variables';
+@import '../../node_modules/bootstrap/scss/variables-dark';
 
-// Rack Elevation Styles.
+/*
+ * Rack elevation SVG styling
+ */
 
 svg {
-  // Light Mode Variables.
+  // Light mode values
   --nbx-rack-bg: #{$gray-200};
   --nbx-rack-border: #{$black};
   --nbx-rack-slot-bg: #{$gray-200};
@@ -12,9 +16,8 @@ svg {
   --nbx-rack-link-color: #{$blue};
   --nbx-rack-unit-color: #{$text-muted};
 
-  &[data-netbox-color-mode='dark'] {
-    // Dark Mode Variables.
-    // Note: only the `theme-light.scss` file is in-scope for simplicity.
+  &[data-bs-theme='dark'] {
+    // Dark mode values
     --nbx-rack-bg: #{$gray-800};
     --nbx-rack-border: #{$gray-600};
     --nbx-rack-slot-bg: #{$gray-800};
@@ -41,7 +44,7 @@ svg {
   // Rack unit numbers along left side of rack elevation.
   .unit {
     margin: 0;
-    padding: 5px 0px;
+    padding: 5px 0;
     // Rack unit text color.
     fill: var(--nbx-rack-unit-color);
   }
