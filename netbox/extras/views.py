@@ -22,7 +22,7 @@ from utilities.htmx import is_htmx
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
+from utilities.utils import copy_safe_request, count_related, deep_compare_dict, get_viewname, normalize_querydict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
 from .forms.reports import ReportForm
@@ -719,14 +719,7 @@ class ObjectChangeView(generic.ObjectView):
             prechange_data = instance.prechange_data
 
         if prechange_data and instance.postchange_data:
-            diff_added = shallow_compare_dict(
-                prechange_data or dict(),
-                instance.postchange_data or dict(),
-                exclude=['last_updated'],
-            )
-            diff_removed = {
-                x: prechange_data.get(x) for x in diff_added
-            } if prechange_data else {}
+            diff_added, diff_removed = deep_compare_dict(prechange_data, instance.postchange_data, exclude=('last_updated'))
         else:
             diff_added = None
             diff_removed = None
