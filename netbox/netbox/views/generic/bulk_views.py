@@ -160,6 +160,18 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         # Render the objects table
         table = self.get_table(self.queryset, request, has_bulk_actions)
 
+        # Check for filterset_form on this view, if a form exists
+        # * Apply to context for use by the filter form tab and initialize the form
+        # * Apply to the table for use by the table and initialize a separate instance of the form for use by the table
+        #   column filters
+        # * Otherwise set to None
+        if self.filterset_form:
+            filterset_form = self.filterset_form(request.GET)
+            table.filterset_form = self.filterset_form(request.GET)
+        else:
+            filterset_form = None
+            table.filterset_form = None
+
         # If this is an HTMX request, return only the rendered table HTML
         if request.htmx:
             if request.htmx.target != 'object_list':
@@ -175,7 +187,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             'model': model,
             'table': table,
             'actions': actions,
-            'filter_form': self.filterset_form(request.GET, label_suffix='') if self.filterset_form else None,
+            'filter_form': filterset_form,
             'prerequisite_model': get_prerequisite_model(self.queryset),
             **self.get_extra_context(request),
         }
