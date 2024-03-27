@@ -1,17 +1,21 @@
-@import '../old/theme-light';
+@import '../../node_modules/bootstrap/scss/functions';
+@import '../../node_modules/bootstrap/scss/variables';
+@import '../../node_modules/bootstrap/scss/variables-dark';
 
-// Cable Trace Styles.
+/*
+ * Cable trace SVG styling
+ */
 
 :root {
-  // Light Mode Variables.
+  // Light mode values
   --nbx-trace-color: #{$black};
   --nbx-trace-node-bg: #{$gray-200};
   --nbx-trace-termination-bg: #{$gray-100};
   --nbx-trace-cable-shadow: #{$gray-800};
   --nbx-trace-attachment: #{$gray-400};
-  &[data-netbox-color-mode='dark'] {
-    // Dark Mode Variables.
-    // Note: only the `theme-light.scss` file is in-scope for simplicity.
+
+  &[data-bs-theme='dark'] {
+    // Dark mode values
     --nbx-trace-color: #{$white};
     --nbx-trace-node-bg: #{$gray-900};
     --nbx-trace-termination-bg: #{$gray-800};
