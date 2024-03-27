@@ -47,7 +47,16 @@ def nav(context):
 
 @register.simple_tag(takes_context=True)
 def htmx_boost(context, target='#page-content', select='#page-content'):
-    if not context.get('htmx_navigation'):
+    """
+    Renders the HTML attributes needed to effect HTMX boosting within an element if
+    HTMX navigation is enabled for the request. The target and select parameters are
+    rendered as `hx-target` and `hx-select`, respectively. For example:
+
+        <div id="page-content" {% htmx_boost %}>
+
+    If HTMX navigation is not enabled, the tag renders no content.
+    """
+    if not context.get('htmx_navigation', False):
         return ''
     hx_params = {
         'hx-boost': 'true',
