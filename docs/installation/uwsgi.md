@@ -75,10 +75,20 @@ Once you've verified that the WSGI workers are up and running, move on to HTTP s
 
 ## HTTP Server Installation
 
-For server installation, you will want to follow the NetBox [HTTP Server Setup](5-http-server.md) guide, however when copying the configuration file, instead of the default one for gunicorn you will want to use the provided uWSGI one:
-
-Once nginx is installed, copy the nginx configuration file provided by NetBox to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
+For server installation, you will want to follow the NetBox [HTTP Server Setup](5-http-server.md) guide, however after copying the configuration file, you will need to edit the file and change the `location` section to uncomment the uWSGI parameters:
 
 ```no-highlight
-sudo cp /opt/netbox/contrib/uwsgi/nginx.conf /etc/nginx/sites-available/netbox
+    location / {
+        # proxy_pass http://127.0.0.1:8001;
+        # proxy_set_header X-Forwarded-Host $http_host;
+        # proxy_set_header X-Real-IP $remote_addr;
+        # proxy_set_header X-Forwarded-Proto $scheme;
+        # comment the lines above and uncomment the lines below if using uWSGI
+        include uwsgi_params;
+        uwsgi_pass  127.0.0.1:8001;
+        uwsgi_param Host $host;
+        uwsgi_param X-Real-IP $remote_addr;
+        uwsgi_param X-Forwarded-For $proxy_add_x_forwarded_for;
+        uwsgi_param X-Forwarded-Proto $http_x_forwarded_proto;
+    }
 ```
