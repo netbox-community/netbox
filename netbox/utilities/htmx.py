@@ -1,12 +1,13 @@
 __all__ = (
-    'render_partial',
+    'htmx_partial',
 )
 
 PAGE_CONTAINER_ID = 'page-content'
 
 
-def render_partial(request):
+def htmx_partial(request):
     """
-    Determines whether to render a partial response.
+    Determines whether to render partial (versus complete) HTML content
+    in response to an HTMX request, based on the target element.
     """
     return request.htmx and request.htmx.target != PAGE_CONTAINER_ID
