@@ -53,6 +53,11 @@ class Group(models.Model):
         max_length=200,
         blank=True
     )
+    object_permissions = models.ManyToManyField(
+        to='users.ObjectPermission',
+        blank=True,
+        related_name='groups'
+    )
 
     # Replicate legacy Django permissions support from stock Group model
     # to ensure authentication backend compatibility
@@ -91,6 +96,11 @@ class User(AbstractUser):
         blank=True,
         related_name='users',
         related_query_name='user'
+    )
+    object_permissions = models.ManyToManyField(
+        to='users.ObjectPermission',
+        blank=True,
+        related_name='users'
     )
 
     objects = UserManager()
@@ -385,16 +395,6 @@ class ObjectPermission(models.Model):
     object_types = models.ManyToManyField(
         to='core.ObjectType',
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
-        related_name='object_permissions'
-    )
-    groups = models.ManyToManyField(
-        to='users.Group',
-        blank=True,
-        related_name='object_permissions'
-    )
-    users = models.ManyToManyField(
-        to=get_user_model(),
-        blank=True,
         related_name='object_permissions'
     )
     actions = ArrayField(
