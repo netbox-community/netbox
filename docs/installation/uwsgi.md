@@ -19,23 +19,24 @@ sudo sh -c "echo 'pyuwgsi' >> /opt/netbox/local_requirements.txt"
 
 ## Configuration
 
-NetBox ships with a default configuration file for uWSGI. To use it, copy `/opt/netbox/contrib/uwsgi.ini` to `/opt/netbox/uwsgi.ini`. (We make a copy of this file rather than pointing to it directly to ensure that any local changes to it do not get overwritten by a future upgrade.)
+NetBox ships with a default configuration file for uWSGI. To use it, copy `/opt/netbox/contrib/uwsgi/uwsgi.ini` to `/opt/netbox/uwsgi.ini`. (We make a copy of this file rather than pointing to it directly to ensure that any local changes to it do not get overwritten by a future upgrade.)
 
 ```no-highlight
-sudo cp /opt/netbox/contrib/uwsgi.ini /opt/netbox/uwsgi.ini
+sudo cp /opt/netbox/contrib/uwsgi/uwsgi.ini /opt/netbox/uwsgi.ini
 ```
 
 While the provided configuration should suffice for most initial installations, you may wish to edit this file to change the bound IP address and/or port number, or to make performance-related adjustments. See [the uWSGI documentation](https://uwsgi-docs-additions.readthedocs.io/en/latest/Options.html) for the available configuration parameters and check the [Things to know](https://uwsgi-docs.readthedocs.io/en/latest/ThingsToKnow.html) page in the uWSGI documentation.  Django also provides [additional documentation](https://docs.djangoproject.com/en/5.0/howto/deployment/wsgi/uwsgi/) on configuring uWSGI with a Django app.
 
 ## systemd Setup
 
-We'll use systemd to control both uWSGI and NetBox's background worker process. First, copy `contrib/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory and reload the systemd daemon.
+We'll use systemd to control both uWSGI and NetBox's background worker process. First, copy `contrib/uwsgi/netbox.service` and `contrib/netbox-rq.service` to the `/etc/systemd/system/` directory and reload the systemd daemon.
 
 !!! warning "Check user & group assignment"
     The stock service configuration files packaged with NetBox assume that the service will run with the `netbox` user and group names. If these differ on your installation, be sure to update the service files accordingly.
 
 ```no-highlight
-sudo cp -v /opt/netbox/contrib/*.service /etc/systemd/system/
+sudo cp -v /opt/netbox/contrib/netbox-rq.service /etc/systemd/system/
+sudo cp -v /opt/netbox/contrib/uwsgi/netbox.service /etc/systemd/system/
 sudo systemctl daemon-reload
 ```
 
@@ -71,3 +72,13 @@ You should see output similar to the following:
     If the NetBox service fails to start, issue the command `journalctl -eu netbox` to check for log messages that may indicate the problem.
 
 Once you've verified that the WSGI workers are up and running, move on to HTTP server setup.
+
+## HTTP Server Installation
+
+For server installation, you will want to follow the NetBox [HTTP Server Setup](5-http-server.md) guide, however when copying the configuration file, instead of the default one for gunicorn you will want to use the provided uWSGI one:
+
+Once nginx is installed, copy the nginx configuration file provided by NetBox to `/etc/nginx/sites-available/netbox`. Be sure to replace `netbox.example.com` with the domain name or IP address of your installation. (This should match the value configured for `ALLOWED_HOSTS` in `configuration.py`.)
+
+```no-highlight
+sudo cp /opt/netbox/contrib/uwsgi/nginx.conf /etc/nginx/sites-available/netbox
+```
