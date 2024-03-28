@@ -196,10 +196,10 @@ class RoleType(OrganizationalObjectType):
 class RouteTargetType(NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    exporting_l2vpns: List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]
-    exporting_vrfs: List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
-    importing_vrfs: List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
     importing_l2vpns: List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]
+    exporting_l2vpns: List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]
+    importing_vrfs: List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
+    exporting_vrfs: List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(

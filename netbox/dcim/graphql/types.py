@@ -120,7 +120,7 @@ class ModularComponentTemplateType(ComponentTemplateType):
 )
 class CableTerminationType(NetBoxObjectType):
 
-    termination: List[Annotated[Union[
+    termination: Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
@@ -130,7 +130,7 @@ class CableTerminationType(NetBoxObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("CableTerminationTerminationType")]]
+    ], strawberry.union("CableTerminationTerminationType")]
 
 
 @strawberry_django.type(
@@ -294,7 +294,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
 
     child_items: List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
-    component: List[Annotated[Union[
+    component: Annotated[Union[
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
@@ -302,7 +302,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemTemplateComponentType")]]
+    ], strawberry.union("InventoryItemTemplateComponentType")]
 
 
 @strawberry_django.type(
@@ -423,7 +423,7 @@ class InventoryItemType(ComponentType):
     def parent(self) -> Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
-    component: List[Annotated[Union[
+    component: Annotated[Union[
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
@@ -431,7 +431,7 @@ class InventoryItemType(ComponentType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemComponentType")]]
+    ], strawberry.union("InventoryItemComponentType")]
 
 
 @strawberry_django.type(
