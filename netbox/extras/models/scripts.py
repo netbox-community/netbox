@@ -96,6 +96,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     Proxy model for script module files.
     """
     objects = ScriptModuleManager()
+    error = None
 
     class Meta:
         proxy = True
@@ -118,6 +119,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         try:
             module = self.get_module()
         except Exception as e:
+            self.error = e
             logger.debug(f"Failed to load script: {self.python_name} error: {e}")
             module = None
 

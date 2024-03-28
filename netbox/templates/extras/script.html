@@ -14,38 +14,43 @@
           {% trans "You do not have permission to run scripts" %}.
         </div>
       {% endif %}
-      <form action="" method="post" enctype="multipart/form-data" class="object-edit">
-        {% csrf_token %}
-        <div class="field-group my-4">
-          {# Render grouped fields according to declared fieldsets #}
-          {% for group, fields in script_class.get_fieldsets %}
-            {% if fields %}
-              <div class="field-group mb-5">
-                <div class="row">
-                  <h5 class="col-9 offset-3">{{ group }}</h5>
+      {% if form %}
+        <form action="" method="post" enctype="multipart/form-data" class="object-edit">
+          {% csrf_token %}
+          <div class="field-group my-4">
+            {# Render grouped fields according to declared fieldsets #}
+            {% for group, fields in script_class.get_fieldsets %}
+              {% if fields %}
+                <div class="field-group mb-5">
+                  <div class="row">
+                    <h5 class="col-9 offset-3">{{ group }}</h5>
+                  </div>
+                  {% for name in fields %}
+                    {% with field=form|getfield:name %}
+                      {% render_field field %}
+                    {% endwith %}
+                  {% endfor %}
                 </div>
-                {% for name in fields %}
-                  {% with field=form|getfield:name %}
-                    {% render_field field %}
-                  {% endwith %}
-                {% endfor %}
-              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <div class="text-end">
+            <a href="{% url 'extras:script_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+            {% if not request.user|can_run:script or not script.is_executable %}
+              <button class="btn btn-primary" disabled>
+                <i class="mdi mdi-play"></i> {% trans "Run Script" %}
+              </button>
+            {% else %}
+              <button type="submit" name="_run" class="btn btn-primary">
+                <i class="mdi mdi-play"></i> {% trans "Run Script" %}
+              </button>
             {% endif %}
-          {% endfor %}
-        </div>
-        <div class="text-end">
-          <a href="{% url 'extras:script_list' %}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-          {% if not request.user|can_run:script or not script.is_executable %}
-            <button class="btn btn-primary" disabled>
-              <i class="mdi mdi-play"></i> {% trans "Run Script" %}
-            </button>
-          {% else %}
-            <button type="submit" name="_run" class="btn btn-primary">
-              <i class="mdi mdi-play"></i> {% trans "Run Script" %}
-            </button>
-          {% endif %}
-        </div>
-      </form>
+          </div>
+        </form>
+      {% else %}
+          <p>{% trans "Error loading script" %}.</p>
+          <pre class="block">{{ script.module.error }}</pre>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
