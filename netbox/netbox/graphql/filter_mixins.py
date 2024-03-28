@@ -4,6 +4,7 @@ from typing import List
 import django_filters
 import strawberry
 import strawberry_django
+from django.core.exceptions import FieldDoesNotExist
 from strawberry import auto
 from ipam.fields import ASNField
 from netbox.graphql.scalars import BigInt
@@ -164,7 +165,11 @@ def autotype_decorator(filterset):
             should_create_function = False
             attr_type = auto
             if fieldname not in cls.__annotations__:
-                field = model._meta.get_field(fieldname)
+                try:
+                    field = model._meta.get_field(fieldname)
+                except FieldDoesNotExist:
+                    continue
+
                 if isinstance(field, CounterCacheField):
                     should_create_function = True
                     attr_type = BigInt | None
