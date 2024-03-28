@@ -37,7 +37,7 @@ class Tag(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel, TagBase):
         to='contenttypes.ContentType',
         related_name='+',
         blank=True,
-        help_text=_("The object type(s) to which this this tag can be applied.")
+        help_text=_("The object type(s) to which this tag can be applied.")
     )
 
     clone_fields = (
