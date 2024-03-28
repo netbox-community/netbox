@@ -1,4 +1,11 @@
 // Disable smooth scrolling for intra-page links
 html {
-    scroll-behavior: auto !important;
+  scroll-behavior: auto !important;
+}
+
+// Prevent dropdown menus from being clipped inside responsive tables
+.table-responsive {
+  .dropdown, .btn-group, .btn-group-vertical {
+    position: static;
+  }
 }
