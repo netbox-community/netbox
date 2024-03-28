@@ -12,6 +12,4 @@ __all__ = (
 @strawberry.type
 class ContactAssignmentsMixin:
 
-    @strawberry_django.field
-    def assignments(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
-        return self.assignments.all()
+    assignments: List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]

@@ -40,13 +40,8 @@ class ClusterType(VLANGroupsMixin, NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def virtual_machines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.virtual_machines.all()
-
-    @strawberry_django.field
-    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devices.all()
+    virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
+    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -56,9 +51,7 @@ class ClusterType(VLANGroupsMixin, NetBoxObjectType):
 )
 class ClusterGroupType(VLANGroupsMixin, OrganizationalObjectType):
 
-    @strawberry_django.field
-    def clusters(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.clusters.all()
+    clusters: List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -68,9 +61,7 @@ class ClusterGroupType(VLANGroupsMixin, OrganizationalObjectType):
 )
 class ClusterTypeType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def clusters(self) -> List[ClusterType]:
-        return self.clusters.all()
+    clusters: List[ClusterType]
 
 
 @strawberry_django.type(
@@ -93,17 +84,9 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     primary_ip4: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
     primary_ip6: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field
-    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces.all()
-
-    @strawberry_django.field
-    def services(self) -> List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.services.all()
-
-    @strawberry_django.field
-    def virtualdisks(self) -> List[Annotated["VirtualDiskType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.virtualdisks.all()
+    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    services: List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]
+    virtualdisks: List[Annotated["VirtualDiskType", strawberry.lazy('virtualization.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -118,17 +101,9 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field
-    def tagged_vlans(self) -> List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.tagged_vlans.all()
-
-    @strawberry_django.field
-    def bridge_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.bridge_interfaces.all()
-
-    @strawberry_django.field
-    def child_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.child_interfaces.all()
+    tagged_vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
+    bridge_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    child_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

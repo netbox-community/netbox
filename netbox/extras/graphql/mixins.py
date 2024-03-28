@@ -69,14 +69,10 @@ class JournalEntriesMixin:
 @strawberry.type
 class TagsMixin:
 
-    @strawberry_django.field
-    def tags(self) -> List[Annotated["TagType", strawberry.lazy('.types')]]:
-        return self.tags.all()
+    tags: List[Annotated["TagType", strawberry.lazy('.types')]]
 
 
 @strawberry.type
 class ContactsMixin:
 
-    @strawberry_django.field
-    def contacts(self) -> List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]:
-        return list(self.contacts.all())
+    contacts: List[Annotated["ContactAssignmentType", strawberry.lazy('tenancy.graphql.types')]]

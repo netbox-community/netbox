@@ -13,8 +13,7 @@ __all__ = (
 class CabledObjectMixin:
     cable: Annotated["CableType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def link_peers(self) -> List[Annotated[Union[
+    link_peers: List[Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
@@ -24,15 +23,13 @@ class CabledObjectMixin:
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("LinkPeerType")]]:
-        return self.link_peers
+    ], strawberry.union("LinkPeerType")]]
 
 
 @strawberry.type
 class PathEndpointMixin:
 
-    @strawberry_django.field
-    def connected_endpoints(self) -> List[Annotated[Union[
+    connected_endpoints: List[Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
@@ -43,5 +40,4 @@ class PathEndpointMixin:
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("ConnectedEndpointType")]]:
-        return self.connected_endpoints or None
+    ], strawberry.union("ConnectedEndpointType")]]

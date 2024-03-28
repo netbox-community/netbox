@@ -11,13 +11,9 @@ __all__ = (
 
 @strawberry.type
 class IPAddressesMixin:
-    @strawberry_django.field
-    def ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.ip_addresses.all()
+    ip_addresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry.type
 class VLANGroupsMixin:
-    @strawberry_django.field
-    def vlan_groups(self) -> List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlan_groups.all()
+    vlan_groups: List[Annotated["VLANGroupType", strawberry.lazy('ipam.graphql.types')]]
