@@ -16,29 +16,13 @@ class AppTest(APITestCase):
 
         url = reverse('users-api:api-root')
         response = self.client.get(f'{url}?format=api', **self.header)
-
         self.assertEqual(response.status_code, 200)
 
 
 class UserTest(APIViewTestCases.APIViewTestCase):
     model = User
-    view_namespace = 'users'
     brief_fields = ['display', 'id', 'url', 'username']
     validation_excluded_fields = ['password']
-    create_data = [
-        {
-            'username': 'User_4',
-            'password': 'password4',
-        },
-        {
-            'username': 'User_5',
-            'password': 'password5',
-        },
-        {
-            'username': 'User_6',
-            'password': 'password6',
-        },
-    ]
     bulk_update_data = {
         'email': 'test@example.com',
     }
@@ -46,12 +30,40 @@ class UserTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        permissions = (
+            ObjectPermission(name='Permission 1', actions=['view']),
+            ObjectPermission(name='Permission 2', actions=['view']),
+            ObjectPermission(name='Permission 3', actions=['view']),
+        )
+        ObjectPermission.objects.bulk_create(permissions)
+        permissions[0].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'site'))
+        permissions[1].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'location'))
+        permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
+
         users = (
             User(username='User_1', password='password1'),
             User(username='User_2', password='password2'),
             User(username='User_3', password='password3'),
         )
         User.objects.bulk_create(users)
+
+        cls.create_data = [
+            {
+                'username': 'User_4',
+                'password': 'password4',
+                'permissions': [permissions[0].pk],
+            },
+            {
+                'username': 'User_5',
+                'password': 'password5',
+                'permissions': [permissions[1].pk],
+            },
+            {
+                'username': 'User_6',
+                'password': 'password6',
+                'permissions': [permissions[2].pk],
+            },
+        ]
 
     def test_that_password_is_changed(self):
         """
@@ -76,41 +88,56 @@ class UserTest(APIViewTestCases.APIViewTestCase):
             'password': 'newpassword'
         }
         url = reverse('users-api:user-detail', kwargs={'pk': user.id})
-
         response = self.client.patch(url, data, format='json', **self.header)
-
         self.assertEqual(response.status_code, 200)
-
-        updated_user = User.objects.get(id=user.id)
-
-        self.assertTrue(updated_user.check_password(data['password']))
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(data['password']))
 
 
 class GroupTest(APIViewTestCases.APIViewTestCase):
     model = Group
-    view_namespace = 'users'
     brief_fields = ['display', 'id', 'name', 'url']
-    create_data = [
-        {
-            'name': 'Group 4',
-        },
-        {
-            'name': 'Group 5',
-        },
-        {
-            'name': 'Group 6',
-        },
-    ]
 
     @classmethod
     def setUpTestData(cls):
 
-        users = (
+        permissions = (
+            ObjectPermission(name='Permission 1', actions=['view']),
+            ObjectPermission(name='Permission 2', actions=['view']),
+            ObjectPermission(name='Permission 3', actions=['view']),
+        )
+        ObjectPermission.objects.bulk_create(permissions)
+        permissions[0].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'site'))
+        permissions[1].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'location'))
+        permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
+
+        groups = (
             Group(name='Group 1'),
             Group(name='Group 2'),
             Group(name='Group 3'),
         )
-        Group.objects.bulk_create(users)
+        Group.objects.bulk_create(groups)
+
+        cls.create_data = [
+            {
+                'name': 'Group 4',
+                'permissions': [permissions[0].pk],
+            },
+            {
+                'name': 'Group 5',
+                'permissions': [permissions[1].pk],
+            },
+            {
+                'name': 'Group 6',
+                'permissions': [permissions[2].pk],
+            },
+        ]
+
+    def model_to_dict(self, instance, *args, **kwargs):
+        # Overwrite permissions attr to work around the serializer field having a different name
+        data = super().model_to_dict(instance, *args, **kwargs)
+        data['permissions'] = list(instance.object_permissions.values_list('id', flat=True))
+        return data
 
     def test_bulk_update_objects(self):
         """
@@ -240,9 +267,7 @@ class ObjectPermissionTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = ObjectPermission
-    brief_fields = [
-        'actions', 'description', 'display', 'enabled', 'groups', 'id', 'name', 'object_types', 'url', 'users',
-    ]
+    brief_fields = ['actions', 'description', 'display', 'enabled', 'id', 'name', 'object_types', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -278,24 +303,18 @@ class ObjectPermissionTest(
             {
                 'name': 'Permission 4',
                 'object_types': ['dcim.site'],
-                'groups': [groups[0].pk],
-                'users': [users[0].pk],
                 'actions': ['view', 'add', 'change', 'delete'],
                 'constraints': {'name': 'TEST4'},
             },
             {
                 'name': 'Permission 5',
                 'object_types': ['dcim.site'],
-                'groups': [groups[1].pk],
-                'users': [users[1].pk],
                 'actions': ['view', 'add', 'change', 'delete'],
                 'constraints': {'name': 'TEST5'},
             },
             {
                 'name': 'Permission 6',
                 'object_types': ['dcim.site'],
-                'groups': [groups[2].pk],
-                'users': [users[2].pk],
                 'actions': ['view', 'add', 'change', 'delete'],
                 'constraints': {'name': 'TEST6'},
             },
