@@ -35,6 +35,9 @@ Once nginx is installed, copy the nginx configuration file provided by NetBox to
 sudo cp /opt/netbox/contrib/nginx.conf /etc/nginx/sites-available/netbox
 ```
 
+!!! tip "gunicorn vs. uWSGI"
+    The reference nginx configuration file assumes that gunicorn is in use. If using uWSGI instead, you'll need to remove the gunicorn-specific configuration (lines beginning with `proxy_pass` and `proxy_set_header`) and uncomment the uWSGI section below them before proceeding.
+
 Then, delete `/etc/nginx/sites-enabled/default` and create a symlink in the `sites-enabled` directory to the configuration file you just created.
 
 ```no-highlight
