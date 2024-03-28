@@ -47,6 +47,14 @@ A mapping of permissions to assign a new user account when created using remote 
 
 ---
 
+# REMOTE_AUTH_DISPLAYNAME
+
+Default: None
+
+An optional string to override the auth provider display name on the login page.
+
+---
+
 ## REMOTE_AUTH_ENABLED
 
 Default: `False`

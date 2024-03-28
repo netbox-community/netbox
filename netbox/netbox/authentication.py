@@ -55,6 +55,8 @@ def get_auth_backend_display(name):
     Return the user-friendly name and icon name for a remote authentication backend, if known. Defaults to the
     raw backend name and no icon.
     """
+    if settings.REMOTE_AUTH_DISPLAYNAME:
+        return settings.REMOTE_AUTH_DISPLAYNAME, AUTH_BACKEND_ATTRS.get(name, (name, None))[1]
     return AUTH_BACKEND_ATTRS.get(name, (name, None))
 
 
