@@ -14,7 +14,6 @@ jobs:
     steps:
       - uses: pozil/auto-assign-issue@v1
         with:
-          # Some assignees are listed multiple times to effect a weighted rotation
-          assignees: jeremystretch,jeremystretch,jeremystretch,jeremystretch,arthanson,arthanson,arthanson,arthanson,DanSheps,abhi1693
+          assignees: abhi1693,arthanson,DanSheps,jeffgdotorg,jeremystretch
           numOfAssignee: 1
           abortIfPreviousAssignees: true
