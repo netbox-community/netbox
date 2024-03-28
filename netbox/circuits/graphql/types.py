@@ -27,21 +27,10 @@ __all__ = (
 )
 class ProviderType(NetBoxObjectType, ContactsMixin):
 
-    @strawberry_django.field
-    def networks(self) -> List[Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.networks.all()
-
-    @strawberry_django.field
-    def circuits(self) -> List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.circuits.all()
-
-    @strawberry_django.field
-    def asns(self) -> List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.asns.all()
-
-    @strawberry_django.field
-    def accounts(self) -> List[Annotated["ProviderAccountType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.accounts.all()
+    networks: List[Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')]]
+    circuits: List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]
+    asns: List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]
+    accounts: List[Annotated["ProviderAccountType", strawberry.lazy('circuits.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -52,9 +41,7 @@ class ProviderType(NetBoxObjectType, ContactsMixin):
 class ProviderAccountType(NetBoxObjectType):
     provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
 
-    @strawberry_django.field
-    def circuits(self) -> List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.circuits.all()
+    circuits: List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -65,9 +52,7 @@ class ProviderAccountType(NetBoxObjectType):
 class ProviderNetworkType(NetBoxObjectType):
     provider: Annotated["ProviderType", strawberry.lazy('circuits.graphql.types')]
 
-    @strawberry_django.field
-    def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.circuit_terminations.all()
+    circuit_terminations: List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -89,9 +74,7 @@ class CircuitTerminationType(CustomFieldsMixin, TagsMixin, CabledObjectMixin, Ob
 class CircuitTypeType(OrganizationalObjectType):
     color: str
 
-    @strawberry_django.field
-    def circuits(self) -> List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.circuits.all()
+    circuits: List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -107,6 +90,4 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
     type: CircuitTypeType
     tenant: TenantType | None
 
-    @strawberry_django.field
-    def terminations(self) -> List[CircuitTerminationType]:
-        return self.terminations.all()
+    terminations: List[CircuitTerminationType]

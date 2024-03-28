@@ -34,6 +34,4 @@ class GroupType:
     filters=UserFilter
 )
 class UserType:
-    @strawberry_django.field
-    def groups(self) -> List[GroupType]:
-        return self.groups.all()
+    groups: List[GroupType]

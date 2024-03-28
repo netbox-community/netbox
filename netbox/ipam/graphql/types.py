@@ -60,13 +60,8 @@ class ASNType(NetBoxObjectType):
     rir: Annotated["RIRType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def sites(self) -> List[SiteType]:
-        return self.sites.all()
-
-    @strawberry_django.field
-    def providers(self) -> List[ProviderType]:
-        return self.providers.all()
+    sites: List[SiteType]
+    providers: List[ProviderType]
 
 
 @strawberry_django.type(
@@ -99,9 +94,7 @@ class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
 )
 class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
 
-    @strawberry_django.field
-    def fhrpgroupassignment_set(self) -> List[Annotated["FHRPGroupAssignmentType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.fhrpgroupassignment_set.all()
+    fhrpgroupassignment_set: List[Annotated["FHRPGroupAssignmentType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -131,17 +124,9 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     nat_inside: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field
-    def nat_outside(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.nat_outside.all()
-
-    @strawberry_django.field
-    def tunnel_terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.tunnel_terminations.all()
-
-    @strawberry_django.field
-    def services(self) -> List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.services.all()
+    nat_outside: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
+    tunnel_terminations: List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]
+    services: List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]
 
     @strawberry_django.field
     def assigned_object(self) -> Annotated[Union[
@@ -186,17 +171,9 @@ class PrefixType(NetBoxObjectType, BaseIPAddressFamilyType):
 )
 class RIRType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def asn_ranges(self) -> List[Annotated["ASNRangeType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.asn_ranges.all()
-
-    @strawberry_django.field
-    def asns(self) -> List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.asns.all()
-
-    @strawberry_django.field
-    def aggregates(self) -> List[Annotated["AggregateType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.aggregates.all()
+    asn_ranges: List[Annotated["ASNRangeType", strawberry.lazy('ipam.graphql.types')]]
+    asns: List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]
+    aggregates: List[Annotated["AggregateType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -206,17 +183,9 @@ class RIRType(OrganizationalObjectType):
 )
 class RoleType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.prefixes.all()
-
-    @strawberry_django.field
-    def ip_ranges(self) -> List[Annotated["IPRangeType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.ip_ranges.all()
-
-    @strawberry_django.field
-    def vlans(self) -> List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlans.all()
+    prefixes: List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]
+    ip_ranges: List[Annotated["IPRangeType", strawberry.lazy('ipam.graphql.types')]]
+    vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -227,21 +196,10 @@ class RoleType(OrganizationalObjectType):
 class RouteTargetType(NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def exporting_l2vpns(self) -> List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.exporting_l2vpns.all()
-
-    @strawberry_django.field
-    def exporting_vrfs(self) -> List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.exporting_vrfs.all()
-
-    @strawberry_django.field
-    def importing_vrfs(self) -> List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.importing_vrfs.all()
-
-    @strawberry_django.field
-    def importing_l2vpns(self) -> List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.importing_l2vpns.all()
+    importing_l2vpns: List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]
+    exporting_l2vpns: List[Annotated["L2VPNType", strawberry.lazy('vpn.graphql.types')]]
+    importing_vrfs: List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
+    exporting_vrfs: List[Annotated["VRFType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -254,9 +212,7 @@ class ServiceType(NetBoxObjectType):
     device: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
     virtual_machine: Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')] | None
 
-    @strawberry_django.field
-    def ipaddresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.ipaddresses.all()
+    ipaddresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -279,29 +235,12 @@ class VLANType(NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["RoleType", strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field
-    def interfaces_as_untagged(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces_as_untagged.all()
-
-    @strawberry_django.field
-    def vminterfaces_as_untagged(self) -> List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vminterfaces_as_untagged.all()
-
-    @strawberry_django.field
-    def wirelesslan_set(self) -> List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]:
-        return self.wirelesslan_set.all()
-
-    @strawberry_django.field
-    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.prefixes.all()
-
-    @strawberry_django.field
-    def interfaces_as_tagged(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces_as_tagged.all()
-
-    @strawberry_django.field
-    def vminterfaces_as_tagged(self) -> List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vminterfaces_as_tagged.all()
+    interfaces_as_untagged: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    vminterfaces_as_untagged: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
+    wirelesslan_set: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
+    prefixes: List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]
+    interfaces_as_tagged: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    vminterfaces_as_tagged: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -311,9 +250,7 @@ class VLANType(NetBoxObjectType):
 )
 class VLANGroupType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def vlans(self) -> List[VLANType]:
-        return self.vlans.all()
+    vlans: List[VLANType]
 
     @strawberry_django.field
     def scope(self) -> Annotated[Union[
@@ -336,30 +273,10 @@ class VLANGroupType(OrganizationalObjectType):
 class VRFType(NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces.all()
-
-    @strawberry_django.field
-    def ip_addresses(self) -> List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.ip_addresses.all()
-
-    @strawberry_django.field
-    def vminterfaces(self) -> List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.vminterfaces.all()
-
-    @strawberry_django.field
-    def ip_ranges(self) -> List[Annotated["IPRangeType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.ip_ranges.all()
-
-    @strawberry_django.field
-    def export_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.export_targets.all()
-
-    @strawberry_django.field
-    def import_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.import_targets.all()
-
-    @strawberry_django.field
-    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.prefixes.all()
+    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    ip_addresses: List[Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')]]
+    vminterfaces: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
+    ip_ranges: List[Annotated["IPRangeType", strawberry.lazy('ipam.graphql.types')]]
+    export_targets: List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]
+    import_targets: List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]
+    prefixes: List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]

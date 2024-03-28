@@ -29,9 +29,7 @@ __all__ = (
 )
 class TunnelGroupType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.tunnels.all()
+    tunnels: List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -55,9 +53,7 @@ class TunnelType(NetBoxObjectType):
     ipsec_profile: Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def terminations(self) -> List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.terminations.all()
+    terminations: List[Annotated["TunnelTerminationType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -67,9 +63,7 @@ class TunnelType(NetBoxObjectType):
 )
 class IKEProposalType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def ike_policies(self) -> List[Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.ike_policies.all()
+    ike_policies: List[Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -79,13 +73,8 @@ class IKEProposalType(OrganizationalObjectType):
 )
 class IKEPolicyType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def proposals(self) -> List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.proposals.all()
-
-    @strawberry_django.field
-    def ipsec_profiles(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.ipsec_profiles.all()
+    proposals: List[Annotated["IKEProposalType", strawberry.lazy('vpn.graphql.types')]]
+    ipsec_profiles: List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -95,9 +84,7 @@ class IKEPolicyType(OrganizationalObjectType):
 )
 class IPSecProposalType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def ipsec_policies(self) -> List[Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.ipsec_policies.all()
+    ipsec_policies: List[Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -107,13 +94,8 @@ class IPSecProposalType(OrganizationalObjectType):
 )
 class IPSecPolicyType(OrganizationalObjectType):
 
-    @strawberry_django.field
-    def proposals(self) -> List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.proposals.all()
-
-    @strawberry_django.field
-    def ipsec_profiles(self) -> List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.ipsec_profiles.all()
+    proposals: List[Annotated["IPSecProposalType", strawberry.lazy('vpn.graphql.types')]]
+    ipsec_profiles: List[Annotated["IPSecProfileType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -125,9 +107,7 @@ class IPSecProfileType(OrganizationalObjectType):
     ike_policy: Annotated["IKEPolicyType", strawberry.lazy('vpn.graphql.types')]
     ipsec_policy: Annotated["IPSecPolicyType", strawberry.lazy('vpn.graphql.types')]
 
-    @strawberry_django.field
-    def tunnels(self) -> List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.tunnels.all()
+    tunnels: List[Annotated["TunnelType", strawberry.lazy('vpn.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -138,17 +118,9 @@ class IPSecProfileType(OrganizationalObjectType):
 class L2VPNType(ContactsMixin, NetBoxObjectType):
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def export_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.export_targets.all()
-
-    @strawberry_django.field
-    def terminations(self) -> List[Annotated["L2VPNTerminationType", strawberry.lazy('vpn.graphql.types')]]:
-        return self.terminations.all()
-
-    @strawberry_django.field
-    def import_targets(self) -> List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.import_targets.all()
+    export_targets: List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]
+    terminations: List[Annotated["L2VPNTerminationType", strawberry.lazy('vpn.graphql.types')]]
+    import_targets: List[Annotated["RouteTargetType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
