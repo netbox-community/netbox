@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: pozil/auto-assign-issue@v1
+        if: "contains(github.event.issue.labels.*.name, 'type: bug') || contains(github.event.issue.labels.*.name, 'type: feature')"
         with:
           assignees: abhi1693,arthanson,DanSheps,jeffgdotorg,jeremystretch
           numOfAssignee: 1
