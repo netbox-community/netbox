@@ -25,6 +25,7 @@ from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
 from utilities.forms import ConfirmationForm
+from utilities.htmx import htmx_partial
 from utilities.query import count_related
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
 from . import filtersets, forms, tables
@@ -320,7 +321,7 @@ class BackgroundTaskListView(TableMixin, BaseRQView):
         table = self.get_table(data, request, False)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if request.htmx:
+        if htmx_partial(request):
             return render(request, 'htmx/table.html', {
                 'table': table,
             })
@@ -489,8 +490,8 @@ class WorkerListView(TableMixin, BaseRQView):
         table = self.get_table(data, request, False)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if request.htmx:
-            if request.htmx.target != 'object_list':
+        if htmx_partial(request):
+            if not request.htmx.target:
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:

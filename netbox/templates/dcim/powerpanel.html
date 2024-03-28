@@ -52,17 +52,17 @@
         {% htmx_table 'dcim:powerfeed_list' power_panel_id=object.pk %}
         <div class="card-footer d-print-none">
           {% if perms.dcim.change_powerfeed %}
-            <button type="submit" name="_edit" formaction="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning">
+            <button type="submit" name="_edit" {% formaction %}="{% url 'dcim:powerfeed_bulk_edit' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-warning">
               <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
             </button>
           {% endif %}
           {% if perms.dcim.delete_cable %}
-            <button type="submit" name="_disconnect" formaction="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-outline-danger">
+            <button type="submit" name="_disconnect" {% formaction %}="{% url 'dcim:powerfeed_bulk_disconnect' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-outline-danger">
               <span class="mdi mdi-ethernet-cable-off" aria-hidden="true"></span> {% trans "Disconnect" %}
             </button>
           {% endif %}
           {% if perms.dcim.delete_powerfeed %}
-            <button type="submit" name="_delete" formaction="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger">
+            <button type="submit" name="_delete" {% formaction %}="{% url 'dcim:powerfeed_bulk_delete' %}?return_url={% url 'dcim:powerpanel' pk=object.pk %}" class="btn btn-danger">
               <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span> {% trans "Delete" %}
             </button>
           {% endif %}

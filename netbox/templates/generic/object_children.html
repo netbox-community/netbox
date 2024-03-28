@@ -21,7 +21,7 @@
                         {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
                             {% if 'bulk_edit' in actions and bulk_edit_view %}
                                 <button type="submit" name="_edit"
-                                        formaction="{% url bulk_edit_view %}?return_url={{ return_url }}"
+                                        {% formaction %}="{% url bulk_edit_view %}?return_url={{ return_url }}"
                                         class="btn btn-warning">
                                     <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
                                 </button>
@@ -35,7 +35,7 @@
                         {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
                             {% if 'bulk_delete' in actions and bulk_delete_view %}
                                 <button type="submit"
-                                        formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
+                                        {% formaction %}="{% url bulk_delete_view %}?return_url={{ return_url }}"
                                         class="btn btn-danger">
                                     <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete Selected" %}
                                 </button>

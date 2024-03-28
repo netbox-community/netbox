@@ -3,7 +3,7 @@
 
 <div class="row mb-3">
   <div class="col-auto d-print-none">
-    <div class="input-group input-group-flat me-2 quicksearch">
+    <div class="input-group input-group-flat me-2 quicksearch" hx-disinherit="hx-select hx-swap">
       <input type="search" results="5" name="q" id="quicksearch" class="form-control px-2 py-1" placeholder="Quick search"
         hx-get="{{ request.full_path }}" hx-target="#object_list" hx-trigger="keyup changed delay:500ms, search" />
       <span class="input-group-text py-1">

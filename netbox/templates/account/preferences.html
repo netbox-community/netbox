@@ -6,7 +6,7 @@
 {% block title %}{% trans "User Preferences" %}{% endblock %}
 
 {% block content %}
-  <form method="post" action="" id="preferences-update">
+  <form method="post" action="" hx-disable="true" id="preferences-update">
     {% csrf_token %}
 
     {# Built-in preferences #}

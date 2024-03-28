@@ -11,63 +11,63 @@
       <ul class="dropdown-menu">
         {% if perms.dcim.add_consoleport %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_consoleport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_consoleport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
              {% trans "Console Ports" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_consoleserverport %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_consoleserverport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item ">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_consoleserverport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item ">
               {% trans "Console Server Ports" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_powerport %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_powerport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_powerport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Power Ports" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_poweroutlet %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_poweroutlet' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_poweroutlet' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Power Outlets" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_interface %}
           <li>
-              <button type="submit" formaction="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}"
-                 class="dropdown-item">{% trans "Interfaces" %}
+              <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_interface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+                {% trans "Interfaces" %}
               </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_rearport %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_rearport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_rearport' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Rear Ports" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_devicebay %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_devicebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Device Bays" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_modulebay %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_modulebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_modulebay' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Module Bays" %}
             </button>
           </li>
         {% endif %}
         {% if perms.dcim.add_inventoryitem %}
           <li>
-            <button type="submit" formaction="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'dcim:device_bulk_add_inventoryitem' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Inventory Items" %}
             </button>
           </li>
@@ -78,7 +78,7 @@
   {% if 'bulk_edit' in actions %}
     <div class="btn-group" role="group">
       {% bulk_edit_button model query_params=request.GET %}
-      <button type="submit" name="_rename" formaction="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-warning">
+      <button type="submit" name="_rename" {% formaction %}="{% url 'dcim:device_bulk_rename' %}?return_url={% url 'dcim:device_list' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="btn btn-outline-warning">
         <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> {% trans "Rename" %}
       </button>
     </div>

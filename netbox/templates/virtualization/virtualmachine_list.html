@@ -10,14 +10,14 @@
       <ul class="dropdown-menu">
         {% if perms.virtualization.add_vminterface %}
           <li>
-            <button type="submit" formaction="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Interfaces" %}
             </button>
           </li>
         {% endif %}
         {% if perms.virtualization.add_virtualdisk %}
           <li>
-            <button type="submit" formaction="{% url 'virtualization:virtualmachine_bulk_add_virtualdisk' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'virtualization:virtualmachine_bulk_add_virtualdisk' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Virtual Disks" %}
             </button>
           </li>

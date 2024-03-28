@@ -1,11 +1,12 @@
-import { getElements, isTruthy } from './util';
 import { initButtons } from './buttons';
+import { initClipboard } from './clipboard'
 import { initSelects } from './select';
 import { initObjectSelector } from './objectSelector';
 import { initBootstrap } from './bs';
+import { initMessages } from './messages';
 
 function initDepedencies(): void {
-  for (const init of [initButtons, initSelects, initObjectSelector, initBootstrap]) {
+  for (const init of [initButtons, initClipboard, initSelects, initObjectSelector, initBootstrap, initMessages]) {
     init();
   }
 }
@@ -15,16 +16,5 @@ function initDepedencies(): void {
  * elements.
  */
 export function initHtmx(): void {
-  for (const element of getElements('[hx-target]')) {
-    const targetSelector = element.getAttribute('hx-target');
-    if (isTruthy(targetSelector)) {
-      for (const target of getElements(targetSelector)) {
-        target.addEventListener('htmx:afterSettle', initDepedencies);
-      }
-    }
-  }
-
-  for (const element of getElements('[hx-trigger=load]')) {
-    element.addEventListener('htmx:afterSettle', initDepedencies);
-  }
+  document.addEventListener('htmx:afterSettle', initDepedencies);
 }
