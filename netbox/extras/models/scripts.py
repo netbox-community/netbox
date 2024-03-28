@@ -2,6 +2,7 @@ import inspect
 import logging
 from functools import cached_property
 
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -79,3 +80,8 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
         return super().save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        # Delete all associated event rules
+        ContentType.objects.get(app_label=self._meta.app_label, model=self._meta.model_name).eventrule_actions.all().delete()
+        super().delete(*args, **kwargs)
