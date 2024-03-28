@@ -47,6 +47,13 @@ class ChoiceFieldFix(OpenApiSerializerFieldExtension):
             )
 
 
+class SerializedPKRelatedFieldFix(OpenApiSerializerFieldExtension):
+    target_class = "netbox.api.fields.SerializedPKRelatedField"
+
+    def map_serializer_field(self, auto_schema, direction):
+        return auto_schema._map_serializer(self.target.serializer, direction)
+
+
 class NetBoxAutoSchema(AutoSchema):
     """
     Overrides to drf_spectacular.openapi.AutoSchema to fix following issues:
