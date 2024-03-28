@@ -156,8 +156,6 @@ class NetBoxAutoSchema(AutoSchema):
                 remove_fields.append(child_name)
             if isinstance(child, (ChoiceField, WritableNestedSerializer)):
                 properties[child_name] = None
-            elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
-                properties[child_name] = None
 
         if not properties:
             return None
