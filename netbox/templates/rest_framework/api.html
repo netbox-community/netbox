@@ -2,6 +2,33 @@
 {% load static %}
 {% load i18n %}
 
+{% block bootstrap_theme %}
+  <link rel="stylesheet" type="text/css" href="{% static "rest_framework/css/bootstrap.min.css" %}"/>
+  <style>
+    .breadcrumb {
+      background-color: #fff;
+    }
+    .btn-primary {
+      background-color: #17a2b8;
+      border: none;
+    }
+    .navbar-default {
+      background-color: #fff;
+    }
+    .navbar-default .navbar-text {
+      color: #182433;
+    }
+    .navbar>.container .navbar-brand, .navbar>.container-fluid .navbar-brand {
+      padding: 12px 0 12px 0;
+    }
+    .prettyprint {
+      background-color: #f6f8fb;
+    }
+  </style>
+{% endblock %}
+
+{% block bootstrap_navbar_variant %}navbar-default{% endblock %}
+
 {% block head %}
   {{ block.super }}
   <link rel="icon" type="image/png" href="{% static 'rest-api.ico' %}" />
@@ -10,5 +37,7 @@
 {% block title %}{% if name %}{{ name }} | {% endif %}NetBox {% trans "REST API" %}{% endblock %}
 
 {% block branding %}
-  <a class="navbar-brand" href="{% url 'home' %}">NetBox</a>
+  <a class="navbar-brand" href="{% url 'home' %}">
+    <img src="{% static 'netbox_logo.svg' %}" height="32" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image">
+  </a>
 {% endblock branding %}
