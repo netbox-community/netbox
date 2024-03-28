@@ -51,34 +51,6 @@ def get_cabletermination_row_class(record):
     return ''
 
 
-def get_interface_row_class(record):
-    if not record.enabled:
-        return 'danger'
-    elif record.is_virtual:
-        return 'primary'
-    return get_cabletermination_row_class(record)
-
-
-def get_interface_state_attribute(record):
-    """
-    Get interface enabled state as string to attach to <tr/> DOM element.
-    """
-    if record.enabled:
-        return 'enabled'
-    else:
-        return 'disabled'
-
-
-def get_interface_connected_attribute(record):
-    """
-    Get interface disconnected state as string to attach to <tr/> DOM element.
-    """
-    if record.mark_connected or record.cable:
-        return 'connected'
-    else:
-        return 'disconnected'
-
-
 #
 # Device roles
 #
@@ -706,11 +678,12 @@ class DeviceInterfaceTable(InterfaceTable):
             'cable', 'connection',
         )
         row_attrs = {
-            'class': get_interface_row_class,
             'data-name': lambda record: record.name,
-            'data-enabled': get_interface_state_attribute,
-            'data-type': lambda record: record.type,
-            'data-connected': get_interface_connected_attribute
+            'data-enabled': lambda record: "enabled" if record.enabled else "disabled",
+            'data-virtual': lambda record: "true" if record.is_virtual else "false",
+            'data-mark-connected': lambda record: "true" if record.mark_connected else "false",
+            'data-cable-status': lambda record: record.cable.status if record.cable else "",
+            'data-type': lambda record: record.type
         }
 
 
