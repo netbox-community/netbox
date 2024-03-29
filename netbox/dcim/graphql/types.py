@@ -120,8 +120,7 @@ class ModularComponentTemplateType(ComponentTemplateType):
 )
 class CableTerminationType(NetBoxObjectType):
 
-    @strawberry_django.field
-    def termination(self) -> List[Annotated[Union[
+    termination: Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
@@ -131,8 +130,7 @@ class CableTerminationType(NetBoxObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("CableTerminationTerminationType")]]:
-        return self.termination
+    ], strawberry.union("CableTerminationTerminationType")]
 
 
 @strawberry_django.type(
@@ -144,12 +142,9 @@ class CableType(NetBoxObjectType):
     color: str
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def terminations(self) -> List[CableTerminationType]:
-        return self.terminations.all()
+    terminations: List[CableTerminationType]
 
-    @strawberry_django.field
-    def a_terminations(self) -> List[Annotated[Union[
+    a_terminations: List[Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
@@ -159,11 +154,9 @@ class CableType(NetBoxObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("CableTerminationTerminationType")]]:
-        return self.a_terminations
+    ], strawberry.union("CableTerminationTerminationType")]]
 
-    @strawberry_django.field
-    def b_terminations(self) -> List[Annotated[Union[
+    b_terminations: List[Annotated[Union[
         Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
@@ -173,8 +166,7 @@ class CableType(NetBoxObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("CableTerminationTerminationType")]]:
-        return self.b_terminations
+    ], strawberry.union("CableTerminationTerminationType")]]
 
 
 @strawberry_django.type(
@@ -244,69 +236,28 @@ class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBo
     cluster: Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')] | None
     virtual_chassis: Annotated["VirtualChassisType", strawberry.lazy('dcim.graphql.types')] | None
 
+    virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
+    modules: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
+    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    rearports: List[Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]]
+    consoleports: List[Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')]]
+    powerports: List[Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')]]
+    cabletermination_set: List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]
+    consoleserverports: List[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]
+    poweroutlets: List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]
+    frontports: List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
+    modulebays: List[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]
+    services: List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]
+    inventoryitems: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]
+    vdcs: List[Annotated["VirtualDeviceContextType", strawberry.lazy('dcim.graphql.types')]]
+
     @strawberry_django.field
     def vc_master_for(self) -> Annotated["VirtualChassisType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.vc_master_for if hasattr(self, 'vc_master_for') else None
 
     @strawberry_django.field
-    def virtual_machines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.virtual_machines.all()
-
-    @strawberry_django.field
-    def modules(self) -> List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.modules.all()
-
-    @strawberry_django.field
     def parent_bay(self) -> Annotated["DeviceBayType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent_bay if hasattr(self, 'parent_bay') else None
-
-    @strawberry_django.field
-    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces.all()
-
-    @strawberry_django.field
-    def rearports(self) -> List[Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.rearports.all()
-
-    @strawberry_django.field
-    def consoleports(self) -> List[Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleports.all()
-
-    @strawberry_django.field
-    def powerports(self) -> List[Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerports.all()
-
-    @strawberry_django.field
-    def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.cabletermination_set.all()
-
-    @strawberry_django.field
-    def consoleserverports(self) -> List[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleserverports.all()
-
-    @strawberry_django.field
-    def poweroutlets(self) -> List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.poweroutlets.all()
-
-    @strawberry_django.field
-    def frontports(self) -> List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.frontports.all()
-
-    @strawberry_django.field
-    def modulebays(self) -> List[Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.modulebays.all()
-
-    @strawberry_django.field
-    def services(self) -> List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.services.all()
-
-    @strawberry_django.field
-    def inventoryitems(self) -> List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.inventoryitems.all()
-
-    @strawberry_django.field
-    def vdcs(self) -> List[Annotated["VirtualDeviceContextType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vdcs.all()
 
 
 @strawberry_django.type(
@@ -341,12 +292,9 @@ class InventoryItemTemplateType(ComponentTemplateType):
     def parent(self) -> Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
-    @strawberry_django.field
-    def child_items(self) -> List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.child_items.all()
+    child_items: List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
-    @strawberry_django.field
-    def component(self) -> List[Annotated[Union[
+    component: Annotated[Union[
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
@@ -354,8 +302,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemTemplateComponentType")]]:
-        return self.component
+    ], strawberry.union("InventoryItemTemplateComponentType")]
 
 
 @strawberry_django.type(
@@ -367,13 +314,8 @@ class DeviceRoleType(OrganizationalObjectType):
     color: str
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 
-    @strawberry_django.field
-    def virtual_machines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.virtual_machines.all()
-
-    @strawberry_django.field
-    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devices.all()
+    virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
+    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -397,49 +339,17 @@ class DeviceTypeType(NetBoxObjectType):
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
     default_platform: Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def frontporttemplates(self) -> List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.frontporttemplates.all()
-
-    @strawberry_django.field
-    def modulebaytemplates(self) -> List[Annotated["ModuleBayTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.modulebaytemplates.all()
-
-    @strawberry_django.field
-    def instances(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.instances.all()
-
-    @strawberry_django.field
-    def poweroutlettemplates(self) -> List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.poweroutlettemplates.all()
-
-    @strawberry_django.field
-    def powerporttemplates(self) -> List[Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerporttemplates.all()
-
-    @strawberry_django.field
-    def inventoryitemtemplates(self) -> List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.inventoryitemtemplates.all()
-
-    @strawberry_django.field
-    def rearporttemplates(self) -> List[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.rearporttemplates.all()
-
-    @strawberry_django.field
-    def consoleserverporttemplates(self) -> List[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleserverporttemplates.all()
-
-    @strawberry_django.field
-    def interfacetemplates(self) -> List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfacetemplates.all()
-
-    @strawberry_django.field
-    def devicebaytemplates(self) -> List[Annotated["DeviceBayTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devicebaytemplates.all()
-
-    @strawberry_django.field
-    def consoleporttemplates(self) -> List[Annotated["ConsolePortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleporttemplates.all()
+    frontporttemplates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    modulebaytemplates: List[Annotated["ModuleBayTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    instances: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    poweroutlettemplates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    powerporttemplates: List[Annotated["PowerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    inventoryitemtemplates: List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    rearporttemplates: List[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    consoleserverporttemplates: List[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    interfacetemplates: List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    devicebaytemplates: List[Annotated["DeviceBayTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    consoleporttemplates: List[Annotated["ConsolePortTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -478,29 +388,12 @@ class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, P
     untagged_vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
 
-    @strawberry_django.field
-    def vdcs(self) -> List[Annotated["VirtualDeviceContextType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.vdcs.all()
-
-    @strawberry_django.field
-    def tagged_vlans(self) -> List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.tagged_vlans.all()
-
-    @strawberry_django.field
-    def bridge_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.bridge_interfaces.all()
-
-    @strawberry_django.field
-    def wireless_lans(self) -> List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]:
-        return self.wireless_lans.all()
-
-    @strawberry_django.field
-    def member_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.member_interfaces.all()
-
-    @strawberry_django.field
-    def child_interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.child_interfaces.all()
+    vdcs: List[Annotated["VirtualDeviceContextType", strawberry.lazy('dcim.graphql.types')]]
+    tagged_vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
+    bridge_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    wireless_lans: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
+    member_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    child_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -512,9 +405,7 @@ class InterfaceTemplateType(ModularComponentTemplateType):
     _name: str
     bridge: Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def bridge_interfaces(self) -> List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.bridge_interfaces.all()
+    bridge_interfaces: List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -526,16 +417,13 @@ class InventoryItemType(ComponentType):
     role: Annotated["InventoryItemRoleType", strawberry.lazy('dcim.graphql.types')] | None
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
+    child_items: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]
+
     @strawberry_django.field
     def parent(self) -> Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
 
-    @strawberry_django.field
-    def child_items(self) -> List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.child_items.all()
-
-    @strawberry_django.field
-    def component(self) -> List[Annotated[Union[
+    component: Annotated[Union[
         Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
@@ -543,8 +431,7 @@ class InventoryItemType(ComponentType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemComponentType")]]:
-        return self.component
+    ], strawberry.union("InventoryItemComponentType")]
 
 
 @strawberry_django.type(
@@ -555,13 +442,8 @@ class InventoryItemType(ComponentType):
 class InventoryItemRoleType(OrganizationalObjectType):
     color: str
 
-    @strawberry_django.field
-    def inventory_items(self) -> List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.inventory_items.all()
-
-    @strawberry_django.field
-    def inventory_item_templates(self) -> List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.inventory_item_templates.all()
+    inventory_items: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]
+    inventory_item_templates: List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -575,25 +457,11 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     parent: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def powerpanel_set(self) -> List[Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerpanel_set.all()
-
-    @strawberry_django.field
-    def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.cabletermination_set.all()
-
-    @strawberry_django.field
-    def racks(self) -> List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.racks.all()
-
-    @strawberry_django.field
-    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devices.all()
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.children.all()
+    powerpanel_set: List[Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]]
+    cabletermination_set: List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]
+    racks: List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]
+    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    children: List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -603,25 +471,11 @@ class LocationType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, Organi
 )
 class ManufacturerType(OrganizationalObjectType, ContactsMixin):
 
-    @strawberry_django.field
-    def platforms(self) -> List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.platforms.all()
-
-    @strawberry_django.field
-    def device_types(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.device_types.all()
-
-    @strawberry_django.field
-    def inventory_item_templates(self) -> List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.inventory_item_templates.all()
-
-    @strawberry_django.field
-    def inventory_items(self) -> List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.inventory_items.all()
-
-    @strawberry_django.field
-    def module_types(self) -> List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.module_types.all()
+    platforms: List[Annotated["PlatformType", strawberry.lazy('dcim.graphql.types')]]
+    device_types: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    inventory_item_templates: List[Annotated["InventoryItemTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    inventory_items: List[Annotated["InventoryItemType", strawberry.lazy('dcim.graphql.types')]]
+    module_types: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -634,33 +488,13 @@ class ModuleType(NetBoxObjectType):
     module_bay: Annotated["ModuleBayType", strawberry.lazy('dcim.graphql.types')]
     module_type: Annotated["ModuleTypeType", strawberry.lazy('dcim.graphql.types')]
 
-    @strawberry_django.field
-    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces.all()
-
-    @strawberry_django.field
-    def powerports(self) -> List[Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerports.all()
-
-    @strawberry_django.field
-    def consoleserverports(self) -> List[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleserverports.all()
-
-    @strawberry_django.field
-    def consoleports(self) -> List[Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleports.all()
-
-    @strawberry_django.field
-    def poweroutlets(self) -> List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.poweroutlets.all()
-
-    @strawberry_django.field
-    def rearports(self) -> List[Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.rearports.all()
-
-    @strawberry_django.field
-    def frontports(self) -> List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.frontports.all()
+    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    powerports: List[Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')]]
+    consoleserverports: List[Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')]]
+    consoleports: List[Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')]]
+    poweroutlets: List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]
+    rearports: List[Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')]]
+    frontports: List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -670,9 +504,7 @@ class ModuleType(NetBoxObjectType):
 )
 class ModuleBayType(ComponentType):
 
-    @strawberry_django.field
-    def installed_module(self) -> Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None:
-        return self.installed_module if hasattr(self, 'installed_module') else None
+    installed_module: Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')] | None
 
 
 @strawberry_django.type(
@@ -692,37 +524,14 @@ class ModuleBayTemplateType(ComponentTemplateType):
 class ModuleTypeType(NetBoxObjectType):
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')]
 
-    @strawberry_django.field
-    def frontporttemplates(self) -> List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.frontporttemplates.all()
-
-    @strawberry_django.field
-    def consoleserverporttemplates(self) -> List[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleserverporttemplates.all()
-
-    @strawberry_django.field
-    def interfacetemplates(self) -> List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfacetemplates.all()
-
-    @strawberry_django.field
-    def powerporttemplates(self) -> List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerporttemplates.all()
-
-    @strawberry_django.field
-    def poweroutlettemplates(self) -> List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.poweroutlettemplates.all()
-
-    @strawberry_django.field
-    def rearporttemplates(self) -> List[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.rearporttemplates.all()
-
-    @strawberry_django.field
-    def instances(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.instances.all()
-
-    @strawberry_django.field
-    def consoleporttemplates(self) -> List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.consoleporttemplates.all()
+    frontporttemplates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    consoleserverporttemplates: List[Annotated["ConsoleServerPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    interfacetemplates: List[Annotated["InterfaceTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    powerporttemplates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    poweroutlettemplates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    rearporttemplates: List[Annotated["RearPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
+    instances: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    consoleporttemplates: List[Annotated["ModuleType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -734,13 +543,8 @@ class PlatformType(OrganizationalObjectType):
     manufacturer: Annotated["ManufacturerType", strawberry.lazy('dcim.graphql.types')] | None
     config_template: Annotated["ConfigTemplateType", strawberry.lazy('extras.graphql.types')] | None
 
-    @strawberry_django.field
-    def virtual_machines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.virtual_machines.all()
-
-    @strawberry_django.field
-    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devices.all()
+    virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
+    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -782,9 +586,7 @@ class PowerPanelType(NetBoxObjectType, ContactsMixin):
     site: Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]
     location: Annotated["LocationType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def powerfeeds(self) -> List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerfeeds.all()
+    powerfeeds: List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -794,9 +596,7 @@ class PowerPanelType(NetBoxObjectType, ContactsMixin):
 )
 class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
 
-    @strawberry_django.field
-    def poweroutlets(self) -> List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.poweroutlets.all()
+    poweroutlets: List[Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -807,9 +607,7 @@ class PowerPortType(ModularComponentType, CabledObjectMixin, PathEndpointMixin):
 class PowerPortTemplateType(ModularComponentTemplateType):
     _name: str
 
-    @strawberry_django.field
-    def poweroutlet_templates(self) -> List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.poweroutlet_templates.all()
+    poweroutlet_templates: List[Annotated["PowerOutletTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -824,21 +622,10 @@ class RackType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
     role: Annotated["RackRoleType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def reservations(self) -> List[Annotated["RackReservationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.reservations.all()
-
-    @strawberry_django.field
-    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devices.all()
-
-    @strawberry_django.field
-    def powerfeeds(self) -> List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerfeeds.all()
-
-    @strawberry_django.field
-    def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.cabletermination_set.all()
+    reservations: List[Annotated["RackReservationType", strawberry.lazy('dcim.graphql.types')]]
+    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    powerfeeds: List[Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')]]
+    cabletermination_set: List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -861,9 +648,7 @@ class RackReservationType(NetBoxObjectType):
 class RackRoleType(OrganizationalObjectType):
     color: str
 
-    @strawberry_django.field
-    def racks(self) -> List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.racks.all()
+    racks: List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -874,9 +659,7 @@ class RackRoleType(OrganizationalObjectType):
 class RearPortType(ModularComponentType, CabledObjectMixin):
     color: str
 
-    @strawberry_django.field
-    def frontports(self) -> List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.frontports.all()
+    frontports: List[Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -888,9 +671,7 @@ class RearPortTemplateType(ModularComponentTemplateType):
     _name: str
     color: str
 
-    @strawberry_django.field
-    def frontport_templates(self) -> List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.frontport_templates.all()
+    frontport_templates: List[Annotated["FrontPortTemplateType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -901,17 +682,12 @@ class RearPortTemplateType(ModularComponentTemplateType):
 )
 class RegionType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
-    @strawberry_django.field
-    def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.sites.all()
+    sites: List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
+    children: List[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]
 
     @strawberry_django.field
     def parent(self) -> Annotated["RegionType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["RegionType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.children.all()
 
 
 @strawberry_django.type(
@@ -926,49 +702,17 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
     group: Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def prefixes(self) -> List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.prefixes.all()
-
-    @strawberry_django.field
-    def virtual_machines(self) -> List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.virtual_machines.all()
-
-    @strawberry_django.field
-    def racks(self) -> List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.racks.all()
-
-    @strawberry_django.field
-    def cabletermination_set(self) -> List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.cabletermination_set.all()
-
-    @strawberry_django.field
-    def powerpanel_set(self) -> List[Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.powerpanel_set.all()
-
-    @strawberry_django.field
-    def devices(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.devices.all()
-
-    @strawberry_django.field
-    def locations(self) -> List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.locations.all()
-
-    @strawberry_django.field
-    def asns(self) -> List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.asns.all()
-
-    @strawberry_django.field
-    def circuit_terminations(self) -> List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]:
-        return self.circuit_terminations.all()
-
-    @strawberry_django.field
-    def clusters(self) -> List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]:
-        return self.clusters.all()
-
-    @strawberry_django.field
-    def vlans(self) -> List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]:
-        return self.vlans.all()
+    prefixes: List[Annotated["PrefixType", strawberry.lazy('ipam.graphql.types')]]
+    virtual_machines: List[Annotated["VirtualMachineType", strawberry.lazy('virtualization.graphql.types')]]
+    racks: List[Annotated["RackType", strawberry.lazy('dcim.graphql.types')]]
+    cabletermination_set: List[Annotated["CableTerminationType", strawberry.lazy('dcim.graphql.types')]]
+    powerpanel_set: List[Annotated["PowerPanelType", strawberry.lazy('dcim.graphql.types')]]
+    devices: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
+    locations: List[Annotated["LocationType", strawberry.lazy('dcim.graphql.types')]]
+    asns: List[Annotated["ASNType", strawberry.lazy('ipam.graphql.types')]]
+    circuit_terminations: List[Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')]]
+    clusters: List[Annotated["ClusterType", strawberry.lazy('virtualization.graphql.types')]]
+    vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -979,17 +723,12 @@ class SiteType(VLANGroupsMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObje
 )
 class SiteGroupType(VLANGroupsMixin, ContactsMixin, OrganizationalObjectType):
 
-    @strawberry_django.field
-    def sites(self) -> List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.sites.all()
+    sites: List[Annotated["SiteType", strawberry.lazy('dcim.graphql.types')]]
+    children: List[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]
 
     @strawberry_django.field
     def parent(self) -> Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')] | None:
         return self.parent
-
-    @strawberry_django.field
-    def children(self) -> List[Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.children.all()
 
 
 @strawberry_django.type(
@@ -1001,9 +740,7 @@ class VirtualChassisType(NetBoxObjectType):
     member_count: BigInt
     master: Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')] | None
 
-    @strawberry_django.field
-    def members(self) -> List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.members.all()
+    members: List[Annotated["DeviceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -1017,6 +754,4 @@ class VirtualDeviceContextType(NetBoxObjectType):
     primary_ip6: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces.all()
+    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]

@@ -22,9 +22,7 @@ __all__ = (
 class WirelessLANGroupType(OrganizationalObjectType):
     parent: Annotated["WirelessLANGroupType", strawberry.lazy('wireless.graphql.types')] | None
 
-    @strawberry_django.field
-    def wireless_lans(self) -> List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]:
-        return self.wireless_lans.all()
+    wireless_lans: List[Annotated["WirelessLANType", strawberry.lazy('wireless.graphql.types')]]
 
 
 @strawberry_django.type(
@@ -37,9 +35,7 @@ class WirelessLANType(NetBoxObjectType):
     vlan: Annotated["VLANType", strawberry.lazy('ipam.graphql.types')] | None
     tenant: Annotated["TenantType", strawberry.lazy('tenancy.graphql.types')] | None
 
-    @strawberry_django.field
-    def interfaces(self) -> List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]:
-        return self.interfaces.all()
+    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
 
 
 @strawberry_django.type(

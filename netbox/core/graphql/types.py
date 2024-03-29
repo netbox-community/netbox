@@ -29,6 +29,4 @@ class DataFileType(BaseObjectType):
 )
 class DataSourceType(NetBoxObjectType):
 
-    @strawberry_django.field
-    def datafiles(self) -> List[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]:
-        return self.datafiles.all()
+    datafiles: List[Annotated["DataFileType", strawberry.lazy('core.graphql.types')]]
