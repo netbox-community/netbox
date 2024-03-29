@@ -87,7 +87,7 @@ Blocks:
                   <i class="mdi mdi-key"></i> {% trans "API Tokens" %}
                 </a>
                 <div class="dropdown-divider"></div>
-                <a href="{% url 'logout' %}" class="dropdown-item">
+                <a href="{% url 'logout' %}" hx-disable="true" class="dropdown-item">
                   <i class="mdi mdi-logout-variant"></i> {% trans "Log Out" %}
                 </a>
               </div>
