@@ -23,6 +23,7 @@ from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
@@ -161,8 +162,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         table = self.get_table(self.queryset, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if request.htmx:
-            if request.htmx.target != 'object_list':
+        if htmx_partial(request):
+            if not request.htmx.target:
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:

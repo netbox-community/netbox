@@ -5,6 +5,7 @@
 @import '../node_modules/@tabler/core/src/scss/vendor/tom-select';
 
 // Overrides of external libraries
+@import 'overrides/bootstrap';
 @import 'overrides/tabler';
 
 // Transitional styling to ease migration of templates from NetBox v3.x

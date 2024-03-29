@@ -1,3 +1,5 @@
+import decimal
+
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
@@ -112,7 +114,7 @@ class VirtualMachine(ContactsMixin, RenderConfigMixin, ConfigContextModel, Prima
         null=True,
         verbose_name=_('vCPUs'),
         validators=(
-            MinValueValidator(0.01),
+            MinValueValidator(decimal.Decimal(0.01)),
         )
     )
     memory = models.PositiveIntegerField(

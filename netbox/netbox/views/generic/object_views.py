@@ -17,6 +17,7 @@ from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, PermissionsViolation
 from utilities.forms import ConfirmationForm, restrict_form_fields
+from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
 from utilities.querydict import normalize_querydict, prepare_cloned_fields
 from utilities.views import GetReturnURLMixin, get_viewname
@@ -138,7 +139,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
         table = self.get_table(table_data, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if request.htmx:
+        if htmx_partial(request):
             return render(request, 'htmx/table.html', {
                 'object': instance,
                 'table': table,
@@ -226,7 +227,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         restrict_form_fields(form, request.user)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if request.htmx:
+        if htmx_partial(request):
             return render(request, 'htmx/form.html', {
                 'form': form,
             })
@@ -482,7 +483,7 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
         instance = self.alter_object(self.queryset.model(), request)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if request.htmx:
+        if htmx_partial(request):
             return render(request, 'htmx/form.html', {
                 'form': form,
             })

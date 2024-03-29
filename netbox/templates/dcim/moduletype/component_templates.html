@@ -13,13 +13,13 @@
             </div>
             <div class="card-footer d-print-none">
                 {% if table.rows %}
-                    <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-warning">
+                    <button type="submit" name="_edit" {% formaction %}="{% url table.Meta.model|viewname:"bulk_rename" %}?return_url={{ return_url }}" class="btn btn-warning">
                         <span class="mdi mdi-pencil-outline" aria-hidden="true"></span> {% trans "Rename" %}
                     </button>
-                    <button type="submit" name="_edit" formaction="{% url table.Meta.model|viewname:"bulk_edit" %}?return_url={{ return_url }}" class="btn btn-warning">
+                    <button type="submit" name="_edit" {% formaction %}="{% url table.Meta.model|viewname:"bulk_edit" %}?return_url={{ return_url }}" class="btn btn-warning">
                         <span class="mdi mdi-pencil" aria-hidden="true"></span> {% trans "Edit" %}
                     </button>
-                    <button type="submit" name="_delete" formaction="{% url table.Meta.model|viewname:"bulk_delete" %}?return_url={{ return_url }}" class="btn btn-danger">
+                    <button type="submit" name="_delete" {% formaction %}="{% url table.Meta.model|viewname:"bulk_delete" %}?return_url={{ return_url }}" class="btn btn-danger">
                         <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete" %}
                     </button>
                 {% endif %}

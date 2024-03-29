@@ -2,7 +2,12 @@
 {% load i18n %}
 
 {% if page %}
-  <div class="d-flex justify-content-between align-items-center border-top p-2">
+  <div
+      class="d-flex justify-content-between align-items-center border-top p-2"
+      hx-target="closest .htmx-container"
+      hx-disinherit="hx-select hx-swap"
+      {% if not table.embedded %}hx-push-url="true"{% endif %}
+  >
 
     {# Pages carousel #}
     {% if paginator.num_pages > 1 %}
@@ -13,12 +18,7 @@
           {% if page.has_previous %}
             <li class="page-item">
               {% if htmx %}
-                <a href="#"
-                  hx-get="{{ table.htmx_url }}{% querystring request page=page.previous_page_number %}"
-                  hx-target="closest .htmx-container"
-                  {% if not table.embedded %}hx-push-url="true"{% endif %}
-                  class="page-link"
-                >
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring request page=page.previous_page_number %}" class="page-link">
                   <i class="mdi mdi-chevron-left"></i>
                 </a>
               {% else %}
@@ -34,12 +34,7 @@
           {% for p in page.smart_pages %}
             <li class="page-item{% if page.number == p %} active" aria-current="page{% endif %}">
               {% if p and htmx %}
-                <a href="#"
-                  hx-get="{{ table.htmx_url }}{% querystring request page=p %}"
-                  hx-target="closest .htmx-container"
-                  {% if not table.embedded %}hx-push-url="true"{% endif %}
-                  class="page-link"
-                >
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring request page=p %}" class="page-link">
                   {{ p }}
                 </a>
               {% elif p %}
@@ -57,12 +52,7 @@
           {% if page.has_next %}
             <li class="page-item">
               {% if htmx %}
-                <a href="#"
-                  hx-get="{{ table.htmx_url }}{% querystring request page=page.next_page_number %}"
-                  hx-target="closest .htmx-container"
-                  {% if not table.embedded %}hx-push-url="true"{% endif %}
-                  class="page-link"
-                >
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring request page=page.next_page_number %}" class="page-link">
                   <i class="mdi mdi-chevron-right"></i>
                 </a>
               {% else %}
@@ -97,12 +87,7 @@
           <div class="dropdown-menu">
             {% for n in page.paginator.get_page_lengths %}
               {% if htmx %}
-                <a href="#"
-                  hx-get="{{ table.htmx_url }}{% querystring request per_page=n %}"
-                  hx-target="closest .htmx-container"
-                  {% if not table.embedded %}hx-push-url="true"{% endif %}
-                  class="dropdown-item"
-                >{{ n }}</a>
+                <a href="#" hx-get="{{ table.htmx_url }}{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
               {% else %}
                 <a href="{% querystring request per_page=n %}" class="dropdown-item">{{ n }}</a>
               {% endif %}

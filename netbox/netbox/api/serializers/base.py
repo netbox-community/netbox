@@ -27,9 +27,13 @@ class BaseModelSerializer(serializers.ModelSerializer):
         self.nested = nested
         self._requested_fields = fields
 
+        # Disable validators for nested objects (which already exist)
+        if self.nested:
+            self.validators = []
+
         # If this serializer is nested but no fields have been specified,
         # default to using Meta.brief_fields (if set)
-        if nested and not fields:
+        if self.nested and not fields:
             self._requested_fields = getattr(self.Meta, 'brief_fields', None)
 
         super().__init__(*args, **kwargs)

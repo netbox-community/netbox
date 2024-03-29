@@ -1,6 +1,7 @@
 {% load helpers %}
+{% load navigation %}
 
-<ul class="navbar-nav pt-lg-2">
+<ul class="navbar-nav pt-lg-2" {% htmx_boost %}>
   {% for menu, groups in nav_items %}
     <li class="nav-item dropdown">
 

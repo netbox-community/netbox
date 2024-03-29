@@ -20,6 +20,7 @@ from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
 from utilities.data import shallow_compare_dict
 from utilities.forms import ConfirmationForm, get_field_value
+from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.query import count_related
 from utilities.querydict import normalize_querydict
@@ -1224,7 +1225,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             }
 
         # If this is an HTMX request, return only the result HTML
-        if request.htmx:
+        if htmx_partial(request):
             response = render(request, 'extras/htmx/script_result.html', context)
             if job.completed or not job.started:
                 response.status_code = 286
