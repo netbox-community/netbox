@@ -41,25 +41,25 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
 
         users = (
-            User(username='User_1', password='password1'),
-            User(username='User_2', password='password2'),
-            User(username='User_3', password='password3'),
+            User(username='User1', password='password1'),
+            User(username='User2', password='password2'),
+            User(username='User3', password='password3'),
         )
         User.objects.bulk_create(users)
 
         cls.create_data = [
             {
-                'username': 'User_4',
+                'username': 'User4',
                 'password': 'password4',
                 'permissions': [permissions[0].pk],
             },
             {
-                'username': 'User_5',
+                'username': 'User5',
                 'password': 'password5',
                 'permissions': [permissions[1].pk],
             },
             {
-                'username': 'User_6',
+                'username': 'User6',
                 'password': 'password6',
                 'permissions': [permissions[2].pk],
             },
@@ -79,7 +79,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         user_credentials = {
-            'username': 'user1',
+            'username': 'newuser',
             'password': 'abc123',
         }
         user = User.objects.create_user(**user_credentials)
@@ -169,9 +169,9 @@ class TokenTest(
     @classmethod
     def setUpTestData(cls):
         users = (
-            create_test_user('User 1'),
-            create_test_user('User 2'),
-            create_test_user('User 3'),
+            create_test_user('User1'),
+            create_test_user('User2'),
+            create_test_user('User3'),
         )
 
         tokens = (
@@ -280,9 +280,9 @@ class ObjectPermissionTest(
         Group.objects.bulk_create(groups)
 
         users = (
-            User(username='User 1', is_active=True),
-            User(username='User 2', is_active=True),
-            User(username='User 3', is_active=True),
+            User(username='User1', is_active=True),
+            User(username='User2', is_active=True),
+            User(username='User3', is_active=True),
         )
         User.objects.bulk_create(users)
 
@@ -303,18 +303,24 @@ class ObjectPermissionTest(
             {
                 'name': 'Permission 4',
                 'object_types': ['dcim.site'],
+                'groups': [groups[0].pk],
+                'users': [users[0].pk],
                 'actions': ['view', 'add', 'change', 'delete'],
                 'constraints': {'name': 'TEST4'},
             },
             {
                 'name': 'Permission 5',
                 'object_types': ['dcim.site'],
+                'groups': [groups[1].pk],
+                'users': [users[1].pk],
                 'actions': ['view', 'add', 'change', 'delete'],
                 'constraints': {'name': 'TEST5'},
             },
             {
                 'name': 'Permission 6',
                 'object_types': ['dcim.site'],
+                'groups': [groups[2].pk],
+                'users': [users[2].pk],
                 'actions': ['view', 'add', 'change', 'delete'],
                 'constraints': {'name': 'TEST6'},
             },
