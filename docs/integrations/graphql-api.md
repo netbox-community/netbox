@@ -63,7 +63,7 @@ In addition, filtering can be done on list of related objects as shown in the fo
   device_list {
     id
     name
-    interfaces(filters: {enabled: {exact: true}}) {
+    interfaces(filters: {enabled: true}) {
       name
     }
   }
