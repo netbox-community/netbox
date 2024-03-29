@@ -647,7 +647,7 @@ Note that we are _not_ passing an existing REST API token with this request. If 
 {
     "id": 6,
     "url": "https://netbox/api/users/tokens/6/",
-    "display": "9fc9b897abec9ada2da6aec9dbc34596293c9cb9",
+    "display": "**********************************3c9cb9",
     "user": {
         "id": 2,
         "url": "https://netbox/api/users/users/2/",
