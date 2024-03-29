@@ -54,7 +54,11 @@ For more detail on constructing GraphQL queries, see the [Graphene documentation
 The GraphQL API employs the same filtering logic as the UI and REST API. Filters can be specified as key-value pairs within parentheses immediately following the query name. For example, the following will return only sites within the North Carolina region with a status of active:
 
 ```
-{"query": "query {site_list(region:\"north-carolina\", status:\"active\") {name}}"}
+query {
+  site_list(filters: {region: "us-nc", status: "active"}) {
+    name
+  }
+}
 ```
 In addition, filtering can be done on list of related objects as shown in the following query:
 
@@ -63,7 +67,7 @@ In addition, filtering can be done on list of related objects as shown in the fo
   device_list {
     id
     name
-    interfaces(enabled: true) {
+    interfaces(filters: {enabled: true}) {
       name
     }
   }
