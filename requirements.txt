@@ -12,7 +12,7 @@ django-rq==2.10.2
 django-taggit==5.0.1
 django-tables2==2.7.0
 django-timezone-field==6.1.0
-djangorestframework==3.14.0
+djangorestframework==3.15.1
 drf-spectacular==0.27.1
 drf-spectacular-sidecar==2024.3.4
 feedparser==6.0.11

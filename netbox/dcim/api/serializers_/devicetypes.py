@@ -1,3 +1,5 @@
+import decimal
+
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 
@@ -22,7 +24,7 @@ class DeviceTypeSerializer(NetBoxModelSerializer):
         max_digits=4,
         decimal_places=1,
         label=_('Position (U)'),
-        min_value=0,
+        min_value=decimal.Decimal(0),
         default=1.0
     )
     subdevice_role = ChoiceField(choices=SubdeviceRoleChoices, allow_blank=True, required=False, allow_null=True)

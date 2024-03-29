@@ -47,7 +47,8 @@ class TunnelSerializer(NetBoxModelSerializer):
     group = TunnelGroupSerializer(
         nested=True,
         required=False,
-        allow_null=True
+        allow_null=True,
+        default=None
     )
     encapsulation = ChoiceField(
         choices=TunnelEncapsulationChoices
