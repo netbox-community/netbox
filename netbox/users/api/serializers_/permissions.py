@@ -1,11 +1,10 @@
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 
 from core.models import ObjectType
 from netbox.api.fields import ContentTypeField, SerializedPKRelatedField
 from netbox.api.serializers import ValidatedModelSerializer
-from users.models import Group, ObjectPermission
-from .users import GroupSerializer, UserSerializer
+from users.api.nested_serializers import NestedGroupSerializer, NestedUserSerializer
+from users.models import Group, ObjectPermission, User
 
 __all__ = (
     'ObjectPermissionSerializer',
@@ -20,14 +19,14 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
     )
     groups = SerializedPKRelatedField(
         queryset=Group.objects.all(),
-        serializer=GroupSerializer,
+        serializer=NestedGroupSerializer,
         nested=True,
         required=False,
         many=True
     )
     users = SerializedPKRelatedField(
-        queryset=get_user_model().objects.all(),
-        serializer=UserSerializer,
+        queryset=User.objects.all(),
+        serializer=NestedUserSerializer,
         nested=True,
         required=False,
         many=True
@@ -36,9 +35,9 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
     class Meta:
         model = ObjectPermission
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions',
-            'constraints',
+            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'actions', 'constraints',
+            'groups', 'users',
         )
         brief_fields = (
-            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'groups', 'users', 'actions',
+            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'actions',
         )

@@ -85,8 +85,9 @@ class ValidatedModelSerializer(BaseModelSerializer):
         attrs.pop('custom_fields', None)
 
         # Skip ManyToManyFields
+        opts = self.Meta.model._meta
         m2m_values = {}
-        for field in self.Meta.model._meta.local_many_to_many:
+        for field in [*opts.local_many_to_many, *opts.related_objects]:
             if field.name in attrs:
                 m2m_values[field.name] = attrs.pop(field.name)
 

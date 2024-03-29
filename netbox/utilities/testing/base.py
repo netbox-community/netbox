@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import FieldDoesNotExist
-from django.db.models import ManyToManyField, JSONField
+from django.db.models import ManyToManyField, ManyToManyRel, JSONField
 from django.forms.models import model_to_dict
 from django.test import Client, TestCase as _TestCase
 from netaddr import IPNetwork
@@ -111,8 +111,10 @@ class ModelTestCase(TestCase):
                 continue
 
             # Handle ManyToManyFields
-            if value and type(field) in (ManyToManyField, TaggableManager):
-
+            if value and type(field) in (ManyToManyField, ManyToManyRel, TaggableManager):
+                # Resolve reverse M2M relationships
+                if isinstance(field, ManyToManyRel):
+                    value = getattr(instance, field.related_name).all()
                 if field.related_model in (ContentType, ObjectType) and api:
                     model_dict[key] = sorted([object_type_identifier(ot) for ot in value])
                 else:
