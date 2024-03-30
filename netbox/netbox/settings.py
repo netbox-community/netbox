@@ -277,11 +277,14 @@ TASKS_REDIS_DATABASE = TASKS_REDIS.get('DATABASE', 0)
 TASKS_REDIS_SSL = TASKS_REDIS.get('SSL', False)
 TASKS_REDIS_SKIP_TLS_VERIFY = TASKS_REDIS.get('INSECURE_SKIP_TLS_VERIFY', False)
 TASKS_REDIS_CA_CERT_PATH = TASKS_REDIS.get('CA_CERT_PATH', False)
+TASKS_REDIS_PROTO = 'rediss' if TASKS_REDIS_SSL else TASKS_REDIS.get('PROTO', 'redis')
+TASKS_REDIS_LOCATION_FROM_KEYS = f'unix://{TASKS_REDIS_USERNAME_HOST}?db={TASKS_REDIS_DATABASE}'
+TASKS_REDIS_LOCATION = TASKS_REDIS.get('LOCATION', TASKS_REDIS_LOCATION_FROM_KEYS)
 
 # Caching
 if 'caching' not in REDIS:
     raise ImproperlyConfigured(
-        "REDIS section in configuration.py is missing caching subsection."
+        "REDIS section in configuration.py is missing 'caching' subsection."
     )
 CACHING_REDIS_HOST = REDIS['caching'].get('HOST', 'localhost')
 CACHING_REDIS_PORT = REDIS['caching'].get('PORT', 6379)
@@ -291,18 +294,30 @@ CACHING_REDIS_USERNAME_HOST = '@'.join(filter(None, [CACHING_REDIS_USERNAME, CAC
 CACHING_REDIS_PASSWORD = REDIS['caching'].get('PASSWORD', '')
 CACHING_REDIS_SENTINELS = REDIS['caching'].get('SENTINELS', [])
 CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'default')
-CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
+CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else REDIS['caching'].get('PROTO', 'redis')
 CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
 CACHING_REDIS_CA_CERT_PATH = REDIS['caching'].get('CA_CERT_PATH', False)
+
+if CACHING_REDIS_PROTO == 'unix':
+    CACHING_REDIS_LOCATION_FROM_KEYS = f'unix://{CACHING_REDIS_USERNAME_HOST}?db={CACHING_REDIS_DATABASE}'
+elif CACHING_REDIS_PROTO == 'rediss' or CACHING_REDIS_PROTO == 'redis':
+    CACHING_REDIS_LOCATION_FROM_KEYS = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/CACHING_REDIS_DATABASE}'
+else:
+    raise ImproperlyConfigured(
+        "Unknown PROTO for REDIS 'caching' subsection in configuration.py"
+    )
+
+CACHING_REDIS_LOCATION = REDIS['caching'].get('LOCATION', CACHING_REDIS_LOCATION_FROM_KEYS)
+CACHING_REDIS_OPTIONS = {
+    'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+    'PASSWORD': CACHING_REDIS_PASSWORD,
+}
 
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}',
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            'PASSWORD': CACHING_REDIS_PASSWORD,
-        }
+        'LOCATION': CACHING_REDIS_LOCATION,
+        'OPTIONS': CACHING_REDIS_OPTIONS,
     }
 }
 
@@ -686,6 +701,10 @@ if TASKS_REDIS_USING_SENTINEL:
         'CONNECTION_KWARGS': {
             'socket_connect_timeout': TASKS_REDIS_SENTINEL_TIMEOUT
         },
+    }
+elif TASKS_REDIS_LOCATION:
+    RQ_PARAMS = {
+        'URL': TASKS_REDIS_LOCATION,
     }
 else:
     RQ_PARAMS = {

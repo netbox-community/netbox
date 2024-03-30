@@ -105,11 +105,11 @@ REDIS = {
 
 ### Using Redis Sentinel
 
-If you are using [Redis Sentinel](https://redis.io/topics/sentinel) for high-availability purposes, there is minimal 
-configuration necessary to convert NetBox to recognize it. It requires the removal of the `HOST` and `PORT` keys from 
+If you are using [Redis Sentinel](https://redis.io/topics/sentinel) for high-availability purposes, there is minimal
+configuration necessary to convert NetBox to recognize it. It requires the removal of the `HOST` and `PORT` keys from
 above and the addition of three new keys.
 
-* `SENTINELS`: List of tuples or tuple of tuples with each inner tuple containing the name or IP address 
+* `SENTINELS`: List of tuples or tuple of tuples with each inner tuple containing the name or IP address
 of the Redis server and port for each sentinel instance to connect to
 * `SENTINEL_SERVICE`: Name of the master / service to connect to
 * `SENTINEL_TIMEOUT`: Connection timeout, in seconds
@@ -141,6 +141,36 @@ REDIS = {
 
 !!! note
     It is permissible to use Sentinel for only one database and not the other.
+
+
+### Using Redis with Unix Sockets
+
+If you'd like to configure NetBox to access Redis over unix sockets, set `PROTO: 'unix'`
+
+Example:
+
+```python
+REDIS = {
+    'tasks': {
+        'PROTO': 'unix',
+        'HOST': '/var/run/redis/redis.sock',
+        'PASSWORD': '',
+        'USERNAME': '',
+    }
+}
+```
+Alternatively, you may specify the location string yourself:
+```python
+REDIS = {
+    'tasks': {
+        'LOCATION': 'unix://netbox@/var/run/redis/redis.sock?db=0'
+        'PASSWORD': '',
+    }
+}
+
+!!! note
+    the `PASSWORD` option is still provided even when using `LOCATION` directly so you don't have to url-encode your password yourself.
+
 
 ---
 
