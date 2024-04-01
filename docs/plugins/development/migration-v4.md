@@ -85,6 +85,39 @@ from django import forms
 class MyForm(forms.Form):
 ```
 
+### Update Fieldset Definitions
+
+NetBox v4.0 introduces [several new classes](./forms.md#form-rendering) for advanced form rendering, including FieldSet. Fieldset definitions on forms should use this new class instead of a tuple or list.
+
+Notably, the name of a fieldset is now optional, and passed as a keyword argument rather than as the first item in the set.
+
+```python title="Old"
+from django.utils.translation import gettext_lazy as _
+from netbox.forms import NetBoxModelForm
+
+class CircuitForm(NetBoxModelForm):
+    ...
+    fieldsets = (
+        (_('Circuit'), ('cid', 'type', 'status', 'description', 'tags')),
+        (_('Service Parameters'), ('install_date', 'termination_date', 'commit_rate')),
+        (_('Tenancy'), ('tenant_group', 'tenant')),
+    )
+```
+
+```python title="New"
+from django.utils.translation import gettext_lazy as _
+from netbox.forms import NetBoxModelForm
+from utilities.forms.rendering import FieldSet
+
+class CircuitForm(NetBoxModelForm):
+    ...
+    fieldsets = (
+        FieldSet('cid', 'type', 'status', 'description', 'tags', name=_('Circuit')),
+        FieldSet('install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+    )
+```
+
 ## Navigation
 
 ### Remove button colors
