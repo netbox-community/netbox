@@ -147,6 +147,7 @@ nav:
             - Dashboard Widgets: 'plugins/development/dashboard-widgets.md'
             - Staged Changes: 'plugins/development/staged-changes.md'
             - Exceptions: 'plugins/development/exceptions.md'
+            - Migrating to v4.0: 'plugins/development/migration-v4.md'
     - Administration:
         - Authentication:
             - Overview: 'administration/authentication/overview.md'
