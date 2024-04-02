@@ -66,23 +66,23 @@ Button classes can be specified for custom links which will make the dropdown bu
 
 The following values are possible when bulk-importing custom links: 
 
-| Button class  | Value for bulk imports                                                                                                       |
-|-----------|-------------------------------------------------------------------------------------------------------------------|
-| `Default`  | `outline-dark`                                                                                 |
-| `Blue`   | `blue`                                                                 |
-| `Indigo` | `indigo`                                                                                          |
-| `Purple`    | `purple`                                                                               |
-| `Pink`   | `pink` |
-| `Red`   | `red` |
-| `Orange`   | `orange` |
-| `Yellow`   | `yellow` |
-| `Green`   | `green` |
-| `Teal`   | `teal` |
-| `Cyan`   | `cyan` |
-| `Gray`   | `gray` |
-| `Black`   | `black` |
-| `White`   | `white` |
-| `Link`   | `ghost-dark` |
+| Button class  | Value for bulk imports |
+|---------------|------------------------|
+| Default       | `outline-dark`         |
+| Blue          | `blue`                 |
+| Indigo        | `indigo`               |
+| Purple        | `purple`               |
+| Pink          | `pink`                 |
+| Red           | `red`                  |
+| Orange        | `orange`               |
+| Yellow        | `yellow`               |
+| Green         | `green`                |
+| Teal          | `teal`                 |
+| Cyan          | `cyan`                 |
+| Gray          | `gray`                 |
+| Black         | `black`                |
+| White         | `white`                |
+| Link          | `ghost-dark`           |
 
 ## Table Columns
 
