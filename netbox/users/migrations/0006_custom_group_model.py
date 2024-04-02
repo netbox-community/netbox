@@ -37,7 +37,7 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'groups',
             },
             managers=[
-                ('objects', users.models.NetBoxGroupManager()),
+                ('objects', users.models.GroupManager()),
             ],
         ),
 
