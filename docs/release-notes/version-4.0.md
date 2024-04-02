@@ -148,6 +148,6 @@ The legacy admin user interface is now disabled by default, and the few remainin
     * `content_type` has been renamed to `object_type`
     * The `content_type_id` filter is now `object_type_id`
 * users.Group
-    * Added the `object_permissions` field
+    * Added the `permissions` field
 * users.User
-    * Added the `object_permissions` field
+    * Added the `permissions` field

@@ -28,7 +28,7 @@ class GroupSerializer(ValidatedModelSerializer):
 
     class Meta:
         model = Group
-        fields = ('id', 'url', 'display', 'name', 'permissions', 'user_count')
+        fields = ('id', 'url', 'display', 'name', 'description', 'permissions', 'user_count')
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
 
