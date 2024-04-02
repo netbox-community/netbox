@@ -10,6 +10,14 @@ Minor releases are published in April, August, and December of each calendar yea
 
 This page contains a history of all major and minor releases since NetBox v2.0. For more detail on a specific patch release, please see the release notes page for that specific minor release.
 
+#### [Version 4.0](./version-4.0.md) (April 2024)
+
+* Complete UI Refresh ([#12128](https://github.com/netbox-community/netbox/issues/12128))
+* Dynamic REST API Fields ([#15087](https://github.com/netbox-community/netbox/issues/15087))
+* Strawberry GraphQL Engine ([#9856](https://github.com/netbox-community/netbox/issues/9856))
+* Advanced Form Rendering Functionality ([#14739](https://github.com/netbox-community/netbox/issues/14739))
+* Legacy Admin UI Disabled ([#12325](https://github.com/netbox-community/netbox/issues/12325))
+
 #### [Version 3.7](./version-3.7.md) (December 2023)
 
 * VPN Tunnels ([#9816](https://github.com/netbox-community/netbox/issues/9816))
