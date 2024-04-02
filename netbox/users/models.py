@@ -72,6 +72,7 @@ class Group(models.Model):
     objects = NetBoxGroupManager()
 
     class Meta:
+        ordering = ('name',)
         verbose_name = _('group')
         verbose_name_plural = _('groups')
 
