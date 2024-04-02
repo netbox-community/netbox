@@ -96,7 +96,7 @@ class UserTest(APIViewTestCases.APIViewTestCase):
 
 class GroupTest(APIViewTestCases.APIViewTestCase):
     model = Group
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
