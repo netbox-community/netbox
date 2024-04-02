@@ -20,8 +20,6 @@ GET /api/dcim/devices/?tag=monitored&tag=deprecated
 
 ## Bookmarks
 
-!!! info "This feature was introduced in NetBox v3.6."
-
 Users can bookmark their most commonly visited objects for convenient access. Bookmarks are listed under a user's profile, and can be displayed with custom filtering and ordering on the user's personal dashboard.
 
 ## Custom Fields

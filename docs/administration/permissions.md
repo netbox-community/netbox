@@ -70,8 +70,6 @@ The `$user` token can be used only as a constraint value, or as an item within a
 
 ### Default Permissions
 
-!!! info "This feature was introduced in NetBox v3.6."
-
 While permissions are typically assigned to specific groups and/or users, it is also possible to define a set of default permissions that are applied to _all_ authenticated users. This is done using the [`DEFAULT_PERMISSIONS`](../configuration/security.md#default_permissions) configuration parameter. Note that statically configuring permissions for specific users or groups is **not** supported.
 
 ### Example Constraint Definitions

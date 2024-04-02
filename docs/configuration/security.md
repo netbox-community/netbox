@@ -92,8 +92,6 @@ CSRF_TRUSTED_ORIGINS = (
 
 ## DEFAULT_PERMISSIONS
 
-!!! info "This parameter was introduced in NetBox v3.6."
-
 Default:
 
 ```python
