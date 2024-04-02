@@ -43,6 +43,12 @@ will include only the four specified fields in the representation of each site. 
 
 #### Strawberry GraphQL Engine ([#9856](https://github.com/netbox-community/netbox/issues/9856))
 
+The GraphQL engine has been changed from using Graphene-Django to Strawberry-Django. Changes include:
+
+* Queryset Optimizer - reduces the number of database queries when querying related tables
+* Updated GraphiQL Browser
+* The format for GraphQL query filters and lookups has changed. Please see the GraphQL documentation for details and examples.
+
 #### Advanced Form Rendering Functionality ([#14739](https://github.com/netbox-community/netbox/issues/14739))
 
 New resources have been introduced to enable advanced form rendering without a need for custom HTML templates. These include:
