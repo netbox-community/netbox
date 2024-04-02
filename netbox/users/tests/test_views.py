@@ -66,6 +66,7 @@ class GroupTestCase(
     ViewTestCases.DeleteObjectViewTestCase,
     ViewTestCases.ListObjectsViewTestCase,
     ViewTestCases.BulkImportObjectsViewTestCase,
+    ViewTestCases.BulkEditObjectsViewTestCase,
     ViewTestCases.BulkDeleteObjectsViewTestCase,
 ):
     model = Group
@@ -98,6 +99,10 @@ class GroupTestCase(
             f"{groups[1].pk},group8",
             f"{groups[2].pk},group9",
         )
+
+        cls.bulk_edit_data = {
+            'description': 'New description',
+        }
 
 
 class ObjectPermissionTestCase(

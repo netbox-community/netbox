@@ -15,9 +15,7 @@ class GroupImportForm(CSVModelForm):
 
     class Meta:
         model = Group
-        fields = (
-            'name',
-        )
+        fields = ('name', 'description')
 
 
 class UserImportForm(CSVModelForm):

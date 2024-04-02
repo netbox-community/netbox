@@ -25,6 +25,7 @@ urlpatterns = [
     # Groups
     path('groups/', views.GroupListView.as_view(), name='group_list'),
     path('groups/add/', views.GroupEditView.as_view(), name='group_add'),
+    path('groups/edit/', views.GroupBulkEditView.as_view(), name='group_bulk_edit'),
     path('groups/import/', views.GroupBulkImportView.as_view(), name='group_import'),
     path('groups/delete/', views.GroupBulkDeleteView.as_view(), name='group_bulk_delete'),
     path('groups/<int:pk>/', include(get_model_urls('users', 'group'))),

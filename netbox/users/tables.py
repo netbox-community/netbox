@@ -68,10 +68,7 @@ class GroupTable(NetBoxTable):
 
     class Meta(NetBoxTable.Meta):
         model = Group
-        fields = (
-            'pk', 'id', 'name', 'users_count',
-        )
-        default_columns = ('pk', 'name', 'users_count', )
+        fields = ('pk', 'id', 'name', 'users_count', 'description')
 
 
 class ObjectPermissionTable(NetBoxTable):

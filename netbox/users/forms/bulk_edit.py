@@ -10,6 +10,7 @@ from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DateTimePicker
 
 __all__ = (
+    'GroupBulkEditForm',
     'ObjectPermissionBulkEditForm',
     'UserBulkEditForm',
     'TokenBulkEditForm',
@@ -52,6 +53,24 @@ class UserBulkEditForm(forms.Form):
         FieldSet('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser'),
     )
     nullable_fields = ('first_name', 'last_name')
+
+
+class GroupBulkEditForm(forms.Form):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = User
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description',)
 
 
 class ObjectPermissionBulkEditForm(forms.Form):

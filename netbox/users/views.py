@@ -138,6 +138,13 @@ class GroupBulkImportView(generic.BulkImportView):
     model_form = forms.GroupImportForm
 
 
+class GroupBulkEditView(generic.BulkEditView):
+    queryset = Group.objects.all()
+    filterset = filtersets.GroupFilterSet
+    table = tables.GroupTable
+    form = forms.GroupBulkEditForm
+
+
 class GroupBulkDeleteView(generic.BulkDeleteView):
     queryset = Group.objects.annotate(users_count=Count('user')).order_by('name')
     filterset = filtersets.GroupFilterSet

@@ -19,12 +19,12 @@ from utilities.forms.widgets import DateTimePicker
 from utilities.permissions import qs_filter_from_constraints
 
 __all__ = (
-    'UserTokenForm',
     'GroupForm',
     'ObjectPermissionForm',
     'TokenForm',
     'UserConfigForm',
     'UserForm',
+    'UserTokenForm',
     'TokenForm',
 )
 
@@ -237,7 +237,7 @@ class GroupForm(forms.ModelForm):
     )
 
     fieldsets = (
-        FieldSet('name'),
+        FieldSet('name', 'description'),
         FieldSet('users', name=_('Users')),
         FieldSet('object_permissions', name=_('Permissions')),
     )
@@ -245,7 +245,7 @@ class GroupForm(forms.ModelForm):
     class Meta:
         model = Group
         fields = [
-            'name', 'users', 'object_permissions',
+            'name', 'description', 'users', 'object_permissions',
         ]
 
     def __init__(self, *args, **kwargs):
