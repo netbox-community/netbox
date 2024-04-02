@@ -60,6 +60,30 @@ The link will only appear when viewing a device with a manufacturer name of "Cis
 
 Group names can be specified to organize links into groups. Links with the same group name will render as a dropdown menu beneath a single button bearing the name of the group.
 
+## Button classes
+
+Button classes can be specified for custom links which will make the dropdown button in the UI appear as specified. If multiple links are grouped together, the button class of the first link in a group will be used for the dropdown button.
+
+The following values are possible when bulk-importing custom links: 
+
+| Button class  | Value for bulk imports                                                                                                       |
+|-----------|-------------------------------------------------------------------------------------------------------------------|
+| `Default`  | `outline-dark`                                                                                 |
+| `Blue`   | `blue`                                                                 |
+| `Indigo` | `indigo`                                                                                          |
+| `Purple`    | `purple`                                                                               |
+| `Pink`   | `pink` |
+| `Red`   | `red` |
+| `Orange`   | `orange` |
+| `Yellow`   | `yellow` |
+| `Green`   | `green` |
+| `Teal`   | `teal` |
+| `Cyan`   | `cyan` |
+| `Gray`   | `gray` |
+| `Black`   | `black` |
+| `White`   | `white` |
+| `Link`   | `ghost-dark` |
+
 ## Table Columns
 
 Custom links can also be included in object tables by selecting the desired links from the table configuration form. When displayed, each link will render as a hyperlink for its corresponding object. When exported (e.g. as CSV data), each link render only its URL.
