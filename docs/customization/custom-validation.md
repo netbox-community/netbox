@@ -36,23 +36,6 @@ The `min` and `max` types should be defined for numeric values, whereas `min_len
 !!! warning
     Bear in mind that these validators merely supplement NetBox's own validation: They will not override it. For example, if a certain model field is required by NetBox, setting a validator for it with `{'prohibited': True}` will not work.
 
-### Validating Request Parameters
-
-!!! info "This feature was introduced in NetBox v4.0."
-
-In addition to validating object attributes, custom validators can also match against parameters of the current request (where available). For example, the following rule will permit only the user named "admin" to modify an object:
-
-```json
-{
-  "request.user.username": {
-    "eq": "admin"
-  }
-}
-```
-
-!!! tip
-    Custom validation should generally not be used to enforce permissions. NetBox provides a robust [object-based permissions](../administration/permissions.md) mechanism which should be used for this purpose.
-
 ### Custom Validation Logic
 
 There may be instances where the provided validation types are insufficient. NetBox provides a `CustomValidator` class which can be extended to enforce arbitrary validation logic by overriding its `validate()` method, and calling `fail()` when an unsatisfactory condition is detected. The `validate()` method should accept an instance (the object being saved) as well as the current request effecting the change.
@@ -101,7 +84,42 @@ CUSTOM_VALIDATORS = {
 }
 ```
 
-### Dotted Path
+#### Referencing Related Object Attributes
+
+!!! info "This feature was introduced in NetBox v4.0."
+
+The attributes of a related object can be referenced by specifying a dotted path. For example, to reference the name of a region to which a site is assigned, use `region.name`:
+
+```python
+CUSTOM_VALIDATORS = {
+    "dcim.site": [
+        {
+            "region.name": {
+                "neq": "New York"
+            }
+        }
+    ]
+}
+```
+
+#### Validating Request Parameters
+
+!!! info "This feature was introduced in NetBox v4.0."
+
+In addition to validating object attributes, custom validators can also match against parameters of the current request (where available). For example, the following rule will permit only the user named "admin" to modify an object:
+
+```json
+{
+  "request.user.username": {
+    "eq": "admin"
+  }
+}
+```
+
+!!! tip
+    Custom validation should generally not be used to enforce permissions. NetBox provides a robust [object-based permissions](../administration/permissions.md) mechanism which should be used for this purpose.
+
+### Dotted Path to Class
 
 In instances where a custom validator class is needed, it can be referenced by its Python path (relative to NetBox's working directory):
 
