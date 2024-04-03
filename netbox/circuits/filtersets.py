@@ -64,6 +64,12 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=ASN.objects.all(),
         label=_('ASN (ID)'),
     )
+    asn = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns__asn',
+        queryset=ASN.objects.all(),
+        to_field_name='asn',
+        label=_('ASN'),
+    )
 
     class Meta:
         model = Provider

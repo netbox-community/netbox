@@ -24,7 +24,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         (None, ('q', 'filter_id', 'tag')),
         (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('ASN'), ('asn',)),
+        (_('ASN'), ('asn_id',)),
         (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -45,10 +45,6 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
             'site_group_id': '$site_group_id',
         },
         label=_('Site')
-    )
-    asn = forms.IntegerField(
-        required=False,
-        label=_('ASN (legacy)')
     )
     asn_id = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
