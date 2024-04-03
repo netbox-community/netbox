@@ -1,6 +1,6 @@
 # NetBox v4.0
 
-## v4.0.0 (FUTURE)
+## v4.0-beta1 (2024-04-03)
 
 !!! tip "Plugin Maintainers"
     Please see the dedicated [plugin migration guide](../plugins/development/migration-v4.md) for a checklist of changes that may be needed to ensure compatibility with NetBox v4.0.
