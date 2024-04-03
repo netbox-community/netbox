@@ -647,18 +647,20 @@ Note that we are _not_ passing an existing REST API token with this request. If 
 {
     "id": 6,
     "url": "https://netbox/api/users/tokens/6/",
-    "display": "3c9cb9 (hankhill)",
+    "display": "**********************************3c9cb9",
     "user": {
         "id": 2,
         "url": "https://netbox/api/users/users/2/",
         "display": "hankhill",
         "username": "hankhill"
     },
-    "created": "2021-06-11T20:09:13.339367Z",
+    "created": "2024-03-11T20:09:13.339367Z",
     "expires": null,
+    "last_used": null,
     "key": "9fc9b897abec9ada2da6aec9dbc34596293c9cb9",
     "write_enabled": true,
-    "description": ""
+    "description": "",
+    "allowed_ips": []
 }
 ```
 

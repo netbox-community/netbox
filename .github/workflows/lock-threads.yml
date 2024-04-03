@@ -1,5 +1,5 @@
 # lock-threads (https://github.com/marketplace/actions/lock-threads)
-name: 'Lock threads'
+name: Lock threads
 
 on:
   schedule:
