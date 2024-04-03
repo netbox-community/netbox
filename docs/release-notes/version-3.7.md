@@ -2,6 +2,11 @@
 
 ## v3.7.5 (FUTURE)
 
+### Bug Fixes
+
+* [#14799](https://github.com/netbox-community/netbox/issues/14799) - Avoid caching modified reports & scripts
+* [#15502](https://github.com/netbox-community/netbox/issues/15502) - Fix KeyError exception when modifying an IP address assigned to a virtual machine
+
 ---
 
 ## v3.7.4 (2024-03-13)
