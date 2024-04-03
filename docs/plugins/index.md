@@ -82,7 +82,7 @@ Plugins may package static files to be served directly by the HTTP front end. En
 
 ### Restart WSGI Service
 
-Restart the WSGI service to load the new plugin and restart rqworkers for using plugin in custom scripts:
+Restart the WSGI service and RQ workers to load the new plugin:
 
 ```no-highlight
 # sudo systemctl restart netbox netbox-rq
