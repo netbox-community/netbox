@@ -90,9 +90,11 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_asn_id(self):  # ASN object assignment
+    def test_asn(self):
         asns = ASN.objects.all()[:2]
         params = {'asn_id': [asns[0].pk, asns[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'asn': [asns[0].asn, asns[1].asn]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):

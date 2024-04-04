@@ -11,21 +11,21 @@ from utilities.forms.fields import DynamicModelMultipleChoiceField
 from utilities.forms.widgets import DateTimePicker
 
 __all__ = (
-    'GroupFilterForm',
+    'NetBoxGroupFilterForm',
     'ObjectPermissionFilterForm',
-    'UserFilterForm',
+    'NetBoxUserFilterForm',
     'TokenFilterForm',
 )
 
 
-class GroupFilterForm(NetBoxModelFilterSetForm):
+class NetBoxGroupFilterForm(NetBoxModelFilterSetForm):
     model = NetBoxGroup
     fieldsets = (
         (None, ('q', 'filter_id',)),
     )
 
 
-class UserFilterForm(NetBoxModelFilterSetForm):
+class NetBoxUserFilterForm(NetBoxModelFilterSetForm):
     model = NetBoxUser
     fieldsets = (
         (None, ('q', 'filter_id',)),

@@ -58,7 +58,7 @@ class TokenBulkDeleteView(generic.BulkDeleteView):
 class UserListView(generic.ObjectListView):
     queryset = NetBoxUser.objects.all()
     filterset = filtersets.UserFilterSet
-    filterset_form = forms.UserFilterForm
+    filterset_form = forms.NetBoxUserFilterForm
     table = tables.UserTable
 
 
@@ -112,7 +112,7 @@ class UserBulkDeleteView(generic.BulkDeleteView):
 class GroupListView(generic.ObjectListView):
     queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
     filterset = filtersets.GroupFilterSet
-    filterset_form = forms.GroupFilterForm
+    filterset_form = forms.NetBoxGroupFilterForm
     table = tables.GroupTable
 
 

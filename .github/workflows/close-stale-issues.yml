@@ -1,5 +1,5 @@
 # close-stale-issues (https://github.com/marketplace/actions/close-stale-issues)
-name: 'Close stale issues/PRs'
+name: Close stale issues/PRs
 
 on:
   schedule:
@@ -12,10 +12,9 @@ permissions:
 
 jobs:
   stale:
-
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v8
+      - uses: actions/stale@v9
         with:
           close-issue-message: >
             This issue has been automatically closed due to lack of activity. In an

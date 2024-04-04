@@ -507,6 +507,24 @@ class FHRPGroupAssignmentForm(BootstrapMixin, forms.ModelForm):
         for ipaddress in ipaddresses:
             self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
 
+    def clean_group(self):
+        group = self.cleaned_data['group']
+
+        conflicting_assignments = FHRPGroupAssignment.objects.filter(
+            interface_type=self.instance.interface_type,
+            interface_id=self.instance.interface_id,
+            group=group
+        )
+        if self.instance.id:
+            conflicting_assignments = conflicting_assignments.exclude(id=self.instance.id)
+
+        if conflicting_assignments.exists():
+            raise forms.ValidationError(
+                _('Assignment already exists')
+            )
+
+        return group
+
 
 class VLANGroupForm(NetBoxModelForm):
     scope_type = ContentTypeChoiceField(
