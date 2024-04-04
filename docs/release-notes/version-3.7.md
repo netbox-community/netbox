@@ -1,6 +1,6 @@
 # NetBox v3.7
 
-## v3.7.5 (FUTURE)
+## v3.7.5 (2024-04-04)
 
 ### Enhancements
 
