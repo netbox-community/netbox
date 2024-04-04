@@ -17,6 +17,7 @@ from netaddr import IPNetwork
 from core.models import ContentType
 from ipam.fields import IPNetworkField
 from netbox.config import get_config
+from netbox.models.features import CloningMixin
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 from .constants import *
@@ -234,7 +235,7 @@ def create_userconfig(instance, created, raw=False, **kwargs):
 # REST API
 #
 
-class Token(models.Model):
+class Token(CloningMixin, models.Model):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
@@ -283,6 +284,10 @@ class Token(models.Model):
             'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
             'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"'
         ),
+    )
+
+    clone_fields = (
+        'user', 'expires', 'write_enabled', 'description', 'allowed_ips',
     )
 
     objects = RestrictedQuerySet.as_manager()
