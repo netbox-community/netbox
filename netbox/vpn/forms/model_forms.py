@@ -91,7 +91,7 @@ class TunnelCreateForm(TunnelForm):
     termination1_termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label=_('Interface'),
+        label=_('Tunnel interface'),
         query_params={
             'device_id': '$termination1_parent',
         }
@@ -126,7 +126,7 @@ class TunnelCreateForm(TunnelForm):
     termination2_termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
         required=False,
-        label=_('Interface'),
+        label=_('Tunnel interface'),
         query_params={
             'device_id': '$termination2_parent',
         }
@@ -238,7 +238,7 @@ class TunnelTerminationForm(NetBoxModelForm):
     )
     termination = DynamicModelChoiceField(
         queryset=Interface.objects.all(),
-        label=_('Interface'),
+        label=_('Tunnel interface'),
         query_params={
             'device_id': '$parent',
         }
