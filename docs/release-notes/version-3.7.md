@@ -2,6 +2,11 @@
 
 ## v3.7.5 (FUTURE)
 
+### Enhancements
+
+* [#14707](https://github.com/netbox-community/netbox/issues/14707) - Clarify interface designation when creating tunnel terminations
+* [#15039](https://github.com/netbox-community/netbox/issues/15039) - Allow API tokens to be cloned
+
 ### Bug Fixes
 
 * [#14799](https://github.com/netbox-community/netbox/issues/14799) - Avoid caching modified reports & scripts
@@ -10,6 +15,9 @@
 * [#15435](https://github.com/netbox-community/netbox/issues/15435) - Correct permissions name to allow adding a module bay to a device via the UI
 * [#15502](https://github.com/netbox-community/netbox/issues/15502) - Fix KeyError exception when modifying an IP address assigned to a virtual machine
 * [#15597](https://github.com/netbox-community/netbox/issues/15597) - Restore help modal for `button_class` field on custom link bulk import form
+* [#15598](https://github.com/netbox-community/netbox/issues/15598) - Fix exception when creating a device from a device type with one or more child inventory items
+* [#15608](https://github.com/netbox-community/netbox/issues/15608) - Avoid caching values of null fields in search index
+* [#15609](https://github.com/netbox-community/netbox/issues/15609) - Fix filtering of the providers list by assigned ASN
 
 ---
 
