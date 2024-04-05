@@ -1,9 +1,8 @@
 {% load django_tables2 %}
-<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %} hx-disinherit="hx-target hx-select hx-swap">
   {% if table.show_header %}
     <thead
         hx-target="closest .htmx-container"
-        hx-disinherit="hx-select hx-swap"
         {% if not table.embedded %} hx-push-url="true"{% endif %}
     >
       <tr>
