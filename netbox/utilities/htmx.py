@@ -10,4 +10,4 @@ def htmx_partial(request):
     Determines whether to render partial (versus complete) HTML content
     in response to an HTMX request, based on the target element.
     """
-    return request.htmx and request.htmx.target != PAGE_CONTAINER_ID
+    return request.htmx and request.htmx.target and request.htmx.target != PAGE_CONTAINER_ID
