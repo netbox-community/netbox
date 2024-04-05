@@ -9,3 +9,8 @@ html {
     position: static;
   }
 }
+
+// Enforce a minimum width for progress bars
+.progress {
+  min-width: 80px;
+}
