@@ -8,6 +8,7 @@ __all__ = (
     'checkmark',
     'copy_content',
     'customfield_value',
+    'htmx_table',
     'formaction',
     'tag',
 )
