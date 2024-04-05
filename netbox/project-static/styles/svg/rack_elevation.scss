@@ -8,23 +8,23 @@
 
 svg {
   // Light mode values
-  --nbx-rack-bg: #{$gray-200};
+  --nbx-rack-bg: var(--tblr-bg-surface-secondary);
   --nbx-rack-border: #{$black};
   --nbx-rack-slot-bg: #{$gray-200};
   --nbx-rack-slot-border: #{$gray-500};
   --nbx-rack-slot-hover-bg: #{$gray-400};
   --nbx-rack-link-color: #{$blue};
-  --nbx-rack-unit-color: #{$text-muted};
+  --nbx-rack-unit-color: #{$gray-600};
 
   &[data-bs-theme='dark'] {
     // Dark mode values
-    --nbx-rack-bg: #{$gray-800};
+    --nbx-rack-bg: rgb(27, 41, 58);
     --nbx-rack-border: #{$gray-600};
     --nbx-rack-slot-bg: #{$gray-800};
     --nbx-rack-slot-border: #{$gray-700};
     --nbx-rack-slot-hover-bg: #{$gray-900};
     --nbx-rack-link-color: #{$blue-200};
-    --nbx-rack-unit-color: #{$text-muted};
+    --nbx-rack-unit-color: #{$gray-500};
   }
 }
 
@@ -41,6 +41,8 @@ text {
 }
 
 svg {
+  background-color: var(--nbx-rack-bg);
+
   // Rack unit numbers along left side of rack elevation.
   .unit {
     margin: 0;
@@ -65,7 +67,6 @@ svg {
     fill: none;
     stroke-width: 2px;
     stroke: var(--nbx-rack-border);
-    background-color: var(--nbx-rack-bg);
   }
 
   // Rack unit slot.

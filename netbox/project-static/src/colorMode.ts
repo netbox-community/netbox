@@ -30,7 +30,7 @@ function updateElements(targetMode: ColorMode): void {
   for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
     const svg = elevation.contentDocument?.querySelector('svg') ?? null;
     if (svg !== null) {
-      svg.setAttribute(`data-${COLOR_MODE_KEY}`, targetMode);
+      svg.setAttribute(`data-bs-theme`, targetMode);
     }
   }
 }
