@@ -381,7 +381,7 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             return self._handle_protected_objects(obj, e.restricted_objects, request, e)
 
         # If this is an HTMX request, return only the rendered deletion form as modal content
-        if request.htmx:
+        if htmx_partial(request):
             viewname = get_viewname(self.queryset.model, action='delete')
             form_url = reverse(viewname, kwargs={'pk': obj.pk})
             return render(request, 'htmx/delete_form.html', {
