@@ -172,7 +172,7 @@ class NetBoxModelFilterSetForm(CustomFieldsMixin, SavedFiltersMixin, forms.Form)
         # Limit saved filters to those applicable to the form's model
         object_type = ObjectType.objects.get_for_model(self.model)
         self.fields['filter_id'].widget.add_query_params({
-            'object_types_id': object_type.pk,
+            'object_type_id': object_type.pk,
         })
 
     def _get_custom_fields(self, content_type):
