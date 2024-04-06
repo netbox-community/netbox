@@ -13356,7 +13356,7 @@ msgstr ""
 
 #: utilities/forms/fields/fields.py:48
 msgid "URL-friendly unique shorthand"
-msgstr "Raccourci unique et convivial pour les URL"
+msgstr "Identifiant unique utilisable dans les URL"
 
 #: utilities/forms/fields/fields.py:101
 msgid "Enter context data in <a href=\"https://json.org/\">JSON</a> format."
