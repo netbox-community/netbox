@@ -3717,7 +3717,7 @@ msgstr "Réservation"
 #: dcim/forms/model_forms.py:301 dcim/forms/model_forms.py:384
 #: utilities/forms/fields/fields.py:47
 msgid "Slug"
-msgstr "limace"
+msgstr "Identifiant"
 
 #: dcim/forms/model_forms.py:308 templates/dcim/devicetype.html:12
 msgid "Chassis"
