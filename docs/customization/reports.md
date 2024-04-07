@@ -29,7 +29,9 @@ class DeviceIPsReport(Report):
     description = "Check that every device has a primary IP address assigned"
 ```
 
-Within each report class, we'll create a number of test methods to execute our report's logic. In DeviceConnectionsReport, for instance, we want to ensure that every live device has a console connection, an out-of-band management connection, and two power connections.
+Within each report class, we'll create a number of test methods to execute our report's logic. The method's name must start with "test_" and it takes no arguments.
+
+In DeviceConnectionsReport, for instance, we want to ensure that every live device has a console connection, an out-of-band management connection, and two power connections.
 
 ```
 from dcim.choices import DeviceStatusChoices
@@ -81,6 +83,8 @@ class DeviceConnectionsReport(Report):
 ```
 
 As you can see, reports are completely customizable. Validation logic can be as simple or as complex as needed. Also note that the `description` attribute support markdown syntax. It will be rendered in the report list page.
+
+In the same way scripts do, reports run from within Netbox's own environment and can access the objects inside Netbox directly. The [Netbox Shell](../administration/netbox-shell.md) is a good resource to keep in hand, since it allows to see the objects in Netbox in the same way the test methods of a report do.
 
 !!! warning
     Reports should never alter data: If you find yourself using the `create()`, `save()`, `update()`, or `delete()` methods on objects within reports, stop and re-evaluate what you're trying to accomplish. Note that there are no safeguards against the accidental alteration or destruction of data.

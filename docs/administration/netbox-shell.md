@@ -1,6 +1,6 @@
 # The NetBox Python Shell
 
-NetBox includes a Python management shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command:
+NetBox includes a Python management shell within which objects can be directly queried, created, modified, and deleted. To enter the shell, run the following command from a shell that has the netbox virtualenv activated:
 
 ```
 ./manage.py nbshell
@@ -142,6 +142,40 @@ To return the inverse of a filtered queryset, use `exclude()` instead of `filter
 >>> Device.objects.exclude(status="active").count()
 346
 ```
+
+If the query returns only one object, the get() method can be used. This method will yield the actual object resulting from the query, instead of a QuerySet. For this to work, the query must return only one object. The syntax is identical to the filter and exclude methods. For example, we can get a device from it's asset tag:
+
+```
+>>>
+>>> Device.objects.get(asset_tag="100079912515")
+<Device: AP994003 (100079912515)>
+>>>
+```
+
+If the query returns more than one object, a MultipleObjectsReturned exception will be thrown:
+
+```
+>>> Device.objects.get(role_id=13)
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+  File "/srv/netbox/venv/lib/python3.10/site-packages/django/db/models/manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+  File "/srv/netbox/venv/lib/python3.10/site-packages/django/db/models/query.py", line 640, in get
+    raise self.model.MultipleObjectsReturned(
+dcim.models.devices.Device.MultipleObjectsReturned: get() returned more than one Device -- it returned more than 20!
+>>>
+```
+
+Queries can all also be executed from a particular object instead of from the model itself. For instance, to get all circuits that are assigned to one site, it is easier to filter from the site itself, instead of using the "Circuit" model and building the query from there. This is particularly useful for configuration templates and export templates, since it allows to query other database objects that are related to the object that we're rendering the template for.
+
+```
+>>> site.circuit_terminations.all()
+<RestrictedQuerySet [<CircuitTermination: 20899518: Termination A>, <CircuitTermination: DT00018356: Termination A>]>
+>>>
+```
+
+The same methods (all, filter, exclude, get...) can be used in this kind of queries.
+
 
 !!! info
     The examples above are intended only to provide a cursory introduction to queryset filtering. For an exhaustive list of the available filters, please consult the [Django queryset API documentation](https://docs.djangoproject.com/en/stable/ref/models/querysets/).

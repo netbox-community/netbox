@@ -35,6 +35,8 @@ Configuration templates are written in the [Jinja2 templating language](https://
 {% endblock %}
 ```
 
+To see all the attributes of a given object, you can use the [Netbox Shell](../administration/netbox-shell.md). It supports autocompletion and allows one to see all of the methods and attributes a given object type has. All of them can be called from within the configuration template. Also, other objects, for instance, a device's interfaces or connected circuits can be accessed from the template itself, so the rendered configuration may include information not only about the device itself, but also related objects like IP addresses or circuits.
+
 When rendered for a specific NetBox device, the template's `device` variable will be populated with the device instance, and `ntp_servers` will be pulled from the device's available context data. The resulting output will be a valid configuration segment that can be applied directly to a compatible network device.
 
 ### Context Data
