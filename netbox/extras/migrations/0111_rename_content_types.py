@@ -27,7 +27,11 @@ class Migration(migrations.Migration):
             field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='core.objecttype'),
         ),
         migrations.RunSQL(
-            "ALTER TABLE extras_customfield_content_types_id_seq RENAME TO extras_customfield_object_types_id_seq"
+            "ALTER TABLE IF EXISTS extras_customfield_content_types_id_seq RENAME TO extras_customfield_object_types_id_seq"
+        ),
+        # Pre-v2.10 sequence name (see #15605)
+        migrations.RunSQL(
+            "ALTER TABLE IF EXISTS extras_customfield_obj_type_id_seq RENAME TO extras_customfield_object_types_id_seq"
         ),
 
         # Custom links
