@@ -2,30 +2,33 @@
 {% load i18n %}
 
 <div class="row mb-3">
-  <div class="col-auto table-controls noprint">
-    <div class="input-group input-group-sm me-2 quicksearch hide-last-child">
-      <input type="search" results="5" name="q" class="form-control" placeholder="Quick search" id="quick_search"
-        hx-get="{{ request.full_path }}" hx-target="#object_list" hx-trigger="keyup changed delay:500ms, search" hx-ext="push-url-w-params" onChange="getParams()"/>
-      <button class="btn bg-transparent" type="button" id="quicksearch_clear"><i class="mdi mdi-close-circle"></i></button>
+    <div class="col-auto table-controls noprint">
+        <div class="input-group input-group-sm me-2 quicksearch hide-last-child">
+            <input type="search" results="5" name="q" class="form-control" placeholder="Quick search" id="quick_search"
+                   hx-get="{{ request.full_path }}" hx-target="#object_list"
+                   hx-trigger="keyup changed delay:500ms, search" hx-ext="push-url-w-params" onChange="getParams()"/>
+            <button class="btn bg-transparent" type="button" id="quicksearch_clear"><i class="mdi mdi-close-circle"></i>
+            </button>
+        </div>
+        {% block extra_table_controls %}{% endblock %}
     </div>
-    {% block extra_table_controls %}{% endblock %}
-  </div>
-  <div class="col-auto ms-auto table-controls noprint">
-    {% if request.user.is_authenticated and table_modal %}
-      <div class="table-configure input-group input-group-sm">
-        <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#{{ table_modal }}"
-          class="btn btn-sm btn-outline-dark">
-          <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
-        </button>
-      </div>
-    {% endif %}
-  </div>
+    <div class="col-auto ms-auto table-controls noprint">
+        {% if request.user.is_authenticated and table_modal %}
+            <div class="table-configure input-group input-group-sm">
+                <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}"
+                        data-bs-target="#{{ table_modal }}"
+                        class="btn btn-sm btn-outline-dark">
+                    <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
+                </button>
+            </div>
+        {% endif %}
+    </div>
 </div>
 
 
 <script>
     htmx.defineExtension('push-url-w-params', {
-        onEvent : function(name, e) {
+        onEvent: function (name, e) {
             if (name === "htmx:configRequest") {
                 const params = new URLSearchParams(e.detail.parameters).toString()
                 window.history.replaceState(null, "", window.location.pathname)
@@ -34,7 +37,7 @@
             }
         }
     })
-    
+
     function getParams() {
         const quickSearchParameters = htmx.values(htmx.find("#quick_search"));
         let link = document.getElementById("current_view")
@@ -42,8 +45,6 @@
             const search_parameter = `q=${quickSearchParameters.q}`
             link = link.href + "&" + search_parameter
         }
-        const teste = document.getElementById("current_view").setAttribute("href", link)
-        console.log(link)
-        
+        document.getElementById("current_view").setAttribute("href", link)
     }
 </script>
