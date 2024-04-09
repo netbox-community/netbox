@@ -165,8 +165,9 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
+        obj = super().save(*args, **kwargs)
         self.sync_classes()
-        return super().save(*args, **kwargs)
+        return obj
 
 
 @receiver(post_save, sender=ScriptModule)
