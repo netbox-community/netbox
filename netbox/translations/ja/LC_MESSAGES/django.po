@@ -7881,7 +7881,7 @@ msgstr "子 VLAN VID の最小値"
 
 #: ipam/forms/bulk_edit.py:420
 msgid "Maximum child VLAN VID"
-msgstr "子 VLAN VID の最大数"
+msgstr "子 VLAN VID の最大値"
 
 #: ipam/forms/bulk_edit.py:428 ipam/forms/model_forms.py:531
 msgid "Scope type"
