@@ -7704,7 +7704,7 @@ msgstr "アドレス"
 
 #: ipam/filtersets.py:445
 msgid "Ranges which contain this prefix or IP"
-msgstr "このプレフィックスまたは IP を含む範囲"
+msgstr "このプレフィックス / IP を含む範囲"
 
 #: ipam/filtersets.py:473 ipam/filtersets.py:529
 msgid "Parent prefix"
