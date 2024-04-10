@@ -1002,6 +1002,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
+
     # Assigned component selectors
     consoleporttemplate = DynamicModelChoiceField(
         queryset=ConsolePortTemplate.objects.all(),
@@ -1009,7 +1010,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Console port template')
+        label=_('Console port')
     )
     consoleserverporttemplate = DynamicModelChoiceField(
         queryset=ConsoleServerPortTemplate.objects.all(),
@@ -1017,7 +1018,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Console server port template')
+        label=_('Console server port')
     )
     frontporttemplate = DynamicModelChoiceField(
         queryset=FrontPortTemplate.objects.all(),
@@ -1025,7 +1026,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Front port template')
+        label=_('Front port')
     )
     interfacetemplate = DynamicModelChoiceField(
         queryset=InterfaceTemplate.objects.all(),
@@ -1041,7 +1042,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Power outlet template')
+        label=_('Power outlet')
     )
     powerporttemplate = DynamicModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
@@ -1049,7 +1050,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Power port template')
+        label=_('Power port')
     )
     rearporttemplate = DynamicModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
@@ -1057,14 +1058,25 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Rear port template')
+        label=_('Rear port')
     )
 
     fieldsets = (
         FieldSet(
             'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
-            'component_type', 'component_id',
         ),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('interfacetemplate', name=_('Interface')),
+                FieldSet('consoleporttemplate', name=_('Console Port')),
+                FieldSet('consoleserverporttemplate', name=_('Console Server Port')),
+                FieldSet('frontporttemplate', name=_('Front Port')),
+                FieldSet('rearporttemplate', name=_('Rear Port')),
+                FieldSet('powerporttemplate', name=_('Power Port')),
+                FieldSet('poweroutlettemplate', name=_('Power Outlet')),
+            ),
+            name=_('Component Assignment')
+        )
     )
 
     class Meta:
@@ -1079,22 +1091,17 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         component_type = initial.get('component_type')
         component_id = initial.get('component_id')
 
-        # Used for picking the default active tab for component selection
-        self.no_component = True
-
         if instance:
             # When editing set the initial value for component selection
             for component_model in ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS):
                 if type(instance.component) is component_model.model_class():
                     initial[component_model.model] = instance.component
-                    self.no_component = False
                     break
         elif component_type and component_id:
             # When adding the InventoryItem from a component page
             if content_type := ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS).filter(pk=component_type).first():
                 if component := content_type.model_class().objects.filter(pk=component_id).first():
                     initial[content_type.model] = component
-                    self.no_component = False
 
         kwargs['initial'] = initial
 
