@@ -1010,7 +1010,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Console port')
+        label=_('Console port template')
     )
     consoleserverporttemplate = DynamicModelChoiceField(
         queryset=ConsoleServerPortTemplate.objects.all(),
@@ -1018,7 +1018,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Console server port')
+        label=_('Console server port template')
     )
     frontporttemplate = DynamicModelChoiceField(
         queryset=FrontPortTemplate.objects.all(),
@@ -1026,7 +1026,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Front port')
+        label=_('Front port template')
     )
     interfacetemplate = DynamicModelChoiceField(
         queryset=InterfaceTemplate.objects.all(),
@@ -1042,7 +1042,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Power outlet')
+        label=_('Power outlet template')
     )
     powerporttemplate = DynamicModelChoiceField(
         queryset=PowerPortTemplate.objects.all(),
@@ -1050,7 +1050,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Power port')
+        label=_('Power port template')
     )
     rearporttemplate = DynamicModelChoiceField(
         queryset=RearPortTemplate.objects.all(),
@@ -1058,7 +1058,7 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         query_params={
             'device_type_id': '$device_type'
         },
-        label=_('Rear port')
+        label=_('Rear port template')
     )
 
     fieldsets = (
