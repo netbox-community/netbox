@@ -719,7 +719,6 @@ LOCALE_PATHS = (
 )
 if not ENABLE_LOCALIZATION:
     USE_I18N = False
-    USE_L10N = False
 
 #
 # Strawberry (GraphQL)
