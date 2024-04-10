@@ -7681,7 +7681,7 @@ msgstr "プレフィックス内およびプレフィックスを含む"
 
 #: ipam/filtersets.py:259
 msgid "Prefixes which contain this prefix or IP"
-msgstr "このプレフィックスまたは IP を含むプレフィックス"
+msgstr "このプレフィックス / IP を含むプレフィックス"
 
 #: ipam/filtersets.py:270 ipam/filtersets.py:538 ipam/forms/bulk_edit.py:326
 #: ipam/forms/filtersets.py:191 ipam/forms/filtersets.py:317
