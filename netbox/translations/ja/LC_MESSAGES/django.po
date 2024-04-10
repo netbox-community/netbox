@@ -7743,7 +7743,7 @@ msgstr "FHRP グループ (ID)"
 
 #: ipam/filtersets.py:618
 msgid "Is assigned to an interface"
-msgstr "インタフェースに割り当てられている"
+msgstr "インタフェースに割り当てられているか"
 
 #: ipam/filtersets.py:622
 msgid "Is assigned"
