@@ -1,5 +1,6 @@
 from collections import defaultdict
 
+from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ImproperlyConfigured
@@ -120,8 +121,14 @@ class CachedValueSearchBackend(SearchBackend):
             except (AddrFormatError, ValueError):
                 pass
 
+        # Exclude any records which refer to an instance of a model that's no longer installed. This
+        # can happen when a plugin is removed but its data remains in the database, for example.
+        content_type_ids = set(
+            ct.pk for ct in ContentType.objects.get_for_models(*apps.get_models()).values()
+        )
+
         # Construct the base queryset to retrieve matching results
-        queryset = CachedValue.objects.filter(query_filter).annotate(
+        queryset = CachedValue.objects.filter(object_type_id__in=content_type_ids).filter(query_filter).annotate(
             # Annotate the rank of each result for its object according to its weight
             row_number=Window(
                 expression=window.RowNumber(),
@@ -146,6 +153,7 @@ class CachedValueSearchBackend(SearchBackend):
         # Wrap the base query to return only the lowest-weight result for each object
         # Hat-tip to https://blog.oyam.dev/django-filter-by-window-function/ for the solution
         sql, params = queryset.query.sql_with_params()
+
         results = CachedValue.objects.prefetch_related(*prefetch).raw(
             f"SELECT * FROM ({sql}) t WHERE row_number = 1",
             params
