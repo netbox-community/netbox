@@ -7747,7 +7747,7 @@ msgstr "インタフェースに割り当てられている"
 
 #: ipam/filtersets.py:622
 msgid "Is assigned"
-msgstr "割り当てられている"
+msgstr "割当済みか"
 
 #: ipam/filtersets.py:1047
 msgid "IP address (ID)"
