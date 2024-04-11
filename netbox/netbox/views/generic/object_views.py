@@ -31,6 +31,7 @@ __all__ = (
     'ObjectDeleteView',
     'ObjectEditView',
     'ObjectView',
+    'CustomObjectDeleteView',
 )
 
 
@@ -556,4 +557,41 @@ class ComponentCreateView(GetReturnURLMixin, BaseObjectView):
             'object': instance,
             'form': form,
             'return_url': self.get_return_url(request),
+        })
+
+
+class CustomObjectDeleteView(ObjectDeleteView):
+    """
+    Custom delete a single object. It returns empty dependent_objects to avoid show message about dependent objects.
+    """
+
+    def get(self, request, *args, **kwargs):
+        """
+        GET request handler.
+
+        Override the get method to return an empty dependent_objects dictionary.
+        """
+
+        obj = self.get_object(**kwargs)
+        form = ConfirmationForm(initial=request.GET)
+        dependent_objects = {}
+
+        if is_htmx(request):
+            viewname = get_viewname(self.queryset.model, action='delete')
+            form_url = reverse(viewname, kwargs={'pk': obj.pk})
+            return render(request, 'htmx/delete_form.html', {
+                'object': obj,
+                'object_type': self.queryset.model._meta.verbose_name,
+                'form': form,
+                'form_url': form_url,
+                'dependent_objects': dependent_objects,
+                **self.get_extra_context(request, obj),
+            })
+
+        return render(request, self.template_name, {
+            'object': obj,
+            'form': form,
+            'return_url': self.get_return_url(request, obj),
+            'dependent_objects': dependent_objects,
+            **self.get_extra_context(request, obj),
         })

@@ -69,7 +69,7 @@ class CustomFieldEditView(generic.ObjectEditView):
 
 
 @register_model_view(CustomField, 'delete')
-class CustomFieldDeleteView(generic.ObjectDeleteView):
+class CustomFieldDeleteView(generic.CustomObjectDeleteView):
     queryset = CustomField.objects.select_related('choice_set')
 
 
