@@ -1,6 +1,6 @@
 # NetBox v4.0
 
-## v4.0-beta1 (2024-04-03)
+## v4.0-beta2 (FUTURE)
 
 **WARNING:** This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
 
@@ -86,6 +86,15 @@ The legacy admin user interface is now disabled by default, and the few remainin
 * [#15383](https://github.com/netbox-community/netbox/issues/15383) - Standardize filtering logic for the parents of recursively-nested models (parent & ancestor filters)
 * [#15413](https://github.com/netbox-community/netbox/issues/15413) - The global search engine now supports caching of non-field object attributes
 * [#15490](https://github.com/netbox-community/netbox/issues/15490) - Custom validators can now reference related object attributes via dotted paths
+
+### Bug Fixes (from Beta1)
+
+* [#15605](https://github.com/netbox-community/netbox/issues/15605) - Fix `ProgrammingError` exception when applying migrations to older databases
+* [#15616](https://github.com/netbox-community/netbox/issues/15616) - Fix button style for invalid custom links
+* [#15617](https://github.com/netbox-community/netbox/issues/15617) - Fix rack elevation styling under dark mode
+* [#15619](https://github.com/netbox-community/netbox/issues/15619) - Enforce a minimum width for progress bars
+* [#15637](https://github.com/netbox-community/netbox/issues/15637) - Correct nonfunctional links within embedded tables when HTMX enabled
+* [#15638](https://github.com/netbox-community/netbox/issues/15638) - Correct parameter used to retrieve saved filters for a model
 
 ### Other Changes
 
