@@ -37,6 +37,11 @@ class DataSourceViewSet(NetBoxModelViewSet):
             raise PermissionDenied("Syncing data sources requires the core.sync_datasource permission.")
 
         datasource = get_object_or_404(DataSource, pk=pk)
+
+        # have to check perms again against this specific object as there could be constraints
+        if not request.user.has_perm('core.sync_datasource', datasource):
+            raise PermissionDenied("User does not have the core.sync_datasource permission for this object.")
+
         datasource.enqueue_sync_job(request)
         serializer = serializers.DataSourceSerializer(datasource, context={'request': request})
 
