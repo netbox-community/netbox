@@ -158,6 +158,7 @@
           </h5>
           {% htmx_table 'ipam:service_list' virtual_machine_id=object.pk %}
         </div>
+        {% include 'inc/panels/image_attachments.html' %}
         {% plugin_right_page object %}
     </div>
 </div>
