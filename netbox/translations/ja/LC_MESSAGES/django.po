@@ -7909,7 +7909,7 @@ msgstr "インポートルートターゲット"
 
 #: ipam/forms/bulk_import.py:53
 msgid "Export route targets"
-msgstr "ルートターゲットをエクスポートする"
+msgstr "エクスポートルートターゲット"
 
 #: ipam/forms/bulk_import.py:91 ipam/forms/bulk_import.py:111
 #: ipam/forms/bulk_import.py:131
