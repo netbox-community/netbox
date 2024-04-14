@@ -7905,7 +7905,7 @@ msgstr "ポート"
 
 #: ipam/forms/bulk_import.py:47
 msgid "Import route targets"
-msgstr "ルートターゲットをインポート"
+msgstr "インポートルートターゲット"
 
 #: ipam/forms/bulk_import.py:53
 msgid "Export route targets"
