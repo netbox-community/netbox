@@ -425,12 +425,12 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
             except (ProtectedError, RestrictedError) as e:
                 logger.info(f"Caught {type(e)} while attempting to delete objects")
                 handle_protectederror([obj], request, e)
-                return redirect(obj.get_absolute_url())
+                return redirect(self.get_return_url(request))
 
             except AbortRequest as e:
                 logger.debug(e.message)
                 messages.error(request, mark_safe(e.message))
-                return redirect(obj.get_absolute_url())
+                return redirect(self.get_return_url(request))
 
             msg = 'Deleted {} {}'.format(self.queryset.model._meta.verbose_name, obj)
             logger.info(msg)
