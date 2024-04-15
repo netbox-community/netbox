@@ -979,6 +979,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     length = forms.DecimalField(
         label=_('Length'),
+        required=False,
     )
     length_unit = forms.ChoiceField(
         label=_('Length unit'),
