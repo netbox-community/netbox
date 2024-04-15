@@ -182,7 +182,6 @@ TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
 ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 CHANGELOG_SKIP_EMPTY_CHANGES = getattr(configuration, 'CHANGELOG_SKIP_EMPTY_CHANGES', True)
 
-
 # Check for hard-coded dynamic config parameters
 for param in PARAMS:
     if hasattr(configuration, param.name):

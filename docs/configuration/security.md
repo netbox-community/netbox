@@ -203,8 +203,7 @@ If true, the `preload` directive will be included in the HTTP Strict Transport S
 
 Default: 0
 
-If set to a non-zero integer value, the SecurityMiddleware sets the HTTP Strict Transport Security header on all responses that do not already have it.
-If the website must be accessed via HTTPS, it is recommended to set SECURE_HSTS_SECONDS. It will make the browser remember that the website must be accessed via HTTPS, blocking any HTTP request.  
+If set to a non-zero integer value, the SecurityMiddleware sets the HTTP Strict Transport Security (HSTS) header on all responses that do not already have it. This will instruct the browser that the website must be accessed via HTTPS, blocking any HTTP request.
 
 ---
 
