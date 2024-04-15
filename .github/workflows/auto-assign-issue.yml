@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: pozil/auto-assign-issue@v1
-        if: "contains(github.event.issue.labels.*.name, 'needs triage')"
+        if: "contains(github.event.issue.labels.*.name, 'status: needs triage')"
         with:
           # Weighted assignments
           assignees: arthanson:3, jeffgdotorg:3, jeremystretch:3, abhi1693, DanSheps

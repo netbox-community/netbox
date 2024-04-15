@@ -1,7 +1,7 @@
 ---
 name: 🐛 Bug Report
 description: Report a reproducible bug in the current release of NetBox
-labels: ["type: bug", "needs triage"]
+labels: ["type: bug", "status: needs triage"]
 body:
   - type: markdown
     attributes:
