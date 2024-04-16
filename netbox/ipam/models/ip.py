@@ -692,7 +692,7 @@ class IPRange(PrimaryModel):
             ip.address.ip for ip in self.get_child_ips()
         ]).size
 
-        return int(float(child_count) / self.size * 100)
+        return min(float(child_count) / self.size * 100, 100)
 
 
 class IPAddress(PrimaryModel):
