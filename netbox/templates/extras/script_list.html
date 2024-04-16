@@ -67,7 +67,7 @@
                   <td>{{ script.description|markdown|placeholder }}</td>
                   {% if last_job %}
                     <td>
-                      <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|annotated_date }}</a>
+                      <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|isodatetime }}</a>
                     </td>
                     <td>
                       {% badge last_job.get_status_display last_job.get_status_color %}

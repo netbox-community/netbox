@@ -20,6 +20,9 @@ __all__ = (
     'content_type',
     'content_type_id',
     'fgcolor',
+    'isodate',
+    'isodatetime',
+    'isotime',
     'linkify',
     'meta',
     'placeholder',
@@ -202,3 +205,32 @@ def render_yaml(value):
         {{ data_dict|yaml }}
     """
     return yaml.dump(json.loads(json.dumps(value)))
+
+
+#
+# Time & date
+#
+
+@register.filter()
+def isodate(value):
+    if type(value) is datetime.date:
+        return value.isoformat()
+    if type(value) is datetime.datetime:
+        return value.date().isoformat()
+    return ''
+
+
+@register.filter()
+def isotime(value, spec='seconds'):
+    if type(value) is datetime.time:
+        return value.isoformat(timespec=spec)
+    if type(value) is datetime.datetime:
+        return value.time().isoformat(timespec=spec)
+    return ''
+
+
+@register.filter()
+def isodatetime(value, spec='seconds'):
+    if type(value) is datetime.datetime:
+        return f'{isodate(value)} {isotime(value, spec=spec)}'
+    return ''

@@ -9,9 +9,9 @@
 {% elif customfield.type == 'boolean' and value == False %}
   {% checkmark value false="False" %}
 {% elif customfield.type == 'date' and value %}
-  {{ value|annotated_date }}
+  {{ value|isodate }}
 {% elif customfield.type == 'datetime' and value %}
-  {{ value|annotated_date }}
+  {{ value|isodate }} {{ value|isodatetime }}
 {% elif customfield.type == 'url' and value %}
   <a href="{{ value }}">{{ value|truncatechars:70 }}</a>
 {% elif customfield.type == 'json' and value %}
