@@ -31,15 +31,7 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Last Login" %}</th>
-            <td>
-              {% if object.last_login %}
-                <span title="{{ object.last_login|isodatetime:"minutes" }}">
-                  {{ object.last_login|timesince }} {% trans "ago" %}
-                </span>
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
+            <td>{{ object.last_login|isodatetime:"minutes"|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Active" %}</th>

@@ -1,6 +1,6 @@
 {% extends 'generic/object.html' %}
-{% load i18n %}
 {% load helpers %}
+{% load i18n %}
 {% load render_table from django_tables2 %}
 
 {% block title %}{% trans "Token" %} {{ object }}{% endblock %}
@@ -37,20 +37,11 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Expires" %}</th>
-            <td>{{ object.expires|isodatetime }}</td>
+            <td>{{ object.expires|isodatetime|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Last used" %}</th>
-            <td>
-              {% if object.last_used %}
-                <span title="{{ object.last_used|isodatetime }}">
-                  {{ object.last_used|timesince }}
-                </span>
-                {% trans "ago" %}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
+            <td>{{ object.last_used|isodatetime|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Allowed IPs" %}</th>

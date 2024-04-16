@@ -49,16 +49,7 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Last used" %}</th>
-            <td>
-              {% if object.last_used %}
-                <span title="{{ object.last_used|isodatetime }}">
-                  {{ object.last_used|timesince }}
-                </span>
-                {% trans "ago" %}
-              {% else %}
-                {{ ''|placeholder }}
-              {% endif %}
-            </td>
+            <td>{{ object.last_used|isodatetime|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Allowed IPs" %}</th>
