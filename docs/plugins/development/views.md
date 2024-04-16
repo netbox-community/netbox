@@ -157,7 +157,7 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ### Additional Tabs
 
-Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
+Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`, and add it to the template context dict:
 
 ```python
 from dcim.models import Site
@@ -173,6 +173,16 @@ class MyView(generic.ObjectView):
         badge=lambda obj: Stuff.objects.filter(site=obj).count(),
         permission='myplugin.view_stuff'
     )
+
+    def get(self, request, pk):
+        ...
+        return render(
+            request,
+            "myplugin/mytabview.html",
+            context={
+                "tab": self.tab,
+            },
+        )
 ```
 
 ::: utilities.views.register_model_view
