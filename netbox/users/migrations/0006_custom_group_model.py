@@ -63,6 +63,11 @@ class Migration(migrations.Migration):
             field=models.ManyToManyField(blank=True, related_name='object_permissions', to='users.group'),
         ),
 
+        # Delete any lingering group assignments for legacy permissions (from before NetBox v2.9)
+        migrations.RunSQL(
+            "DELETE from auth_group_permissions"
+        ),
+
         # Delete groups from the old table
         migrations.RunSQL(
             "DELETE from auth_group"
