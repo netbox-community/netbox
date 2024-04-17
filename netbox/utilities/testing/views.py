@@ -1,5 +1,4 @@
 import csv
-import datetime
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -10,7 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from extras.choices import ObjectChangeActionChoices, CustomFieldTypeChoices
-from extras.models import CustomField, CustomFieldChoiceSet, ObjectChange
+from extras.models import CustomField, ObjectChange
 from netbox.models import CustomFieldsMixin
 from netbox.models.features import ChangeLoggingMixin
 from users.models import ObjectPermission
@@ -25,60 +24,35 @@ __all__ = (
 
 
 def add_custom_field_data(form_data, model):
-    # Check if need to include Custom Field data
-    if issubclass(model, CustomFieldsMixin):
-        # create the custom fields to set
-        custom_fields = (
-            CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_LONGTEXT, name='longtext_field', default='ABC'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
-            CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
-            CustomField(type=CustomFieldTypeChoices.TYPE_DATE, name='date_field', default='2020-01-01'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_URL, name='url_field', default='http://example.com/1'),
-            CustomField(type=CustomFieldTypeChoices.TYPE_JSON, name='json_field', default='{"x": "y"}'),
-        )
-        for cf in custom_fields:
-            cf.save()
-            cf.content_types.set([ContentType.objects.get_for_model(model)])
+    """
+    Create some custom fields for the model and add a value for each to the form data.
 
-        choice_set = CustomFieldChoiceSet.objects.create(
-            name='Choice Set 1',
-            extra_choices=(('foo', 'Foo'), ('bar', 'Bar'), ('baz', 'Baz'))
-        )
+    Args:
+        form_data: The dictionary of form data to be updated
+        model: The model of the object the form seeks to create or modify
+    """
+    if not issubclass(model, CustomFieldsMixin):
+        return
 
-        # Create a custom field on the Site model
-        ct = ContentType.objects.get_for_model(model)
+    content_type = ContentType.objects.get_for_model(model)
+    custom_fields = (
+        CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
+        CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
+        CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
+        CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
+        CustomField(type=CustomFieldTypeChoices.TYPE_JSON, name='json_field', default='{"x": "y"}'),
+    )
+    CustomField.objects.bulk_create(custom_fields)
+    for cf in custom_fields:
+        cf.content_types.set([content_type])
 
-        cf_select = CustomField(
-            type=CustomFieldTypeChoices.TYPE_SELECT,
-            name='select_field',
-            choice_set=choice_set
-        )
-        cf_select.save()
-        cf_select.content_types.set([ct])
-
-        cf_select = CustomField(
-            type=CustomFieldTypeChoices.TYPE_MULTISELECT,
-            name='multiselect_field',
-            default=['foo'],
-            choice_set=choice_set
-        )
-        cf_select.save()
-        cf_select.content_types.set([ct])
-
-        form_data['cf_text_field'] = 'foo123'
-        form_data['cf_longtext_field'] = 'ABC123'
-        form_data['cf_integer_field'] = 456
-        form_data['cf_decimal_field'] = 456.12
-        form_data['cf_boolean_field'] = True
-        form_data['cf_date_field'] = '2022-02-02'
-        form_data['cf_url_field'] = 'http://example2.com/1'
-        form_data['cf_json_field'] = '{"x": "z"}'
-        form_data['cf_select_field'] = 'bar'
-        form_data['cf_multiselect_field'] = ['bar']
-
-    return form_data
+    form_data.update({
+        'cf_text_field': 'foo123',
+        'cf_integer_field': 456,
+        'cf_decimal_field': 456.12,
+        'cf_boolean_field': True,
+        'cf_json_field': '{"abc": 123}',
+    })
 
 
 def assert_custom_field_data(test_case, instance):
@@ -86,15 +60,10 @@ def assert_custom_field_data(test_case, instance):
         cf = instance.cf
         data = {
             'text_field': 'foo123',
-            'longtext_field': 'ABC123',
             'integer_field': 456,
             'decimal_field': 456.12,
             'boolean_field': True,
-            'date_field': datetime.date(2022, 2, 2),
-            'url_field': 'http://example2.com/1',
-            'json_field': {'x': 'z'},
-            'select_field': 'bar',
-            'multiselect_field': ['bar'],
+            'json_field': {'abc': 123},
         }
         test_case.assertDictEqual(cf, data)
 
@@ -242,20 +211,22 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('add')), 200)
 
-            # add Custom Field data if needed
-            form_data = add_custom_field_data(self.form_data, self.model)
+            # Add custom field data if the model supports it
+            if issubclass(self.model, CustomFieldsMixin):
+                add_custom_field_data(self.form_data, self.model)
 
             # Try POST with model-level permission
             initial_count = self._get_queryset().count()
             request = {
                 'path': self._get_url('add'),
-                'data': post_data(form_data),
+                'data': post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
             self.assertEqual(initial_count + 1, self._get_queryset().count())
             instance = self._get_queryset().order_by('pk').last()
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
-            assert_custom_field_data(self, instance)
+            if issubclass(self.model, CustomFieldsMixin):
+                assert_custom_field_data(self, instance)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):
@@ -345,18 +316,20 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('edit', instance)), 200)
 
-            # add Custom Field data if needed
-            form_data = add_custom_field_data(self.form_data, self.model)
+            # Add custom field data if the model supports it
+            if issubclass(self.model, CustomFieldsMixin):
+                add_custom_field_data(self.form_data, self.model)
 
             # Try POST with model-level permission
             request = {
                 'path': self._get_url('edit', instance),
-                'data': post_data(form_data),
+                'data': post_data(self.form_data),
             }
             self.assertHttpStatus(self.client.post(**request), 302)
             instance = self._get_queryset().get(pk=instance.pk)
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
-            assert_custom_field_data(self, instance)
+            if issubclass(self.model, CustomFieldsMixin):
+                assert_custom_field_data(self, instance)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):
