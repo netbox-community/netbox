@@ -85,7 +85,7 @@ from django import forms
 class MyForm(forms.Form):
 ```
 
-### Update Fieldset Definitions
+### Update Fieldset definitions
 
 NetBox v4.0 introduces [several new classes](./forms.md#form-rendering) for advanced form rendering, including FieldSet. Fieldset definitions on forms should use this new class instead of a tuple or list.
 
@@ -252,7 +252,7 @@ class SiteSerializer(NetBoxModelSerializer):
 
 ### Include description fields in brief mode
 
-NetBox now includes the `description` the field in "brief" mode for all models which have one. This is not required for plugins, but you may opt to do the same for consistency.
+NetBox now includes the `description` field in "brief" mode for all models which have one. This is not required for plugins, but you may opt to do the same for consistency.
 
 ## GraphQL
 
@@ -260,7 +260,7 @@ NetBox has replaced [Graphene-Django](https://github.com/graphql-python/graphene
 
 ### Change schema.py
 
-Strawberry uses [python typing](https://docs.python.org/3/library/typing.html) and generally only requires a small refactoring of the schema definition to update:
+Strawberry uses [Python typing](https://docs.python.org/3/library/typing.html) and generally only requires a small refactoring of the schema definition to update:
 
 ```python title="Old"
 import graphene
