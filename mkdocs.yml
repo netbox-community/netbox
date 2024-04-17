@@ -112,7 +112,6 @@ nav:
         - Default Values: 'configuration/default-values.md'
         - Error Reporting: 'configuration/error-reporting.md'
         - Plugins: 'configuration/plugins.md'
-        - Date & Time: 'configuration/date-time.md'
         - Miscellaneous: 'configuration/miscellaneous.md'
         - Development: 'configuration/development.md'
     - Customization:
