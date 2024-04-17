@@ -13,7 +13,7 @@
 
 {% block subtitle %}
   <div class="text-secondary fs-5">
-    <span>{% trans "Created" %} {{ job.created_at|annotated_date }}</span>
+    <span>{% trans "Created" %} {{ job.created_at|isodatetime }}</span>
   </div>
 {% endblock subtitle %}
 
@@ -71,11 +71,11 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Created" %}</th>
-            <td>{{ job.created_at|annotated_date }}</td>
+            <td>{{ job.created_at|isodatetime }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Queued" %}</th>
-            <td>{{ job.enqueued_at|annotated_date }}</td>
+            <td>{{ job.enqueued_at|isodatetime }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Status" %}</th>

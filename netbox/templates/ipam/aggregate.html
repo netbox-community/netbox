@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Date Added" %}</th>
-            <td>{{ object.date_added|annotated_date|placeholder }}</td>
+            <td>{{ object.date_added|isodate|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Description" %}</th>

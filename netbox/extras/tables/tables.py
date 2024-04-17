@@ -432,10 +432,10 @@ class ConfigTemplateTable(NetBoxTable):
 
 
 class ObjectChangeTable(NetBoxTable):
-    time = tables.DateTimeColumn(
+    time = columns.DateTimeColumn(
         verbose_name=_('Time'),
-        linkify=True,
-        format=settings.SHORT_DATETIME_FORMAT
+        timespec='minutes',
+        linkify=True
     )
     user_name = tables.Column(
         verbose_name=_('Username')
@@ -475,10 +475,10 @@ class ObjectChangeTable(NetBoxTable):
 
 
 class JournalEntryTable(NetBoxTable):
-    created = tables.DateTimeColumn(
+    created = columns.DateTimeColumn(
         verbose_name=_('Created'),
-        linkify=True,
-        format=settings.SHORT_DATETIME_FORMAT
+        timespec='minutes',
+        linkify=True
     )
     assigned_object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type')

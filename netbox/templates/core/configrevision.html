@@ -23,7 +23,7 @@
 {% block subtitle %}
   {% if object.created %}
     <div class="text-secondary fs-5">
-      {% trans "Created" %} {{ object.created|annotated_date }}
+      {% trans "Created" %} {{ object.created|isodatetime }}
     </div>
   {% endif %}
 {% endblock subtitle %}

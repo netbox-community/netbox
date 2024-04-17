@@ -48,10 +48,10 @@ Context:
 
 {% block subtitle %}
   <div class="text-secondary fs-5">
-    <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
+    {% trans "Created" %} {{ object.created|isodatetime:"minutes" }}
     {% if object.last_updated %}
       <span class="separator">&middot;</span>
-      <span>{% trans "Updated" %} <span title="{{ object.last_updated }}">{{ object.last_updated|timesince }}</span> {% trans "ago" %}</span>
+      {% trans "Updated" %} {{ object.last_updated|isodatetime:"minutes" }}
     {% endif %}
   </div>
 {% endblock subtitle %}

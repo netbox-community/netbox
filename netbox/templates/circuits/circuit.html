@@ -45,11 +45,11 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Install Date" %}</th>
-            <td>{{ object.install_date|annotated_date|placeholder }}</td>
+            <td>{{ object.install_date|isodate|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Termination Date" %}</th>
-            <td>{{ object.termination_date|annotated_date|placeholder }}</td>
+            <td>{{ object.termination_date|isodate|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Commit Rate" %}</th>

@@ -27,11 +27,11 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Account Created" %}</th>
-            <td>{{ object.date_joined|annotated_date }}</td>
+            <td>{{ object.date_joined|isodate }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Last Login" %}</th>
-            <td>{{ object.last_login|annotated_date }}</td>
+            <td>{{ object.last_login|isodatetime:"minutes"|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Active" %}</th>
