@@ -8,7 +8,6 @@ A plugin can extend NetBox's GraphQL API by registering its own schema class. By
 
 ```python
 # graphql.py
-from typing import List
 import strawberry
 import strawberry_django
 
@@ -28,7 +27,7 @@ class MyQuery:
     @strawberry.field
     def dummymodel(self, id: int) -> DummyModelType:
         return None
-    dummymodel_list: List[DummyModelType] = strawberry_django.field()
+    dummymodel_list: list[DummyModelType] = strawberry_django.field()
 
 
 schema = [
