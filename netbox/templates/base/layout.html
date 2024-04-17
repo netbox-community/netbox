@@ -179,9 +179,9 @@ Blocks:
             {# /Footer links #}
 
             {# Footer text #}
-            <ul class="list-inline list-inline-dots mb-0" id="footer-stamp" hx-swap-oob="true">
+            <ul class="list-inline list-inline-dots fs-5 mb-0" id="footer-stamp" hx-swap-oob="true">
               <li class="list-inline-item">
-                {% annotated_now %} {% now 'T' %}
+                {% now 'Y-m-d H:i:s T' %}
               </li>
               <li class="list-inline-item">
                 {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
