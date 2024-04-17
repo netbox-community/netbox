@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-
+from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -35,9 +35,8 @@ class DataSourceViewSet(NetBoxModelViewSet):
         """
         datasource = get_object_or_404(DataSource, pk=pk)
 
-        # have to check perms again against this specific object as there could be constraints
-        if not request.user.has_perm('core.sync_datasource', datasource):
-            raise PermissionDenied("User does not have the core.sync_datasource permission for this object.")
+        if not request.user.has_perm('core.sync_datasource', obj=datasource):
+            raise PermissionDenied(_("This user does not have permission to synchronize this data source."))
 
         datasource.enqueue_sync_job(request)
         serializer = serializers.DataSourceSerializer(datasource, context={'request': request})
