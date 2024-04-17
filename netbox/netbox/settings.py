@@ -91,7 +91,6 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-ENABLE_LOCALIZATION = getattr(configuration, 'ENABLE_LOCALIZATION', False)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
     'extras.events.process_event_queue',
 ))
@@ -385,8 +384,6 @@ MIDDLEWARE = [
     'netbox.middleware.MaintenanceModeMiddleware',
     'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
-if not ENABLE_LOCALIZATION:
-    MIDDLEWARE.remove('django.middleware.locale.LocaleMiddleware')
 
 # URLs
 ROOT_URLCONF = 'netbox.urls'
@@ -711,8 +708,6 @@ LANGUAGES = (
 LOCALE_PATHS = (
     BASE_DIR + '/translations',
 )
-if not ENABLE_LOCALIZATION:
-    USE_I18N = False
 
 #
 # Strawberry (GraphQL)
