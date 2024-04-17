@@ -276,8 +276,6 @@ class CircuitsQuery(graphene.ObjectType):
 ```
 
 ```python title="New"
-from typing import List
-
 import strawberry
 import strawberry_django
 
@@ -286,7 +284,7 @@ class CircuitsQuery:
     @strawberry.field
     def circuit(self, id: int) -> CircuitType:
         return models.Circuit.objects.get(pk=id)
-    circuit_list: List[CircuitType] = strawberry_django.field()
+    circuit_list: list[CircuitType] = strawberry_django.field()
 ```
 
 ### Change types.py
@@ -307,7 +305,7 @@ class CircuitType(NetBoxObjectType, ContactsMixin):
 ```
 
 ```python title="New"
-from typing import Annotated, List
+from typing import Annotated
 
 import strawberry
 import strawberry_django
@@ -321,7 +319,7 @@ class CircuitTypeType(OrganizationalObjectType):
     color: str
 
     @strawberry_django.field
-    def circuits(self) -> List[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
+    def circuits(self) -> list[Annotated["CircuitType", strawberry.lazy('circuits.graphql.types')]]:
         return self.circuits.all()
 ```
 
