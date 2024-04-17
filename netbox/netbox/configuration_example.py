@@ -131,9 +131,6 @@ EMAIL = {
     'FROM_EMAIL': '',
 }
 
-# Localization
-ENABLE_LOCALIZATION = False
-
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
 EXEMPT_VIEW_PERMISSIONS = [
