@@ -175,7 +175,7 @@ class PowerFeed(PrimaryModel, PathEndpoint, CabledObjectModel):
         # Rack must belong to same Site as PowerPanel
         if self.rack and self.rack.site != self.power_panel.site:
             raise ValidationError(_(
-                "Rack {rack} ({site}) and power panel {powerpanel} ({powerpanel_site}) are in different sites"
+                "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) are in different sites."
             ).format(
                 rack=self.rack,
                 rack_site=self.rack.site,

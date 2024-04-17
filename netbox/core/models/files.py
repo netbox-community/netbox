@@ -2,6 +2,7 @@ import logging
 import os
 
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -44,6 +45,7 @@ class ManagedFile(SyncedDataMixin, models.Model):
     )
 
     objects = RestrictedQuerySet.as_manager()
+    _netbox_private = True
 
     class Meta:
         ordering = ('file_root', 'file_path')
@@ -83,6 +85,14 @@ class ManagedFile(SyncedDataMixin, models.Model):
         if self.data_file:
             self.file_path = os.path.basename(self.data_path)
             self.data_file.write_to_disk(self.full_path, overwrite=True)
+
+    def clean(self):
+        super().clean()
+
+        # Ensure that the file root and path make a unique pair
+        if self._meta.model.objects.filter(file_root=self.file_root, file_path=self.file_path).exclude(pk=self.pk).exists():
+            raise ValidationError(
+                f"A {self._meta.verbose_name.lower()} with this file path already exists ({self.file_root}/{self.file_path}).")
 
     def delete(self, *args, **kwargs):
         # Delete file from disk

@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 from django.db import models
@@ -15,6 +14,7 @@ from django.utils import timezone
 from django.utils.module_loading import import_string
 from django.utils.translation import gettext as _
 
+from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
@@ -45,9 +45,7 @@ class DataSource(JobsMixin, PrimaryModel):
     )
     type = models.CharField(
         verbose_name=_('type'),
-        max_length=50,
-        choices=DataSourceTypeChoices,
-        default=DataSourceTypeChoices.LOCAL
+        max_length=50
     )
     source_url = models.CharField(
         max_length=200,
@@ -96,8 +94,9 @@ class DataSource(JobsMixin, PrimaryModel):
     def docs_url(self):
         return f'{settings.STATIC_URL}docs/models/{self._meta.app_label}/{self._meta.model_name}/'
 
-    def get_type_color(self):
-        return DataSourceTypeChoices.colors.get(self.type)
+    def get_type_display(self):
+        if backend := registry['data_backends'].get(self.type):
+            return backend.label
 
     def get_status_color(self):
         return DataSourceStatusChoices.colors.get(self.status)
@@ -111,10 +110,6 @@ class DataSource(JobsMixin, PrimaryModel):
         return registry['data_backends'].get(self.type)
 
     @property
-    def is_local(self):
-        return self.type == DataSourceTypeChoices.LOCAL
-
-    @property
     def ready_for_sync(self):
         return self.enabled and self.status not in (
             DataSourceStatusChoices.QUEUED,
@@ -122,12 +117,41 @@ class DataSource(JobsMixin, PrimaryModel):
         )
 
     def clean(self):
+        super().clean()
+
+        # Validate data backend type
+        if self.type and self.type not in registry['data_backends']:
+            raise ValidationError({
+                'type': _("Unknown backend type: {type}".format(type=self.type))
+            })
 
         # Ensure URL scheme matches selected type
-        if self.type == DataSourceTypeChoices.LOCAL and self.url_scheme not in ('file', ''):
+        if self.backend_class.is_local and self.url_scheme not in ('file', ''):
             raise ValidationError({
                 'source_url': f"URLs for local sources must start with file:// (or specify no scheme)"
             })
+
+    def to_objectchange(self, action):
+        objectchange = super().to_objectchange(action)
+
+        # Censor any backend parameters marked as sensitive in the serialized data
+        pre_change_params = {}
+        post_change_params = {}
+        if objectchange.prechange_data:
+            pre_change_params = objectchange.prechange_data.get('parameters') or {}  # parameters may be None
+        if objectchange.postchange_data:
+            post_change_params = objectchange.postchange_data.get('parameters') or {}
+        for param in self.backend_class.sensitive_parameters:
+            if post_change_params.get(param):
+                if post_change_params[param] != pre_change_params.get(param):
+                    # Set the "changed" token if the parameter's value has been modified
+                    post_change_params[param] = CENSOR_TOKEN_CHANGED
+                else:
+                    post_change_params[param] = CENSOR_TOKEN
+            if pre_change_params.get(param):
+                pre_change_params[param] = CENSOR_TOKEN
+
+        return objectchange
 
     def enqueue_sync_job(self, request):
         """
@@ -153,7 +177,7 @@ class DataSource(JobsMixin, PrimaryModel):
         Create/update/delete child DataFiles as necessary to synchronize with the remote source.
         """
         if self.status == DataSourceStatusChoices.SYNCING:
-            raise SyncError("Cannot initiate sync; syncing already in progress.")
+            raise SyncError(_("Cannot initiate sync; syncing already in progress."))
 
         # Emit the pre_sync signal
         pre_sync.send(sender=self.__class__, instance=self)
@@ -166,7 +190,7 @@ class DataSource(JobsMixin, PrimaryModel):
             backend = self.get_backend()
         except ModuleNotFoundError as e:
             raise SyncError(
-                f"There was an error initializing the backend. A dependency needs to be installed: {e}"
+                _("There was an error initializing the backend. A dependency needs to be installed: ") + str(e)
             )
         with backend.fetch() as local_path:
 
@@ -367,7 +391,7 @@ class AutoSyncRecord(models.Model):
         related_name='+'
     )
     object_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         related_name='+'
     )
@@ -376,6 +400,8 @@ class AutoSyncRecord(models.Model):
         ct_field='object_type',
         fk_field='object_id'
     )
+
+    _netbox_private = True
 
     class Meta:
         constraints = (

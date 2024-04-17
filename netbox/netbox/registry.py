@@ -1,4 +1,5 @@
 import collections
+from django.utils.translation import gettext as _
 
 
 class Registry(dict):
@@ -10,13 +11,13 @@ class Registry(dict):
         try:
             return super().__getitem__(key)
         except KeyError:
-            raise KeyError(f"Invalid store: {key}")
+            raise KeyError(_("Invalid store: {key}").format(key=key))
 
     def __setitem__(self, key, value):
-        raise TypeError("Cannot add stores to registry after initialization")
+        raise TypeError(_("Cannot add stores to registry after initialization"))
 
     def __delitem__(self, key):
-        raise TypeError("Cannot delete stores from registry")
+        raise TypeError(_("Cannot delete stores from registry"))
 
 
 # Initialize the global registry
@@ -25,8 +26,10 @@ registry = Registry({
     'data_backends': dict(),
     'denormalized_fields': collections.defaultdict(list),
     'model_features': dict(),
+    'models': collections.defaultdict(set),
     'plugins': dict(),
     'search': dict(),
+    'tables': collections.defaultdict(dict),
     'views': collections.defaultdict(dict),
     'widgets': dict(),
 })

@@ -35,7 +35,7 @@ class UserSerializer(ValidatedModelSerializer):
         model = get_user_model()
         fields = (
             'id', 'url', 'display', 'username', 'password', 'first_name', 'last_name', 'email', 'is_staff', 'is_active',
-            'date_joined', 'groups',
+            'date_joined', 'last_login', 'groups',
         )
         extra_kwargs = {
             'password': {'write_only': True}
@@ -51,6 +51,16 @@ class UserSerializer(ValidatedModelSerializer):
         user.save()
 
         return user
+
+    def update(self, instance, validated_data):
+        """
+        Ensure proper updated password hash generation.
+        """
+        password = validated_data.pop('password', None)
+        if password is not None:
+            instance.set_password(password)
+
+        return super().update(instance, validated_data)
 
     @extend_schema_field(OpenApiTypes.STR)
     def get_display(self, obj):

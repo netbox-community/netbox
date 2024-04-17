@@ -17,12 +17,12 @@ from .models import *
 __all__ = (
     'BookmarkFilterSet',
     'ConfigContextFilterSet',
-    'ConfigRevisionFilterSet',
     'ConfigTemplateFilterSet',
     'ContentTypeFilterSet',
     'CustomFieldChoiceSetFilterSet',
     'CustomFieldFilterSet',
     'CustomLinkFilterSet',
+    'EventRuleFilterSet',
     'ExportTemplateFilterSet',
     'ImageAttachmentFilterSet',
     'JournalEntryFilterSet',
@@ -39,19 +39,18 @@ class WebhookFilterSet(NetBoxModelFilterSet):
         method='search',
         label=_('Search'),
     )
-    content_type_id = MultiValueNumberFilter(
-        field_name='content_types__id'
-    )
-    content_types = ContentTypeFilter()
     http_method = django_filters.MultipleChoiceFilter(
         choices=WebhookHttpMethodChoices
+    )
+    payload_url = MultiValueCharFilter(
+        lookup_expr='icontains'
     )
 
     class Meta:
         model = Webhook
         fields = [
-            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'payload_url',
-            'enabled', 'http_method', 'http_content_type', 'secret', 'ssl_verification', 'ca_file_path',
+            'id', 'name', 'payload_url', 'http_method', 'http_content_type', 'secret', 'ssl_verification',
+            'ca_file_path', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -59,7 +58,40 @@ class WebhookFilterSet(NetBoxModelFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
+            Q(description__icontains=value) |
             Q(payload_url__icontains=value)
+        )
+
+
+class EventRuleFilterSet(NetBoxModelFilterSet):
+    q = django_filters.CharFilter(
+        method='search',
+        label=_('Search'),
+    )
+    content_type_id = MultiValueNumberFilter(
+        field_name='content_types__id'
+    )
+    content_types = ContentTypeFilter()
+    action_type = django_filters.MultipleChoiceFilter(
+        choices=EventRuleActionChoices
+    )
+    action_object_type = ContentTypeFilter()
+    action_object_id = MultiValueNumberFilter()
+
+    class Meta:
+        model = EventRule
+        fields = [
+            'id', 'name', 'type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', 'enabled',
+            'action_type', 'description',
+        ]
+
+    def search(self, queryset, name, value):
+        if not value.strip():
+            return queryset
+        return queryset.filter(
+            Q(name__icontains=value) |
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 
@@ -87,8 +119,8 @@ class CustomFieldFilterSet(BaseFilterSet):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visibility',
-            'weight', 'is_cloneable', 'description',
+            'id', 'content_types', 'name', 'group_name', 'required', 'search_weight', 'filter_logic', 'ui_visible',
+            'ui_editable', 'weight', 'is_cloneable', 'description',
         ]
 
     def search(self, queryset, name, value):
@@ -122,8 +154,7 @@ class CustomFieldChoiceSetFilterSet(BaseFilterSet):
             return queryset
         return queryset.filter(
             Q(name__icontains=value) |
-            Q(description__icontains=value) |
-            Q(extra_choices__contains=value)
+            Q(description__icontains=value)
         )
 
     def filter_by_choice(self, queryset, name, value):
@@ -513,7 +544,7 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
 
     class Meta:
         model = ConfigContext
-        fields = ['id', 'name', 'is_active', 'data_synced']
+        fields = ['id', 'name', 'is_active', 'data_synced', 'description']
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -624,28 +655,4 @@ class ContentTypeFilterSet(django_filters.FilterSet):
         return queryset.filter(
             Q(app_label__icontains=value) |
             Q(model__icontains=value)
-        )
-
-
-#
-# ConfigRevisions
-#
-
-class ConfigRevisionFilterSet(BaseFilterSet):
-    q = django_filters.CharFilter(
-        method='search',
-        label=_('Search'),
-    )
-
-    class Meta:
-        model = ConfigRevision
-        fields = [
-            'id',
-        ]
-
-    def search(self, queryset, name, value):
-        if not value.strip():
-            return queryset
-        return queryset.filter(
-            Q(comment__icontains=value)
         )

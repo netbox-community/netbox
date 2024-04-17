@@ -12,8 +12,9 @@ from netbox.constants import NESTED_SERIALIZER_PREFIX
 from tenancy.api.nested_serializers import NestedTenantSerializer
 from utilities.api import get_serializer_for_model
 from virtualization.api.nested_serializers import NestedVirtualMachineSerializer
-from .nested_serializers import *
+from vpn.api.nested_serializers import NestedL2VPNTerminationSerializer
 from .field_serializers import IPAddressField, IPNetworkField
+from .nested_serializers import *
 
 
 #
@@ -479,54 +480,3 @@ class ServiceSerializer(NetBoxModelSerializer):
             'id', 'url', 'display', 'device', 'virtual_machine', 'name', 'ports', 'protocol', 'ipaddresses',
             'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
         ]
-
-#
-# L2VPN
-#
-
-
-class L2VPNSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpn-detail')
-    type = ChoiceField(choices=L2VPNTypeChoices, required=False)
-    import_targets = SerializedPKRelatedField(
-        queryset=RouteTarget.objects.all(),
-        serializer=NestedRouteTargetSerializer,
-        required=False,
-        many=True
-    )
-    export_targets = SerializedPKRelatedField(
-        queryset=RouteTarget.objects.all(),
-        serializer=NestedRouteTargetSerializer,
-        required=False,
-        many=True
-    )
-    tenant = NestedTenantSerializer(required=False, allow_null=True)
-
-    class Meta:
-        model = L2VPN
-        fields = [
-            'id', 'url', 'display', 'identifier', 'name', 'slug', 'type', 'import_targets', 'export_targets',
-            'description', 'comments', 'tenant', 'tags', 'custom_fields', 'created', 'last_updated'
-        ]
-
-
-class L2VPNTerminationSerializer(NetBoxModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='ipam-api:l2vpntermination-detail')
-    l2vpn = NestedL2VPNSerializer()
-    assigned_object_type = ContentTypeField(
-        queryset=ContentType.objects.all()
-    )
-    assigned_object = serializers.SerializerMethodField(read_only=True)
-
-    class Meta:
-        model = L2VPNTermination
-        fields = [
-            'id', 'url', 'display', 'l2vpn', 'assigned_object_type', 'assigned_object_id',
-            'assigned_object', 'tags', 'custom_fields', 'created', 'last_updated'
-        ]
-
-    @extend_schema_field(serializers.JSONField(allow_null=True))
-    def get_assigned_object(self, instance):
-        serializer = get_serializer_for_model(instance.assigned_object, prefix=NESTED_SERIALIZER_PREFIX)
-        context = {'request': self.context['request']}
-        return serializer(instance.assigned_object, context=context).data

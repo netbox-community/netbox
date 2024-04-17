@@ -227,6 +227,17 @@ sudo sh -c "echo 'boto3' >> /opt/netbox/local_requirements.txt"
 !!! info
     These packages were previously required in NetBox v3.5 but now are optional.
 
+### Sentry Integration
+
+NetBox may be configured to send error reports to [Sentry](../administration/error-reporting.md) for analysis. This integration requires installation of the `sentry-sdk` Python library.
+
+```no-highlight
+sudo sh -c "echo 'sentry-sdk' >> /opt/netbox/local_requirements.txt"
+```
+
+!!! info
+    Sentry integration was previously included by default in NetBox v3.6 but is now optional.
+
 ## Run the Upgrade Script
 
 Once NetBox has been configured, we're ready to proceed with the actual installation. We'll run the packaged upgrade script (`upgrade.sh`) to perform the following actions:

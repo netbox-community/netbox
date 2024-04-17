@@ -25,8 +25,8 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         ASN.objects.bulk_create(asns)
 
         providers = (
-            Provider(name='Provider 1', slug='provider-1'),
-            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 1', slug='provider-1', description='foobar1'),
+            Provider(name='Provider 2', slug='provider-2', description='foobar2'),
             Provider(name='Provider 3', slug='provider-3'),
             Provider(name='Provider 4', slug='provider-4'),
             Provider(name='Provider 5', slug='provider-5'),
@@ -74,6 +74,10 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[1], site=sites[0], term_side='A'),
         ))
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Provider 1', 'Provider 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -82,9 +86,15 @@ class ProviderTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'slug': ['provider-1', 'provider-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_asn_id(self):  # ASN object assignment
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_asn(self):
         asns = ASN.objects.all()[:2]
         params = {'asn_id': [asns[0].pk, asns[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'asn': [asns[0].asn, asns[1].asn]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -121,6 +131,10 @@ class CircuitTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitType(name='Circuit Type 2', slug='circuit-type-2', description='foobar2'),
             CircuitType(name='Circuit Type 3', slug='circuit-type-3'),
         ))
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Circuit Type 1']}
@@ -226,6 +240,10 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
             CircuitTermination(circuit=circuits[5], provider_network=provider_networks[2], term_side='A'),
         ))
         CircuitTermination.objects.bulk_create(circuit_terminations)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_cid(self):
         params = {'cid': ['Test Circuit 1', 'Test Circuit 2']}
@@ -369,6 +387,10 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
 
         Cable(a_terminations=[circuit_terminations[0]], b_terminations=[circuit_terminations[1]]).save()
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_term_side(self):
         params = {'term_side': 'A'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 7)
@@ -440,6 +462,10 @@ class ProviderNetworkTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ProviderNetwork.objects.bulk_create(provider_networks)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Provider Network 1', 'Provider Network 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
@@ -476,6 +502,10 @@ class ProviderAccountTestCase(TestCase, ChangeLoggedFilterSetTests):
             ProviderAccount(name='Provider Account 3', provider=providers[2], account='3456'),
         )
         ProviderAccount.objects.bulk_create(provider_accounts)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Provider Account 1', 'Provider Account 2']}

@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.forms.models import fields_for_model
+from django.utils.translation import gettext as _
 
 from utilities.choices import unpack_grouped_choices
 from utilities.querysets import RestrictedQuerySet
@@ -38,9 +39,9 @@ def parse_numeric_range(string, base=10):
         try:
             begin, end = int(begin.strip(), base=base), int(end.strip(), base=base) + 1
         except ValueError:
-            raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
+            raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=dash_range))
         values.extend(range(begin, end))
-    return list(set(values))
+    return sorted(set(values))
 
 
 def parse_alphanumeric_range(string):
@@ -50,36 +51,43 @@ def parse_alphanumeric_range(string):
     '0-3,a-d' => [0, 1, 2, 3, a, b, c, d]
     """
     values = []
-    for dash_range in string.split(','):
+    for value in string.split(','):
+        if '-' not in value:
+            # Item is not a range
+            values.append(value)
+            continue
+
+        # Find the range's beginning & end values
         try:
-            begin, end = dash_range.split('-')
+            begin, end = value.split('-')
             vals = begin + end
             # Break out of loop if there's an invalid pattern to return an error
             if (not (vals.isdigit() or vals.isalpha())) or (vals.isalpha() and not (vals.isupper() or vals.islower())):
                 return []
         except ValueError:
-            begin, end = dash_range, dash_range
+            raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=value))
+
+        # Numeric range
         if begin.isdigit() and end.isdigit():
             if int(begin) >= int(end):
-                raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-
+                raise forms.ValidationError(
+                    _('Invalid range: Ending value ({end}) must be greater than beginning value ({begin}).').format(
+                        begin=begin, end=end
+                    )
+                )
             for n in list(range(int(begin), int(end) + 1)):
                 values.append(n)
+
+        # Alphanumeric range
         else:
-            # Value-based
-            if begin == end:
-                values.append(begin)
-            # Range-based
-            else:
-                # Not a valid range (more than a single character)
-                if not len(begin) == len(end) == 1:
-                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
+            # Not a valid range (more than a single character)
+            if not len(begin) == len(end) == 1:
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=value))
+            if ord(begin) >= ord(end):
+                raise forms.ValidationError(_('Range "{value}" is invalid.').format(value=value))
+            for n in list(range(ord(begin), ord(end) + 1)):
+                values.append(chr(n))
 
-                if ord(begin) >= ord(end):
-                    raise forms.ValidationError(f'Range "{dash_range}" is invalid.')
-
-                for n in list(range(ord(begin), ord(end) + 1)):
-                    values.append(chr(n))
     return values
 
 
@@ -128,10 +136,9 @@ def get_field_value(form, field_name):
     """
     field = form.fields[field_name]
 
-    if form.is_bound:
-        if data := form.data.get(field_name):
-            if field.valid_value(data):
-                return data
+    if form.is_bound and (data := form.data.get(field_name)):
+        if hasattr(field, 'valid_value') and field.valid_value(data):
+            return data
 
     return form.get_initial_for_field(field, field_name)
 
@@ -222,18 +229,24 @@ def parse_csv(reader):
         if '.' in header:
             field, to_field = header.split('.', 1)
             if field in headers:
-                raise forms.ValidationError(f'Duplicate or conflicting column header for "{field}"')
+                raise forms.ValidationError(_('Duplicate or conflicting column header for "{field}"').format(
+                    field=field
+                ))
             headers[field] = to_field
         else:
             if header in headers:
-                raise forms.ValidationError(f'Duplicate or conflicting column header for "{header}"')
+                raise forms.ValidationError(_('Duplicate or conflicting column header for "{header}"').format(
+                    header=header
+                ))
             headers[header] = None
 
     # Parse CSV rows into a list of dictionaries mapped from the column headers.
     for i, row in enumerate(reader, start=1):
         if len(row) != len(headers):
             raise forms.ValidationError(
-                f"Row {i}: Expected {len(headers)} columns but found {len(row)}"
+                _("Row {row}: Expected {count_expected} columns but found {count_found}").format(
+                    row=i, count_expected=len(headers), count_found=len(row)
+                )
             )
         row = [col.strip() for col in row]
         record = dict(zip(headers.keys(), row))
@@ -254,14 +267,18 @@ def validate_csv(headers, fields, required_fields):
             is_update = True
             continue
         if field not in fields:
-            raise forms.ValidationError(f'Unexpected column header "{field}" found.')
+            raise forms.ValidationError(_('Unexpected column header "{field}" found.').format(field=field))
         if to_field and not hasattr(fields[field], 'to_field_name'):
-            raise forms.ValidationError(f'Column "{field}" is not a related object; cannot use dots')
+            raise forms.ValidationError(_('Column "{field}" is not a related object; cannot use dots').format(
+                field=field
+            ))
         if to_field and not hasattr(fields[field].queryset.model, to_field):
-            raise forms.ValidationError(f'Invalid related object attribute for column "{field}": {to_field}')
+            raise forms.ValidationError(_('Invalid related object attribute for column "{field}": {to_field}').format(
+                field=field, to_field=to_field
+            ))
 
     # Validate required fields (if not an update)
     if not is_update:
         for f in required_fields:
             if f not in headers:
-                raise forms.ValidationError(f'Required column header "{f}" not found.')
+                raise forms.ValidationError(_('Required column header "{header}" not found.').format(header=f))

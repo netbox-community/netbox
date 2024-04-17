@@ -1,7 +1,7 @@
 import graphene
 
-from extras.graphql.mixins import ContactsMixin
 from ipam import filtersets, models
+from .mixins import IPAddressesMixin
 from netbox.graphql.scalars import BigInt
 from netbox.graphql.types import BaseObjectType, OrganizationalObjectType, NetBoxObjectType
 
@@ -13,8 +13,6 @@ __all__ = (
     'FHRPGroupAssignmentType',
     'IPAddressType',
     'IPRangeType',
-    'L2VPNType',
-    'L2VPNTerminationType',
     'PrefixType',
     'RIRType',
     'RoleType',
@@ -74,7 +72,7 @@ class AggregateType(NetBoxObjectType, BaseIPAddressFamilyType):
         filterset_class = filtersets.AggregateFilterSet
 
 
-class FHRPGroupType(NetBoxObjectType):
+class FHRPGroupType(NetBoxObjectType, IPAddressesMixin):
 
     class Meta:
         model = models.FHRPGroup
@@ -188,19 +186,3 @@ class VRFType(NetBoxObjectType):
         model = models.VRF
         fields = '__all__'
         filterset_class = filtersets.VRFFilterSet
-
-
-class L2VPNType(ContactsMixin, NetBoxObjectType):
-    class Meta:
-        model = models.L2VPN
-        fields = '__all__'
-        filtersets_class = filtersets.L2VPNFilterSet
-
-
-class L2VPNTerminationType(NetBoxObjectType):
-    assigned_object = graphene.Field('ipam.graphql.gfk_mixins.L2VPNAssignmentType')
-
-    class Meta:
-        model = models.L2VPNTermination
-        exclude = ('assigned_object_type', 'assigned_object_id')
-        filtersets_class = filtersets.L2VPNTerminationFilterSet

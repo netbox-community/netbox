@@ -6,7 +6,7 @@ from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device
 from virtualization.choices import *
 from virtualization.filtersets import *
-from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from virtualization.models import *
 
 
 class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -17,11 +17,15 @@ class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         cluster_types = (
-            ClusterType(name='Cluster Type 1', slug='cluster-type-1', description='A'),
-            ClusterType(name='Cluster Type 2', slug='cluster-type-2', description='B'),
-            ClusterType(name='Cluster Type 3', slug='cluster-type-3', description='C'),
+            ClusterType(name='Cluster Type 1', slug='cluster-type-1', description='foobar1'),
+            ClusterType(name='Cluster Type 2', slug='cluster-type-2', description='foobar2'),
+            ClusterType(name='Cluster Type 3', slug='cluster-type-3', description='foobar3'),
         )
         ClusterType.objects.bulk_create(cluster_types)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Cluster Type 1', 'Cluster Type 2']}
@@ -32,7 +36,7 @@ class ClusterTypeTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
-        params = {'description': ['A', 'B']}
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -44,11 +48,15 @@ class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         cluster_groups = (
-            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1', description='A'),
-            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2', description='B'),
-            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3', description='C'),
+            ClusterGroup(name='Cluster Group 1', slug='cluster-group-1', description='foobar1'),
+            ClusterGroup(name='Cluster Group 2', slug='cluster-group-2', description='foobar2'),
+            ClusterGroup(name='Cluster Group 3', slug='cluster-group-3', description='foobar3'),
         )
         ClusterGroup.objects.bulk_create(cluster_groups)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Cluster Group 1', 'Cluster Group 2']}
@@ -59,7 +67,7 @@ class ClusterGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):
-        params = {'description': ['A', 'B']}
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -123,14 +131,46 @@ class ClusterTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         clusters = (
-            Cluster(name='Cluster 1', type=cluster_types[0], group=cluster_groups[0], status=ClusterStatusChoices.STATUS_PLANNED, site=sites[0], tenant=tenants[0]),
-            Cluster(name='Cluster 2', type=cluster_types[1], group=cluster_groups[1], status=ClusterStatusChoices.STATUS_STAGING, site=sites[1], tenant=tenants[1]),
-            Cluster(name='Cluster 3', type=cluster_types[2], group=cluster_groups[2], status=ClusterStatusChoices.STATUS_ACTIVE, site=sites[2], tenant=tenants[2]),
+            Cluster(
+                name='Cluster 1',
+                type=cluster_types[0],
+                group=cluster_groups[0],
+                status=ClusterStatusChoices.STATUS_PLANNED,
+                site=sites[0],
+                tenant=tenants[0],
+                description='foobar1'
+            ),
+            Cluster(
+                name='Cluster 2',
+                type=cluster_types[1],
+                group=cluster_groups[1],
+                status=ClusterStatusChoices.STATUS_STAGING,
+                site=sites[1],
+                tenant=tenants[1],
+                description='foobar2'
+            ),
+            Cluster(
+                name='Cluster 3',
+                type=cluster_types[2],
+                group=cluster_groups[2],
+                status=ClusterStatusChoices.STATUS_ACTIVE,
+                site=sites[2],
+                tenant=tenants[2],
+                description='foobar3'
+            ),
         )
         Cluster.objects.bulk_create(clusters)
 
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
     def test_name(self):
         params = {'name': ['Cluster 1', 'Cluster 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_region(self):
@@ -274,9 +314,49 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         Tenant.objects.bulk_create(tenants)
 
         vms = (
-            VirtualMachine(name='Virtual Machine 1', site=sites[0], cluster=clusters[0], device=devices[0], platform=platforms[0], role=roles[0], tenant=tenants[0], status=VirtualMachineStatusChoices.STATUS_ACTIVE, vcpus=1, memory=1, disk=1, local_context_data={"foo": 123}),
-            VirtualMachine(name='Virtual Machine 2', site=sites[1], cluster=clusters[1], device=devices[1], platform=platforms[1], role=roles[1], tenant=tenants[1], status=VirtualMachineStatusChoices.STATUS_STAGED, vcpus=2, memory=2, disk=2),
-            VirtualMachine(name='Virtual Machine 3', site=sites[2], cluster=clusters[2], device=devices[2], platform=platforms[2], role=roles[2], tenant=tenants[2], status=VirtualMachineStatusChoices.STATUS_OFFLINE, vcpus=3, memory=3, disk=3),
+            VirtualMachine(
+                name='Virtual Machine 1',
+                site=sites[0],
+                cluster=clusters[0],
+                device=devices[0],
+                platform=platforms[0],
+                role=roles[0],
+                tenant=tenants[0],
+                status=VirtualMachineStatusChoices.STATUS_ACTIVE,
+                vcpus=1,
+                memory=1,
+                disk=1,
+                description='foobar1',
+                local_context_data={"foo": 123}
+            ),
+            VirtualMachine(
+                name='Virtual Machine 2',
+                site=sites[1],
+                cluster=clusters[1],
+                device=devices[1],
+                platform=platforms[1],
+                role=roles[1],
+                tenant=tenants[1],
+                status=VirtualMachineStatusChoices.STATUS_STAGED,
+                vcpus=2,
+                memory=2,
+                disk=2,
+                description='foobar2'
+            ),
+            VirtualMachine(
+                name='Virtual Machine 3',
+                site=sites[2],
+                cluster=clusters[2],
+                device=devices[2],
+                platform=platforms[2],
+                role=roles[2],
+                tenant=tenants[2],
+                status=VirtualMachineStatusChoices.STATUS_OFFLINE,
+                vcpus=3,
+                memory=3,
+                disk=3,
+                description='foobar3'
+            ),
         )
         VirtualMachine.objects.bulk_create(vms)
 
@@ -291,16 +371,28 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         ipaddresses = (
             IPAddress(address='192.0.2.1/24', assigned_object=interfaces[0]),
             IPAddress(address='192.0.2.2/24', assigned_object=interfaces[1]),
+            IPAddress(address='192.0.2.3/24', assigned_object=None),
+            IPAddress(address='2001:db8::1/64', assigned_object=interfaces[0]),
+            IPAddress(address='2001:db8::2/64', assigned_object=interfaces[1]),
+            IPAddress(address='2001:db8::3/64', assigned_object=None),
         )
         IPAddress.objects.bulk_create(ipaddresses)
-        VirtualMachine.objects.filter(pk=vms[0].pk).update(primary_ip4=ipaddresses[0])
-        VirtualMachine.objects.filter(pk=vms[1].pk).update(primary_ip4=ipaddresses[1])
+        VirtualMachine.objects.filter(pk=vms[0].pk).update(primary_ip4=ipaddresses[0], primary_ip6=ipaddresses[3])
+        VirtualMachine.objects.filter(pk=vms[1].pk).update(primary_ip4=ipaddresses[1], primary_ip6=ipaddresses[4])
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Virtual Machine 1', 'Virtual Machine 2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         # Test case insensitivity
         params = {'name': ['VIRTUAL MACHINE 1', 'VIRTUAL MACHINE 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_vcpus(self):
@@ -412,6 +504,20 @@ class VirtualMachineTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_primary_ip4(self):
+        addresses = IPAddress.objects.filter(address__family=4)
+        params = {'primary_ip4_id': [addresses[0].pk, addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip4_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
+    def test_primary_ip6(self):
+        addresses = IPAddress.objects.filter(address__family=6)
+        params = {'primary_ip6_id': [addresses[0].pk, addresses[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'primary_ip6_id': [addresses[2].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 0)
+
 
 class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VMInterface.objects.all()
@@ -449,11 +555,39 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         VirtualMachine.objects.bulk_create(vms)
 
         interfaces = (
-            VMInterface(virtual_machine=vms[0], name='Interface 1', enabled=True, mtu=100, mac_address='00-00-00-00-00-01', vrf=vrfs[0], description='foobar1'),
-            VMInterface(virtual_machine=vms[1], name='Interface 2', enabled=True, mtu=200, mac_address='00-00-00-00-00-02', vrf=vrfs[1], description='foobar2'),
-            VMInterface(virtual_machine=vms[2], name='Interface 3', enabled=False, mtu=300, mac_address='00-00-00-00-00-03', vrf=vrfs[2]),
+            VMInterface(
+                virtual_machine=vms[0],
+                name='Interface 1',
+                enabled=True,
+                mtu=100,
+                mac_address='00-00-00-00-00-01',
+                vrf=vrfs[0],
+                description='foobar1'
+            ),
+            VMInterface(
+                virtual_machine=vms[1],
+                name='Interface 2',
+                enabled=True,
+                mtu=200,
+                mac_address='00-00-00-00-00-02',
+                vrf=vrfs[1],
+                description='foobar2'
+            ),
+            VMInterface(
+                virtual_machine=vms[2],
+                name='Interface 3',
+                enabled=False,
+                mtu=300,
+                mac_address='00-00-00-00-00-03',
+                vrf=vrfs[2],
+                description='foobar3'
+            ),
         )
         VMInterface.objects.bulk_create(interfaces)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
 
     def test_name(self):
         params = {'name': ['Interface 1', 'Interface 2']}
@@ -511,6 +645,53 @@ class VMInterfaceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'vrf_id': [vrfs[0].pk, vrfs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'vrf': [vrfs[0].rd, vrfs[1].rd]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_description(self):
+        params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+
+class VirtualDiskTestCase(TestCase, ChangeLoggedFilterSetTests):
+    queryset = VirtualDisk.objects.all()
+    filterset = VirtualDiskFilterSet
+
+    @classmethod
+    def setUpTestData(cls):
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        cluster = Cluster.objects.create(name='Cluster 1', type=cluster_type)
+
+        vms = (
+            VirtualMachine(name='Virtual Machine 1', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 2', cluster=cluster),
+            VirtualMachine(name='Virtual Machine 3', cluster=cluster),
+        )
+        VirtualMachine.objects.bulk_create(vms)
+
+        disks = (
+            VirtualDisk(virtual_machine=vms[0], name='Disk 1', size=1, description='foobar1'),
+            VirtualDisk(virtual_machine=vms[1], name='Disk 2', size=2, description='foobar2'),
+            VirtualDisk(virtual_machine=vms[2], name='Disk 3', size=3, description='foobar3'),
+        )
+        VirtualDisk.objects.bulk_create(disks)
+
+    def test_q(self):
+        params = {'q': 'foobar1'}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
+
+    def test_virtual_machine(self):
+        vms = VirtualMachine.objects.all()[:2]
+        params = {'virtual_machine_id': [vms[0].pk, vms[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'virtual_machine': [vms[0].name, vms[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_name(self):
+        params = {'name': ['Disk 1', 'Disk 2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_size(self):
+        params = {'size': [1, 2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_description(self):

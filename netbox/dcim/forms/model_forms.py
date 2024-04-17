@@ -291,7 +291,11 @@ class DeviceTypeForm(NetBoxModelForm):
     default_platform = DynamicModelChoiceField(
         label=_('Default platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        selector=True,
+        query_params={
+            'manufacturer_id': ['$manufacturer', 'null'],
+        }
     )
     slug = SlugField(
         label=_('Slug'),
@@ -302,7 +306,8 @@ class DeviceTypeForm(NetBoxModelForm):
     fieldsets = (
         (_('Device Type'), ('manufacturer', 'model', 'slug', 'default_platform', 'description', 'tags')),
         (_('Chassis'), (
-            'u_height', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow', 'weight', 'weight_unit',
+            'u_height', 'exclude_from_utilization', 'is_full_depth', 'part_number', 'subdevice_role', 'airflow',
+            'weight', 'weight_unit',
         )),
         (_('Images'), ('front_image', 'rear_image')),
     )
@@ -310,9 +315,9 @@ class DeviceTypeForm(NetBoxModelForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image', 'description',
-            'comments', 'tags',
+            'manufacturer', 'model', 'slug', 'default_platform', 'part_number', 'u_height', 'exclude_from_utilization',
+            'is_full_depth', 'subdevice_role', 'airflow', 'weight', 'weight_unit', 'front_image', 'rear_image',
+            'description', 'comments', 'tags',
         ]
         widgets = {
             'front_image': ClearableFileInput(attrs={
@@ -442,7 +447,11 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
     platform = DynamicModelChoiceField(
         label=_('Platform'),
         queryset=Platform.objects.all(),
-        required=False
+        required=False,
+        selector=True,
+        query_params={
+            'available_for_device_type': '$device_type',
+        }
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),

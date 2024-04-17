@@ -3,20 +3,22 @@ import re
 from copy import deepcopy
 
 from django.contrib import messages
+from django.contrib.contenttypes.fields import GenericRel
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
-from django.db.models import ManyToManyField, ProtectedError
+from django.db.models import ManyToManyField, ProtectedError, RestrictedError
 from django.db.models.fields.reverse_related import ManyToManyRel
 from django.forms import HiddenInput, ModelMultipleChoiceField, MultipleHiddenInput
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
 
 from extras.models import ExportTemplate
-from extras.signals import clear_webhooks
+from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
@@ -47,9 +49,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
     Attributes:
         filterset: A django-filter FilterSet that is applied to the queryset
         filterset_form: The form class used to render filter options
-        actions: Supported actions for the model. When adding custom actions, bulk action names must
-            be prefixed with `bulk_`. Default actions: add, import, export, bulk_edit, bulk_delete
-        action_perms: A dictionary mapping supported actions to a set of permissions required for each
+        actions: A mapping of supported actions to their required permissions. When adding custom actions, bulk
+            action names must be prefixed with `bulk_`. (See ActionsMixin.)
     """
     template_name = 'generic/object_list.html'
     filterset = None
@@ -278,7 +279,7 @@ class BulkCreateView(GetReturnURLMixin, BaseMultiObjectView):
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -320,7 +321,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             if type(field.widget) is not HiddenInput
         }
 
-    def _save_object(self, model_form, request):
+    def _save_object(self, import_form, model_form, request):
 
         # Save the primary object
         obj = self.save_object(model_form, request)
@@ -345,11 +346,14 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     related_obj = f.save()
                     related_obj_pks.append(related_obj.pk)
                 else:
-                    # Replicate errors on the related object form to the primary form for display
+                    # Replicate errors on the related object form to the import form for display and abort
                     for subfield_name, errors in f.errors.items():
                         for err in errors:
-                            err_msg = "{}[{}] {}: {}".format(field_name, i, subfield_name, err)
-                            model_form.add_error(None, err_msg)
+                            if subfield_name == '__all__':
+                                err_msg = f"{field_name}[{i}]: {err}"
+                            else:
+                                err_msg = f"{field_name}[{i}] {subfield_name}: {err}"
+                            import_form.add_error(None, err_msg)
                     raise AbortTransaction()
 
             # Enforce object-level permissions on related objects
@@ -390,8 +394,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                 try:
                     instance = prefetched_objects[object_id]
                 except KeyError:
-                    form.add_error('data', f"Row {i}: Object with ID {object_id} does not exist")
+                    form.add_error('data', _("Row {i}: Object with ID {id} does not exist").format(i=i, id=object_id))
                     raise ValidationError('')
+
+                # Take a snapshot for change logging
+                if instance.pk and hasattr(instance, 'snapshot'):
+                    instance.snapshot()
 
             # Instantiate the model form for the object
             model_form_kwargs = {
@@ -412,7 +420,7 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
             restrict_form_fields(model_form, request.user)
 
             if model_form.is_valid():
-                obj = self._save_object(model_form, request)
+                obj = self._save_object(form, model_form, request)
                 saved_objects.append(obj)
             else:
                 # Replicate model form errors for display
@@ -469,12 +477,12 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
                     return redirect(results_url)
 
             except (AbortTransaction, ValidationError):
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
             except (AbortRequest, PermissionsViolation) as e:
                 logger.debug(e.message)
                 form.add_error(None, e.message)
-                clear_webhooks.send(sender=self)
+                clear_events.send(sender=self)
 
         else:
             logger.debug("Form validation failed")
@@ -519,9 +527,11 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                 model_field = self.queryset.model._meta.get_field(name)
                 if isinstance(model_field, (ManyToManyField, ManyToManyRel)):
                     m2m_fields[name] = model_field
+                elif isinstance(model_field, GenericRel):
+                    # Ignore generic relations (these may be used for other purposes in the form)
+                    continue
                 else:
                     model_fields[name] = model_field
-
             except FieldDoesNotExist:
                 # This form field is used to modify a field rather than set its value directly
                 model_fields[name] = None
@@ -549,6 +559,14 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
                     obj.custom_field_data[cf_name] = None
                 elif name in form.changed_data:
                     obj.custom_field_data[cf_name] = customfield.serialize(form.cleaned_data[name])
+
+            # Store M2M values for validation
+            obj._m2m_values = {}
+            for field in obj._meta.local_many_to_many:
+                if value := form.cleaned_data.get(field.name):
+                    obj._m2m_values[field.name] = list(value)
+                elif field.name in nullified_fields:
+                    obj._m2m_values[field.name] = []
 
             obj.full_clean()
             obj.save()
@@ -625,12 +643,12 @@ class BulkEditView(GetReturnURLMixin, BaseMultiObjectView):
 
                 except ValidationError as e:
                     messages.error(self.request, ", ".join(e.messages))
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
             else:
                 logger.debug("Form validation failed")
@@ -726,7 +744,7 @@ class BulkRenameView(GetReturnURLMixin, BaseMultiObjectView):
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
         else:
             form = self.form(initial={'pk': request.POST.getlist('pk')})
@@ -795,14 +813,15 @@ class BulkDeleteView(GetReturnURLMixin, BaseMultiObjectView):
                 queryset = self.queryset.filter(pk__in=pk_list)
                 deleted_count = queryset.count()
                 try:
-                    for obj in queryset:
-                        # Take a snapshot of change-logged models
-                        if hasattr(obj, 'snapshot'):
-                            obj.snapshot()
-                        obj.delete()
+                    with transaction.atomic():
+                        for obj in queryset:
+                            # Take a snapshot of change-logged models
+                            if hasattr(obj, 'snapshot'):
+                                obj.snapshot()
+                            obj.delete()
 
-                except ProtectedError as e:
-                    logger.info("Caught ProtectedError while attempting to delete objects")
+                except (ProtectedError, RestrictedError) as e:
+                    logger.info(f"Caught {type(e)} while attempting to delete objects")
                     handle_protectederror(queryset, request, e)
                     return redirect(self.get_return_url(request))
 
@@ -919,12 +938,12 @@ class BulkComponentCreateView(GetReturnURLMixin, BaseMultiObjectView):
                             raise PermissionsViolation
 
                 except IntegrityError:
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
                 except (AbortRequest, PermissionsViolation) as e:
                     logger.debug(e.message)
                     form.add_error(None, e.message)
-                    clear_webhooks.send(sender=self)
+                    clear_events.send(sender=self)
 
                 if not form.errors:
                     msg = "Added {} {} to {} {}.".format(

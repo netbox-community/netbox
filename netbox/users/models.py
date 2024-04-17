@@ -3,7 +3,6 @@ import os
 
 from django.conf import settings
 from django.contrib.auth.models import Group, GroupManager, User, UserManager
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.core.validators import MinLengthValidator
@@ -15,8 +14,10 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from netaddr import IPNetwork
 
+from core.models import ContentType
 from ipam.fields import IPNetworkField
 from netbox.config import get_config
+from netbox.models.features import CloningMixin
 from utilities.querysets import RestrictedQuerySet
 from utilities.utils import flatten_dict
 from .constants import *
@@ -99,6 +100,8 @@ class UserConfig(models.Model):
         default=dict
     )
 
+    _netbox_private = True
+
     class Meta:
         ordering = ['user']
         verbose_name = _('user preferences')
@@ -169,7 +172,7 @@ class UserConfig(models.Model):
             elif key in d:
                 err_path = '.'.join(path.split('.')[:i + 1])
                 raise TypeError(
-                    _("Key '{err_path}' is a leaf node; cannot assign new keys").format(err_path=err_path)
+                    _("Key '{path}' is a leaf node; cannot assign new keys").format(path=err_path)
                 )
             else:
                 d = d.setdefault(key, {})
@@ -218,6 +221,7 @@ class UserConfig(models.Model):
 
 
 @receiver(post_save, sender=User)
+@receiver(post_save, sender=NetBoxUser)
 def create_userconfig(instance, created, raw=False, **kwargs):
     """
     Automatically create a new UserConfig when a new User is created. Skip this if importing a user from a fixture.
@@ -231,7 +235,7 @@ def create_userconfig(instance, created, raw=False, **kwargs):
 # REST API
 #
 
-class Token(models.Model):
+class Token(CloningMixin, models.Model):
     """
     An API token used for user authentication. This extends the stock model to allow each user to have multiple tokens.
     It also supports setting an expiration time and toggling write ability.
@@ -280,6 +284,10 @@ class Token(models.Model):
             'Allowed IPv4/IPv6 networks from where the token can be used. Leave blank for no restrictions. '
             'Ex: "10.1.1.0/24, 192.168.10.16/32, 2001:DB8:1::/64"'
         ),
+    )
+
+    clone_fields = (
+        'user', 'expires', 'write_enabled', 'description', 'allowed_ips',
     )
 
     objects = RestrictedQuerySet.as_manager()
@@ -351,7 +359,7 @@ class ObjectPermission(models.Model):
         default=True
     )
     object_types = models.ManyToManyField(
-        to=ContentType,
+        to='contenttypes.ContentType',
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         related_name='object_permissions'
     )

@@ -9,9 +9,8 @@ from django.template.exceptions import TemplateDoesNotExist
 from django.views.decorators.csrf import requires_csrf_token
 from django.views.defaults import ERROR_500_TEMPLATE_NAME, page_not_found
 from django.views.generic import View
-from sentry_sdk import capture_message
 
-from extras.plugins.utils import get_installed_plugins
+from netbox.plugins.utils import get_installed_plugins
 
 __all__ = (
     'handler_404',
@@ -34,7 +33,9 @@ def handler_404(request, exception):
     """
     Wrap Django's default 404 handler to enable Sentry reporting.
     """
-    capture_message("Page not found", level="error")
+    if settings.SENTRY_ENABLED:
+        from sentry_sdk import capture_message
+        capture_message("Page not found", level="error")
 
     return page_not_found(request, exception)
 

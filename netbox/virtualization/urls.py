@@ -48,4 +48,13 @@ urlpatterns = [
     path('interfaces/<int:pk>/', include(get_model_urls('virtualization', 'vminterface'))),
     path('virtual-machines/interfaces/add/', views.VirtualMachineBulkAddInterfaceView.as_view(), name='virtualmachine_bulk_add_vminterface'),
 
+    # Virtual disks
+    path('disks/', views.VirtualDiskListView.as_view(), name='virtualdisk_list'),
+    path('disks/add/', views.VirtualDiskCreateView.as_view(), name='virtualdisk_add'),
+    path('disks/import/', views.VirtualDiskBulkImportView.as_view(), name='virtualdisk_import'),
+    path('disks/edit/', views.VirtualDiskBulkEditView.as_view(), name='virtualdisk_bulk_edit'),
+    path('disks/rename/', views.VirtualDiskBulkRenameView.as_view(), name='virtualdisk_bulk_rename'),
+    path('disks/delete/', views.VirtualDiskBulkDeleteView.as_view(), name='virtualdisk_bulk_delete'),
+    path('disks/<int:pk>/', include(get_model_urls('virtualization', 'virtualdisk'))),
+    path('virtual-machines/disks/add/', views.VirtualMachineBulkAddVirtualDiskView.as_view(), name='virtualmachine_bulk_add_virtualdisk'),
 ]

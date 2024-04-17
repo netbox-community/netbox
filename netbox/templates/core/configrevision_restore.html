@@ -1,0 +1,89 @@
+{% extends 'base/layout.html' %}
+{% load helpers %}
+{% load buttons %}
+{% load perms %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Restore" %}: {{ object }}{% endblock %}
+
+{% block subtitle %}
+  <div class="object-subtitle">
+    <span>{% trans "Created" %} {{ object.created|annotated_date }}</span>
+  </div>
+{% endblock %}
+
+{% block header %}
+  <div class="row noprint">
+    <div class="col col-md-12">
+      <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'core:configrevision_list' %}">{% trans "Config revisions" %}</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'core:configrevision' pk=object.pk %}">{{ object }}</a></li>
+        </ol>
+      </nav>
+    </div>
+  </div>
+  {{ block.super }}
+{% endblock header %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% if request.user|can_delete:job %}
+        {% delete_button job %}
+      {% endif %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Restore" %}</a>
+    </li>
+  </ul>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-12">
+      <table class="table table-striped table-hover">
+        <thead>
+          <tr>
+            <th scope="col">{% trans "Parameter" %}</th>
+            <th scope="col">{% trans "Current Value" %}</th>
+            <th scope="col">{% trans "New Value" %}</th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for param, current, new in params %}
+            <tr{% if current != new %} class="table-warning"{% endif %}>
+              <td>{{ param }}</td>
+              <td>{{ current }}</td>
+              <td>{{ new }}</td>
+              <td>{% if current != new %}<img src="{% static 'admin/img/icon-changelink.svg' %}" alt="*" title="{% trans "Changed" %}">{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="submit-row" style="margin-top: 20px">
+      <div class="controls">
+        <div class="control-group">
+          <button type="submit" name="restore" class="btn btn-primary">{% trans "Restore" %}</button>
+          <a href="{% url 'core:configrevision_list' %}" id="cancel" name="cancel" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
+        </div>
+      </div>
+    </div>
+  </form>
+
+{% endblock content %}
+
+{% block modals %}
+{% endblock modals %}

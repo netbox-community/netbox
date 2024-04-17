@@ -3,6 +3,7 @@ from django.test import TestCase
 
 from utilities.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
+from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
 
 
@@ -190,7 +191,16 @@ class ExpandAlphanumeric(TestCase):
 
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-    def test_set(self):
+    def test_set_numeric(self):
+        input = 'r[1,2]a'
+        output = sorted([
+            'r1a',
+            'r2a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_set_alpha(self):
         input = '[r,t]1a'
         output = sorted([
             'r1a',
@@ -364,3 +374,16 @@ class ImportFormTest(TestCase):
             {'a': '1', 'b': '2', 'c': '3'},
             {'a': '4', 'b': '5', 'c': '6'},
         ])
+
+
+class BulkRenameFormTest(TestCase):
+    def test_no_strip_whitespace(self):
+        # Tests to make sure Bulk Rename Form isn't stripping whitespaces
+        # See: https://github.com/netbox-community/netbox/issues/13791
+        form = BulkRenameForm(data={
+            "find": " hello ",
+            "replace": " world "
+        })
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data["find"], " hello ")
+        self.assertEqual(form.cleaned_data["replace"], " world ")

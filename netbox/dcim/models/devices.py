@@ -4,6 +4,7 @@ import yaml
 from functools import cached_property
 
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.db.models import F, ProtectedError
@@ -15,7 +16,7 @@ from django.utils.translation import gettext_lazy as _
 
 from dcim.choices import *
 from dcim.constants import *
-from extras.models import ConfigContextModel
+from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
@@ -105,10 +106,15 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         default=1.0,
         verbose_name=_('height (U)')
     )
+    exclude_from_utilization = models.BooleanField(
+        default=False,
+        verbose_name=_('exclude from utilization'),
+        help_text=_('Devices of this type are excluded when calculating rack utilization.')
+    )
     is_full_depth = models.BooleanField(
         default=True,
         verbose_name=_('is full depth'),
-        help_text=_('Device consumes both front and rear rack faces')
+        help_text=_('Device consumes both front and rear rack faces.')
     )
     subdevice_role = models.CharField(
         max_length=50,
@@ -205,11 +211,11 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         super().__init__(*args, **kwargs)
 
         # Save a copy of u_height for validation in clean()
-        self._original_u_height = self.u_height
+        self._original_u_height = self.__dict__.get('u_height')
 
         # Save references to the original front/rear images
-        self._original_front_image = self.front_image
-        self._original_rear_image = self.rear_image
+        self._original_front_image = self.__dict__.get('front_image')
+        self._original_rear_image = self.__dict__.get('rear_image')
 
     def get_absolute_url(self):
         return reverse('dcim:devicetype', args=[self.pk])
@@ -223,15 +229,16 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'slug': self.slug,
+            'description': self.description,
             'default_platform': self.default_platform.name if self.default_platform else None,
             'part_number': self.part_number,
             'u_height': float(self.u_height),
             'is_full_depth': self.is_full_depth,
             'subdevice_role': self.subdevice_role,
             'airflow': self.airflow,
-            'comments': self.comments,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'comments': self.comments,
         }
 
         # Component templates
@@ -296,8 +303,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
                 )
                 if d.position not in u_available:
                     raise ValidationError({
-                        'u_height': _("Device {} in rack {} does not have sufficient space to accommodate a height of "
-                                      "{}U").format(d, d.rack, self.u_height)
+                        'u_height': _(
+                            "Device {device} in rack {rack} does not have sufficient space to accommodate a "
+                            "height of {height}U"
+                        ).format(device=d, rack=d.rack, height=self.u_height)
                     })
 
         # If modifying the height of an existing DeviceType to 0U, check for any instances assigned to a rack position.
@@ -332,10 +341,10 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
         ret = super().save(*args, **kwargs)
 
         # Delete any previously uploaded image files that are no longer in use
-        if self.front_image != self._original_front_image:
-            self._original_front_image.delete(save=False)
-        if self.rear_image != self._original_rear_image:
-            self._original_rear_image.delete(save=False)
+        if self._original_front_image and self.front_image != self._original_front_image:
+            default_storage.delete(self._original_front_image)
+        if self._original_rear_image and self.rear_image != self._original_rear_image:
+            default_storage.delete(self._original_rear_image)
 
         return ret
 
@@ -407,9 +416,10 @@ class ModuleType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
             'manufacturer': self.manufacturer.name,
             'model': self.model,
             'part_number': self.part_number,
-            'comments': self.comments,
+            'description': self.description,
             'weight': float(self.weight) if self.weight is not None else None,
             'weight_unit': self.weight_unit,
+            'comments': self.comments,
         }
 
         # Component templates
@@ -867,7 +877,7 @@ class Device(
             if self.position and self.device_type.u_height == 0:
                 raise ValidationError({
                     'position': _(
-                        "A U0 device type ({device_type}) cannot be assigned to a rack position."
+                        "A 0U device type ({device_type}) cannot be assigned to a rack position."
                     ).format(device_type=self.device_type)
                 })
 
@@ -914,7 +924,7 @@ class Device(
         if self.primary_ip4:
             if self.primary_ip4.family != 4:
                 raise ValidationError({
-                    'primary_ip4': _("{primary_ip4} is not an IPv4 address.").format(primary_ip4=self.primary_ip4)
+                    'primary_ip4': _("{ip} is not an IPv4 address.").format(ip=self.primary_ip4)
                 })
             if self.primary_ip4.assigned_object in vc_interfaces:
                 pass
@@ -923,13 +933,13 @@ class Device(
             else:
                 raise ValidationError({
                     'primary_ip4': _(
-                        "The specified IP address ({primary_ip4}) is not assigned to this device."
-                    ).format(primary_ip4=self.primary_ip4)
+                        "The specified IP address ({ip}) is not assigned to this device."
+                    ).format(ip=self.primary_ip4)
                 })
         if self.primary_ip6:
             if self.primary_ip6.family != 6:
                 raise ValidationError({
-                    'primary_ip6': _("{primary_ip6} is not an IPv6 address.").format(primary_ip6=self.primary_ip6m)
+                    'primary_ip6': _("{ip} is not an IPv6 address.").format(ip=self.primary_ip6)
                 })
             if self.primary_ip6.assigned_object in vc_interfaces:
                 pass
@@ -938,8 +948,8 @@ class Device(
             else:
                 raise ValidationError({
                     'primary_ip6': _(
-                        "The specified IP address ({primary_ip6}) is not assigned to this device."
-                    ).format(primary_ip6=self.primary_ip6)
+                        "The specified IP address ({ip}) is not assigned to this device."
+                    ).format(ip=self.primary_ip6)
                 })
         if self.oob_ip:
             if self.oob_ip.assigned_object in vc_interfaces:
@@ -957,17 +967,19 @@ class Device(
                 raise ValidationError({
                     'platform': _(
                         "The assigned platform is limited to {platform_manufacturer} device types, but this device's "
-                        "type belongs to {device_type_manufacturer}."
+                        "type belongs to {devicetype_manufacturer}."
                     ).format(
                         platform_manufacturer=self.platform.manufacturer,
-                        device_type_manufacturer=self.device_type.manufacturer
+                        devicetype_manufacturer=self.device_type.manufacturer
                     )
                 })
 
         # A Device can only be assigned to a Cluster in the same Site (or no Site)
         if self.cluster and self.cluster.site is not None and self.cluster.site != self.site:
             raise ValidationError({
-                'cluster': _("The assigned cluster belongs to a different site ({})").format(self.cluster.site)
+                'cluster': _("The assigned cluster belongs to a different site ({site})").format(
+                    site=self.cluster.site
+                )
             })
 
         # Validate virtual chassis assignment
@@ -984,11 +996,16 @@ class Device(
             bulk_create: If True, bulk_create() will be called to create all components in a single query
                          (default). Otherwise, save() will be called on each instance individually.
         """
+        model = queryset.model.component_model
+
         if bulk_create:
             components = [obj.instantiate(device=self) for obj in queryset]
             if not components:
                 return
-            model = components[0]._meta.model
+            # Set default values for any applicable custom fields
+            if cf_defaults := CustomField.objects.get_defaults_for_model(model):
+                for component in components:
+                    component.custom_field_data = cf_defaults
             model.objects.bulk_create(components)
             # Manually send the post_save signal for each of the newly created components
             for component in components:
@@ -1003,6 +1020,9 @@ class Device(
         else:
             for obj in queryset:
                 component = obj.instantiate(device=self)
+                # Set default values for any applicable custom fields
+                if cf_defaults := CustomField.objects.get_defaults_for_model(model):
+                    component.custom_field_data = cf_defaults
                 component.save()
 
     def save(self, *args, **kwargs):
@@ -1439,8 +1459,8 @@ class VirtualDeviceContext(PrimaryModel):
             if primary_ip.family != family:
                 raise ValidationError({
                     f'primary_ip{family}': _(
-                        "{primary_ip} is not an IPv{family} address."
-                    ).format(family=family, primary_ip=primary_ip)
+                        "{ip} is not an IPv{family} address."
+                    ).format(family=family, ip=primary_ip)
                 })
             device_interfaces = self.device.vc_interfaces(if_master=False)
             if primary_ip.assigned_object not in device_interfaces:

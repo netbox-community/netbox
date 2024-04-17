@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -10,11 +12,13 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 from django_tables2.data import TableQuerysetData
 
+from extras.choices import *
 from extras.models import CustomField, CustomLink
-from extras.choices import CustomFieldVisibilityChoices
+from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.utils import get_viewname, highlight_string, title
+from .template_code import *
 
 __all__ = (
     'BaseTable',
@@ -119,7 +123,7 @@ class BaseTable(tables.Table):
 
     @property
     def available_columns(self):
-        return self._get_columns(visible=False)
+        return sorted(self._get_columns(visible=False))
 
     @property
     def selected_columns(self):
@@ -190,12 +194,17 @@ class NetBoxTable(BaseTable):
         if extra_columns is None:
             extra_columns = []
 
+        if registered_columns := registry['tables'].get(self.__class__):
+            extra_columns.extend([
+                # Create a copy to avoid modifying the original Column
+                (name, deepcopy(column)) for name, column in registered_columns.items()
+            ])
+
         # Add custom field & custom link columns
         content_type = ContentType.objects.get_for_model(self._meta.model)
         custom_fields = CustomField.objects.filter(
             content_types=content_type
-        ).exclude(ui_visibility=CustomFieldVisibilityChoices.VISIBILITY_HIDDEN)
-
+        ).exclude(ui_visible=CustomFieldUIVisibleChoices.HIDDEN)
         extra_columns.extend([
             (f'cf_{cf.name}', columns.CustomFieldColumn(cf)) for cf in custom_fields
         ])
@@ -235,6 +244,10 @@ class SearchTable(tables.Table):
     )
     value = tables.Column(
         verbose_name=_('Value'),
+    )
+    attrs = columns.TemplateColumn(
+        template_code=SEARCH_RESULT_ATTRS,
+        verbose_name=_('Attributes')
     )
 
     trim_length = 30

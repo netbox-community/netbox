@@ -1,6 +1,6 @@
 import graphene
-from circuits.graphql.types import CircuitTerminationType
-from circuits.models import CircuitTermination
+from circuits.graphql.types import CircuitTerminationType, ProviderNetworkType
+from circuits.models import CircuitTermination, ProviderNetwork
 from dcim.graphql.types import (
     ConsolePortTemplateType,
     ConsolePortType,
@@ -165,5 +165,44 @@ class InventoryItemComponentType(graphene.Union):
             return PowerOutletType
         if type(instance) is PowerPort:
             return PowerPortType
+        if type(instance) is RearPort:
+            return RearPortType
+
+
+class ConnectedEndpointType(graphene.Union):
+    class Meta:
+        types = (
+            CircuitTerminationType,
+            ConsolePortType,
+            ConsoleServerPortType,
+            FrontPortType,
+            InterfaceType,
+            PowerFeedType,
+            PowerOutletType,
+            PowerPortType,
+            ProviderNetworkType,
+            RearPortType,
+        )
+
+    @classmethod
+    def resolve_type(cls, instance, info):
+        if type(instance) is CircuitTermination:
+            return CircuitTerminationType
+        if type(instance) is ConsolePortType:
+            return ConsolePortType
+        if type(instance) is ConsoleServerPort:
+            return ConsoleServerPortType
+        if type(instance) is FrontPort:
+            return FrontPortType
+        if type(instance) is Interface:
+            return InterfaceType
+        if type(instance) is PowerFeed:
+            return PowerFeedType
+        if type(instance) is PowerOutlet:
+            return PowerOutletType
+        if type(instance) is PowerPort:
+            return PowerPortType
+        if type(instance) is ProviderNetwork:
+            return ProviderNetworkType
         if type(instance) is RearPort:
             return RearPortType

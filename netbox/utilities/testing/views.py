@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import ForeignKey
 from django.test import override_settings
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from extras.choices import ObjectChangeActionChoices, CustomFieldTypeChoices
 from extras.models import CustomField, CustomFieldChoiceSet, ObjectChange
@@ -705,7 +706,7 @@ class ViewTestCases:
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
         def test_bulk_update_objects_with_permission(self):
             if not hasattr(self, 'csv_update_data'):
-                raise NotImplementedError("The test must define csv_update_data.")
+                raise NotImplementedError(_("The test must define csv_update_data."))
 
             initial_count = self._get_queryset().count()
             array, csv_data = self._get_update_csv_data()

@@ -1,5 +1,5 @@
 from dcim.graphql.types import ComponentObjectType
-from extras.graphql.mixins import ConfigContextMixin
+from extras.graphql.mixins import ConfigContextMixin, ContactsMixin
 from ipam.graphql.mixins import IPAddressesMixin, VLANGroupsMixin
 from netbox.graphql.types import OrganizationalObjectType, NetBoxObjectType
 from virtualization import filtersets, models
@@ -8,6 +8,7 @@ __all__ = (
     'ClusterType',
     'ClusterGroupType',
     'ClusterTypeType',
+    'VirtualDiskType',
     'VirtualMachineType',
     'VMInterfaceType',
 )
@@ -37,7 +38,7 @@ class ClusterTypeType(OrganizationalObjectType):
         filterset_class = filtersets.ClusterTypeFilterSet
 
 
-class VirtualMachineType(ConfigContextMixin, NetBoxObjectType):
+class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
 
     class Meta:
         model = models.VirtualMachine
@@ -51,6 +52,17 @@ class VMInterfaceType(IPAddressesMixin, ComponentObjectType):
         model = models.VMInterface
         fields = '__all__'
         filterset_class = filtersets.VMInterfaceFilterSet
+
+    def resolve_mode(self, info):
+        return self.mode or None
+
+
+class VirtualDiskType(ComponentObjectType):
+
+    class Meta:
+        model = models.VirtualDisk
+        fields = '__all__'
+        filterset_class = filtersets.VirtualDiskFilterSet
 
     def resolve_mode(self, info):
         return self.mode or None

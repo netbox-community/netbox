@@ -1,4 +1,3 @@
-import json
 import urllib.parse
 import uuid
 
@@ -6,11 +5,10 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from dcim.models import Site
+from dcim.models import DeviceType, Manufacturer, Site
 from extras.choices import *
 from extras.models import *
 from utilities.testing import ViewTestCases, TestCase
-
 
 User = get_user_model()
 
@@ -50,15 +48,16 @@ class CustomFieldTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'default': None,
             'weight': 200,
             'required': True,
-            'ui_visibility': CustomFieldVisibilityChoices.VISIBILITY_READ_WRITE,
+            'ui_visible': CustomFieldUIVisibleChoices.ALWAYS,
+            'ui_editable': CustomFieldUIEditableChoices.YES,
         }
 
         cls.csv_data = (
-            'name,label,type,content_types,object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visibility',
-            'field4,Field 4,text,dcim.site,,100,1000,exact,,,,[a-z]{3},read-write',
-            'field5,Field 5,integer,dcim.site,,100,2000,exact,,1,100,,read-write',
-            'field6,Field 6,select,dcim.site,,100,3000,exact,Choice Set 1,,,,read-write',
-            'field7,Field 7,object,dcim.site,dcim.region,100,4000,exact,,,,,read-write',
+            'name,label,type,content_types,object_type,weight,search_weight,filter_logic,choice_set,validation_minimum,validation_maximum,validation_regex,ui_visible,ui_editable',
+            'field4,Field 4,text,dcim.site,,100,1000,exact,,,,[a-z]{3},always,yes',
+            'field5,Field 5,integer,dcim.site,,100,2000,exact,,1,100,,always,yes',
+            'field6,Field 6,select,dcim.site,,100,3000,exact,Choice Set 1,,,,always,yes',
+            'field7,Field 7,object,dcim.site,dcim.region,100,4000,exact,,,,,always,yes',
         )
 
         cls.csv_update_data = (
@@ -93,19 +92,24 @@ class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
                 name='Choice Set 3',
                 extra_choices=(('C1', 'Choice 1'), ('C2', 'Choice 2'), ('C3', 'Choice 3'))
             ),
+            CustomFieldChoiceSet(
+                name='Choice Set 4',
+                extra_choices=(('D1', 'Choice 1'), ('D2', 'Choice 2'), ('D3', 'Choice 3'))
+            ),
         )
         CustomFieldChoiceSet.objects.bulk_create(choice_sets)
 
         cls.form_data = {
             'name': 'Choice Set X',
-            'extra_choices': '\n'.join(['X1,Choice 1', 'X2,Choice 2', 'X3,Choice 3'])
+            'extra_choices': '\n'.join(['X1:Choice 1', 'X2:Choice 2', 'X3:Choice 3'])
         }
 
         cls.csv_data = (
             'name,extra_choices',
-            'Choice Set 4,"D1,D2,D3"',
-            'Choice Set 5,"E1,E2,E3"',
-            'Choice Set 6,"F1,F2,F3"',
+            'Choice Set 5,"D1,D2,D3"',
+            'Choice Set 6,"E1,E2,E3"',
+            'Choice Set 7,"F1,F2,F3"',
+            'Choice Set 8,"F1:L1,F2:L2,F3:L3"',
         )
 
         cls.csv_update_data = (
@@ -113,11 +117,19 @@ class CustomFieldChoiceSetTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             f'{choice_sets[0].pk},"A,B,C"',
             f'{choice_sets[1].pk},"A,B,C"',
             f'{choice_sets[2].pk},"A,B,C"',
+            f'{choice_sets[3].pk},"A:L1,B:L2,C:L3"',
         )
 
         cls.bulk_edit_data = {
             'description': 'New description',
         }
+
+    # This is here as extra_choices field splits on colon, but is returned
+    # from DB as comma separated.
+    def assertInstanceEqual(self, instance, data, exclude=None, api=False):
+        if 'extra_choices' in data:
+            data['extra_choices'] = data['extra_choices'].replace(':', ',')
+        return super().assertInstanceEqual(instance, data, exclude, api)
 
 
 class CustomLinkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -335,48 +347,94 @@ class WebhookTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site_ct = ContentType.objects.get_for_model(Site)
         webhooks = (
-            Webhook(name='Webhook 1', payload_url='http://example.com/?1', type_create=True, http_method='POST'),
-            Webhook(name='Webhook 2', payload_url='http://example.com/?2', type_create=True, http_method='POST'),
-            Webhook(name='Webhook 3', payload_url='http://example.com/?3', type_create=True, http_method='POST'),
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', http_method='POST'),
         )
         for webhook in webhooks:
             webhook.save()
-            webhook.content_types.add(site_ct)
 
         cls.form_data = {
             'name': 'Webhook X',
+            'payload_url': 'http://example.com/?x',
+            'http_method': 'GET',
+            'http_content_type': 'application/foo',
+            'description': 'My webhook',
+        }
+
+        cls.csv_data = (
+            "name,payload_url,http_method,http_content_type,description",
+            "Webhook 4,http://example.com/?4,GET,application/json,Foo",
+            "Webhook 5,http://example.com/?5,GET,application/json,Bar",
+            "Webhook 6,http://example.com/?6,GET,application/json,Baz",
+        )
+
+        cls.csv_update_data = (
+            "id,name,description",
+            f"{webhooks[0].pk},Webhook 7,Foo",
+            f"{webhooks[1].pk},Webhook 8,Bar",
+            f"{webhooks[2].pk},Webhook 9,Baz",
+        )
+
+        cls.bulk_edit_data = {
+            'http_method': 'GET',
+        }
+
+
+class EventRulesTestCase(ViewTestCases.PrimaryObjectViewTestCase):
+    model = EventRule
+
+    @classmethod
+    def setUpTestData(cls):
+
+        webhooks = (
+            Webhook(name='Webhook 1', payload_url='http://example.com/?1', http_method='POST'),
+            Webhook(name='Webhook 2', payload_url='http://example.com/?2', http_method='POST'),
+            Webhook(name='Webhook 3', payload_url='http://example.com/?3', http_method='POST'),
+        )
+        for webhook in webhooks:
+            webhook.save()
+
+        site_ct = ContentType.objects.get_for_model(Site)
+        event_rules = (
+            EventRule(name='EventRule 1', type_create=True, action_object=webhooks[0]),
+            EventRule(name='EventRule 2', type_create=True, action_object=webhooks[1]),
+            EventRule(name='EventRule 3', type_create=True, action_object=webhooks[2]),
+        )
+        for event in event_rules:
+            event.save()
+            event.content_types.add(site_ct)
+
+        webhook_ct = ContentType.objects.get_for_model(Webhook)
+        cls.form_data = {
+            'name': 'Event X',
             'content_types': [site_ct.pk],
             'type_create': False,
             'type_update': True,
             'type_delete': True,
-            'payload_url': 'http://example.com/?x',
-            'http_method': 'GET',
-            'http_content_type': 'application/foo',
             'conditions': None,
+            'action_type': 'webhook',
+            'action_object_type': webhook_ct.pk,
+            'action_object_id': webhooks[0].pk,
+            'action_choice': webhooks[0],
+            'description': 'New description',
         }
 
         cls.csv_data = (
-            "name,content_types,type_create,payload_url,http_method,http_content_type",
-            "Webhook 4,dcim.site,True,http://example.com/?4,GET,application/json",
-            "Webhook 5,dcim.site,True,http://example.com/?5,GET,application/json",
-            "Webhook 6,dcim.site,True,http://example.com/?6,GET,application/json",
+            "name,content_types,type_create,action_type,action_object",
+            "Webhook 4,dcim.site,True,webhook,Webhook 1",
         )
 
         cls.csv_update_data = (
             "id,name",
-            f"{webhooks[0].pk},Webhook 7",
-            f"{webhooks[1].pk},Webhook 8",
-            f"{webhooks[2].pk},Webhook 9",
+            f"{event_rules[0].pk},Event 7",
+            f"{event_rules[1].pk},Event 8",
+            f"{event_rules[2].pk},Event 9",
         )
 
         cls.bulk_edit_data = {
-            'enabled': False,
-            'type_create': False,
             'type_update': True,
-            'type_delete': True,
-            'http_method': 'GET',
         }
 
 
@@ -434,7 +492,8 @@ class ConfigContextTestCase(
     @classmethod
     def setUpTestData(cls):
 
-        site = Site.objects.create(name='Site 1', slug='site-1')
+        manufacturer = Manufacturer.objects.create(name='Manufacturer 1', slug='manufacturer-1')
+        devicetype = DeviceType.objects.create(manufacturer=manufacturer, model='Device Type 1', slug='device-type-1')
 
         # Create three ConfigContexts
         for i in range(1, 4):
@@ -443,7 +502,7 @@ class ConfigContextTestCase(
                 data={'foo': i}
             )
             configcontext.save()
-            configcontext.sites.add(site)
+            configcontext.device_types.add(devicetype)
 
         cls.form_data = {
             'name': 'Config Context X',
@@ -451,11 +510,12 @@ class ConfigContextTestCase(
             'description': 'A new config context',
             'is_active': True,
             'regions': [],
-            'sites': [site.pk],
+            'sites': [],
             'roles': [],
             'platforms': [],
             'tenant_groups': [],
             'tenants': [],
+            'device_types': [devicetype.id],
             'tags': [],
             'data': '{"foo": 123}',
         }

@@ -4,10 +4,12 @@ from django.utils.translation import gettext_lazy as _
 from dcim.tables.devices import BaseInterfaceTable
 from netbox.tables import NetBoxTable, columns
 from tenancy.tables import ContactsColumnMixin, TenancyColumnsMixin
-from virtualization.models import VirtualMachine, VMInterface
+from virtualization.models import VirtualDisk, VirtualMachine, VMInterface
 
 __all__ = (
+    'VirtualDiskTable',
     'VirtualMachineTable',
+    'VirtualMachineVirtualDiskTable',
     'VirtualMachineVMInterfaceTable',
     'VMInterfaceTable',
 )
@@ -22,14 +24,23 @@ VMINTERFACE_BUTTONS = """
       {% if perms.ipam.add_ipaddress %}
         <li><a class="dropdown-item" href="{% url 'ipam:ipaddress_add' %}?vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">IP Address</a></li>
       {% endif %}
-      {% if perms.ipam.add_l2vpntermination %}
-        <li><a class="dropdown-item" href="{% url 'ipam:l2vpntermination_add' %}?virtual_machine={{ object.pk }}&vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
+      {% if perms.vpn.add_l2vpntermination %}
+        <li><a class="dropdown-item" href="{% url 'vpn:l2vpntermination_add' %}?virtual_machine={{ object.pk }}&vminterface={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">L2VPN Termination</a></li>
       {% endif %}
       {% if perms.ipam.add_fhrpgroupassignment %}
         <li><a class="dropdown-item" href="{% url 'ipam:fhrpgroupassignment_add' %}?interface_type={{ record|content_type_id }}&interface_id={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}">Assign FHRP Group</a></li>
       {% endif %}
     </ul>
   </span>
+{% endif %}
+{% if perms.vpn.add_tunnel and not record.tunnel_termination %}
+  <a href="{% url 'vpn:tunnel_add' %}?termination1_type=virtualization.virtualmachine&termination1_parent={{ record.virtual_machine.pk }}&termination1_termination={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Create a tunnel" class="btn btn-success btn-sm">
+    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
+  </a>
+{% elif perms.vpn.delete_tunneltermination and record.tunnel_termination %}
+  <a href="{% url 'vpn:tunneltermination_delete' pk=record.tunnel_termination.pk %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Remove tunnel" class="btn btn-danger btn-sm">
+    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
+  </a>
 {% endif %}
 """
 
@@ -62,6 +73,10 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     role = columns.ColoredLabelColumn(
         verbose_name=_('Role'),
     )
+    platform = tables.Column(
+        linkify=True,
+        verbose_name=_('Platform')
+    )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
     )
@@ -84,6 +99,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     interface_count = tables.Column(
         verbose_name=_('Interfaces')
     )
+    virtual_disk_count = tables.Column(
+        verbose_name=_('Virtual Disks')
+    )
     config_template = tables.Column(
         verbose_name=_('Config Template'),
         linkify=True
@@ -92,9 +110,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'platform',
-            'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments',
-            'config_template', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'vcpus',
+            'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments', 'config_template',
+            'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',
@@ -126,7 +144,8 @@ class VMInterfaceTable(BaseInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'virtual_machine', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created', 'last_updated',
+            'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'created',
+            'last_updated',
         )
         default_columns = ('pk', 'name', 'virtual_machine', 'enabled', 'description')
 
@@ -149,9 +168,45 @@ class VirtualMachineVMInterfaceTable(VMInterfaceTable):
         model = VMInterface
         fields = (
             'pk', 'id', 'name', 'enabled', 'parent', 'bridge', 'mac_address', 'mtu', 'mode', 'description', 'tags',
-            'vrf', 'l2vpn', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
+            'vrf', 'l2vpn', 'tunnel', 'ip_addresses', 'fhrp_groups', 'untagged_vlan', 'tagged_vlans', 'actions',
         )
         default_columns = ('pk', 'name', 'enabled', 'mac_address', 'mtu', 'mode', 'description', 'ip_addresses')
         row_attrs = {
             'data-name': lambda record: record.name,
         }
+
+
+class VirtualDiskTable(NetBoxTable):
+    virtual_machine = tables.Column(
+        verbose_name=_('Virtual Machine'),
+        linkify=True
+    )
+    name = tables.Column(
+        verbose_name=_('Name'),
+        linkify=True
+    )
+    tags = columns.TagColumn(
+        url_name='virtualization:virtualdisk_list'
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = VirtualDisk
+        fields = (
+            'pk', 'id', 'virtual_machine', 'name', 'size', 'description', 'tags',
+        )
+        default_columns = ('pk', 'name', 'virtual_machine', 'size', 'description')
+        row_attrs = {
+            'data-name': lambda record: record.name,
+        }
+
+
+class VirtualMachineVirtualDiskTable(VirtualDiskTable):
+    actions = columns.ActionsColumn(
+        actions=('edit', 'delete'),
+    )
+
+    class Meta(VirtualDiskTable.Meta):
+        fields = (
+            'pk', 'id', 'name', 'size', 'description', 'tags', 'actions',
+        )
+        default_columns = ('pk', 'name', 'size', 'description')

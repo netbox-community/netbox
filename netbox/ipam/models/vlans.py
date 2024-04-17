@@ -1,5 +1,4 @@
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -32,7 +31,7 @@ class VLANGroup(OrganizationalModel):
         max_length=100
     )
     scope_type = models.ForeignKey(
-        to=ContentType,
+        to='contenttypes.ContentType',
         on_delete=models.CASCADE,
         limit_choices_to=Q(model__in=VLANGROUP_SCOPE_TYPES),
         blank=True,
@@ -69,6 +68,9 @@ class VLANGroup(OrganizationalModel):
 
     class Meta:
         ordering = ('name', 'pk')  # Name may be non-unique
+        indexes = (
+            models.Index(fields=('scope_type', 'scope_id')),
+        )
         constraints = (
             models.UniqueConstraint(
                 fields=('scope_type', 'scope_id', 'name'),
@@ -184,9 +186,8 @@ class VLAN(PrimaryModel):
         null=True,
         help_text=_("The primary function of this VLAN")
     )
-
     l2vpn_terminations = GenericRelation(
-        to='ipam.L2VPNTermination',
+        to='vpn.L2VPNTermination',
         content_type_field='assigned_object_type',
         object_id_field='assigned_object_id',
         related_query_name='vlan'
@@ -224,18 +225,18 @@ class VLAN(PrimaryModel):
 
         # Validate VLAN group (if assigned)
         if self.group and self.site and self.group.scope != self.site:
-            raise ValidationError({
-                'group': _(
+            raise ValidationError(
+                _(
                     "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to site {site}."
                 ).format(group=self.group, scope=self.group.scope, site=self.site)
-            })
+            )
 
         # Validate group min/max VIDs
         if self.group and not self.group.min_vid <= self.vid <= self.group.max_vid:
             raise ValidationError({
                 'vid': _(
-                    "VID must be between {min_vid} and {max_vid} for VLANs in group {group}"
-                ).format(min_vid=self.group.min_vid, max_vid=self.group.max_vid, group=self.group)
+                    "VID must be between {minimum} and {maximum} for VLANs in group {group}"
+                ).format(minimum=self.group.min_vid, maximum=self.group.max_vid, group=self.group)
             })
 
     def get_status_color(self):

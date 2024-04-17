@@ -11,7 +11,7 @@ from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
 from netbox.registry import registry
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import CloningMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
 from utilities.jinja2 import ConfigTemplateLoader
 from utilities.utils import deepmerge
 
@@ -26,7 +26,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -210,7 +210,7 @@ class ConfigContextModel(models.Model):
 # Config templates
 #
 
-class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+class ConfigTemplate(SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -260,12 +260,14 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         _context = dict()
 
         # Populate the default template context with NetBox model classes, namespaced by app
-        # TODO: Devise a canonical mechanism for identifying the models to include (see #13427)
-        for app, model_names in registry['model_features']['custom_fields'].items():
+        for app, model_names in registry['models'].items():
             _context.setdefault(app, {})
             for model_name in model_names:
-                model = apps.get_registered_model(app, model_name)
-                _context[app][model.__name__] = model
+                try:
+                    model = apps.get_registered_model(app, model_name)
+                    _context[app][model.__name__] = model
+                except LookupError:
+                    pass
 
         # Add the provided context data, if any
         if context is not None:

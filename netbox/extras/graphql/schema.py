@@ -72,3 +72,9 @@ class ExtrasQuery(graphene.ObjectType):
 
     def resolve_webhook_list(root, info, **kwargs):
         return gql_query_optimizer(models.Webhook.objects.all(), info)
+
+    event_rule = ObjectField(EventRuleType)
+    event_rule_list = ObjectListField(EventRuleType)
+
+    def resolve_eventrule_list(root, info, **kwargs):
+        return gql_query_optimizer(models.EventRule.objects.all(), info)

@@ -159,6 +159,14 @@ class LocationImportForm(NetBoxModelImportForm):
         model = Location
         fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description', 'tags')
 
+    def __init__(self, data=None, *args, **kwargs):
+        super().__init__(data, *args, **kwargs)
+
+        if data:
+            # Limit location queryset by assigned site
+            params = {f"site__{self.fields['site'].to_field_name}": data.get('site')}
+            self.fields['parent'].queryset = self.fields['parent'].queryset.filter(**params)
+
 
 class RackRoleImportForm(NetBoxModelImportForm):
     slug = SlugField()
@@ -335,8 +343,8 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
     class Meta:
         model = DeviceType
         fields = [
-            'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments', 'tags',
+            'manufacturer', 'default_platform', 'model', 'slug', 'part_number', 'u_height', 'exclude_from_utilization',
+            'is_full_depth', 'subdevice_role', 'airflow', 'description', 'weight', 'weight_unit', 'comments', 'tags',
         ]
 
 
@@ -549,9 +557,9 @@ class DeviceImportForm(BaseDeviceImportForm):
             params = {
                 f"site__{self.fields['site'].to_field_name}": data.get('site'),
             }
-            if 'location' in data:
+            if location := data.get('location'):
                 params.update({
-                    f"location__{self.fields['location'].to_field_name}": data.get('location'),
+                    f"location__{self.fields['location'].to_field_name}": location,
                 })
             self.fields['rack'].queryset = self.fields['rack'].queryset.filter(**params)
 
@@ -727,7 +735,7 @@ class PowerOutletImportForm(NetBoxModelImportForm):
         help_text=_('Local power port which feeds this outlet')
     )
     feed_leg = CSVChoiceField(
-        label=_('Feed lag'),
+        label=_('Feed leg'),
         choices=PowerOutletFeedLegChoices,
         required=False,
         help_text=_('Electrical phase (for three-phase circuits)')
@@ -870,7 +878,11 @@ class InterfaceImportForm(NetBoxModelImportForm):
     def clean_vdcs(self):
         for vdc in self.cleaned_data['vdcs']:
             if vdc.device != self.cleaned_data['device']:
-                raise forms.ValidationError(f"VDC {vdc} is not assigned to device {self.cleaned_data['device']}")
+                raise forms.ValidationError(
+                    _("VDC {vdc} is not assigned to device {device}").format(
+                        vdc=vdc, device=self.cleaned_data['device']
+                    )
+                )
         return self.cleaned_data['vdcs']
 
 
@@ -996,7 +1008,7 @@ class DeviceBayImportForm(NetBoxModelImportForm):
                 device_type__subdevice_role=SubdeviceRoleChoices.ROLE_CHILD
             ).exclude(pk=device.pk)
         else:
-            self.fields['installed_device'].queryset = Interface.objects.none()
+            self.fields['installed_device'].queryset = Device.objects.none()
 
 
 class InventoryItemImportForm(NetBoxModelImportForm):
@@ -1075,7 +1087,11 @@ class InventoryItemImportForm(NetBoxModelImportForm):
             component = model.objects.get(device=device, name=component_name)
             self.instance.component = component
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f"Component not found: {device} - {component_name}")
+            raise forms.ValidationError(
+                _("Component not found: {device} - {component_name}").format(
+                    device=device, component_name=component_name
+                )
+            )
 
 
 #
@@ -1192,11 +1208,18 @@ class CableImportForm(NetBoxModelImportForm):
                 termination_object = model.objects.get(device__in=device.virtual_chassis.members.all(), name=name)
             else:
                 termination_object = model.objects.get(device=device, name=name)
-            if termination_object.cable is not None:
-                raise forms.ValidationError(f"Side {side.upper()}: {device} {termination_object} is already connected")
+            if termination_object.cable is not None and termination_object.cable != self.instance:
+                raise forms.ValidationError(
+                    _("Side {side_upper}: {device} {termination_object} is already connected").format(
+                        side_upper=side.upper(), device=device, termination_object=termination_object
+                    )
+                )
         except ObjectDoesNotExist:
-            raise forms.ValidationError(f"{side.upper()} side termination not found: {device} {name}")
-
+            raise forms.ValidationError(
+                _("{side_upper} side termination not found: {device} {name}").format(
+                    side_upper=side.upper(), device=device, name=name
+                )
+            )
         setattr(self.instance, f'{side}_terminations', [termination_object])
         return termination_object
 
@@ -1358,6 +1381,10 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
         required=False,
         to_field_name='name',
         help_text='Assigned tenant'
+    )
+    status = CSVChoiceField(
+        label=_('Status'),
+        choices=VirtualDeviceContextStatusChoices,
     )
 
     class Meta:

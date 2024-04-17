@@ -8,20 +8,21 @@ from itertools import count, groupby
 import bleach
 from django.contrib.contenttypes.models import ContentType
 from django.core import serializers
-from django.db.models import Count, OuterRef, Subquery
+from django.db.models import Count, ManyToOneRel, OuterRef, Subquery
 from django.db.models.functions import Coalesce
 from django.http import QueryDict
 from django.utils import timezone
 from django.utils.datastructures import MultiValueDict
 from django.utils.html import escape
 from django.utils.timezone import localtime
+from django.utils.translation import gettext as _
 from jinja2.sandbox import SandboxedEnvironment
 from mptt.models import MPTTModel
 
 from dcim.choices import CableLengthUnitChoices, WeightUnitChoices
-from extras.plugins import PluginConfig
 from extras.utils import is_taggable
 from netbox.config import get_config
+from netbox.plugins import PluginConfig
 from urllib.parse import urlencode
 from utilities.constants import HTTP_REQUEST_META_SAFE_COPY
 
@@ -52,6 +53,8 @@ def get_viewname(model, action=None, rest_api=False):
             # Alter the app_label for group and user model_name to point to users app
             if app_label == 'auth' and model_name in ['group', 'user']:
                 app_label = 'users'
+            if app_label == 'users' and model._meta.proxy and model_name in ['netboxuser', 'netboxgroup']:
+                model_name = model._meta.proxy_for_model._meta.model_name
 
             viewname = f'{app_label}-api:{model_name}'
         # Append the action, if any
@@ -144,15 +147,23 @@ def count_related(model, field):
     return Coalesce(subquery, 0)
 
 
-def serialize_object(obj, resolve_tags=True, extra=None):
+def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
     can be provided to exclude them from the returned dictionary. Private fields (prefaced with an underscore) are
     implicitly excluded.
+
+    Args:
+        obj: The object to serialize
+        resolve_tags: If true, any assigned tags will be represented by their names
+        extra: Any additional data to include in the serialized output. Keys provided in this mapping will
+            override object attributes.
+        exclude: An iterable of attributes to exclude from the serialized output
     """
     json_str = serializers.serialize('json', [obj])
     data = json.loads(json_str)[0]['fields']
+    exclude = exclude or []
 
     # Exclude any MPTTModel fields
     if issubclass(obj.__class__, MPTTModel):
@@ -169,15 +180,14 @@ def serialize_object(obj, resolve_tags=True, extra=None):
         tags = getattr(obj, '_tags', None) or obj.tags.all()
         data['tags'] = sorted([tag.name for tag in tags])
 
+    # Skip excluded and private (prefixes with an underscore) attributes
+    for key in list(data.keys()):
+        if key in exclude or (isinstance(key, str) and key.startswith('_')):
+            data.pop(key)
+
     # Append any extra data
     if extra is not None:
         data.update(extra)
-
-    # Copy keys to list to avoid 'dictionary changed size during iteration' exception
-    for key in list(data):
-        # Private fields shouldn't be logged in the object change
-        if isinstance(key, str) and key.startswith('_'):
-            data.pop(key)
 
     return data
 
@@ -297,13 +307,17 @@ def to_meters(length, unit):
     """
     try:
         if length < 0:
-            raise ValueError("Length must be a positive number")
+            raise ValueError(_("Length must be a positive number"))
     except TypeError:
-        raise TypeError(f"Invalid value '{length}' for length (must be a number)")
+        raise TypeError(_("Invalid value '{length}' for length (must be a number)").format(length=length))
 
     valid_units = CableLengthUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == CableLengthUnitChoices.UNIT_KILOMETER:
         return length * 1000
@@ -317,7 +331,7 @@ def to_meters(length, unit):
         return length * Decimal(0.3048)
     if unit == CableLengthUnitChoices.UNIT_INCH:
         return length * Decimal(0.0254)
-    raise ValueError(f"Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.")
+    raise ValueError(_("Unknown unit {unit}. Must be 'km', 'm', 'cm', 'mi', 'ft', or 'in'.").format(unit=unit))
 
 
 def to_grams(weight, unit):
@@ -326,13 +340,17 @@ def to_grams(weight, unit):
     """
     try:
         if weight < 0:
-            raise ValueError("Weight must be a positive number")
+            raise ValueError(_("Weight must be a positive number"))
     except TypeError:
-        raise TypeError(f"Invalid value '{weight}' for weight (must be a number)")
+        raise TypeError(_("Invalid value '{weight}' for weight (must be a number)").format(weight=weight))
 
     valid_units = WeightUnitChoices.values()
     if unit not in valid_units:
-        raise ValueError(f"Unknown unit {unit}. Must be one of the following: {', '.join(valid_units)}")
+        raise ValueError(
+            _("Unknown unit {unit}. Must be one of the following: {valid_units}").format(
+                unit=unit, valid_units=', '.join(valid_units)
+            )
+        )
 
     if unit == WeightUnitChoices.UNIT_KILOGRAM:
         return weight * 1000
@@ -342,7 +360,7 @@ def to_grams(weight, unit):
         return weight * Decimal(453.592)
     if unit == WeightUnitChoices.UNIT_OUNCE:
         return weight * Decimal(28.3495)
-    raise ValueError(f"Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.")
+    raise ValueError(_("Unknown unit {unit}. Must be 'kg', 'g', 'lb', 'oz'.").format(unit=unit))
 
 
 def render_jinja2(template_code, context):
@@ -567,3 +585,20 @@ def local_now():
     Return the current date & time in the system timezone.
     """
     return localtime(timezone.now())
+
+
+def get_related_models(model, ordered=True):
+    """
+    Return a list of all models which have a ForeignKey to the given model and the name of the field. For example,
+    `get_related_models(Tenant)` will return all models which have a ForeignKey relationship to Tenant.
+    """
+    related_models = [
+        (field.related_model, field.remote_field.name)
+        for field in model._meta.related_objects
+        if type(field) is ManyToOneRel
+    ]
+
+    if ordered:
+        return sorted(related_models, key=lambda x: x[0]._meta.verbose_name.lower())
+
+    return related_models

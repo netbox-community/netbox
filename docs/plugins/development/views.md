@@ -157,7 +157,7 @@ These views are provided to enable or enhance certain NetBox model features, suc
 
 ### Additional Tabs
 
-Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`:
+Plugins can "attach" a custom view to a core NetBox model by registering it with `register_model_view()`. To include a tab for this view within the NetBox UI, declare a TabView instance named `tab`, and add it to the template context dict:
 
 ```python
 from dcim.models import Site
@@ -173,6 +173,16 @@ class MyView(generic.ObjectView):
         badge=lambda obj: Stuff.objects.filter(site=obj).count(),
         permission='myplugin.view_stuff'
     )
+
+    def get(self, request, pk):
+        ...
+        return render(
+            request,
+            "myplugin/mytabview.html",
+            context={
+                "tab": self.tab,
+            },
+        )
 ```
 
 ::: utilities.views.register_model_view
@@ -206,7 +216,7 @@ For example, accessing `{{ request.user }}` within a template will return the cu
 Declared subclasses should be gathered into a list or tuple for integration with NetBox. By default, NetBox looks for an iterable named `template_extensions` within a `template_content.py` file. (This can be overridden by setting `template_extensions` to a custom value on the plugin's PluginConfig.) An example is below.
 
 ```python
-from extras.plugins import PluginTemplateExtension
+from netbox.plugins import PluginTemplateExtension
 from .models import Animal
 
 class SiteAnimalCount(PluginTemplateExtension):

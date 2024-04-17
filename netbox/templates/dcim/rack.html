@@ -4,6 +4,7 @@
 {% load static %}
 {% load plugins %}
 {% load i18n %}
+{% load mptt %}
 
 {% block content %}
   <div class="row">
@@ -15,26 +16,18 @@
             <div class="card-body">
                 <table class="table table-hover attr-table">
                     <tr>
-                        <th scope="row">{% trans "Site" %}</th>
+                        <th scope="row">{% trans "Region" %}</th>
                         <td>
-                            {% if object.site.region %}
-                                {{ object.site.region|linkify }} /
-                            {% endif %}
-                            {{ object.site|linkify }}
+                            {% nested_tree object.site.region %}
                         </td>
                     </tr>
                     <tr>
+                        <th scope="row">{% trans "Site" %}</th>
+                        <td>{{ object.site|linkify }}</td>
+                    </tr>
+                    <tr>
                         <th scope="row">{% trans "Location" %}</th>
-                        <td>
-                            {% if object.location %}
-                                {% for location in object.location.get_ancestors %}
-                                    {{ location|linkify }} /
-                                {% endfor %}
-                                {{ object.location|linkify }}
-                            {% else %}
-                                {{ ''|placeholder }}
-                            {% endif %}
-                        </td>
+                        <td>{% nested_tree object.location %}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Facility ID" %}</th>

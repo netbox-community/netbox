@@ -36,6 +36,8 @@ NetBox users are welcome to participate in either role, on stage or in the crowd
 
 ## :bug: Reporting Bugs
 
+:warning: Bug reports are used to call attention to some unintended or unexpected behavior in NetBox, such as when an error occurs or when the result of taking some action is inconsistent with the documentation. **Bug reports may not be used to suggest new functionality**; please see "feature requests" below if that is your goal.
+
 * First, ensure that you're running the [latest stable version](https://github.com/netbox-community/netbox/releases) of NetBox. If you're running an older version, it's likely that the bug has already been fixed.
 
 * Next, search our [issues list](https://github.com/netbox-community/netbox/issues?q=is%3Aissue) to see if the bug you've found has already been reported. If you come across a bug report that seems to match, please click "add a reaction" in the top right corner of the issue and add a thumbs up (:thumbsup:). This will help draw more attention to it. Any comments you can add to provide additional information or context would also be much appreciated.
@@ -84,11 +86,15 @@ intake policy](https://github.com/netbox-community/netbox/wiki/Issue-Intake-Poli
 
 * In most cases, it is not necessary to add a changelog entry: A maintainer will take care of this when the PR is merged. (This helps avoid merge conflicts resulting from multiple PRs being submitted simultaneously.)
 
-* All code submissions should meet the following criteria (CI will enforce these checks):
+* All code submissions must meet the following criteria (CI will enforce these checks where feasible):
+  * Consist entirely of original work
   * Python syntax is valid
   * All tests pass when run with `./manage.py test`
   * PEP 8 compliance is enforced, with the exception that lines may be
       greater than 80 characters in length
+
+> [!CAUTION]
+> Any contributions which include AI-generated or reproduced content will be rejected.
 
 * Some other tips to keep in mind:
   * If you'd like to volunteer for someone else's issue, please post a comment on that issue letting us know. (This will allow the maintainers to assign it to you.)
@@ -114,8 +120,6 @@ We're always looking for motivated individuals to join the maintainers team and 
 * Working experience in the field of network operations & engineering
 
 We generally ask that maintainers dedicate around four hours of work to the project each week on average, which includes both hands-on development and project management tasks such as issue triage. Maintainers are also encouraged (but not required) to attend our bi-weekly Zoom call to catch up on recent items.
-
-Many maintainers petition their employer to grant some of their paid time to work on NetBox. In doing so, your employer becomes eligible to be featured as a [NetBox sponsor](https://github.com/netbox-community/netbox/wiki/Sponsorship).
 
 Interested? You can contact our lead maintainer, Jeremy Stretch, at jeremy@netbox.dev or on the [NetDev Community Slack](https://netdev.chat/). We'd love to have you on the team!
 

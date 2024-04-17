@@ -14,8 +14,7 @@
 
     ```no-highlight
     sudo yum install -y redis
-    sudo systemctl start redis
-    sudo systemctl enable redis
+    sudo systemctl enable --now redis
     ```
 
 Before continuing, verify that your installed version of Redis is at least v4.0:

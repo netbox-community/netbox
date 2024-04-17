@@ -1,6 +1,10 @@
+from django.utils.translation import gettext_lazy as _
+from netbox.registry import registry
+
 __all__ = (
     'get_table_ordering',
     'linkify_phone',
+    'register_table_column'
 )
 
 
@@ -26,3 +30,21 @@ def linkify_phone(value):
     if value is None:
         return None
     return f"tel:{value}"
+
+
+def register_table_column(column, name, *tables):
+    """
+    Register a custom column for use on one or more tables.
+
+    Args:
+        column: The column instance to register
+        name: The name of the table column
+        tables: One or more table classes
+    """
+    for table in tables:
+        reg = registry['tables'][table]
+        if name in reg:
+            raise ValueError(_("A column named {name} is already defined for table {table_name}").format(
+                name=name, table_name=table.__name__
+            ))
+        reg[name] = column

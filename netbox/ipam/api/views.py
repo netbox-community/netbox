@@ -1,6 +1,9 @@
+from copy import deepcopy
+
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import transaction
 from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext as _
 from django_pglocks import advisory_lock
 from drf_spectacular.utils import extend_schema
 from netaddr import IPSet
@@ -14,7 +17,6 @@ from circuits.models import Provider
 from dcim.models import Site
 from ipam import filtersets
 from ipam.models import *
-from ipam.models import L2VPN, L2VPNTermination
 from ipam.utils import get_next_available_prefix
 from netbox.api.viewsets import NetBoxModelViewSet
 from netbox.api.viewsets.mixins import ObjectValidationMixin
@@ -178,18 +180,6 @@ class ServiceViewSet(NetBoxModelViewSet):
     filterset_class = filtersets.ServiceFilterSet
 
 
-class L2VPNViewSet(NetBoxModelViewSet):
-    queryset = L2VPN.objects.prefetch_related('import_targets', 'export_targets', 'tenant', 'tags')
-    serializer_class = serializers.L2VPNSerializer
-    filterset_class = filtersets.L2VPNFilterSet
-
-
-class L2VPNTerminationViewSet(NetBoxModelViewSet):
-    queryset = L2VPNTermination.objects.prefetch_related('assigned_object')
-    serializer_class = serializers.L2VPNTerminationSerializer
-    filterset_class = filtersets.L2VPNTerminationFilterSet
-
-
 #
 # Views
 #
@@ -266,6 +256,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
 
         # Normalize request data to a list of objects
         requested_objects = request.data if isinstance(request.data, list) else [request.data]
+        limit = len(requested_objects)
 
         # Serialize and validate the request data
         serializer = self.write_serializer_class(data=requested_objects, many=True, context={
@@ -279,7 +270,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
             )
 
         with advisory_lock(ADVISORY_LOCK_KEYS[self.advisory_lock_key]):
-            available_objects = self.get_available_objects(parent)
+            available_objects = self.get_available_objects(parent, limit)
 
             # Determine if the requested number of objects is available
             if not self.check_sufficient_available(serializer.validated_data, available_objects):
@@ -289,7 +280,7 @@ class AvailableObjectsView(ObjectValidationMixin, APIView):
                 )
 
             # Prepare object data for deserialization
-            requested_objects = self.prep_object_data(serializer.validated_data, available_objects, parent)
+            requested_objects = self.prep_object_data(deepcopy(requested_objects), available_objects, parent)
 
             # Initialize the serializer with a list or a single object depending on what was requested
             serializer_class = get_serializer_for_model(self.queryset.model)
@@ -389,7 +380,7 @@ class AvailablePrefixesView(AvailableObjectsView):
                     'vrf': parent.vrf.pk if parent.vrf else None,
                 })
             else:
-                raise ValidationError("Insufficient space is available to accommodate the requested prefix size(s)")
+                raise ValidationError(_("Insufficient space is available to accommodate the requested prefix size(s)"))
 
         return requested_objects
 

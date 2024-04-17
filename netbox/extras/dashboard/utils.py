@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.translation import gettext as _
 
 from netbox.registry import registry
 from extras.constants import DEFAULT_DASHBOARD
@@ -32,7 +33,7 @@ def get_widget_class(name):
     try:
         return registry['widgets'][name]
     except KeyError:
-        raise ValueError(f"Unregistered widget class: {name}")
+        raise ValueError(_("Unregistered widget class: {name}").format(name=name))
 
 
 def get_dashboard(user):
@@ -53,13 +54,13 @@ def get_dashboard(user):
     return dashboard
 
 
-def get_default_dashboard():
+def get_default_dashboard(config=None):
     from extras.models import Dashboard
 
     dashboard = Dashboard()
-    default_config = settings.DEFAULT_DASHBOARD or DEFAULT_DASHBOARD
+    config = config or settings.DEFAULT_DASHBOARD or DEFAULT_DASHBOARD
 
-    for widget in default_config:
+    for widget in config:
         id = str(uuid.uuid4())
         dashboard.layout.append({
             'id': id,

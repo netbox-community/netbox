@@ -50,7 +50,7 @@
             <tr>
               <th scope="row">{% trans "Length" %}</th>
               <td>
-                {% if object.length %}
+                {% if object.length is not None %}
                   {{ object.length|floatformat }} {{ object.get_length_unit_display }}
                 {% else %}
                   {{ ''|placeholder }}

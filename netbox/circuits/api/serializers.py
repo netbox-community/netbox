@@ -85,7 +85,7 @@ class CircuitTypeSerializer(NetBoxModelSerializer):
     class Meta:
         model = CircuitType
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display', 'name', 'slug', 'color', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
             'circuit_count',
         ]
 

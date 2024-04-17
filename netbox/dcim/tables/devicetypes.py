@@ -98,6 +98,7 @@ class DeviceTypeTable(NetBoxTable):
         verbose_name=_('U Height'),
         template_code='{{ value|floatformat }}'
     )
+    exclude_from_utilization = columns.BooleanColumn()
     weight = columns.TemplateColumn(
         verbose_name=_('Weight'),
         template_code=WEIGHT,
@@ -142,9 +143,9 @@ class DeviceTypeTable(NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = models.DeviceType
         fields = (
-            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height', 'is_full_depth',
-            'subdevice_role', 'airflow', 'weight', 'description', 'comments', 'instance_count', 'tags', 'created',
-            'last_updated',
+            'pk', 'id', 'model', 'manufacturer', 'default_platform', 'slug', 'part_number', 'u_height',
+            'exclude_from_utilization', 'is_full_depth', 'subdevice_role', 'airflow', 'weight',
+            'description', 'comments', 'instance_count', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'model', 'manufacturer', 'part_number', 'u_height', 'is_full_depth', 'instance_count',

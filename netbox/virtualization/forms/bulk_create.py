@@ -3,9 +3,10 @@ from django.utils.translation import gettext_lazy as _
 
 from utilities.forms import BootstrapMixin, form_from_model
 from utilities.forms.fields import ExpandableNameField
-from virtualization.models import VMInterface, VirtualMachine
+from virtualization.models import VirtualDisk, VMInterface, VirtualMachine
 
 __all__ = (
+    'VirtualDiskBulkCreateForm',
     'VMInterfaceBulkCreateForm',
 )
 
@@ -27,6 +28,13 @@ class VirtualMachineBulkAddComponentForm(BootstrapMixin, forms.Form):
 
 class VMInterfaceBulkCreateForm(
     form_from_model(VMInterface, ['enabled', 'mtu', 'description', 'tags']),
+    VirtualMachineBulkAddComponentForm
+):
+    replication_fields = ('name',)
+
+
+class VirtualDiskBulkCreateForm(
+    form_from_model(VirtualDisk, ['size', 'description', 'tags']),
     VirtualMachineBulkAddComponentForm
 ):
     replication_fields = ('name',)

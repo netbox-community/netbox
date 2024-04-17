@@ -19,7 +19,8 @@ class JobTable(NetBoxTable):
     )
     object = tables.Column(
         verbose_name=_('Object'),
-        linkify=True
+        linkify=True,
+        orderable=False
     )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
@@ -47,7 +48,7 @@ class JobTable(NetBoxTable):
         model = Job
         fields = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'scheduled', 'interval', 'started',
-            'completed', 'user', 'job_id',
+            'completed', 'user', 'error', 'job_id',
         )
         default_columns = (
             'pk', 'id', 'object_type', 'object', 'name', 'status', 'created', 'started', 'completed', 'user',

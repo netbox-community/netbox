@@ -1,4 +1,5 @@
 from django.contrib.contenttypes.models import ContentType
+from django.test import override_settings
 from django.urls import reverse
 from rest_framework import status
 
@@ -206,6 +207,66 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(objectchange.prechange_data['name'], sites[0].name)
         self.assertEqual(objectchange.prechange_data['slug'], sites[0].slug)
         self.assertEqual(objectchange.postchange_data, None)
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=False)
+    def test_update_object_change(self):
+        # Create a Site
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            status=SiteStatusChoices.STATUS_PLANNED,
+            custom_field_data={
+                'cf1': None,
+                'cf2': None
+            }
+        )
+
+        # Update it with the same field values
+        form_data = {
+            'name': site.name,
+            'slug': site.slug,
+            'status': SiteStatusChoices.STATUS_PLANNED,
+        }
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        # Check that an ObjectChange record has been created
+        self.assertEqual(ObjectChange.objects.count(), 1)
+
+    @override_settings(CHANGELOG_SKIP_EMPTY_CHANGES=True)
+    def test_update_object_nochange(self):
+        # Create a Site
+        site = Site.objects.create(
+            name='Site 1',
+            slug='site-1',
+            status=SiteStatusChoices.STATUS_PLANNED,
+            custom_field_data={
+                'cf1': None,
+                'cf2': None
+            }
+        )
+
+        # Update it with the same field values
+        form_data = {
+            'name': site.name,
+            'slug': site.slug,
+            'status': SiteStatusChoices.STATUS_PLANNED,
+        }
+        request = {
+            'path': self._get_url('edit', instance=site),
+            'data': post_data(form_data),
+        }
+        self.add_permissions('dcim.change_site', 'extras.view_tag')
+        response = self.client.post(**request)
+        self.assertHttpStatus(response, 302)
+
+        # Check that no ObjectChange records have been created
+        self.assertEqual(ObjectChange.objects.count(), 0)
 
 
 class ChangeLogAPITest(APITestCase):
