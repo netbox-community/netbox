@@ -9,7 +9,7 @@ Disable the plugin by removing it from the `PLUGINS` list in `configuration.py`.
 
 ## Remove its Configuration
 
-Delete hte plugin's entry (if any) in the `PLUGINS_CONFIG` dictionary in `configuration.py`.
+Delete the plugin's entry (if any) in the `PLUGINS_CONFIG` dictionary in `configuration.py`.
 
 !!! tip
     If there's a chance you may reinstall the plugin, consider commenting out any configuration parameters instead of deleting them.
@@ -17,6 +17,12 @@ Delete hte plugin's entry (if any) in the `PLUGINS_CONFIG` dictionary in `config
 ## Re-index Search Entries
 
 Run the `reindex` management command to reindex the global search engine. This will remove any stale entries pertaining to objects provided by the plugin.
+
+```no-highlight
+$ cd /opt/netbox/netbox/
+$ source /opt/netbox/venv/bin/activate
+(venv) $ python3 manage.py reindex
+```
 
 ## Uninstall its Python Package
 
