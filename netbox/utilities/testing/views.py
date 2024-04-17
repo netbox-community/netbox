@@ -14,7 +14,7 @@ from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from .base import ModelTestCase
-from .utils import add_custom_field_data, disable_warnings, post_data, validate_custom_field_data
+from .utils import add_custom_field_data, disable_warnings, post_data
 
 __all__ = (
     'ModelViewTestCase',
@@ -179,8 +179,6 @@ class ViewTestCases:
             self.assertEqual(initial_count + 1, self._get_queryset().count())
             instance = self._get_queryset().order_by('pk').last()
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
-            if issubclass(self.model, CustomFieldsMixin):
-                validate_custom_field_data(self, instance)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):
@@ -282,8 +280,6 @@ class ViewTestCases:
             self.assertHttpStatus(self.client.post(**request), 302)
             instance = self._get_queryset().get(pk=instance.pk)
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
-            if issubclass(self.model, CustomFieldsMixin):
-                validate_custom_field_data(self, instance)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):

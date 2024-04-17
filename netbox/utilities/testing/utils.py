@@ -144,7 +144,3 @@ def add_custom_field_data(form_data, model):
         f'cf_{k}': v if type(v) is str else json.dumps(v)
         for k, v in DUMMY_CF_DATA.items()
     })
-
-
-def validate_custom_field_data(test_case, instance):
-    test_case.assertDictEqual(instance.cf, DUMMY_CF_DATA)

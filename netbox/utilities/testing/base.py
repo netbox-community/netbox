@@ -10,10 +10,11 @@ from django.test import Client, TestCase as _TestCase
 from netaddr import IPNetwork
 from taggit.managers import TaggableManager
 
+from netbox.models.features import CustomFieldsMixin
 from users.models import ObjectPermission
 from utilities.permissions import resolve_permission_ct
 from utilities.utils import content_type_identifier
-from .utils import extract_form_failures
+from .utils import DUMMY_CF_DATA, extract_form_failures
 
 __all__ = (
     'ModelTestCase',
@@ -166,8 +167,12 @@ class ModelTestCase(TestCase):
         model_dict = self.model_to_dict(instance, fields=fields, api=api)
 
         # Omit any dictionary keys which are not instance attributes or have been excluded
-        relevant_data = {
+        model_data = {
             k: v for k, v in data.items() if hasattr(instance, k) and k not in exclude
         }
 
-        self.assertDictEqual(model_dict, relevant_data)
+        self.assertDictEqual(model_dict, model_data)
+
+        # Validate any custom field data, if present
+        if getattr(instance, 'custom_field_data', None):
+            self.assertDictEqual(instance.custom_field_data, DUMMY_CF_DATA)
