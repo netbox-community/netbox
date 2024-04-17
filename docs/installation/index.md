@@ -12,7 +12,7 @@ The following sections detail how to set up a new instance of NetBox:
 1. [PostgreSQL database](1-postgresql.md)
 1. [Redis](2-redis.md)
 3. [NetBox components](3-netbox.md)
-4. [Gunicorn](4-gunicorn.md)
+4. [Gunicorn](4a-gunicorn.md) or [uWSGI](4b-uwsgi.md)
 5. [HTTP server](5-http-server.md)
 6. [LDAP authentication](6-ldap.md) (optional)
 
