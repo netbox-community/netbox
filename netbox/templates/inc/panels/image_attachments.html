@@ -12,5 +12,5 @@
       </div>
     {% endif %}
   </h5>
-  {% htmx_table 'extras:imageattachment_list' content_type_id=object|content_type_id object_id=object.pk %}
+  {% htmx_table 'extras:imageattachment_list' object_type_id=object|content_type_id object_id=object.pk %}
 </div>
