@@ -8,14 +8,13 @@ from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from extras.choices import ObjectChangeActionChoices, CustomFieldTypeChoices
-from extras.models import CustomField, ObjectChange
-from netbox.models import CustomFieldsMixin
-from netbox.models.features import ChangeLoggingMixin
+from extras.choices import ObjectChangeActionChoices
+from extras.models import ObjectChange
+from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from .base import ModelTestCase
-from .utils import disable_warnings, post_data
+from .utils import add_custom_field_data, disable_warnings, post_data, validate_custom_field_data
 
 __all__ = (
     'ModelViewTestCase',
@@ -23,54 +22,9 @@ __all__ = (
 )
 
 
-def add_custom_field_data(form_data, model):
-    """
-    Create some custom fields for the model and add a value for each to the form data.
-
-    Args:
-        form_data: The dictionary of form data to be updated
-        model: The model of the object the form seeks to create or modify
-    """
-    if not issubclass(model, CustomFieldsMixin):
-        return
-
-    content_type = ContentType.objects.get_for_model(model)
-    custom_fields = (
-        CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
-        CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
-        CustomField(type=CustomFieldTypeChoices.TYPE_DECIMAL, name='decimal_field', default=123.45),
-        CustomField(type=CustomFieldTypeChoices.TYPE_BOOLEAN, name='boolean_field', default=False),
-        CustomField(type=CustomFieldTypeChoices.TYPE_JSON, name='json_field', default='{"x": "y"}'),
-    )
-    CustomField.objects.bulk_create(custom_fields)
-    for cf in custom_fields:
-        cf.content_types.set([content_type])
-
-    form_data.update({
-        'cf_text_field': 'foo123',
-        'cf_integer_field': 456,
-        'cf_decimal_field': 456.12,
-        'cf_boolean_field': True,
-        'cf_json_field': '{"abc": 123}',
-    })
-
-
-def assert_custom_field_data(test_case, instance):
-    if issubclass(type(instance), CustomFieldsMixin):
-        cf = instance.cf
-        data = {
-            'text_field': 'foo123',
-            'integer_field': 456,
-            'decimal_field': 456.12,
-            'boolean_field': True,
-            'json_field': {'abc': 123},
-        }
-        test_case.assertDictEqual(cf, data)
-
 #
 # UI Tests
 #
-
 
 class ModelViewTestCase(ModelTestCase):
     """
@@ -226,7 +180,7 @@ class ViewTestCases:
             instance = self._get_queryset().order_by('pk').last()
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
             if issubclass(self.model, CustomFieldsMixin):
-                assert_custom_field_data(self, instance)
+                validate_custom_field_data(self, instance)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):
@@ -329,7 +283,7 @@ class ViewTestCases:
             instance = self._get_queryset().get(pk=instance.pk)
             self.assertInstanceEqual(instance, self.form_data, exclude=self.validation_excluded_fields)
             if issubclass(self.model, CustomFieldsMixin):
-                assert_custom_field_data(self, instance)
+                validate_custom_field_data(self, instance)
 
             # Verify ObjectChange creation
             if issubclass(instance.__class__, ChangeLoggingMixin):
