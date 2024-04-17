@@ -149,7 +149,8 @@ class S3Backend(DataBackend):
             region_name=self._region_name,
             aws_access_key_id=aws_access_key_id,
             aws_secret_access_key=aws_secret_access_key,
-            config=self.config
+            config=self.config,
+            endpoint_url=self._endpoint_url
         )
         bucket = s3.Bucket(self._bucket_name)
 
@@ -175,6 +176,11 @@ class S3Backend(DataBackend):
     def _bucket_name(self):
         url_path = urlparse(self.url).path.lstrip('/')
         return url_path.split('/')[0]
+
+    @property
+    def _endpoint_url(self):
+        url_path = urlparse(self.url)
+        return url_path._replace(params="", fragment="", query="", path="").geturl()
 
     @property
     def _remote_path(self):
