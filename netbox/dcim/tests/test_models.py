@@ -8,6 +8,7 @@ from dcim.models import *
 from extras.models import CustomField
 from tenancy.models import Tenant
 from utilities.data import drange
+from virtualization.models import Cluster, ClusterType
 
 
 class LocationTestCase(TestCase):
@@ -532,6 +533,63 @@ class DeviceTestCase(TestCase):
         # Two devices assigned to the same Site and different Tenants should pass validation
         device2.full_clean()
         device2.save()
+
+    def test_device_mismatched_site_cluster(self):
+        cluster_type = ClusterType.objects.create(name='Cluster Type 1', slug='cluster-type-1')
+        Cluster.objects.create(name='Cluster 1', type=cluster_type)
+
+        sites = (
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+        )
+        Site.objects.bulk_create(sites)
+
+        clusters = (
+            Cluster(name='Cluster 1', type=cluster_type, site=sites[0]),
+            Cluster(name='Cluster 2', type=cluster_type, site=sites[1]),
+            Cluster(name='Cluster 3', type=cluster_type, site=None),
+        )
+        Cluster.objects.bulk_create(clusters)
+
+        device_type = DeviceType.objects.first()
+        device_role = DeviceRole.objects.first()
+
+        # Device with site only should pass
+        Device(name='device1', site=sites[0], device_type=device_type, role=device_role).full_clean()
+
+        # Device with site, cluster non-site should pass
+        Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[2]).full_clean()
+
+        # Device with non-site cluster only should pass
+        Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[2]).full_clean()
+
+        # Device with mismatched site & cluster should fail
+        with self.assertRaises(ValidationError):
+            Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[1]).full_clean()
+
+    def test_old_device_role_field(self):
+        """
+        Ensure that the old device role field sets the value in the new role field.
+        """
+
+        # Test getter method
+        device = Device(
+            site=Site.objects.first(),
+            device_type=DeviceType.objects.first(),
+            role=DeviceRole.objects.first(),
+            name='Test Device 1',
+            device_role=DeviceRole.objects.first()
+        )
+        device.full_clean()
+        device.save()
+
+        self.assertEqual(device.role, device.device_role)
+
+        # Test setter method
+        device.device_role = DeviceRole.objects.last()
+        device.full_clean()
+        device.save()
+        self.assertEqual(device.role, device.device_role)
 
 
 class CableTestCase(TestCase):
