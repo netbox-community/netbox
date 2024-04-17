@@ -31,9 +31,11 @@ class UserTokenTable(NetBoxTable):
         verbose_name=_('Write Enabled')
     )
     created = columns.DateTimeColumn(
+        timespec='minutes',
         verbose_name=_('Created'),
     )
     expires = columns.DateTimeColumn(
+        timespec='minutes',
         verbose_name=_('Expires'),
     )
     last_used = columns.DateTimeColumn(

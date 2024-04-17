@@ -3,7 +3,7 @@ from django.utils.translation import gettext_lazy as _
 from django_tables2.utils import A
 
 from core.tables.columns import RQJobStatusColumn
-from netbox.tables import BaseTable
+from netbox.tables import BaseTable, columns
 
 
 class BackgroundQueueTable(BaseTable):
@@ -75,13 +75,13 @@ class BackgroundTaskTable(BaseTable):
         linkify=("core:background_task", [A("id")]),
         verbose_name=_("ID")
     )
-    created_at = tables.DateTimeColumn(
+    created_at = columns.DateTimeColumn(
         verbose_name=_("Created")
     )
-    enqueued_at = tables.DateTimeColumn(
+    enqueued_at = columns.DateTimeColumn(
         verbose_name=_("Enqueued")
     )
-    ended_at = tables.DateTimeColumn(
+    ended_at = columns.DateTimeColumn(
         verbose_name=_("Ended")
     )
     status = RQJobStatusColumn(
@@ -117,7 +117,7 @@ class WorkerTable(BaseTable):
     state = tables.Column(
         verbose_name=_("State")
     )
-    birth_date = tables.DateTimeColumn(
+    birth_date = columns.DateTimeColumn(
         verbose_name=_("Birth")
     )
     pid = tables.Column(

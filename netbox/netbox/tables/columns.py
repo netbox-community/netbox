@@ -73,14 +73,21 @@ class DateColumn(tables.Column):
 class DateTimeColumn(tables.Column):
     """
     Render a datetime.datetime in ISO 8601 format.
+
+    Args:
+        timespec: Granularity specification; passed through to datetime.isoformat()
     """
+    def __init__(self, *args, timespec='seconds', **kwargs):
+        self.timespec = timespec
+        super().__init__(*args, **kwargs)
+
     def render(self, value):
         if value:
-            return f"{value.date().isoformat()} {value.time().isoformat(timespec='seconds')}"
+            return f"{value.date().isoformat()} {value.time().isoformat(timespec=self.timespec)}"
 
     def value(self, value):
         if value:
-            return value.isoformat(timespec='seconds')
+            return value.isoformat()
 
     @classmethod
     def from_field(cls, field, **kwargs):
