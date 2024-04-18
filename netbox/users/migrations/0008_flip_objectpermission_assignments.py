@@ -38,10 +38,16 @@ class Migration(migrations.Migration):
                     "users_objectpermissi_group_id_fb7ba6e0_fk_users_gro TO "
                     "users_group_object_p_group_id_90dd183a_fk_users_gro"
                 ),
+                # Fix for #15698: Drop & recreate constraint which may not exist
                 migrations.RunSQL(
-                    "ALTER TABLE users_group_object_permissions RENAME CONSTRAINT "
-                    "users_objectpermissi_objectpermission_id_2f7cc117_fk_users_obj TO "
-                    "users_group_object_p_objectpermission_id_dd489dc4_fk_users_obj"
+                    "ALTER TABLE users_group_object_permissions DROP CONSTRAINT IF EXISTS "
+                    "users_objectpermissi_objectpermission_id_2f7cc117_fk_users_obj"
+                ),
+                migrations.RunSQL(
+                    "ALTER TABLE users_group_object_permissions ADD CONSTRAINT "
+                    "users_group_object_p_objectpermission_id_dd489dc4_fk_users_obj "
+                    "FOREIGN KEY (objectpermission_id) REFERENCES users_objectpermission(id) "
+                    "DEFERRABLE INITIALLY DEFERRED"
                 ),
 
                 # Rename indexes
@@ -91,13 +97,19 @@ class Migration(migrations.Migration):
                 # Rename constraints
                 migrations.RunSQL(
                     "ALTER TABLE users_user_object_permissions RENAME CONSTRAINT "
-                    "users_objectpermissi_objectpermission_id_78a9c2e6_fk_users_obj TO "
-                    "users_user_object_pe_objectpermission_id_29b431b4_fk_users_obj"
-                ),
-                migrations.RunSQL(
-                    "ALTER TABLE users_user_object_permissions RENAME CONSTRAINT "
                     "users_objectpermission_users_user_id_16c0905d_fk_auth_user_id TO "
                     "users_user_object_permissions_user_id_9d647aac_fk_users_user_id"
+                ),
+                # Fix for #15698: Drop & recreate constraint which may not exist
+                migrations.RunSQL(
+                    "ALTER TABLE users_user_object_permissions DROP CONSTRAINT IF EXISTS "
+                    "users_objectpermissi_objectpermission_id_78a9c2e6_fk_users_obj"
+                ),
+                migrations.RunSQL(
+                    "ALTER TABLE users_user_object_permissions ADD CONSTRAINT "
+                    "users_user_object_pe_objectpermission_id_29b431b4_fk_users_obj "
+                    "FOREIGN KEY (objectpermission_id) REFERENCES users_objectpermission(id) "
+                    "DEFERRABLE INITIALLY DEFERRED"
                 ),
 
                 # Rename indexes
