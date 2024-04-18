@@ -136,6 +136,17 @@ class IKEProposalFilterSet(NetBoxModelFilterSet):
     group = django_filters.MultipleChoiceFilter(
         choices=DHGroupChoices
     )
+    ike_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policies',
+        queryset=IKEPolicy.objects.all(),
+        label=_('IKE policy (ID)'),
+    )
+    ike_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policies__name',
+        queryset=IKEPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IKE policy (name)'),
+    )
 
     class Meta:
         model = IKEProposal
