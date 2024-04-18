@@ -560,9 +560,6 @@ class DeviceTestCase(TestCase):
         # Device with site, cluster non-site should pass
         Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[2]).full_clean()
 
-        # Device with non-site cluster only should pass
-        Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[2]).full_clean()
-
         # Device with mismatched site & cluster should fail
         with self.assertRaises(ValidationError):
             Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[1]).full_clean()
