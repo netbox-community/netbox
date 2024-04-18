@@ -207,9 +207,6 @@ class ConfigRevisionForm(BootstrapMixin, forms.ModelForm, metaclass=ConfigFormMe
                 help_text += _(' (default)')
             self.fields[param.name].help_text = help_text
 
-            # Use the parameter-specific encoder
-            self.fields[param.name].encoder = param.encoder
-
     def save(self, commit=True):
         instance = super().save(commit=False)
 
