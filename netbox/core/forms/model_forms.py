@@ -133,7 +133,7 @@ class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
                 'help_text': param.description,
             }
             field_kwargs.update(**param.field_kwargs)
-            if param.field == _JSONField:
+            if param.field is _JSONField:
                 # Replace with our own JSONField to get pretty JSON in config editor
                 param.field = JSONField
             param_fields[param.name] = param.field(**field_kwargs)
