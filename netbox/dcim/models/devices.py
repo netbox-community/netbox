@@ -689,11 +689,10 @@ class Device(
         blank=True,
         null=True
     )
-    vc_position = models.PositiveSmallIntegerField(
+    vc_position = models.PositiveIntegerField(
         verbose_name=_('VC position'),
         blank=True,
         null=True,
-        validators=[MaxValueValidator(255)],
         help_text=_('Virtual chassis position')
     )
     vc_priority = models.PositiveSmallIntegerField(
