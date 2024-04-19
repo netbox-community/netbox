@@ -101,5 +101,7 @@
 {% endblock content %}
 
 {% block modals %}
+  {% if job.completed %}
   {% table_config_form table table_name="ObjectTable" %}
+  {% endif %}
 {% endblock modals %}
