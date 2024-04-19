@@ -37,6 +37,11 @@ table.attr-table {
     border-bottom-style: hidden;
   }
 
+  // Permit breaking of words which don't fit on one line in the cell
+  td {
+    overflow-wrap: anywhere;
+  }
+
 }
 
 // Remove bottom margin from <pre> elements inside table cells
