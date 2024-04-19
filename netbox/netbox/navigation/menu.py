@@ -368,12 +368,10 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Authentication'),
             items=(
-                # Proxy model for auth.User
                 MenuItem(
                     link=f'users:user_list',
                     link_text=_('Users'),
                     permissions=[f'auth.view_user'],
-                    staff_only=True,
                     buttons=(
                         MenuItemButton(
                             link=f'users:user_add',
@@ -389,12 +387,10 @@ ADMIN_MENU = Menu(
                         )
                     )
                 ),
-                # Proxy model for auth.Group
                 MenuItem(
                     link=f'users:group_list',
                     link_text=_('Groups'),
                     permissions=[f'auth.view_group'],
-                    staff_only=True,
                     buttons=(
                         MenuItemButton(
                             link=f'users:group_add',
@@ -414,14 +410,12 @@ ADMIN_MENU = Menu(
                     link=f'users:token_list',
                     link_text=_('API Tokens'),
                     permissions=[f'users.view_token'],
-                    staff_only=True,
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
                     link=f'users:objectpermission_list',
                     link_text=_('Permissions'),
                     permissions=[f'users.view_objectpermission'],
-                    staff_only=True,
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
                 ),
             ),
@@ -432,14 +426,12 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link='core:config',
                     link_text=_('Current Config'),
-                    permissions=['core.view_configrevision'],
-                    staff_only=True
+                    permissions=['core.view_configrevision']
                 ),
                 MenuItem(
                     link='core:configrevision_list',
                     link_text=_('Config Revisions'),
-                    permissions=['core.view_configrevision'],
-                    staff_only=True
+                    permissions=['core.view_configrevision']
                 ),
             ),
         ),
@@ -448,13 +440,11 @@ ADMIN_MENU = Menu(
             items=(
                 MenuItem(
                     link='core:plugin_list',
-                    link_text=_('Plugins'),
-                    staff_only=True
+                    link_text=_('Plugins')
                 ),
                 MenuItem(
                     link='core:background_queue_list',
-                    link_text=_('Background Tasks'),
-                    staff_only=True
+                    link_text=_('Background Tasks')
                 ),
             ),
         ),
