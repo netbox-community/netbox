@@ -17,7 +17,7 @@
 {% endblock tabs %}
 
 {% block content %}
-  <div class="row px-3">
+  <div class="row">
     <div class="col col-6 offset-3 py-3">
       <form action="{% url 'search' %}" method="get" class="form form-horizontal">
         {% render_form form %}
@@ -29,10 +29,12 @@
       </form>
     </div>
   </div>
-  <div class="row px-3">
-    <div class="card">
-      <div class="htmx-container table-responsive" id="object_list">
-        {% include 'htmx/table.html' %}
+  <div class="row">
+    <div class="col">
+      <div class="card">
+        <div class="htmx-container table-responsive" id="object_list">
+          {% include 'htmx/table.html' %}
+        </div>
       </div>
     </div>
   </div>
