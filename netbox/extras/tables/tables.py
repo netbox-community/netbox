@@ -78,7 +78,7 @@ class CustomFieldTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
             'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'weight', 'choice_set', 'choices', 'created', 'last_updated',
+            'weight', 'choice_set', 'choices', 'comments', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
 

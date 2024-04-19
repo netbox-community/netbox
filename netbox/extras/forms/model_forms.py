@@ -53,6 +53,7 @@ class CustomFieldForm(forms.ModelForm):
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         FieldSet(
