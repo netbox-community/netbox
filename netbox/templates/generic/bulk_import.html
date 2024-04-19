@@ -103,87 +103,87 @@ Context:
 
   {% if fields %}
   <div class="row my-3">
-      <div class="col col-md-12">
-          <div class="card">
-              <h5 class="card-header">{% trans "Field Options" %}</h5>
-              <table class="table">
-                  <tr>
-                      <th>{% trans "Field" %}</th>
-                      <th>{% trans "Required" %}</th>
-                      <th>{% trans "Accessor" %}</th>
-                      <th>{% trans "Description" %}</th>
-                  </tr>
-                  {% for name, field in fields.items %}
-                      <tr>
-                          <td>
-                              <code>{% if field.required %}<strong>{% endif %}{{ name }}{% if field.required %}</strong>{% endif %}</code>
-                          </td>
-                          <td>
-                              {% if field.required %}
-                                  {% checkmark True true="Required" %}
-                              {% else %}
-                                  {{ ''|placeholder }}
-                              {% endif %}
-                          </td>
-                          <td>
-                              {% if field.to_field_name %}
-                                  <code>{{ field.to_field_name }}</code>
-                              {% else %}
-                                  {{ ''|placeholder }}
-                              {% endif %}
-                          </td>
-                          <td>
-                              {% if field.STATIC_CHOICES %}
-                                  <button type="button" class="btn btn-link float-end" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices">
-                                      <i class="mdi mdi-help-circle"></i>
-                                  </button>
-                                  <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
-                                      <div class="modal-dialog" role="document">
-                                          <div class="modal-content">
-                                              <div class="modal-header">
-                                                  <h5 class="modal-title"><code>{{ name }}</code> {% trans "Choices" %}</h5>
-                                                  <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                              </div>
-                                              <div class="modal-body">
-                                                  <table class="table table-striped">
-                                                      <tr>
-                                                          <th>{% trans "Import Value" %}</th>
-                                                          <th>{% trans "Label" %}</th>
-                                                      </tr>
-                                                      {% for value, label in field.choices %}
-                                                      {% if value %}
-                                                      <tr>
-                                                          <td>
-                                                              <samp>{{ value }}</samp>
-                                                          </td>
-                                                          <td>
-                                                              {{ label }}
-                                                          </td>
-                                                      </tr>
-                                                      {% endif %}
-                                                      {% endfor %}
-                                                  </table>
-                                              </div>
-                                          </div>
-                                      </div>
-                                  </div>
-                              {% endif %}
-                              {% if field.help_text %}
-                                  {{ field.help_text }}<br />
-                              {% elif field.label %}
-                                  {{ field.label }}<br />
-                              {% endif %}
-                              {% if field|widget_type == 'dateinput' %}
-                                  <small class="text-muted">{% trans "Format: YYYY-MM-DD" %}</small>
-                              {% elif field|widget_type == 'checkboxinput' %}
-                                  <small class="text-muted">{% trans "Specify true or false" %}</small>
-                              {% endif %}
-                          </td>
-                      </tr>
-                  {% endfor %}
-              </table>
-          </div>
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Field Options" %}</h5>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>{% trans "Field" %}</th>
+              <th>{% trans "Required" %}</th>
+              <th>{% trans "Accessor" %}</th>
+              <th>{% trans "Description" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for name, field in fields.items %}
+              <tr>
+                <td class="font-monospace{% if field.required %} fw-bold{% endif %}">
+                  {{ name }}
+                </td>
+                <td>
+                  {% if field.required %}
+                    {% checkmark True true="Required" %}
+                  {% else %}
+                    {{ ''|placeholder }}
+                  {% endif %}
+                </td>
+                {% if field.to_field_name %}
+                  <td class="font-monospace">{{ field.to_field_name }}</td>
+                {% else %}
+                  <td>{{ ''|placeholder }}</td>
+                {% endif %}
+                <td>
+                  {% if field.help_text %}
+                    {{ field.help_text }}
+                  {% elif field.label %}
+                    {{ field.label }}
+                  {% endif %}
+                  {% if field.STATIC_CHOICES %}
+                    <a href="#" data-bs-toggle="modal" data-bs-target="#{{ name }}_choices"><i class="mdi mdi-help-circle"></i></a>
+                    <div class="modal fade" id="{{ name }}_choices" tabindex="-1" role="dialog">
+                      <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">
+                              <span class="font-monospace">{{ name }}</span> {% trans "Choices" %}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                            <table class="table table-striped modal-body">
+                              <thead>
+                                <tr>
+                                  <th>{% trans "Import Value" %}</th>
+                                  <th>{% trans "Label" %}</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for value, label in field.choices %}
+                                  {% if value %}
+                                    <tr>
+                                      <td><samp>{{ value }}</samp></td>
+                                      <td>{{ label }}</td>
+                                    </tr>
+                                  {% endif %}
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                        </div>
+                      </div>
+                    </div>
+                  {% endif %}
+                  {% if field|widget_type == 'dateinput' %}
+                    <br /><small class="text-muted">{% trans "Format: YYYY-MM-DD" %}</small>
+                  {% elif field|widget_type == 'checkboxinput' %}
+                    <br /><small class="text-muted">{% trans "Specify true or false" %}</small>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
       </div>
+    </div>
   </div>
   <p class="small text-muted">
     <i class="mdi mdi-check-bold text-success"></i>

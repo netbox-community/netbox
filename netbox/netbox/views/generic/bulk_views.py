@@ -314,11 +314,20 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         return data
 
     def _get_form_fields(self):
-        # Exclude any fields which use a HiddenInput widget
-        return {
-            name: field for name, field in self.model_form().fields.items()
-            if type(field.widget) is not HiddenInput
-        }
+        form = self.model_form()
+        required_fields = {}
+        optional_fields = {}
+
+        # Return only visible fields, with required fields listed first
+        for field in form.visible_fields():
+            if field.is_hidden:
+                continue
+            elif field.field.required:
+                required_fields[field.name] = field.field
+            else:
+                optional_fields[field.name] = field.field
+
+        return {**required_fields, **optional_fields}
 
     def _save_object(self, import_form, model_form, request):
 
