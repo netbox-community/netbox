@@ -205,6 +205,10 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         verbose_name=_('is cloneable'),
         help_text=_('Replicate this value when cloning objects')
     )
+    comments = models.TextField(
+        verbose_name=_('comments'),
+        blank=True
+    )
 
     objects = CustomFieldManager()
 
