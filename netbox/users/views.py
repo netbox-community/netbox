@@ -28,6 +28,7 @@ class TokenView(generic.ObjectView):
 class TokenEditView(generic.ObjectEditView):
     queryset = Token.objects.all()
     form = forms.TokenForm
+    template_name = 'users/token_edit.html'
 
 
 @register_model_view(Token, 'delete')
