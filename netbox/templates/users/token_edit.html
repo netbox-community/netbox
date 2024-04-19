@@ -1,0 +1,9 @@
+{% extends 'generic/object_edit.html' %}
+{% load i18n %}
+
+{% block content %}
+  {% if not request.user.is_superuser %}
+    {% include 'inc/alerts/warning.html' with title="Creating API Tokens" message="Non-superusers should generally create and modify API tokens under their user profile." %}
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
