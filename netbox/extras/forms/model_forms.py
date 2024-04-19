@@ -265,6 +265,7 @@ class EventRuleForm(NetBoxModelForm):
         required=False,
         help_text=_('Enter parameters to pass to the action in <a href="https://json.org/">JSON</a> format.')
     )
+    comments = CommentField()
 
     fieldsets = (
         (_('Event Rule'), ('name', 'description', 'content_types', 'enabled', 'tags')),
