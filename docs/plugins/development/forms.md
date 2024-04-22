@@ -62,7 +62,7 @@ class MyModelImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
 
     class Meta:

@@ -388,7 +388,7 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Virtual Disks'),
         badge=lambda obj: obj.virtual_disk_count,
-        permission='virtualization.view_virtual_disk',
+        permission='virtualization.view_virtualdisk',
         weight=500
     )
     actions = {

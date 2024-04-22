@@ -1,7 +1,7 @@
 ---
 name: ✨ Feature Request
 description: Propose a new NetBox feature or enhancement
-labels: ["type: feature", "needs triage"]
+labels: ["type: feature", "status: needs triage"]
 body:
   - type: markdown
     attributes:
@@ -14,7 +14,7 @@ body:
     attributes:
       label: NetBox version
       description: What version of NetBox are you currently running?
-      placeholder: v3.7.5
+      placeholder: v3.7.6
     validations:
       required: true
   - type: dropdown

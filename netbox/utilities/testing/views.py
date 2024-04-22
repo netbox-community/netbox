@@ -10,11 +10,11 @@ from django.utils.translation import gettext as _
 
 from extras.choices import ObjectChangeActionChoices
 from extras.models import ObjectChange
-from netbox.models.features import ChangeLoggingMixin
+from netbox.models.features import ChangeLoggingMixin, CustomFieldsMixin
 from users.models import ObjectPermission
 from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from .base import ModelTestCase
-from .utils import disable_warnings, post_data
+from .utils import add_custom_field_data, disable_warnings, post_data
 
 __all__ = (
     'ModelViewTestCase',
@@ -25,7 +25,6 @@ __all__ = (
 #
 # UI Tests
 #
-
 
 class ModelViewTestCase(ModelTestCase):
     """
@@ -166,6 +165,10 @@ class ViewTestCases:
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('add')), 200)
 
+            # Add custom field data if the model supports it
+            if issubclass(self.model, CustomFieldsMixin):
+                add_custom_field_data(self.form_data, self.model)
+
             # Try POST with model-level permission
             initial_count = self._get_queryset().count()
             request = {
@@ -264,6 +267,10 @@ class ViewTestCases:
 
             # Try GET with model-level permission
             self.assertHttpStatus(self.client.get(self._get_url('edit', instance)), 200)
+
+            # Add custom field data if the model supports it
+            if issubclass(self.model, CustomFieldsMixin):
+                add_custom_field_data(self.form_data, self.model)
 
             # Try POST with model-level permission
             request = {

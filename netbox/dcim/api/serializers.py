@@ -612,7 +612,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True)
+    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
@@ -668,7 +668,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device_type = NestedDeviceTypeSerializer()
     role = NestedDeviceRoleSerializer()
-    device_role = NestedDeviceRoleSerializer(read_only=True, help_text='Deprecated in v3.6 in favor of `role`.')
+    device_role = NestedDeviceRoleSerializer(read_only=True, help_text=_('Deprecated in v3.6 in favor of `role`.'))
     tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
@@ -685,7 +685,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
-    primary_ip = NestedIPAddressSerializer(read_only=True)
+    primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
     oob_ip = NestedIPAddressSerializer(required=False, allow_null=True)
@@ -735,7 +735,7 @@ class DeviceSerializer(NetBoxModelSerializer):
 
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
-    config_context = serializers.SerializerMethodField(read_only=True)
+    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     class Meta(DeviceSerializer.Meta):
         fields = [
@@ -1067,7 +1067,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True)
+    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:

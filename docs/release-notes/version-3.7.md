@@ -1,5 +1,29 @@
 # NetBox v3.7
 
+## v3.7.6 (2024-04-22)
+
+### Enhancements
+
+* [#14690](https://github.com/netbox-community/netbox/issues/14690) - Improve rendering of JSON data in configuration form
+* [#15427](https://github.com/netbox-community/netbox/issues/15427) - Enable compatibility with non-Amazon S3 providers for remote data sources
+* [#15640](https://github.com/netbox-community/netbox/issues/15640) - Add global search support for L2VPN identifiers
+* [#15644](https://github.com/netbox-community/netbox/issues/15644) - Introduce new configuration parameters for enabling HTTP Strict Transport Security (HSTS)
+
+### Bug Fixes
+
+* [#15541](https://github.com/netbox-community/netbox/issues/15541) - Restore ability to modify assigned component template when adding/modifying an inventory item template
+* [#15582](https://github.com/netbox-community/netbox/issues/15582) - Fix permission constraints for synchronization of remote data sources
+* [#15588](https://github.com/netbox-community/netbox/issues/15588) - Correct OpenAPI schema definitions for read-only fields which may return null values
+* [#15635](https://github.com/netbox-community/netbox/issues/15635) - Extend plugin removal instruction to include reindexing the global search cache
+* [#15654](https://github.com/netbox-community/netbox/issues/15654) - Fix `AttributeError` exception when attempting to save an incomplete tunnel termination
+* [#15668](https://github.com/netbox-community/netbox/issues/15668) - Fix permission required to display virtual disks tab on virtual machine UI view
+* [#15685](https://github.com/netbox-community/netbox/issues/15685) - Allow filtering cables by decimal values using UI filter form
+* [#15761](https://github.com/netbox-community/netbox/issues/15761) - Add missing `ike_policy` & `ike_policy_id` filters for IKE proposals
+* [#15771](https://github.com/netbox-community/netbox/issues/15771) - Include `id` in list of supported fields for all bulk import forms
+* [#15790](https://github.com/netbox-community/netbox/issues/15790) - Fix live preview support for EventRule comments
+
+---
+
 ## v3.7.5 (2024-04-04)
 
 ### Enhancements
