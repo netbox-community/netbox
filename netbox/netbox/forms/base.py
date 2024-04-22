@@ -73,11 +73,6 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
-    id = forms.IntegerField(
-        label=_('Id'),
-        required=False,
-        help_text='Numeric ID of an existing object to update (if not creating a new object)'
-    )
     tags = CSVModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
