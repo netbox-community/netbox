@@ -152,8 +152,8 @@ def export_button(context, model):
     }
 
 
-@register.inclusion_tag('buttons/bulk_edit.html')
-def bulk_edit_button(model, action='bulk_edit', query_params=None):
+@register.inclusion_tag('buttons/bulk_edit.html', takes_context=True)
+def bulk_edit_button(context, model, action='bulk_edit', query_params=None):
     try:
         url = reverse(get_viewname(model, action))
         if query_params:
@@ -162,12 +162,13 @@ def bulk_edit_button(model, action='bulk_edit', query_params=None):
         url = None
 
     return {
+        'htmx_navigation': context.get('htmx_navigation'),
         'url': url,
     }
 
 
-@register.inclusion_tag('buttons/bulk_delete.html')
-def bulk_delete_button(model, action='bulk_delete', query_params=None):
+@register.inclusion_tag('buttons/bulk_delete.html', takes_context=True)
+def bulk_delete_button(context, model, action='bulk_delete', query_params=None):
     try:
         url = reverse(get_viewname(model, action))
         if query_params:
@@ -176,5 +177,6 @@ def bulk_delete_button(model, action='bulk_delete', query_params=None):
         url = None
 
     return {
+        'htmx_navigation': context.get('htmx_navigation'),
         'url': url,
     }
