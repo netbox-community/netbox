@@ -5,8 +5,8 @@
 # 
 # Translators:
 # Tatsuya Ueda <ml@tatsuya.info>, 2024
-# teapot, 2024
 # Jeremy Stretch, 2024
+# teapot, 2024
 # 
 #, fuzzy
 msgid ""
@@ -15,7 +15,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-04-04 19:11+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: teapot, 2024\n"
 "Language-Team: Japanese (https://app.transifex.com/netbox-community/teams/178115/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -7681,7 +7681,7 @@ msgstr "プレフィックス内およびプレフィックスを含む"
 
 #: ipam/filtersets.py:259
 msgid "Prefixes which contain this prefix or IP"
-msgstr "このプレフィックスまたは IP を含むプレフィックス"
+msgstr "このプレフィックス / IP を含むプレフィックス"
 
 #: ipam/filtersets.py:270 ipam/filtersets.py:538 ipam/forms/bulk_edit.py:326
 #: ipam/forms/filtersets.py:191 ipam/forms/filtersets.py:317
@@ -7700,11 +7700,11 @@ msgstr "VLAN 番号 (1-4094)"
 #: ipam/forms/model_forms.py:430 templates/tenancy/contact.html:54
 #: tenancy/forms/bulk_edit.py:112
 msgid "Address"
-msgstr "住所"
+msgstr "アドレス"
 
 #: ipam/filtersets.py:445
 msgid "Ranges which contain this prefix or IP"
-msgstr "このプレフィックスまたは IP を含む範囲"
+msgstr "このプレフィックス / IP を含む範囲"
 
 #: ipam/filtersets.py:473 ipam/filtersets.py:529
 msgid "Parent prefix"
@@ -7743,11 +7743,11 @@ msgstr "FHRP グループ (ID)"
 
 #: ipam/filtersets.py:618
 msgid "Is assigned to an interface"
-msgstr "インタフェースに割り当てられている"
+msgstr "インタフェースに割り当てられているか"
 
 #: ipam/filtersets.py:622
 msgid "Is assigned"
-msgstr "割り当てられている"
+msgstr "割当済みか"
 
 #: ipam/filtersets.py:1047
 msgid "IP address (ID)"
@@ -7881,7 +7881,7 @@ msgstr "子 VLAN VID の最小値"
 
 #: ipam/forms/bulk_edit.py:420
 msgid "Maximum child VLAN VID"
-msgstr "子 VLAN VID の最大数"
+msgstr "子 VLAN VID の最大値"
 
 #: ipam/forms/bulk_edit.py:428 ipam/forms/model_forms.py:531
 msgid "Scope type"
@@ -7905,11 +7905,11 @@ msgstr "ポート"
 
 #: ipam/forms/bulk_import.py:47
 msgid "Import route targets"
-msgstr "ルートターゲットをインポート"
+msgstr "インポートルートターゲット"
 
 #: ipam/forms/bulk_import.py:53
 msgid "Export route targets"
-msgstr "ルートターゲットをエクスポートする"
+msgstr "エクスポートルートターゲット"
 
 #: ipam/forms/bulk_import.py:91 ipam/forms/bulk_import.py:111
 #: ipam/forms/bulk_import.py:131
