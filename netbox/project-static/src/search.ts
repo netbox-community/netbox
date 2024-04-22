@@ -1,6 +1,5 @@
 import { isTruthy } from './util';
 
-
 /**
  * Show/hide quicksearch clear button.
  *
@@ -10,12 +9,22 @@ function quickSearchEventHandler(event: Event): void {
   const quicksearch = event.currentTarget as HTMLInputElement;
   const inputgroup = quicksearch.parentElement as HTMLDivElement;
   if (isTruthy(inputgroup)) {
-    if (quicksearch.value === '') {
-      inputgroup.classList.add('hide-last-child');
+    if (quicksearch.value === "") {
+      inputgroup.classList.add("hide-last-child");
+      clearLinkParams();
     } else {
-      inputgroup.classList.remove('hide-last-child');
+      inputgroup.classList.remove("hide-last-child");
     }
   }
+}
+
+/**
+ * Clear the existing search parameters in the link to export Current View.
+ */
+function clearLinkParams(): void {
+  const link = document.getElementById("current_view") as HTMLLinkElement;
+  let linkUpdated = link?.href.split("&")[0];
+  link.setAttribute("href", linkUpdated);
 }
 
 /**
@@ -24,38 +33,42 @@ function quickSearchEventHandler(event: Event): void {
  */
 
 function handleQuickSearchParams(event: Event): void {
-  console.log('getParams');
   const quickSearchParameters = event.currentTarget as HTMLInputElement;
-  const link = document.getElementById('current_view') as HTMLLinkElement;
+
+  // Clear the existing search parameters
+  clearLinkParams();
+
   if (quickSearchParameters != null) {
+    const link = document.getElementById("current_view") as HTMLLinkElement;
     const search_parameter = `q=${quickSearchParameters.value}`;
-    const linkUpdated = link?.href + '&' + search_parameter;
-    link.setAttribute('href', linkUpdated);
+    const linkUpdated = link?.href + "&" + search_parameter;
+    link.setAttribute("href", linkUpdated);
   }
+
 }
 
 /**
  * Initialize Quicksearch Event listener/handlers.
  */
 export function initQuickSearch(): void {
-  const quicksearch = document.getElementById('quicksearch') as HTMLInputElement;
-  const clearbtn = document.getElementById('quicksearch_clear') as HTMLButtonElement;
+  const quicksearch = document.getElementById("quicksearch") as HTMLInputElement;
+  const clearbtn = document.getElementById("quicksearch_clear") as HTMLButtonElement;
 
   if (isTruthy(quicksearch)) {
-    quicksearch.addEventListener('keyup', quickSearchEventHandler, {
+    quicksearch.addEventListener("keyup", quickSearchEventHandler, {
       passive: true,
     });
-    quicksearch.addEventListener('search', quickSearchEventHandler, {
+    quicksearch.addEventListener("search", quickSearchEventHandler, {
       passive: true,
     });
-    quicksearch.addEventListener('change', handleQuickSearchParams);
+    quicksearch.addEventListener("change", handleQuickSearchParams);
 
     if (isTruthy(clearbtn)) {
       clearbtn.addEventListener(
-        'click',
+        "click",
         async () => {
-          const search = new Event('search');
-          quicksearch.value = '';
+          const search = new Event("search");
+          quicksearch.value = "";
           await new Promise(f => setTimeout(f, 100));
           quicksearch.dispatchEvent(search);
         },
