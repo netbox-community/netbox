@@ -1373,14 +1373,14 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
         label=_('Device'),
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Assigned role'
+        help_text=_('Assigned role')
     )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
         label=_('Status'),

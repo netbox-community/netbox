@@ -76,14 +76,14 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     id = forms.IntegerField(
         label=_('Id'),
         required=False,
-        help_text='Numeric ID of an existing object to update (if not creating a new object)'
+        help_text=_('Numeric ID of an existing object to update (if not creating a new object)')
     )
     tags = CSVModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
         required=False,
         to_field_name='slug',
-        help_text='Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")'
+        help_text=_('Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")')
     )
 
     def _get_custom_fields(self, content_type):

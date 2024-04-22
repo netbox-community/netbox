@@ -668,7 +668,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:device-detail')
     device_type = NestedDeviceTypeSerializer()
     role = NestedDeviceRoleSerializer()
-    device_role = NestedDeviceRoleSerializer(read_only=True, help_text='Deprecated in v3.6 in favor of `role`.')
+    device_role = NestedDeviceRoleSerializer(read_only=True, help_text=_('Deprecated in v3.6 in favor of `role`.'))
     tenant = NestedTenantSerializer(required=False, allow_null=True, default=None)
     platform = NestedPlatformSerializer(required=False, allow_null=True)
     site = NestedSiteSerializer()
