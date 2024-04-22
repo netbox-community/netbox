@@ -78,7 +78,7 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
         queryset=Tag.objects.all(),
         required=False,
         to_field_name='slug',
-        help_text='Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")'
+        help_text=_('Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")')
     )
 
     def _get_custom_fields(self, content_type):
