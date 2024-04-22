@@ -3,6 +3,7 @@ import json
 
 from django import forms
 from django.conf import settings
+from django.forms.fields import JSONField as _JSONField
 from django.utils.translation import gettext_lazy as _
 
 from core.forms.mixins import SyncedDataMixin
@@ -12,7 +13,7 @@ from netbox.forms import NetBoxModelForm
 from netbox.registry import registry
 from netbox.utils import get_data_backend_choices
 from utilities.forms import BootstrapMixin, get_field_value
-from utilities.forms.fields import CommentField
+from utilities.forms.fields import CommentField, JSONField
 from utilities.forms.widgets import HTMXSelect
 
 __all__ = (
@@ -132,6 +133,9 @@ class ConfigFormMetaclass(forms.models.ModelFormMetaclass):
                 'help_text': param.description,
             }
             field_kwargs.update(**param.field_kwargs)
+            if param.field is _JSONField:
+                # Replace with our own JSONField to get pretty JSON in config editor
+                param.field = JSONField
             param_fields[param.name] = param.field(**field_kwargs)
         attrs.update(param_fields)
 
