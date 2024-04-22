@@ -85,13 +85,19 @@ Each model generally has two views associated with it: a list view and a detail 
 * `/api/dcim/devices/` - List existing devices or create a new device
 * `/api/dcim/devices/123/` - Retrieve, update, or delete the device with ID 123
 
-Lists of objects can be filtered using a set of query parameters. For example, to find all interfaces belonging to the device with ID 123:
+Lists of objects can be filtered and ordered using a set of query parameters. For example, to find all interfaces belonging to the device with ID 123:
 
 ```
 GET /api/dcim/interfaces/?device_id=123
 ```
 
-See the [filtering documentation](../reference/filtering.md) for more details.
+An optional `ordering` parameter can be used to define how to sort the results. Building off the previous example, to sort all the interfaces in reverse order of creation (newest to oldest) for a device with ID 123:
+
+```
+GET /api/dcim/interfaces/?device_id=123&ordering=-created
+```
+
+See the [filtering documentation](../reference/filtering.md) for more details on topics related to filtering, ordering and lookup expressions.
 
 ## Serialization
 

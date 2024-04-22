@@ -100,7 +100,7 @@ class AvailablePrefixSerializer(serializers.Serializer):
     """
     family = serializers.IntegerField(read_only=True)
     prefix = serializers.CharField(read_only=True)
-    vrf = VRFSerializer(nested=True, read_only=True)
+    vrf = VRFSerializer(nested=True, read_only=True, allow_null=True)
 
     def to_representation(self, instance):
         if self.context.get('vrf'):
@@ -183,7 +183,7 @@ class AvailableIPSerializer(serializers.Serializer):
     """
     family = serializers.IntegerField(read_only=True)
     address = serializers.CharField(read_only=True)
-    vrf = VRFSerializer(nested=True, read_only=True)
+    vrf = VRFSerializer(nested=True, read_only=True, allow_null=True)
     description = serializers.CharField(required=False)
 
     def to_representation(self, instance):

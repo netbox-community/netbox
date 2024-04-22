@@ -116,6 +116,12 @@ class CustomLinkImportForm(CSVModelForm):
         queryset=ObjectType.objects.with_feature('custom_links'),
         help_text=_("One or more assigned object types")
     )
+    button_class = CSVChoiceField(
+        label=_('button class'),
+        required=False,
+        choices=CustomLinkButtonClassChoices,
+        help_text=_('The class of the first link in a group will be used for the dropdown button')
+    )
 
     class Meta:
         model = CustomLink

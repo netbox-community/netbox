@@ -981,17 +981,16 @@ class Device(
             bulk_create: If True, bulk_create() will be called to create all components in a single query
                          (default). Otherwise, save() will be called on each instance individually.
         """
-        components = [obj.instantiate(device=self) for obj in queryset]
-        if not components:
-            return
-
-        # Set default values for any applicable custom fields
         model = queryset.model.component_model
-        if cf_defaults := CustomField.objects.get_defaults_for_model(model):
-            for component in components:
-                component.custom_field_data = cf_defaults
 
         if bulk_create:
+            components = [obj.instantiate(device=self) for obj in queryset]
+            if not components:
+                return
+            # Set default values for any applicable custom fields
+            if cf_defaults := CustomField.objects.get_defaults_for_model(model):
+                for component in components:
+                    component.custom_field_data = cf_defaults
             model.objects.bulk_create(components)
             # Manually send the post_save signal for each of the newly created components
             for component in components:
@@ -1004,7 +1003,11 @@ class Device(
                     update_fields=None
                 )
         else:
-            for component in components:
+            for obj in queryset:
+                component = obj.instantiate(device=self)
+                # Set default values for any applicable custom fields
+                if cf_defaults := CustomField.objects.get_defaults_for_model(model):
+                    component.custom_field_data = cf_defaults
                 component.save()
 
     def save(self, *args, **kwargs):

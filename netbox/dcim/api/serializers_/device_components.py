@@ -347,7 +347,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True)
+    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:

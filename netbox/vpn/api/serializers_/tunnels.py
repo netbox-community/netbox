@@ -108,6 +108,8 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_termination(self, obj):
+        if not obj.termination:
+            return None
         serializer = get_serializer_for_model(obj.termination)
         context = {'request': self.context['request']}
         return serializer(obj.termination, nested=True, context=context).data

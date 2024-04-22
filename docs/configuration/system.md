@@ -16,10 +16,7 @@ BASE_PATH = 'netbox/'
 
 Default: `en-us` (US English)
 
-Defines the default preferred language/locale for requests that do not specify one. This is used to alter e.g. the display of dates and numbers to fit the user's locale. See [this list](http://www.i18nguy.com/unicode/language-identifiers.html) of standard language codes. (This parameter maps to Django's [`LANGUAGE_CODE`](https://docs.djangoproject.com/en/stable/ref/settings/#language-code) internal setting.)
-
-!!! note
-    Altering this parameter will *not* change the language used in NetBox. We hope to provide translation support in a future NetBox release.
+Defines the default preferred language/locale for requests that do not specify one. (This parameter maps to Django's [`LANGUAGE_CODE`](https://docs.djangoproject.com/en/stable/ref/settings/#language-code) internal setting.)
 
 ---
 

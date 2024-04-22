@@ -37,7 +37,7 @@ class VirtualMachineSerializer(NetBoxModelSerializer):
     role = DeviceRoleSerializer(nested=True, required=False, allow_null=True)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     platform = PlatformSerializer(nested=True, required=False, allow_null=True)
-    primary_ip = IPAddressSerializer(nested=True, read_only=True)
+    primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
     primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
     primary_ip6 = IPAddressSerializer(nested=True, required=False, allow_null=True)
     config_template = ConfigTemplateSerializer(nested=True, required=False, allow_null=True, default=None)

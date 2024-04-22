@@ -1,11 +1,51 @@
 # NetBox v3.7
 
-## v3.7.5 (FUTURE)
+## v3.7.7 (FUTURE)
+
+---
+
+## v3.7.6 (2024-04-22)
+
+### Enhancements
+
+* [#14690](https://github.com/netbox-community/netbox/issues/14690) - Improve rendering of JSON data in configuration form
+* [#15427](https://github.com/netbox-community/netbox/issues/15427) - Enable compatibility with non-Amazon S3 providers for remote data sources
+* [#15640](https://github.com/netbox-community/netbox/issues/15640) - Add global search support for L2VPN identifiers
+* [#15644](https://github.com/netbox-community/netbox/issues/15644) - Introduce new configuration parameters for enabling HTTP Strict Transport Security (HSTS)
+
+### Bug Fixes
+
+* [#15541](https://github.com/netbox-community/netbox/issues/15541) - Restore ability to modify assigned component template when adding/modifying an inventory item template
+* [#15582](https://github.com/netbox-community/netbox/issues/15582) - Fix permission constraints for synchronization of remote data sources
+* [#15588](https://github.com/netbox-community/netbox/issues/15588) - Correct OpenAPI schema definitions for read-only fields which may return null values
+* [#15635](https://github.com/netbox-community/netbox/issues/15635) - Extend plugin removal instruction to include reindexing the global search cache
+* [#15654](https://github.com/netbox-community/netbox/issues/15654) - Fix `AttributeError` exception when attempting to save an incomplete tunnel termination
+* [#15668](https://github.com/netbox-community/netbox/issues/15668) - Fix permission required to display virtual disks tab on virtual machine UI view
+* [#15685](https://github.com/netbox-community/netbox/issues/15685) - Allow filtering cables by decimal values using UI filter form
+* [#15761](https://github.com/netbox-community/netbox/issues/15761) - Add missing `ike_policy` & `ike_policy_id` filters for IKE proposals
+* [#15771](https://github.com/netbox-community/netbox/issues/15771) - Include `id` in list of supported fields for all bulk import forms
+* [#15790](https://github.com/netbox-community/netbox/issues/15790) - Fix live preview support for EventRule comments
+
+---
+
+## v3.7.5 (2024-04-04)
+
+### Enhancements
+
+* [#14707](https://github.com/netbox-community/netbox/issues/14707) - Clarify interface designation when creating tunnel terminations
+* [#15039](https://github.com/netbox-community/netbox/issues/15039) - Allow API tokens to be cloned
 
 ### Bug Fixes
 
 * [#14799](https://github.com/netbox-community/netbox/issues/14799) - Avoid caching modified reports & scripts
+* [#15029](https://github.com/netbox-community/netbox/issues/15029) - Raise a clean validation error when attempting to make duplicate FHRP group assignments
+* [#15102](https://github.com/netbox-community/netbox/issues/15102) - Fix usage of selector widget for form fields referencing users/groups
+* [#15435](https://github.com/netbox-community/netbox/issues/15435) - Correct permissions name to allow adding a module bay to a device via the UI
 * [#15502](https://github.com/netbox-community/netbox/issues/15502) - Fix KeyError exception when modifying an IP address assigned to a virtual machine
+* [#15597](https://github.com/netbox-community/netbox/issues/15597) - Restore help modal for `button_class` field on custom link bulk import form
+* [#15598](https://github.com/netbox-community/netbox/issues/15598) - Fix exception when creating a device from a device type with one or more child inventory items
+* [#15608](https://github.com/netbox-community/netbox/issues/15608) - Avoid caching values of null fields in search index
+* [#15609](https://github.com/netbox-community/netbox/issues/15609) - Fix filtering of the providers list by assigned ASN
 
 ---
 

@@ -69,6 +69,12 @@ class CSVModelForm(forms.ModelForm):
     """
     ModelForm used for the import of objects in CSV format.
     """
+    id = forms.IntegerField(
+        label=_('ID'),
+        required=False,
+        help_text=_('Numeric ID of an existing object to update (if not creating a new object)')
+    )
+
     def __init__(self, *args, headers=None, **kwargs):
         self.headers = headers or {}
         super().__init__(*args, **kwargs)

@@ -42,6 +42,7 @@ plugins:
             show_root_toc_entry: false
             show_source: false
 extra:
+  readthedocs: !ENV READTHEDOCS
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/netbox-community/netbox
@@ -128,7 +129,9 @@ nav:
         - Synchronized Data: 'integrations/synchronized-data.md'
         - Prometheus Metrics: 'integrations/prometheus-metrics.md'
     - Plugins:
-        - Using Plugins: 'plugins/index.md'
+        - About Plugins: 'plugins/index.md'
+        - Installing a Plugin: 'plugins/installation.md'
+        - Removing a Plugin: 'plugins/removal.md'
         - Developing Plugins:
             - Getting Started: 'plugins/development/index.md'
             - Models: 'plugins/development/models.md'

@@ -80,9 +80,10 @@ class SearchIndex:
     @staticmethod
     def get_field_value(instance, field_name):
         """
-        Return the value of the specified model field as a string.
+        Return the value of the specified model field as a string (or None).
         """
-        return str(getattr(instance, field_name))
+        if value := getattr(instance, field_name):
+            return str(value)
 
     @classmethod
     def get_category(cls):
