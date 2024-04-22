@@ -612,7 +612,7 @@ class InventoryItemTemplateSerializer(ValidatedModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True)
+    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
@@ -685,7 +685,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
-    primary_ip = NestedIPAddressSerializer(read_only=True)
+    primary_ip = NestedIPAddressSerializer(read_only=True, allow_null=True)
     primary_ip4 = NestedIPAddressSerializer(required=False, allow_null=True)
     primary_ip6 = NestedIPAddressSerializer(required=False, allow_null=True)
     oob_ip = NestedIPAddressSerializer(required=False, allow_null=True)
@@ -735,7 +735,7 @@ class DeviceSerializer(NetBoxModelSerializer):
 
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
-    config_context = serializers.SerializerMethodField(read_only=True)
+    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     class Meta(DeviceSerializer.Meta):
         fields = [
@@ -1067,7 +1067,7 @@ class InventoryItemSerializer(NetBoxModelSerializer):
         required=False,
         allow_null=True
     )
-    component = serializers.SerializerMethodField(read_only=True)
+    component = serializers.SerializerMethodField(read_only=True, allow_null=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:

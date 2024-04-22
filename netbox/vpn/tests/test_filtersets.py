@@ -331,6 +331,16 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         IKEProposal.objects.bulk_create(ike_proposals)
 
+        ike_policies = (
+            IKEPolicy(name='IKE Policy 1'),
+            IKEPolicy(name='IKE Policy 2'),
+            IKEPolicy(name='IKE Policy 3'),
+        )
+        IKEPolicy.objects.bulk_create(ike_policies)
+        ike_policies[0].proposals.add(ike_proposals[0])
+        ike_policies[1].proposals.add(ike_proposals[1])
+        ike_policies[2].proposals.add(ike_proposals[2])
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -367,6 +377,13 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_sa_lifetime(self):
         params = {'sa_lifetime': [1000, 2000]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ike_policy(self):
+        ike_policies = IKEPolicy.objects.all()[:2]
+        params = {'ike_policy_id': [ike_policies[0].pk, ike_policies[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'ike_policy': [ike_policies[0].name, ike_policies[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
