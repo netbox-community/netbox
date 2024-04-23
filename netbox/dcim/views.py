@@ -3183,7 +3183,7 @@ class CableView(generic.ObjectView):
 class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
     template_name = 'dcim/cable_edit.html'
-    htmx_template_name = 'dcim/cable_edit.html'
+    htmx_template_name = 'dcim/htmx/cable_edit.html'
 
     def dispatch(self, request, *args, **kwargs):
 
@@ -3213,8 +3213,6 @@ class CableEditView(generic.ObjectEditView):
             b_type = termination_b.termination._meta.model if termination_b else (
                 CABLE_TERMINATION_TYPES.get(b_terminations_type)
             )
-
-            self.skip_htmx = True
 
             self.form = forms.get_cable_form(a_type, b_type)
 

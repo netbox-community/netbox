@@ -1,0 +1,116 @@
+{% load static %}
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+
+{# A side termination #}
+<div id="a_termination_block" class="field-group mb-5">
+  <div class="row mb-2">
+    <h5 class="offset-sm-3">{% trans "A Side" %}</h5>
+  </div>
+  {% if 'termination_a_device' in form.fields %}
+    {% render_field form.termination_a_device %}
+  {% endif %}
+  {% if 'termination_a_powerpanel' in form.fields %}
+    {% render_field form.termination_a_powerpanel %}
+  {% endif %}
+  {% if 'termination_a_circuit' in form.fields %}
+    {% render_field form.termination_a_circuit %}
+  {% endif %}
+  {% if 'a_terminations' in form.fields %}
+    {% render_field form.a_terminations %}
+  {% else %}
+    <div class="row mb-3">
+      <label for="a_termination_type" class="col-sm-3 col-form-label text-lg-end">{% trans "Termination Type" %}</label>
+      <div class="col" hx-select="#a_termination_block" hx-target="#a_termination_block" hx-trigger="changed">
+        <select class="netbox-static-select" hx-get name="a_terminations_type">
+            <option selected>----</option>
+            <option value="dcim.interface">{% trans "Interface" %}</option>
+            <option value="dcim.frontport">{% trans "Front Port" %}</option>
+            <option value="dcim.rearport">{% trans "Rear Port" %}</option>
+            <option value="circuits.circuittermination">{% trans "Circuit Termination" %}</option>
+        </select>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{# B side termination #}
+<div id="b_termination_block" class="field-group mb-5">
+  <div class="row mb-2">
+    <h5 class="offset-sm-3">{% trans "B Side" %}</h5>
+  </div>
+  {% if 'termination_b_device' in form.fields %}
+    {% render_field form.termination_b_device %}
+  {% endif %}
+  {% if 'termination_b_powerpanel' in form.fields %}
+    {% render_field form.termination_b_powerpanel %}
+  {% endif %}
+  {% if 'termination_b_circuit' in form.fields %}
+    {% render_field form.termination_b_circuit %}
+  {% endif %}
+  {% if 'b_terminations' in form.fields %}
+      {% render_field form.b_terminations %}
+  {% else %}
+    <div class="row mb-3">
+      <label for="b_termination_type" class="col-sm-3 col-form-label text-lg-end">{% trans "Termination Type" %}</label>
+      <div class="col" hx-select="#b_termination_block" hx-target="#b_termination_block" hx-trigger="changed">
+        <select class="netbox-static-select" hx-get name="b_terminations_type">
+            <option selected>----</option>
+            <option value="dcim.interface">{% trans "Interface" %}</option>
+            <option value="dcim.frontport">{% trans "Front Port" %}</option>
+            <option value="dcim.rearport">{% trans "Rear Port" %}</option>
+            <option value="circuits.circuittermination">{% trans "Circuit Termination" %}</option>
+        </select>
+      </div>
+    </div>
+  {% endif %}
+</div>
+
+{# Cable attributes #}
+<div class="field-group mb-5">
+  <div class="row mb-2">
+    <h5 class="offset-sm-3">{% trans "Cable" %}</h5>
+  </div>
+  {% render_field form.status %}
+  {% render_field form.type %}
+  {% render_field form.label %}
+  {% render_field form.description %}
+  {% render_field form.color %}
+  <div class="row mb-3">
+    <label class="col-sm-3 col-form-label text-lg-end">{{ form.length.label }}</label>
+    <div class="col-md-5">
+      {{ form.length }}
+    </div>
+    <div class="col-md-4">
+      {{ form.length_unit }}
+    </div>
+    <div class="invalid-feedback"></div>
+  </div>
+  {% render_field form.tags %}
+</div>
+
+<div class="field-group mb-5">
+  <div class="row mb-2">
+    <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
+  </div>
+  {% render_field form.tenant_group %}
+  {% render_field form.tenant %}
+</div>
+
+{% if form.custom_fields %}
+  <div class="field-group mb-5">
+    <div class="row mb-2">
+      <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+    </div>
+    {% render_custom_fields form %}
+  </div>
+{% endif %}
+
+{% if form.comments %}
+  <div class="field-group mb-5">
+    <h5 class="text-center">{% trans "Comments" %}</h5>
+    {% render_field form.comments %}
+  </div>
+{% endif %}

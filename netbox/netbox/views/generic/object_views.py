@@ -167,7 +167,7 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
     """
     template_name = 'generic/object_edit.html'
     form = None
-    skip_htmx = False
+    htmx_template_name = 'htmx/form.html'
 
     def dispatch(self, request, *args, **kwargs):
         # Determine required permission based on whether we are editing an existing object
@@ -228,8 +228,8 @@ class ObjectEditView(GetReturnURLMixin, BaseObjectView):
         restrict_form_fields(form, request.user)
 
         # If this is an HTMX request, return only the rendered form HTML
-        if is_htmx(request) and not self.skip_htmx:
-            return render(request, 'htmx/form.html', {
+        if is_htmx(request):
+            return render(request, self.htmx_template_name, {
                 'form': form,
             })
 
