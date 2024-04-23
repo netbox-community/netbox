@@ -22,6 +22,7 @@ PREFERENCES = {
             ('dark', _('Dark')),
         ),
         default='light',
+        description=_('Preferred default UI theme')
     ),
     'ui.htmx_navigation': UserPreference(
         label=_('HTMX Navigation'),
@@ -29,14 +30,17 @@ PREFERENCES = {
             ('', _('Disabled')),
             ('true', _('Enabled')),
         ),
-        default=False
+        description=_('Enable dynamic UI navigation'),
+        default=False,
+        experimental=True
     ),
     'locale.language': UserPreference(
         label=_('Language'),
         choices=(
             ('', _('Auto')),
             *settings.LANGUAGES,
-        )
+        ),
+        description=_('Forces UI translation to the specified language.')
     ),
     'pagination.per_page': UserPreference(
         label=_('Page length'),
@@ -51,8 +55,8 @@ PREFERENCES = {
             ('top', _('Top')),
             ('both', _('Both')),
         ),
-        description=_('Where the paginator controls will be displayed relative to a table'),
-        default='bottom'
+        default='bottom',
+        description=_('Where the paginator controls will be displayed relative to a table')
     ),
 
     # Miscellaneous
@@ -62,6 +66,7 @@ PREFERENCES = {
             ('json', 'JSON'),
             ('yaml', 'YAML'),
         ),
+        description=_('The preferred syntax for displaying generic data within the UI')
     ),
 
 }
