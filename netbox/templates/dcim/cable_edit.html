@@ -21,7 +21,7 @@
     {% endif %}
     {% if 'a_terminations' in form.fields %}
       {% render_field form.a_terminations %}
-    {% elif 'b_terminations' in form.fields %}
+    {% else %}
       <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end">{% trans "Termination Type" %}</label>
         <div class="col" hx-select="#a_termination_block" hx-target="#a_termination_block">
@@ -30,13 +30,6 @@
           <button class="btn btn-primary" hx-get="?a_terminations_type=dcim.rearport">{% trans "Rear Port" %}</button>
           <button class="btn btn-primary" hx-get="?a_terminations_type=circuits.circuittermination">{% trans "Circuit Termination" %}</button>
         </div>
-      </div>
-    {% else %}
-      <div class="row mb-3">
-        <label for="a_terminations" class="col-sm-3 col-form-label text-lg-end">{% trans "Termination Type" %}</label>
-        <div class="col col-form-label">Cannot initialize dynamic cable termination selection form</div>
-        <select class="ts-hidden-accessible" name="a_terminations" required></select>
-        <div class="invalid-feedback">This field is required.</div>
       </div>
     {% endif %}
   </div>
@@ -57,7 +50,7 @@
     {% endif %}
     {% if 'b_terminations' in form.fields %}
         {% render_field form.b_terminations %}
-    {% elif 'a_terminations' in form.fields %}
+    {% else %}
       <div class="row mb-3">
         <label class="col-sm-3 col-form-label text-lg-end">{% trans "Termination Type" %}</label>
         <div class="col" hx-select="#b_termination_block" hx-target="#b_termination_block">
@@ -66,13 +59,6 @@
           <button class="btn btn-primary" hx-get="?b_terminations_type=dcim.rearport">{% trans "Rear Port" %}</button>
           <button class="btn btn-primary" hx-get="?b_terminations_type=circuits.circuittermination">{% trans "Circuit Termination" %}</button>
         </div>
-      </div>
-    {% else %}
-      <div class="row mb-3">
-        <label for="b_terminantions" class="col-sm-3 col-form-label text-lg-end">{% trans "Termination Type" %}</label>
-        <div class="col col-form-label">Cannot initialize dynamic cable termination selection form</div>
-          <select class="ts-hidden-accessible" name="b_terminations" required></select>
-          <div class="invalid-feedback">This field is required.</div>
       </div>
     {% endif %}
   </div>
