@@ -1655,7 +1655,6 @@ class InventoryItemTemplateCreateView(generic.ComponentCreateView):
     queryset = InventoryItemTemplate.objects.all()
     form = forms.InventoryItemTemplateCreateForm
     model_form = forms.InventoryItemTemplateForm
-    template_name = 'dcim/inventoryitemtemplate_edit.html'
 
     def alter_object(self, instance, request):
         # Set component (if any)
@@ -1673,7 +1672,6 @@ class InventoryItemTemplateCreateView(generic.ComponentCreateView):
 class InventoryItemTemplateEditView(generic.ObjectEditView):
     queryset = InventoryItemTemplate.objects.all()
     form = forms.InventoryItemTemplateForm
-    template_name = 'dcim/inventoryitemtemplate_edit.html'
 
 
 @register_model_view(InventoryItemTemplate, 'delete')
