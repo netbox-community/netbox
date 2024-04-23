@@ -414,15 +414,20 @@ class ConfigTemplateTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'
     )
+    instance_count = columns.LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Instances')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
             'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
-            'tags',
+            'tags', 'instance_count',
         )
         default_columns = (
-            'pk', 'name', 'description', 'is_synced',
+            'pk', 'name', 'description', 'is_synced', 'instance_count'
         )
 
 

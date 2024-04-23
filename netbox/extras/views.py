@@ -13,6 +13,7 @@ from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
+from dcim.models import Device
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
@@ -624,7 +625,9 @@ class ObjectConfigContextView(generic.ObjectView):
 #
 
 class ConfigTemplateListView(generic.ObjectListView):
-    queryset = ConfigTemplate.objects.all()
+    queryset = ConfigTemplate.objects.annotate(
+        instance_count=count_related(Device, 'config_template')
+    )
     filterset = filtersets.ConfigTemplateFilterSet
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
