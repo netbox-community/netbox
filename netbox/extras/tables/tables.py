@@ -417,7 +417,7 @@ class ConfigTemplateTable(NetBoxTable):
     instance_count = columns.LinkedCountColumn(
         viewname='dcim:device_list',
         url_params={'config_template_id': 'pk'},
-        verbose_name=_('Instances')
+        verbose_name=_('Devices')
     )
 
     class Meta(NetBoxTable.Meta):
