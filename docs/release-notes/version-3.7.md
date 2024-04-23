@@ -2,6 +2,11 @@
 
 ## v3.7.7 (FUTURE)
 
+### Bug Fixes
+
+* [#13712](https://github.com/netbox-community/netbox/issues/13712) - Fix row highlighting for device interface list display
+* [#13806](https://github.com/netbox-community/netbox/issues/13806) - Fix "mark" button tooltip on swap for device interface list display
+
 ---
 
 ## v3.7.6 (2024-04-22)
