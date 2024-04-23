@@ -23,7 +23,7 @@ class CabledObjectMixin:
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("LinkPeerType")]] | None
+    ], strawberry.union("LinkPeerType")]]
 
 
 @strawberry.type
@@ -40,4 +40,4 @@ class PathEndpointMixin:
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("ConnectedEndpointType")]] | None
+    ], strawberry.union("ConnectedEndpointType")]]
