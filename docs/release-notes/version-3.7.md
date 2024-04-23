@@ -6,6 +6,8 @@
 
 * [#13712](https://github.com/netbox-community/netbox/issues/13712) - Fix row highlighting for device interface list display
 * [#13806](https://github.com/netbox-community/netbox/issues/13806) - Fix "mark" button tooltip on button activation for device interface list display
+* [#13922](https://github.com/netbox-community/netbox/issues/13922) - Fix SVG drawing error on multiple termination trace with multiple devices
+* [#14241](https://github.com/netbox-community/netbox/issues/14241) - Fix random interface swap when performing cable trace with multiple termination
 
 ---
 
