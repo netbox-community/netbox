@@ -1,7 +1,7 @@
 from django.test import TransactionTestCase
 
 from circuits.models import Provider, Circuit, CircuitType
-from dcim.models import Location
+from dcim.models import Location, Site
 from extras.choices import ChangeActionChoices
 from extras.models import Branch, StagedChange, Tag
 from ipam.models import ASN, RIR
@@ -13,6 +13,8 @@ class StagingTestCase(TransactionTestCase):
 
     def setUp(self):
         create_tags('Alpha', 'Bravo', 'Charlie')
+
+        Site.objects.create(name="Site 1", slug="site-1")
 
         rir = RIR.objects.create(name='RIR 1', slug='rir-1')
         asns = (
@@ -47,6 +49,7 @@ class StagingTestCase(TransactionTestCase):
         branch = Branch.objects.create(name='Branch 1')
         tags = Tag.objects.all()
         asns = ASN.objects.all()
+        site = Site.objects.first()
 
         with checkout(branch):
             provider = Provider.objects.create(name='Provider D', slug='provider-d')
@@ -55,7 +58,7 @@ class StagingTestCase(TransactionTestCase):
             circuit.tags.set(tags)
 
             # Test MPTT Model
-            location = Location.objects.create(name='Location 1', slug='location-1')
+            location = Location.objects.create(name='Location 1', slug='location-1', site=site)
 
             # Sanity-checking
             self.assertEqual(Provider.objects.count(), 4)
