@@ -70,7 +70,7 @@ class StagingTestCase(TransactionTestCase):
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Circuit.objects.count(), 9)
-        self.assertEqual(StagedChange.objects.count(), 5)
+        self.assertEqual(StagedChange.objects.count(), 6)
         self.assertEqual(Location.objects.count(), 0)
 
         # Verify that changes are replayed upon entering the context
