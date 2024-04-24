@@ -1,6 +1,7 @@
 from django.test import TransactionTestCase
 
 from circuits.models import Provider, Circuit, CircuitType
+from dcim.models import Location
 from extras.choices import ChangeActionChoices
 from extras.models import Branch, StagedChange, Tag
 from ipam.models import ASN, RIR
@@ -53,21 +54,27 @@ class StagingTestCase(TransactionTestCase):
             circuit = Circuit.objects.create(provider=provider, cid='Circuit D1', type=CircuitType.objects.first())
             circuit.tags.set(tags)
 
+            # Test MPTT Model
+            location = Location.objects.create(name='Location 1', slug='location-1')
+
             # Sanity-checking
             self.assertEqual(Provider.objects.count(), 4)
             self.assertListEqual(list(provider.asns.all()), list(asns))
             self.assertEqual(Circuit.objects.count(), 10)
             self.assertListEqual(list(circuit.tags.all()), list(tags))
+            self.assertEqual(Location.objects.count(), 1)
 
         # Verify that changes have been rolled back after exiting the context
         self.assertEqual(Provider.objects.count(), 3)
         self.assertEqual(Circuit.objects.count(), 9)
         self.assertEqual(StagedChange.objects.count(), 5)
+        self.assertEqual(Location.objects.count(), 0)
 
         # Verify that changes are replayed upon entering the context
         with checkout(branch):
             self.assertEqual(Provider.objects.count(), 4)
             self.assertEqual(Circuit.objects.count(), 10)
+            self.assertEqual(Location.objects.count(), 1)
             provider = Provider.objects.get(name='Provider D')
             self.assertListEqual(list(provider.asns.all()), list(asns))
             circuit = Circuit.objects.get(cid='Circuit D1')
@@ -82,6 +89,7 @@ class StagingTestCase(TransactionTestCase):
         circuit = Circuit.objects.get(cid='Circuit D1')
         self.assertListEqual(list(circuit.tags.all()), list(tags))
         self.assertEqual(StagedChange.objects.count(), 0)
+        self.assertEqual(Location.objects.count(), 1)
 
     def test_object_modification(self):
         branch = Branch.objects.create(name='Branch 1')

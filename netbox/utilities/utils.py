@@ -147,7 +147,7 @@ def count_related(model, field):
     return Coalesce(subquery, 0)
 
 
-def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
+def serialize_object(obj, resolve_tags=True, extra=None, exclude=None, mptt=False):
     """
     Return a generic JSON representation of an object using Django's built-in serializer. (This is used for things like
     change logging, not the REST API.) Optionally include a dictionary to supplement the object data. A list of keys
@@ -166,9 +166,10 @@ def serialize_object(obj, resolve_tags=True, extra=None, exclude=None):
     exclude = exclude or []
 
     # Exclude any MPTTModel fields
-    if issubclass(obj.__class__, MPTTModel):
-        for field in ['level', 'lft', 'rght', 'tree_id']:
-            data.pop(field)
+    if not mptt:
+        if issubclass(obj.__class__, MPTTModel):
+            for field in ['level', 'lft', 'rght', 'tree_id']:
+                data.pop(field)
 
     # Include custom_field_data as "custom_fields"
     if hasattr(obj, 'custom_field_data'):

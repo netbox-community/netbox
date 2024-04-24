@@ -116,7 +116,7 @@ class checkout:
         # Creating a new object
         if kwargs.get('created'):
             logger.debug(f"[{self.branch}] Staging creation of {object_type} {instance} (PK: {instance.pk})")
-            data = serialize_object(instance, resolve_tags=False)
+            data = serialize_object(instance, resolve_tags=False, mptt=True)
             self.queue[key] = (ChangeActionChoices.ACTION_CREATE, data)
             return
 
@@ -127,13 +127,13 @@ class checkout:
         # Object has already been created/updated in the queue; update its queued representation
         if key in self.queue:
             logger.debug(f"[{self.branch}] Updating staged value for {object_type} {instance} (PK: {instance.pk})")
-            data = serialize_object(instance, resolve_tags=False)
+            data = serialize_object(instance, resolve_tags=False, mptt=True)
             self.queue[key] = (self.queue[key][0], data)
             return
 
         # Modifying an existing object for the first time
         logger.debug(f"[{self.branch}] Staging changes to {object_type} {instance} (PK: {instance.pk})")
-        data = serialize_object(instance, resolve_tags=False)
+        data = serialize_object(instance, resolve_tags=False, mptt=True)
         self.queue[key] = (ChangeActionChoices.ACTION_UPDATE, data)
 
     def pre_delete_handler(self, sender, instance, **kwargs):
