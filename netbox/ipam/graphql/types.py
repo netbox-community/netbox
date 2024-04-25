@@ -133,7 +133,7 @@ class IPAddressType(NetBoxObjectType, BaseIPAddressFamilyType):
         Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
         Annotated["FHRPGroupType", strawberry.lazy('ipam.graphql.types')],
         Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')],
-    ], strawberry.union("IPAddressAssignmentType")]:
+    ], strawberry.union("IPAddressAssignmentType")] | None:
         return self.assigned_object
 
 
@@ -261,7 +261,7 @@ class VLANGroupType(OrganizationalObjectType):
         Annotated["RegionType", strawberry.lazy('dcim.graphql.types')],
         Annotated["SiteType", strawberry.lazy('dcim.graphql.types')],
         Annotated["SiteGroupType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("VLANGroupScopeType")]:
+    ], strawberry.union("VLANGroupScopeType")] | None:
         return self.scope
 
 

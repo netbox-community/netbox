@@ -469,6 +469,9 @@ class APIViewTestCases:
                 elif type(field.type) is StrawberryUnion:
                     # this would require a fragment query
                     continue
+                elif type(field.type) is StrawberryOptional and type(field.type.of_type) is StrawberryUnion:
+                    # this would require a fragment query
+                    continue
                 elif type(field.type) is StrawberryOptional and type(field.type.of_type) is LazyType:
                     fields_string += f'{field.name} {{ id }}\n'
                 elif hasattr(field, 'is_relation') and field.is_relation:
