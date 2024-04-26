@@ -8,6 +8,7 @@
 
 :root {
   // Light mode values
+  --nbx-trace-bg: var(--tblr-bg-surface-secondary);
   --nbx-trace-color: #{$black};
   --nbx-trace-node-bg: #{$gray-200};
   --nbx-trace-termination-bg: #{$gray-100};
@@ -16,6 +17,7 @@
 
   &[data-bs-theme='dark'] {
     // Dark mode values
+    --nbx-trace-bg: rgb(27, 41, 58);
     --nbx-trace-color: #{$white};
     --nbx-trace-node-bg: #{$gray-900};
     --nbx-trace-termination-bg: #{$gray-800};
@@ -44,6 +46,8 @@ text {
 }
 
 svg {
+  background-color: var(--nbx-trace-bg);
+
   /* Boxes */
   rect {
     fill: var(--nbx-trace-node-bg);
@@ -79,4 +83,3 @@ svg {
     stroke-dasharray: 5px;
   }
 }
-
