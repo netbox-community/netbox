@@ -8,9 +8,7 @@ def update_dashboard_widgets(apps, schema_editor):
 
     for dashboard in Dashboard.objects.all():
         for key, widget in dashboard.config.items():
-            breakpoint()
-            if 'models' in widget['config']:
-                models = widget['config']['models']
+            if models := widget['config'].get('models'):
                 models = list(map(lambda x: x.replace('users.netboxgroup', 'users.group'), models))
                 models = list(map(lambda x: x.replace('users.netboxuser', 'users.user'), models))
                 dashboard.config[key]['config']['models'] = models
