@@ -7,13 +7,8 @@ import {isTruthy} from "./util";
  */
 function handleSavedFilterChange(event: Event): void {
   const savedFilter = event.currentTarget as HTMLSelectElement;
-  const savedFilterLength = savedFilter.options.length;
   let baseUrl = savedFilter.baseURI.split("?")[0];
   let preFilter = "?";
-
-  if (savedFilterLength === 0) {
-    return;
-  }
 
   const selectedOptions = Array.from(savedFilter.options)
     .filter(option => option.selected)

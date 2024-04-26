@@ -14,10 +14,14 @@
     </div>
   </div>
 
-  <div class="col-3 d-print-none">
-    <span id="savedfilter">{{ filter_form.filter_id }}</span>
+
+  <div class="col-sm-auto d-print-none">
+    <label for="id_filter_id" class="my-1">{{ filter_form.filter_id.label }}</label>
   </div>
 
+  <div class="col-sm-auto d-print-none">
+    {{ filter_form.filter_id }}
+  </div>
 
   <div class="col-auto ms-auto d-print-none">
     {% if request.user.is_authenticated and table_modal %}
