@@ -26,7 +26,7 @@ class TunnelGroupView(GetRelatedModelsMixin, generic.ObjectView):
 
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(instance),
+            'related_models': self.get_related_models(request, instance),
         }
 
 

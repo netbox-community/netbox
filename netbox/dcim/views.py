@@ -464,7 +464,7 @@ class LocationView(GetRelatedModelsMixin, generic.ObjectView):
     def get_extra_context(self, request, instance):
         locations = instance.get_descendants(include_self=True)
         return {
-            'related_models': self.get_related_models(request, locations),
+            'related_models': self.get_related_models(request, locations, [CableTermination]),
         }
 
 
@@ -657,7 +657,7 @@ class RackView(GetRelatedModelsMixin, generic.ObjectView):
         ])
 
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(request, instance, [CableTermination]),
             'next_rack': next_rack,
             'prev_rack': prev_rack,
             'svg_extra': svg_extra,
