@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
@@ -5,10 +7,12 @@ from django.urls.exceptions import NoReverseMatch
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
+from utilities.utils import get_related_models
 from .permissions import resolve_permission
 
 __all__ = (
     'ContentTypePermissionRequiredMixin',
+    'GetRelatedModelsMixin',
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
     'ViewTab',
@@ -138,6 +142,51 @@ class GetReturnURLMixin:
 
         # If all else fails, return home. Ideally this should never happen.
         return reverse('home')
+
+
+class GetRelatedModelsMixin:
+    """
+    Provides logic for collecting all related models for the currently viewed model.
+    """
+
+    def get_extra_related_models(self, request, instance):
+        """
+        Get extra related models for `instance`, which extend `get_related_models`. Can be used to implement custom
+        lookups for nested and non-direct relationships.
+        """
+        return []
+
+    def get_related_models(self, request, instance, omit=[]):
+        """
+        Get related models of the view's `queryset` model without those listed in `omit`. Will be sorted alphabetical.
+
+        Args:
+            request: Current request being processed.
+            instance: The instance related models should be looked up for. A list of instances can be passed to match
+                related objects in this list (e.g. to find sites of a region including child regions).
+            omit: Remove relationships to these models from the result. Needs to be passed, if related models don't
+                provide a `_list` view.
+        """
+        model = self.queryset.model
+        related = filter(
+            lambda m: m[0] is not model and m[0] not in omit,
+            get_related_models(model, False)
+        )
+
+        related_models = [
+            (
+                model.objects.restrict(request.user, 'view').filter(**(
+                    {f'{field}__in': instance}
+                    if isinstance(instance, Iterable)
+                    else {field: instance}
+                )),
+                f'{field}_id'
+            )
+            for model, field in related
+        ]
+        related_models.extend(self.get_extra_related_models(request, instance))
+
+        return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
 
 
 class ViewTab:
