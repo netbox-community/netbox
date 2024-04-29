@@ -2,12 +2,22 @@
 
 ## v3.7.7 (FUTURE)
 
+### Enhancements
+
+* [#15428](https://github.com/netbox-community/netbox/issues/15428) - Show usage counts for associated objects on config template list
+* [#15812](https://github.com/netbox-community/netbox/issues/15812) - Add Date & DateTime variable types for custom scripts
+
 ### Bug Fixes
 
 * [#13712](https://github.com/netbox-community/netbox/issues/13712) - Fix row highlighting for device interface list display
 * [#13806](https://github.com/netbox-community/netbox/issues/13806) - Fix "mark" button tooltip on button activation for device interface list display
 * [#13922](https://github.com/netbox-community/netbox/issues/13922) - Fix SVG drawing error on multiple termination trace with multiple devices
 * [#14241](https://github.com/netbox-community/netbox/issues/14241) - Fix random interface swap when performing cable trace with multiple termination
+* [#14852](https://github.com/netbox-community/netbox/issues/14852) - Fix NoReverseMatch exception when viewing an event rule which references a deleted custom script
+* [#15524](https://github.com/netbox-community/netbox/issues/15524) - Fix rounding error when reporting IP range utilization
+* [#15548](https://github.com/netbox-community/netbox/issues/15548) - Ignore many-to-many mappings when checking dependencies of an object being deleted
+* [#15845](https://github.com/netbox-community/netbox/issues/15845) - Avoid extraneous database queries when fetching assigned IP addresses via REST API
+* [#15872](https://github.com/netbox-community/netbox/issues/15872) - `BANNER_MAINTENANCE` content should permit custom HTML
 
 ---
 
