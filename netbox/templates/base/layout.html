@@ -81,7 +81,7 @@ Blocks:
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
           <div class="alert alert-warning text-center mx-3" role="alert">
             <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
-            {{ config.BANNER_MAINTENANCE|escape }}
+            {{ config.BANNER_MAINTENANCE|safe }}
           </div>
         {% endif %}
 
