@@ -119,7 +119,7 @@ class IPRangeViewSet(NetBoxModelViewSet):
 
 class IPAddressViewSet(NetBoxModelViewSet):
     queryset = IPAddress.objects.prefetch_related(
-        'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object'
+        'vrf__tenant', 'tenant', 'nat_inside', 'nat_outside', 'tags', 'assigned_object', 'assigned_object_type'
     )
     serializer_class = serializers.IPAddressSerializer
     filterset_class = filtersets.IPAddressFilterSet
