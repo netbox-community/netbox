@@ -339,10 +339,14 @@ class ObjectDeleteView(GetReturnURLMixin, BaseObjectView):
 
         # Compile a mapping of models to instances
         dependent_objects = defaultdict(list)
-        for model, instance in collector.instances_with_model():
+        for model, instances in collector.instances_with_model():
+            # Ignore relations to auto-created models (e.g. many-to-many mappings)
+            if model._meta.auto_created:
+                continue
             # Omit the root object
-            if instance != obj:
-                dependent_objects[model].append(instance)
+            if instances == obj:
+                continue
+            dependent_objects[model].append(instances)
 
         return dict(dependent_objects)
 
