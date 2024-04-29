@@ -331,6 +331,12 @@ class ScriptVariablesTest(TestCase):
             var1 = DateVar()
             var2 = DateVar(required=False)
 
+        # Test date validation
+        data = {'var1': 'not a date'}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
         # Validate valid data
         input_date = date(2024, 4, 1)
         data = {'var1': input_date}
@@ -346,6 +352,12 @@ class ScriptVariablesTest(TestCase):
 
             var1 = DateTimeVar()
             var2 = DateTimeVar(required=False)
+
+        # Test datetime validation
+        data = {'var1': 'not a datetime'}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
 
         # Validate valid data
         input_datetime = datetime(2024, 4, 1, 8, 0, 0, 0, timezone.utc)

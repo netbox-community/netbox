@@ -287,11 +287,11 @@ An IPv4 or IPv6 network with a mask. Returns a `netaddr.IPNetwork` object. Two a
 
 ### DateVar
 
-A date. Returns a `datetime.date` object.
+A calendar date. Returns a `datetime.date` object.
 
 ### DateTimeVar
 
-A datetime. Returns a `datetime.datetime` object.
+A complete date & time. Returns a `datetime.datetime` object.
 
 ## Running Custom Scripts
 
