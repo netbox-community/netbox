@@ -54,8 +54,11 @@ def get_models_from_content_types(content_types):
     models = []
     for content_type_id in content_types:
         app_label, model_name = content_type_id.split('.')
-        content_type = ObjectType.objects.get_by_natural_key(app_label, model_name)
-        models.append(content_type.model_class())
+        try:
+            content_type = ObjectType.objects.get_by_natural_key(app_label, model_name)
+            models.append(content_type.model_class())
+        except ObjectType.DoesNotExist:
+            pass
     return models
 
 
