@@ -13,6 +13,7 @@ from core.choices import JobStatusChoices, ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
+from dcim.models import Device, DeviceRole, Platform
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
@@ -24,6 +25,7 @@ from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.utils import copy_safe_request, count_related, get_viewname, normalize_querydict, shallow_compare_dict
 from utilities.views import ContentTypePermissionRequiredMixin, register_model_view
+from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .forms.reports import ReportForm
 from .models import *
@@ -624,7 +626,12 @@ class ObjectConfigContextView(generic.ObjectView):
 #
 
 class ConfigTemplateListView(generic.ObjectListView):
-    queryset = ConfigTemplate.objects.all()
+    queryset = ConfigTemplate.objects.annotate(
+        device_count=count_related(Device, 'config_template'),
+        vm_count=count_related(VirtualMachine, 'config_template'),
+        role_count=count_related(DeviceRole, 'config_template'),
+        platform_count=count_related(Platform, 'config_template'),
+    )
     filterset = filtersets.ConfigTemplateFilterSet
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable

@@ -414,15 +414,35 @@ class ConfigTemplateTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'
     )
+    role_count = columns.LinkedCountColumn(
+        viewname='dcim:devicerole_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Device Roles')
+    )
+    platform_count = columns.LinkedCountColumn(
+        viewname='dcim:platform_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Platforms')
+    )
+    device_count = columns.LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Devices')
+    )
+    vm_count = columns.LinkedCountColumn(
+        viewname='virtualization:virtualmachine_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Virtual Machines')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
-            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
-            'tags',
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'role_count',
+            'platform_count', 'device_count', 'vm_count', 'created', 'last_updated', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'description', 'is_synced',
+            'pk', 'name', 'description', 'is_synced', 'device_count', 'vm_count',
         )
 
 
