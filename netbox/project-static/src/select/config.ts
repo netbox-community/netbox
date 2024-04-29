@@ -5,8 +5,6 @@ export const config = {
       html: (data: Dict) =>
         `<i class="mdi mdi-close-circle ${data.className}" title="${data.title}"></i>`,
     },
-    remove_button: {
-      title: "Remove this item",
-		},
+    remove_button: { title: 'Remove this item' },
   },
 };
