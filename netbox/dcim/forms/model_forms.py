@@ -13,8 +13,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import BootstrapMixin, add_blank_choice
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
-    NumericArrayField, SlugField,
+    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
 from virtualization.models import Cluster
@@ -617,13 +616,10 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
 
 
 def get_termination_type_choices():
-    return [
-        (None, '---------'),
-        *[
-            (f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
-            for ct in ContentType.objects.filter(CABLE_TERMINATION_MODELS)
-        ]
-    ]
+    return add_blank_choice([
+        (f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
+        for ct in ContentType.objects.filter(CABLE_TERMINATION_MODELS)
+    ])
 
 
 class CableForm(TenancyForm, NetBoxModelForm):

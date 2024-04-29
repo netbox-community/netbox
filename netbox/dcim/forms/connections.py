@@ -109,7 +109,7 @@ def get_cable_form(a_type, b_type):
             super().clean()
 
             # Set the A/B terminations on the Cable instance
-            self.instance.a_terminations = self.cleaned_data['a_terminations']
-            self.instance.b_terminations = self.cleaned_data['b_terminations']
+            self.instance.a_terminations = self.cleaned_data.get('a_terminations', [])
+            self.instance.b_terminations = self.cleaned_data.get('b_terminations', [])
 
     return _CableForm

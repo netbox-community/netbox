@@ -3201,18 +3201,17 @@ class CableEditView(generic.ObjectEditView):
         Hack into get_object() to set the form class when editing an existing Cable, since ObjectEditView
         doesn't currently provide a hook for dynamic class resolution.
         """
-        a_terminations_type = request.GET.get('a_terminations_type')
-        b_terminations_type = request.GET.get('b_terminations_type')
+        a_terminations_type = request.POST.get('a_terminations_type') or request.GET.get('a_terminations_type')
+        b_terminations_type = request.POST.get('b_terminations_type') or request.GET.get('b_terminations_type')
         if obj.pk:
-            # TODO: Optimize this logic
-            termination_a = obj.terminations.filter(cable_end='A').first()
-            a_type = termination_a.termination._meta.model if termination_a else (
-                CABLE_TERMINATION_TYPES.get(a_terminations_type)
-            )
-            termination_b = obj.terminations.filter(cable_end='B').first()
-            b_type = termination_b.termination._meta.model if termination_b else (
-                CABLE_TERMINATION_TYPES.get(b_terminations_type)
-            )
+            if not a_terminations_type and (termination_a := obj.terminations.filter(cable_end='A').first()):
+                a_type = termination_a.termination._meta.model
+            else:
+                a_type = CABLE_TERMINATION_TYPES.get(a_terminations_type)
+            if not b_terminations_type and (termination_b := obj.terminations.filter(cable_end='B').first()):
+                b_type = termination_b.termination._meta.model
+            else:
+                b_type = CABLE_TERMINATION_TYPES.get(b_terminations_type)
 
             self.form = forms.get_cable_form(a_type, b_type)
 
