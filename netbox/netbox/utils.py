@@ -37,6 +37,7 @@ def convert_byte_size(value, unit="mega"):
         "tera": 1024 ** 4,
     }
     if value:
+        # If the value is less than 6 digits, it understands the value is expressed according to the unit.
         if len(str(value)) < 6:
             return value
         value_converted = float(value) / factors[unit]

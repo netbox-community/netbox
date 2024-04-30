@@ -180,8 +180,8 @@ class ClusterView(generic.ObjectView):
         disk_sum = sum(vm_disk)
 
         extra_content = instance.virtual_machines.aggregate(vcpus_sum=Sum('vcpus'))
-        extra_content['memory_sum'] = f"{memory_sum:.0f}"
-        extra_content['disk_sum'] = f"{disk_sum:.0f}"
+        extra_content['memory_sum'] = f"{memory_sum:.2f}"
+        extra_content['disk_sum'] = f"{disk_sum:.2f}"
 
         return extra_content
 
