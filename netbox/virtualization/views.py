@@ -16,6 +16,7 @@ from extras.views import ObjectConfigContextView
 from ipam.models import IPAddress
 from ipam.tables import InterfaceVLANTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
+from netbox.utils import convert_byte_size
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.query import count_related
@@ -172,7 +173,17 @@ class ClusterView(generic.ObjectView):
     queryset = Cluster.objects.all()
 
     def get_extra_context(self, request, instance):
-        return instance.virtual_machines.aggregate(vcpus_sum=Sum('vcpus'), memory_sum=Sum('memory'), disk_sum=Sum('disk'))
+        vm_memory = [convert_byte_size(item.memory, 'mega') for item in instance.virtual_machines.all() if item.memory]
+        vm_disk = [convert_byte_size(item.disk, 'giga') for item in instance.virtual_machines.all() if item.disk]
+
+        memory_sum = sum(vm_memory)
+        disk_sum = sum(vm_disk)
+
+        extra_content = instance.virtual_machines.aggregate(vcpus_sum=Sum('vcpus'))
+        extra_content['memory_sum'] = f"{memory_sum:.0f}"
+        extra_content['disk_sum'] = f"{disk_sum:.0f}"
+
+        return extra_content
 
 
 @register_model_view(Cluster, 'virtualmachines', path='virtual-machines')
