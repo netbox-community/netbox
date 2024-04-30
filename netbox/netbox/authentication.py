@@ -333,7 +333,6 @@ try:
         user's membership.
         """
         target_group_names = frozenset(self._get_groups().get_group_names())
-        target_group_names = frozenset("testgroup",)
         current_group_names = frozenset(
             self._user.groups.values_list("name", flat=True).iterator()
         )
