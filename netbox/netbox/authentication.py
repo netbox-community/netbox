@@ -325,6 +325,8 @@ try:
                 permission_filter = permission_filter | Q(groups__name__in=user_obj.ldap_user.group_names)
             return permission_filter
 
+    # Monkey-patch _mirror_groups, code is from django-auth-ldap.backends._LDAPUser
+    # There are no changes to this routine, the 'fix' is the import of Group above.
     def _mirror_groups(self):
         """
         Mirrors the user's LDAP groups in the Django database and updates the
