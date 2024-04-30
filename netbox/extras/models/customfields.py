@@ -1,4 +1,5 @@
 import decimal
+import json
 import re
 from datetime import datetime, date
 
@@ -484,7 +485,7 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
 
         # JSON
         elif self.type == CustomFieldTypeChoices.TYPE_JSON:
-            field = JSONField(required=required, initial=initial)
+            field = JSONField(required=required, initial=json.dumps(initial) if initial else '')
 
         # Object
         elif self.type == CustomFieldTypeChoices.TYPE_OBJECT:
