@@ -3189,9 +3189,11 @@ class CableEditView(generic.ObjectEditView):
 
         # If creating a new Cable, initialize the form class using URL query params
         if 'pk' not in kwargs:
+            a_terminations_type = request.POST.get('a_terminations_type') or request.GET.get('a_terminations_type')
+            b_terminations_type = request.POST.get('b_terminations_type') or request.GET.get('b_terminations_type')
             self.form = forms.get_cable_form(
-                a_type=CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type')),
-                b_type=CABLE_TERMINATION_TYPES.get(request.GET.get('b_terminations_type'))
+                a_type=CABLE_TERMINATION_TYPES.get(a_terminations_type),
+                b_type=CABLE_TERMINATION_TYPES.get(b_terminations_type)
             )
 
         return super().dispatch(request, *args, **kwargs)
