@@ -141,6 +141,10 @@ export class APISelect {
   private queryUrl: string = '';
 
   /**
+   * Interal state variable used to remember search key entered by user for "Filter" search box
+  */
+  private searchKey: Nullable<string> = null;
+  /**
    * Scroll position of options is at the bottom of the list, or not. Used to determine if
    * additional options should be fetched from the API.
    */
@@ -359,30 +363,41 @@ export class APISelect {
     this.slim.enable();
   }
 
+  private setSearchKey(event: Event) {
+    const { value: q } = event.target as HTMLInputElement;
+    this.searchKey = q
+  }
+
   /**
    * Add event listeners to this element and its dependencies so that when dependencies change
    * this element's options are updated.
    */
   private addEventListeners(): void {
     // Create a debounced function to fetch options based on the search input value.
-    const fetcher = debounce((event: Event) => this.handleSearch(event), 300, false);
+    const fetcher = debounce((action:ApplyMethod, url: Nullable<string>) => this.handleSearch(action, url), 300, false);
 
     // Query the API when the input value changes or a value is pasted.
     this.slim.slim.search.input.addEventListener('keyup', event => {
       // Only search when necessary keys are pressed.
       if (!event.key.match(/^(Arrow|Enter|Tab).*/)) {
-        return fetcher(event);
+        this.setSearchKey(event);
+        return fetcher('replace', null);
       }
     });
-    this.slim.slim.search.input.addEventListener('paste', event => fetcher(event));
+    this.slim.slim.search.input.addEventListener('paste', event => {
+      this.setSearchKey(event);
+      return fetcher('replace', null);;
+});
 
     // Watch every scroll event to determine if the scroll position is at bottom.
     this.slim.slim.list.addEventListener('scroll', () => this.handleScroll());
 
     // When the scroll position is at bottom, fetch additional options.
-    this.base.addEventListener(`netbox.select.atbottom.${this.name}`, () =>
-      this.fetchOptions(this.more, 'merge'),
-    );
+    this.base.addEventListener(`netbox.select.atbottom.${this.name}`, () => {
+      if (this.more!=null) {
+        return fetcher('merge', this.more, )
+      }      
+    });
 
     // When the base select element is disabled or enabled, properly disable/enable this instance.
     this.base.addEventListener(`netbox.select.disabled.${this.name}`, event =>
@@ -551,6 +566,14 @@ export class APISelect {
     }
   }
 
+  private getUrl() {
+    var url = this.queryUrl
+    if (this.searchKey!=null) {
+      url = queryString.stringifyUrl({ url: this.queryUrl, query: { q : this.searchKey } })
+    }      
+    return url
+  }
+
   /**
    * Query the NetBox API for this element's options.
    */
@@ -559,21 +582,25 @@ export class APISelect {
       this.resetOptions();
       return;
     }
-    await this.fetchOptions(this.queryUrl, action);
+    const url = this.getUrl()
+    await this.fetchOptions(url, action);
   }
 
   /**
    * Query the API for a specific search pattern and add the results to the available options.
    */
-  private async handleSearch(event: Event) {
-    const { value: q } = event.target as HTMLInputElement;
-    const url = queryString.stringifyUrl({ url: this.queryUrl, query: { q } });
-    if (!url.includes(`{{`)) {
-      await this.fetchOptions(url, 'merge');
-      this.slim.data.search(q);
-      this.slim.render();
+  private async handleSearch(action: ApplyMethod = 'merge', url: Nullable<string> ) {
+    if (url==null) {
+      url = this.getUrl()
     }
-    return;
+    if (url.includes(`{{`)) {
+      return
+    }  
+    await this.fetchOptions(url, action);
+    if (this.searchKey!=null) {
+      this.slim.data.search(this.searchKey);
+    }    
+    this.slim.render();
   }
 
   /**
@@ -586,13 +613,11 @@ export class APISelect {
       Math.floor(this.slim.slim.list.scrollTop) + this.slim.slim.list.offsetHeight ===
       this.slim.slim.list.scrollHeight;
 
-    if (this.atBottom && !atBottom) {
-      this.atBottom = false;
+    this.atBottom = atBottom
+
+    if (this.atBottom) {
       this.base.dispatchEvent(this.bottomEvent);
-    } else if (!this.atBottom && atBottom) {
-      this.atBottom = true;
-      this.base.dispatchEvent(this.bottomEvent);
-    }
+    }    
   }
 
   /**
@@ -994,7 +1019,9 @@ export class APISelect {
         ['btn', 'btn-sm', 'btn-ghost-dark'],
         [createElement('i', null, ['mdi', 'mdi-reload'])],
       );
-      refreshButton.addEventListener('click', () => this.loadData());
+      // calling this.loadData() will prevent first page of returned items
+      // with non-null search key inplace not selectable
+      refreshButton.addEventListener('click', () => this.handleSearch('replace', null));
       refreshButton.type = 'button';
       this.slim.slim.search.container.appendChild(refreshButton);
     }
