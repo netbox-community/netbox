@@ -99,7 +99,7 @@ Blocks:
         {% endif %}
 
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-          {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|escape %}
+          {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|safe %}
         {% endif %}
         {# /Alerts #}
 

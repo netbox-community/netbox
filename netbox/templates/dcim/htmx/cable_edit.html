@@ -1,0 +1,92 @@
+{% load static %}
+{% load helpers %}
+{% load form_helpers %}
+{% load i18n %}
+
+
+{# A side termination #}
+<div class="field-group mb-5">
+  <div class="row">
+    <h5 class="col-9 offset-3">{% trans "A Side" %}</h5>
+  </div>
+  {% render_field form.a_terminations_type %}
+  {% if 'termination_a_device' in form.fields %}
+    {% render_field form.termination_a_device %}
+  {% endif %}
+  {% if 'termination_a_powerpanel' in form.fields %}
+    {% render_field form.termination_a_powerpanel %}
+  {% endif %}
+  {% if 'termination_a_circuit' in form.fields %}
+    {% render_field form.termination_a_circuit %}
+  {% endif %}
+  {% if 'a_terminations' in form.fields %}
+    {% render_field form.a_terminations %}
+  {% endif %}
+</div>
+
+{# B side termination #}
+<div class="field-group mb-5">
+  <div class="row">
+    <h5 class="col-9 offset-3">{% trans "B Side" %}</h5>
+  </div>
+  {% render_field form.b_terminations_type %}
+  {% if 'termination_b_device' in form.fields %}
+    {% render_field form.termination_b_device %}
+  {% endif %}
+  {% if 'termination_b_powerpanel' in form.fields %}
+    {% render_field form.termination_b_powerpanel %}
+  {% endif %}
+  {% if 'termination_b_circuit' in form.fields %}
+    {% render_field form.termination_b_circuit %}
+  {% endif %}
+  {% if 'b_terminations' in form.fields %}
+    {% render_field form.b_terminations %}
+  {% endif %}
+</div>
+
+{# Cable attributes #}
+<div class="field-group mb-5">
+  <div class="row">
+    <h5 class="col-9 offset-3">{% trans "Cable" %}</h5>
+  </div>
+  {% render_field form.status %}
+  {% render_field form.type %}
+  {% render_field form.label %}
+  {% render_field form.description %}
+  {% render_field form.color %}
+  <div class="row mb-3">
+    <label class="col-sm-3 col-form-label text-lg-end">{{ form.length.label }}</label>
+    <div class="col-md-5">
+      {{ form.length }}
+    </div>
+    <div class="col-md-4">
+      {{ form.length_unit }}
+    </div>
+    <div class="invalid-feedback"></div>
+  </div>
+  {% render_field form.tags %}
+</div>
+
+<div class="field-group mb-5">
+  <div class="row">
+    <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
+  </div>
+  {% render_field form.tenant_group %}
+  {% render_field form.tenant %}
+</div>
+
+{% if form.custom_fields %}
+  <div class="field-group mb-5">
+    <div class="row">
+      <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
+    </div>
+    {% render_custom_fields form %}
+  </div>
+{% endif %}
+
+{% if form.comments %}
+  <div class="field-group mb-5">
+    <h5 class="text-center">{% trans "Comments" %}</h5>
+    {% render_field form.comments %}
+  </div>
+{% endif %}
