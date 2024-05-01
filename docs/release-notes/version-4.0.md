@@ -93,25 +93,14 @@ The legacy admin user interface is now disabled by default, and the few remainin
 * [#15754](https://github.com/netbox-community/netbox/issues/15754) - Remove `is_staff` restriction on admin menu items
 * [#15764](https://github.com/netbox-community/netbox/issues/15764) - Increase maximum value of Device `vc_position` field
 
-### Bug Fixes (from Beta1)
+### Bug Fixes (from Beta2)
 
-* [#15580](https://github.com/netbox-community/netbox/issues/15580) - Fix rendering of modals with HTMX navigation enabled
-* [#15605](https://github.com/netbox-community/netbox/issues/15605) - Fix `ProgrammingError` exception when applying migrations to older databases
-* [#15613](https://github.com/netbox-community/netbox/issues/15613) - Restore the login button/user menu on mobile view
-* [#15616](https://github.com/netbox-community/netbox/issues/15616) - Fix button style for invalid custom links
-* [#15617](https://github.com/netbox-community/netbox/issues/15617) - Fix rack elevation styling under dark mode
-* [#15619](https://github.com/netbox-community/netbox/issues/15619) - Enforce a minimum width for progress bars
-* [#15636](https://github.com/netbox-community/netbox/issues/15636) - Fix filtering of attached images when viewing an object in the UI
-* [#15637](https://github.com/netbox-community/netbox/issues/15637) - Correct nonfunctional links within embedded tables when HTMX enabled
-* [#15638](https://github.com/netbox-community/netbox/issues/15638) - Correct parameter used to retrieve saved filters for a model
-* [#15641](https://github.com/netbox-community/netbox/issues/15641) - Fix adding/removing filters on the advanced object selector widget
-* [#15652](https://github.com/netbox-community/netbox/issues/15652) - Fix the display of error messages after attempting to delete an object
-* [#15671](https://github.com/netbox-community/netbox/issues/15671) - Fix `ValueError` exception when uploading a custom script
-* [#15695](https://github.com/netbox-community/netbox/issues/15695) - Fix `ForeignKeyViolation` exception when applying migration `users.0006_custom_group_model` on older databases
-* [#15698](https://github.com/netbox-community/netbox/issues/15698) - Fix ProgrammingError exception when applying the `users.0008_flip_objectpermission_assignments` migration to older databases
-* [#15760](https://github.com/netbox-community/netbox/issues/15760) - Permit breaking of long words for wrap within object attribute tables
-* [#15778](https://github.com/netbox-community/netbox/issues/15778) - Fix bulk edit/delete functionality when HTMX is enabled
-* [#15789](https://github.com/netbox-community/netbox/issues/15789) - Avoid AttributeError exception when attempting to view script results before job execution has completed
+* [#15809](https://github.com/netbox-community/netbox/issues/15809) - Fix GraphQL union support for nullable fields
+* [#15815](https://github.com/netbox-community/netbox/issues/15815) - Convert dashboard widgets referencing old user/group models
+* [#15826](https://github.com/netbox-community/netbox/issues/15826) - Update `EXEMPT_EXCLUDE_MODELS` to reference new user & group models
+* [#15838](https://github.com/netbox-community/netbox/issues/15838) - Fix AttributeError exception when rendering custom date fields
+* [#15853](https://github.com/netbox-community/netbox/issues/15853) - Correct background color for cable trace SVG images in dark mode
+* [#15855](https://github.com/netbox-community/netbox/issues/15855) - Fix AttributeError exception when creating an event rule tied to a custom script
 
 ### Other Changes
 
