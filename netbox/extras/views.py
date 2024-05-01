@@ -1042,7 +1042,7 @@ class ReportListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_report'
 
     def get(self, request):
-        report_modules = ReportModule.objects.restrict(request.user)
+        report_modules = ReportModule.objects.restrict(request.user).prefetch_related('data_source', 'data_file')
 
         return render(request, 'extras/report_list.html', {
             'model': ReportModule,
@@ -1217,7 +1217,7 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
-        script_modules = ScriptModule.objects.restrict(request.user)
+        script_modules = ScriptModule.objects.restrict(request.user).prefetch_related('data_source', 'data_file')
 
         return render(request, 'extras/script_list.html', {
             'model': ScriptModule,
