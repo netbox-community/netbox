@@ -24,6 +24,7 @@ from ipam.validators import MaxPrefixLengthValidator, MinPrefixLengthValidator, 
 from utilities.exceptions import AbortScript, AbortTransaction
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.widgets import DatePicker, DateTimePicker
 from .context_managers import event_tracking
 from .forms import ScriptForm
 
@@ -31,6 +32,8 @@ __all__ = (
     'BaseScript',
     'BooleanVar',
     'ChoiceVar',
+    'DateVar',
+    'DateTimeVar',
     'FileVar',
     'IntegerVar',
     'IPAddressVar',
@@ -170,6 +173,28 @@ class ChoiceVar(ScriptVariable):
 
         # Set field choices, adding a blank choice to avoid forced selections
         self.field_attrs['choices'] = add_blank_choice(choices)
+
+
+class DateVar(ScriptVariable):
+    """
+    A date.
+    """
+    form_field = forms.DateField
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_field.widget = DatePicker()
+
+
+class DateTimeVar(ScriptVariable):
+    """
+    A date and a time.
+    """
+    form_field = forms.DateTimeField
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.form_field.widget = DateTimePicker()
 
 
 class MultiChoiceVar(ScriptVariable):

@@ -2,6 +2,7 @@ import inspect
 import logging
 from functools import cached_property
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -41,8 +42,16 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     """
     objects = ScriptModuleManager()
 
+    event_rules = GenericRelation(
+        to='extras.EventRule',
+        content_type_field='action_object_type',
+        object_id_field='action_object_id',
+        for_concrete_model=False
+    )
+
     class Meta:
         proxy = True
+        ordering = ('file_root', 'file_path')
         verbose_name = _('script module')
         verbose_name_plural = _('script modules')
 

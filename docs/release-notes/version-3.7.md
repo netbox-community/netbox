@@ -1,6 +1,35 @@
 # NetBox v3.7
 
+## v3.7.7 (2024-05-01)
+
+### Enhancements
+
+* [#15428](https://github.com/netbox-community/netbox/issues/15428) - Show usage counts for associated objects on config template list
+* [#15812](https://github.com/netbox-community/netbox/issues/15812) - Add Date & DateTime variable types for custom scripts
+* [#15894](https://github.com/netbox-community/netbox/issues/15894) - Cache the generated API schema definition for shorter loading times
+
+### Bug Fixes
+
+* [#11460](https://github.com/netbox-community/netbox/issues/11460) - Fix AttributeError exception when editing a cable with only one end terminated
+* [#13712](https://github.com/netbox-community/netbox/issues/13712) - Fix row highlighting for device interface list display
+* [#13806](https://github.com/netbox-community/netbox/issues/13806) - Fix "mark" button tooltip on button activation for device interface list display
+* [#13922](https://github.com/netbox-community/netbox/issues/13922) - Fix SVG drawing error on multiple termination trace with multiple devices
+* [#14241](https://github.com/netbox-community/netbox/issues/14241) - Fix random interface swap when performing cable trace with multiple termination
+* [#14852](https://github.com/netbox-community/netbox/issues/14852) - Fix NoReverseMatch exception when viewing an event rule which references a deleted custom script
+* [#15524](https://github.com/netbox-community/netbox/issues/15524) - Fix rounding error when reporting IP range utilization
+* [#15548](https://github.com/netbox-community/netbox/issues/15548) - Ignore many-to-many mappings when checking dependencies of an object being deleted
+* [#15845](https://github.com/netbox-community/netbox/issues/15845) - Avoid extraneous database queries when fetching assigned IP addresses via REST API
+* [#15872](https://github.com/netbox-community/netbox/issues/15872) - `BANNER_MAINTENANCE` content should permit custom HTML
+* [#15891](https://github.com/netbox-community/netbox/issues/15891) - Ensure deterministic ordering for scripts & reports
+* [#15896](https://github.com/netbox-community/netbox/issues/15896) - Fix retention of default value when editing a custom JSON field
+* [#15899](https://github.com/netbox-community/netbox/issues/15899) - Fix exception when enabling the tags column on the L2VPN terminations table
+
+---
+
 ## v3.7.6 (2024-04-22)
+
+!!! warning
+    If remote authentication is in use with Gunicorn v22.0 or later, it may be necessary to configure Gunicorn's [`header_map`](https://docs.gunicorn.org/en/stable/settings.html#header-map) setting to preserve authentication headers.
 
 ### Enhancements
 
