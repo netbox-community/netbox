@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.models import Circuit, CircuitTermination
@@ -82,14 +83,22 @@ def get_cable_form(a_type, b_type):
 
     class _CableForm(CableForm, metaclass=FormMetaclass):
 
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, initial=None, **kwargs):
+
+            initial = initial or {}
+            if a_type:
+                ct = ContentType.objects.get_for_model(a_type)
+                initial['a_terminations_type'] = f'{ct.app_label}.{ct.model}'
+            if b_type:
+                ct = ContentType.objects.get_for_model(b_type)
+                initial['b_terminations_type'] = f'{ct.app_label}.{ct.model}'
 
             # TODO: Temporary hack to work around list handling limitations with utils.normalize_querydict()
             for field_name in ('a_terminations', 'b_terminations'):
-                if field_name in kwargs.get('initial', {}) and type(kwargs['initial'][field_name]) is not list:
-                    kwargs['initial'][field_name] = [kwargs['initial'][field_name]]
+                if field_name in initial and type(initial[field_name]) is not list:
+                    initial[field_name] = [initial[field_name]]
 
-            super().__init__(*args, **kwargs)
+            super().__init__(*args, initial=initial, **kwargs)
 
             if self.instance and self.instance.pk:
                 # Initialize A/B terminations when modifying an existing Cable instance
@@ -100,7 +109,7 @@ def get_cable_form(a_type, b_type):
             super().clean()
 
             # Set the A/B terminations on the Cable instance
-            self.instance.a_terminations = self.cleaned_data['a_terminations']
-            self.instance.b_terminations = self.cleaned_data['b_terminations']
+            self.instance.a_terminations = self.cleaned_data.get('a_terminations', [])
+            self.instance.b_terminations = self.cleaned_data.get('b_terminations', [])
 
     return _CableForm
