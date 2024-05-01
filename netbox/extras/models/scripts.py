@@ -51,6 +51,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     class Meta:
         proxy = True
+        ordering = ('file_root', 'file_path')
         verbose_name = _('script module')
         verbose_name_plural = _('script modules')
 

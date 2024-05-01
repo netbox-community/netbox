@@ -43,6 +43,7 @@ class ReportModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     class Meta:
         proxy = True
+        ordering = ('file_root', 'file_path')
         verbose_name = _('report module')
         verbose_name_plural = _('report modules')
 
