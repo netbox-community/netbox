@@ -1,3 +1,4 @@
+import logging
 import uuid
 from functools import cached_property
 from hashlib import sha256
@@ -32,6 +33,8 @@ __all__ = (
     'WidgetConfigForm',
 )
 
+logger = logging.getLogger('netbox.data_backends')
+
 
 def get_object_type_choices():
     return [
@@ -54,8 +57,15 @@ def get_models_from_content_types(content_types):
     models = []
     for content_type_id in content_types:
         app_label, model_name = content_type_id.split('.')
-        content_type = ObjectType.objects.get_by_natural_key(app_label, model_name)
-        models.append(content_type.model_class())
+        try:
+            content_type = ObjectType.objects.get_by_natural_key(app_label, model_name)
+            if content_type.model_class():
+                models.append(content_type.model_class())
+            else:
+                logger.debug(f"Dashboard Widget model_class not found: {app_label}:{model_name}")
+        except ObjectType.DoesNotExist:
+            logger.debug(f"Dashboard Widget ObjectType not found: {app_label}:{model_name}")
+
     return models
 
 
