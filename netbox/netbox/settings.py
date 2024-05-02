@@ -370,7 +370,7 @@ if not DJANGO_ADMIN_ENABLED:
 
 # Middleware
 MIDDLEWARE = [
-    # "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
+    "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
     'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
