@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from users.constants import CONSTRAINT_TOKEN_USER
-from users.models import ObjectPermission
+from users.models import Group, ObjectPermission
 from utilities.permissions import (
     permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_type,
 )
@@ -315,7 +315,7 @@ class RemoteUserBackend(_RemoteUserBackend):
 # Create a new instance of django-auth-ldap's LDAPBackend with our own ObjectPermissions
 try:
     from django_auth_ldap.backend import _LDAPUser, LDAPBackend as LDAPBackend_
-    from users.models import Group
+    from .misc import _mirror_groups
 
     class NBLDAPBackend(ObjectPermissionMixin, LDAPBackend_):
         def get_permission_filter(self, user_obj):
