@@ -4,11 +4,15 @@
 {% load i18n %}
 
 {% comment %}
+Blocks:
+  - title:      Page title
+  - content:    Primary page content
+
 Context:
-  object: Python instance of the object being deleted
-  form: The delete confirmation form
-  form_url: URL for form submission (optional; defaults to current path)
-  return_url: The URL to which the user is redirected after submitting the form
+  - object:      Python instance of the object being deleted
+  - form:        The delete confirmation form
+  - form_url:    URL for form submission (optional; defaults to current path)
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}
