@@ -4,6 +4,20 @@
 {% load render_table from django_tables2 %}
 {% load i18n %}
 
+{% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
+Context:
+  - form:               The object creation form
+  - parent_model_name:  The name of the model to which the new component belongs
+  - model_name:         The name of the component model
+  - table:              The table of newly-created component objects
+  - return_url:         The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
 {% block title %}
   {% trans "Add" %} {{ model_name|title }}
 {% endblock %}

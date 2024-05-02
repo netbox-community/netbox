@@ -3,6 +3,20 @@
 {% load render_table from django_tables2 %}
 {% load i18n %}
 
+{% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
+Context:
+  - form:              The bulk edit form class
+  - parent_obj:        The parent object
+  - table:             A table of objects being removed
+  - obj_type_plural:   The plural form of the object type
+  - return_url:        The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
 {% block title %}
   {% trans "Remove" %} {{ table.rows|length }} {{ obj_type_plural|bettertitle }}?
 {% endblock %}

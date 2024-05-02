@@ -2,6 +2,27 @@
 {% load helpers %}
 {% load i18n %}
 
+{% comment %}
+Blocks:
+  - content:                   Primary page content
+    - table_controls:          Control elements for the child objects table
+    - bulk_controls:           Bulk action buttons which appear beneath the child objects table
+      - bulk_edit_controls:    Bulk edit buttons
+      - bulk_delete_controls:  Bulk delete buttons
+      - bulk_extra_controls:   Other bulk action buttons
+  - modals:                    Any pre-loaded modals
+
+Context:
+  - base_template:  The template which this template extends
+  - object:         The parent object
+  - child_model:    The model of child objects being displayed
+  - table:          The table containing child objects
+  - table_config:   The ID of the table configuration modal
+  - actions:        A list of enabled bulk actions
+  - tab:            The currently active tab
+  - return_url:     The URL to which the user is redirected after performing a bulk action
+{% endcomment %}
+
 {% block content %}
     {% block table_controls %}
         {% include 'inc/table_controls_htmx.html' with table_modal=table_config %}

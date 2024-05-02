@@ -3,13 +3,18 @@
 
 {% comment %}
 Blocks:
-  form: Content within the <form> element
-  buttons: Form submission buttons
+  - title:      Page title
+  - controls:   Control elements displayed between the header and content
+  - tabs:       Page tabs
+  - content:    Primary page content
+    - form:     Content within the <form> element
+    - buttons:  Form submission buttons
+  - modals:     Any pre-loaded modals
 
 Context:
-  object: Python instance of the object being edited
-  form: The edit form
-  return_url: The URL to which the user is redirected after submitting the form
+  - object:      Python instance of the object being edited
+  - form:        The edit form
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}
