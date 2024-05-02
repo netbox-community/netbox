@@ -118,7 +118,7 @@ def process_event_rules(event_rules, model_name, event, data, username=None, sna
             # Enqueue a Job to record the script's execution
             Job.enqueue(
                 "extras.scripts.run_script",
-                instance=script.module,
+                instance=event_rule.action_object,
                 name=script.name,
                 user=user,
                 data=data

@@ -65,9 +65,8 @@ function handleColorModeToggle(): void {
 function defaultColorMode(): void {
   // Get the current color mode value from local storage.
   const currentValue = localStorage.getItem(COLOR_MODE_KEY) as Nullable<ColorMode>;
-  const serverValue = document.documentElement.getAttribute(`data-${COLOR_MODE_KEY}`);
 
-  if (isTruthy(serverValue) && isTruthy(currentValue)) {
+  if (isTruthy(currentValue)) {
     return setColorMode(currentValue);
   }
 
@@ -81,7 +80,7 @@ function defaultColorMode(): void {
     }
   }
 
-  if (isTruthy(currentValue) && !isTruthy(serverValue) && isColorMode(currentValue)) {
+  if (isTruthy(currentValue) && isColorMode(currentValue)) {
     return setColorMode(currentValue);
   }
 

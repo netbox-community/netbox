@@ -3177,34 +3177,29 @@ class CableView(generic.ObjectView):
 class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
     template_name = 'dcim/cable_edit.html'
+    htmx_template_name = 'dcim/htmx/cable_edit.html'
 
-    def dispatch(self, request, *args, **kwargs):
-
-        # If creating a new Cable, initialize the form class using URL query params
-        if 'pk' not in kwargs:
-            self.form = forms.get_cable_form(
-                a_type=CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type')),
-                b_type=CABLE_TERMINATION_TYPES.get(request.GET.get('b_terminations_type'))
-            )
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_object(self, **kwargs):
+    def alter_object(self, obj, request, url_args, url_kwargs):
         """
-        Hack into get_object() to set the form class when editing an existing Cable, since ObjectEditView
+        Hack into alter_object() to set the form class when editing an existing Cable, since ObjectEditView
         doesn't currently provide a hook for dynamic class resolution.
         """
-        obj = super().get_object(**kwargs)
+        a_terminations_type = CABLE_TERMINATION_TYPES.get(
+            request.GET.get('a_terminations_type') or request.POST.get('a_terminations_type')
+        )
+        b_terminations_type = CABLE_TERMINATION_TYPES.get(
+            request.GET.get('b_terminations_type') or request.POST.get('b_terminations_type')
+        )
 
         if obj.pk:
-            # TODO: Optimize this logic
-            termination_a = obj.terminations.filter(cable_end='A').first()
-            a_type = termination_a.termination._meta.model if termination_a else None
-            termination_b = obj.terminations.filter(cable_end='B').first()
-            b_type = termination_b.termination._meta.model if termination_b else None
-            self.form = forms.get_cable_form(a_type, b_type)
+            if not a_terminations_type and (termination_a := obj.terminations.filter(cable_end='A').first()):
+                a_terminations_type = termination_a.termination._meta.model
+            if not b_terminations_type and (termination_b := obj.terminations.filter(cable_end='B').first()):
+                b_terminations_type = termination_b.termination._meta.model
 
-        return obj
+        self.form = forms.get_cable_form(a_terminations_type, b_terminations_type)
+
+        return super().alter_object(obj, request, url_args, url_kwargs)
 
     def get_extra_addanother_params(self, request):
 

@@ -628,14 +628,33 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
             self.fields['adopt_components'].disabled = True
 
 
+def get_termination_type_choices():
+    return add_blank_choice([
+        (f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
+        for ct in ContentType.objects.filter(CABLE_TERMINATION_MODELS)
+    ])
+
+
 class CableForm(TenancyForm, NetBoxModelForm):
+    a_terminations_type = forms.ChoiceField(
+        choices=get_termination_type_choices,
+        required=False,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
+    b_terminations_type = forms.ChoiceField(
+        choices=get_termination_type_choices,
+        required=False,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
     comments = CommentField()
 
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'description',
-            'comments', 'tags',
+            'a_terminations_type', 'b_terminations_type', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
+            'length', 'length_unit', 'description', 'comments', 'tags',
         ]
         error_messages = {
             'length': {
