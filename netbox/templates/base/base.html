@@ -8,9 +8,6 @@
   lang="en"
   data-netbox-url-name="{{ request.resolver_match.url_name }}"
   data-netbox-base-path="{{ settings.BASE_PATH }}"
-  {% with preferences|get_key:'ui.colormode' as color_mode %}
-    data-netbox-color-mode="{{ color_mode|default:"unset" }}"
-  {% endwith %}
   >
   <head>
     <meta charset="UTF-8" />

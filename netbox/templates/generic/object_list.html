@@ -43,7 +43,8 @@ Context:
   <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
       <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        {% trans "Results" %} {% badge table.page.paginator.count %}
+        {% trans "Results" %}
+        <span class="badge text-bg-secondary total-object-count">{{ table.page.paginator.count }}</span>
       </a>
     </li>
     {% if filter_form %}
@@ -88,8 +89,8 @@ Context:
                 <div class="form-check">
                   <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
                   <label for="select-all" class="form-check-label">
-                    {% blocktrans trimmed with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
-                      Select <strong>all {{ count }} {{ object_type_plural }}</strong> matching query
+                    {% blocktrans trimmed with count=table.page.paginator.count object_type_plural=table.data.verbose_name_plural %}
+                      Select <strong>all <span class="total-object-count">{{ count }}</span> {{ object_type_plural }}</strong> matching query
                     {% endblocktrans %}
                   </label>
                 </div>

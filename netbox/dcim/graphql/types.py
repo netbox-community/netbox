@@ -130,7 +130,7 @@ class CableTerminationType(NetBoxObjectType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("CableTerminationTerminationType")]
+    ], strawberry.union("CableTerminationTerminationType")] | None
 
 
 @strawberry_django.type(
@@ -302,7 +302,7 @@ class InventoryItemTemplateType(ComponentTemplateType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemTemplateComponentType")]
+    ], strawberry.union("InventoryItemTemplateComponentType")] | None
 
 
 @strawberry_django.type(
@@ -431,7 +431,7 @@ class InventoryItemType(ComponentType):
         Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
         Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
         Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
-    ], strawberry.union("InventoryItemComponentType")]
+    ], strawberry.union("InventoryItemComponentType")] | None
 
 
 @strawberry_django.type(

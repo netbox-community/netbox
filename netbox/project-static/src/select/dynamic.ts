@@ -1,7 +1,7 @@
 import { TomOption } from 'tom-select/src/types';
 import { escape_html } from 'tom-select/src/utils';
 import { DynamicTomSelect } from './classes/dynamicTomSelect';
-import { config } from './config';
+import { getPlugins } from './config';
 import { getElements } from '../util';
 
 const VALUE_FIELD = 'id';
@@ -44,7 +44,7 @@ function renderItem(data: TomOption, escape: typeof escape_html) {
 export function initDynamicSelects(): void {
   for (const select of getElements<HTMLSelectElement>('select.api-select:not(.tomselected)')) {
     new DynamicTomSelect(select, {
-      ...config,
+      ...getPlugins(select),
       valueField: VALUE_FIELD,
       labelField: LABEL_FIELD,
       maxOptions: MAX_OPTIONS,

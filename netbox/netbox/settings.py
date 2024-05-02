@@ -477,11 +477,11 @@ SERIALIZATION_MODULES = {
 # Exclude potentially sensitive models from wildcard view exemption. These may still be exempted
 # by specifying the model individually in the EXEMPT_VIEW_PERMISSIONS configuration parameter.
 EXEMPT_EXCLUDE_MODELS = (
-    ('auth', 'group'),
-    ('auth', 'user'),
     ('extras', 'configrevision'),
+    ('users', 'group'),
     ('users', 'objectpermission'),
     ('users', 'token'),
+    ('users', 'user'),
 )
 
 # All URLs starting with a string listed here are exempt from login enforcement

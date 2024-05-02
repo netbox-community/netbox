@@ -74,7 +74,7 @@ class L2VPNTerminationTable(NetBoxTable):
         verbose_name=_('Object Site')
     )
     tags = columns.TagColumn(
-        url_name='ipam:l2vpntermination_list'
+        url_name='vpn:l2vpntermination_list'
     )
 
     class Meta(NetBoxTable.Meta):

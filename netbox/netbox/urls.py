@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.conf.urls import include
 from django.urls import path
+from django.views.decorators.cache import cache_page
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
@@ -10,7 +11,6 @@ from netbox.graphql.schema import schema
 from netbox.graphql.views import NetBoxGraphQLView
 from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
 from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
-from strawberry.django.views import GraphQLView
 
 _patterns = [
 
@@ -55,7 +55,13 @@ _patterns = [
     path('api/wireless/', include('wireless.api.urls')),
     path('api/status/', StatusView.as_view(), name='api-status'),
 
-    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path(
+        "api/schema/",
+        cache_page(timeout=86400, key_prefix=f"api_schema_{settings.VERSION}")(
+            SpectacularAPIView.as_view()
+        ),
+        name="schema",
+    ),
     path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='api_docs'),
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='api_redocs'),
 

@@ -62,7 +62,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
-            'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.colormode', 'ui.htmx_navigation',
+            'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.htmx_navigation',
             name=_('User Interface')
         ),
         FieldSet('data_format', name=_('Miscellaneous')),

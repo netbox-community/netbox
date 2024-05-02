@@ -11,3 +11,6 @@
     {% include 'inc/paginator.html' with htmx=True table=table paginator=table.paginator page=table.page %}
   {% endif %}
 {% endwith %}
+
+{# Include the updated object count for display elsewhere on the page #}
+<div hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
