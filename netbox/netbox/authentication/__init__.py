@@ -315,7 +315,6 @@ class RemoteUserBackend(_RemoteUserBackend):
 # Create a new instance of django-auth-ldap's LDAPBackend with our own ObjectPermissions
 try:
     from django_auth_ldap.backend import _LDAPUser, LDAPBackend as LDAPBackend_
-    from .misc import _mirror_groups
 
     class NBLDAPBackend(ObjectPermissionMixin, LDAPBackend_):
         def get_permission_filter(self, user_obj):
