@@ -10,10 +10,11 @@ from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
 
 from users.constants import CONSTRAINT_TOKEN_USER
-from users.models import Group, ObjectPermission
+from users.models import ObjectPermission
 from utilities.permissions import (
     permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_type,
 )
+from .misc import _mirror_groups
 
 UserModel = get_user_model()
 
@@ -325,48 +326,7 @@ try:
                 permission_filter = permission_filter | Q(groups__name__in=user_obj.ldap_user.group_names)
             return permission_filter
 
-    # Monkey-patch _mirror_groups, code is from django-auth-ldap.backends._LDAPUser
-    # There are no changes to this routine, the 'fix' is the import of Group above.
-    def _mirror_groups(self):
-        """
-        Mirrors the user's LDAP groups in the Django database and updates the
-        user's membership.
-        """
-        target_group_names = frozenset(self._get_groups().get_group_names())
-        current_group_names = frozenset(
-            self._user.groups.values_list("name", flat=True).iterator()
-        )
-
-        # These were normalized to sets above.
-        MIRROR_GROUPS_EXCEPT = self.settings.MIRROR_GROUPS_EXCEPT
-        MIRROR_GROUPS = self.settings.MIRROR_GROUPS
-
-        # If the settings are white- or black-listing groups, we'll update
-        # target_group_names such that we won't modify the membership of groups
-        # beyond our purview.
-        if isinstance(MIRROR_GROUPS_EXCEPT, (set, frozenset)):
-            target_group_names = (target_group_names - MIRROR_GROUPS_EXCEPT) | (
-                current_group_names & MIRROR_GROUPS_EXCEPT
-            )
-        elif isinstance(MIRROR_GROUPS, (set, frozenset)):
-            target_group_names = (target_group_names & MIRROR_GROUPS) | (
-                current_group_names - MIRROR_GROUPS
-            )
-
-        if target_group_names != current_group_names:
-            existing_groups = list(
-                Group.objects.filter(name__in=target_group_names).iterator()
-            )
-            existing_group_names = frozenset(group.name for group in existing_groups)
-
-            new_groups = [
-                Group.objects.get_or_create(name=name)[0]
-                for name in target_group_names
-                if name not in existing_group_names
-            ]
-
-            self._user.groups.set(existing_groups + new_groups)
-
+    # Patch with our modified _mirror_groups() method to support our custom Group model
     _LDAPUser._mirror_groups = _mirror_groups
 
 except ModuleNotFoundError:
