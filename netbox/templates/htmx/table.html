@@ -13,4 +13,4 @@
 {% endwith %}
 
 {# Include the updated object count for display elsewhere on the page #}
-<div hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
+<div class="d-none" hx-swap-oob="innerHTML:.total-object-count">{{ table.rows|length }}</div>
