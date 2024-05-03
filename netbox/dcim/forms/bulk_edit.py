@@ -1411,9 +1411,9 @@ class InterfaceBulkEditForm(
             device = Device.objects.filter(pk=self.initial['device']).first()
 
             # Restrict parent/bridge/LAG interface assignment by device
-            self.fields['parent'].widget.add_query_param('device_id', device.pk)
-            self.fields['bridge'].widget.add_query_param('device_id', device.pk)
-            self.fields['lag'].widget.add_query_param('device_id', device.pk)
+            self.fields['parent'].widget.add_query_param('virtual_chassis_member_id', device.pk)
+            self.fields['bridge'].widget.add_query_param('virtual_chassis_member_id', device.pk)
+            self.fields['lag'].widget.add_query_param('virtual_chassis_member_id', device.pk)
 
             # Limit VLAN choices by device
             self.fields['untagged_vlan'].widget.add_query_param('available_on_device', device.pk)
