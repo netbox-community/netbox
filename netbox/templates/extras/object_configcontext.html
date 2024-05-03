@@ -9,10 +9,10 @@
             <div class="card">
                 <h5 class="card-header d-flex justify-content-between">
                     {% trans "Rendered Context" %}
-                    {% include 'extras/inc/configcontext_format.html' %}
+                    {% include 'extras/inc/configcontext_format.html' with copyid="rendered_context" %}
                 </h5>
                 <div class="card-body">
-                    {% include 'extras/inc/configcontext_data.html' with data=rendered_context format=format %}
+                    {% include 'extras/inc/configcontext_data.html' with data=rendered_context format=format copyid="rendered_context" %}
                 </div>
             </div>
         </div>
