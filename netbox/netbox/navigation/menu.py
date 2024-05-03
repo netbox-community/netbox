@@ -421,26 +421,16 @@ ADMIN_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Configuration'),
-            items=(
-                MenuItem(
-                    link='core:config',
-                    link_text=_('Current Config'),
-                    permissions=['core.view_configrevision']
-                ),
-                MenuItem(
-                    link='core:configrevision_list',
-                    link_text=_('Config Revisions'),
-                    permissions=['core.view_configrevision']
-                ),
-            ),
-        ),
-        MenuGroup(
             label=_('System'),
             items=(
                 MenuItem(
-                    link='core:plugin_list',
-                    link_text=_('Plugins')
+                    link='core:system',
+                    link_text=_('System')
+                ),
+                MenuItem(
+                    link='core:configrevision_list',
+                    link_text=_('Configuration History'),
+                    permissions=['core.view_configrevision']
                 ),
                 MenuItem(
                     link='core:background_queue_list',
