@@ -4,7 +4,7 @@
 
 {% with preferences|get_key:"pagination.placement" as paginator_placement %}
   {% if paginator_placement == 'top' or paginator_placement == 'both' %}
-    {% include 'inc/paginator.html' with htmx=True table=table paginator=table.paginator page=table.page %}
+    {% include 'inc/paginator.html' with htmx=True table=table paginator=table.paginator page=table.page placement='top' %}
   {% endif %}
   {% render_table table 'inc/table_htmx.html' %}
   {% if paginator_placement != 'top' %}
