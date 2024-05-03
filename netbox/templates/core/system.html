@@ -6,6 +6,12 @@
 
 {% block title %}{% trans "System" %}{% endblock %}
 
+{% block controls %}
+  <a href="?export=true" class="btn btn-purple">
+    <i class="mdi mdi-download"></i> {% trans "Export" %}
+  </a>
+{% endblock controls %}
+
 {% block tabs %}
   <ul class="nav nav-tabs px-3">
     <li class="nav-item" role="presentation">

@@ -1,3 +1,4 @@
+import json
 import platform
 
 from django import __version__ as DJANGO_VERSION
@@ -7,7 +8,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
 from django.db import connection, ProgrammingError
-from django.http import HttpResponseForbidden, Http404
+from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -25,7 +26,6 @@ from rq.worker import Worker
 from rq.worker_registration import clean_worker_registry
 
 from netbox.config import get_config, PARAMS
-from netbox.plugins.utils import get_installed_plugins
 from netbox.views import generic
 from netbox.views.generic.base import BaseObjectView
 from netbox.views.generic.mixins import TableMixin
@@ -553,8 +553,6 @@ class SystemView(UserPassesTestMixin, View):
             # Look up app config by package name
             apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
         ]
-        plugins_table = tables.PluginTable(plugins, orderable=False)
-        plugins_table.configure(request)
 
         # Configuration
         try:
@@ -562,6 +560,24 @@ class SystemView(UserPassesTestMixin, View):
         except ConfigRevision.DoesNotExist:
             # Fall back to using the active config data if no record is found
             config = ConfigRevision(data=get_config().defaults)
+
+        # Raw data export
+        if 'export' in request.GET:
+            data = {
+                **stats,
+                'plugins': {
+                    plugin.name: plugin.version for plugin in plugins
+                },
+                'config': {
+                    k: config.data[k] for k in sorted(config.data)
+                },
+            }
+            response = HttpResponse(json.dumps(data, indent=4), content_type='text/json')
+            response['Content-Disposition'] = 'attachment; filename="netbox.json"'
+            return response
+
+        plugins_table = tables.PluginTable(plugins, orderable=False)
+        plugins_table.configure(request)
 
         return render(request, 'core/system.html', {
             'stats': stats,
