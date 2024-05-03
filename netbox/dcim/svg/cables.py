@@ -223,7 +223,7 @@ class CableTraceSVG:
         nodes_height = 0
         nodes = []
         # Sort them by name to make renders more readable
-        for i, term in enumerate(sorted(terminations, key=lambda x: x.name)):
+        for i, term in enumerate(sorted(terminations, key=lambda x: str(x))):
             node = Node(
                 position=(offset_x + i * width, self.cursor),
                 width=width,
@@ -266,7 +266,7 @@ class CableTraceSVG:
         Draw the far-end objects and its terminations and return all created nodes
         """
         # Make sure elements are sorted by name for readability
-        objects = sorted(obj_list, key=lambda x: x.name)
+        objects = sorted(obj_list, key=lambda x: str(x))
         width = self.width / len(objects)
 
         # Max-height of created terminations
@@ -361,7 +361,8 @@ class CableTraceSVG:
             # Connector (a Cable or WirelessLink)
             if links:
 
-                parent_object_nodes, far_terminations = self.draw_far_objects(set(end.parent_object for end in far_ends), far_ends)
+                obj_list = {end.parent_object for end in far_ends}
+                parent_object_nodes, far_terminations = self.draw_far_objects(obj_list, far_ends)
                 for cable in links:
                     # Fill in labels and description with all available data
                     description = [
