@@ -138,29 +138,41 @@ Any additional apps must be installed within the same Python environment as NetB
 
 ## Create setup.py
 
-`setup.py` is the [setup script](https://docs.python.org/3.8/distutils/setupscript.html) used to package and install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
+`pyproject.toml` is the [configuration file](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) used to package and install our plugin once it's finished. The primary function of this script is to call the build system to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `pyproject.toml` is below:
 
-```python
-from setuptools import find_packages, setup
+```
+# See PEP 518 for the spec of this file
+# https://www.python.org/dev/peps/pep-0518/
 
-setup(
-    name='my-example-plugin',
-    version='0.1',
-    description='An example NetBox plugin',
-    url='https://github.com/jeremystretch/my-example-plugin',
-    author='Jeremy Stretch',
-    license='Apache 2.0',
-    install_requires=[],
-    packages=find_packages(),
-    include_package_data=True,
-    zip_safe=False,
-)
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name =  "my-example-plugin"
+version = "0.1.4"
+authors = [
+    {name = "Jeremy Stretch", email = "test@netboxlabs.com"},
+]
+description = "An example NetBox plugin."
+readme = "README.md"
+
+classifiers=[
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    "Programming Language :: Python :: 3 :: Only",
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+]
+
+requires-python = ">=3.8.1"
+
 ```
 
-Many of these are self-explanatory, but for more information, see the [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html).
-
-!!! info
-    `zip_safe=False` is **required** as the current plugin iteration is not zip safe due to upstream python issue [issue19699](https://bugs.python.org/issue19699)  
+Many of these are self-explanatory, but for more information, see the [pyproject.toml documentation](https://packaging.python.org/en/latest/specifications/pyproject-toml/).
 
 ## Create a Virtual Environment
 
