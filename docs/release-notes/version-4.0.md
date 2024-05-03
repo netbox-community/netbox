@@ -92,15 +92,21 @@ The legacy admin user interface is now disabled by default, and the few remainin
 * [#15735](https://github.com/netbox-community/netbox/issues/15735) - Display all dates & times in ISO 8601 format consistently
 * [#15754](https://github.com/netbox-community/netbox/issues/15754) - Remove `is_staff` restriction on admin menu items
 * [#15764](https://github.com/netbox-community/netbox/issues/15764) - Increase maximum value of Device `vc_position` field
+* [#15915](https://github.com/netbox-community/netbox/issues/15915) - Provide a comprehensive system status view with export functionality
 
 ### Bug Fixes (from Beta2)
 
+* [#15630](https://github.com/netbox-community/netbox/issues/15630) - Ensure consistent toggling between light & dark UI modes
+* [#15802](https://github.com/netbox-community/netbox/issues/15802) - Improve hyperlink color contrast in dark mode
 * [#15809](https://github.com/netbox-community/netbox/issues/15809) - Fix GraphQL union support for nullable fields
 * [#15815](https://github.com/netbox-community/netbox/issues/15815) - Convert dashboard widgets referencing old user/group models
 * [#15826](https://github.com/netbox-community/netbox/issues/15826) - Update `EXEMPT_EXCLUDE_MODELS` to reference new user & group models
+* [#15831](https://github.com/netbox-community/netbox/issues/15831) - Fix LDAP group mirroring
 * [#15838](https://github.com/netbox-community/netbox/issues/15838) - Fix AttributeError exception when rendering custom date fields
+* [#15852](https://github.com/netbox-community/netbox/issues/15852) - Update total results count when filtering object lists
 * [#15853](https://github.com/netbox-community/netbox/issues/15853) - Correct background color for cable trace SVG images in dark mode
 * [#15855](https://github.com/netbox-community/netbox/issues/15855) - Fix AttributeError exception when creating an event rule tied to a custom script
+* [#15944](https://github.com/netbox-community/netbox/issues/15944) - Fix styling of paginator when displayed above an object list
 
 ### Other Changes
 
@@ -128,6 +134,7 @@ The legacy admin user interface is now disabled by default, and the few remainin
 * [#15736](https://github.com/netbox-community/netbox/issues/15736) - Remove obsolete `annotated_date` template filter & `annotated_now` template tag
 * [#15738](https://github.com/netbox-community/netbox/issues/15738) - Remove obsolete configuration parameters for date & time formatting
 * [#15752](https://github.com/netbox-community/netbox/issues/15752) - Remove the obsolete `ENABLE_LOCALIZATION` configuration parameter
+* [#15942](https://github.com/netbox-community/netbox/issues/15942) - Refactor `settings_and_registry()` context processor
 
 ### REST API Changes
 
