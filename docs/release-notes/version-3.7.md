@@ -1,5 +1,15 @@
 # NetBox v3.7
 
+## v3.7.8 (FUTURE)
+
+### Bug Fixes
+
+* [#15877](https://github.com/netbox-community/netbox/issues/15877) - Account for virtual chassis membership when assigning related interfaces via bulk edit
+* [#15917](https://github.com/netbox-community/netbox/issues/15917) - Fix pagination through search results within dropdown fields
+* [#15925](https://github.com/netbox-community/netbox/issues/15925) - Fix SVG rendering of cable traces to circuit terminations
+
+---
+
 ## v3.7.7 (2024-05-01)
 
 ### Enhancements
