@@ -3166,12 +3166,6 @@ class CableListView(generic.ObjectListView):
     filterset = filtersets.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable
-    actions = {
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    }
 
 
 @register_model_view(Cable)
