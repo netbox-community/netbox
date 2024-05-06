@@ -618,7 +618,7 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         verbose_name=_('VRF'),
         linkify=True
     )
-    inventory_items = tables.ManyToManyColumn(
+    inventory_items = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name=_('Inventory Items'),
     )
