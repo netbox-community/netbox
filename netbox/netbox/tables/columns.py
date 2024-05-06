@@ -10,7 +10,6 @@ from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.formats import date_format
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -18,9 +17,10 @@ from django_tables2.columns import library
 from django_tables2.utils import Accessor
 
 from extras.choices import CustomFieldTypeChoices
+from utilities.object_types import object_type_identifier, object_type_name
 from utilities.permissions import get_permission_for_model
 from utilities.templatetags.builtins.filters import render_markdown
-from utilities.utils import content_type_identifier, content_type_name, get_viewname
+from utilities.views import get_viewname
 
 __all__ = (
     'ActionsColumn',
@@ -51,18 +51,17 @@ __all__ = (
 #
 
 @library.register
-class DateColumn(tables.DateColumn):
+class DateColumn(tables.Column):
     """
-    Overrides the default implementation of DateColumn to better handle null values, returning a default value for
-    tables and null when exporting data. It is registered in the tables library to use this class instead of the
-    default, making this behavior consistent in all fields of type DateField.
+    Render a datetime.date in ISO 8601 format.
     """
     def render(self, value):
         if value:
-            return date_format(value, format="SHORT_DATE_FORMAT")
+            return value.isoformat()
 
     def value(self, value):
-        return value
+        if value:
+            return value.isoformat()
 
     @classmethod
     def from_field(cls, field, **kwargs):
@@ -71,16 +70,24 @@ class DateColumn(tables.DateColumn):
 
 
 @library.register
-class DateTimeColumn(tables.DateTimeColumn):
+class DateTimeColumn(tables.Column):
     """
-    Overrides the default implementation of DateTimeColumn to better handle null values, returning a default value for
-    tables and null when exporting data. It is registered in the tables library to use this class instead of the
-    default, making this behavior consistent in all fields of type DateTimeField.
+    Render a datetime.datetime in ISO 8601 format.
+
+    Args:
+        timespec: Granularity specification; passed through to datetime.isoformat()
     """
+    def __init__(self, *args, timespec='seconds', **kwargs):
+        self.timespec = timespec
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        if value:
+            return f"{value.date().isoformat()} {value.time().isoformat(timespec=self.timespec)}"
+
     def value(self, value):
         if value:
-            return date_format(value, format="SHORT_DATETIME_FORMAT")
-        return None
+            return value.isoformat()
 
     @classmethod
     def from_field(cls, field, **kwargs):
@@ -161,8 +168,11 @@ class ToggleColumn(tables.CheckBoxColumn):
         visible = kwargs.pop('visible', False)
         if 'attrs' not in kwargs:
             kwargs['attrs'] = {
+                'th': {
+                    'class': 'w-1',
+                },
                 'td': {
-                    'class': 'min-width',
+                    'class': 'w-1',
                 },
                 'input': {
                     'class': 'form-check-input'
@@ -322,7 +332,7 @@ class ChoiceFieldColumn(tables.Column):
         except AttributeError:
             bg_color = self.DEFAULT_BG_COLOR
 
-        return mark_safe(f'<span class="badge bg-{bg_color}">{value}</span>')
+        return mark_safe(f'<span class="badge text-bg-{bg_color}">{value}</span>')
 
     def value(self, value):
         return value
@@ -335,12 +345,12 @@ class ContentTypeColumn(tables.Column):
     def render(self, value):
         if value is None:
             return None
-        return content_type_name(value, include_app=False)
+        return object_type_name(value, include_app=False)
 
     def value(self, value):
         if value is None:
             return None
-        return content_type_identifier(value)
+        return object_type_identifier(value)
 
 
 class ContentTypesColumn(tables.ManyToManyColumn):
@@ -354,11 +364,11 @@ class ContentTypesColumn(tables.ManyToManyColumn):
         super().__init__(separator=separator, *args, **kwargs)
 
     def transform(self, obj):
-        return content_type_name(obj, include_app=False)
+        return object_type_name(obj, include_app=False)
 
     def value(self, value):
         return ','.join([
-            content_type_identifier(ct) for ct in self.filter(value)
+            object_type_identifier(ot) for ot in self.filter(value)
         ])
 
 
@@ -494,7 +504,7 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
             return render_markdown(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_DATE and value:
-            return date_format(parse_date(value), format="SHORT_DATE_FORMAT")
+            return parse_date(value).isoformat()
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._linkify_item(obj))

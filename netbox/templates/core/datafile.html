@@ -11,55 +11,45 @@
   <li class="breadcrumb-item"><a href="{% url 'core:datafile_list' %}?source_id={{ object.source.pk }}">{{ object.source }}</a></li>
 {% endblock %}
 
-{% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% plugin_buttons object %}
-    </div>
-    {% if request.user|can_delete:object %}
-      {% delete_button object %}
-    {% endif %}
-    <div class="control-group">
-      {% custom_links object %}
-    </div>
-  </div>
-{% endblock controls %}
+{% block control-buttons %}
+  {% if request.user|can_delete:object %}
+    {% delete_button object %}
+  {% endif %}
+{% endblock control-buttons %}
 
 {% block content %}
   <div class="row mb-3">
     <div class="col">
       <div class="card">
         <h5 class="card-header">{% trans "Data File" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Source" %}</th>
-              <td>{{ object.source|linkify }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Path" %}</th>
-              <td>
-                <span class="font-monospace" id="datafile_path">{{ object.path }}</span>
-                {% copy_content "datafile_path" %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Last Updated" %}</th>
-              <td>{{ object.last_updated }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Size" %}</th>
-              <td>{{ object.size }} {% trans "bytes" %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "SHA256 Hash" %}</th>
-              <td>
-              <span class="font-monospace" id="datafile_hash">{{ object.hash }}</span>
-                {% copy_content "datafile_hash" %}
-              </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Source" %}</th>
+            <td>{{ object.source|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Path" %}</th>
+            <td>
+              <span class="font-monospace" id="datafile_path">{{ object.path }}</span>
+              {% copy_content "datafile_path" %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Last Updated" %}</th>
+            <td>{{ object.last_updated }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Size" %}</th>
+            <td>{{ object.size }} {% trans "bytes" %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "SHA256 Hash" %}</th>
+            <td>
+            <span class="font-monospace" id="datafile_hash">{{ object.hash }}</span>
+              {% copy_content "datafile_hash" %}
+            </td>
+          </tr>
+        </table>
       </div>
       <div class="card">
         <h5 class="card-header">{% trans "Content" %}</h5>

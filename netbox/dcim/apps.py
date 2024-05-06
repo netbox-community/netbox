@@ -8,9 +8,13 @@ class DCIMConfig(AppConfig):
     verbose_name = "DCIM"
 
     def ready(self):
+        from netbox.models.features import register_models
+        from utilities.counters import connect_counters
         from . import signals, search
         from .models import CableTermination, Device, DeviceType, VirtualChassis
-        from utilities.counters import connect_counters
+
+        # Register models
+        register_models(*self.get_models())
 
         # Register denormalized fields
         denormalized.register(CableTermination, '_device', {

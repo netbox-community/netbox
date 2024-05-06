@@ -2,17 +2,15 @@ from django.conf import settings
 from django.conf.urls import include
 from django.urls import path
 from django.views.decorators.cache import cache_page
-from django.views.decorators.csrf import csrf_exempt
 from django.views.static import serve
 from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from account.views import LoginView, LogoutView
 from netbox.api.views import APIRootView, StatusView
 from netbox.graphql.schema import schema
-from netbox.graphql.views import GraphQLView
-from netbox.plugins.urls import plugin_admin_patterns, plugin_patterns, plugin_api_patterns
+from netbox.graphql.views import NetBoxGraphQLView
+from netbox.plugins.urls import plugin_patterns, plugin_api_patterns
 from netbox.views import HomeView, StaticMediaFailureView, SearchView, htmx
-from .admin import admin_site
 
 _patterns = [
 
@@ -68,7 +66,7 @@ _patterns = [
     path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='api_redocs'),
 
     # GraphQL
-    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schema)), name='graphql'),
+    path('graphql/', NetBoxGraphQLView.as_view(schema=schema), name='graphql'),
 
     # Serving static media in Django to pipe it through LoginRequiredMiddleware
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
@@ -77,28 +75,25 @@ _patterns = [
     # Plugins
     path('plugins/', include((plugin_patterns, 'plugins'))),
     path('api/plugins/', include((plugin_api_patterns, 'plugins-api'))),
-
-    # Admin
-    path('admin/background-tasks/', include('django_rq.urls')),
-    path('admin/plugins/', include(plugin_admin_patterns)),
-    path('admin/', admin_site.urls),
 ]
 
+# Django admin UI
+if settings.DJANGO_ADMIN_ENABLED:
+    from .admin import admin_site
+    _patterns.append(path('admin/', admin_site.urls))
 
+# django-debug-toolbar
 if settings.DEBUG:
     import debug_toolbar
-    _patterns += [
-        path('__debug__/', include(debug_toolbar.urls)),
-    ]
+    _patterns.append(path('__debug__/', include(debug_toolbar.urls)))
 
+# Prometheus metrics
 if settings.METRICS_ENABLED:
-    _patterns += [
-        path('', include('django_prometheus.urls')),
-    ]
+    _patterns.append(path('', include('django_prometheus.urls')))
 
 # Prepend BASE_PATH
 urlpatterns = [
-    path('{}'.format(settings.BASE_PATH), include(_patterns))
+    path(settings.BASE_PATH, include(_patterns))
 ]
 
 handler404 = 'netbox.views.errors.handler_404'

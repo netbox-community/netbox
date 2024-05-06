@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load buttons %}
 {% load helpers %}
 {% load plugins %}
@@ -8,45 +8,48 @@
 
 {% comment %}
 Blocks:
-  extra_controls: Additional action buttons
-  bulk_buttons: Additional bulk action buttons to display beneath the objects
-    list
+  - title:             Page title
+  - controls:          Control elements displayed between the header and content
+    - extra_controls:  Any additional action buttons to display
+  - tabs:              Page tabs
+  - content:           Primary page content
+    - bulk_buttons:    Additional bulk action buttons to display beneath the objects list
+  - modals:            Any pre-loaded modals
 
 Context:
-  model: The model class being listed
-  table: The table class used for rendering the list of objects
-  actions: A list of buttons to display. This template checks for add, import,
-    export, bulk_edit, and bulk_delete.
-  filter_form: The bound filterset form for filtering the objects list (optional)
-  return_url: Return URL to use for bulk actions (optional)
+  - model:        The model class being listed
+  - table:        The table class used for rendering the list of objects
+  - actions:      A list of buttons to display. This template checks for add, import, export,
+                  bulk_edit, and bulk_delete.
+  - filter_form:  The bound filterset form for filtering the objects list (optional)
+  - return_url:   Return URL to use for bulk actions (optional)
 {% endcomment %}
 
 {% block title %}{{ model|meta:"verbose_name_plural"|bettertitle }}{% endblock %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% plugin_list_buttons model %}
-      {% block extra_controls %}{% endblock %}
-      {% if 'add' in actions %}
-        {% add_button model %}
-      {% endif %}
-      {% if 'import' in actions %}
-        {% import_button model %}
-      {% endif %}
-      {% if 'export' in actions %}
-        {% export_button model %}
-      {% endif %}
-    </div>
+  <div class="btn-list">
+    {% plugin_list_buttons model %}
+    {% block extra_controls %}{% endblock %}
+    {% if 'add' in actions %}
+      {% add_button model %}
+    {% endif %}
+    {% if 'import' in actions %}
+      {% import_button model %}
+    {% endif %}
+    {% if 'export' in actions %}
+      {% export_button model %}
+    {% endif %}
   </div>
 {% endblock controls %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <button class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
-        {% trans "Results" %} {% badge table.page.paginator.count %}
-      </button>
+      <a class="nav-link active" id="object-list-tab" data-bs-toggle="tab" data-bs-target="#object-list" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        {% trans "Results" %}
+        <span class="badge text-bg-secondary total-object-count">{{ table.page.paginator.count }}</span>
+      </a>
     </li>
     {% if filter_form %}
       <li class="nav-item" role="presentation">
@@ -59,10 +62,9 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
+{% block content %}
 
-    {# Object list #}
+    {# Object list tab #}
     <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
 
       {# Applied filters #}
@@ -77,7 +79,7 @@ Context:
         {% csrf_token %}
         {# "Select all" form #}
         {% if table.paginator.num_pages > 1 %}
-          <div id="select-all-box" class="d-none card noprint">
+          <div id="select-all-box" class="d-none card d-print-none">
             <div class="form col-md-12">
               <div class="card-body">
                 <div class="float-end">
@@ -91,8 +93,8 @@ Context:
                 <div class="form-check">
                   <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
                   <label for="select-all" class="form-check-label">
-                    {% blocktrans trimmed with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
-                      Select <strong>all {{ count }} {{ object_type_plural }}</strong> matching query
+                    {% blocktrans trimmed with count=table.page.paginator.count object_type_plural=table.data.verbose_name_plural %}
+                      Select <strong>all <span class="total-object-count">{{ count }}</span> {{ object_type_plural }}</strong> matching query
                     {% endblocktrans %}
                   </label>
                 </div>
@@ -105,45 +107,46 @@ Context:
           {% csrf_token %}
           <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
 
-          {# Object table #}
+          {# Warn of any missing prerequisite objects #}
+          {% if prerequisite_model %}
+            {% include 'inc/missing_prerequisites.html' %}
+          {% endif %}
 
-              {% if prerequisite_model %}
-                {% include 'inc/missing_prerequisites.html' %}
-              {% endif %}
-
+          {# Objects table #}
           <div class="card">
-            <div class="card-body htmx-container table-responsive" id="object_list">
+            <div class="htmx-container table-responsive" id="object_list">
               {% include 'htmx/table.html' %}
             </div>
           </div>
+          {# /Objects table #}
 
           {# Form buttons #}
-          <div class="noprint bulk-buttons">
-            <div class="bulk-button-group">
-              {% block bulk_buttons %}
-                {% if 'bulk_edit' in actions %}
-                  {% bulk_edit_button model query_params=request.GET %}
-                {% endif %}
-                {% if 'bulk_delete' in actions %}
-                  {% bulk_delete_button model query_params=request.GET %}
-                {% endif %}
-              {% endblock %}
-            </div>
+          <div class="btn-list d-print-none mt-2">
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                {% bulk_edit_button model query_params=request.GET %}
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                {% bulk_delete_button model query_params=request.GET %}
+              {% endif %}
+            {% endblock %}
           </div>
+          {# /Form buttons #}
+
         </div>
       </form>
-
     </div>
+    {# /Object list tab #}
 
-    {# Filter form #}
+    {# Filters tab #}
     {% if filter_form %}
       <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
         {% include 'inc/filter_list.html' %}
       </div>
     {% endif %}
-  </div>
+    {# /Filters tab #}
 
-{% endblock content-wrapper %}
+{% endblock content %}
 
 {% block modals %}
   {% table_config_form table table_name="ObjectTable" %}

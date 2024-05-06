@@ -1,11 +1,24 @@
 {% extends 'extras/script/base.html' %}
 {% load render_table from django_tables2 %}
+{% load i18n %}
 
 {% block content %}
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
         <div class="card-body table-responsive">
+
+          {% if not script.is_executable %}
+            <div class="alert alert-warning" role="alert">
+              <div class="d-flex justify-content-between">
+                <div>
+                  <i class="mdi mdi-alert"></i>
+                  {% trans "Script no longer exists in the source file." %}
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
           {% render_table table 'inc/table.html' %}
           {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         </div>

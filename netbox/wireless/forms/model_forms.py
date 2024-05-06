@@ -6,6 +6,7 @@ from ipam.models import VLAN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, SlugField
+from utilities.forms.rendering import FieldSet
 from wireless.models import *
 
 __all__ = (
@@ -24,9 +25,7 @@ class WirelessLANGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Wireless LAN Group'), (
-            'parent', 'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('parent', 'name', 'slug', 'description', 'tags', name=_('Wireless LAN Group')),
     )
 
     class Meta:
@@ -51,9 +50,9 @@ class WirelessLANForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Wireless LAN'), ('ssid', 'group', 'vlan', 'status', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
+        FieldSet('ssid', 'group', 'vlan', 'status', 'description', 'tags', name=_('Wireless LAN')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
 
     class Meta:
@@ -108,7 +107,9 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'kind': 'wireless',
             'device_id': '$device_a',
         },
-        disabled_indicator='_occupied',
+        context={
+            'disabled': '_occupied',
+        },
         label=_('Interface')
     )
     site_b = DynamicModelChoiceField(
@@ -148,17 +149,19 @@ class WirelessLinkForm(TenancyForm, NetBoxModelForm):
             'kind': 'wireless',
             'device_id': '$device_b',
         },
-        disabled_indicator='_occupied',
+        context={
+            'disabled': '_occupied',
+        },
         label=_('Interface')
     )
     comments = CommentField()
 
     fieldsets = (
-        (_('Side A'), ('site_a', 'location_a', 'device_a', 'interface_a')),
-        (_('Side B'), ('site_b', 'location_b', 'device_b', 'interface_b')),
-        (_('Link'), ('status', 'ssid', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
+        FieldSet('site_a', 'location_a', 'device_a', 'interface_a', name=_('Side A')),
+        FieldSet('site_b', 'location_b', 'device_b', 'interface_b', name=_('Side B')),
+        FieldSet('status', 'ssid', 'description', 'tags', name=_('Link')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
 
     class Meta:

@@ -2,10 +2,10 @@ from django.contrib.contenttypes.models import ContentType
 from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from core.models import ObjectType
 from netbox.api.fields import ContentTypeField
-from netbox.constants import NESTED_SERIALIZER_PREFIX
 from utilities.api import get_serializer_for_model
-from utilities.utils import content_type_identifier
+from utilities.object_types import object_type_identifier
 
 __all__ = (
     'GenericObjectSerializer',
@@ -28,9 +28,9 @@ class GenericObjectSerializer(serializers.Serializer):
         return model.objects.get(pk=data['object_id'])
 
     def to_representation(self, instance):
-        ct = ContentType.objects.get_for_model(instance)
+        object_type = ObjectType.objects.get_for_model(instance)
         data = {
-            'object_type': content_type_identifier(ct),
+            'object_type': object_type_identifier(object_type),
             'object_id': instance.pk,
         }
         if 'request' in self.context:
@@ -40,6 +40,5 @@ class GenericObjectSerializer(serializers.Serializer):
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_object(self, obj):
-        serializer = get_serializer_for_model(obj, prefix=NESTED_SERIALIZER_PREFIX)
-        # context = {'request': self.context['request']}
-        return serializer(obj, context=self.context).data
+        serializer = get_serializer_for_model(obj)
+        return serializer(obj, nested=True, context=self.context).data

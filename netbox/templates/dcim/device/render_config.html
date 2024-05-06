@@ -9,22 +9,20 @@
     <div class="col-5">
       <div class="card">
         <h5 class="card-header">{% trans "Config Template" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Config Template" %}</th>
-              <td>{{ config_template|linkify|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Data Source" %}</th>
-              <td>{{ config_template.data_file.source|linkify|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Data File" %}</th>
-              <td>{{ config_template.data_file|linkify|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Config Template" %}</th>
+            <td>{{ config_template|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Data Source" %}</th>
+            <td>{{ config_template.data_file.source|linkify|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Data File" %}</th>
+            <td>{{ config_template.data_file|linkify|placeholder }}</td>
+          </tr>
+        </table>
       </div>
     </div>
     <div class="col-7">
@@ -51,14 +49,12 @@
   <div class="row">
     <div class="col">
       <div class="card">
-        <div class="card-header">
-          <div class="float-end">
-            <a href="?export=True" class="btn btn-sm btn-primary" role="button">
+        <h5 class="card-header d-flex justify-content-between">
+          {% trans "Rendered Config" %}
+            <a href="?export=True" class="btn btn-primary lh-1" role="button">
               <i class="mdi mdi-download" aria-hidden="true"></i> {% trans "Download" %}
             </a>
-          </div>
-          <h5>{% trans "Rendered Config" %}</h5>
-        </div>
+        </h5>
         {% if config_template %}
           <pre class="card-body">{{ rendered_config }}</pre>
         {% else %}

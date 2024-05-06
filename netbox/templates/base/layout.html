@@ -1,6 +1,7 @@
 {# Base layout for the core NetBox UI w/navbar and page content #}
 {% extends 'base/base.html' %}
 {% load helpers %}
+{% load navigation %}
 {% load static %}
 {% load i18n %}
 
@@ -14,167 +15,190 @@ Blocks:
 
 {% block layout %}
 
-  <div class="container-fluid px-0">
-    <main class="layout">
+  <div class="page">
+
     {# Sidebar #}
-    {% include 'base/sidenav.html' %}
+    <aside class="navbar navbar-vertical navbar-expand-lg" data-bs-theme="dark">
+      <div class="container-fluid">
 
-      {# Body #}
-      <div class="content-container" tabindex="-2">
+        {# Menu toggle (mobile view) #}
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
 
-        {# NetBox Logo, only visible when printing #}
-        <div class="p-2 printonly">
-          <img src="{% static 'netbox_logo.svg' %}" alt="{% trans "NetBox logo" %}" width="200px" />
+        {# Logo #}
+        <h1 class="navbar-brand navbar-brand-autodark">
+          <a href="{% url 'home' %}">
+            <img src="{% static 'netbox_logo.svg' %}" alt="{% trans "NetBox Logo" %}" class="navbar-brand-image">
+          </a>
+        </h1>
+
+        {# User menu (mobile view) #}
+        <div class="navbar-nav flex-row d-lg-none">
+          {% include 'inc/user_menu.html' %}
         </div>
 
-        {# Top bar #}
-        <nav class="navbar navbar-light sticky-top flex-md-nowrap p-1 mb-3 search container-fluid noprint">
+        {# Navigation menu #}
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+          {% nav %}
+        </div>
 
-            {# Mobile Navigation #}
-            <div class="nav-mobile">
-              <div class="nav-mobile-top">
-                <a class="sidebar-logo p-2 d-block" href="{% url 'home' %}">
-                  <img src="{% static 'netbox_logo.svg' %}" alt="{% trans "NetBox logo" %}" height="40" />
-                </a>
-                <button type="button" aria-label="Toggle Navigation" class="navbar-toggler sidenav-toggle-mobile">
-                  <span class="navbar-toggler-icon"></span>
-                </button>
-              </div>
-              <div class="d-flex my-1 flex-grow-1 justify-content-center w-100">
-                {% include 'inc/searchbar.html' %}
-              </div>
+      </div>
+    </aside>
+
+    {# Top menu #}
+    <header class="navbar navbar-expand-md sticky-top d-none d-lg-flex d-print-none">
+      <div class="container-fluid">
+
+        <div class="navbar-nav flex-row align-items-center order-md-last">
+          {# Dark/light mode toggle #}
+          <div class="d-none d-md-flex">
+            <button class="btn color-mode-toggle hide-theme-dark" title="{% trans "Enable dark mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
+              <i class="mdi mdi-lightbulb"></i>
+            </button>
+            <button class="btn color-mode-toggle hide-theme-light" title="{% trans "Enable light mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
+              <i class="mdi mdi-lightbulb-on"></i>
+            </button>
+          </div>
+
+          {# User menu #}
+          {% include 'inc/user_menu.html' %}
+        </div>
+
+        {# Search box #}
+        <div class="collapse navbar-collapse" id="navbar-menu">
+          <form action="{% url 'search' %}" method="get" autocomplete="off" novalidate>
+            <div class="input-icon">
+              <span class="input-icon-addon">
+                <i class="mdi mdi-magnify"></i>
+              </span>
+              <input type="text" name="q" value="" class="form-control" placeholder="Search…" aria-label="Search NetBox">
             </div>
+          </form>
+        </div>
 
-            {# Desktop Navigation #}
-            <div class="row search-container">
+      </div>
+    </header>
 
-              {# Empty spacer column to ensure search is centered. #}
-              <div class="col-3 d-flex flex-grow-1 ps-0"></div>
+    {# Page content #}
+    <div class="page-wrapper">
+      <div id="page-content" {% htmx_boost %}>
 
-              {# Search bar #}
-              <div class="col-6 d-flex flex-grow-1 justify-content-center">
-                {% include 'inc/searchbar.html' %}
-              </div>
+      {# Page header #}
+      {% block header %}
 
-              {# Proflie/login button #}
-              <div class="col-3 d-flex flex-grow-1 pe-0 justify-content-end">
-                {% include 'inc/profile_button.html' %}
-              </div>
-
-            </div>
-
-        </nav>
-
+        {# Top banner #}
         {% if config.BANNER_TOP %}
-          <div class="text-center mx-3">
-            {{ config.BANNER_TOP|safe }}
-          </div>
+          {% include 'inc/banner.html' with content=config.BANNER_TOP %}
         {% endif %}
+        {# /Top banner #}
 
+        {# Alerts #}
         {% if settings.DEBUG and not settings.DEVELOPER %}
-          <div class="alert alert-warning text-center mx-3" role="alert">
-            <strong><i class="mdi mdi-alert"></i> {% trans "Debug mode is enabled" %}.</strong>
-            {% trans "Performance may be limited. Debugging should never be enabled on a production system" %}.
-          </div>
+          {% include 'inc/alerts/warning.html' with title="Debug mode is enabled" message="Performance may be limited. Debugging should never be enabled on a production system." %}
         {% endif %}
 
         {% if config.MAINTENANCE_MODE and config.BANNER_MAINTENANCE %}
-          <div class="alert alert-warning text-center mx-3" role="alert">
-            <h5><i class="mdi mdi-alert"></i> {% trans "Maintenance Mode" %}</h5>
-            {{ config.BANNER_MAINTENANCE|safe }}
-          </div>
+          {% include 'inc/alerts/warning.html' with title="Maintenance Mode" message=config.BANNER_MAINTENANCE|safe %}
         {% endif %}
+        {# /Alerts #}
 
-        {# Page header #}
-        {% block header %}
-          <div class="title-container px-3 pb-3">
+      {% endblock header %}
+      {# /Page header #}
 
-            {# Title #}
-            <div id="content-title">
-              {# Center-align title in object-edit views #}
-              <h1 class="h2 w-100">{% block title %}{% endblock title %}</h1>
-              {% block subtitle %}{% endblock %}
-            </div>
+      {# Page body #}
+      {% block page %}
+        <div class="page-body my-1">
+          <div class="container-fluid tab-content py-3">
 
-            {# Controls #}
-            {% block controls %}{% endblock controls %}
+            {# Page content #}
+            {% block content %}{% endblock %}
+            {# /Page content #}
 
           </div>
-        {% endblock header %}
-
-        {# Page content #}
-        <div id="content" class="container-fluid content px-0 m-0">
-          {% block tabs %}{% endblock %}
-          {% block content-wrapper %}
-            <div class="px-3">
-              {% block content %}{% endblock %}
-            </div>
-          {% endblock %}
-          {# Bottom banner #}
-          {% if config.BANNER_BOTTOM %}
-            <div class="text-center mx-3">
-              {{ config.BANNER_BOTTOM|safe }}
-            </div>
-          {% endif %}
         </div>
+      {% endblock page %}
+      {# /Page body #}
 
-        {# BS5 pop-up modals #}
-        {% block modals %}{% endblock %}
+      {# Bottom banner #}
+      {% if config.BANNER_BOTTOM %}
+        {% include 'inc/banner.html' with content=config.BANNER_BOTTOM %}
+      {% endif %}
+      {# /Bottom banner #}
 
-        {# Page footer #}
-        <footer class="footer container-fluid">
-          {% block footer %}
-            <div class="row align-items-center justify-content-between mx-0">
-
-              <div class="col-sm-12 col-md-auto fs-4 noprint">
-                <nav class="nav justify-content-center justify-content-lg-start">
-                  {% block footer_links %}
-                    {# Documentation #}
-                    <a type="button" class="nav-link" href="{% static 'docs/' %}" target="_blank">
-                      <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
-                    {# REST API #}
-                    <a type="button" class="nav-link" href="{% url 'api-root' %}" target="_blank">
-                      <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
-                    {# API docs #}
-                    <a type="button" class="nav-link" href="{% url 'api_docs' %}" target="_blank">
-                      <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
-                    {# GraphQL API #}
-                    {% if config.GRAPHQL_ENABLED %}
-                    <a type="button" class="nav-link" href="{% url 'graphql' %}" target="_blank">
-                      <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-                    {% endif %}
-
-                    {# GitHub #}
-                    <a type="button" class="nav-link" href="https://github.com/netbox-community/netbox" target="_blank">
-                      <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-
-                    {# NetDev Slack #}
-                    <a type="button" class="nav-link" href="https://netdev.chat/" target="_blank">
-                      <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
-                    </a>
-                  {% endblock footer_links %}
-                </nav>
-              </div>
-
-              <div class="col-sm-12 col-md-auto text-center text-lg-end text-muted">
-                <span class="d-block d-md-inline">{% annotated_now %} {% now 'T' %}</span>
-                <span class="ms-md-3 d-block d-md-inline">{{ settings.HOSTNAME }} (v{{ settings.VERSION }})</span>
-              </div>
-
-            </div>
-          {% endblock footer %}
-        </footer>
+      {# BS5 pop-up modals #}
+      {% block modals %}{% endblock %}
 
       </div>
 
-    </main>
+      {# Page footer #}
+      <footer class="footer footer-transparent d-print-none py-2">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+          {% block footer %}
+
+            {# Footer links #}
+            <ul class="list-inline mb-0 fs-2">
+              {% block footer_links %}
+                {# Documentation #}
+                <li class="list-inline-item">
+                  <a href="{% static 'docs/' %}" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "Docs" %}" class="mdi mdi-book-open-variant text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# REST API #}
+                <li class="list-inline-item">
+                  <a href="{% url 'api-root' %}" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "REST API" %}" class="mdi mdi-cloud-braces text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# API docs #}
+                <li class="list-inline-item">
+                  <a href="{% url 'api_docs' %}" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "REST API documentation" %}" class="mdi mdi-book text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# GraphQL API #}
+                {% if config.GRAPHQL_ENABLED %}
+                  <li class="list-inline-item">
+                    <a href="{% url 'graphql' %}" target="_blank" class="link-secondary" rel="noopener">
+                      <i title="{% trans "GraphQL API" %}" class="mdi mdi-graphql text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                    </a>
+                  </li>
+                {% endif %}
+                {# GitHub #}
+                <li class="list-inline-item">
+                  <a href="https://github.com/netbox-community/netbox" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "Source Code" %}" class="mdi mdi-github text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+                {# NetDev Slack #}
+                <li class="list-inline-item">
+                  <a href="https://netdev.chat" target="_blank" class="link-secondary" rel="noopener">
+                    <i title="{% trans "Community" %}" class="mdi mdi-slack text-primary" data-bs-placement="top" data-bs-toggle="tooltip"></i>
+                  </a>
+                </li>
+              {% endblock footer_links %}
+            </ul>
+            {# /Footer links #}
+
+            {# Footer text #}
+            <ul class="list-inline list-inline-dots fs-5 mb-0" id="footer-stamp" hx-swap-oob="true">
+              <li class="list-inline-item">
+                {% now 'Y-m-d H:i:s T' %}
+              </li>
+              <li class="list-inline-item">
+                {{ settings.HOSTNAME }} (v{{ settings.VERSION }})
+              </li>
+            </ul>
+            {# /Footer text #}
+
+          {% endblock footer %}
+        </div>
+      </footer>
+      {# /Page footer #}
+
+    {# /Page content #}
+    </div>
+
   </div>
 {% endblock layout %}

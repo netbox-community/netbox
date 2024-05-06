@@ -1,0 +1,104 @@
+{% extends 'generic/object_list.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block page-header %}
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mt-2">
+      {# Breadcrumbs #}
+      <nav class="breadcrumb-container" aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item">
+            <a href="{% url 'core:background_queue_list' %}">{% trans 'Background Queues' %}</a>
+          </li>
+          <li class="breadcrumb-item">{{ queue.name }}</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="row">
+      <div class="col">
+        <h2 class="page-title mt-2">{% trans 'Background Tasks' %}</h2>
+      </div>
+    </div>
+  </div>
+{% endblock page-header %}
+
+{% block title %}{{ status|capfirst }} {% trans "tasks in " %}{{ queue.name }}{% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Queued Jobs" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+
+    {# Object list tab #}
+    <div class="tab-pane show active" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+
+      {# Object table controls #}
+      {% include 'inc/table_controls_htmx.html' with table_modal="ObjectTable_config" %}
+
+      <form method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {# "Select all" form #}
+        {% if table.paginator.num_pages > 1 %}
+          <div id="select-all-box" class="d-none card d-print-none">
+            <div class="form col-md-12">
+              <div class="card-body">
+                <div class="float-end">
+                  {% if 'bulk_edit' in actions %}
+                    {% bulk_edit_button model query_params=request.GET %}
+                  {% endif %}
+                  {% if 'bulk_delete' in actions %}
+                    {% bulk_delete_button model query_params=request.GET %}
+                  {% endif %}
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                  <label for="select-all" class="form-check-label">
+                    {% blocktrans trimmed with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
+                      Select <strong>all {{ count }} {{ object_type_plural }}</strong> matching query
+                    {% endblocktrans %}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="form form-horizontal">
+          {% csrf_token %}
+          <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+
+          {# Objects table #}
+          <div class="card">
+            <div class="htmx-container table-responsive" id="object_list">
+              {% include 'htmx/table.html' %}
+            </div>
+          </div>
+          {# /Objects table #}
+
+          {# Form buttons #}
+          <div class="btn-list d-print-none mt-2">
+            {% block bulk_buttons %}
+              {% if 'bulk_edit' in actions %}
+                {% bulk_edit_button model query_params=request.GET %}
+              {% endif %}
+              {% if 'bulk_delete' in actions %}
+                {% bulk_delete_button model query_params=request.GET %}
+              {% endif %}
+            {% endblock %}
+          </div>
+          {# /Form buttons #}
+
+        </div>
+      </form>
+    </div>
+    {# /Object list tab #}
+
+{% endblock content %}

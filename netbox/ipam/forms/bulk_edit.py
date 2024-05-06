@@ -13,6 +13,7 @@ from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
     CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, NumericArrayField,
 )
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 from virtualization.models import Cluster, ClusterGroup
 
@@ -55,7 +56,7 @@ class VRFBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VRF
     fieldsets = (
-        (None, ('tenant', 'enforce_unique', 'description')),
+        FieldSet('tenant', 'enforce_unique', 'description'),
     )
     nullable_fields = ('tenant', 'description', 'comments')
 
@@ -75,7 +76,7 @@ class RouteTargetBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RouteTarget
     fieldsets = (
-        (None, ('tenant', 'description')),
+        FieldSet('tenant', 'description'),
     )
     nullable_fields = ('tenant', 'description', 'comments')
 
@@ -94,7 +95,7 @@ class RIRBulkEditForm(NetBoxModelBulkEditForm):
 
     model = RIR
     fieldsets = (
-        (None, ('is_private', 'description')),
+        FieldSet('is_private', 'description'),
     )
     nullable_fields = ('is_private', 'description')
 
@@ -118,7 +119,7 @@ class ASNRangeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ASNRange
     fieldsets = (
-        (None, ('rir', 'tenant', 'description')),
+        FieldSet('rir', 'tenant', 'description'),
     )
     nullable_fields = ('description',)
 
@@ -148,7 +149,7 @@ class ASNBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ASN
     fieldsets = (
-        (None, ('sites', 'rir', 'tenant', 'description')),
+        FieldSet('sites', 'rir', 'tenant', 'description'),
     )
     nullable_fields = ('tenant', 'description', 'comments')
 
@@ -177,7 +178,7 @@ class AggregateBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Aggregate
     fieldsets = (
-        (None, ('rir', 'tenant', 'date_added', 'description')),
+        FieldSet('rir', 'tenant', 'date_added', 'description'),
     )
     nullable_fields = ('date_added', 'description', 'comments')
 
@@ -195,7 +196,7 @@ class RoleBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Role
     fieldsets = (
-        (None, ('weight', 'description')),
+        FieldSet('weight', 'description'),
     )
     nullable_fields = ('description',)
 
@@ -265,9 +266,9 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Prefix
     fieldsets = (
-        (None, ('tenant', 'status', 'role', 'description')),
-        (_('Site'), ('region', 'site_group', 'site')),
-        (_('Addressing'), ('vrf', 'prefix_length', 'is_pool', 'mark_utilized')),
+        FieldSet('tenant', 'status', 'role', 'description'),
+        FieldSet('region', 'site_group', 'site', name=_('Site')),
+        FieldSet('vrf', 'prefix_length', 'is_pool', 'mark_utilized', name=_('Addressing')),
     )
     nullable_fields = (
         'site', 'vrf', 'tenant', 'role', 'description', 'comments',
@@ -309,7 +310,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IPRange
     fieldsets = (
-        (None, ('status', 'role', 'vrf', 'tenant', 'mark_utilized', 'description')),
+        FieldSet('status', 'role', 'vrf', 'tenant', 'mark_utilized', 'description'),
     )
     nullable_fields = (
         'vrf', 'tenant', 'role', 'description', 'comments',
@@ -357,8 +358,8 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
 
     model = IPAddress
     fieldsets = (
-        (None, ('status', 'role', 'tenant', 'description')),
-        (_('Addressing'), ('vrf', 'mask_length', 'dns_name')),
+        FieldSet('status', 'role', 'tenant', 'description'),
+        FieldSet('vrf', 'mask_length', 'dns_name', name=_('Addressing')),
     )
     nullable_fields = (
         'vrf', 'role', 'tenant', 'dns_name', 'description', 'comments',
@@ -400,8 +401,8 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = FHRPGroup
     fieldsets = (
-        (None, ('protocol', 'group_id', 'name', 'description')),
-        (_('Authentication'), ('auth_type', 'auth_key')),
+        FieldSet('protocol', 'group_id', 'name', 'description'),
+        FieldSet('auth_type', 'auth_key', name=_('Authentication')),
     )
     nullable_fields = ('auth_type', 'auth_key', 'name', 'description', 'comments')
 
@@ -485,8 +486,10 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VLANGroup
     fieldsets = (
-        (None, ('site', 'min_vid', 'max_vid', 'description')),
-        (_('Scope'), ('scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster')),
+        FieldSet('site', 'min_vid', 'max_vid', 'description'),
+        FieldSet(
+            'scope_type', 'region', 'sitegroup', 'site', 'location', 'rack', 'clustergroup', 'cluster', name=_('Scope')
+        ),
     )
     nullable_fields = ('description',)
 
@@ -556,8 +559,8 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
 
     model = VLAN
     fieldsets = (
-        (None, ('status', 'role', 'tenant', 'description')),
-        (_('Site & Group'), ('region', 'site_group', 'site', 'group')),
+        FieldSet('status', 'role', 'tenant', 'description'),
+        FieldSet('region', 'site_group', 'site', 'group', name=_('Site & Group')),
     )
     nullable_fields = (
         'site', 'group', 'tenant', 'role', 'description', 'comments',
@@ -587,7 +590,7 @@ class ServiceTemplateBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ServiceTemplate
     fieldsets = (
-        (None, ('protocol', 'ports', 'description')),
+        FieldSet('protocol', 'ports', 'description'),
     )
     nullable_fields = ('description', 'comments')
 

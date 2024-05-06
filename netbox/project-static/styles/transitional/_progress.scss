@@ -1,0 +1,10 @@
+.progress {
+  height: 20px;
+
+  .progress-label {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-left: 0.25rem;
+  }
+}

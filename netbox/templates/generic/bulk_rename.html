@@ -1,11 +1,34 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load i18n %}
 
+{% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
+Context:
+  - form:              The bulk edit form class
+  - obj_type_plural:   The plural form of the object type
+  - selected_objects:  A queryset matching the objects selected for bulk renaming
+  - return_url:        The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
 {% block title %}
   {% trans "Renaming" %} {{ selected_objects|length }} {{ obj_type_plural|bettertitle }}
 {% endblock %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link active" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
+        {% trans "Bulk Rename" %}
+      </button>
+    </li>
+  </ul>
+{% endblock tabs %}
 
 {% block content %}
 <div class="row mb-3">
@@ -37,11 +60,11 @@
                 </div>
             </div>
             <div class="col col-md-12 my-3 text-end">
+                <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
                 <button type="submit" name="_preview" class="btn btn-primary">{% trans "Preview" %}</button>
                 {% if '_preview' in request.POST and not form.errors %}
                     <button type="submit" name="_apply" class="btn btn-primary">{% trans "Apply" %}</button>
                 {% endif %}
-                <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
             </div>
         </form>
     </div>

@@ -49,8 +49,8 @@ menu_items = (item1, item2, item3)
 Each menu item represents a link and (optionally) a set of buttons comprising one entry in NetBox's navigation menu. Menu items are defined as PluginMenuItem instances. An example is shown below.
 
 ```python title="navigation.py"
+from netbox.choices import ButtonColorChoices
 from netbox.plugins import PluginMenuButton, PluginMenuItem
-from utilities.choices import ButtonColorChoices
 
 item1 = PluginMenuItem(
     link='plugins:myplugin:myview',
@@ -71,8 +71,6 @@ A `PluginMenuItem` has the following attributes:
 | `permissions` | -        | A list of permissions required to display this link                                                      |
 | `staff_only`  | -        | Display only for users who have `is_staff` set to true (any specified permissions will also be required) |
 | `buttons`     | -        | An iterable of PluginMenuButton instances to include                                                     |
-
-!!! info "The `staff_only` attribute was introduced in NetBox v3.6.1."
 
 ## Menu Buttons
 

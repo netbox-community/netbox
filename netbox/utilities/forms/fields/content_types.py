@@ -1,6 +1,6 @@
 from django import forms
 
-from utilities.utils import content_type_name
+from utilities.object_types import object_type_name
 
 __all__ = (
     'ContentTypeChoiceField',
@@ -17,7 +17,7 @@ class ContentTypeChoiceMixin:
 
     def label_from_instance(self, obj):
         try:
-            return content_type_name(obj)
+            return object_type_name(obj)
         except AttributeError:
             return super().label_from_instance(obj)
 

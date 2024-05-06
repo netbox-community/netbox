@@ -8,7 +8,7 @@
 {% block content %}
   <div class="row">
     <div class="col col-md-12 text-end">
-      <a href="{% url 'account:usertoken_add' %}" class="btn btn-sm btn-primary my-3">
+      <a href="{% url 'account:usertoken_add' %}" class="btn btn-primary my-3">
         <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add a Token" %}
       </a>
     </div>
@@ -16,7 +16,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <div class="card-body table-responsive">
+        <div class="table-responsive">
           {% render_table table 'inc/table.html' %}
           {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         </div>

@@ -14,41 +14,37 @@
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Console Port" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <th scope="row">{% trans "Device" %}</th>
-                            <td>{{ object.device|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Module" %}</th>
-                            <td>{{ object.module|linkify|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Name" %}</th>
-                            <td>{{ object.name }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Label" %}</th>
-                            <td>{{ object.label|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Type" %}</th>
-                            <td>{{ object.get_type_display }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Speed" %}</th>
-                            <td>{{ object.get_speed_display }}</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">{% trans "Description" %}</th>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                    </table>
-                </div>
+                <h5 class="card-header">{% trans "Console Port" %}</h5>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Device" %}</th>
+                        <td>{{ object.device|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Module" %}</th>
+                        <td>{{ object.module|linkify|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Name" %}</th>
+                        <td>{{ object.name }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Label" %}</th>
+                        <td>{{ object.label|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Type" %}</th>
+                        <td>{{ object.get_type_display }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Speed" %}</th>
+                        <td>{{ object.get_speed_display }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                </table>
             </div>
             {% include 'inc/panels/custom_fields.html' %}
             {% include 'inc/panels/tags.html' %}
@@ -57,35 +53,36 @@
         <div class="col col-md-6">
           <div class="card">
             <h5 class="card-header">{% trans "Connection" %}</h5>
-            <div class="card-body">
-              {% if object.mark_connected %}
-                <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as connected" %}
-              {% elif object.cable %}
-                {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:consoleport_trace' %}
-              {% else %}
-                <div class="text-muted">
-                  {% trans "Not Connected" %}
-                  {% if perms.dcim.add_cable %}
-                    <div class="dropdown float-end">
-                      <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
-                      </button>
-                      <ul class="dropdown-menu dropdown-menu-end">
-                        <li>
-                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleserverport&return_url={{ object.get_absolute_url }}" class="dropdown-item">{% trans "Console Server Port" %}</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}" class="dropdown-item">{% trans "Front Port" %}</a>
-                        </li>
-                        <li>
-                          <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}" class="dropdown-item">{% trans "Rear Port" %}</a>
-                        </li>
-                      </ul>
-                    </div>
-                  {% endif %}
-                </div>
-              {% endif %}
-            </div>
+            {% if object.mark_connected %}
+              <div class="card-body">
+                <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+                {% trans "Marked as connected" %}
+              </div>
+            {% elif object.cable %}
+              {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:consoleport_trace' %}
+            {% else %}
+              <div class="card-body text-muted">
+                {% trans "Not Connected" %}
+                {% if perms.dcim.add_cable %}
+                  <div class="dropdown float-end">
+                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                      <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleport&a_terminations={{ object.pk }}&b_terminations_type=dcim.consoleserverport&return_url={{ object.get_absolute_url }}" class="dropdown-item">{% trans "Console Server Port" %}</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleport&a_terminations={{ object.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}" class="dropdown-item">{% trans "Front Port" %}</a>
+                      </li>
+                      <li>
+                        <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.consoleport&a_terminations={{ object.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}" class="dropdown-item">{% trans "Rear Port" %}</a>
+                      </li>
+                    </ul>
+                  </div>
+                {% endif %}
+              </div>
+            {% endif %}
           </div>
           {% include 'dcim/inc/panels/inventory_items.html' %}
           {% plugin_right_page object %}

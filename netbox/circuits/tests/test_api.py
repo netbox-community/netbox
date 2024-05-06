@@ -18,7 +18,7 @@ class AppTest(APITestCase):
 
 class ProviderTest(APIViewTestCases.APIViewTestCase):
     model = Provider
-    brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['circuit_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     bulk_update_data = {
         'comments': 'New comments',
     }
@@ -60,7 +60,7 @@ class ProviderTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
     model = CircuitType
-    brief_fields = ['circuit_count', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['circuit_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = (
         {
             'name': 'Circuit Type 4',
@@ -92,7 +92,7 @@ class CircuitTypeTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTest(APIViewTestCases.APIViewTestCase):
     model = Circuit
-    brief_fields = ['cid', 'display', 'id', 'url']
+    brief_fields = ['cid', 'description', 'display', 'id', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
@@ -149,7 +149,7 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
 
 class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
     model = CircuitTermination
-    brief_fields = ['_occupied', 'cable', 'circuit', 'display', 'id', 'term_side', 'url']
+    brief_fields = ['_occupied', 'cable', 'circuit', 'description', 'display', 'id', 'term_side', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -208,7 +208,7 @@ class CircuitTerminationTest(APIViewTestCases.APIViewTestCase):
 
 class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
     model = ProviderAccount
-    brief_fields = ['account', 'display', 'id', 'name', 'url']
+    brief_fields = ['account', 'description', 'display', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -251,7 +251,7 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
 
 class ProviderNetworkTest(APIViewTestCases.APIViewTestCase):
     model = ProviderNetwork
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):

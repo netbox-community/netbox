@@ -1,0 +1,30 @@
+.page-body {
+  .card {
+
+    // Add bottom margin for vertical separation between cards
+    margin-bottom: 1rem;
+
+    // Reduce padding
+    .card-header,
+    .card-body,
+    .card-footer {
+      padding: 0.75rem;
+    }
+
+    // Add background color
+    .card-header {
+      background: var(--#{$prefix}bg-surface-tertiary);
+    }
+
+    // Reduce padding
+    .list-group-item {
+      padding: 0.5rem 0.75rem;
+    }
+
+    // Remove bottom margin
+    .table {
+      margin-bottom: 0;
+    }
+
+  }
+}

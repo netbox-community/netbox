@@ -31,7 +31,9 @@ def get_cable_form(a_type, b_type):
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
                         label=term_cls._meta.verbose_name.title(),
-                        disabled_indicator='_occupied',
+                        context={
+                            'disabled': '_occupied',
+                        },
                         query_params={
                             'device_id': f'$termination_{cable_end}_device',
                             'kind': 'physical',  # Exclude virtual interfaces
@@ -53,7 +55,9 @@ def get_cable_form(a_type, b_type):
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
                         label=_('Power Feed'),
-                        disabled_indicator='_occupied',
+                        context={
+                            'disabled': '_occupied',
+                        },
                         query_params={
                             'power_panel_id': f'$termination_{cable_end}_powerpanel',
                         }
@@ -73,7 +77,9 @@ def get_cable_form(a_type, b_type):
                     attrs[f'{cable_end}_terminations'] = DynamicModelMultipleChoiceField(
                         queryset=term_cls.objects.all(),
                         label=_('Side'),
-                        disabled_indicator='_occupied',
+                        context={
+                            'disabled': '_occupied',
+                        },
                         query_params={
                             'circuit_id': f'$termination_{cable_end}_circuit',
                         }

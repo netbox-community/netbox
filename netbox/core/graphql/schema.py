@@ -1,20 +1,20 @@
-import graphene
+from typing import List
+
+import strawberry
+import strawberry_django
 
 from core import models
-from netbox.graphql.fields import ObjectField, ObjectListField
 from .types import *
-from utilities.graphql_optimizer import gql_query_optimizer
 
 
-class CoreQuery(graphene.ObjectType):
-    data_file = ObjectField(DataFileType)
-    data_file_list = ObjectListField(DataFileType)
+@strawberry.type
+class CoreQuery:
+    @strawberry.field
+    def data_file(self, id: int) -> DataFileType:
+        return models.DataFile.objects.get(pk=id)
+    data_file_list: List[DataFileType] = strawberry_django.field()
 
-    def resolve_data_file_list(root, info, **kwargs):
-        return gql_query_optimizer(models.DataFile.objects.all(), info)
-
-    data_source = ObjectField(DataSourceType)
-    data_source_list = ObjectListField(DataSourceType)
-
-    def resolve_data_source_list(root, info, **kwargs):
-        return gql_query_optimizer(models.DataSource.objects.all(), info)
+    @strawberry.field
+    def data_source(self, id: int) -> DataSourceType:
+        return models.DataSource.objects.get(pk=id)
+    data_source_list: List[DataSourceType] = strawberry_django.field()

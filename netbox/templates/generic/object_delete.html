@@ -1,26 +1,28 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load i18n %}
 
 {% comment %}
+Blocks:
+  - title:      Page title
+  - content:    Primary page content
+
 Context:
-  object: Python instance of the object being deleted
-  form: The delete confirmation form
-  form_url: URL for form submission (optional; defaults to current path)
-  return_url: The URL to which the user is redirected after submitting the form
+  - object:      Python instance of the object being deleted
+  - form:        The delete confirmation form
+  - form_url:    URL for form submission (optional; defaults to current path)
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}
   {% trans "Delete" %} {{ object|meta:"verbose_name" }}?
 {% endblock %}
 
-{% block header %}{% endblock %}
-
 {% block content %}
   <div class="modal" tabindex="-1" style="display: block; position: static">
     <div class="modal-dialog">
-      <div class="modal-content" >
+      <div class="modal-content border-1 border-danger">
         {% include 'htmx/delete_form.html' %}
       </div>
     </div>

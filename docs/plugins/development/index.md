@@ -138,7 +138,7 @@ Any additional apps must be installed within the same Python environment as NetB
 
 ## Create setup.py
 
-`setup.py` is the [setup script](https://docs.python.org/3.8/distutils/setupscript.html) used to package and install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
+`setup.py` is the [setup script](https://docs.python.org/3.10/distutils/setupscript.html) used to package and install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
 
 ```python
 from setuptools import find_packages, setup
@@ -173,7 +173,7 @@ python3 -m venv ~/.virtualenvs/my_plugin
 You can make NetBox available within this environment by creating a path file pointing to its location. This will add NetBox to the Python path upon activation. (Be sure to adjust the command below to specify your actual virtual environment path, Python version, and NetBox installation.)
 
 ```shell
-echo /opt/netbox/netbox > $VENV/lib/python3.8/site-packages/netbox.pth
+echo /opt/netbox/netbox > $VENV/lib/python3.10/site-packages/netbox.pth
 ```
 
 ## Development Installation

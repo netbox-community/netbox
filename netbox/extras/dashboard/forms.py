@@ -4,7 +4,7 @@ from django.utils.translation import gettext as _
 
 from extras.choices import DashboardWidgetColorChoices
 from netbox.registry import registry
-from utilities.forms import BootstrapMixin, add_blank_choice
+from utilities.forms import add_blank_choice
 
 __all__ = (
     'DashboardWidgetAddForm',
@@ -16,7 +16,7 @@ def get_widget_choices():
     return registry['widgets'].items()
 
 
-class DashboardWidgetForm(BootstrapMixin, forms.Form):
+class DashboardWidgetForm(forms.Form):
     title = forms.CharField(
         required=False
     )

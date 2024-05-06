@@ -9,39 +9,37 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Wireless LAN" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "SSID" %}</th>
-            <td>{{ object.ssid }}</td>
-          </tr>
-          <tr>
-            <td>{% trans "Group" %}</td>
-            <td>{{ object.group|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <td>{% trans "Status" %}</td>
-            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "VLAN" %}</th>
-            <td>{{ object.vlan|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Tenant" %}</th>
-            <td>
-              {% if object.tenant.group %}
-                {{ object.tenant.group|linkify }} /
-              {% endif %}
-              {{ object.tenant|linkify|placeholder }}
-            </td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "SSID" %}</th>
+          <td>{{ object.ssid }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Group" %}</th>
+          <td>{{ object.group|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Status" %}</th>
+          <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "VLAN" %}</th>
+          <td>{{ object.vlan|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Tenant" %}</th>
+          <td>
+            {% if object.tenant.group %}
+              {{ object.tenant.group|linkify }} /
+            {% endif %}
+            {{ object.tenant|linkify|placeholder }}
+          </td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/comments.html' %}

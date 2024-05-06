@@ -1,8 +1,6 @@
 from dataclasses import dataclass
 from typing import Sequence, Optional
 
-from utilities.choices import ButtonColorChoices
-
 
 __all__ = (
     'get_model_item',
@@ -79,8 +77,7 @@ def get_model_buttons(app_label, model_name, actions=('add', 'import')):
                 link=f'{app_label}:{model_name}_add',
                 title='Add',
                 icon_class='mdi mdi-plus-thick',
-                permissions=[f'{app_label}.add_{model_name}'],
-                color=ButtonColorChoices.GREEN
+                permissions=[f'{app_label}.add_{model_name}']
             )
         )
     if 'import' in actions:
@@ -89,8 +86,7 @@ def get_model_buttons(app_label, model_name, actions=('add', 'import')):
                 link=f'{app_label}:{model_name}_import',
                 title='Import',
                 icon_class='mdi mdi-upload',
-                permissions=[f'{app_label}.add_{model_name}'],
-                color=ButtonColorChoices.CYAN
+                permissions=[f'{app_label}.add_{model_name}']
             )
         )
 

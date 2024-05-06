@@ -1,7 +1,6 @@
 from django.utils.translation import gettext_lazy as _
 
 from netbox.registry import registry
-from utilities.choices import ButtonColorChoices
 from . import *
 
 #
@@ -317,14 +316,8 @@ CUSTOMIZATION_MENU = Menu(
             ),
         ),
         MenuGroup(
-            label=_('Reports & Scripts'),
+            label=_('Scripts'),
             items=(
-                MenuItem(
-                    link='extras:report_list',
-                    link_text=_('Reports'),
-                    permissions=['extras.view_report'],
-                    buttons=get_model_buttons('extras', "reportmodule", actions=['add'])
-                ),
                 MenuItem(
                     link='extras:script_list',
                     link_text=_('Scripts'),
@@ -375,49 +368,41 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Authentication'),
             items=(
-                # Proxy model for auth.User
                 MenuItem(
-                    link=f'users:netboxuser_list',
+                    link=f'users:user_list',
                     link_text=_('Users'),
                     permissions=[f'auth.view_user'],
-                    staff_only=True,
                     buttons=(
                         MenuItemButton(
-                            link=f'users:netboxuser_add',
+                            link=f'users:user_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_user'],
-                            color=ButtonColorChoices.GREEN
+                            permissions=[f'auth.add_user']
                         ),
                         MenuItemButton(
-                            link=f'users:netboxuser_import',
+                            link=f'users:user_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_user'],
-                            color=ButtonColorChoices.CYAN
+                            permissions=[f'auth.add_user']
                         )
                     )
                 ),
-                # Proxy model for auth.Group
                 MenuItem(
-                    link=f'users:netboxgroup_list',
+                    link=f'users:group_list',
                     link_text=_('Groups'),
                     permissions=[f'auth.view_group'],
-                    staff_only=True,
                     buttons=(
                         MenuItemButton(
-                            link=f'users:netboxgroup_add',
+                            link=f'users:group_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_group'],
-                            color=ButtonColorChoices.GREEN
+                            permissions=[f'auth.add_group']
                         ),
                         MenuItemButton(
-                            link=f'users:netboxgroup_import',
+                            link=f'users:group_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_group'],
-                            color=ButtonColorChoices.CYAN
+                            permissions=[f'auth.add_group']
                         )
                     )
                 ),
@@ -425,32 +410,31 @@ ADMIN_MENU = Menu(
                     link=f'users:token_list',
                     link_text=_('API Tokens'),
                     permissions=[f'users.view_token'],
-                    staff_only=True,
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
                     link=f'users:objectpermission_list',
                     link_text=_('Permissions'),
                     permissions=[f'users.view_objectpermission'],
-                    staff_only=True,
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
                 ),
             ),
         ),
         MenuGroup(
-            label=_('Configuration'),
+            label=_('System'),
             items=(
                 MenuItem(
-                    link='core:config',
-                    link_text=_('Current Config'),
-                    permissions=['core.view_configrevision'],
-                    staff_only=True
+                    link='core:system',
+                    link_text=_('System')
                 ),
                 MenuItem(
                     link='core:configrevision_list',
-                    link_text=_('Config Revisions'),
-                    permissions=['core.view_configrevision'],
-                    staff_only=True
+                    link_text=_('Configuration History'),
+                    permissions=['core.view_configrevision']
+                ),
+                MenuItem(
+                    link='core:background_queue_list',
+                    link_text=_('Background Tasks')
                 ),
             ),
         ),

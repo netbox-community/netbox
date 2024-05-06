@@ -1,7 +1,10 @@
 {% load django_tables2 %}
-<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %}>
+<table{% if table.attrs %} {{ table.attrs.as_html }}{% endif %} hx-disinherit="hx-target hx-select hx-swap">
   {% if table.show_header %}
-    <thead>
+    <thead
+        hx-target="closest .htmx-container"
+        {% if not table.embedded %} hx-push-url="true"{% endif %}
+    >
       <tr>
         {% for column in table.columns %}
           {% if column.orderable %}
@@ -10,16 +13,12 @@
                 <div class="float-end">
                   <a href="#"
                      hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field='' %}"
-                     hx-target="closest .htmx-container"
-                     {% if not table.embedded %}hx-push-url="true"{% endif %}
                      class="text-danger"
                   ><i class="mdi mdi-close"></i></a>
                 </div>
               {% endif %}
               <a href="#"
                  hx-get="{{ table.htmx_url }}{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}"
-                 hx-target="closest .htmx-container"
-                 {% if not table.embedded %}hx-push-url="true"{% endif %}
               >{{ column.header }}</a>
             </th>
           {% else %}

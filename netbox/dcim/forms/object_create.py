@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from dcim.models import *
 from netbox.forms import NetBoxModelForm
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, ExpandableNameField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import APISelect
 from . import model_forms
 
@@ -113,7 +114,7 @@ class FrontPortTemplateCreateForm(ComponentCreateForm, model_forms.FrontPortTemp
 
     # Override fieldsets from FrontPortTemplateForm to omit rear_port_position
     fieldsets = (
-        (None, ('device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'description')),
+        FieldSet('device_type', 'module_type', 'name', 'label', 'type', 'color', 'rear_port', 'description'),
     )
 
     class Meta(model_forms.FrontPortTemplateForm.Meta):
@@ -274,9 +275,9 @@ class FrontPortCreateForm(ComponentCreateForm, model_forms.FrontPortForm):
 
     # Override fieldsets from FrontPortForm to omit rear_port_position
     fieldsets = (
-        (None, (
+        FieldSet(
             'device', 'module', 'name', 'label', 'type', 'color', 'rear_port', 'mark_connected', 'description', 'tags',
-        )),
+        ),
     )
 
     class Meta(model_forms.FrontPortForm.Meta):

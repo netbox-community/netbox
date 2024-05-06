@@ -3,7 +3,7 @@
 
 {% block bulk_buttons %}
   {% if perms.extras.sync_configcontext %}
-    <button type="submit" name="_sync" formaction="{% url 'extras:configcontext_bulk_sync' %}" class="btn btn-primary btn-sm">
+    <button type="submit" name="_sync" {% formaction %}="{% url 'extras:configcontext_bulk_sync' %}" class="btn btn-primary">
       <i class="mdi mdi-sync" aria-hidden="true"></i> {% trans "Sync Data" %}
     </button>
   {% endif %}
