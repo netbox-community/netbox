@@ -26,6 +26,8 @@ def nav(context):
         for group in menu.groups:
             items = []
             for item in group.items:
+                if item.auth_required and not user.is_authenticated:
+                    continue
                 if not user.has_perms(item.permissions):
                     continue
                 if item.staff_only and not user.is_staff:
