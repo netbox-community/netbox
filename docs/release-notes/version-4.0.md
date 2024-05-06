@@ -1,5 +1,9 @@
 # NetBox v4.0
 
+## v4.0.1 (FUTURE)
+
+---
+
 ## v4.0.0 (2024-05-06)
 
 !!! tip "Plugin Maintainers"
