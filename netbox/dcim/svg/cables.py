@@ -17,7 +17,7 @@ PADDING = 10
 LINE_HEIGHT = 20
 FANOUT_HEIGHT = 35
 FANOUT_LEG_HEIGHT = 15
-CABLE_HEIGHT = 4 * LINE_HEIGHT + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT
+CABLE_HEIGHT = 5 * LINE_HEIGHT + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT
 
 
 class Node(Hyperlink):
@@ -405,7 +405,17 @@ class CableTraceSVG:
                     end = far[0].top_center
                     text_offset = 0
 
-                    if len(near) > 1:
+                    if len(near) > 1 and len(far) > 1:
+                        start_center = sum([pos.bottom_center[0] for pos in near]) / len(near)
+                        end_center = sum([pos.bottom_center[0] for pos in far]) / len(far)
+                        center_x = (start_center + end_center) / 2
+
+                        start = (center_x, start[1] + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT)
+                        end = (center_x, end[1] - FANOUT_HEIGHT - FANOUT_LEG_HEIGHT)
+                        text_offset -= (FANOUT_HEIGHT + FANOUT_LEG_HEIGHT)
+                        self.draw_fanin(start, near, color)
+                        self.draw_fanout(end, far, color)
+                    elif len(near) > 1:
                         # Handle Fan-In - change start position to be directly below start
                         start = (end[0], start[1] + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT)
                         self.draw_fanin(start, near, color)
