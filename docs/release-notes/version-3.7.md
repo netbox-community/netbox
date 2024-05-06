@@ -1,12 +1,19 @@
 # NetBox v3.7
 
-## v3.7.8 (FUTURE)
+## v3.7.8 (2024-05-06)
+
+### Enhancements
+
+* [#12127](https://github.com/netbox-community/netbox/issues/12127) - Enable adding new cables directly from navigation menu
 
 ### Bug Fixes
 
 * [#15877](https://github.com/netbox-community/netbox/issues/15877) - Account for virtual chassis membership when assigning related interfaces via bulk edit
 * [#15917](https://github.com/netbox-community/netbox/issues/15917) - Fix pagination through search results within dropdown fields
 * [#15925](https://github.com/netbox-community/netbox/issues/15925) - Fix SVG rendering of cable traces to circuit terminations
+* [#15948](https://github.com/netbox-community/netbox/issues/15948) - Fix cable trace SVG generation for cables with multiple terminations at both ends
+* [#15960](https://github.com/netbox-community/netbox/issues/15960) - Replace CSV export formatting for several many-to-many fields
+* [#15961](https://github.com/netbox-community/netbox/issues/15961) - Fix secret toggle button for IKE policies
 
 ---
 
