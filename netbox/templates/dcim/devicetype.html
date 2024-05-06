@@ -8,94 +8,90 @@
     <div class="row">
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Chassis" %}
-                </h5>
-                <div class="card-body">
-                    <table class="table table-hover attr-table">
-                        <tr>
-                            <td>{% trans "Manufacturer" %}</td>
-                            <td>{{ object.manufacturer|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Model Name" %}</td>
-                            <td>
-                                {{ object.model }}<br/>
-                                <small class="text-muted">{{ object.slug }}</small>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Part Number" %}</td>
-                            <td>{{ object.part_number|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Default Platform" %}</td>
-                            <td>{{ object.default_platform|linkify }}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Description" %}</td>
-                            <td>{{ object.description|placeholder }}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Height (U" %})</td>
-                            <td>{{ object.u_height|floatformat }}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Exclude From Utilization" %}</td>
-                            <td>{% checkmark object.exclude_from_utilization %}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Full Depth" %}</td>
-                            <td>{% checkmark object.is_full_depth %}</td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Weight" %}</td>
-                            <td>
-                            {% if object.weight %}
-                              {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+                <h5 class="card-header">{% trans "Chassis" %}</h5>
+                <table class="table table-hover attr-table">
+                    <tr>
+                        <th scope="row">{% trans "Manufacturer" %}</th>
+                        <td>{{ object.manufacturer|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Model Name" %}</th>
+                        <td>
+                            {{ object.model }}<br/>
+                            <small class="text-muted">{{ object.slug }}</small>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Part Number" %}</th>
+                        <td>{{ object.part_number|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Default Platform" %}</th>
+                        <td>{{ object.default_platform|linkify }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Description" %}</th>
+                        <td>{{ object.description|placeholder }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Height (U)" %}</th>
+                        <td>{{ object.u_height|floatformat }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Exclude From Utilization" %}</th>
+                        <td>{% checkmark object.exclude_from_utilization %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Full Depth" %}</th>
+                        <td>{% checkmark object.is_full_depth %}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Weight" %}</th>
+                        <td>
+                        {% if object.weight %}
+                          {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+                        {% else %}
+                          {{ ''|placeholder }}
+                        {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Parent/Child" %}</th>
+                        <td>
+                            {{ object.get_subdevice_role_display|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Airflow" %}</th>
+                        <td>
+                            {{ object.get_airflow_display|placeholder }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Front Image" %}</th>
+                        <td>
+                            {% if object.front_image %}
+                                <a href="{{ object.front_image.url }}">
+                                    <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-fluid" />
+                                </a>
                             {% else %}
-                              {{ ''|placeholder }}
+                                {{ ''|placeholder }}
                             {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Parent/Child" %}</td>
-                            <td>
-                                {{ object.get_subdevice_role_display|placeholder }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Airflow" %}</td>
-                            <td>
-                                {{ object.get_airflow_display|placeholder }}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Front Image" %}</td>
-                            <td>
-                                {% if object.front_image %}
-                                    <a href="{{ object.front_image.url }}">
-                                        <img src="{{ object.front_image.url }}" alt="{{ object.front_image.name }}" class="img-fluid" />
-                                    </a>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>{% trans "Rear Image" %}</td>
-                            <td>
-                                {% if object.rear_image %}
-                                    <a href="{{ object.rear_image.url }}">
-                                        <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-fluid" />
-                                    </a>
-                                {% else %}
-                                    {{ ''|placeholder }}
-                                {% endif %}
-                            </td>
-                        </tr>
-                    </table>
-                </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">{% trans "Rear Image" %}</th>
+                        <td>
+                            {% if object.rear_image %}
+                                <a href="{{ object.rear_image.url }}">
+                                    <img src="{{ object.rear_image.url }}" alt="{{ object.rear_image.name }}" class="img-fluid" />
+                                </a>
+                            {% else %}
+                                {{ ''|placeholder }}
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
             </div>
             {% include 'inc/panels/tags.html' %}
             {% plugin_left_page object %}

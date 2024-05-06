@@ -29,7 +29,7 @@ class TunnelGroupFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = TunnelGroup
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
 
 class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
@@ -62,7 +62,7 @@ class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = Tunnel
-        fields = ['id', 'name', 'tunnel_id', 'description']
+        fields = ('id', 'name', 'tunnel_id', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -120,10 +120,21 @@ class TunnelTerminationFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = TunnelTermination
-        fields = ['id']
+        fields = ('id', 'termination_id')
 
 
 class IKEProposalFilterSet(NetBoxModelFilterSet):
+    ike_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policies',
+        queryset=IKEPolicy.objects.all(),
+        label=_('IKE policy (ID)'),
+    )
+    ike_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ike_policies__name',
+        queryset=IKEPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IKE policy (name)'),
+    )
     authentication_method = django_filters.MultipleChoiceFilter(
         choices=AuthenticationMethodChoices
     )
@@ -150,7 +161,7 @@ class IKEProposalFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IKEProposal
-        fields = ['id', 'name', 'sa_lifetime', 'description']
+        fields = ('id', 'name', 'sa_lifetime', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -169,16 +180,23 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
     mode = django_filters.MultipleChoiceFilter(
         choices=IKEModeChoices
     )
-    proposal_id = MultiValueNumberFilter(
-        field_name='proposals__id'
+    ike_proposal_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='proposals',
+        queryset=IKEProposal.objects.all()
     )
-    proposal = MultiValueCharFilter(
-        field_name='proposals__name'
+    ike_proposal = django_filters.ModelMultipleChoiceFilter(
+        field_name='proposals__name',
+        queryset=IKEProposal.objects.all(),
+        to_field_name='name'
     )
+
+    # TODO: Remove in v4.1
+    proposal = ike_proposal
+    proposal_id = ike_proposal_id
 
     class Meta:
         model = IKEPolicy
-        fields = ['id', 'name', 'preshared_key', 'description']
+        fields = ('id', 'name', 'preshared_key', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -191,6 +209,17 @@ class IKEPolicyFilterSet(NetBoxModelFilterSet):
 
 
 class IPSecProposalFilterSet(NetBoxModelFilterSet):
+    ipsec_policy_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipsec_policies',
+        queryset=IPSecPolicy.objects.all(),
+        label=_('IPSec policy (ID)'),
+    )
+    ipsec_policy = django_filters.ModelMultipleChoiceFilter(
+        field_name='ipsec_policies__name',
+        queryset=IPSecPolicy.objects.all(),
+        to_field_name='name',
+        label=_('IPSec policy (name)'),
+    )
     encryption_algorithm = django_filters.MultipleChoiceFilter(
         choices=EncryptionAlgorithmChoices
     )
@@ -200,7 +229,7 @@ class IPSecProposalFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IPSecProposal
-        fields = ['id', 'name', 'sa_lifetime_seconds', 'sa_lifetime_data', 'description']
+        fields = ('id', 'name', 'sa_lifetime_seconds', 'sa_lifetime_data', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -216,16 +245,23 @@ class IPSecPolicyFilterSet(NetBoxModelFilterSet):
     pfs_group = django_filters.MultipleChoiceFilter(
         choices=DHGroupChoices
     )
-    proposal_id = MultiValueNumberFilter(
-        field_name='proposals__id'
+    ipsec_proposal_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='proposals',
+        queryset=IPSecProposal.objects.all()
     )
-    proposal = MultiValueCharFilter(
-        field_name='proposals__name'
+    ipsec_proposal = django_filters.ModelMultipleChoiceFilter(
+        field_name='proposals__name',
+        queryset=IPSecProposal.objects.all(),
+        to_field_name='name'
     )
+
+    # TODO: Remove in v4.1
+    proposal = ipsec_proposal
+    proposal_id = ipsec_proposal_id
 
     class Meta:
         model = IPSecPolicy
-        fields = ['id', 'name', 'description']
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -264,7 +300,7 @@ class IPSecProfileFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = IPSecProfile
-        fields = ['id', 'name', 'description']
+        fields = ('id', 'name', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -306,7 +342,7 @@ class L2VPNFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
 
     class Meta:
         model = L2VPN
-        fields = ['id', 'identifier', 'name', 'slug', 'type', 'description']
+        fields = ('id', 'identifier', 'name', 'slug', 'type', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -413,7 +449,7 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = L2VPNTermination
-        fields = ('id', 'assigned_object_type_id')
+        fields = ('id', 'assigned_object_id')
 
     def search(self, queryset, name, value):
         if not value.strip():

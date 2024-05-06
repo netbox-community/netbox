@@ -7,8 +7,8 @@
     {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
         {% if 'bulk_edit' in actions and bulk_edit_view %}
             <button type="submit" name="_edit"
-                    formaction="{% url bulk_edit_view %}?device={{ object.pk }}&return_url={{ return_url }}"
-                    class="btn btn-warning btn-sm">
+                    {% formaction %}="{% url bulk_edit_view %}?device={{ object.pk }}&return_url={{ return_url }}"
+                    class="btn btn-warning">
                 <i class="mdi mdi-pencil" aria-hidden="true"></i> Edit Selected
             </button>
         {% endif %}
@@ -16,8 +16,8 @@
     {% with bulk_rename_view=child_model|validated_viewname:"bulk_rename" %}
         {% if 'bulk_rename' in actions and bulk_rename_view %}
             <button type="submit" name="_rename"
-                    formaction="{% url bulk_rename_view %}?return_url={{ return_url }}"
-                    class="btn btn-outline-warning btn-sm">
+                    {% formaction %}="{% url bulk_rename_view %}?return_url={{ return_url }}"
+                    class="btn btn-outline-warning">
                 <i class="mdi mdi-pencil-outline" aria-hidden="true"></i> Rename
             </button>
         {% endif %}
@@ -28,10 +28,11 @@
     {{ block.super }}
     {% if request.user|can_add:child_model %}
         <div class="bulk-button-group">
-            <a href="{% url table.Meta.model|viewname:"add" %}?device_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary btn-sm">
+            <a href="{% url table.Meta.model|viewname:"add" %}?device_type={{ object.pk }}&return_url={{ return_url }}" class="btn btn-primary">
                 <i class="mdi mdi-plus-thick" aria-hidden="true"></i>
                 {% trans "Add" %} {{ title }}
             </a>
         </div>
     {% endif %}
 {% endblock bulk_extra_controls %}
+

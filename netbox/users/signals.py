@@ -1,6 +1,11 @@
 import logging
-from django.dispatch import receiver
+
 from django.contrib.auth.signals import user_login_failed
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+from netbox.config import get_config
+from users.models import User, UserConfig
 from utilities.request import get_client_ip
 
 
@@ -16,3 +21,13 @@ def log_user_login_failed(sender, credentials, request, **kwargs):
             "configured to pass the required header(s)."
         )
         logger.info(f"Failed login attempt for username: {username}")
+
+
+@receiver(post_save, sender=User)
+def create_userconfig(instance, created, raw=False, **kwargs):
+    """
+    Automatically create a new UserConfig when a new User is created. Skip this if importing a user from a fixture.
+    """
+    if created and not raw:
+        config = get_config()
+        UserConfig(user=instance, data=config.DEFAULT_USER_PREFERENCES).save()

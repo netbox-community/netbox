@@ -8,6 +8,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -34,7 +35,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Provider
     fieldsets = (
-        (None, ('asns', 'description')),
+        FieldSet('asns', 'description'),
     )
     nullable_fields = (
         'asns', 'description', 'comments',
@@ -56,7 +57,7 @@ class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ProviderAccount
     fieldsets = (
-        (None, ('provider', 'description')),
+        FieldSet('provider', 'description'),
     )
     nullable_fields = (
         'description', 'comments',
@@ -83,7 +84,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ProviderNetwork
     fieldsets = (
-        (None, ('provider', 'service_id', 'description')),
+        FieldSet('provider', 'service_id', 'description'),
     )
     nullable_fields = (
         'service_id', 'description', 'comments',
@@ -103,7 +104,7 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = CircuitType
     fieldsets = (
-        (None, ('color', 'description')),
+        FieldSet('color', 'description'),
     )
     nullable_fields = ('color', 'description')
 
@@ -164,9 +165,9 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Circuit
     fieldsets = (
-        (_('Circuit'), ('provider', 'type', 'status', 'description')),
-        (_('Service Parameters'), ('provider_account', 'install_date', 'termination_date', 'commit_rate')),
-        (_('Tenancy'), ('tenant',)),
+        FieldSet('provider', 'type', 'status', 'description', name=_('Circuit')),
+        FieldSet('provider_account', 'install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',

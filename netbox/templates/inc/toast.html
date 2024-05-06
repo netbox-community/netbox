@@ -1,0 +1,12 @@
+{% load helpers %}
+
+<div class="toast toast-dark border-0 shadow-sm" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="10000">
+  <div class="toast-header text-bg-{{ status }}">
+    <i class="mdi mdi-{{ status|icon_from_status }} me-1"></i>
+    {{ title }}
+    <button type="button" class="btn-close me-0 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+  </div>
+  <div class="toast-body">
+    {{ message }}
+  </div>
+</div>

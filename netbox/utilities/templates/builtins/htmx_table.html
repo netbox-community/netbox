@@ -1,4 +1,5 @@
-<div class="card-body htmx-container table-responsive"
+<div class="htmx-container table-responsive"
   hx-get="{% url viewname %}{% if url_params %}?{{ url_params.urlencode }}{% endif %}"
-  hx-trigger="load"
+  hx-target="this"
+  hx-trigger="load" hx-select="table" hx-swap="innerHTML"
 ></div>

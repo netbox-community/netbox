@@ -9,10 +9,11 @@ from extras.models import ConfigTemplate
 from ipam.models import IPAddress, VLAN, VLANGroup, VRF
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
-from utilities.forms import BootstrapMixin, ConfirmationForm
+from utilities.forms import ConfirmationForm
 from utilities.forms.fields import (
     CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, SlugField,
 )
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import HTMXSelect
 from virtualization.models import *
 
@@ -32,9 +33,7 @@ class ClusterTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Cluster Type'), (
-            'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Cluster Type')),
     )
 
     class Meta:
@@ -48,9 +47,7 @@ class ClusterGroupForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Cluster Group'), (
-            'name', 'slug', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'description', 'tags', name=_('Cluster Group')),
     )
 
     class Meta:
@@ -79,8 +76,8 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Cluster'), ('name', 'type', 'group', 'site', 'status', 'description', 'tags')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('name', 'type', 'group', 'site', 'status', 'description', 'tags', name=_('Cluster')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -90,7 +87,7 @@ class ClusterForm(TenancyForm, NetBoxModelForm):
         )
 
 
-class ClusterAddDevicesForm(BootstrapMixin, forms.Form):
+class ClusterAddDevicesForm(forms.Form):
     region = DynamicModelChoiceField(
         label=_('Region'),
         queryset=Region.objects.all(),
@@ -220,12 +217,12 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Virtual Machine'), ('name', 'role', 'status', 'description', 'tags')),
-        (_('Site/Cluster'), ('site', 'cluster', 'device')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
-        (_('Management'), ('platform', 'primary_ip4', 'primary_ip6', 'config_template')),
-        (_('Resources'), ('vcpus', 'memory', 'disk')),
-        (_('Config Context'), ('local_context_data',)),
+        FieldSet('name', 'role', 'status', 'description', 'tags', name=_('Virtual Machine')),
+        FieldSet('site', 'cluster', 'device', name=_('Site/Cluster')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
+        FieldSet('platform', 'primary_ip4', 'primary_ip6', 'config_template', name=_('Management')),
+        FieldSet('vcpus', 'memory', 'disk', name=_('Resources')),
+        FieldSet('local_context_data', name=_('Config Context')),
     )
 
     class Meta:
@@ -348,11 +345,11 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
     )
 
     fieldsets = (
-        (_('Interface'), ('virtual_machine', 'name', 'description', 'tags')),
-        (_('Addressing'), ('vrf', 'mac_address')),
-        (_('Operation'), ('mtu', 'enabled')),
-        (_('Related Interfaces'), ('parent', 'bridge')),
-        (_('802.1Q Switching'), ('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans')),
+        FieldSet('virtual_machine', 'name', 'description', 'tags', name=_('Interface')),
+        FieldSet('vrf', 'mac_address', name=_('Addressing')),
+        FieldSet('mtu', 'enabled', name=_('Operation')),
+        FieldSet('parent', 'bridge', name=_('Related Interfaces')),
+        FieldSet('mode', 'vlan_group', 'untagged_vlan', 'tagged_vlans', name=_('802.1Q Switching')),
     )
 
     class Meta:
@@ -372,7 +369,7 @@ class VMInterfaceForm(InterfaceCommonForm, VMComponentForm):
 class VirtualDiskForm(VMComponentForm):
 
     fieldsets = (
-        (_('Disk'), ('virtual_machine', 'name', 'size', 'description', 'tags')),
+        FieldSet('virtual_machine', 'name', 'size', 'description', 'tags', name=_('Disk')),
     )
 
     class Meta:

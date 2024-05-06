@@ -2219,7 +2219,7 @@ class CablePathTestCase(TestCase):
         device = Device.objects.create(
             site=self.site,
             device_type=self.device.device_type,
-            device_role=self.device.device_role,
+            role=self.device.role,
             name='Test mid-span Device'
         )
         interface1 = Interface.objects.create(device=self.device, name='Interface 1')

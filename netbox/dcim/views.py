@@ -25,8 +25,8 @@ from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 from utilities.permissions import get_permission_for_model
+from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
-from utilities.utils import count_related
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
@@ -727,7 +727,6 @@ class RackNonRackedView(generic.ObjectChildrenView):
 class RackEditView(generic.ObjectEditView):
     queryset = Rack.objects.all()
     form = forms.RackForm
-    template_name = 'dcim/rack_edit.html'
 
 
 @register_model_view(Rack, 'delete')
@@ -1656,7 +1655,6 @@ class InventoryItemTemplateCreateView(generic.ComponentCreateView):
     queryset = InventoryItemTemplate.objects.all()
     form = forms.InventoryItemTemplateCreateForm
     model_form = forms.InventoryItemTemplateForm
-    template_name = 'dcim/inventoryitemtemplate_edit.html'
 
     def alter_object(self, instance, request):
         # Set component (if any)
@@ -1674,7 +1672,6 @@ class InventoryItemTemplateCreateView(generic.ComponentCreateView):
 class InventoryItemTemplateEditView(generic.ObjectEditView):
     queryset = InventoryItemTemplate.objects.all()
     form = forms.InventoryItemTemplateForm
-    template_name = 'dcim/inventoryitemtemplate_edit.html'
 
 
 @register_model_view(InventoryItemTemplate, 'delete')
@@ -2927,14 +2924,12 @@ class InventoryItemView(generic.ObjectView):
 class InventoryItemEditView(generic.ObjectEditView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemForm
-    template_name = 'dcim/inventoryitem_edit.html'
 
 
 class InventoryItemCreateView(generic.ComponentCreateView):
     queryset = InventoryItem.objects.all()
     form = forms.InventoryItemCreateForm
     model_form = forms.InventoryItemForm
-    template_name = 'dcim/inventoryitem_edit.html'
 
 
 @register_model_view(InventoryItem, 'delete')
@@ -2962,7 +2957,6 @@ class InventoryItemBulkDeleteView(generic.BulkDeleteView):
     queryset = InventoryItem.objects.all()
     filterset = filtersets.InventoryItemFilterSet
     table = tables.InventoryItemTable
-    template_name = 'dcim/inventoryitem_bulk_delete.html'
 
 
 @register_model_view(InventoryItem, 'children')
@@ -3348,6 +3342,7 @@ class VirtualChassisEditView(ObjectPermissionRequiredMixin, GetReturnURLMixin, V
         formset = VCMemberFormSet(queryset=members_queryset)
 
         return render(request, 'dcim/virtualchassis_edit.html', {
+            'object': virtual_chassis,
             'vc_form': vc_form,
             'formset': formset,
             'return_url': self.get_return_url(request, virtual_chassis),

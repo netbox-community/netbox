@@ -5,32 +5,32 @@
   {% if custom_fields %}
     <div class="card">
       <h5 class="card-header">{% trans "Custom Fields" %}</h5>
-      <div class="card-body">
+      <table class="table table-hover attr-table">
         {% for group_name, fields in custom_fields.items %}
           {% if group_name %}
-            <h6>{{ group_name }}</h6>
+            <tr>
+              <th scope="row" colspan="2" class="fw-bold">{{ group_name }}</th>
+            </tr>
           {% endif %}
-          <table class="table table-hover attr-table">
-            {% for field, value in fields.items %}
-              <tr>
-                <th scope="row">{{ field }}
-                  {% if field.description %}
-                    <i
-                      class="mdi mdi-information text-primary"
-                      data-bs-toggle="tooltip"
-                      data-bs-placement="right"
-                      title="{{ field.description|escape }}"
-                    ></i>
-                  {% endif %}
-                </th>
-                <td>
-                  {% customfield_value field value %}
-                </td>
-              </tr>
-            {% endfor %}
-          </table>
+          {% for field, value in fields.items %}
+            <tr>
+              <th scope="row"{% if group_name %} class="ps-3"{% endif %}>{{ field }}
+                {% if field.description %}
+                  <i
+                    class="mdi mdi-information text-primary"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="right"
+                    title="{{ field.description|escape }}"
+                  ></i>
+                {% endif %}
+              </th>
+              <td>
+                {% customfield_value field value %}
+              </td>
+            </tr>
+          {% endfor %}
         {% endfor %}
-      </div>
+      </table>
     </div>
   {% endif %}
 {% endwith %}

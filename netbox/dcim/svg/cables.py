@@ -6,7 +6,7 @@ from svgwrite.text import Text
 from django.conf import settings
 
 from dcim.constants import CABLE_TRACE_SVG_DEFAULT_WIDTH
-from utilities.utils import foreground_color
+from utilities.html import foreground_color
 
 __all__ = (
     'CableTraceSVG',

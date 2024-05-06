@@ -13,7 +13,7 @@
 
 {% block extra_controls %}
   {% if perms.tenancy.add_tenant %}
-    <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'tenancy:tenant_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant" %}
     </a>
   {% endif %}
@@ -23,25 +23,21 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Tenant Group" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Parent" %}</th>
-            <td>{{ object.parent|linkify|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "Tenant Group" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Parent" %}</th>
+          <td>{{ object.parent|linkify|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}
@@ -55,18 +51,17 @@
 <div class="row mb-3">
 	<div class="col col-md-12">
     <div class="card">
-      <h5 class="card-header">{% trans "Child Groups" %}</h5>
-      <div class="card-body htmx-container table-responsive"
-        hx-get="{% url 'tenancy:tenantgroup_list' %}?parent_id={{ object.pk }}"
-        hx-trigger="load"
-      ></div>
-      {% if perms.tenancy.add_tenantgroup %}
-        <div class="card-footer text-end noprint">
-          <a href="{% url 'tenancy:tenantgroup_add' %}?parent={{ object.pk }}" class="btn btn-sm btn-primary">
-            <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant Group" %}
-          </a>
-        </div>
-      {% endif %}
+      <h5 class="card-header">
+        {% trans "Child Groups" %}
+        {% if perms.tenancy.add_tenantgroup %}
+          <div class="card-actions">
+            <a href="{% url 'tenancy:tenantgroup_add' %}?parent={{ object.pk }}" class="btn btn-ghost-primary btn-sm">
+              <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tenant Group" %}
+            </a>
+          </div>
+        {% endif %}
+      </h5>
+      {% htmx_table 'tenancy:tenantgroup_list' parent_id=object.pk %}
     </div>
     {% plugin_full_width_page object %}
   </div>

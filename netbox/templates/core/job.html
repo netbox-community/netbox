@@ -4,79 +4,71 @@
 {% load perms %}
 {% load i18n %}
 
-{% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:object %}
-        {% delete_button object %}
-      {% endif %}
-    </div>
-  </div>
-{% endblock controls %}
+{% block control-buttons %}
+  {% if request.user|can_delete:object %}
+    {% delete_button object %}
+  {% endif %}
+{% endblock control-buttons %}
 
 {% block content %}
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Job" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Object Type" %}</th>
+            <td>
+              <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object_type }}</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display object.get_status_color %}</td>
+          </tr>
+          {% if object.error %}
             <tr>
-              <th scope="row">{% trans "Object Type" %}</th>
-              <td>
-                <a href="{% url 'core:job_list' %}?object_type={{ object.object_type_id }}">{{ object.object_type }}</a>
-              </td>
+              <th scope="row">{% trans "Error" %}</th>
+              <td>{{ object.error }}</td>
             </tr>
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Status" %}</th>
-              <td>{% badge object.get_status_display object.get_status_color %}</td>
-            </tr>
-            {% if object.error %}
-              <tr>
-                <th scope="row">{% trans "Error" %}</th>
-                <td>{{ object.error }}</td>
-              </tr>
-            {% endif %}
-            <tr>
-              <th scope="row">{% trans "Created By" %}</th>
-              <td>{{ object.user|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+          {% endif %}
+          <tr>
+            <th scope="row">{% trans "Created By" %}</th>
+            <td>{{ object.user|placeholder }}</td>
+          </tr>
+        </table>
       </div>
     </div>
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Scheduling" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Created" %}</th>
-              <td>{{ object.created|annotated_date }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Scheduled" %}</th>
-              <td>
-                {{ object.scheduled|annotated_date|placeholder }}
-                {% if object.interval %}
-                  ({% blocktrans with interval=object.interval %}every {{ interval }} minutes{% endblocktrans %})
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Started" %}</th>
-              <td>{{ object.started|annotated_date|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Completed" %}</th>
-              <td>{{ object.completed|annotated_date|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Created" %}</th>
+            <td>{{ object.created|isodatetime }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Scheduled" %}</th>
+            <td>
+              {{ object.scheduled|isodatetime|placeholder }}
+              {% if object.interval %}
+                ({% blocktrans with interval=object.interval %}every {{ interval }} minutes{% endblocktrans %})
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Started" %}</th>
+            <td>{{ object.started|isodatetime|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Completed" %}</th>
+            <td>{{ object.completed|isodatetime|placeholder }}</td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>

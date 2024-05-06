@@ -152,7 +152,9 @@ class LocationTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
     class Meta(NetBoxTable.Meta):
         model = Location
         fields = (
-            'pk', 'id', 'name', 'site', 'status', 'tenant', 'tenant_group', 'rack_count', 'device_count', 'description',
-            'slug', 'contacts', 'tags', 'actions', 'created', 'last_updated',
+            'pk', 'id', 'name', 'site', 'status', 'facility', 'tenant', 'tenant_group', 'rack_count', 'device_count',
+            'description', 'slug', 'contacts', 'tags', 'actions', 'created', 'last_updated',
         )
-        default_columns = ('pk', 'name', 'site', 'status', 'tenant', 'rack_count', 'device_count', 'description')
+        default_columns = (
+            'pk', 'name', 'site', 'status', 'facility', 'tenant', 'rack_count', 'device_count', 'description'
+        )

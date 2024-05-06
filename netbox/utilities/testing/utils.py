@@ -5,9 +5,9 @@ from contextlib import contextmanager
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission
-from django.contrib.contenttypes.models import ContentType
 from django.utils.text import slugify
 
+from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField, Tag
@@ -128,7 +128,7 @@ def add_custom_field_data(form_data, model):
         form_data: The dictionary of form data to be updated
         model: The model of the object the form seeks to create or modify
     """
-    content_type = ContentType.objects.get_for_model(model)
+    object_type = ObjectType.objects.get_for_model(model)
     custom_fields = (
         CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='text_field', default='foo'),
         CustomField(type=CustomFieldTypeChoices.TYPE_INTEGER, name='integer_field', default=123),
@@ -138,7 +138,7 @@ def add_custom_field_data(form_data, model):
     )
     CustomField.objects.bulk_create(custom_fields)
     for cf in custom_fields:
-        cf.content_types.set([content_type])
+        cf.object_types.set([object_type])
 
     form_data.update({
         f'cf_{k}': v if type(v) is str else json.dumps(v)

@@ -3,8 +3,8 @@ from django.db.models import Count, F, OuterRef, Q, Subquery, Value
 from django.db.models.expressions import RawSQL
 from django.db.models.functions import Round
 
+from utilities.query import count_related
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import count_related
 
 __all__ = (
     'ASNRangeQuerySet',

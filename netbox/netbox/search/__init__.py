@@ -1,6 +1,9 @@
 from collections import namedtuple
+from decimal import Decimal
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
+from netaddr import IPAddress, IPNetwork
 
 from ipam.fields import IPAddressField, IPNetworkField
 from netbox.registry import registry
@@ -57,6 +60,24 @@ class SearchIndex:
         return FieldTypes.STRING
 
     @staticmethod
+    def get_attr_type(instance, field_name):
+        """
+        Return the data type of the specified object attribute.
+        """
+        value = getattr(instance, field_name)
+        if type(value) is str:
+            return FieldTypes.STRING
+        if type(value) is int:
+            return FieldTypes.INTEGER
+        if type(value) in (float, Decimal):
+            return FieldTypes.FLOAT
+        if type(value) is IPNetwork:
+            return FieldTypes.CIDR
+        if type(value) is IPAddress:
+            return FieldTypes.INET
+        return FieldTypes.STRING
+
+    @staticmethod
     def get_field_value(instance, field_name):
         """
         Return the value of the specified model field as a string (or None).
@@ -83,7 +104,11 @@ class SearchIndex:
 
         # Capture built-in fields
         for name, weight in cls.fields:
-            type_ = cls.get_field_type(instance, name)
+            try:
+                type_ = cls.get_field_type(instance, name)
+            except FieldDoesNotExist:
+                # Not a concrete field; handle as an object attribute
+                type_ = cls.get_attr_type(instance, name)
             value = cls.get_field_value(instance, name)
             if type_ and value:
                 values.append(

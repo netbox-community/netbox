@@ -12,42 +12,40 @@
     <div class="col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "User" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Username" %}</th>
-              <td>{{ object.username }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Full Name" %}</th>
-              <td>{{ object.get_full_name|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Email" %}</th>
-              <td>{{ object.email|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Account Created" %}</th>
-              <td>{{ object.date_joined|annotated_date }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Last Login" %}</th>
-              <td>{{ object.last_login|annotated_date }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Active" %}</th>
-              <td>{% checkmark object.is_active %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Staff" %}</th>
-              <td>{% checkmark object.is_staff %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Superuser" %}</th>
-              <td>{% checkmark object.is_superuser %}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Username" %}</th>
+            <td>{{ object.username }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Full Name" %}</th>
+            <td>{{ object.get_full_name|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Email" %}</th>
+            <td>{{ object.email|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Account Created" %}</th>
+            <td>{{ object.date_joined|isodate }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Last Login" %}</th>
+            <td>{{ object.last_login|isodatetime:"minutes"|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Active" %}</th>
+            <td>{% checkmark object.is_active %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Staff" %}</th>
+            <td>{% checkmark object.is_staff %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Superuser" %}</th>
+            <td>{% checkmark object.is_superuser %}</td>
+          </tr>
+        </table>
       </div>
     </div>
     <div class="col-md-6">
@@ -55,7 +53,7 @@
         <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
         <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
-            <a href="{% url 'users:netboxgroup' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
+            <a href="{% url 'users:group' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}

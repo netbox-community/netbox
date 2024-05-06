@@ -10,7 +10,7 @@
 
 {% block extra_controls %}
   {% if perms.dcim.add_device %}
-    <a href="{% url 'dcim:device_add' %}?role={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'dcim:device_add' %}?role={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Device" %}
     </a>
   {% endif %}
@@ -20,35 +20,31 @@
 <div class="row mb-3">
 	<div class="col col-md-6">
     <div class="card">
-      <h5 class="card-header">
-        {% trans "Device Role" %}
-      </h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Color" %}</th>
-            <td>
-              <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "VM Role" %}</th>
-            <td>{% checkmark object.vm_role %}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Config Template" %}</th>
-            <td>{{ object.config_template|linkify|placeholder }}</td>
-          </tr>
-        </table>
-      </div>
+      <h5 class="card-header">{% trans "Device Role" %}</h5>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Color" %}</th>
+          <td>
+            <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "VM Role" %}</th>
+          <td>{% checkmark object.vm_role %}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Config Template" %}</th>
+          <td>{{ object.config_template|linkify|placeholder }}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}

@@ -1,16 +1,16 @@
 {
   "name": "netbox-graphiql",
-  "version": "0.1.0",
+  "version": "4.0.0",
   "description": "NetBox GraphiQL Custom Front End",
   "main": "dist/graphiql.js",
   "license": "Apache-2.0",
   "private": true,
   "dependencies": {
-    "graphiql": "1.8.9",
-    "graphql": ">= v14.5.0 <= 15.5.0",
-    "react": "17.0.2",
-    "react-dom": "17.0.2",
-    "subscriptions-transport-ws": "0.9.18",
-    "whatwg-fetch": "3.6.2"
+    "graphiql": "3.2.0",
+    "graphql": "16.8.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "js-cookie": "3.0.5",
+    "@graphiql/plugin-explorer": "2.0.0"
   }
 }

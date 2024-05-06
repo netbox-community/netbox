@@ -1,0 +1,92 @@
+{% extends 'generic/_base.html' %}
+{% load buttons %}
+{% load helpers %}
+{% load i18n %}
+{% load render_table from django_tables2 %}
+
+{% block title %}{% trans "System" %}{% endblock %}
+
+{% block controls %}
+  <a href="?export=true" class="btn btn-purple">
+    <i class="mdi mdi-download"></i> {% trans "Export" %}
+  </a>
+{% endblock controls %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs px-3">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Status" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+  {# System status #}
+  <div class="row mb-3">
+    <div class="col">
+      <div class="card">
+        <h5 class="card-header">{% trans "System Status" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "NetBox version" %}</th>
+            <td>{{ stats.netbox_version }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Django version" %}</th>
+            <td>{{ stats.django_version }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "PotsgreSQL version" %}</th>
+            <td>{{ stats.postgresql_version }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Database name" %}</th>
+            <td>{{ stats.database_name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Database size" %}</th>
+            <td>
+              {% if stats.database_size %}
+                {{ stats.database_size }}
+              {% else %}
+                <span class="text-muted">{% trans "Unavailable" %}</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "RQ workers" %}</th>
+            <td>
+              <a href="{% url 'core:background_queue_list' %}">{{ stats.rq_worker_count }}</a>
+              ({% trans "default queue" %})
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "System time" %}</th>
+            <td>{% now 'Y-m-d H:i:s T' %}</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  {# Plugins #}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Plugins" %}</h5>
+        {% render_table plugins_table %}
+      </div>
+    </div>
+  </div>
+
+  {# Configuration #}
+  <div class="row mb-3">
+    <div class="col col-md-12">
+      <div class="card">
+        <h5 class="card-header">{% trans "Current Configuration" %}</h5>
+        {% include 'core/inc/config_data.html' with config=config.data %}
+      </div>
+
+    </div>
+  </div>
+{% endblock content %}

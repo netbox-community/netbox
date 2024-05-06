@@ -17,14 +17,14 @@
 {% block extra_controls %}
   <div class="btn-group" role="group" aria-label="RackNavigation">
     {% if prev_rack %}
-      <a href="{{ prev_rack.get_absolute_url }}" class="btn btn-sm btn-primary">
+      <a href="{{ prev_rack.get_absolute_url }}" class="btn btn-primary">
         <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {{ prev_rack }}
       </a>
     {% endif %}
 
     {% if peer_racks %}
       <div class="btn-group" role="group">
-        <button class="btn btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ object }}</button>
+        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">{{ object }}</button>
         <ul class="dropdown-menu">
           {% for peer_rack in peer_racks %}
             <li><a class="dropdown-item{% if peer_rack.pk == object.pk %} active{% endif %}" href="{{ peer_rack.get_absolute_url }}">{{ peer_rack }}</a></li>
@@ -34,7 +34,7 @@
     {% endif %}
 
     {% if next_rack %}
-      <a href="{{ next_rack.get_absolute_url }}" class="btn btn-sm btn-primary">
+      <a href="{{ next_rack.get_absolute_url }}" class="btn btn-primary">
         {{ next_rack }} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
       </a>
     {% endif %}

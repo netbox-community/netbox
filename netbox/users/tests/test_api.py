@@ -1,11 +1,10 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
-from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 
-from users.models import ObjectPermission, Token
+from core.models import ObjectType
+from users.models import Group, ObjectPermission, Token
+from utilities.data import deepmerge
 from utilities.testing import APIViewTestCases, APITestCase, create_test_user
-from utilities.utils import deepmerge
 
 
 User = get_user_model()
@@ -17,29 +16,13 @@ class AppTest(APITestCase):
 
         url = reverse('users-api:api-root')
         response = self.client.get(f'{url}?format=api', **self.header)
-
         self.assertEqual(response.status_code, 200)
 
 
 class UserTest(APIViewTestCases.APIViewTestCase):
     model = User
-    view_namespace = 'users'
     brief_fields = ['display', 'id', 'url', 'username']
     validation_excluded_fields = ['password']
-    create_data = [
-        {
-            'username': 'User_4',
-            'password': 'password4',
-        },
-        {
-            'username': 'User_5',
-            'password': 'password5',
-        },
-        {
-            'username': 'User_6',
-            'password': 'password6',
-        },
-    ]
     bulk_update_data = {
         'email': 'test@example.com',
     }
@@ -47,12 +30,40 @@ class UserTest(APIViewTestCases.APIViewTestCase):
     @classmethod
     def setUpTestData(cls):
 
+        permissions = (
+            ObjectPermission(name='Permission 1', actions=['view']),
+            ObjectPermission(name='Permission 2', actions=['view']),
+            ObjectPermission(name='Permission 3', actions=['view']),
+        )
+        ObjectPermission.objects.bulk_create(permissions)
+        permissions[0].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'site'))
+        permissions[1].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'location'))
+        permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
+
         users = (
-            User(username='User_1', password='password1'),
-            User(username='User_2', password='password2'),
-            User(username='User_3', password='password3'),
+            User(username='User1', password='password1'),
+            User(username='User2', password='password2'),
+            User(username='User3', password='password3'),
         )
         User.objects.bulk_create(users)
+
+        cls.create_data = [
+            {
+                'username': 'User4',
+                'password': 'password4',
+                'permissions': [permissions[0].pk],
+            },
+            {
+                'username': 'User5',
+                'password': 'password5',
+                'permissions': [permissions[1].pk],
+            },
+            {
+                'username': 'User6',
+                'password': 'password6',
+                'permissions': [permissions[2].pk],
+            },
+        ]
 
     def test_that_password_is_changed(self):
         """
@@ -65,10 +76,10 @@ class UserTest(APIViewTestCases.APIViewTestCase):
         )
         obj_perm.save()
         obj_perm.users.add(self.user)
-        obj_perm.object_types.add(ContentType.objects.get_for_model(self.model))
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
 
         user_credentials = {
-            'username': 'user1',
+            'username': 'newuser',
             'password': 'abc123',
         }
         user = User.objects.create_user(**user_credentials)
@@ -77,41 +88,56 @@ class UserTest(APIViewTestCases.APIViewTestCase):
             'password': 'newpassword'
         }
         url = reverse('users-api:user-detail', kwargs={'pk': user.id})
-
         response = self.client.patch(url, data, format='json', **self.header)
-
         self.assertEqual(response.status_code, 200)
-
-        updated_user = User.objects.get(id=user.id)
-
-        self.assertTrue(updated_user.check_password(data['password']))
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(data['password']))
 
 
 class GroupTest(APIViewTestCases.APIViewTestCase):
     model = Group
-    view_namespace = 'users'
-    brief_fields = ['display', 'id', 'name', 'url']
-    create_data = [
-        {
-            'name': 'Group 4',
-        },
-        {
-            'name': 'Group 5',
-        },
-        {
-            'name': 'Group 6',
-        },
-    ]
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
 
-        users = (
+        permissions = (
+            ObjectPermission(name='Permission 1', actions=['view']),
+            ObjectPermission(name='Permission 2', actions=['view']),
+            ObjectPermission(name='Permission 3', actions=['view']),
+        )
+        ObjectPermission.objects.bulk_create(permissions)
+        permissions[0].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'site'))
+        permissions[1].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'location'))
+        permissions[2].object_types.add(ObjectType.objects.get_by_natural_key('dcim', 'rack'))
+
+        groups = (
             Group(name='Group 1'),
             Group(name='Group 2'),
             Group(name='Group 3'),
         )
-        Group.objects.bulk_create(users)
+        Group.objects.bulk_create(groups)
+
+        cls.create_data = [
+            {
+                'name': 'Group 4',
+                'permissions': [permissions[0].pk],
+            },
+            {
+                'name': 'Group 5',
+                'permissions': [permissions[1].pk],
+            },
+            {
+                'name': 'Group 6',
+                'permissions': [permissions[2].pk],
+            },
+        ]
+
+    def model_to_dict(self, instance, *args, **kwargs):
+        # Overwrite permissions attr to work around the serializer field having a different name
+        data = super().model_to_dict(instance, *args, **kwargs)
+        data['permissions'] = list(instance.object_permissions.values_list('id', flat=True))
+        return data
 
     def test_bulk_update_objects(self):
         """
@@ -129,7 +155,7 @@ class TokenTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = Token
-    brief_fields = ['display', 'id', 'key', 'url', 'write_enabled']
+    brief_fields = ['description', 'display', 'id', 'key', 'url', 'write_enabled']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -143,9 +169,9 @@ class TokenTest(
     @classmethod
     def setUpTestData(cls):
         users = (
-            create_test_user('User 1'),
-            create_test_user('User 2'),
-            create_test_user('User 3'),
+            create_test_user('User1'),
+            create_test_user('User2'),
+            create_test_user('User3'),
         )
 
         tokens = (
@@ -241,7 +267,7 @@ class ObjectPermissionTest(
     APIViewTestCases.DeleteObjectViewTestCase
 ):
     model = ObjectPermission
-    brief_fields = ['actions', 'display', 'enabled', 'groups', 'id', 'name', 'object_types', 'url', 'users']
+    brief_fields = ['actions', 'description', 'display', 'enabled', 'id', 'name', 'object_types', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -254,19 +280,19 @@ class ObjectPermissionTest(
         Group.objects.bulk_create(groups)
 
         users = (
-            User(username='User 1', is_active=True),
-            User(username='User 2', is_active=True),
-            User(username='User 3', is_active=True),
+            User(username='User1', is_active=True),
+            User(username='User2', is_active=True),
+            User(username='User3', is_active=True),
         )
         User.objects.bulk_create(users)
 
-        object_type = ContentType.objects.get(app_label='dcim', model='device')
+        object_type = ObjectType.objects.get(app_label='dcim', model='device')
 
         for i in range(3):
             objectpermission = ObjectPermission(
-                name=f'Permission {i+1}',
+                name=f'Permission {i + 1}',
                 actions=['view', 'add', 'change', 'delete'],
-                constraints={'name': f'TEST{i+1}'}
+                constraints={'name': f'TEST{i + 1}'}
             )
             objectpermission.save()
             objectpermission.object_types.add(object_type)

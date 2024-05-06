@@ -8,7 +8,6 @@ from drf_spectacular.types import OpenApiTypes
 
 __all__ = (
     'ContentTypeFilter',
-    'MACAddressFilter',
     'MultiValueArrayFilter',
     'MultiValueCharFilter',
     'MultiValueDateFilter',
@@ -99,10 +98,6 @@ class MultiValueArrayFilter(django_filters.MultipleChoiceFilter):
         if v is None:
             return {self.field_name: None}
         return super().get_filter_predicate(v)
-
-
-class MACAddressFilter(django_filters.CharFilter):
-    pass
 
 
 @extend_schema_field(OpenApiTypes.STR)
