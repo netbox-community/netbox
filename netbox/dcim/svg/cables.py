@@ -17,7 +17,7 @@ PADDING = 10
 LINE_HEIGHT = 20
 FANOUT_HEIGHT = 35
 FANOUT_LEG_HEIGHT = 15
-CABLE_HEIGHT = 4 * LINE_HEIGHT + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT
+CABLE_HEIGHT = 5 * LINE_HEIGHT + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT
 
 
 class Node(Hyperlink):
@@ -223,7 +223,7 @@ class CableTraceSVG:
         nodes_height = 0
         nodes = []
         # Sort them by name to make renders more readable
-        for i, term in enumerate(sorted(terminations, key=lambda x: x.name)):
+        for i, term in enumerate(sorted(terminations, key=lambda x: str(x))):
             node = Node(
                 position=(offset_x + i * width, self.cursor),
                 width=width,
@@ -266,7 +266,7 @@ class CableTraceSVG:
         Draw the far-end objects and its terminations and return all created nodes
         """
         # Make sure elements are sorted by name for readability
-        objects = sorted(obj_list, key=lambda x: x.name)
+        objects = sorted(obj_list, key=lambda x: str(x))
         width = self.width / len(objects)
 
         # Max-height of created terminations
@@ -361,7 +361,8 @@ class CableTraceSVG:
             # Connector (a Cable or WirelessLink)
             if links:
 
-                parent_object_nodes, far_terminations = self.draw_far_objects(set(end.parent_object for end in far_ends), far_ends)
+                obj_list = {end.parent_object for end in far_ends}
+                parent_object_nodes, far_terminations = self.draw_far_objects(obj_list, far_ends)
                 for cable in links:
                     # Fill in labels and description with all available data
                     description = [
@@ -404,7 +405,17 @@ class CableTraceSVG:
                     end = far[0].top_center
                     text_offset = 0
 
-                    if len(near) > 1:
+                    if len(near) > 1 and len(far) > 1:
+                        start_center = sum([pos.bottom_center[0] for pos in near]) / len(near)
+                        end_center = sum([pos.bottom_center[0] for pos in far]) / len(far)
+                        center_x = (start_center + end_center) / 2
+
+                        start = (center_x, start[1] + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT)
+                        end = (center_x, end[1] - FANOUT_HEIGHT - FANOUT_LEG_HEIGHT)
+                        text_offset -= (FANOUT_HEIGHT + FANOUT_LEG_HEIGHT)
+                        self.draw_fanin(start, near, color)
+                        self.draw_fanout(end, far, color)
+                    elif len(near) > 1:
                         # Handle Fan-In - change start position to be directly below start
                         start = (end[0], start[1] + FANOUT_HEIGHT + FANOUT_LEG_HEIGHT)
                         self.draw_fanin(start, near, color)
