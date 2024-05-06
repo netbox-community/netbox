@@ -20,6 +20,7 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from utilities.string import trailing_slash
 
+
 #
 # Environment setup
 #
