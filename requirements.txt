@@ -1,4 +1,4 @@
-Django==5.0.4
+Django==5.0.5
 django-cors-headers==4.3.1
 django-debug-toolbar==4.3.0
 django-filter==24.2
@@ -30,8 +30,8 @@ PyYAML==6.0.1
 requests==2.31.0
 social-auth-app-django==5.4.1
 social-auth-core==4.5.4
-strawberry-graphql==0.227.2
-strawberry-graphql-django==0.34.0
+strawberry-graphql==0.227.3
+strawberry-graphql-django==0.39.2
 svgwrite==1.4.3
 tablib==3.6.1
 tzdata==2024.1

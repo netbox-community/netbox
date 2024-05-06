@@ -1,8 +1,6 @@
 # NetBox v4.0
 
-## v4.0-beta2 (2024-04-22)
-
-**WARNING:** This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
+## v4.0.0 (2024-05-06)
 
 !!! tip "Plugin Maintainers"
     Please see the dedicated [plugin migration guide](../plugins/development/migration-v4.md) for a checklist of changes that may be needed to ensure compatibility with NetBox v4.0.
@@ -67,7 +65,7 @@ The legacy admin user interface is now disabled by default, and the few remainin
 
 ### Enhancements
 
-* [#12776](https://github.com/netbox-community/netbox/issues/12776) - Introduce the `htmx_talble` template tag to simplify the rendering of embedded tables
+* [#12776](https://github.com/netbox-community/netbox/issues/12776) - Introduce the `htmx_table` template tag to simplify the rendering of embedded tables
 * [#12851](https://github.com/netbox-community/netbox/issues/12851) - Replace the deprecated Bleach HTML sanitization library with nh3
 * [#13283](https://github.com/netbox-community/netbox/issues/13283) - Display additional context on API-backed dropdown form fields (e.g. object descriptions)
 * [#13918](https://github.com/netbox-community/netbox/issues/13918) - Add `facility` field to Location model
