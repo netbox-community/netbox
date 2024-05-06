@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from users.constants import OBJECTPERMISSION_OBJECT_TYPES
+from users.models.features import CloningUserMixin
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -11,7 +12,7 @@ __all__ = (
 )
 
 
-class ObjectPermission(models.Model):
+class ObjectPermission(CloningUserMixin, models.Model):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.
@@ -46,6 +47,8 @@ class ObjectPermission(models.Model):
     )
 
     objects = RestrictedQuerySet.as_manager()
+
+    clone_fields = ['name', 'description', 'enabled', 'object_types', 'actions', 'constraints']
 
     class Meta:
         ordering = ['name']
