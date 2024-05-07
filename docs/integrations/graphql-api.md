@@ -1,6 +1,6 @@
 # GraphQL API Overview
 
-NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by the [Graphene](https://graphene-python.org/) library and [Graphene-Django](https://docs.graphene-python.org/projects/django/en/latest/).
+NetBox provides a read-only [GraphQL](https://graphql.org/) API to complement its REST API. This API is powered by the [Graphene](https://graphene-python.org/) library and  [Strawberry Django](https://strawberry-graphql.github.io/strawberry-django/).
 
 ## Queries
 
