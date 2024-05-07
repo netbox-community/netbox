@@ -138,7 +138,13 @@ Any additional apps must be installed within the same Python environment as NetB
 
 ## Create setup.py
 
-`pyproject.toml` is the [configuration file](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) used to package and install our plugin once it's finished. The primary function of this script is to call the build system to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `pyproject.toml` is below:
+`pyproject.toml` is the [configuration file](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) used to package and install our plugin once it's finished. It is used by packaging tools, as well as other tools. The primary function of this file is to call the build system to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. There are three possible TOML tables in this file:
+
+* The [build-system] Allows you to declare which build backend you use and which other dependencies are needed to build your project.
+* The [project] table is the format that most build backends use to specify your project’s basic metadata, such as the dependencies, your name, etc.
+* The [tool] table has tool-specific subtables, e.g., [tool.black], [tool.mypy]. Consult the particular tool’s documentation to know what it can contain.
+
+An example `pyproject.toml` is below:
 
 ```
 # See PEP 518 for the spec of this file
@@ -150,9 +156,9 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name =  "my-example-plugin"
-version = "0.1.4"
+version = "0.1.0"
 authors = [
-    {name = "Jeremy Stretch", email = "test@netboxlabs.com"},
+    {name = "John Doe", email = "test@netboxlabs.com"},
 ]
 description = "An example NetBox plugin."
 readme = "README.md"
@@ -162,13 +168,12 @@ classifiers=[
     'Intended Audience :: Developers',
     'Natural Language :: English',
     "Programming Language :: Python :: 3 :: Only",
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
     'Programming Language :: Python :: 3.12',
 ]
 
-requires-python = ">=3.8.1"
+requires-python = ">=3.10.0"
 
 ```
 
