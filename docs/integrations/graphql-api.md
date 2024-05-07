@@ -47,7 +47,7 @@ NetBox provides both a singular and plural query field for each object type:
 
 For example, query `device(id:123)` to fetch a specific device (identified by its unique ID), and query `device_list` (with an optional set of filters) to fetch all devices.
 
-For more detail on constructing GraphQL queries, see the [Graphene documentation](https://docs.graphene-python.org/en/latest/) as well as the [GraphQL queries documentation](https://graphql.org/learn/queries/).
+For more detail on constructing GraphQL queries, see the [Graphene documentation](https://docs.graphene-python.org/en/latest/) as well as the [GraphQL queries documentation](https://graphql.org/learn/queries/).  For filtering and lookup syntax, please refer to the [Strawberry Django documentation](https://strawberry-graphql.github.io/strawberry-django/guide/filters/).
 
 ## Filtering
 
