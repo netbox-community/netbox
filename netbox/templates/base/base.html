@@ -20,7 +20,7 @@
     {# Initialize color mode #}
     <script
       type="text/javascript"
-      src="{% static 'setmode.js' %}"
+      src="{% static 'setmode.js' %}?v={{ settings.VERSION }}"
       onerror="window.location='{% url 'media_failure' %}?filename=setmode.js'">
     </script>
     <script type="text/javascript">
