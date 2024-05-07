@@ -91,7 +91,7 @@ class ContactImportForm(NetBoxModelImportForm):
 
 
 class ContactAssignmentImportForm(NetBoxModelImportForm):
-    content_type = CSVContentTypeField(
+    object_type = CSVContentTypeField(
         queryset=ContentType.objects.all(),
         help_text=_("One or more assigned object types")
     )
@@ -108,4 +108,4 @@ class ContactAssignmentImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = ContactAssignment
-        fields = ('content_type', 'object_id', 'contact', 'priority', 'role')
+        fields = ('object_type', 'object_id', 'contact', 'priority', 'role')

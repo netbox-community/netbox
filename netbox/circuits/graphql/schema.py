@@ -1,41 +1,40 @@
-import graphene
+from typing import List
+
+import strawberry
+import strawberry_django
 
 from circuits import models
-from netbox.graphql.fields import ObjectField, ObjectListField
 from .types import *
-from utilities.graphql_optimizer import gql_query_optimizer
 
 
-class CircuitsQuery(graphene.ObjectType):
-    circuit = ObjectField(CircuitType)
-    circuit_list = ObjectListField(CircuitType)
+@strawberry.type
+class CircuitsQuery:
+    @strawberry.field
+    def circuit(self, id: int) -> CircuitType:
+        return models.Circuit.objects.get(pk=id)
+    circuit_list: List[CircuitType] = strawberry_django.field()
 
-    def resolve_circuit_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Circuit.objects.all(), info)
+    @strawberry.field
+    def circuit_termination(self, id: int) -> CircuitTerminationType:
+        return models.CircuitTermination.objects.get(pk=id)
+    circuit_termination_list: List[CircuitTerminationType] = strawberry_django.field()
 
-    circuit_termination = ObjectField(CircuitTerminationType)
-    circuit_termination_list = ObjectListField(CircuitTerminationType)
+    @strawberry.field
+    def circuit_type(self, id: int) -> CircuitTypeType:
+        return models.CircuitType.objects.get(pk=id)
+    circuit_type_list: List[CircuitTypeType] = strawberry_django.field()
 
-    def resolve_circuit_termination_list(root, info, **kwargs):
-        return gql_query_optimizer(models.CircuitTermination.objects.all(), info)
+    @strawberry.field
+    def provider(self, id: int) -> ProviderType:
+        return models.Provider.objects.get(pk=id)
+    provider_list: List[ProviderType] = strawberry_django.field()
 
-    circuit_type = ObjectField(CircuitTypeType)
-    circuit_type_list = ObjectListField(CircuitTypeType)
+    @strawberry.field
+    def provider_account(self, id: int) -> ProviderAccountType:
+        return models.ProviderAccount.objects.get(pk=id)
+    provider_account_list: List[ProviderAccountType] = strawberry_django.field()
 
-    def resolve_circuit_type_list(root, info, **kwargs):
-        return gql_query_optimizer(models.CircuitType.objects.all(), info)
-
-    provider = ObjectField(ProviderType)
-    provider_list = ObjectListField(ProviderType)
-
-    def resolve_provider_list(root, info, **kwargs):
-        return gql_query_optimizer(models.Provider.objects.all(), info)
-
-    provider_account = ObjectField(ProviderAccountType)
-    provider_account_list = ObjectListField(ProviderAccountType)
-
-    provider_network = ObjectField(ProviderNetworkType)
-    provider_network_list = ObjectListField(ProviderNetworkType)
-
-    def resolve_provider_network_list(root, info, **kwargs):
-        return gql_query_optimizer(models.ProviderNetwork.objects.all(), info)
+    @strawberry.field
+    def provider_network(self, id: int) -> ProviderNetworkType:
+        return models.ProviderNetwork.objects.get(pk=id)
+    provider_network_list: List[ProviderNetworkType] = strawberry_django.field()

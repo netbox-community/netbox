@@ -1,0 +1,7 @@
+// Links inside badges should inherit their foreground color
+.badge {
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+}

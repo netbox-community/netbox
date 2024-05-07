@@ -73,7 +73,7 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
 
     class Meta:
         model = Provider
-        fields = ['id', 'name', 'slug', 'description']
+        fields = ('id', 'name', 'slug', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -101,7 +101,7 @@ class ProviderAccountFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ProviderAccount
-        fields = ['id', 'name', 'account', 'description']
+        fields = ('id', 'name', 'account', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -128,7 +128,7 @@ class ProviderNetworkFilterSet(NetBoxModelFilterSet):
 
     class Meta:
         model = ProviderNetwork
-        fields = ['id', 'name', 'service_id', 'description']
+        fields = ('id', 'name', 'service_id', 'description')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -145,7 +145,7 @@ class CircuitTypeFilterSet(OrganizationalModelFilterSet):
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'name', 'slug', 'color', 'description']
+        fields = ('id', 'name', 'slug', 'color', 'description')
 
 
 class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSet):
@@ -163,6 +163,12 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         field_name='provider_account',
         queryset=ProviderAccount.objects.all(),
         label=_('Provider account (ID)'),
+    )
+    provider_account = django_filters.ModelMultipleChoiceFilter(
+        field_name='provider_account__account',
+        queryset=Provider.objects.all(),
+        to_field_name='account',
+        label=_('Provider account (account)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__provider_network',
@@ -220,10 +226,18 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         to_field_name='slug',
         label=_('Site (slug)'),
     )
+    termination_a_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CircuitTermination.objects.all(),
+        label=_('Termination A (ID)'),
+    )
+    termination_z_id = django_filters.ModelMultipleChoiceFilter(
+        queryset=CircuitTermination.objects.all(),
+        label=_('Termination A (ID)'),
+    )
 
     class Meta:
         model = Circuit
-        fields = ['id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate']
+        fields = ('id', 'cid', 'description', 'install_date', 'termination_date', 'commit_rate')
 
     def search(self, queryset, name, value):
         if not value.strip():
@@ -264,7 +278,10 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'cable_end']
+        fields = (
+            'id', 'term_side', 'port_speed', 'upstream_speed', 'xconnect_id', 'description', 'mark_connected',
+            'pp_info', 'cable_end',
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():

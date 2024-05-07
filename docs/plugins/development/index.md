@@ -185,7 +185,7 @@ python3 -m venv ~/.virtualenvs/my_plugin
 You can make NetBox available within this environment by creating a path file pointing to its location. This will add NetBox to the Python path upon activation. (Be sure to adjust the command below to specify your actual virtual environment path, Python version, and NetBox installation.)
 
 ```shell
-echo /opt/netbox/netbox > $VENV/lib/python3.8/site-packages/netbox.pth
+echo /opt/netbox/netbox > $VENV/lib/python3.10/site-packages/netbox.pth
 ```
 
 ## Development Installation

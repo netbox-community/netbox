@@ -5,7 +5,7 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
 from ..querysets import ObjectChangeQuerySet
 
@@ -113,7 +113,7 @@ class ObjectChange(models.Model):
         super().clean()
 
         # Validate the assigned object type
-        if self.changed_object_type not in ContentType.objects.with_feature('change_logging'):
+        if self.changed_object_type not in ObjectType.objects.with_feature('change_logging'):
             raise ValidationError(
                 _("Change logging is not supported for this object type ({type}).").format(
                     type=self.changed_object_type

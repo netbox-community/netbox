@@ -17,8 +17,8 @@ from ipam.filtersets import ASNFilterSet
 from ipam.models import RIR, ASN
 from netbox.filtersets import BaseFilterSet
 from utilities.filters import (
-    MACAddressFilter, MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueNumberFilter,
-    MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
+    MultiValueCharFilter, MultiValueDateFilter, MultiValueDateTimeFilter, MultiValueMACAddressFilter,
+    MultiValueNumberFilter, MultiValueTimeFilter, TreeNodeMultipleChoiceFilter,
 )
 
 
@@ -113,7 +113,7 @@ class BaseFilterSetTest(TestCase):
     class DummyFilterSet(BaseFilterSet):
         charfield = django_filters.CharFilter()
         numberfield = django_filters.NumberFilter()
-        macaddressfield = MACAddressFilter()
+        macaddressfield = MultiValueMACAddressFilter()
         modelchoicefield = django_filters.ModelChoiceFilter(
             field_name='integerfield',  # We're pretending this is a ForeignKey field
             queryset=Site.objects.all()
@@ -198,7 +198,7 @@ class BaseFilterSetTest(TestCase):
         self.assertEqual(self.filters['numberfield__empty'].exclude, False)
 
     def test_mac_address_filter(self):
-        self.assertIsInstance(self.filters['macaddressfield'], MACAddressFilter)
+        self.assertIsInstance(self.filters['macaddressfield'], MultiValueMACAddressFilter)
         self.assertEqual(self.filters['macaddressfield'].lookup_expr, 'exact')
         self.assertEqual(self.filters['macaddressfield'].exclude, False)
         self.assertEqual(self.filters['macaddressfield__n'].lookup_expr, 'exact')

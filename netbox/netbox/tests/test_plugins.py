@@ -20,6 +20,10 @@ class PluginTest(TestCase):
 
         self.assertIn('netbox.tests.dummy_plugin.DummyPluginConfig', settings.INSTALLED_APPS)
 
+    def test_model_registration(self):
+        self.assertIn('dummy_plugin', registry['models'])
+        self.assertIn('dummymodel', registry['models']['dummy_plugin'])
+
     def test_models(self):
         from netbox.tests.dummy_plugin.models import DummyModel
 
@@ -41,7 +45,7 @@ class PluginTest(TestCase):
     def test_views(self):
 
         # Test URL resolution
-        url = reverse('plugins:dummy_plugin:dummy_models')
+        url = reverse('plugins:dummy_plugin:dummy_model_list')
         self.assertEqual(url, '/plugins/dummy-plugin/models/')
 
         # Test GET request

@@ -73,7 +73,7 @@ def register_graphql_schema(graphql_schema):
     """
     Register a GraphQL schema class for inclusion in NetBox's GraphQL API.
     """
-    registry['plugins']['graphql_schemas'].append(graphql_schema)
+    registry['plugins']['graphql_schemas'].extend(graphql_schema)
 
 
 def register_user_preferences(plugin_name, preferences):

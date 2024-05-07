@@ -12,17 +12,17 @@ The following sections detail how to set up a new instance of NetBox:
 1. [PostgreSQL database](1-postgresql.md)
 1. [Redis](2-redis.md)
 3. [NetBox components](3-netbox.md)
-4. [Gunicorn](4-gunicorn.md)
+4. [Gunicorn](4a-gunicorn.md) or [uWSGI](4b-uwsgi.md)
 5. [HTTP server](5-http-server.md)
 6. [LDAP authentication](6-ldap.md) (optional)
 
 ## Requirements
 
-| Dependency | Minimum Version |
-|------------|-----------------|
-| Python     | 3.8             |
-| PostgreSQL | 12              |
-| Redis      | 4.0             |
+| Dependency | Supported Versions |
+|------------|--------------------|
+| Python     | 3.10, 3.11, 3.12   |
+| PostgreSQL | 12+                |
+| Redis      | 4.0+               |
 
 Below is a simplified overview of the NetBox application stack for reference:
 

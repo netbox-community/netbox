@@ -4,7 +4,7 @@
 {% load i18n %}
 
 {% block extra_controls %}
-  <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request %}" class="btn btn-sm btn-primary">
+  <a href="{% url 'dcim:rack_elevation_list' %}{% querystring request %}" class="btn btn-primary">
     <i class="mdi mdi-view-day-outline"></i> {% trans "View Elevations" %}
   </a>
 {% endblock %}

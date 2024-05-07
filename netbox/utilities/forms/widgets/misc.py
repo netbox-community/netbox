@@ -23,6 +23,16 @@ class MarkdownWidget(forms.Textarea):
     """
     template_name = 'widgets/markdown_input.html'
 
+    def __init__(self, attrs=None):
+        # Markdown fields should use monospace font
+        default_attrs = {
+            "class": "font-monospace",
+        }
+        if attrs:
+            default_attrs.update(attrs)
+
+        super().__init__(default_attrs)
+
 
 class NumberWithOptions(forms.NumberInput):
     """

@@ -90,8 +90,6 @@ The table column classes listed below are supported for use in plugins. These cl
 
 ## Extending Core Tables
 
-!!! info "This feature was introduced in NetBox v3.7."
-
 Plugins can register their own custom columns on core tables using the `register_table_column()` utility function. This allows a plugin to attach additional information, such as relationships to its own models, to built-in object lists.
 
 ```python

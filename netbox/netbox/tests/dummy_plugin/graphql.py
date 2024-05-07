@@ -1,21 +1,26 @@
-import graphene
-from graphene_django import DjangoObjectType
-
-from netbox.graphql.fields import ObjectField, ObjectListField
+from typing import List
+import strawberry
+import strawberry_django
 
 from . import models
 
 
-class DummyModelType(DjangoObjectType):
-
-    class Meta:
-        model = models.DummyModel
-        fields = '__all__'
-
-
-class DummyQuery(graphene.ObjectType):
-    dummymodel = ObjectField(DummyModelType)
-    dummymodel_list = ObjectListField(DummyModelType)
+@strawberry_django.type(
+    models.DummyModel,
+    fields='__all__',
+)
+class DummyModelType:
+    pass
 
 
-schema = DummyQuery
+@strawberry.type
+class DummyQuery:
+    @strawberry.field
+    def dummymodel(self, id: int) -> DummyModelType:
+        return None
+    dummymodel_list: List[DummyModelType] = strawberry_django.field()
+
+
+schema = [
+    DummyQuery,
+]

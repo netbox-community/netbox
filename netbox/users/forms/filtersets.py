@@ -1,36 +1,36 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
 from django.utils.translation import gettext_lazy as _
 
 from netbox.forms import NetBoxModelFilterSetForm
 from netbox.forms.mixins import SavedFiltersMixin
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, FilterForm
 from utilities.forms.fields import DynamicModelMultipleChoiceField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DateTimePicker
 
 __all__ = (
-    'NetBoxGroupFilterForm',
+    'GroupFilterForm',
     'ObjectPermissionFilterForm',
-    'NetBoxUserFilterForm',
     'TokenFilterForm',
+    'UserFilterForm',
 )
 
 
-class NetBoxGroupFilterForm(NetBoxModelFilterSetForm):
-    model = NetBoxGroup
+class GroupFilterForm(NetBoxModelFilterSetForm):
+    model = Group
     fieldsets = (
-        (None, ('q', 'filter_id',)),
+        FieldSet('q', 'filter_id',),
     )
 
 
-class NetBoxUserFilterForm(NetBoxModelFilterSetForm):
-    model = NetBoxUser
+class UserFilterForm(NetBoxModelFilterSetForm):
+    model = User
     fieldsets = (
-        (None, ('q', 'filter_id',)),
-        (_('Group'), ('group_id',)),
-        (_('Status'), ('is_active', 'is_staff', 'is_superuser')),
+        FieldSet('q', 'filter_id',),
+        FieldSet('group_id', name=_('Group')),
+        FieldSet('is_active', 'is_staff', 'is_superuser', name=_('Status')),
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=Group.objects.all(),
@@ -63,9 +63,9 @@ class NetBoxUserFilterForm(NetBoxModelFilterSetForm):
 class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
     model = ObjectPermission
     fieldsets = (
-        (None, ('q', 'filter_id',)),
-        (_('Permission'), ('enabled', 'group_id', 'user_id')),
-        (_('Actions'), ('can_view', 'can_add', 'can_change', 'can_delete')),
+        FieldSet('q', 'filter_id',),
+        FieldSet('enabled', 'group_id', 'user_id', name=_('Permission')),
+        FieldSet('can_view', 'can_add', 'can_change', 'can_delete', name=_('Actions')),
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -117,8 +117,8 @@ class ObjectPermissionFilterForm(NetBoxModelFilterSetForm):
 class TokenFilterForm(SavedFiltersMixin, FilterForm):
     model = Token
     fieldsets = (
-        (None, ('q', 'filter_id',)),
-        (_('Token'), ('user_id', 'write_enabled', 'expires', 'last_used')),
+        FieldSet('q', 'filter_id',),
+        FieldSet('user_id', 'write_enabled', 'expires', 'last_used', name=_('Token')),
     )
     user_id = DynamicModelMultipleChoiceField(
         queryset=get_user_model().objects.all(),

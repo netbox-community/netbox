@@ -1,6 +1,8 @@
 <div class="input-group">
   {% include 'django/forms/widgets/number.html' %}
-  <button type="button" class="btn btn-outline-dark border-input dropdown-toggle" data-bs-toggle="dropdown"></button>
+  <button type="button" class="btn" data-bs-toggle="dropdown">
+    <i class="mdi mdi-chevron-down"></i>
+  </button>
   <ul class="dropdown-menu dropdown-menu-end">
     {% for value, label in widget.options %}
       <li>

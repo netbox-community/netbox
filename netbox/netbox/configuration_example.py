@@ -131,9 +131,6 @@ EMAIL = {
     'FROM_EMAIL': '',
 }
 
-# Localization
-ENABLE_LOCALIZATION = False
-
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
 EXEMPT_VIEW_PERMISSIONS = [
@@ -237,12 +234,3 @@ SESSION_FILE_PATH = None
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
-
-# Date/time formatting. See the following link for supported formats:
-# https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-DATE_FORMAT = 'N j, Y'
-SHORT_DATE_FORMAT = 'Y-m-d'
-TIME_FORMAT = 'g:i a'
-SHORT_TIME_FORMAT = 'H:i:s'
-DATETIME_FORMAT = 'N j, Y g:i a'
-SHORT_DATETIME_FORMAT = 'Y-m-d H:i'

@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -880,7 +880,7 @@ class IPAddress(PrimaryModel):
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
             original_parent = getattr(original_assigned_object, 'parent_object', None)
 

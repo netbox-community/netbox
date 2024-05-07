@@ -22,7 +22,7 @@ class AppTest(APITestCase):
 
 class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
     model = ClusterType
-    brief_fields = ['cluster_count', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['cluster_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Cluster Type 4',
@@ -54,7 +54,7 @@ class ClusterTypeTest(APIViewTestCases.APIViewTestCase):
 
 class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
     model = ClusterGroup
-    brief_fields = ['cluster_count', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['cluster_count', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Cluster Group 4',
@@ -86,7 +86,7 @@ class ClusterGroupTest(APIViewTestCases.APIViewTestCase):
 
 class ClusterTest(APIViewTestCases.APIViewTestCase):
     model = Cluster
-    brief_fields = ['display', 'id', 'name', 'url', 'virtualmachine_count']
+    brief_fields = ['description', 'display', 'id', 'name', 'url', 'virtualmachine_count']
     bulk_update_data = {
         'status': 'offline',
         'comments': 'New comment',
@@ -138,7 +138,7 @@ class ClusterTest(APIViewTestCases.APIViewTestCase):
 
 class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
     model = VirtualMachine
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': 'staged',
     }
@@ -248,7 +248,7 @@ class VirtualMachineTest(APIViewTestCases.APIViewTestCase):
 
 class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
     model = VMInterface
-    brief_fields = ['display', 'id', 'name', 'url', 'virtual_machine']
+    brief_fields = ['description', 'display', 'id', 'name', 'url', 'virtual_machine']
     bulk_update_data = {
         'description': 'New description',
     }
@@ -337,7 +337,7 @@ class VMInterfaceTest(APIViewTestCases.APIViewTestCase):
 
 class VirtualDiskTest(APIViewTestCases.APIViewTestCase):
     model = VirtualDisk
-    brief_fields = ['display', 'id', 'name', 'size', 'url', 'virtual_machine']
+    brief_fields = ['description', 'display', 'id', 'name', 'size', 'url', 'virtual_machine']
     bulk_update_data = {
         'size': 888,
     }

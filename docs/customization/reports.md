@@ -1,167 +1,63 @@
 # NetBox Reports
 
-A NetBox report is a mechanism for validating the integrity of data within NetBox. Running a report allows the user to verify that the objects defined within NetBox meet certain arbitrary conditions. For example, you can write reports to check that:
-
-* All top-of-rack switches have a console connection
-* Every router has a loopback interface with an IP address assigned
-* Each interface description conforms to a standard format
-* Every site has a minimum set of VLANs defined
-* All IP addresses have a parent prefix
-
-...and so on. Reports are completely customizable, so there's practically no limit to what you can test for.
-
-## Writing Reports
-
-Reports must be saved as files in the [`REPORTS_ROOT`](../configuration/system.md#reports_root) path (which defaults to `netbox/reports/`). Each file created within this path is considered a separate module. Each module holds one or more reports (Python classes), each of which performs a certain function. The logic of each report is broken into discrete test methods, each of which applies a small portion of the logic comprising the overall test.
-
 !!! warning
-    The reports path includes a file named `__init__.py`, which registers the path as a Python module. Do not delete this file.
+    Reports are deprecated beginning with NetBox v4.0, and their functionality has been merged with [custom scripts](./custom-scripts.md). While backward compatibility has been maintained, users are advised to convert legacy reports into custom scripts soon, as support for legacy reports will be removed in a future release.
 
-For example, we can create a module named `devices.py` to hold all of our reports which pertain to devices in NetBox. Within that module, we might define several reports. Each report is defined as a Python class inheriting from `extras.reports.Report`.
+## Converting Reports to Scripts
 
-```
+### Step 1: Update Class Definition
+
+Change the parent class from `Report` to `Script`:
+
+```python title="Old code"
 from extras.reports import Report
 
-class DeviceConnectionsReport(Report):
-    description = "Validate the minimum physical connections for each device"
-
-class DeviceIPsReport(Report):
-    description = "Check that every device has a primary IP address assigned"
+class MyReport(Report):
 ```
 
-Within each report class, we'll create a number of test methods to execute our report's logic. In DeviceConnectionsReport, for instance, we want to ensure that every live device has a console connection, an out-of-band management connection, and two power connections.
+```python title="New code"
+from extras.scripts import Script
 
-```
-from dcim.choices import DeviceStatusChoices
-from dcim.models import ConsolePort, Device, PowerPort
-from extras.reports import Report
-
-
-class DeviceConnectionsReport(Report):
-    description = "Validate the minimum physical connections for each device"
-
-    def test_console_connection(self):
-
-        # Check that every console port for every active device has a connection defined.
-        active = DeviceStatusChoices.STATUS_ACTIVE
-        for console_port in ConsolePort.objects.prefetch_related('device').filter(device__status=active):
-            if not console_port.connected_endpoints:
-                self.log_failure(
-                    console_port.device,
-                    "No console connection defined for {}".format(console_port.name)
-                )
-            elif not console_port.connection_status:
-                self.log_warning(
-                    console_port.device,
-                    "Console connection for {} marked as planned".format(console_port.name)
-                )
-            else:
-                self.log_success(console_port.device)
-
-    def test_power_connections(self):
-
-        # Check that every active device has at least two connected power supplies.
-        for device in Device.objects.filter(status=DeviceStatusChoices.STATUS_ACTIVE):
-            connected_ports = 0
-            for power_port in PowerPort.objects.filter(device=device):
-                if power_port.connected_endpoints:
-                    connected_ports += 1
-                    if not power_port.path.is_active:
-                        self.log_warning(
-                            device,
-                            "Power connection for {} marked as planned".format(power_port.name)
-                        )
-            if connected_ports < 2:
-                self.log_failure(
-                    device,
-                    "{} connected power supplies found (2 needed)".format(connected_ports)
-                )
-            else:
-                self.log_success(device)
+class MyReport(Script):
 ```
 
-As you can see, reports are completely customizable. Validation logic can be as simple or as complex as needed. Also note that the `description` attribute support markdown syntax. It will be rendered in the report list page.
+### Step 2: Update Logging Calls
 
-!!! warning
-    Reports should never alter data: If you find yourself using the `create()`, `save()`, `update()`, or `delete()` methods on objects within reports, stop and re-evaluate what you're trying to accomplish. Note that there are no safeguards against the accidental alteration or destruction of data.
+Reports and scripts both provide logging methods, however their signatures differ. All script logging methods accept a message as the first parameter, and accept an object as an optional second parameter.
 
-## Report Attributes
+Additionally, the Report class' generic `log()` method is **not** available on Script. Users are advised to replace calls of this method with `log_info()`.
 
-### `description`
+Use the table below as a reference when updating these methods.
 
-A human-friendly description of what your report does.
+| Report (old)                  | Script (New)                |
+|-------------------------------|-----------------------------|
+| `log(message)`                | `log_info(message)`         |
+| `log_debug(obj, message)`[^1] | `log_debug(message, obj)`   |
+| `log_info(obj, message)`      | `log_info(message, obj)`    |
+| `log_success(obj, message)`   | `log_success(message, obj)` |
+| `log_warning(obj, message)`   | `log_warning(message, obj)` |
+| `log_failure(obj, message)`   | `log_failure(message, obj)` |
 
-### `scheduling_enabled`
+[^1]: `log_debug()` was added to the Report class in v4.0 to avoid confusion with the same method on Script
 
-By default, a report can be scheduled for execution at a later time. Setting `scheduling_enabled` to False disables this ability: Only immediate execution will be possible. (This also disables the ability to set a recurring execution interval.)
-
-### `job_timeout`
-
-Set the maximum allowed runtime for the report. If not set, `RQ_DEFAULT_TIMEOUT` will be used.
-
-## Logging
-
-The following methods are available to log results within a report:
-
-* log(message)
-* log_success(object, message=None)
-* log_info(object, message)
-* log_warning(object, message)
-* log_failure(object, message)
-
-The recording of one or more failure messages will automatically flag a report as failed. It is advised to log a success for each object that is evaluated so that the results will reflect how many objects are being reported on. (The inclusion of a log message is optional for successes.) Messages recorded with `log()` will appear in a report's results but are not associated with a particular object or status. Log messages also support using markdown syntax and will be rendered on the report result page.
-
-To perform additional tasks, such as sending an email or calling a webhook, before or after a report is run, extend the `pre_run()` and/or `post_run()` methods, respectively.
-
-By default, reports within a module are ordered alphabetically in the reports list page. To return reports in a specific order, you can define the `report_order` variable at the end of your module. The `report_order` variable is a tuple which contains each Report class in the desired order. Any reports that are omitted from this list will be listed last.
-
-```
-from extras.reports import Report
-
-class DeviceConnectionsReport(Report)
-    pass
-
-class DeviceIPsReport(Report)
-    pass
-
-report_order = (DeviceIPsReport, DeviceConnectionsReport)
+```python title="Old code"
+self.log_failure(
+    console_port.device,
+    f"No console connection defined for {console_port.name}"
+)
 ```
 
-Once you have created a report, it will appear in the reports list. Initially, reports will have no results associated with them. To generate results, run the report.
-
-## Running Reports
-
-!!! note
-    To run a report, a user must be assigned permissions for `Extras > Report`, `Extras > Report Module`, and `Core > Managed File` objects. They must also be assigned the `extras.run_report` permission. This is achieved by assigning the user (or group) a permission on the Report object and specifying the `run` action in "Permissions" as shown below.
-
-    ![Adding the run action to a permission](../media/run_permission.png)
-
-### Via the Web UI
-
-Reports can be run via the web UI by navigating to the report and clicking the "run report" button at top right. Once a report has been run, its associated results will be included in the report view. It is possible to schedule a report to be executed at specified time in the future. A scheduled report can be canceled by deleting the associated job result object.
-
-### Via the API
-
-To run a report via the API, simply issue a POST request to its `run` endpoint. Reports are identified by their module and class name.
-
-```
-    POST /api/extras/reports/<module>.<name>/run/
+```python title="New code"
+self.log_failure(
+    f"No console connection defined for {console_port.name}",
+    obj=console_port.device,
+)
 ```
 
-Our example report above would be called as:
+### Other Notes
 
-```
-    POST /api/extras/reports/devices.DeviceConnectionsReport/run/
-```
+Existing reports will be converted to scripts automatically upon upgrading to NetBox v4.0, and previous job history will be retained. However, users are advised to convert legacy reports into custom scripts at the earliest opportunity, as support for legacy reports will be removed in a future release.
 
-Optionally `schedule_at` can be passed in the form data with a datetime string to schedule a script at the specified date and time.
+The `pre_run()` and `post_run()` Report methods have been carried over to Script. These are called automatically by Script's `run()` method. (Note that if you opt to override this method, you are responsible for calling `pre_run()` and `post_run()` where applicable.)
 
-### Via the CLI
-
-Reports can be run on the CLI by invoking the management command:
-
-```
-python3 manage.py runreport <module>
-```
-
-where ``<module>`` is the name of the python file in the ``reports`` directory without the ``.py`` extension.  One or more report modules may be specified.
+The `is_valid()` method on Report is no longer needed and has been removed.

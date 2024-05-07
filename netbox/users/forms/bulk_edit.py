@@ -5,19 +5,21 @@ from django.utils.translation import gettext_lazy as _
 from ipam.formfields import IPNetworkFormField
 from ipam.validators import prefix_validator
 from users.models import *
-from utilities.forms import BootstrapMixin, BulkEditForm
+from utilities.forms import BulkEditForm
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import BulkEditNullBooleanSelect, DateTimePicker
 
 __all__ = (
+    'GroupBulkEditForm',
     'ObjectPermissionBulkEditForm',
     'UserBulkEditForm',
     'TokenBulkEditForm',
 )
 
 
-class UserBulkEditForm(BootstrapMixin, forms.Form):
+class UserBulkEditForm(forms.Form):
     pk = forms.ModelMultipleChoiceField(
-        queryset=NetBoxUser.objects.all(),
+        queryset=User.objects.all(),
         widget=forms.MultipleHiddenInput
     )
     first_name = forms.CharField(
@@ -46,14 +48,32 @@ class UserBulkEditForm(BootstrapMixin, forms.Form):
         label=_('Superuser status')
     )
 
-    model = NetBoxUser
+    model = User
     fieldsets = (
-        (None, ('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser')),
+        FieldSet('first_name', 'last_name', 'is_active', 'is_staff', 'is_superuser'),
     )
     nullable_fields = ('first_name', 'last_name')
 
 
-class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
+class GroupBulkEditForm(forms.Form):
+    pk = forms.ModelMultipleChoiceField(
+        queryset=Group.objects.all(),
+        widget=forms.MultipleHiddenInput
+    )
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+
+    model = User
+    fieldsets = (
+        FieldSet('description'),
+    )
+    nullable_fields = ('description',)
+
+
+class ObjectPermissionBulkEditForm(forms.Form):
     pk = forms.ModelMultipleChoiceField(
         queryset=ObjectPermission.objects.all(),
         widget=forms.MultipleHiddenInput
@@ -71,7 +91,7 @@ class ObjectPermissionBulkEditForm(BootstrapMixin, forms.Form):
 
     model = ObjectPermission
     fieldsets = (
-        (None, ('enabled', 'description')),
+        FieldSet('enabled', 'description'),
     )
     nullable_fields = ('description',)
 
@@ -104,7 +124,7 @@ class TokenBulkEditForm(BulkEditForm):
 
     model = Token
     fieldsets = (
-        (None, ('write_enabled', 'description', 'expires', 'allowed_ips')),
+        FieldSet('write_enabled', 'description', 'expires', 'allowed_ips'),
     )
     nullable_fields = (
         'expires', 'description', 'allowed_ips',

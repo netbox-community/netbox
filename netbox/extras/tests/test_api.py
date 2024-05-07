@@ -7,11 +7,11 @@ from django.utils.timezone import make_aware
 from rest_framework import status
 
 from core.choices import ManagedFileRootPathChoices
+from core.models import ObjectType
 from dcim.models import Device, DeviceRole, DeviceType, Manufacturer, Rack, Location, RackRole, Site
 from extras.choices import *
 from extras.models import *
-from extras.reports import Report
-from extras.scripts import BooleanVar, IntegerVar, Script, StringVar
+from extras.scripts import BooleanVar, IntegerVar, Script as PythonClass, StringVar
 from utilities.testing import APITestCase, APIViewTestCases
 
 User = get_user_model()
@@ -29,7 +29,7 @@ class AppTest(APITestCase):
 
 class WebhookTest(APIViewTestCases.APIViewTestCase):
     model = Webhook
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Webhook 4',
@@ -71,7 +71,7 @@ class WebhookTest(APIViewTestCases.APIViewTestCase):
 
 class EventRuleTest(APIViewTestCases.APIViewTestCase):
     model = EventRule
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'enabled': False,
         'description': 'New description',
@@ -122,7 +122,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'name': 'EventRule 4',
-                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'object_types': ['dcim.device', 'dcim.devicetype'],
                 'type_create': True,
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
@@ -130,7 +130,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'name': 'EventRule 5',
-                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'object_types': ['dcim.device', 'dcim.devicetype'],
                 'type_create': True,
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
@@ -138,7 +138,7 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'name': 'EventRule 6',
-                'content_types': ['dcim.device', 'dcim.devicetype'],
+                'object_types': ['dcim.device', 'dcim.devicetype'],
                 'type_create': True,
                 'action_type': EventRuleActionChoices.WEBHOOK,
                 'action_object_type': 'extras.webhook',
@@ -149,20 +149,20 @@ class EventRuleTest(APIViewTestCases.APIViewTestCase):
 
 class CustomFieldTest(APIViewTestCases.APIViewTestCase):
     model = CustomField
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'cf4',
             'type': 'date',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'cf5',
             'type': 'url',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'cf6',
             'type': 'text',
         },
@@ -171,14 +171,14 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         'description': 'New description',
     }
     update_data = {
-        'content_types': ['dcim.device'],
+        'object_types': ['dcim.device'],
         'name': 'New_Name',
         'description': 'New description',
     }
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_ct = ObjectType.objects.get_for_model(Site)
 
         custom_fields = (
             CustomField(
@@ -196,12 +196,12 @@ class CustomFieldTest(APIViewTestCases.APIViewTestCase):
         )
         CustomField.objects.bulk_create(custom_fields)
         for cf in custom_fields:
-            cf.content_types.add(site_ct)
+            cf.object_types.add(site_ct)
 
 
 class CustomFieldChoiceSetTest(APIViewTestCases.APIViewTestCase):
     model = CustomFieldChoiceSet
-    brief_fields = ['choices_count', 'display', 'id', 'name', 'url']
+    brief_fields = ['choices_count', 'description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Choice Set 4',
@@ -273,21 +273,21 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
     brief_fields = ['display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Custom Link 4',
             'enabled': True,
             'link_text': 'Link 4',
             'link_url': 'http://example.com/?4',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Custom Link 5',
             'enabled': True,
             'link_text': 'Link 5',
             'link_url': 'http://example.com/?5',
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Custom Link 6',
             'enabled': False,
             'link_text': 'Link 6',
@@ -301,7 +301,7 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
 
         custom_links = (
             CustomLink(
@@ -325,15 +325,15 @@ class CustomLinkTest(APIViewTestCases.APIViewTestCase):
         )
         CustomLink.objects.bulk_create(custom_links)
         for i, custom_link in enumerate(custom_links):
-            custom_link.content_types.set([site_ct])
+            custom_link.object_types.set([site_type])
 
 
 class SavedFilterTest(APIViewTestCases.APIViewTestCase):
     model = SavedFilter
-    brief_fields = ['display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Saved Filter 4',
             'slug': 'saved-filter-4',
             'weight': 100,
@@ -342,7 +342,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             'parameters': {'status': ['active']},
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Saved Filter 5',
             'slug': 'saved-filter-5',
             'weight': 200,
@@ -351,7 +351,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
             'parameters': {'status': ['planned']},
         },
         {
-            'content_types': ['dcim.site'],
+            'object_types': ['dcim.site'],
             'name': 'Saved Filter 6',
             'slug': 'saved-filter-6',
             'weight': 300,
@@ -368,7 +368,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
 
         saved_filters = (
             SavedFilter(
@@ -398,7 +398,7 @@ class SavedFilterTest(APIViewTestCases.APIViewTestCase):
         )
         SavedFilter.objects.bulk_create(saved_filters)
         for i, savedfilter in enumerate(saved_filters):
-            savedfilter.content_types.set([site_ct])
+            savedfilter.object_types.set([site_type])
 
 
 class BookmarkTest(
@@ -455,20 +455,20 @@ class BookmarkTest(
 
 class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ExportTemplate
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
-            'content_types': ['dcim.device'],
+            'object_types': ['dcim.device'],
             'name': 'Test Export Template 4',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_types': ['dcim.device'],
+            'object_types': ['dcim.device'],
             'name': 'Test Export Template 5',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
         {
-            'content_types': ['dcim.device'],
+            'object_types': ['dcim.device'],
             'name': 'Test Export Template 6',
             'template_code': '{% for obj in queryset %}{{ obj.name }}\n{% endfor %}',
         },
@@ -495,12 +495,12 @@ class ExportTemplateTest(APIViewTestCases.APIViewTestCase):
         )
         ExportTemplate.objects.bulk_create(export_templates)
         for et in export_templates:
-            et.content_types.set([ContentType.objects.get_for_model(Device)])
+            et.object_types.set([ObjectType.objects.get_for_model(Device)])
 
 
 class TagTest(APIViewTestCases.APIViewTestCase):
     model = Tag
-    brief_fields = ['color', 'display', 'id', 'name', 'slug', 'url']
+    brief_fields = ['color', 'description', 'display', 'id', 'name', 'slug', 'url']
     create_data = [
         {
             'name': 'Tag 4',
@@ -548,7 +548,7 @@ class ImageAttachmentTest(
 
         image_attachments = (
             ImageAttachment(
-                content_type=ct,
+                object_type=ct,
                 object_id=site.pk,
                 name='Image Attachment 1',
                 image='http://example.com/image1.png',
@@ -556,7 +556,7 @@ class ImageAttachmentTest(
                 image_width=100
             ),
             ImageAttachment(
-                content_type=ct,
+                object_type=ct,
                 object_id=site.pk,
                 name='Image Attachment 2',
                 image='http://example.com/image2.png',
@@ -564,7 +564,7 @@ class ImageAttachmentTest(
                 image_width=100
             ),
             ImageAttachment(
-                content_type=ct,
+                object_type=ct,
                 object_id=site.pk,
                 name='Image Attachment 3',
                 image='http://example.com/image3.png',
@@ -627,7 +627,7 @@ class JournalEntryTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigContextTest(APIViewTestCases.APIViewTestCase):
     model = ConfigContext
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Context 4',
@@ -708,7 +708,7 @@ class ConfigContextTest(APIViewTestCases.APIViewTestCase):
 
 class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
     model = ConfigTemplate
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     create_data = [
         {
             'name': 'Config Template 4',
@@ -746,40 +746,9 @@ class ConfigTemplateTest(APIViewTestCases.APIViewTestCase):
         ConfigTemplate.objects.bulk_create(config_templates)
 
 
-class ReportTest(APITestCase):
-
-    class TestReport(Report):
-
-        def test_foo(self):
-            self.log_success(None, "Report completed")
-
-    @classmethod
-    def setUpTestData(cls):
-        ReportModule.objects.create(
-            file_root=ManagedFileRootPathChoices.REPORTS,
-            file_path='/var/tmp/report.py'
-        )
-
-    def get_test_report(self, *args):
-        return ReportModule.objects.first(), self.TestReport()
-
-    def setUp(self):
-        super().setUp()
-
-        # Monkey-patch the API viewset's _get_report() method to return our test Report above
-        from extras.api.views import ReportViewSet
-        ReportViewSet._get_report = self.get_test_report
-
-    def test_get_report(self):
-        url = reverse('extras-api:report-detail', kwargs={'pk': None})
-        response = self.client.get(url, **self.header)
-
-        self.assertEqual(response.data['name'], self.TestReport.__name__)
-
-
 class ScriptTest(APITestCase):
 
-    class TestScript(Script):
+    class TestScriptClass(PythonClass):
 
         class Meta:
             name = "Test script"
@@ -798,27 +767,36 @@ class ScriptTest(APITestCase):
 
     @classmethod
     def setUpTestData(cls):
-        ScriptModule.objects.create(
+        module = ScriptModule.objects.create(
             file_root=ManagedFileRootPathChoices.SCRIPTS,
             file_path='/var/tmp/script.py'
         )
+        Script.objects.create(
+            module=module,
+            name="Test script",
+            is_executable=True,
+        )
 
-    def get_test_script(self, *args):
-        return ScriptModule.objects.first(), self.TestScript
+    def python_class(self):
+        return self.TestScriptClass
 
     def setUp(self):
         super().setUp()
 
-        # Monkey-patch the API viewset's _get_script() method to return our test Script above
+        # Monkey-patch the Script model to return our TestScriptClass above
         from extras.api.views import ScriptViewSet
-        ScriptViewSet._get_script = self.get_test_script
+        Script.python_class = self.python_class
 
     def test_get_script(self):
-
-        url = reverse('extras-api:script-detail', kwargs={'pk': None})
+        module = ScriptModule.objects.get(
+            file_root=ManagedFileRootPathChoices.SCRIPTS,
+            file_path='/var/tmp/script.py'
+        )
+        script = module.scripts.all().first()
+        url = reverse('extras-api:script-detail', kwargs={'pk': script.pk})
         response = self.client.get(url, **self.header)
 
-        self.assertEqual(response.data['name'], self.TestScript.Meta.name)
+        self.assertEqual(response.data['name'], self.TestScriptClass.Meta.name)
         self.assertEqual(response.data['vars']['var1'], 'StringVar')
         self.assertEqual(response.data['vars']['var2'], 'IntegerVar')
         self.assertEqual(response.data['vars']['var3'], 'BooleanVar')
@@ -898,17 +876,17 @@ class CreatedUpdatedFilterTest(APITestCase):
         self.assertEqual(response.data['results'][0]['id'], rack2.pk)
 
 
-class ContentTypeTest(APITestCase):
+class ObjectTypeTest(APITestCase):
 
     def test_list_objects(self):
-        contenttype_count = ContentType.objects.count()
+        object_type_count = ObjectType.objects.count()
 
-        response = self.client.get(reverse('extras-api:contenttype-list'), **self.header)
+        response = self.client.get(reverse('extras-api:objecttype-list'), **self.header)
         self.assertHttpStatus(response, status.HTTP_200_OK)
-        self.assertEqual(response.data['count'], contenttype_count)
+        self.assertEqual(response.data['count'], object_type_count)
 
     def test_get_object(self):
-        contenttype = ContentType.objects.first()
+        object_type = ObjectType.objects.first()
 
-        url = reverse('extras-api:contenttype-detail', kwargs={'pk': contenttype.pk})
+        url = reverse('extras-api:objecttype-detail', kwargs={'pk': object_type.pk})
         self.assertHttpStatus(self.client.get(url, **self.header), status.HTTP_200_OK)
