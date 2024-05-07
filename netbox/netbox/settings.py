@@ -522,7 +522,6 @@ if SENTRY_ENABLED:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         release=VERSION,
-        integrations=[sentry_sdk.integrations.django.DjangoIntegration()],
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,
