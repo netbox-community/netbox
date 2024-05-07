@@ -141,6 +141,10 @@ class DeviceTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         template_code=DEVICE_LINK,
         linkify=True
     )
+    description = tables.Column(
+        verbose_name=_('Description'),
+        linkify=True
+    )
     status = columns.ChoiceFieldColumn(
         verbose_name=_('Status'),
     )
