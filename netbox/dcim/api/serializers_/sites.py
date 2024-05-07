@@ -83,7 +83,7 @@ class SiteSerializer(NetBoxModelSerializer):
 class LocationSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     site = SiteSerializer(nested=True)
-    parent = NestedLocationSerializer(required=False, allow_null=True)
+    parent = NestedLocationSerializer(required=False, allow_null=True, default=None)
     status = ChoiceField(choices=LocationStatusChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)

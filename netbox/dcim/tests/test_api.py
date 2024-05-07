@@ -230,7 +230,7 @@ class LocationTest(APIViewTestCases.APIViewTestCase):
                 'name': 'Test Location 6',
                 'slug': 'test-location-6',
                 'site': sites[1].pk,
-                'parent': parent_locations[1].pk,
+                # Omit parent to test uniqueness constraint
                 'status': LocationStatusChoices.STATUS_PLANNED,
             },
         ]
@@ -2307,6 +2307,6 @@ class VirtualDeviceContextTest(APIViewTestCases.APIViewTestCase):
                 'device': devices[1].pk,
                 'status': 'active',
                 'name': 'VDC 3',
-                'identifier': 3,
+                # Omit identifier to test uniqueness constraint
             },
         ]
