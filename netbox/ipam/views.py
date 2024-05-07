@@ -781,6 +781,7 @@ class IPAddressView(generic.ObjectView):
 class IPAddressEditView(generic.ObjectEditView):
     queryset = IPAddress.objects.all()
     form = forms.IPAddressForm
+    template_name = 'ipam/ipaddress_edit.html'
 
     def alter_object(self, obj, request, url_args, url_kwargs):
 
