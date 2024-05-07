@@ -10,6 +10,7 @@ from dcim.models import *
 from extras.models import ConfigTemplate
 from ipam.models import ASN, RIR, VLAN, VRF
 from netbox.api.serializers import GenericObjectSerializer
+from tenancy.models import Tenant
 from utilities.testing import APITestCase, APIViewTestCases, create_test_device
 from virtualization.models import Cluster, ClusterType
 from wireless.choices import WirelessChannelChoices
@@ -152,6 +153,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
         Site.objects.bulk_create(sites)
 
         rir = RIR.objects.create(name='RFC 6996', is_private=True)
+        tenant = Tenant.objects.create(name='Tenant 1', slug='tenant-1')
 
         asns = [
             ASN(asn=65000 + i, rir=rir) for i in range(8)
@@ -166,6 +168,7 @@ class SiteTest(APIViewTestCases.APIViewTestCase):
                 'group': groups[1].pk,
                 'status': SiteStatusChoices.STATUS_ACTIVE,
                 'asns': [asns[0].pk, asns[1].pk],
+                'tenant': tenant.pk,
             },
             {
                 'name': 'Site 5',

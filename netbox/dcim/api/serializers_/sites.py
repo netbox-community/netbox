@@ -51,7 +51,7 @@ class SiteSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = RegionSerializer(nested=True, required=False, allow_null=True)
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
-    tenant = TenantSerializer(required=False, allow_null=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     time_zone = TimeZoneSerializerField(required=False, allow_null=True)
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
