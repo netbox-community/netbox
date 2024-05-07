@@ -45,6 +45,7 @@ class ProviderSerializer(NetBoxModelSerializer):
 class ProviderAccountSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
     provider = ProviderSerializer(nested=True)
+    name = serializers.CharField(allow_blank=True, max_length=100, required=False, default='')
 
     class Meta:
         model = ProviderAccount

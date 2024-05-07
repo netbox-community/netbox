@@ -141,7 +141,7 @@ class CircuitTest(APIViewTestCases.APIViewTestCase):
             {
                 'cid': 'Circuit 6',
                 'provider': providers[1].pk,
-                'provider_account': provider_accounts[1].pk,
+                # Omit provider account to test uniqueness constraint
                 'type': circuit_types[1].pk,
             },
         ]
@@ -237,7 +237,7 @@ class ProviderAccountTest(APIViewTestCases.APIViewTestCase):
                 'account': '5678',
             },
             {
-                'name': 'Provider Account 6',
+                # Omit name to test uniqueness constraint
                 'provider': providers[0].pk,
                 'account': '6789',
             },
