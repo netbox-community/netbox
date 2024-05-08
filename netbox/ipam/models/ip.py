@@ -574,7 +574,7 @@ class IPRange(PrimaryModel):
             if not self.end_address > self.start_address:
                 raise ValidationError({
                     'end_address': _(
-                        "Ending address must be lower than the starting address ({start_address})"
+                        "Ending address must be greater than the starting address ({start_address})"
                     ).format(start_address=self.start_address)
                 })
 
