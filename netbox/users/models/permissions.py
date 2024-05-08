@@ -1,10 +1,12 @@
+import json
+
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from users.constants import OBJECTPERMISSION_OBJECT_TYPES
-from users.models.features import CloningUserMixin
+
 from utilities.querysets import RestrictedQuerySet
 
 __all__ = (
@@ -12,7 +14,7 @@ __all__ = (
 )
 
 
-class ObjectPermission(CloningUserMixin, models.Model):
+class ObjectPermission(models.Model):
     """
     A mapping of view, add, change, and/or delete permission for users and/or groups to an arbitrary set of objects
     identified by ORM query parameters.
@@ -84,3 +86,18 @@ class ObjectPermission(CloningUserMixin, models.Model):
 
     def get_absolute_url(self):
         return reverse('users:objectpermission', args=[self.pk])
+
+    def clone(self):
+        attrs = {}
+
+        for field_name in getattr(self, 'clone_fields', []):
+            field = self._meta.get_field(field_name)
+            field_value = field.value_from_object(self)
+            if field_value and isinstance(field, models.ManyToManyField):
+                attrs[field_name] = [v.pk for v in field_value]
+            elif field_value and isinstance(field, models.JSONField):
+                attrs[field_name] = json.dumps(field_value)
+            elif field_value not in (None, ''):
+                attrs[field_name] = field_value
+
+        return attrs
