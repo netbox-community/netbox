@@ -10,9 +10,9 @@ function quickSearchEventHandler(event: Event): void {
   const clearbtn = document.getElementById("quicksearch_clear") as HTMLAnchorElement;
   if (isTruthy(clearbtn)) {
     if (quicksearch.value === "") {
-      clearbtn.classList.add("d-none");
+      clearbtn.classList.add("invisible");
     } else {
-      clearbtn.classList.remove("d-none");
+      clearbtn.classList.remove("invisible");
     }
   }
 }
