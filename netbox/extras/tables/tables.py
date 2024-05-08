@@ -566,15 +566,10 @@ class ReportResultsTable(BaseTable):
     time = tables.Column(
         verbose_name=_('Time')
     )
-    status = tables.Column(
-        empty_values=(),
-        verbose_name=_('Level')
-    )
     status = tables.TemplateColumn(
         template_code="""{% load log_levels %}{% log_level record.status %}""",
         verbose_name=_('Level')
     )
-
     object = tables.Column(
         verbose_name=_('Object')
     )
