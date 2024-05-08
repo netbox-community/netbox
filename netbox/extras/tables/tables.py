@@ -545,7 +545,7 @@ class ScriptResultsTable(BaseTable):
         template_code="""{% load log_levels %}{% log_level record.status %}""",
         verbose_name=_('Level')
     )
-    message = tables.Column(
+    message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
 
@@ -581,7 +581,7 @@ class ReportResultsTable(BaseTable):
     url = tables.Column(
         verbose_name=_('URL')
     )
-    message = tables.Column(
+    message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
 
