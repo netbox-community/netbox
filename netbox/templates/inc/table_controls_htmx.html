@@ -7,7 +7,7 @@
       <input type="search" results="5" name="q" id="quicksearch" class="form-control px-2 py-1" placeholder="Quick search"
         hx-get="{{ request.full_path }}" hx-target="#object_list" hx-trigger="keyup changed delay:500ms, search" />
       <span class="input-group-text py-1">
-        <a href="#" id="quicksearch_clear" class="d-none text-secondary"><i class="mdi mdi-close-circle"></i></a>
+        <a href="#" id="quicksearch_clear" class="invisible text-secondary"><i class="mdi mdi-close-circle"></i></a>
       </span>
     {% block extra_table_controls %}{% endblock %}
     </div>
