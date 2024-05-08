@@ -46,20 +46,20 @@
               <input type="hidden" name="next" value="{{ request.POST.next }}" />
             {% endif %}
 
-            <div class="form-group">
-            <label for="id_username" style="font-weight: bold; margin-bottom: 5px;">{{ form.username.label }}</label>
-            {{ form.username }}
-            {% for error in form.username.errors %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endfor %}
+            <div class="form-group mb-3">
+              <label for="id_username" class="form-label">{{ form.username.label }}</label>
+              {{ form.username }}
+              {% for error in form.username.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+              {% endfor %}
             </div>
 
             <div class="form-group">
-            <label for="id_password" style="font-weight: bold; margin-bottom: 5px;">{{ form.password.label }}</label>
-            {{ form.password }}
-            {% for error in form.password.errors %}
-            <div class="alert alert-danger">{{ error }}</div>
-            {% endfor %}
+              <label for="id_password" class="form-label">{{ form.password.label }}</label>
+              {{ form.password }}
+              {% for error in form.password.errors %}
+                <div class="alert alert-danger">{{ error }}</div>
+              {% endfor %}
             </div>
 
             <div class="form-footer">
