@@ -18,79 +18,73 @@
 {% endblock %}
 
 {# ObjectChange does not support the default add/edit/delete controls #}
-{% block controls %}{% endblock %}
+{% block control-buttons %}{% endblock %}
 {% block subtitle %}{% endblock %}
 
 {% block content %}
 <div class="row mb-3">
     <div class="col col-md-5">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Change" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Time" %}</th>
-                        <td>
-                            {{ object.time|annotated_date }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "User" %}</th>
-                        <td>
-                            {% if object.user.get_full_name %}
-                              {{ object.user.get_full_name }} ({{ object.user_name }})
-                            {% else %}
-                              {{ object.user_name }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Action" %}</th>
-                        <td>
-                            {{ object.get_action_display }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Object Type" %}</th>
-                        <td>
-                            {{ object.changed_object_type }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Object" %}</th>
-                        <td>
-                            {% if object.changed_object and object.changed_object.get_absolute_url %}
-                                {{ object.changed_object|linkify }}
-                            {% else %}
-                                {{ object.object_repr }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Request ID" %}</th>
-                        <td>
-                            {{ object.request_id }}
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Change" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Time" %}</th>
+                    <td>{{ object.time|isodatetime }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "User" %}</th>
+                    <td>
+                        {% if object.user.get_full_name %}
+                          {{ object.user.get_full_name }} ({{ object.user_name }})
+                        {% else %}
+                          {{ object.user_name }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Action" %}</th>
+                    <td>
+                        {{ object.get_action_display }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Object Type" %}</th>
+                    <td>
+                        {{ object.changed_object_type }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Object" %}</th>
+                    <td>
+                        {% if object.changed_object and object.changed_object.get_absolute_url %}
+                            {{ object.changed_object|linkify }}
+                        {% else %}
+                            {{ object.object_repr }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Request ID" %}</th>
+                    <td>
+                        {{ object.request_id }}
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
     <div class="col col-md-7">
         <div class="card">
-            <div class="card-header">
-                <h5 class="d-inline">{% trans "Difference" %}</h5>
-                <div class="btn-group btn-group-sm float-end noprint">
-                    <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
-                        <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
-                    </a>
-                    <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
-                        {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
-                    </a>
-                </div>
-            </div>
+            <h5 class="card-header d-flex justify-content-between">
+              {% trans "Difference" %}
+              <div class="btn-group btn-group-sm d-print-none">
+                <a {% if prev_change %}href="{% url 'extras:objectchange' pk=prev_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+                  <i class="mdi mdi-chevron-left" aria-hidden="true"></i> {% trans "Previous" %}
+                </a>
+                <a {% if next_change %}href="{% url 'extras:objectchange' pk=next_change.pk %}"{% else %}disabled{% endif %} class="btn btn-outline-secondary">
+                  {% trans "Next" %} <i class="mdi mdi-chevron-right" aria-hidden="true"></i>
+                </a>
+              </div>
+            </h5>
             <div class="card-body">
                 {% if diff_added == diff_removed %}
                     <span class="text-muted" style="margin-left: 10px;">
@@ -113,36 +107,38 @@
 <div class="row mb-3">
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Pre-Change Data" %}
-            </h5>
+            <h5 class="card-header">{% trans "Pre-Change Data" %}</h5>
             <div class="card-body">
             {% if object.prechange_data %}
-                <pre class="change-data">{% for k, v in object.prechange_data.items %}{% spaceless %}
+              {% spaceless %}
+                <pre class="change-data">
+                  {% for k, v in object.prechange_data.items %}
                     <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
-                {% endspaceless %}{% endfor %}
+                  {% endfor %}
                 </pre>
+              {% endspaceless %}
             {% elif non_atomic_change %}
-                {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
+              {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
             {% else %}
-                <span class="text-muted">{% trans "None" %}</span>
+              <span class="text-muted">{% trans "None" %}</span>
             {% endif %}
             </div>
         </div>
     </div>
     <div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Post-Change Data" %}
-            </h5>
+            <h5 class="card-header">{% trans "Post-Change Data" %}</h5>
             <div class="card-body">
                 {% if object.postchange_data %}
-                    <pre class="change-data">{% for k, v in object.postchange_data.items %}{% spaceless %}
+                  {% spaceless %}
+                    <pre class="change-data">
+                      {% for k, v in object.postchange_data.items %}
                         <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
-                        {% endspaceless %}{% endfor %}
+                      {% endfor %}
                     </pre>
+                  {% endspaceless %}
                 {% else %}
-                    <span class="text-muted">{% trans "None" %}</span>
+                  <span class="text-muted">{% trans "None" %}</span>
                 {% endif %}
             </div>
         </div>

@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -574,7 +574,7 @@ class IPRange(PrimaryModel):
             if not self.end_address > self.start_address:
                 raise ValidationError({
                     'end_address': _(
-                        "Ending address must be lower than the starting address ({start_address})"
+                        "Ending address must be greater than the starting address ({start_address})"
                     ).format(start_address=self.start_address)
                 })
 
@@ -692,7 +692,7 @@ class IPRange(PrimaryModel):
             ip.address.ip for ip in self.get_child_ips()
         ]).size
 
-        return int(float(child_count) / self.size * 100)
+        return min(float(child_count) / self.size * 100, 100)
 
 
 class IPAddress(PrimaryModel):
@@ -880,7 +880,7 @@ class IPAddress(PrimaryModel):
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
             original_parent = getattr(original_assigned_object, 'parent_object', None)
 

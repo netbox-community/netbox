@@ -1,15 +1,20 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load i18n %}
 
 {% comment %}
 Blocks:
-  form: Content within the <form> element
-  buttons: Form submission buttons
+  - title:      Page title
+  - controls:   Control elements displayed between the header and content
+  - tabs:       Page tabs
+  - content:    Primary page content
+    - form:     Content within the <form> element
+    - buttons:  Form submission buttons
+  - modals:     Any pre-loaded modals
 
 Context:
-  object: Python instance of the object being edited
-  form: The edit form
-  return_url: The URL to which the user is redirected after submitting the form
+  - object:      Python instance of the object being edited
+  - form:        The edit form
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}
@@ -22,8 +27,21 @@ Context:
   {% endif %}
 {% endblock title %}
 
+{% block controls %}
+  <div class="btn-list">
+
+    {# Link to model documentation #}
+    {% if settings.DOCS_ROOT and object.docs_url %}
+      <a href="{{ object.docs_url }}" target="_blank" class="btn btn-outline-secondary" title="{% trans "View model documentation" %}">
+        <i class="mdi mdi-help-circle"></i> {% trans "Help" %}
+      </a>
+    {% endif %}
+
+  </div>
+{% endblock controls %}
+
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="edit-form-tab" data-bs-toggle="tab" data-bs-target="#edit-form" type="button" role="tab" aria-controls="edit-form" aria-selected="true">
         {% if object.pk %}{% trans "Edit" %}{% else %}{% trans "Create" %}{% endif %}
@@ -32,55 +50,45 @@ Context:
   </ul>
 {% endblock tabs %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
+{% block content %}
+  <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
 
-      {# Warn about missing prerequisite objects #}
-      {% if prerequisite_model %}
-        {% include 'inc/missing_prerequisites.html' %}
-      {% endif %}
+    {# Warn about missing prerequisite objects #}
+    {% if prerequisite_model %}
+      {% include 'inc/missing_prerequisites.html' %}
+    {% endif %}
 
-      {# Link to model documentation #}
-      {% if settings.DOCS_ROOT and object.docs_url %}
-        <div class="float-end">
-          <a href="{{ object.docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary" title="{% trans "View model documentation" %}">
-            <i class="mdi mdi-help-circle"></i> {% trans "Help" %}
-          </a>
-        </div>
-      {% endif %}
+    <form action="" method="post" enctype="multipart/form-data" class="object-edit mt-5">
+      {% csrf_token %}
 
-      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit mt-5">
-        {% csrf_token %}
+      <div id="form_fields" hx-disinherit="hx-select hx-swap">
+        {% block form %}
+          {% include 'htmx/form.html' %}
+        {% endblock form %}
+      </div>
 
-        <div id="form_fields">
-          {% block form %}
-            {% include 'htmx/form.html' %}
-          {% endblock form %}
-        </div>
-
-        <div class="text-end my-3">
-          {% block buttons %}
-            {% if object.pk %}
-              <button type="submit" name="_update" class="btn btn-primary">
-                {% trans "Save" %}
-              </button>
-            {% else %}
+      <div class="text-end my-3">
+        {% block buttons %}
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          {% if object.pk %}
+            <button type="submit" name="_update" class="btn btn-primary">
+              {% trans "Save" %}
+            </button>
+          {% else %}
+            <div class="btn-group" role="group" aria-label="{% trans "Actions" %}">
               <button type="submit" name="_create" class="btn btn-primary">
                 {% trans "Create" %}
               </button>
               <button type="submit" name="_addanother" class="btn btn-outline-primary">
                 {% trans "Create & Add Another" %}
               </button>
-            {% endif %}
-            <a class="btn btn-outline-danger" href="{{ return_url }}">{% trans "Cancel" %}</a>
-          {% endblock buttons %}
-        </div>
-      </form>
-    </div>
+            </div>
+          {% endif %}
+        {% endblock buttons %}
+      </div>
+    </form>
   </div>
-
-{% endblock content-wrapper %}
+{% endblock content %}
 
 {% block modals %}
   {% include 'inc/htmx_modal.html' with size='lg' %}

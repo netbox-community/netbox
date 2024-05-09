@@ -18,7 +18,7 @@ __all__ = (
     'RoleTable',
 )
 
-AVAILABLE_LABEL = mark_safe('<span class="badge bg-success">Available</span>')
+AVAILABLE_LABEL = mark_safe('<span class="badge text-bg-success">Available</span>')
 
 AGGREGATE_COPY_BUTTON = """
 {% copy_content record.pk prefix="aggregate_" %}
@@ -378,7 +378,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name=_('NAT (Inside)')
     )
-    nat_outside = tables.ManyToManyColumn(
+    nat_outside = columns.ManyToManyColumn(
         linkify_item=True,
         orderable=False,
         verbose_name=_('NAT (Outside)')

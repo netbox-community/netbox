@@ -1,13 +1,8 @@
 from decimal import Decimal
-try:
-    from zoneinfo import ZoneInfo
-except ImportError:
-    # Python 3.8
-    from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 import yaml
 from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from netaddr import EUI
@@ -16,11 +11,10 @@ from dcim.choices import *
 from dcim.constants import *
 from dcim.models import *
 from ipam.models import ASN, RIR, VLAN, VRF
+from netbox.choices import CSVDelimiterChoices, ImportFormatChoices
 from tenancy.models import Tenant
-from utilities.choices import CSVDelimiterChoices, ImportFormatChoices
 from utilities.testing import ViewTestCases, create_tags, create_test_device, post_data
 from wireless.models import WirelessLAN
-
 
 User = get_user_model()
 
@@ -218,6 +212,7 @@ class LocationTestCase(ViewTestCases.OrganizationalObjectViewTestCase):
             'slug': 'location-x',
             'site': site.pk,
             'status': LocationStatusChoices.STATUS_PLANNED,
+            'facility': 'Facility X',
             'tenant': tenant.pk,
             'description': 'A new location',
             'tags': [t.pk for t in tags],
@@ -2986,7 +2981,6 @@ class CableTestCase(
 
         tags = create_tags('Alpha', 'Bravo', 'Charlie')
 
-        interface_ct = ContentType.objects.get_for_model(Interface)
         cls.form_data = {
             # TODO: Revisit this limitation
             # Changing terminations not supported when editing an existing Cable

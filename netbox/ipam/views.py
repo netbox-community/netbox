@@ -9,8 +9,8 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from utilities.query import count_related
 from utilities.tables import get_table_ordering
-from utilities.utils import count_related
 from utilities.views import GetRelatedModelsMixin, ViewTab, register_model_view
 from virtualization.filtersets import VMInterfaceFilterSet
 from virtualization.models import VMInterface
@@ -1035,7 +1035,6 @@ class FHRPGroupBulkDeleteView(generic.BulkDeleteView):
 class FHRPGroupAssignmentEditView(generic.ObjectEditView):
     queryset = FHRPGroupAssignment.objects.all()
     form = forms.FHRPGroupAssignmentForm
-    template_name = 'ipam/fhrpgroupassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
@@ -1212,14 +1211,12 @@ class ServiceView(generic.ObjectView):
 class ServiceCreateView(generic.ObjectEditView):
     queryset = Service.objects.all()
     form = forms.ServiceCreateForm
-    template_name = 'ipam/service_create.html'
 
 
 @register_model_view(Service, 'edit')
 class ServiceEditView(generic.ObjectEditView):
     queryset = Service.objects.all()
     form = forms.ServiceForm
-    template_name = 'ipam/service_edit.html'
 
 
 @register_model_view(Service, 'delete')

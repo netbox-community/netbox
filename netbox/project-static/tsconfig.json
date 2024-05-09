@@ -3,7 +3,8 @@
     "forceConsistentCasingInFileNames": true,
     "allowSyntheticDefaultImports": true,
     "moduleResolution": "node",
-    "noUnusedParameters": true,
+    // tom-select v2.3.1 raises several TS6133 errors with noUnusedParameters
+    "noUnusedParameters": false,
     "esModuleInterop": true,
     "isolatedModules": true,
     "noUnusedLocals": true,

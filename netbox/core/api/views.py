@@ -9,7 +9,6 @@ from rest_framework.viewsets import ReadOnlyModelViewSet
 from core import filtersets
 from core.models import *
 from netbox.api.viewsets import NetBoxModelViewSet, NetBoxReadOnlyModelViewSet
-from utilities.utils import count_related
 from . import serializers
 
 
@@ -22,9 +21,7 @@ class CoreRootView(APIRootView):
 
 
 class DataSourceViewSet(NetBoxModelViewSet):
-    queryset = DataSource.objects.annotate(
-        file_count=count_related(DataFile, 'source')
-    )
+    queryset = DataSource.objects.all()
     serializer_class = serializers.DataSourceSerializer
     filterset_class = filtersets.DataSourceFilterSet
 
@@ -45,7 +42,7 @@ class DataSourceViewSet(NetBoxModelViewSet):
 
 
 class DataFileViewSet(NetBoxReadOnlyModelViewSet):
-    queryset = DataFile.objects.defer('data').prefetch_related('source')
+    queryset = DataFile.objects.defer('data')
     serializer_class = serializers.DataFileSerializer
     filterset_class = filtersets.DataFileFilterSet
 
@@ -54,6 +51,6 @@ class JobViewSet(ReadOnlyModelViewSet):
     """
     Retrieve a list of job results
     """
-    queryset = Job.objects.prefetch_related('user')
+    queryset = Job.objects.all()
     serializer_class = serializers.JobSerializer
     filterset_class = filtersets.JobFilterSet

@@ -1,4 +1,3 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
 from dcim.choices import InterfaceTypeChoices
@@ -353,6 +352,13 @@ class IKEProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_ike_policy(self):
+        ike_policies = IKEPolicy.objects.all()[:2]
+        params = {'ike_policy_id': [ike_policies[0].pk, ike_policies[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'ike_policy': [ike_policies[0].name, ike_policies[1].name]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
     def test_authentication_method(self):
         params = {'authentication_method': [
             AuthenticationMethodChoices.PRESHARED_KEYS, AuthenticationMethodChoices.CERTIFICATES
@@ -463,11 +469,11 @@ class IKEPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'mode': [IKEModeChoices.MAIN]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_proposal(self):
+    def test_ike_proposal(self):
         proposals = IKEProposal.objects.all()[:2]
-        params = {'proposal_id': [proposals[0].pk, proposals[1].pk]}
+        params = {'ike_proposal_id': [proposals[0].pk, proposals[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'proposal': [proposals[0].name, proposals[1].name]}
+        params = {'ike_proposal': [proposals[0].name, proposals[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -505,6 +511,16 @@ class IPSecProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         IPSecProposal.objects.bulk_create(ipsec_proposals)
 
+        ipsec_policies = (
+            IPSecPolicy(name='IPSec Policy 1'),
+            IPSecPolicy(name='IPSec Policy 2'),
+            IPSecPolicy(name='IPSec Policy 3'),
+        )
+        IPSecPolicy.objects.bulk_create(ipsec_policies)
+        ipsec_policies[0].proposals.add(ipsec_proposals[0])
+        ipsec_policies[1].proposals.add(ipsec_proposals[1])
+        ipsec_policies[2].proposals.add(ipsec_proposals[2])
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -515,6 +531,13 @@ class IPSecProposalTestCase(TestCase, ChangeLoggedFilterSetTests):
 
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ipsec_policy(self):
+        ipsec_policies = IPSecPolicy.objects.all()[:2]
+        params = {'ipsec_policy_id': [ipsec_policies[0].pk, ipsec_policies[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+        params = {'ipsec_policy': [ipsec_policies[0].name, ipsec_policies[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_encryption_algorithm(self):
@@ -601,11 +624,11 @@ class IPSecPolicyTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'pfs_group': [DHGroupChoices.GROUP_1, DHGroupChoices.GROUP_2]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_proposal(self):
+    def test_ipsec_proposal(self):
         proposals = IPSecProposal.objects.all()[:2]
-        params = {'proposal_id': [proposals[0].pk, proposals[1].pk]}
+        params = {'ipsec_proposal_id': [proposals[0].pk, proposals[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'proposal': [proposals[0].name, proposals[1].name]}
+        params = {'ipsec_proposal': [proposals[0].name, proposals[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
@@ -726,6 +749,14 @@ class IPSecProfileTestCase(TestCase, ChangeLoggedFilterSetTests):
 class L2VPNTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = L2VPN.objects.all()
     filterset = L2VPNFilterSet
+
+    def get_m2m_filter_name(self, field):
+        # Override filter names for import & export RouteTargets
+        if field.name == 'import_targets':
+            return 'import_target'
+        if field.name == 'export_targets':
+            return 'export_target'
+        return ChangeLoggedFilterSetTests.get_m2m_filter_name(field)
 
     @classmethod
     def setUpTestData(cls):
@@ -865,8 +896,8 @@ class L2VPNTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'l2vpn': [l2vpns[0].slug, l2vpns[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 6)
 
-    def test_content_type(self):
-        params = {'assigned_object_type_id': ContentType.objects.get(model='vlan').pk}
+    def test_termination_type(self):
+        params = {'assigned_object_type': 'ipam.vlan'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_interface(self):

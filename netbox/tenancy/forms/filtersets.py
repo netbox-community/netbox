@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.choices import *
 from tenancy.models import *
@@ -9,6 +9,7 @@ from tenancy.forms import ContactModelFilterForm
 from utilities.forms.fields import (
     ContentTypeMultipleChoiceField, DynamicModelMultipleChoiceField, TagFilterField,
 )
+from utilities.forms.rendering import FieldSet
 
 __all__ = (
     'ContactAssignmentFilterForm',
@@ -37,8 +38,8 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
 class TenantFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Tenant
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag', 'group_id')),
-        ('Contacts', ('contact', 'contact_role', 'contact_group'))
+        FieldSet('q', 'filter_id', 'tag', 'group_id'),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts'))
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
@@ -82,11 +83,11 @@ class ContactFilterForm(NetBoxModelFilterSetForm):
 class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     model = ContactAssignment
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Assignment'), ('content_type_id', 'group_id', 'contact_id', 'role_id', 'priority')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('object_type_id', 'group_id', 'contact_id', 'role_id', 'priority', name=_('Assignment')),
     )
-    content_type_id = ContentTypeMultipleChoiceField(
-        queryset=ContentType.objects.with_feature('contacts'),
+    object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.with_feature('contacts'),
         required=False,
         label=_('Object type')
     )

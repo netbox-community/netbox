@@ -275,6 +275,12 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
         blank=True,
         null=True
     )
+    facility = models.CharField(
+        verbose_name=_('facility'),
+        max_length=50,
+        blank=True,
+        help_text=_('Local facility ID or description')
+    )
 
     # Generic relations
     vlan_groups = GenericRelation(
@@ -284,7 +290,7 @@ class Location(ContactsMixin, ImageAttachmentsMixin, NestedGroupModel):
         related_query_name='location'
     )
 
-    clone_fields = ('site', 'parent', 'status', 'tenant', 'description')
+    clone_fields = ('site', 'parent', 'status', 'tenant', 'facility', 'description')
     prerequisite_models = (
         'dcim.Site',
     )

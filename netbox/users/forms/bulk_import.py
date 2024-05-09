@@ -14,16 +14,14 @@ __all__ = (
 class GroupImportForm(CSVModelForm):
 
     class Meta:
-        model = NetBoxGroup
-        fields = (
-            'name',
-        )
+        model = Group
+        fields = ('name', 'description')
 
 
 class UserImportForm(CSVModelForm):
 
     class Meta:
-        model = NetBoxUser
+        model = User
         fields = (
             'username', 'first_name', 'last_name', 'email', 'password', 'is_staff',
             'is_active', 'is_superuser'

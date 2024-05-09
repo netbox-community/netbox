@@ -1,20 +1,43 @@
-import graphene
+from typing import Annotated, List, Union
+
+import strawberry
+import strawberry_django
+
+__all__ = (
+    'CabledObjectMixin',
+    'PathEndpointMixin',
+)
 
 
+@strawberry.type
 class CabledObjectMixin:
-    link_peers = graphene.List('dcim.graphql.gfk_mixins.LinkPeerType')
+    cable: Annotated["CableType", strawberry.lazy('dcim.graphql.types')] | None
 
-    def resolve_cable_end(self, info):
-        # Handle empty values
-        return self.cable_end or None
+    link_peers: List[Annotated[Union[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
+        Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("LinkPeerType")]]
 
-    def resolve_link_peers(self, info):
-        return self.link_peers
 
-
+@strawberry.type
 class PathEndpointMixin:
-    connected_endpoints = graphene.List('dcim.graphql.gfk_mixins.ConnectedEndpointType')
 
-    def resolve_connected_endpoints(self, info):
-        # Handle empty values
-        return self.connected_endpoints or None
+    connected_endpoints: List[Annotated[Union[
+        Annotated["CircuitTerminationType", strawberry.lazy('circuits.graphql.types')],
+        Annotated["ConsolePortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["ConsoleServerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["FrontPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerFeedType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerOutletType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["PowerPortType", strawberry.lazy('dcim.graphql.types')],
+        Annotated["ProviderNetworkType", strawberry.lazy('circuits.graphql.types')],
+        Annotated["RearPortType", strawberry.lazy('dcim.graphql.types')],
+    ], strawberry.union("ConnectedEndpointType")]]

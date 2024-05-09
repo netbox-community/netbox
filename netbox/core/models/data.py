@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import os
 import yaml
@@ -18,7 +19,6 @@ from netbox.constants import CENSOR_TOKEN, CENSOR_TOKEN_CHANGED
 from netbox.models import PrimaryModel
 from netbox.models.features import JobsMixin
 from netbox.registry import registry
-from utilities.files import sha256_hash
 from utilities.querysets import RestrictedQuerySet
 from ..choices import *
 from ..exceptions import SyncError
@@ -357,7 +357,8 @@ class DataFile(models.Model):
         has changed.
         """
         file_path = os.path.join(source_root, self.path)
-        file_hash = sha256_hash(file_path).hexdigest()
+        with open(file_path, 'rb') as f:
+            file_hash = hashlib.sha256(f.read()).hexdigest()
 
         # Update instance file attributes & data
         if is_modified := file_hash != self.hash:

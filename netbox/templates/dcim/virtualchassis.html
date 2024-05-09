@@ -18,32 +18,30 @@
 	<div class="col col-md-4">
     <div class="card">
       <h5 class="card-header">{% trans "Virtual Chassis" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Domain" %}</th>
-            <td>{{ object.domain|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Master" %}</th>
-            <td>{{ object.master|linkify }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Members</th>
-            <td>
-              {% if object.member_count %}
-                <a href="{% url 'dcim:device_list' %}?virtual_chassis_id={{ object.pk }}">{{ object.member_count }}</a>
-              {% else %}
-                {{ object.member_count }}
-              {% endif %}
-            </td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Domain" %}</th>
+          <td>{{ object.domain|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Master" %}</th>
+          <td>{{ object.master|linkify }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Members</th>
+          <td>
+            {% if object.member_count %}
+              <a href="{% url 'dcim:device_list' %}?virtual_chassis_id={{ object.pk }}">{{ object.member_count }}</a>
+            {% else %}
+              {{ object.member_count }}
+            {% endif %}
+          </td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% include 'inc/panels/custom_fields.html' %}
@@ -51,42 +49,44 @@
     </div>
     <div class="col col-md-8">
       <div class="card">
-        <h5 class="card-header">{% trans "Members" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
+        <h5 class="card-header">
+          {% trans "Members" %}
+          {% if perms.dcim.change_virtualchassis %}
+            <div class="card-actions">
+              <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-ghost-primary btn-sm">
+                <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Member" %}
+              </a>
+            </div>
+          {% endif %}
+        </h5>
+        <table class="table table-hover object-list">
+          <thead>
             <tr>
               <th>{% trans "Device" %}</th>
               <th>{% trans "Position" %}</th>
               <th>{% trans "Master" %}</th>
               <th>{% trans "Priority" %}</th>
             </tr>
-            {% for vc_member in members %}
-              <tr{% if vc_member == device %} class="info"{% endif %}>
-                <td>
-                  {{ vc_member|linkify }}
-                </td>
-                <td>
-                  {% badge vc_member.vc_position show_empty=True %}
-                </td>
-                <td>
-                  {% if object.master == vc_member %}
-                    {% checkmark True %}
-                  {% endif %}
-                </td>
-                <td>
-                  {{ vc_member.vc_priority|placeholder }}
-                </td>
-              </tr>
-            {% endfor %}
-          </table>
-        </div>
-        {% if perms.dcim.change_virtualchassis %}
-          <div class="card-footer text-end noprint">
-            <a href="{% url 'dcim:virtualchassis_add_member' pk=object.pk %}?site={{ object.master.site.pk }}&rack={{ object.master.rack.pk }}&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm">
-              <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Member" %}
-            </a>
-          </div>
-        {% endif %}
+          </thead>
+          {% for vc_member in members %}
+            <tr{% if vc_member == device %} class="info"{% endif %}>
+              <td>
+                {{ vc_member|linkify }}
+              </td>
+              <td>
+                {% badge vc_member.vc_position show_empty=True %}
+              </td>
+              <td>
+                {% if object.master == vc_member %}
+                  {% checkmark True %}
+                {% endif %}
+              </td>
+              <td>
+                {{ vc_member.vc_priority|placeholder }}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
       </div>
       {% include 'inc/panels/comments.html' %}
       {% plugin_right_page object %}

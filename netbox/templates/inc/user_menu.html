@@ -1,0 +1,50 @@
+{% load i18n %}
+{% load navigation %}
+
+{% if request.user.is_authenticated %}
+  <div class="nav-item dropdown">
+    <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown" aria-label="Open user menu">
+      <div class="d-xl-block ps-2">
+        <div>{{ request.user }}</div>
+        <div class="mt-1 small text-secondary">
+          {% if request.user.is_superuser %}
+            {% trans "Admin" %}
+          {% elif request.user.is_staff %}
+            {% trans "Staff" %}
+          {% else %}
+            {% trans "User" %}
+          {% endif %}
+        </div>
+      </div>
+    </a>
+    <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow" {% htmx_boost %}>
+      {% if config.DJANGO_ADMIN_ENABLED and request.user.is_staff %}
+        <a class="dropdown-item" href="{% url 'admin:index' %}">
+          <i class="mdi mdi-cog"></i> {% trans "Django Admin" %}
+        </a>
+      {% endif %}
+      <a href="{% url 'account:profile' %}" class="dropdown-item">
+        <i class="mdi mdi-account"></i> {% trans "Profile" %}
+      </a>
+      <a href="{% url 'account:bookmarks' %}" class="dropdown-item">
+        <i class="mdi mdi-bookmark"></i> {% trans "Bookmarks" %}
+      </a>
+      <a href="{% url 'account:preferences' %}" class="dropdown-item">
+        <i class="mdi mdi-wrench"></i> {% trans "Preferences" %}
+      </a>
+      <a href="{% url 'account:usertoken_list' %}" class="dropdown-item">
+        <i class="mdi mdi-key"></i> {% trans "API Tokens" %}
+      </a>
+      <hr class="dropdown-divider" />
+      <a href="{% url 'logout' %}" hx-disable="true" class="dropdown-item">
+        <i class="mdi mdi-logout-variant"></i> {% trans "Log Out" %}
+      </a>
+    </div>
+  </div>
+{% else %}
+  <div class="btn-group align-items-center ps-2">
+    <a class="btn btn-primary" type="button" href="{% url 'login' %}?next={{ request.path }}">
+      <i class="mdi mdi-login-variant"></i> {% trans "Log In" %}
+    </a>
+  </div>
+{% endif %}

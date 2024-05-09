@@ -116,23 +116,19 @@ urlpatterns = [
     path('dashboard/widgets/<uuid:id>/configure/', views.DashboardWidgetConfigView.as_view(), name='dashboardwidget_config'),
     path('dashboard/widgets/<uuid:id>/delete/', views.DashboardWidgetDeleteView.as_view(), name='dashboardwidget_delete'),
 
-    # Reports
-    path('reports/', views.ReportListView.as_view(), name='report_list'),
-    path('reports/add/', views.ReportModuleCreateView.as_view(), name='reportmodule_add'),
-    path('reports/results/<int:job_pk>/', views.ReportResultView.as_view(), name='report_result'),
-    path('reports/<int:pk>/', include(get_model_urls('extras', 'reportmodule'))),
-    path('reports/<str:module>/<str:name>/', views.ReportView.as_view(), name='report'),
-    path('reports/<str:module>/<str:name>/source/', views.ReportSourceView.as_view(), name='report_source'),
-    path('reports/<str:module>/<str:name>/jobs/', views.ReportJobsView.as_view(), name='report_jobs'),
-
     # Scripts
     path('scripts/', views.ScriptListView.as_view(), name='script_list'),
     path('scripts/add/', views.ScriptModuleCreateView.as_view(), name='scriptmodule_add'),
     path('scripts/results/<int:job_pk>/', views.ScriptResultView.as_view(), name='script_result'),
-    path('scripts/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
-    path('scripts/<str:module>/<str:name>/', views.ScriptView.as_view(), name='script'),
-    path('scripts/<str:module>/<str:name>/source/', views.ScriptSourceView.as_view(), name='script_source'),
-    path('scripts/<str:module>/<str:name>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
+    path('scripts/<int:pk>/', views.ScriptView.as_view(), name='script'),
+    path('scripts/<int:pk>/source/', views.ScriptSourceView.as_view(), name='script_source'),
+    path('scripts/<int:pk>/jobs/', views.ScriptJobsView.as_view(), name='script_jobs'),
+    path('script-modules/<int:pk>/', include(get_model_urls('extras', 'scriptmodule'))),
+
+    # Redirects for legacy script URLs
+    # TODO: Remove in NetBox v4.1
+    path('scripts/<str:module>/<str:name>/', views.LegacyScriptRedirectView.as_view()),
+    path('scripts/<str:module>/<str:name>/<path:path>/', views.LegacyScriptRedirectView.as_view()),
 
     # Markdown
     path('render/markdown/', views.RenderMarkdownView.as_view(), name="render_markdown"),

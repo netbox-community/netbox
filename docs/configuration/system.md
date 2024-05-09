@@ -62,14 +62,6 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ---
 
-## ENABLE_LOCALIZATION
-
-Default: False
-
-Determines if localization features are enabled or not. This should only be enabled for development or testing purposes as netbox is not yet fully localized. Turning this on will localize numeric and date formats (overriding any configured [system defaults](./date-time.md#date-and-time-formatting)) based on the browser locale as well as translate certain strings from third party modules.
-
----
-
 ## HTTP_PROXIES
 
 Default: None
@@ -200,3 +192,9 @@ A dictionary of configuration parameters for the storage backend configured as `
 If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 
 ---
+
+## TIME_ZONE
+
+Default: UTC
+
+The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. Please see the [list of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).

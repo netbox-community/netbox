@@ -17,7 +17,7 @@ from netbox.forms import SearchForm
 from netbox.search import LookupTypes
 from netbox.search.backends import search_backend
 from netbox.tables import SearchTable
-from utilities.htmx import is_htmx
+from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
 
 __all__ = (
@@ -105,7 +105,7 @@ class SearchView(View):
         }).configure(table)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
+        if htmx_partial(request):
             return render(request, 'htmx/table.html', {
                 'table': table,
             })
