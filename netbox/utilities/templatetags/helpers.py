@@ -96,11 +96,13 @@ def humanize_megabytes(mb):
     """
     if not mb:
         return ''
+    if len(str(mb)) < 6:
+        return mb
     if not mb % 1048576:  # 1024^2
         return f'{int(mb / 1048576)} TB'
     if not mb % 1024:
         return f'{int(mb / 1024)} GB'
-    return f'{mb} MB'
+    return f'{float(mb)/(1048576):.2f} MB'
 
 
 @register.filter()

@@ -59,7 +59,7 @@
               <th scope="row"><i class="mdi mdi-chip"></i> {% trans "Memory" %}</th>
               <td>
                   {% if memory_sum %}
-                      {{ memory_sum }} {% trans "MB" context "Abbreviation for megabyte" %}
+                      {{ memory_sum|humanize_megabytes }}
                   {% else %}
                       {{ ''|placeholder }} 
                   {% endif %}
