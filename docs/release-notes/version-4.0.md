@@ -1,5 +1,9 @@
 # NetBox v4.0
 
+## v4.0.2 (FUTURE)
+
+---
+
 ## v4.0.1 (2024-05-09)
 
 ### Enhancements
