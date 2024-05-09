@@ -1,6 +1,6 @@
-from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 
+from core.models import ObjectType
 from dcim.models import Manufacturer, Site
 from tenancy.filtersets import *
 from tenancy.models import *
@@ -15,35 +15,43 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         parent_tenant_groups = (
-            TenantGroup(name='Parent Tenant Group 1', slug='parent-tenant-group-1'),
-            TenantGroup(name='Parent Tenant Group 2', slug='parent-tenant-group-2'),
-            TenantGroup(name='Parent Tenant Group 3', slug='parent-tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
-        for tenantgroup in parent_tenant_groups:
-            tenantgroup.save()
+        for tenant_group in parent_tenant_groups:
+            tenant_group.save()
 
         tenant_groups = (
             TenantGroup(
-                name='Tenant Group 1',
-                slug='tenant-group-1',
+                name='Tenant Group 1A',
+                slug='tenant-group-1a',
                 parent=parent_tenant_groups[0],
                 description='foobar1'
             ),
             TenantGroup(
-                name='Tenant Group 2',
-                slug='tenant-group-2',
+                name='Tenant Group 2A',
+                slug='tenant-group-2a',
                 parent=parent_tenant_groups[1],
                 description='foobar2'
             ),
             TenantGroup(
-                name='Tenant Group 3',
-                slug='tenant-group-3',
+                name='Tenant Group 3A',
+                slug='tenant-group-3a',
                 parent=parent_tenant_groups[2],
                 description='foobar3'
             ),
         )
-        for tenantgroup in tenant_groups:
-            tenantgroup.save()
+        for tenant_group in tenant_groups:
+            tenant_group.save()
+
+        child_tenant_groups = (
+            TenantGroup(name='Tenant Group 1A1', slug='tenant-group-1a1', parent=tenant_groups[0]),
+            TenantGroup(name='Tenant Group 2A1', slug='tenant-group-2a1', parent=tenant_groups[1]),
+            TenantGroup(name='Tenant Group 3A1', slug='tenant-group-3a1', parent=tenant_groups[2]),
+        )
+        for tenant_group in child_tenant_groups:
+            tenant_group.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -62,11 +70,18 @@ class TenantGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
-        parent_groups = TenantGroup.objects.filter(name__startswith='Parent')[:2]
-        params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
+        tenant_groups = TenantGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
+        params = {'parent': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ancestor(self):
+        tenant_groups = TenantGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [tenant_groups[0].pk, tenant_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'ancestor': [tenant_groups[0].slug, tenant_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class TenantTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -123,35 +138,43 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         parent_contact_groups = (
-            ContactGroup(name='Parent Contact Group 1', slug='parent-contact-group-1'),
-            ContactGroup(name='Parent Contact Group 2', slug='parent-contact-group-2'),
-            ContactGroup(name='Parent Contact Group 3', slug='parent-contact-group-3'),
+            ContactGroup(name='Contact Group 1', slug='contact-group-1'),
+            ContactGroup(name='Contact Group 2', slug='contact-group-2'),
+            ContactGroup(name='Contact Group 3', slug='contact-group-3'),
         )
-        for contactgroup in parent_contact_groups:
-            contactgroup.save()
+        for contact_group in parent_contact_groups:
+            contact_group.save()
 
         contact_groups = (
             ContactGroup(
-                name='Contact Group 1',
-                slug='contact-group-1',
+                name='Contact Group 1A',
+                slug='contact-group-1a',
                 parent=parent_contact_groups[0],
                 description='foobar1'
             ),
             ContactGroup(
-                name='Contact Group 2',
-                slug='contact-group-2',
+                name='Contact Group 2A',
+                slug='contact-group-2a',
                 parent=parent_contact_groups[1],
                 description='foobar2'
             ),
             ContactGroup(
-                name='Contact Group 3',
-                slug='contact-group-3',
+                name='Contact Group 3A',
+                slug='contact-group-3a',
                 parent=parent_contact_groups[2],
                 description='foobar3'
             ),
         )
-        for contactgroup in contact_groups:
-            contactgroup.save()
+        for contact_group in contact_groups:
+            contact_group.save()
+
+        child_contact_groups = (
+            ContactGroup(name='Contact Group 1A1', slug='contact-group-1a1', parent=contact_groups[0]),
+            ContactGroup(name='Contact Group 2A1', slug='contact-group-2a1', parent=contact_groups[1]),
+            ContactGroup(name='Contact Group 3A1', slug='contact-group-3a1', parent=contact_groups[2]),
+        )
+        for contact_group in child_contact_groups:
+            contact_group.save()
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -170,11 +193,18 @@ class ContactGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
     def test_parent(self):
-        parent_groups = ContactGroup.objects.filter(parent__isnull=True)[:2]
-        params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
+        contact_groups = ContactGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [contact_groups[0].pk, contact_groups[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
+        params = {'parent': [contact_groups[0].slug, contact_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_ancestor(self):
+        contact_groups = ContactGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [contact_groups[0].pk, contact_groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'ancestor': [contact_groups[0].slug, contact_groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
 
 class ContactRoleTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -295,8 +325,8 @@ class ContactAssignmentTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ContactAssignment.objects.bulk_create(assignments)
 
-    def test_content_type(self):
-        params = {'content_type_id': ContentType.objects.get_by_natural_key('dcim', 'site')}
+    def test_object_type(self):
+        params = {'object_type_id': ObjectType.objects.get_by_natural_key('dcim', 'site')}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 3)
 
     def test_contact(self):

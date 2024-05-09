@@ -8,37 +8,33 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Interface" %} A</h5>
-        <div class="card-body">
-          {% include 'wireless/inc/wirelesslink_interface.html' with interface=object.interface_a %}
-        </div>
+        {% include 'wireless/inc/wirelesslink_interface.html' with interface=object.interface_a %}
       </div>
       <div class="card">
         <h5 class="card-header">{% trans "Link Properties" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Status" %}</th>
-              <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "SSID" %}</th>
-              <td>{{ object.ssid|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Tenant" %}</th>
-              <td>
-                {% if object.tenant.group %}
-                  {{ object.tenant.group|linkify }} /
-                {% endif %}
-                {{ object.tenant|linkify|placeholder }}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Status" %}</th>
+            <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "SSID" %}</th>
+            <td>{{ object.ssid|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}
@@ -47,9 +43,7 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Interface" %} B</h5>
-        <div class="card-body">
-          {% include 'wireless/inc/wirelesslink_interface.html' with interface=object.interface_b %}
-        </div>
+        {% include 'wireless/inc/wirelesslink_interface.html' with interface=object.interface_b %}
       </div>
       {% include 'wireless/inc/authentication_attrs.html' %}
       {% include 'inc/panels/custom_fields.html' %}

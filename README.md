@@ -84,7 +84,7 @@ NetBox automatically logs the creation, modification, and deletion of all manage
 
 <p align="center">
   <a href="https://netboxlabs.com/netbox-cloud/"><img src="docs/media/misc/netbox_cloud.png" alt="NetBox Cloud" /></a><br />
-  Looking for an enterprise solution? Check out <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong>!
+  Looking for a managed solution? Check out <strong><a href="https://netboxlabs.com/netbox-cloud/">NetBox Cloud</a></strong> or <strong><a href="https://netboxlabs.com/netbox-enterprise/">NetBox Enterprise</a></strong>!
 </p>
 
 ## Get Involved

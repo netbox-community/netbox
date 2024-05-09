@@ -1,10 +1,8 @@
-import urllib.parse
-
-from django.contrib.contenttypes.models import ContentType
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from rest_framework import status
 
+from core.models import ObjectType
 from dcim.models import Region, Site
 from extras.choices import CustomFieldTypeChoices
 from extras.models import CustomField
@@ -240,10 +238,10 @@ class APIDocsTestCase(TestCase):
         self.client = Client()
 
         # Populate a CustomField to activate CustomFieldSerializer
-        content_type = ContentType.objects.get_for_model(Site)
+        object_type = ObjectType.objects.get_for_model(Site)
         self.cf_text = CustomField(type=CustomFieldTypeChoices.TYPE_TEXT, name='test')
         self.cf_text.save()
-        self.cf_text.content_types.set([content_type])
+        self.cf_text.object_types.set([object_type])
         self.cf_text.save()
 
     def test_api_docs(self):

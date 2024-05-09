@@ -1,353 +1,254 @@
----
-hide:
-  - toc
----
-
 # Markdown
 
-NetBox supports markdown rendering for certain text fields.
+NetBox supports Markdown rendering for certain text fields. Some common examples are provided below. For a complete Markdown reference, please see [Markdownguide.org](https://www.markdownguide.org/basic-syntax/).
 
-## Syntax
-
-##### Table of Contents  
-[Headers](#headers)  
-[Emphasis](#emphasis)  
-[Lists](#lists)  
-[Links](#links)  
-[Images](#images)  
-[Code Blocks](#code)  
-[Tables](#tables)  
-[Blockquotes](#blockquotes)  
-[Inline HTML](#html)  
-[Horizontal Rule](#hr)  
-[Line Breaks](#lines)  
-
-<a name="headers"></a>
-
-## Headers
+## Headings
 
 ```no-highlight
-# H1
-## H2
-### H3
-#### H4
-##### H5
-###### H6
+# Heading 1
+## Heading 2
+### Heading 3
+#### Heading 4
+##### Heading 5
+###### Heading 6
+```
+
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
+<h3>Heading 3</h3>
+<h4>Heading 4</h4>
+<h5>Heading 5</h5>
+<h6>Heading 6</h6>
 
 Alternatively, for H1 and H2, an underline-ish style:
 
-Alt-H1
-======
+```no-highlight
+Heading 1
+=========
 
-Alt-H2
-------
+Heading 2
+---------
 ```
 
-# H1
-## H2
-### H3
-#### H4
-##### H5
-###### H6
+<h1>Heading 1</h1>
+<h2>Heading 2</h2>
 
-<a name="emphasis"></a>
-
-## Emphasis
+## Text
 
 ```no-highlight
-Emphasis, aka italics, with *asterisks* or _underscores_.
-
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
-
-Combined emphasis with **asterisks and _underscores_**.
-
-Strikethrough uses two tildes. ~~Scratch this.~~
+Italicize text with *asterisks* or _underscores_.
 ```
 
-Emphasis, aka italics, with *asterisks* or _underscores_.
-
-Strong emphasis, aka bold, with **asterisks** or __underscores__.
-
-Combined emphasis with **asterisks and _underscores_**.
-
-Strikethrough uses two tildes. ~~Scratch this.~~
-
-
-<a name="lists"></a>
-
-## Lists
-
-(In this example, leading and trailing spaces are shown with with dots: ⋅)
+Italicize text with *asterisks* or _underscores_.
 
 ```no-highlight
-1. First ordered list item
-2. Another item
-⋅⋅* Unordered sub-list. 
-1. Actual numbers don't matter, just that it's a number
-⋅⋅1. Ordered sub-list
-4. And another item.
-
-⋅⋅⋅You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
-
-⋅⋅⋅To have a line break without a paragraph, you will need to use two trailing spaces.⋅⋅
-⋅⋅⋅Note that this line is separate, but within the same paragraph.⋅⋅
-⋅⋅⋅(This is contrary to the typical GFM line break behaviour, where trailing spaces are not required.)
-
-* Unordered list can use asterisks
-- Or minuses
-+ Or pluses
+Bold text with two **asterisks** or __underscores__.
 ```
 
-1. First ordered list item
-2. Another item
-  * Unordered sub-list. 
-1. Actual numbers don't matter, just that it's a number
-  1. Ordered sub-list
-4. And another item.
-
-   You can have properly indented paragraphs within list items. Notice the blank line above, and the leading spaces (at least one, but we'll use three here to also align the raw Markdown).
-
-   To have a line break without a paragraph, you will need to use two trailing spaces.  
-   Note that this line is separate, but within the same paragraph.  
-   (This is contrary to the typical GFM line break behaviour, where trailing spaces are not required.)
-
-* Unordered list can use asterisks
-- Or minuses
-+ Or pluses
-
-<a name="links"></a>
-
-## Links
-
-There are two ways to create links.
+Bold text with two **asterisks** or __underscores__.
 
 ```no-highlight
-[I'm an inline-style link](https://www.google.com)
-
-[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
-
-[I'm a reference-style link][Arbitrary case-insensitive reference text]
-
-[You can use numbers for reference-style link definitions][1]
-
-Or leave it empty and use the [link text itself].
-
-URLs and URLs in angle brackets will automatically get turned into links. 
-http://www.example.com or <http://www.example.com> and sometimes 
-example.com (but not on Github, for example).
-
-Some text to show that the reference links can follow later.
-
-[arbitrary case-insensitive reference text]: https://www.mozilla.org
-[1]: http://slashdot.org
-[link text itself]: http://www.reddit.com
+Strike text with two tildes. ~~Deleted text.~~
 ```
 
-[I'm an inline-style link](https://www.google.com)
-
-[I'm an inline-style link with title](https://www.google.com "Google's Homepage")
-
-[I'm a reference-style link][Arbitrary case-insensitive reference text]
-
-[You can use numbers for reference-style link definitions][1]
-
-Or leave it empty and use the [link text itself].
-
-URLs and URLs in angle brackets will automatically get turned into links. 
-http://www.example.com or <http://www.example.com> and sometimes 
-example.com (but not on Github, for example).
-
-Some text to show that the reference links can follow later.
-
-[arbitrary case-insensitive reference text]: https://www.mozilla.org
-[1]: http://slashdot.org
-[link text itself]: http://www.reddit.com
-
-<a name="images"></a>
-
-## Images
-
-```
-Here's the NetBox logo (hover to see the title text):
-
-Inline-style: 
-![alt text](/media/misc/netbox_logo.png "Logo Title Text 1")
-
-Reference-style: 
-![alt text][logo]
-
-[logo]: /media/misc/netbox_logo.png "Logo Title Text 2"
-```
-
-Here's the NetBox logo (hover to see the title text):
-
-Inline-style: 
-![alt text](../media/misc/netbox_logo.png "Logo Title Text 1")
-
-Reference-style: 
-![alt text][logo]
-
-[logo]: ../media/misc/netbox_logo.png "Logo Title Text 2"
-
-<a name="code"></a>
-
-## Code blocks
-
-```
-Inline `code` has `back-ticks around` it.
-```
-
-Inline `code` has `back-ticks around` it.
-
-Blocks of code are fenced by lines with three back-ticks <code>```</code>
-
-````
-```
-var s = "Code block";
-alert(s);
-```
-````
-
-```
-var s = "Code block";
-alert(s);
-```
-
-<a name="tables"></a>
-
-## Tables
-
-```no-highlight
-Colons can be used to align columns.
-
-| Tables        | Are           | Cool  |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
-
-There must be at least 3 dashes separating each header cell.
-The outer pipes (|) are optional, and you don't need to make the 
-raw Markdown line up prettily. You can also use inline Markdown.
-
-Markdown | Less | Pretty
---- | --- | ---
-*Still* | `renders` | **nicely**
-1 | 2 | 3
-```
-
-Colons can be used to align columns.
-
-| Tables        | Are           | Cool |
-| ------------- |:-------------:| -----:|
-| col 3 is      | right-aligned | $1600 |
-| col 2 is      | centered      |   $12 |
-| zebra stripes | are neat      |    $1 |
-
-There must be at least 3 dashes separating each header cell. The outer pipes (|) are optional, and you don't need to make the raw Markdown line up prettily. You can also use inline Markdown.
-
-Markdown | Less | Pretty
---- | --- | ---
-*Still* | `renders` | **nicely**
-1 | 2 | 3
-
-<a name="blockquotes"></a>
-
-## Blockquotes
-
-```no-highlight
-> Blockquotes are very handy in email to emulate reply text.
-> This line is part of the same quote.
-
-Quote break.
-
-> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
-```
-
-> Blockquotes are very handy in email to emulate reply text.
-> This line is part of the same quote.
-
-Quote break.
-
-> This is a very long line that will still be quoted properly when it wraps. Oh boy let's keep writing to make sure this is long enough to actually wrap for everyone. Oh, you can *put* **Markdown** into a blockquote. 
-
-<a name="html"></a>
-
-## Inline HTML
-
-You can also use raw HTML in your Markdown, and it'll mostly work pretty well. 
-
-```no-highlight
-<dl>
-  <dt>Definition list</dt>
-  <dd>Is something people use sometimes.</dd>
-
-  <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. Use HTML <em>tags</em>.</dd>
-</dl>
-```
-
-<dl>
-  <dt>Definition list</dt>
-  <dd>Is something people use sometimes.</dd>
-
-  <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. Use HTML <em>tags</em>.</dd>
-</dl>
-
-<a name="hr"></a>
-
-## Horizontal Rule
-
-```
-Three or more...
-
----
-
-Hyphens
-
-***
-
-Asterisks
-
-___
-
-Underscores
-```
-
-Three or more...
-
----
-
-Hyphens
-
-***
-
-Asterisks
-
-___
-
-Underscores
-
-<a name="lines"></a>
+Strike text with two tildes. ~~Deleted text.~~
 
 ## Line Breaks
 
+By default, Markdown will remove line breaks between successive lines of text. For example:
 
-```
-Here's a line for us to start with.
-
-This line is separated from the one above by two newlines, so it will be a *separate paragraph*.
-
-This line is also a separate paragraph, but...
-This line is only separated by a single newline, so it's a separate line in the *same paragraph*.
+```no-highlight
+This is one line.
+And this is another line.
+One more line here.
 ```
 
-Here's a line for us to start with.
+This is one line.
+And this is another line.
+One more line here.
 
-This line is separated from the one above by two newlines, so it will be a *separate paragraph*.
+To preserve line breaks, append two spaces to each line (represented below with the `⋅` character).
 
-This line is also begins a separate paragraph, but...  
-This line is only separated by a single newline, so it's a separate line in the *same paragraph*.
+```no-highlight
+This is one line.⋅⋅
+And this is another line.⋅⋅
+One more line here.
+```
 
-Based on [Markdown-Cheatsheet](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet) by [adam-p](https://github.com/adam-p) licensed under [CC-BY](https://creativecommons.org/licenses/by/3.0/)
+This is one line.  
+And this is another line.  
+One more line here.
+
+## Lists
+
+Use asterisks or hyphens for unordered lists. Indent items by four spaces to start a child list.
+
+```no-highlight
+* Alpha
+* Bravo
+* Charlie
+  * Child item 1
+  * Child item 2
+* Delta
+```
+
+* Alpha
+* Bravo
+* Charlie
+    * Child item 1
+    * Child item 2
+* Delta
+
+Use digits followed by periods for ordered (numbered) lists.
+
+```no-highlight
+1. Red
+2. Green
+3. Blue
+    1. Light blue
+    2. Dark blue
+4. Orange
+```
+
+1. Red
+2. Green
+3. Blue
+    1. Light blue
+    2. Dark blue
+4. Orange
+
+## Links
+
+Text can be rendered as a hyperlink by encasing it in square brackets, followed by a URL in parentheses. A title (text displayed on hover) may optionally be included as well.
+
+```no-highlight
+Here's an [example](https://www.example.com) of a link.
+
+And here's [another link](https://www.example.com "Click me!"), this time with a title.
+```
+
+Here's an [example](https://www.example.com) of a link.
+
+And here's [another link](https://www.example.com "Click me!"), with a title.
+
+## Images
+
+The syntax for embedding an image is very similar to that used for a hyperlink. Alternate text should always be provided; this will be displayed if the image fails to load. As with hyperlinks, title text is optional.
+
+```no-highlight
+![Alternate text](/path/to/image.png "Image title text")
+```
+
+## Code Blocks
+
+Single backticks can be used to annotate code inline. Text enclosed by lines of three backticks will be displayed as a code block.
+
+```no-highlight
+Paragraphs are rendered in HTML using `<p>` and `</p>` tags.
+```
+
+Paragraphs are rendered in HTML using `<p>` and `</p>` tags.
+
+````
+```
+def my_func(foo, bar):
+    # Do something
+    return foo * bar
+```
+````
+
+```no-highlight
+def my_func(foo, bar):
+    # Do something
+    return foo * bar
+```
+
+## Tables
+
+Simple tables can be constructed using the pipe character (`|`) to denote columns, and hyphens (`-`) to denote the heading. Inline Markdown can be used to style text within columns.
+
+```no-highlight
+| Heading 1 | Heading 2 | Heading 3 |
+|-----------|-----------|-----------|
+| Row 1     | Alpha     | Red       |
+| Row 2     | **Bravo** | Green     |
+| Row 3     | Charlie   | ~~Blue~~  |
+```
+
+| Heading 1 | Heading 2 | Heading 3 |
+|-----------|-----------|-----------|
+| _Row 1_   | Alpha     | Red       |
+| Row 2     | **Bravo** | Green     |
+| Row 3     | Charlie   | ~~Blue~~  |
+
+Colons can be used to align text to the left or right side of a column.
+
+```no-highlight
+| Left-aligned | Centered | Right-aligned |
+|:-------------|:--------:|--------------:|
+| Text         | Text     | Text          |
+| Text         | Text     | Text          |
+| Text         | Text     | Text          |
+```
+
+| Left-aligned | Centered | Right-aligned |
+|:-------------|:--------:|--------------:|
+| Text         | Text     | Text          |
+| Text         | Text     | Text          |
+| Text         | Text     | Text          |
+
+## Blockquotes
+
+Text can be wrapped in a blockquote by prepending a right angle bracket (`>`) before each line.
+
+```no-highlight
+> I think that I shall never see
+> a graph more lovely than a tree.
+> A tree whose crucial property
+> is loop-free connectivity.
+```
+
+> I think that I shall never see
+> a graph more lovely than a tree.
+> A tree whose crucial property
+> is loop-free connectivity.
+
+Markdown removes line breaks by default. To preserve line breaks, append two spaces to each line (represented below with the `⋅` character).
+
+```no-highlight
+> I think that I shall never see⋅⋅
+> a graph more lovely than a tree.⋅⋅
+> A tree whose crucial property⋅⋅
+> is loop-free connectivity.
+```
+
+> I think that I shall never see  
+> a graph more lovely than a tree.  
+> A tree whose crucial property  
+> is loop-free connectivity.
+
+## Horizontal Rule
+
+A horizontal rule is a single line rendered across the width of the page using a series of three or more hyphens or asterisks. It can be useful for separating sections of content.
+
+```no-highlight
+Content
+
+---
+
+More content
+
+***
+
+Final content
+```
+
+Content
+
+---
+
+More content
+
+***
+
+Final content

@@ -1,0 +1,38 @@
+// Navbar styling
+.navbar-vertical.navbar-expand-lg {
+  .navbar-collapse {
+    .dropdown-menu {
+      .dropdown-item {
+        a {
+          color: inherit;
+        }
+        .btn-group {
+          visibility: hidden;
+        }
+
+        // Adjust hover color & style for menu items
+        &:hover {
+          background-color: $gray-700;
+          a {
+            text-decoration: none;
+          }
+          .btn-group {
+            visibility: visible;
+          }
+        }
+
+        // Style active menu item
+        &.active {
+          background-color: $gray-700;
+          a {
+            color: white;
+          }
+          .btn-group {
+            visibility: visible;
+          }
+        }
+
+      }
+    }
+  }
+}

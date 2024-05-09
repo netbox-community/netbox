@@ -3,7 +3,6 @@ from .configs import *
 from .customfields import *
 from .dashboard import *
 from .models import *
-from .reports import *
 from .scripts import *
 from .search import *
 from .staging import *

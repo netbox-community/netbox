@@ -7,6 +7,7 @@ from ipam.models import ASN
 from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, SlugField
+from utilities.forms.rendering import FieldSet, TabbedGroups
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
@@ -29,7 +30,7 @@ class ProviderForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Provider'), ('name', 'slug', 'asns', 'description', 'tags')),
+        FieldSet('name', 'slug', 'asns', 'description', 'tags'),
     )
 
     class Meta:
@@ -61,7 +62,7 @@ class ProviderNetworkForm(NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Provider Network'), ('provider', 'name', 'service_id', 'description', 'tags')),
+        FieldSet('provider', 'name', 'service_id', 'description', 'tags'),
     )
 
     class Meta:
@@ -75,9 +76,7 @@ class CircuitTypeForm(NetBoxModelForm):
     slug = SlugField()
 
     fieldsets = (
-        (_('Circuit Type'), (
-            'name', 'slug', 'color', 'description', 'tags',
-        )),
+        FieldSet('name', 'slug', 'color', 'description', 'tags'),
     )
 
     class Meta:
@@ -107,9 +106,9 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
     comments = CommentField()
 
     fieldsets = (
-        (_('Circuit'), ('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags')),
-        (_('Service Parameters'), ('install_date', 'termination_date', 'commit_rate')),
-        (_('Tenancy'), ('tenant_group', 'tenant')),
+        FieldSet('provider', 'provider_account', 'cid', 'type', 'status', 'description', 'tags', name=_('Circuit')),
+        FieldSet('install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -144,6 +143,18 @@ class CircuitTerminationForm(NetBoxModelForm):
         queryset=ProviderNetwork.objects.all(),
         required=False,
         selector=True
+    )
+
+    fieldsets = (
+        FieldSet(
+            'circuit', 'term_side', 'description', 'tags',
+            TabbedGroups(
+                FieldSet('site', name=_('Site')),
+                FieldSet('provider_network', name=_('Provider Network')),
+            ),
+            'mark_connected', name=_('Circuit Termination')
+        ),
+        FieldSet('port_speed', 'upstream_speed', 'xconnect_id', 'pp_info', name=_('Termination Details')),
     )
 
     class Meta:

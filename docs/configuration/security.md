@@ -92,8 +92,6 @@ CSRF_TRUSTED_ORIGINS = (
 
 ## DEFAULT_PERMISSIONS
 
-!!! info "This parameter was introduced in NetBox v3.6."
-
 Default:
 
 ```python
@@ -180,6 +178,30 @@ The lifetime (in seconds) of the authentication cookie issued to a NetBox user u
 Default: `'home'`
 
 The view name or URL to which a user is redirected after logging out.
+
+---
+
+## SECURE_HSTS_INCLUDE_SUBDOMAINS
+
+Default: False
+
+If true, the `includeSubDomains` directive will be included in the HTTP Strict Transport Security (HSTS) header. This directive instructs the browser to apply the HSTS policy to all subdomains of the current domain.
+
+---
+
+## SECURE_HSTS_PRELOAD
+
+Default: False
+
+If true, the `preload` directive will be included in the HTTP Strict Transport Security (HSTS) header. This directive instructs the browser to preload the site in HTTPS. Browsers that use the HSTS preload list will force the site to be accessed via HTTPS even if the user types HTTP in the address bar.
+
+---
+
+## SECURE_HSTS_SECONDS
+
+Default: 0
+
+If set to a non-zero integer value, the SecurityMiddleware sets the HTTP Strict Transport Security (HSTS) header on all responses that do not already have it. This will instruct the browser that the website must be accessed via HTTPS, blocking any HTTP request.
 
 ---
 

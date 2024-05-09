@@ -10,7 +10,7 @@
 
 {% block extra_controls %}
   {% if perms.vpn.add_tunnel %}
-    <a href="{% url 'vpn:tunnel_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'vpn:tunnel_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add Tunnel" %}
     </a>
   {% endif %}
@@ -20,21 +20,17 @@
   <div class="row mb-3">
     <div class="col col-md-6">
       <div class="card">
-        <h5 class="card-header">
-          {% trans "Tunnel Group" %}
-        </h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <h5 class="card-header">{% trans "Tunnel Group" %}</h5>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}

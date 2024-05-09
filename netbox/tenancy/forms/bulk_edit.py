@@ -6,6 +6,7 @@ from tenancy.choices import ContactPriorityChoices
 from tenancy.models import *
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.rendering import FieldSet
 
 __all__ = (
     'ContactAssignmentBulkEditForm',
@@ -46,7 +47,7 @@ class TenantBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Tenant
     fieldsets = (
-        (None, ('group',)),
+        FieldSet('group'),
     )
     nullable_fields = ('group',)
 
@@ -69,7 +70,7 @@ class ContactGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ContactGroup
     fieldsets = (
-        (None, ('parent', 'description')),
+        FieldSet('parent', 'description'),
     )
     nullable_fields = ('parent', 'description')
 
@@ -83,7 +84,7 @@ class ContactRoleBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ContactRole
     fieldsets = (
-        (None, ('description',)),
+        FieldSet('description'),
     )
     nullable_fields = ('description',)
 
@@ -126,7 +127,7 @@ class ContactBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Contact
     fieldsets = (
-        (None, ('group', 'title', 'phone', 'email', 'address', 'link', 'description')),
+        FieldSet('group', 'title', 'phone', 'email', 'address', 'link', 'description'),
     )
     nullable_fields = ('group', 'title', 'phone', 'email', 'address', 'link', 'description', 'comments')
 
@@ -150,6 +151,6 @@ class ContactAssignmentBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ContactAssignment
     fieldsets = (
-        (None, ('contact', 'role', 'priority')),
+        FieldSet('contact', 'role', 'priority'),
     )
     nullable_fields = ('priority',)

@@ -233,7 +233,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='powerfeed',
             name='rack',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, to='dcim.rack'),
+            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT, related_name='powerfeeds', to='dcim.rack'),
         ),
         migrations.AddField(
             model_name='powerfeed',

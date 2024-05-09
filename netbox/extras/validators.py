@@ -1,4 +1,5 @@
-import importlib
+import inspect
+import operator
 
 from django.core import validators
 from django.core.exceptions import ValidationError
@@ -74,6 +75,8 @@ class CustomValidator:
 
     :param validation_rules: A dictionary mapping object attributes to validation rules
     """
+    REQUEST_TOKEN = 'request'
+
     VALIDATORS = {
         'eq': IsEqualValidator,
         'neq': IsNotEqualValidator,
@@ -88,25 +91,56 @@ class CustomValidator:
 
     def __init__(self, validation_rules=None):
         self.validation_rules = validation_rules or {}
-        assert type(self.validation_rules) is dict, "Validation rules must be passed as a dictionary"
+        if type(self.validation_rules) is not dict:
+            raise ValueError(_("Validation rules must be passed as a dictionary"))
 
-    def __call__(self, instance):
-        # Validate instance attributes per validation rules
-        for attr_name, rules in self.validation_rules.items():
-            attr = self._getattr(instance, attr_name)
+    def __call__(self, instance, request=None):
+        """
+        Validate the instance and (optional) request against the validation rule(s).
+        """
+        for attr_path, rules in self.validation_rules.items():
+
+            # The rule applies to the current request
+            if attr_path.split('.')[0] == self.REQUEST_TOKEN:
+                # Skip if no request has been provided (we can't validate)
+                if request is None:
+                    continue
+                attr = self._get_request_attr(request, attr_path)
+            # The rule applies to the instance
+            else:
+                attr = self._get_instance_attr(instance, attr_path)
+
+            # Validate the attribute's value against each of the rules defined for it
             for descriptor, value in rules.items():
                 validator = self.get_validator(descriptor, value)
                 try:
                     validator(attr)
                 except ValidationError as exc:
-                    # Re-package the raised ValidationError to associate it with the specific attr
-                    raise ValidationError({attr_name: exc})
+                    raise ValidationError(
+                        _("Custom validation failed for {attribute}: {exception}").format(
+                            attribute=attr_path, exception=exc
+                        )
+                    )
 
         # Execute custom validation logic (if any)
-        self.validate(instance)
+        # TODO: Remove in v4.1
+        # Inspect the validate() method, which may have been overridden, to determine
+        # whether we should pass the request (maintains backward compatibility for pre-v4.0)
+        if 'request' in inspect.signature(self.validate).parameters:
+            self.validate(instance, request)
+        else:
+            self.validate(instance)
 
     @staticmethod
-    def _getattr(instance, name):
+    def _get_request_attr(request, name):
+        name = name.split('.', maxsplit=1)[1]  # Remove token
+        try:
+            return operator.attrgetter(name)(request)
+        except AttributeError:
+            raise ValidationError(_('Invalid attribute "{name}" for request').format(name=name))
+
+    @staticmethod
+    def _get_instance_attr(instance, name):
         # Attempt to resolve many-to-many fields to their stored values
         m2m_fields = [f.name for f in instance._meta.local_many_to_many]
         if name in m2m_fields:
@@ -117,13 +151,13 @@ class CustomValidator:
             return []
 
         # Raise a ValidationError for unknown attributes
-        if not hasattr(instance, name):
+        try:
+            return operator.attrgetter(name)(instance)
+        except AttributeError:
             raise ValidationError(_('Invalid attribute "{name}" for {model}').format(
                 name=name,
                 model=instance.__class__.__name__
             ))
-
-        return getattr(instance, name)
 
     def get_validator(self, descriptor, value):
         """
@@ -137,7 +171,7 @@ class CustomValidator:
         validator_cls = self.VALIDATORS.get(descriptor)
         return validator_cls(value)
 
-    def validate(self, instance):
+    def validate(self, instance, request):
         """
         Custom validation method, to be overridden by the user. Validation failures should
         raise a ValidationError exception.
@@ -151,21 +185,3 @@ class CustomValidator:
         if field is not None:
             raise ValidationError({field: message})
         raise ValidationError(message)
-
-
-def run_validators(instance, validators):
-    """
-    Run the provided iterable of validators for the instance.
-    """
-    for validator in validators:
-
-        # Loading a validator class by dotted path
-        if type(validator) is str:
-            module, cls = validator.rsplit('.', 1)
-            validator = getattr(importlib.import_module(module), cls)()
-
-        # Constructing a new instance on the fly from a ruleset
-        elif type(validator) is dict:
-            validator = CustomValidator(validator)
-
-        validator(instance)

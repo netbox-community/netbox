@@ -157,7 +157,7 @@ class LocationImportForm(NetBoxModelImportForm):
 
     class Meta:
         model = Location
-        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'description', 'tags')
+        fields = ('site', 'parent', 'name', 'slug', 'status', 'tenant', 'facility', 'description', 'tags')
 
     def __init__(self, data=None, *args, **kwargs):
         super().__init__(data, *args, **kwargs)
@@ -1373,14 +1373,14 @@ class VirtualDeviceContextImportForm(NetBoxModelImportForm):
         label=_('Device'),
         queryset=Device.objects.all(),
         to_field_name='name',
-        help_text='Assigned role'
+        help_text=_('Assigned role')
     )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),
         queryset=Tenant.objects.all(),
         required=False,
         to_field_name='name',
-        help_text='Assigned tenant'
+        help_text=_('Assigned tenant')
     )
     status = CSVChoiceField(
         label=_('Status'),

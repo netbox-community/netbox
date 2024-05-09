@@ -1,5 +1,8 @@
 const esbuild = require('esbuild');
 const { sassPlugin } = require('esbuild-sass-plugin');
+const util = require('util');
+const fs = require('fs');
+const copyFilePromise = util.promisify(fs.copyFile);
 
 // Bundler options common to all bundle jobs.
 const options = {
@@ -14,24 +17,57 @@ const options = {
 // Get CLI arguments for optional overrides.
 const ARGS = process.argv.slice(2);
 
+function copyFiles(files) {
+    return Promise.all(files.map(f => {
+       return copyFilePromise(f.source, f.dest);
+    }));
+}
+
 async function bundleGraphIQL() {
+  let fileMap = [
+    {
+      source: './node_modules/react/umd/react.production.min.js',
+      dest: './dist/graphiql/react.production.min.js'
+    },
+    {
+      source: './node_modules/react-dom/umd/react-dom.production.min.js',
+      dest: './dist/graphiql/react-dom.production.min.js'
+    },
+    {
+      source: './node_modules/js-cookie/dist/js.cookie.min.js',
+      dest: './dist/graphiql/js.cookie.min.js'
+    },
+    {
+      source: './node_modules/graphiql/graphiql.min.js',
+      dest: './dist/graphiql/graphiql.min.js'
+    },
+    {
+      source: './node_modules/@graphiql/plugin-explorer/dist/index.umd.js',
+      dest: './dist/graphiql/index.umd.js'
+    },
+    {
+      source: './node_modules/graphiql/graphiql.min.css',
+      dest: './dist/graphiql/graphiql.min.css'
+    },
+    {
+      source: './node_modules/@graphiql/plugin-explorer/dist/style.css',
+      dest: './dist/graphiql/plugin-explorer-style.css'
+    }
+  ];
+
   try {
-    const result = await esbuild.build({
-      ...options,
-      entryPoints: {
-        graphiql: 'netbox-graphiql/index.ts',
-      },
-      target: 'es2016',
-      define: {
-        global: 'window',
-      },
-    });
-    if (result.errors.length === 0) {
-      console.log(`✅ Bundled source file 'netbox-graphiql/index.ts' to 'graphiql.js'`);
+    if (!fs.existsSync('./dist/graphiql/')) {
+      fs.mkdirSync('./dist/graphiql/');
     }
   } catch (err) {
     console.error(err);
   }
+
+  copyFiles(fileMap).then(() => {
+     console.log('✅ Copied graphiql files');
+  }).catch(err => {
+     console.error(err);
+  });
 }
 
 /**
@@ -73,13 +109,10 @@ async function bundleScripts() {
 async function bundleStyles() {
   try {
     const entryPoints = {
-      'netbox-external': 'styles/_external.scss',
-      'netbox-light': 'styles/_light.scss',
-      'netbox-dark': 'styles/_dark.scss',
-      'netbox-print': 'styles/_print.scss',
-      rack_elevation: 'styles/_rack_elevation.scss',
-      cable_trace: 'styles/_cable_trace.scss',
-      graphiql: 'netbox-graphiql/graphiql.scss',
+      'netbox-external': 'styles/external.scss',
+      'netbox': 'styles/netbox.scss',
+      rack_elevation: 'styles/svg/rack_elevation.scss',
+      cable_trace: 'styles/svg/cable_trace.scss',
     };
     const pluginOptions = { outputStyle: 'compressed' };
     // Allow cache disabling.
@@ -102,8 +135,7 @@ async function bundleStyles() {
     });
     if (result.errors.length === 0) {
       for (const [targetName, sourceName] of Object.entries(entryPoints)) {
-        const source = sourceName.split('/')[1];
-        console.log(`✅ Bundled source file '${source}' to '${targetName}.css'`);
+        console.log(`✅ Bundled source file '${sourceName}' to '${targetName}.css'`);
       }
     }
   } catch (err) {

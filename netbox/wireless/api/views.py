@@ -27,12 +27,12 @@ class WirelessLANGroupViewSet(MPTTLockedMixin, NetBoxModelViewSet):
 
 
 class WirelessLANViewSet(NetBoxModelViewSet):
-    queryset = WirelessLAN.objects.prefetch_related('vlan', 'tenant', 'tags')
+    queryset = WirelessLAN.objects.all()
     serializer_class = serializers.WirelessLANSerializer
     filterset_class = filtersets.WirelessLANFilterSet
 
 
 class WirelessLinkViewSet(NetBoxModelViewSet):
-    queryset = WirelessLink.objects.prefetch_related('interface_a', 'interface_b', 'tenant', 'tags')
+    queryset = WirelessLink.objects.all()
     serializer_class = serializers.WirelessLinkSerializer
     filterset_class = filtersets.WirelessLinkFilterSet

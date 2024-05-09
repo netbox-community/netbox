@@ -11,8 +11,8 @@
 
 {% block form %}
     <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "IP Addresses" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "IP Addresses" %}</h5>
         </div>
         {% render_field form.pattern %}
         {% render_field model_form.status %}
@@ -23,16 +23,16 @@
     </div>
 
     <div class="field-group my-5">
-        <div class="row mb-2">
-          <h5 class="offset-sm-3">{% trans "Tenancy" %}</h5>
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Tenancy" %}</h5>
         </div>
         {% render_field model_form.tenant_group %}
         {% render_field model_form.tenant %}
     </div>
     {% if model_form.custom_fields %}
         <div class="field-group my-5">
-            <div class="row mb-2">
-              <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
+            <div class="row">
+              <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
             </div>
             {% render_custom_fields model_form %}
         </div>

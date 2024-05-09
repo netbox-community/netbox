@@ -18,8 +18,8 @@ from ipam.tables import InterfaceVLANTable
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
+from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
-from utilities.utils import count_related
 from utilities.views import ViewTab, register_model_view
 from . import filtersets, forms, tables
 from .models import *
@@ -388,7 +388,7 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Virtual Disks'),
         badge=lambda obj: obj.virtual_disk_count,
-        permission='virtualization.view_virtual_disk',
+        permission='virtualization.view_virtualdisk',
         weight=500
     )
     actions = {

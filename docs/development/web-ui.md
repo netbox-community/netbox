@@ -1,25 +1,37 @@
 # Web UI Development
 
+## Code Structure
+
+Most static resources for the NetBox UI are housed within the `netbox/project-static/` directory.
+
+| Path      | Description                                        |
+|-----------|----------------------------------------------------|
+| `dist/`   | Destination path for installed dependencies        |
+| `docs/`   | Local build path for documentation                 |
+| `img/`    | Image files                                        |
+| `js/`     | Miscellaneous JavaScript resources served directly |
+| `src/`    | TypeScript resources (to be compiled into JS)      |
+| `styles/` | Sass resources (to be compiled into CSS)           |
+
 ## Front End Technologies
 
-The NetBox UI is built on languages and frameworks:
+Front end scripting is written in [TypeScript](https://www.typescriptlang.org/), which is a strongly-typed extension to JavaScript. TypeScript is "transpiled" into JavaScript resources which are served to and executed by the client web browser.
 
-### Styling & HTML Elements
+All UI styling is written in [Sass](https://sass-lang.com/), which is an extension to browser-native [Cascading Stylesheets (CSS)](https://developer.mozilla.org/en-US/docs/Web/CSS). Similar to how TypeScript content is transpiled to JavaScript, Sass resources (`.scss` files) are compiled to CSS.
 
-#### [Bootstrap](https://getbootstrap.com/) 5
+## Dependencies
 
-The majority of the NetBox UI is made up of stock Bootstrap components, with some styling modifications and custom components added on an as-needed basis. Bootstrap uses [Sass](https://sass-lang.com/), and NetBox extends Bootstrap's core Sass files for theming and customization.
+The following software is employed by the NetBox user interface.
 
-### Client-side Scripting
-
-#### [TypeScript](https://www.typescriptlang.org/)
-
-All client-side scripting is transpiled from TypeScript to JavaScript and served by Django. In development, TypeScript is an _extremely_ effective tool for accurately describing and checking the code, which leads to significantly fewer bugs, a better development experience, and more predictable/readable code.
-
-As part of the [bundling](#bundling) process, Bootstrap's JavaScript plugins are imported and bundled alongside NetBox's front-end code.
-
-!!! danger "NetBox is jQuery-free"
-    Following the Bootstrap team's deprecation of jQuery in Bootstrap 5, NetBox also no longer uses jQuery in front-end code.
+* [Bootstrap 5](https://getbootstrap.com/) - A popular CSS & JS framework
+* [clipboard.js](https://clipboardjs.com/) - A lightweight package for enabling copy-to-clipboard functionality
+* [flatpickr](https://flatpickr.js.org/) - A lightweight date & time selection widget
+* [gridstack.js](https://gridstackjs.com/) - Enables interactive grid layouts (for the dashboard)
+* [HTMX](https://htmx.org/) - Enables dynamic web interfaces through the use of HTML element attributes
+* [Material Design Icons](https://pictogrammers.com/library/mdi/) - An extensive open source collection of graphical icons, delivered as a web font
+* [query-string](https://www.npmjs.com/package/query-string) - Assists with parsing URL query strings
+* [Tabler](https://tabler.io/) - A web application UI toolkit & theme based on Bootstrap 5
+* [Tom Select](https://tom-select.js.org/) - Provides dynamic selection form fields
 
 ## Guidance
 
@@ -53,6 +65,41 @@ $ yarn
 
 !!! warning "Check Your Working Directory"
     You need to be in the `netbox/project-static` directory to run the below `yarn` commands.
+
+### Updating Dependencies
+
+Run `yarn outdated` to identify outdated dependencies.
+
+```
+$ yarn outdated
+yarn outdated v1.22.19
+info Color legend :
+ "<red>"    : Major Update backward-incompatible updates
+ "<yellow>" : Minor Update backward-compatible features
+ "<green>"  : Patch Update backward-compatible bug fixes
+Package                          Current Wanted  Latest Workspace Package Type    URL
+bootstrap                        5.3.1   5.3.1   5.3.3  netbox    dependencies    https://getbootstrap.com/
+```
+
+Run `yarn upgrade --latest` to automatically upgrade these packages to their most recent versions.
+
+```
+$ yarn upgrade bootstrap --latest
+yarn upgrade v1.22.19
+[1/4] Resolving packages...
+[2/4] Fetching packages...
+[3/4] Linking dependencies...
+[4/4] Rebuilding all packages...
+success Saved lockfile.
+success Saved 1 new dependency.
+info Direct dependencies
+└─ bootstrap@5.3.3
+info All dependencies
+└─ bootstrap@5.3.3
+Done in 0.95s.
+```
+
+`package.json` will be updated to reflect the new package versions automatically.
 
 ### Bundling
 

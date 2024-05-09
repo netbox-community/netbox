@@ -5,7 +5,7 @@
     <button
       type="button"
       title="{% trans "Open selector" %}"
-      class="btn btn-sm btn-outline-dark border-input ms-1"
+      class="btn btn-outline-secondary ms-1"
       data-bs-toggle="modal"
       data-bs-target="#htmx-modal"
       hx-get="{% url 'htmx_object_selector' %}?_model={{ widget.attrs.selector }}&target={{ widget.attrs.id }}"

@@ -7,63 +7,59 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">Custom Field Choice Set</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">Name</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Description</th>
-              <td>{{ object.description|markdown|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Base Choices</th>
-              <td>{{ object.get_base_choices_display|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Choices</th>
-              <td>{{ object.choices|length }}</td>
-            </tr>
-            <tr>
-              <th scope="row">Order Alphabetically</th>
-            <td>{% checkmark object.order_alphabetically %}</td>
-            </tr>
-            <tr>
-              <th scope="row">Used by</th>
-              <td>
-                <ul class="list-unstyled mb-0">
-                  {% for cf in object.choices_for.all %}
-                    <li>{{ cf|linkify }}</li>
-                  {% endfor %}
-                </ul>
-              </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">Name</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Description</th>
+            <td>{{ object.description|markdown|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Base Choices</th>
+            <td>{{ object.get_base_choices_display|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Choices</th>
+            <td>{{ object.choices|length }}</td>
+          </tr>
+          <tr>
+            <th scope="row">Order Alphabetically</th>
+          <td>{% checkmark object.order_alphabetically %}</td>
+          </tr>
+          <tr>
+            <th scope="row">Used by</th>
+            <td>
+              <ul class="list-unstyled mb-0">
+                {% for cf in object.choices_for.all %}
+                  <li>{{ cf|linkify }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
     </div>
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">Choices ({{ object.choices|length }})</h5>
-        <div class="card-body">
-          <table class="table table-hover table-headings">
-            <thead>
-              <tr>
-                <th>Value</th>
-                <th>Label</th>
-              </tr>
-            </thead>
-            {% for value, label in choices %}
-              <tr>
-                <td>{{ value }}</td>
-                <td>{{ label }}</td>
-              </tr>
-            {% endfor %}
-          </table>
-          {% include 'inc/paginator.html' with page=choices %}
-        </div>
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>Value</th>
+              <th>Label</th>
+            </tr>
+          </thead>
+          {% for value, label in choices %}
+            <tr>
+              <td>{{ value }}</td>
+              <td>{{ label }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+        {% include 'inc/paginator.html' with page=choices %}
       </div>
       {% plugin_right_page object %}
     </div>

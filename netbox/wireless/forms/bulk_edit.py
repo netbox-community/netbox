@@ -7,6 +7,7 @@ from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.rendering import FieldSet
 from wireless.choices import *
 from wireless.constants import SSID_MAX_LENGTH
 from wireless.models import *
@@ -32,7 +33,7 @@ class WirelessLANGroupBulkEditForm(NetBoxModelBulkEditForm):
 
     model = WirelessLANGroup
     fieldsets = (
-        (None, ('parent', 'description')),
+        FieldSet('parent', 'description'),
     )
     nullable_fields = ('parent', 'description')
 
@@ -86,8 +87,8 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
 
     model = WirelessLAN
     fieldsets = (
-        (None, ('group', 'ssid', 'status', 'vlan', 'tenant', 'description')),
-        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk')),
+        FieldSet('group', 'ssid', 'status', 'vlan', 'tenant', 'description'),
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication')),
     )
     nullable_fields = (
         'ssid', 'group', 'vlan', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'comments',
@@ -133,8 +134,8 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
 
     model = WirelessLink
     fieldsets = (
-        (None, ('ssid', 'status', 'tenant', 'description')),
-        (_('Authentication'), ('auth_type', 'auth_cipher', 'auth_psk'))
+        FieldSet('ssid', 'status', 'tenant', 'description'),
+        FieldSet('auth_type', 'auth_cipher', 'auth_psk', name=_('Authentication'))
     )
     nullable_fields = (
         'ssid', 'tenant', 'description', 'auth_type', 'auth_cipher', 'auth_psk', 'comments',
