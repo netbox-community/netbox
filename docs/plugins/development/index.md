@@ -140,9 +140,9 @@ Any additional apps must be installed within the same Python environment as NetB
 
 `pyproject.toml` is the [configuration file](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) used to package and install our plugin once it's finished. It is used by packaging tools, as well as other tools. The primary function of this file is to call the build system to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. There are three possible TOML tables in this file:
 
-* The [build-system] Allows you to declare which build backend you use and which other dependencies are needed to build your project.
-* The [project] table is the format that most build backends use to specify your project’s basic metadata, such as the dependencies, your name, etc.
-* The [tool] table has tool-specific subtables, e.g., [tool.black], [tool.mypy]. Consult the particular tool’s documentation to know what it can contain.
+* `[build-system]` allows you to declare which build backend you use and which other dependencies (if any) are needed to build your project.
+* `[project]` is the format that most build backends use to specify your project’s basic metadata, such as the author's name, project URL, etc.
+* `[tool]` has tool-specific subtables, e.g., `[tool.black]`, `[tool.mypy]`. Consult the particular tool’s documentation for reference.
 
 An example `pyproject.toml` is below:
 
