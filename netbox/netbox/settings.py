@@ -20,11 +20,12 @@ from netbox.constants import RQ_QUEUE_DEFAULT, RQ_QUEUE_HIGH, RQ_QUEUE_LOW
 from netbox.plugins import PluginConfig
 from utilities.string import trailing_slash
 
+
 #
 # Environment setup
 #
 
-VERSION = '4.0-beta2'
+VERSION = '4.0.1-dev'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -409,7 +410,10 @@ TEMPLATES = [
                 'django.template.context_processors.media',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'netbox.context_processors.settings_and_registry',
+                'netbox.context_processors.settings',
+                'netbox.context_processors.config',
+                'netbox.context_processors.registry',
+                'netbox.context_processors.preferences',
             ],
         },
     },
@@ -518,7 +522,6 @@ if SENTRY_ENABLED:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         release=VERSION,
-        integrations=[sentry_sdk.integrations.django.DjangoIntegration()],
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,

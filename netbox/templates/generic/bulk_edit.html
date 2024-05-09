@@ -5,11 +5,16 @@
 {% load i18n %}
 
 {% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
 Context:
-  model: The model class of the objects being modified
-  form: The bulk edit form class
-  table: The table class for rendering list of objects being modified
-  return_url: The URL to which the user is redirected after submitting the form
+  - model:       The model class of the objects being modified
+  - form:        The bulk edit form class
+  - table:       The table class for rendering list of objects being modified
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}

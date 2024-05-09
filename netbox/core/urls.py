@@ -43,9 +43,6 @@ urlpatterns = (
     path('config-revisions/<int:pk>/restore/', views.ConfigRevisionRestoreView.as_view(), name='configrevision_restore'),
     path('config-revisions/<int:pk>/', include(get_model_urls('core', 'configrevision'))),
 
-    # Configuration
-    path('config/', views.ConfigView.as_view(), name='config'),
-
-    # Plugins
-    path('plugins/', views.PluginListView.as_view(), name='plugin_list'),
+    # System
+    path('system/', views.SystemView.as_view(), name='system'),
 )

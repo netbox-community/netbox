@@ -5,7 +5,7 @@ import re
 import yaml
 from django import template
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.humanize.templatetags.humanize import naturaltime
+from django.contrib.humanize.templatetags.humanize import naturalday, naturaltime
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from markdown import markdown
@@ -216,11 +216,12 @@ def render_yaml(value):
 def isodate(value):
     if type(value) is datetime.date:
         text = value.isoformat()
+        return mark_safe(f'<span title="{naturalday(value)}">{text}</span>')
     elif type(value) is datetime.datetime:
         text = value.date().isoformat()
+        return mark_safe(f'<span title="{naturaltime(value)}">{text}</span>')
     else:
         return ''
-    return mark_safe(f'<span title="{naturaltime(value)}">{text}</span>')
 
 
 @register.filter()

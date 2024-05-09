@@ -101,7 +101,7 @@ CONNECTIONS_MENU = Menu(
         MenuGroup(
             label=_('Connections'),
             items=(
-                get_model_item('dcim', 'cable', _('Cables'), actions=['import']),
+                get_model_item('dcim', 'cable', _('Cables')),
                 get_model_item('wireless', 'wirelesslink', _('Wireless Links')),
                 MenuItem(
                     link='dcim:interface_connections_list',
@@ -371,6 +371,7 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link=f'users:user_list',
                     link_text=_('Users'),
+                    auth_required=True,
                     permissions=[f'auth.view_user'],
                     buttons=(
                         MenuItemButton(
@@ -390,6 +391,7 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link=f'users:group_list',
                     link_text=_('Groups'),
+                    auth_required=True,
                     permissions=[f'auth.view_group'],
                     buttons=(
                         MenuItemButton(
@@ -409,29 +411,16 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link=f'users:token_list',
                     link_text=_('API Tokens'),
+                    auth_required=True,
                     permissions=[f'users.view_token'],
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
                     link=f'users:objectpermission_list',
                     link_text=_('Permissions'),
+                    auth_required=True,
                     permissions=[f'users.view_objectpermission'],
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
-                ),
-            ),
-        ),
-        MenuGroup(
-            label=_('Configuration'),
-            items=(
-                MenuItem(
-                    link='core:config',
-                    link_text=_('Current Config'),
-                    permissions=['core.view_configrevision']
-                ),
-                MenuItem(
-                    link='core:configrevision_list',
-                    link_text=_('Config Revisions'),
-                    permissions=['core.view_configrevision']
                 ),
             ),
         ),
@@ -439,12 +428,20 @@ ADMIN_MENU = Menu(
             label=_('System'),
             items=(
                 MenuItem(
-                    link='core:plugin_list',
-                    link_text=_('Plugins')
+                    link='core:system',
+                    link_text=_('System'),
+                    auth_required=True
+                ),
+                MenuItem(
+                    link='core:configrevision_list',
+                    link_text=_('Configuration History'),
+                    auth_required=True,
+                    permissions=['core.view_configrevision']
                 ),
                 MenuItem(
                     link='core:background_queue_list',
-                    link_text=_('Background Tasks')
+                    link_text=_('Background Tasks'),
+                    auth_required=True
                 ),
             ),
         ),

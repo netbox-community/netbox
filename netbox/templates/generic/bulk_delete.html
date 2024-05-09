@@ -5,13 +5,15 @@
 
 {% comment %}
 Blocks:
-  message_extra: Supplementary warning message content
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
 
 Context:
-  model: The model class of the objects being deleted
-  form: The bulk delete form class
-  table: The table class for rendering list of objects being deleted
-  return_url: The URL to which the user is redirected after submitting the form
+  - model:       The model class of the objects being deleted
+  - form:        The bulk delete form class
+  - table:       The table class for rendering list of objects being deleted
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}

@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -35,7 +37,11 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
     def _get_form_field(self, customfield):
         if self.instance.pk:
             form_field = customfield.to_form_field(set_initial=False)
-            form_field.initial = self.instance.custom_field_data.get(customfield.name, None)
+            initial = self.instance.custom_field_data.get(customfield.name)
+            if customfield.type == CustomFieldTypeChoices.TYPE_JSON:
+                form_field.initial = json.dumps(initial)
+            else:
+                form_field.initial = initial
             return form_field
 
         return customfield.to_form_field()

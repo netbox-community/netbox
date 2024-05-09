@@ -4,11 +4,16 @@
 {% load i18n %}
 
 {% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
 Context:
-  model: The model class being imported
-  form: The bulk import form
-  fields: A dictionary of form fields, to display import options (optional)
-  return_url: The URL to which the user is redirected after submitting the form
+  - model:       The model class being imported
+  - form:        The bulk import form
+  - fields:      A dictionary of form fields, to display import options (optional)
+  - return_url:  The URL to which the user is redirected after submitting the form
 {% endcomment %}
 
 {% block title %}{{ model|meta:"verbose_name"|bettertitle }} {% trans "Bulk Import" %}{% endblock %}

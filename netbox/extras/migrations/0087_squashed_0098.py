@@ -68,6 +68,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'proxy': True,
+                'ordering': ('file_root', 'file_path'),
                 'indexes': [],
                 'constraints': [],
             },
@@ -79,6 +80,7 @@ class Migration(migrations.Migration):
             ],
             options={
                 'proxy': True,
+                'ordering': ('file_root', 'file_path'),
                 'indexes': [],
                 'constraints': [],
             },

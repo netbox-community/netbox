@@ -59,7 +59,7 @@ Notify the [`netbox-docker`](https://github.com/netbox-community/netbox-docker) 
 * Increases in minimum versions for service dependencies (PostgreSQL, Redis, etc.)
 * Any changes to the reference installation
 
-### Update Requirements
+### Update Python Dependencies
 
 Before each release, update each of NetBox's Python dependencies to its most recent stable version. These are defined in `requirements.txt`, which is updated from `base_requirements.txt` using `pip`. To do this:
 
@@ -69,6 +69,10 @@ Before each release, update each of NetBox's Python dependencies to its most rec
 4. Update the package versions in `requirements.txt` as appropriate.
 
 In cases where upgrading a dependency to its most recent release is breaking, it should be constrained to its current minor version in `base_requirements.txt` with an explanatory comment and revisited for the next major NetBox release (see the [Address Constrained Dependencies](#address-constrained-dependencies) section above).
+
+### Update UI Dependencies
+
+Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](http://0.0.0.0:9000/development/web-ui/#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
 
 ### Rebuild the Device Type Definition Schema
 

@@ -9,13 +9,20 @@
 
 {% comment %}
 Blocks:
-  breadcrumbs: Breadcrumb list items (HTML <li> elements)
-  object_identifier: Unique identifier for the object
-  extra_controls: Additional action buttons to display
-  content: Page content
+  - page-header:          Content displayed above the primary page content
+    - breadcrumbs:        Breadcrumb list items (HTML <li> elements)
+    - object_identifier:  Unique identifier for the object
+  - title:                Page title
+  - subtitle:             Additional context displayed below the title
+  - controls:             Control elements displayed between the header and content
+    - control-buttons:    Action buttons (add/edit/delete/etc.)
+      - extra_controls:   Any additional action buttons to display
+  - tabs:                 Page tabs
+  - content:              Primary page content
+  - modals:               Any pre-loaded modals
 
 Context:
-  object: The object instance being viewed
+  - object: The object being viewed
 {% endcomment %}
 
 {% block page-header %}

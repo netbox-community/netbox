@@ -1,14 +1,19 @@
+import json
+import platform
+
+from django import __version__ as DJANGO_VERSION
 from django.apps import apps
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.cache import cache
-from django.http import HttpResponseForbidden, Http404
+from django.db import connection, ProgrammingError
+from django.http import HttpResponse, HttpResponseForbidden, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import View
-from django_rq.queues import get_queue_by_index, get_redis_connection
+from django_rq.queues import get_connection, get_queue_by_index, get_redis_connection
 from django_rq.settings import QUEUES_MAP, QUEUES_LIST
 from django_rq.utils import get_jobs, get_statistics, stop_jobs
 from rq import requeue_job
@@ -174,20 +179,6 @@ class JobBulkDeleteView(generic.BulkDeleteView):
 #
 # Config Revisions
 #
-
-class ConfigView(generic.ObjectView):
-    queryset = ConfigRevision.objects.all()
-
-    def get_object(self, **kwargs):
-        revision_id = cache.get('config_version')
-        try:
-            return ConfigRevision.objects.get(pk=revision_id)
-        except ConfigRevision.DoesNotExist:
-            # Fall back to using the active config data if no record is found
-            return ConfigRevision(
-                data=get_config().defaults
-            )
-
 
 class ConfigRevisionListView(generic.ObjectListView):
     queryset = ConfigRevision.objects.all()
@@ -527,21 +518,69 @@ class WorkerView(BaseRQView):
 # Plugins
 #
 
-class PluginListView(UserPassesTestMixin, View):
+class SystemView(UserPassesTestMixin, View):
 
     def test_func(self):
         return self.request.user.is_staff
 
     def get(self, request):
+
+        # System stats
+        psql_version = db_name = db_size = None
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT version()")
+                psql_version = cursor.fetchone()[0]
+                psql_version = psql_version.split('(')[0].strip()
+                cursor.execute("SELECT current_database()")
+                db_name = cursor.fetchone()[0]
+                cursor.execute(f"SELECT pg_size_pretty(pg_database_size('{db_name}'))")
+                db_size = cursor.fetchone()[0]
+        except (ProgrammingError, IndexError):
+            pass
+        stats = {
+            'netbox_version': settings.VERSION,
+            'django_version': DJANGO_VERSION,
+            'python_version': platform.python_version(),
+            'postgresql_version': psql_version,
+            'database_name': db_name,
+            'database_size': db_size,
+            'rq_worker_count': Worker.count(get_connection('default')),
+        }
+
+        # Plugins
         plugins = [
             # Look up app config by package name
             apps.get_app_config(plugin.rsplit('.', 1)[-1]) for plugin in settings.PLUGINS
         ]
-        table = tables.PluginTable(plugins, user=request.user)
-        table.configure(request)
 
-        return render(request, 'core/plugin_list.html', {
-            'plugins': plugins,
-            'active_tab': 'api-tokens',
-            'table': table,
+        # Configuration
+        try:
+            config = ConfigRevision.objects.get(pk=cache.get('config_version'))
+        except ConfigRevision.DoesNotExist:
+            # Fall back to using the active config data if no record is found
+            config = ConfigRevision(data=get_config().defaults)
+
+        # Raw data export
+        if 'export' in request.GET:
+            data = {
+                **stats,
+                'plugins': {
+                    plugin.name: plugin.version for plugin in plugins
+                },
+                'config': {
+                    k: config.data[k] for k in sorted(config.data)
+                },
+            }
+            response = HttpResponse(json.dumps(data, indent=4), content_type='text/json')
+            response['Content-Disposition'] = 'attachment; filename="netbox.json"'
+            return response
+
+        plugins_table = tables.PluginTable(plugins, orderable=False)
+        plugins_table.configure(request)
+
+        return render(request, 'core/system.html', {
+            'stats': stats,
+            'plugins_table': plugins_table,
+            'config': config,
         })

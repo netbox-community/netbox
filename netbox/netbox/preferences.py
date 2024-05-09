@@ -15,15 +15,6 @@ def get_page_lengths():
 PREFERENCES = {
 
     # User interface
-    'ui.colormode': UserPreference(
-        label=_('Color mode'),
-        choices=(
-            ('light', _('Light')),
-            ('dark', _('Dark')),
-        ),
-        default='light',
-        description=_('Preferred default UI theme')
-    ),
     'ui.htmx_navigation': UserPreference(
         label=_('HTMX Navigation'),
         choices=(

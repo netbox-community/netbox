@@ -77,15 +77,9 @@
       </div>
     </div>
     <div class="col col-md-7">
+      {% include 'inc/sync_warning.html' %}
       <div class="card">
-        <h5 class="card-header d-flex justify-content-between">
-          {% trans "Data" %}
-          {% include 'extras/inc/configcontext_format.html' %}
-        </h5>
-        <div class="card-body">
-          {% include 'inc/sync_warning.html' %}
-          {% include 'extras/inc/configcontext_data.html' with data=object.data format=format %}
-        </div>
+        {% include 'extras/inc/configcontext_data.html' with title="Data" data=object.data format=format copyid="data" %}
       </div>
     </div>
   </div>

@@ -1,8 +1,10 @@
 # NetBox v4.0
 
-## v4.0-beta2 (2024-04-22)
+## v4.0.1 (FUTURE)
 
-**WARNING:** This is a beta release of NetBox intended for testing and evaluation. **Do not use this software in production.** Also be aware that no upgrade path is provided to future releases.
+---
+
+## v4.0.0 (2024-05-06)
 
 !!! tip "Plugin Maintainers"
     Please see the dedicated [plugin migration guide](../plugins/development/migration-v4.md) for a checklist of changes that may be needed to ensure compatibility with NetBox v4.0.
@@ -67,7 +69,7 @@ The legacy admin user interface is now disabled by default, and the few remainin
 
 ### Enhancements
 
-* [#12776](https://github.com/netbox-community/netbox/issues/12776) - Introduce the `htmx_talble` template tag to simplify the rendering of embedded tables
+* [#12776](https://github.com/netbox-community/netbox/issues/12776) - Introduce the `htmx_table` template tag to simplify the rendering of embedded tables
 * [#12851](https://github.com/netbox-community/netbox/issues/12851) - Replace the deprecated Bleach HTML sanitization library with nh3
 * [#13283](https://github.com/netbox-community/netbox/issues/13283) - Display additional context on API-backed dropdown form fields (e.g. object descriptions)
 * [#13918](https://github.com/netbox-community/netbox/issues/13918) - Add `facility` field to Location model
@@ -92,26 +94,21 @@ The legacy admin user interface is now disabled by default, and the few remainin
 * [#15735](https://github.com/netbox-community/netbox/issues/15735) - Display all dates & times in ISO 8601 format consistently
 * [#15754](https://github.com/netbox-community/netbox/issues/15754) - Remove `is_staff` restriction on admin menu items
 * [#15764](https://github.com/netbox-community/netbox/issues/15764) - Increase maximum value of Device `vc_position` field
+* [#15915](https://github.com/netbox-community/netbox/issues/15915) - Provide a comprehensive system status view with export functionality
 
-### Bug Fixes (from Beta1)
+### Bug Fixes (from Beta2)
 
-* [#15580](https://github.com/netbox-community/netbox/issues/15580) - Fix rendering of modals with HTMX navigation enabled
-* [#15605](https://github.com/netbox-community/netbox/issues/15605) - Fix `ProgrammingError` exception when applying migrations to older databases
-* [#15613](https://github.com/netbox-community/netbox/issues/15613) - Restore the login button/user menu on mobile view
-* [#15616](https://github.com/netbox-community/netbox/issues/15616) - Fix button style for invalid custom links
-* [#15617](https://github.com/netbox-community/netbox/issues/15617) - Fix rack elevation styling under dark mode
-* [#15619](https://github.com/netbox-community/netbox/issues/15619) - Enforce a minimum width for progress bars
-* [#15636](https://github.com/netbox-community/netbox/issues/15636) - Fix filtering of attached images when viewing an object in the UI
-* [#15637](https://github.com/netbox-community/netbox/issues/15637) - Correct nonfunctional links within embedded tables when HTMX enabled
-* [#15638](https://github.com/netbox-community/netbox/issues/15638) - Correct parameter used to retrieve saved filters for a model
-* [#15641](https://github.com/netbox-community/netbox/issues/15641) - Fix adding/removing filters on the advanced object selector widget
-* [#15652](https://github.com/netbox-community/netbox/issues/15652) - Fix the display of error messages after attempting to delete an object
-* [#15671](https://github.com/netbox-community/netbox/issues/15671) - Fix `ValueError` exception when uploading a custom script
-* [#15695](https://github.com/netbox-community/netbox/issues/15695) - Fix `ForeignKeyViolation` exception when applying migration `users.0006_custom_group_model` on older databases
-* [#15698](https://github.com/netbox-community/netbox/issues/15698) - Fix ProgrammingError exception when applying the `users.0008_flip_objectpermission_assignments` migration to older databases
-* [#15760](https://github.com/netbox-community/netbox/issues/15760) - Permit breaking of long words for wrap within object attribute tables
-* [#15778](https://github.com/netbox-community/netbox/issues/15778) - Fix bulk edit/delete functionality when HTMX is enabled
-* [#15789](https://github.com/netbox-community/netbox/issues/15789) - Avoid AttributeError exception when attempting to view script results before job execution has completed
+* [#15630](https://github.com/netbox-community/netbox/issues/15630) - Ensure consistent toggling between light & dark UI modes
+* [#15802](https://github.com/netbox-community/netbox/issues/15802) - Improve hyperlink color contrast in dark mode
+* [#15809](https://github.com/netbox-community/netbox/issues/15809) - Fix GraphQL union support for nullable fields
+* [#15815](https://github.com/netbox-community/netbox/issues/15815) - Convert dashboard widgets referencing old user/group models
+* [#15826](https://github.com/netbox-community/netbox/issues/15826) - Update `EXEMPT_EXCLUDE_MODELS` to reference new user & group models
+* [#15831](https://github.com/netbox-community/netbox/issues/15831) - Fix LDAP group mirroring
+* [#15838](https://github.com/netbox-community/netbox/issues/15838) - Fix AttributeError exception when rendering custom date fields
+* [#15852](https://github.com/netbox-community/netbox/issues/15852) - Update total results count when filtering object lists
+* [#15853](https://github.com/netbox-community/netbox/issues/15853) - Correct background color for cable trace SVG images in dark mode
+* [#15855](https://github.com/netbox-community/netbox/issues/15855) - Fix AttributeError exception when creating an event rule tied to a custom script
+* [#15944](https://github.com/netbox-community/netbox/issues/15944) - Fix styling of paginator when displayed above an object list
 
 ### Other Changes
 
@@ -139,6 +136,7 @@ The legacy admin user interface is now disabled by default, and the few remainin
 * [#15736](https://github.com/netbox-community/netbox/issues/15736) - Remove obsolete `annotated_date` template filter & `annotated_now` template tag
 * [#15738](https://github.com/netbox-community/netbox/issues/15738) - Remove obsolete configuration parameters for date & time formatting
 * [#15752](https://github.com/netbox-community/netbox/issues/15752) - Remove the obsolete `ENABLE_LOCALIZATION` configuration parameter
+* [#15942](https://github.com/netbox-community/netbox/issues/15942) - Refactor `settings_and_registry()` context processor
 
 ### REST API Changes
 

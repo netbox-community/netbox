@@ -35,5 +35,5 @@ class PluginTable(BaseTable):
             'name', 'version', 'package', 'author', 'author_email', 'description',
         )
         default_columns = (
-            'name', 'version', 'package', 'author', 'author_email', 'description',
+            'name', 'version', 'package', 'description',
         )
