@@ -2093,7 +2093,6 @@ class DeviceVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = VirtualMachineTable
     filterset = VirtualMachineFilterSet
-    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: VirtualMachine.objects.filter(cluster=obj.cluster, device=obj).count(),
@@ -2986,7 +2985,6 @@ class InventoryItemChildrenView(generic.ObjectChildrenView):
     child_model = InventoryItem
     table = tables.InventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
-    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Children'),
         badge=lambda obj: obj.child_items.count(),
