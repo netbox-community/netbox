@@ -67,6 +67,8 @@ The top level is the project root, which can have any name that you like. Immedi
 
 The plugin source directory contains all the actual Python code and other resources used by your plugin. Its structure is left to the author's discretion, however it is recommended to follow best practices as outlined in the [Django documentation](https://docs.djangoproject.com/en/stable/intro/reusable-apps/). At a minimum, this directory **must** contain an `__init__.py` file containing an instance of NetBox's `PluginConfig` class, discussed below.
 
+**Note:** The [Cookiecutter NetBox Plugin](https://github.com/netbox-community/cookiecutter-netbox-plugin) can be used to auto-generate all the needed directories and files for a new plugin.
+
 ## PluginConfig
 
 The `PluginConfig` class is a NetBox-specific wrapper around Django's built-in [`AppConfig`](https://docs.djangoproject.com/en/stable/ref/applications/) class. It is used to declare NetBox plugin functionality within a Python package. Each plugin should provide its own subclass, defining its name, metadata, and default and required configuration parameters. An example is below:
