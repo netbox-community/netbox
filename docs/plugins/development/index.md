@@ -55,17 +55,19 @@ project-name/
     - template_content.py
     - urls.py
     - views.py
+  - pyproject.toml
   - README.md
-  - setup.py
 ```
 
 The top level is the project root, which can have any name that you like. Immediately within the root should exist several items:
 
-* `setup.py` - This is a standard installation script used to install the plugin package within the Python environment.
+* `pyproject.toml` - is a standard configuration file used to install the plugin package within the Python environment.
 * `README.md` - A brief introduction to your plugin, how to install and configure it, where to find help, and any other pertinent information. It is recommended to write `README` files using a markup language such as Markdown to enable human-friendly display.
 * The plugin source directory. This must be a valid Python package name, typically comprising only lowercase letters, numbers, and underscores.
 
 The plugin source directory contains all the actual Python code and other resources used by your plugin. Its structure is left to the author's discretion, however it is recommended to follow best practices as outlined in the [Django documentation](https://docs.djangoproject.com/en/stable/intro/reusable-apps/). At a minimum, this directory **must** contain an `__init__.py` file containing an instance of NetBox's `PluginConfig` class, discussed below.
+
+**Note:** The [Cookiecutter NetBox Plugin](https://github.com/netbox-community/cookiecutter-netbox-plugin) can be used to auto-generate all the needed directories and files for a new plugin.
 
 ## PluginConfig
 
@@ -136,31 +138,48 @@ Apps from this list are inserted *before* the plugin's `PluginConfig` in the ord
 
 Any additional apps must be installed within the same Python environment as NetBox or `ImproperlyConfigured` exceptions will be raised when loading the plugin.
 
-## Create setup.py
+## Create pyproject.toml
 
-`setup.py` is the [setup script](https://docs.python.org/3.10/distutils/setupscript.html) used to package and install our plugin once it's finished. The primary function of this script is to call the setuptools library's `setup()` function to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. An example `setup.py` is below:
+`pyproject.toml` is the [configuration file](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) used to package and install our plugin once it's finished. It is used by packaging tools, as well as other tools. The primary function of this file is to call the build system to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. There are three possible TOML tables in this file:
 
-```python
-from setuptools import find_packages, setup
+* `[build-system]` allows you to declare which build backend you use and which other dependencies (if any) are needed to build your project.
+* `[project]` is the format that most build backends use to specify your project’s basic metadata, such as the author's name, project URL, etc.
+* `[tool]` has tool-specific subtables, e.g., `[tool.black]`, `[tool.mypy]`. Consult the particular tool’s documentation for reference.
 
-setup(
-    name='my-example-plugin',
-    version='0.1',
-    description='An example NetBox plugin',
-    url='https://github.com/jeremystretch/my-example-plugin',
-    author='Jeremy Stretch',
-    license='Apache 2.0',
-    install_requires=[],
-    packages=find_packages(),
-    include_package_data=True,
-    zip_safe=False,
-)
+An example `pyproject.toml` is below:
+
+```
+# See PEP 518 for the spec of this file
+# https://www.python.org/dev/peps/pep-0518/
+
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name =  "my-example-plugin"
+version = "0.1.0"
+authors = [
+    {name = "John Doe", email = "test@netboxlabs.com"},
+]
+description = "An example NetBox plugin."
+readme = "README.md"
+
+classifiers=[
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'Natural Language :: English',
+    "Programming Language :: Python :: 3 :: Only",
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+]
+
+requires-python = ">=3.10.0"
+
 ```
 
-Many of these are self-explanatory, but for more information, see the [setuptools documentation](https://setuptools.readthedocs.io/en/latest/setuptools.html).
-
-!!! info
-    `zip_safe=False` is **required** as the current plugin iteration is not zip safe due to upstream python issue [issue19699](https://bugs.python.org/issue19699)  
+Many of these are self-explanatory, but for more information, see the [pyproject.toml documentation](https://packaging.python.org/en/latest/specifications/pyproject-toml/).
 
 ## Create a Virtual Environment
 
@@ -178,11 +197,12 @@ echo /opt/netbox/netbox > $VENV/lib/python3.10/site-packages/netbox.pth
 
 ## Development Installation
 
-To ease development, it is recommended to go ahead and install the plugin at this point using setuptools' `develop` mode. This will create symbolic links within your Python environment to the plugin development directory. Call `setup.py` from the plugin's root directory with the `develop` argument (instead of `install`):
+To ease development, it is recommended to go ahead and install the plugin at this point using setuptools' `develop` mode. This will create symbolic links within your Python environment to the plugin development directory. Call `pip` from the plugin's root directory with the `-e` flag:
 
 ```no-highlight
-$ python setup.py develop
+$ pip install -e .
 ```
+More information on editable builds can be found at [Editable installs for pyproject.toml ](https://peps.python.org/pep-0660/).
 
 ## Configure NetBox
 
