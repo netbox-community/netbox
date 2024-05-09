@@ -52,7 +52,7 @@ class BaseTable(tables.Table):
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
-            self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
+            self.empty_text = _("No {model_name} found").format(model_name=self._meta.model._meta.verbose_name_plural)
 
         # Determine the table columns to display by checking the following:
         #   1. User's configuration for the table
