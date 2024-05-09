@@ -60,7 +60,10 @@ def get_module_scripts(scriptmodule):
         return cls.full_name.split(".", maxsplit=1)[1]
 
     loader = SourceFileLoader(get_python_name(scriptmodule), get_full_path(scriptmodule))
-    module = loader.load_module()
+    try:
+        module = loader.load_module()
+    except FileNotFoundError:
+        return {}
 
     scripts = {}
     ordered = getattr(module, 'script_order', [])

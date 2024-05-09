@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.0'
+VERSION = '4.0.1'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -372,7 +372,6 @@ if not DJANGO_ADMIN_ENABLED:
 # Middleware
 MIDDLEWARE = [
     "strawberry_django.middlewares.debug_toolbar.DebugToolbarMiddleware",
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -386,8 +385,14 @@ MIDDLEWARE = [
     'netbox.middleware.RemoteUserMiddleware',
     'netbox.middleware.CoreMiddleware',
     'netbox.middleware.MaintenanceModeMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
+if METRICS_ENABLED:
+    # If metrics are enabled, add the before & after Prometheus middleware
+    MIDDLEWARE = [
+        'django_prometheus.middleware.PrometheusBeforeMiddleware',
+        *MIDDLEWARE,
+        'django_prometheus.middleware.PrometheusAfterMiddleware',
+    ]
 
 # URLs
 ROOT_URLCONF = 'netbox.urls'
@@ -522,7 +527,6 @@ if SENTRY_ENABLED:
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         release=VERSION,
-        integrations=[sentry_sdk.integrations.django.DjangoIntegration()],
         sample_rate=SENTRY_SAMPLE_RATE,
         traces_sample_rate=SENTRY_TRACES_SAMPLE_RATE,
         send_default_pii=True,

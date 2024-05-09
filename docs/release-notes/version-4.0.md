@@ -1,5 +1,34 @@
 # NetBox v4.0
 
+## v4.0.1 (2024-05-09)
+
+### Enhancements
+
+* [#15148](https://github.com/netbox-community/netbox/issues/15148) - Add copy-to-clipboard button for config context data
+* [#15328](https://github.com/netbox-community/netbox/issues/15328) - Add a virtual machines UI tab for host devices
+* [#15451](https://github.com/netbox-community/netbox/issues/15451) - Add 2.5 and 5 Gbps backplane Ethernet interface types
+* [#16010](https://github.com/netbox-community/netbox/issues/16010) - Enable Prometheus middleware only if metrics are enabled
+
+### Bug Fixes
+
+* [#15968](https://github.com/netbox-community/netbox/issues/15968) - Avoid resizing quick search field to display clear button
+* [#15973](https://github.com/netbox-community/netbox/issues/15973) - Fix AttributeError exception when modifying cable termination type
+* [#15977](https://github.com/netbox-community/netbox/issues/15977) - Hide all admin menu items for non-authenticated users
+* [#15982](https://github.com/netbox-community/netbox/issues/15982) - Restore the "assign IP" tab for assigning existing IP addresses to interfaces
+* [#15992](https://github.com/netbox-community/netbox/issues/15992) - Fix AttributeError exception when Sentry integration is enabled
+* [#15995](https://github.com/netbox-community/netbox/issues/15995) - Permit nullable fields referenced by unique constraints to be omitted from REST API requests
+* [#15999](https://github.com/netbox-community/netbox/issues/15999) - Fix layout of login form labels for certain languages
+* [#16003](https://github.com/netbox-community/netbox/issues/16003) - Enable cache busting for `setmode.js` asset to avoid breaking dark mode support on upgrade
+* [#16011](https://github.com/netbox-community/netbox/issues/16011) - Fix site tenant assignment by PK via REST API
+* [#16020](https://github.com/netbox-community/netbox/issues/16020) - Include Python version in system UI view
+* [#16022](https://github.com/netbox-community/netbox/issues/16022) - Fix database migration failure when encountering a script module which no longer exists on disk
+* [#16025](https://github.com/netbox-community/netbox/issues/16025) - Fix execution of scripts via the `runscript` management command
+* [#16031](https://github.com/netbox-community/netbox/issues/16031) - Render Markdown content in script log messages
+* [#16051](https://github.com/netbox-community/netbox/issues/16051) - Translate "empty" text for object tables
+* [#16061](https://github.com/netbox-community/netbox/issues/16061) - Omit hidden fields from display within event rule edit form
+
+---
+
 ## v4.0.0 (2024-05-06)
 
 !!! tip "Plugin Maintainers"

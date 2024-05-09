@@ -51,7 +51,7 @@ class SiteSerializer(NetBoxModelSerializer):
     status = ChoiceField(choices=SiteStatusChoices, required=False)
     region = RegionSerializer(nested=True, required=False, allow_null=True)
     group = SiteGroupSerializer(nested=True, required=False, allow_null=True)
-    tenant = TenantSerializer(required=False, allow_null=True)
+    tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     time_zone = TimeZoneSerializerField(required=False, allow_null=True)
     asns = SerializedPKRelatedField(
         queryset=ASN.objects.all(),
@@ -83,7 +83,7 @@ class SiteSerializer(NetBoxModelSerializer):
 class LocationSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:location-detail')
     site = SiteSerializer(nested=True)
-    parent = NestedLocationSerializer(required=False, allow_null=True)
+    parent = NestedLocationSerializer(required=False, allow_null=True, default=None)
     status = ChoiceField(choices=LocationStatusChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
     rack_count = serializers.IntegerField(read_only=True)

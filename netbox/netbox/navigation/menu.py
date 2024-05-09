@@ -371,6 +371,7 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link=f'users:user_list',
                     link_text=_('Users'),
+                    auth_required=True,
                     permissions=[f'auth.view_user'],
                     buttons=(
                         MenuItemButton(
@@ -390,6 +391,7 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link=f'users:group_list',
                     link_text=_('Groups'),
+                    auth_required=True,
                     permissions=[f'auth.view_group'],
                     buttons=(
                         MenuItemButton(
@@ -409,12 +411,14 @@ ADMIN_MENU = Menu(
                 MenuItem(
                     link=f'users:token_list',
                     link_text=_('API Tokens'),
+                    auth_required=True,
                     permissions=[f'users.view_token'],
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
                     link=f'users:objectpermission_list',
                     link_text=_('Permissions'),
+                    auth_required=True,
                     permissions=[f'users.view_objectpermission'],
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
                 ),
@@ -425,16 +429,19 @@ ADMIN_MENU = Menu(
             items=(
                 MenuItem(
                     link='core:system',
-                    link_text=_('System')
+                    link_text=_('System'),
+                    auth_required=True
                 ),
                 MenuItem(
                     link='core:configrevision_list',
                     link_text=_('Configuration History'),
+                    auth_required=True,
                     permissions=['core.view_configrevision']
                 ),
                 MenuItem(
                     link='core:background_queue_list',
-                    link_text=_('Background Tasks')
+                    link_text=_('Background Tasks'),
+                    auth_required=True
                 ),
             ),
         ),

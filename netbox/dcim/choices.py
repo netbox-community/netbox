@@ -848,6 +848,8 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Ethernet Backplane
     TYPE_1GE_KX = '1000base-kx'
+    TYPE_2GE_KX = '2.5gbase-kx'
+    TYPE_5GE_KR = '5gbase-kr'
     TYPE_10GE_KR = '10gbase-kr'
     TYPE_10GE_KX4 = '10gbase-kx4'
     TYPE_25GE_KR = '25gbase-kr'
@@ -1008,6 +1010,8 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Ethernet (backplane)'),
             (
                 (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
+                (TYPE_2GE_KX, '2.5GBASE-KX (2.5GE)'),
+                (TYPE_5GE_KR, '5GBASE-KR (5GE)'),
                 (TYPE_10GE_KR, '10GBASE-KR (10GE)'),
                 (TYPE_10GE_KX4, '10GBASE-KX4 (10GE)'),
                 (TYPE_25GE_KR, '25GBASE-KR (25GE)'),

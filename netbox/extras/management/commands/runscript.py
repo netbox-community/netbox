@@ -85,6 +85,7 @@ class Command(BaseCommand):
 
         module_name, script_name = script.split('.', 1)
         module, script = get_module_and_script(module_name, script_name)
+        script = script.python_class
 
         # Take user from command line if provided and exists, other
         if options['user']:
