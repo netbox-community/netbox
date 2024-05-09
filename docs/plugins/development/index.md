@@ -55,13 +55,13 @@ project-name/
     - template_content.py
     - urls.py
     - views.py
+  - pyproject.toml
   - README.md
-  - setup.py
 ```
 
 The top level is the project root, which can have any name that you like. Immediately within the root should exist several items:
 
-* `setup.py` - This is a standard installation script used to install the plugin package within the Python environment.
+* `pyproject.toml` - is a standard configuration file used to install the plugin package within the Python environment.
 * `README.md` - A brief introduction to your plugin, how to install and configure it, where to find help, and any other pertinent information. It is recommended to write `README` files using a markup language such as Markdown to enable human-friendly display.
 * The plugin source directory. This must be a valid Python package name, typically comprising only lowercase letters, numbers, and underscores.
 
@@ -136,7 +136,7 @@ Apps from this list are inserted *before* the plugin's `PluginConfig` in the ord
 
 Any additional apps must be installed within the same Python environment as NetBox or `ImproperlyConfigured` exceptions will be raised when loading the plugin.
 
-## Create setup.py
+## Create pyproject.toml
 
 `pyproject.toml` is the [configuration file](https://packaging.python.org/en/latest/guides/writing-pyproject-toml/) used to package and install our plugin once it's finished. It is used by packaging tools, as well as other tools. The primary function of this file is to call the build system to create a Python distribution package. We can pass a number of keyword arguments to control the package creation as well as to provide metadata about the plugin. There are three possible TOML tables in this file:
 
@@ -195,11 +195,12 @@ echo /opt/netbox/netbox > $VENV/lib/python3.10/site-packages/netbox.pth
 
 ## Development Installation
 
-To ease development, it is recommended to go ahead and install the plugin at this point using setuptools' `develop` mode. This will create symbolic links within your Python environment to the plugin development directory. Call `setup.py` from the plugin's root directory with the `develop` argument (instead of `install`):
+To ease development, it is recommended to go ahead and install the plugin at this point using setuptools' `develop` mode. This will create symbolic links within your Python environment to the plugin development directory. Call `pip` from the plugin's root directory with the `-e` flag:
 
 ```no-highlight
-$ python setup.py develop
+$ pip install -e .
 ```
+More information on editable builds can be found at [Editable installs for pyproject.toml ](https://peps.python.org/pep-0660/).
 
 ## Configure NetBox
 
