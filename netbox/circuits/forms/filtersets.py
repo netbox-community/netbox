@@ -194,6 +194,7 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('circuit_id', 'term_side', name=_('Circuit')),
+        FieldSet('provider_id', 'provider_network_id', name=_('Provider')),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
     )
     site_id = DynamicModelMultipleChoiceField(
@@ -214,5 +215,18 @@ class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
         label=_('Term Side'),
         choices=CircuitTerminationSideChoices,
         required=False
+    )
+    provider_network_id = DynamicModelMultipleChoiceField(
+        queryset=ProviderNetwork.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Provider network')
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
     )
     tag = TagFilterField(model)
