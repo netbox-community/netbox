@@ -66,7 +66,7 @@ class ClusterFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -109,13 +109,13 @@ class VirtualMachineFilterForm(
         queryset=ClusterGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster group')
+        label=_('Cluster Group')
     )
     cluster_type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster type')
+        label=_('Cluster Type')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -135,7 +135,7 @@ class VirtualMachineFilterForm(
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -169,11 +169,11 @@ class VirtualMachineFilterForm(
     )
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     has_primary_ip = forms.NullBooleanField(
         required=False,
-        label=_('Has a primary IP'),
+        label=_('Has A Primary IP'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -181,7 +181,7 @@ class VirtualMachineFilterForm(
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
-        label=_('Config template')
+        label=_('Config Template')
     )
     tag = TagFilterField(model)
 
@@ -205,7 +205,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         query_params={
             'cluster_id': '$cluster_id'
         },
-        label=_('Virtual machine')
+        label=_('Virtual Machine')
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -216,7 +216,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     )
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -241,7 +241,7 @@ class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        label=_('Virtual machine')
+        label=_('Virtual Machine')
     )
     size = forms.IntegerField(
         label=_('Size (GB)'),
