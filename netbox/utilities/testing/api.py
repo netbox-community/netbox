@@ -441,6 +441,10 @@ class APIViewTestCases:
             return getattr(self, 'graphql_base_name', base_name)
 
         def _build_query_with_filter(self, name, filter_string):
+            """
+            Called by either _build_query or _build_filtered_query - construct the actual
+            query given a name and filter string
+            """
             type_class = get_graphql_type_for_model(self.model)
 
             # Compile list of fields to include
@@ -488,6 +492,9 @@ class APIViewTestCases:
             return query
 
         def _build_filtered_query(self, name, **filters):
+            """
+            Create a filtered query: i.e. ip_address_list(filters: {address: "1.1.1.1/24"}){.
+            """
             if filters:
                 filter_string = ', '.join(f'{k}: "{v}"' for k, v in filters.items())
                 filter_string = f'(filters: {{{filter_string}}})'
@@ -497,6 +504,9 @@ class APIViewTestCases:
             return self._build_query_with_filter(name, filter_string)
 
         def _build_query(self, name, **filters):
+            """
+            Create a normal query - unfiltered or with a string query: i.e. site(name: "aaa"){.
+            """
             if filters:
                 filter_string = ', '.join(f'{k}:{v}' for k, v in filters.items())
                 filter_string = f'({filter_string})'
