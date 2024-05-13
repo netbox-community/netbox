@@ -16,6 +16,7 @@ class GenericObjectSerializer(serializers.Serializer):
     """
     Minimal representation of some generic object identified by ContentType and PK.
     """
+    id = serializers.IntegerField()
     object_type = ContentTypeField(
         queryset=ContentType.objects.all()
     )
@@ -30,6 +31,7 @@ class GenericObjectSerializer(serializers.Serializer):
     def to_representation(self, instance):
         object_type = ObjectType.objects.get_for_model(instance)
         data = {
+            'id': instance.pk,
             'object_type': object_type_identifier(object_type),
             'object_id': instance.pk,
         }
