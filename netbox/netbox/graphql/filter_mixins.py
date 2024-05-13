@@ -87,7 +87,7 @@ def map_strawberry_type(field):
         pass
     elif issubclass(type(field), django_filters.NumberFilter):
         should_create_function = True
-        attr_type = int
+        attr_type = int | None
     elif issubclass(type(field), django_filters.ModelMultipleChoiceFilter):
         should_create_function = True
         attr_type = List[str] | None
