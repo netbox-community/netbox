@@ -1,10 +1,10 @@
 import json
 
 import django_tables2 as tables
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
+from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.tables import BaseTable, NetBoxTable, columns
 from .template_code import *
 
@@ -550,7 +550,7 @@ class ScriptResultsTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
             'index', 'time', 'status', 'message',
         )
@@ -581,7 +581,7 @@ class ReportResultsTable(BaseTable):
     )
 
     class Meta(BaseTable.Meta):
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
             'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )
