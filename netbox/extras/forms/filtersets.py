@@ -46,15 +46,15 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     related_object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
-        label=_('Related object type')
+        label=_('Related Object Type')
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
         required=False,
-        label=_('Field type')
+        label=_('Field Type')
     )
     group_name = forms.CharField(
-        label=_('Group name'),
+        label=_('Group Name'),
         required=False
     )
     weight = forms.IntegerField(
@@ -71,20 +71,20 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     choice_set_id = DynamicModelMultipleChoiceField(
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False,
-        label=_('Choice set')
+        label=_('Choice Set')
     )
     ui_visible = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldUIVisibleChoices),
         required=False,
-        label=_('UI visible')
+        label=_('UI Visible')
     )
     ui_editable = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldUIEditableChoices),
         required=False,
-        label=_('UI editable')
+        label=_('UI Editable')
     )
     is_cloneable = forms.NullBooleanField(
-        label=_('Is cloneable'),
+        label=_('Is Cloneable'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -112,7 +112,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
     )
     object_type = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
         required=False
     )
@@ -124,7 +124,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
         )
     )
     new_window = forms.NullBooleanField(
-        label=_('New window'),
+        label=_('New Window'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -145,12 +145,12 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file_id = DynamicModelMultipleChoiceField(
         queryset=DataFile.objects.all(),
         required=False,
-        label=_('Data file'),
+        label=_('Data File'),
         query_params={
             'source_id': '$data_source_id'
         }
@@ -158,18 +158,18 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         required=False,
-        label=_('Content types')
+        label=_('Content Types')
     )
     mime_type = forms.CharField(
         required=False,
-        label=_('MIME type')
+        label=_('MIME Type')
     )
     file_extension = forms.CharField(
-        label=_('File extension'),
+        label=_('File Extension'),
         required=False
     )
     as_attachment = forms.NullBooleanField(
-        label=_('As attachment'),
+        label=_('As Attachment'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -183,7 +183,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type_id', 'name', name=_('Attributes')),
     )
     object_type_id = ContentTypeChoiceField(
-        label=_('Object type'),
+        label=_('Object Type'),
         queryset=ObjectType.objects.with_feature('image_attachments'),
         required=False
     )
@@ -199,7 +199,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
     object_type = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.public(),
         required=False
     )
@@ -230,7 +230,7 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
         FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
     )
     http_content_type = forms.CharField(
-        label=_('HTTP content type'),
+        label=_('HTTP Content Type'),
         required=False
     )
     payload_url = forms.CharField(
@@ -240,7 +240,7 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
     http_method = forms.MultipleChoiceField(
         choices=WebhookHttpMethodChoices,
         required=False,
-        label=_('HTTP method')
+        label=_('HTTP Method')
     )
     tag = TagFilterField(model)
 
@@ -257,12 +257,12 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('event_rules'),
         required=False,
-        label=_('Object type')
+        label=_('Object Type')
     )
     action_type = forms.ChoiceField(
         choices=add_blank_choice(EventRuleActionChoices),
         required=False,
-        label=_('Action type')
+        label=_('Action Type')
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -276,35 +276,35 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Object creations')
+        label=_('Object Creations')
     )
     type_update = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Object updates')
+        label=_('Object Updates')
     )
     type_delete = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Object deletions')
+        label=_('Object Deletions')
     )
     type_job_start = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Job starts')
+        label=_('Job Starts')
     )
     type_job_end = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Job terminations')
+        label=_('Job Terminations')
     )
 
 
@@ -313,12 +313,12 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('tags'),
         required=False,
-        label=_('Tagged object type')
+        label=_('Tagged Object Type')
     )
     for_object_type_id = ContentTypeChoiceField(
         queryset=ObjectType.objects.with_feature('tags'),
         required=False,
-        label=_('Allowed object type')
+        label=_('Allowed Object Type')
     )
 
 
@@ -334,12 +334,12 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file_id = DynamicModelMultipleChoiceField(
         queryset=DataFile.objects.all(),
         required=False,
-        label=_('Data file'),
+        label=_('Data File'),
         query_params={
             'source_id': '$data_source_id'
         }
@@ -352,7 +352,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site groups')
+        label=_('Site Groups')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -367,7 +367,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
-        label=_('Device types')
+        label=_('Device Types')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -382,12 +382,12 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     cluster_type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),
         required=False,
-        label=_('Cluster types')
+        label=_('Cluster Types')
     )
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        label=_('Cluster groups')
+        label=_('Cluster Groups')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -397,7 +397,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     tenant_group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        label=_('Tenant groups')
+        label=_('Tenant Groups')
     )
     tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),
@@ -419,12 +419,12 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file_id = DynamicModelMultipleChoiceField(
         queryset=DataFile.objects.all(),
         required=False,
-        label=_('Data file'),
+        label=_('Data File'),
         query_params={
             'source_id': '$data_source_id'
         }
@@ -435,7 +435,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
 class LocalConfigContextFilterForm(forms.Form):
     local_context_data = forms.NullBooleanField(
         required=False,
-        label=_('Has local config context data'),
+        label=_('Has Local Config Context Data'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
