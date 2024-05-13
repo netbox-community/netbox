@@ -440,13 +440,8 @@ class APIViewTestCases:
             base_name = self.model._meta.verbose_name.lower().replace(' ', '_')
             return getattr(self, 'graphql_base_name', base_name)
 
-        def _build_query(self, name, **filters):
+        def _build_query_with_filter(self, name, filter_string):
             type_class = get_graphql_type_for_model(self.model)
-            if filters:
-                filter_string = ', '.join(f'{k}: "{v}"' for k, v in filters.items())
-                filter_string = f'(filters: {{{filter_string}}})'
-            else:
-                filter_string = ''
 
             # Compile list of fields to include
             fields_string = ''
@@ -491,6 +486,24 @@ class APIViewTestCases:
             """
 
             return query
+
+        def _build_filtered_query(self, name, **filters):
+            if filters:
+                filter_string = ', '.join(f'{k}: "{v}"' for k, v in filters.items())
+                filter_string = f'(filters: {{{filter_string}}})'
+            else:
+                filter_string = ''
+
+            return self._build_query_with_filter(name, filter_string)
+
+        def _build_query(self, name, **filters):
+            if filters:
+                filter_string = ', '.join(f'{k}:{v}' for k, v in filters.items())
+                filter_string = f'({filter_string})'
+            else:
+                filter_string = ''
+
+            return self._build_query_with_filter(name, filter_string)
 
         @override_settings(LOGIN_REQUIRED=True)
         @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
@@ -558,7 +571,7 @@ class APIViewTestCases:
 
             url = reverse('graphql')
             field_name = f'{self._get_graphql_base_name()}_list'
-            query = self._build_query(field_name, **self.graphql_filter)
+            query = self._build_filtered_query(field_name, **self.graphql_filter)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
