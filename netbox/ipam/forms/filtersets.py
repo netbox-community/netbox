@@ -10,7 +10,7 @@ from tenancy.forms import TenancyFilterForm
 from utilities.forms import BOOLEAN_WITH_BLANK_CHOICES, add_blank_choice
 from utilities.forms.fields import DynamicModelChoiceField, DynamicModelMultipleChoiceField, TagFilterField
 from utilities.forms.rendering import FieldSet
-from virtualization.models import VirtualMachine
+from virtualization.models import VirtualMachine, ClusterGroup, Cluster
 from vpn.models import L2VPN
 
 __all__ = (
@@ -405,6 +405,7 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region', 'sitegroup', 'site', 'location', 'rack', name=_('Location')),
+        FieldSet('cluster_group', 'cluster', name=_('Cluster')),
         FieldSet('min_vid', 'max_vid', name=_('VLAN ID')),
     )
     model = VLANGroup
@@ -445,6 +446,17 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
         max_value=VLAN_VID_MAX,
         label=_('Maximum VID')
     )
+    cluster = DynamicModelMultipleChoiceField(
+        queryset=Cluster.objects.all(),
+        required=False,
+        label=_('Cluster')
+    )
+    cluster_group = DynamicModelMultipleChoiceField(
+        queryset=ClusterGroup.objects.all(),
+        required=False,
+        label=_('Cluster group')
+    )
+
     tag = TagFilterField(model)
 
 
