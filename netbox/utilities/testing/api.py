@@ -73,7 +73,7 @@ class APIViewTestCases:
 
     class GetObjectViewTestCase(APITestCase):
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
         def test_get_object_anonymous(self):
             """
             GET a single object as an unauthenticated user.
@@ -135,7 +135,7 @@ class APIViewTestCases:
     class ListObjectsViewTestCase(APITestCase):
         brief_fields = []
 
-        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
         def test_list_objects_anonymous(self):
             """
             GET a list of objects as an unauthenticated user.
