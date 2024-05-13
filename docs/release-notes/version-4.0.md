@@ -2,6 +2,17 @@
 
 ## v4.0.2 (FUTURE)
 
+### Enhancements
+
+* [#15119](https://github.com/netbox-community/netbox/issues/15119) - Add cluster & cluster group UI filter fields for VLAN groups
+* [#16090](https://github.com/netbox-community/netbox/issues/16090) - Include current NetBox version when an unsupported plugin is detected
+
+### Bug Fixes
+
+* [#16077](https://github.com/netbox-community/netbox/issues/16077) - Fix display of parameter values when viewing configuration revisions
+* [#16078](https://github.com/netbox-community/netbox/issues/16078) - Fix integer filters mistakenly marked as required for GraphQL API
+* [#16101](https://github.com/netbox-community/netbox/issues/16101) - Fix initial loading of pagination widget for dynamic object tables
+
 ---
 
 ## v4.0.1 (2024-05-09)
