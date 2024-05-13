@@ -648,6 +648,9 @@ class IPAddressTest(APIViewTestCases.APIViewTestCase):
     bulk_update_data = {
         'description': 'New description',
     }
+    graphql_filter = {
+        'address': '192.168.0.1/24',
+    }
 
     @classmethod
     def setUpTestData(cls):

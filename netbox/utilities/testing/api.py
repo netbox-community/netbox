@@ -443,8 +443,8 @@ class APIViewTestCases:
         def _build_query(self, name, **filters):
             type_class = get_graphql_type_for_model(self.model)
             if filters:
-                filter_string = ', '.join(f'{k}:{v}' for k, v in filters.items())
-                filter_string = f'({filter_string})'
+                filter_string = ', '.join(f'{k}: "{v}"' for k, v in filters.items())
+                filter_string = f'(filters: {{{filter_string}}})'
             else:
                 filter_string = ''
 
@@ -534,6 +534,31 @@ class APIViewTestCases:
                     'HTTP_ACCEPT': 'application/json',
                 }
                 self.assertHttpStatus(self.client.post(url, data={'query': query}, format="json", **header), status.HTTP_403_FORBIDDEN)
+
+            # Add object-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['view']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            response = self.client.post(url, data={'query': query}, format="json", **self.header)
+            self.assertHttpStatus(response, status.HTTP_200_OK)
+            data = json.loads(response.content)
+            self.assertNotIn('errors', data)
+            self.assertGreater(len(data['data'][field_name]), 0)
+
+        @override_settings(LOGIN_REQUIRED=True)
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*', 'auth.user'])
+        def test_graphql_filter_objects(self):
+            if not hasattr(self, 'graphql_filter'):
+                return
+
+            url = reverse('graphql')
+            field_name = f'{self._get_graphql_base_name()}_list'
+            query = self._build_query(field_name, **self.graphql_filter)
 
             # Add object-level permission
             obj_perm = ObjectPermission(
