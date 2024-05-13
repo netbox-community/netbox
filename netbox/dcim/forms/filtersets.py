@@ -73,7 +73,7 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -109,12 +109,12 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
-        label=_('Device type')
+        label=_('Device Type')
     )
     device_role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
         required=False,
-        label=_('Device role')
+        label=_('Device Role')
     )
     device_id = DynamicModelMultipleChoiceField(
         queryset=Device.objects.all(),
@@ -139,7 +139,7 @@ class RegionFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
         required=False,
-        label=_('Parent region')
+        label=_('Parent Region')
     )
     tag = TagFilterField(model)
 
@@ -153,7 +153,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Parent group')
+        label=_('Parent Group')
     )
     tag = TagFilterField(model)
 
@@ -180,7 +180,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     asn_id = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
@@ -206,7 +206,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -267,7 +267,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -304,7 +304,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     tag = TagFilterField(model)
@@ -314,12 +314,12 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         min_value=1
     )
     max_weight = forms.IntegerField(
-        label=_('Max weight'),
+        label=_('Max Weight'),
         required=False,
         min_value=1
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
@@ -362,7 +362,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -431,14 +431,14 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     default_platform_id = DynamicModelMultipleChoiceField(
         queryset=Platform.objects.all(),
         required=False,
-        label=_('Default platform')
+        label=_('Default Platform')
     )
     part_number = forms.CharField(
-        label=_('Part number'),
+        label=_('Part Number'),
         required=False
     )
     subdevice_role = forms.MultipleChoiceField(
-        label=_('Subdevice role'),
+        label=_('Subdevice Role'),
         choices=add_blank_choice(SubdeviceRoleChoices),
         required=False
     )
@@ -449,77 +449,77 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
     )
     has_front_image = forms.NullBooleanField(
         required=False,
-        label=_('Has a front image'),
+        label=_('Has A Front Image'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     has_rear_image = forms.NullBooleanField(
         required=False,
-        label=_('Has a rear image'),
+        label=_('Has A Rear Image'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has console ports'),
+        label=_('Has Console Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has console server ports'),
+        label=_('Has Console Server Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has power ports'),
+        label=_('Has Power Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
-        label=_('Has power outlets'),
+        label=_('Has Power Outlets'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
-        label=_('Has interfaces'),
+        label=_('Has Interfaces'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has pass-through ports'),
+        label=_('Has Pass-Through Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     device_bays = forms.NullBooleanField(
         required=False,
-        label=_('Has device bays'),
+        label=_('Has Device Bays'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     module_bays = forms.NullBooleanField(
         required=False,
-        label=_('Has module bays'),
+        label=_('Has Module Bays'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     inventory_items = forms.NullBooleanField(
         required=False,
-        label=_('Has inventory items'),
+        label=_('Has Inventory Items'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -530,7 +530,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
@@ -554,47 +554,47 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         label=_('Manufacturer')
     )
     part_number = forms.CharField(
-        label=_('Part number'),
+        label=_('Part Number'),
         required=False
     )
     console_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has console ports'),
+        label=_('Has Console Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has console server ports'),
+        label=_('Has Console Server Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has power ports'),
+        label=_('Has Power Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
-        label=_('Has power outlets'),
+        label=_('Has Power Outlets'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
-        label=_('Has interfaces'),
+        label=_('Has Interfaces'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has pass-through ports'),
+        label=_('Has Pass-Through Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -605,7 +605,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
@@ -616,7 +616,7 @@ class DeviceRoleFilterForm(NetBoxModelFilterSetForm):
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
-        label=_('Config template')
+        label=_('Config Template')
     )
     tag = TagFilterField(model)
 
@@ -632,7 +632,7 @@ class PlatformFilterForm(NetBoxModelFilterSetForm):
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
-        label=_('Config template')
+        label=_('Config Template')
     )
     tag = TagFilterField(model)
 
@@ -669,7 +669,7 @@ class DeviceFilterForm(
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -738,77 +738,77 @@ class DeviceFilterForm(
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
-        label=_('Config template')
+        label=_('Config Template')
     )
     has_primary_ip = forms.NullBooleanField(
         required=False,
-        label=_('Has a primary IP'),
+        label=_('Has A Primary IP'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     has_oob_ip = forms.NullBooleanField(
         required=False,
-        label=_('Has an OOB IP'),
+        label=_('Has An OOB IP'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     virtual_chassis_member = forms.NullBooleanField(
         required=False,
-        label=_('Virtual chassis member'),
+        label=_('Virtual Chassis Member'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has console ports'),
+        label=_('Has Console Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     console_server_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has console server ports'),
+        label=_('Has Console Server Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has power ports'),
+        label=_('Has Power Ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     power_outlets = forms.NullBooleanField(
         required=False,
-        label=_('Has power outlets'),
+        label=_('Has Power Outlets'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     interfaces = forms.NullBooleanField(
         required=False,
-        label=_('Has interfaces'),
+        label=_('Has Interfaces'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     pass_through_ports = forms.NullBooleanField(
         required=False,
-        label=_('Has pass-through ports'),
+        label=_('Has Pass-Through ports'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -875,7 +875,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     tag = TagFilterField(model)
@@ -896,7 +896,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -980,7 +980,7 @@ class CableFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False,
     )
     length_unit = forms.ChoiceField(
-        label=_('Length unit'),
+        label=_('Length Unit'),
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False
     )
@@ -1010,7 +1010,7 @@ class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1049,7 +1049,7 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1066,7 +1066,7 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Power panel')
+        label=_('Power Panel')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
@@ -1106,7 +1106,7 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False
     )
     max_utilization = forms.IntegerField(
-        label=_('Max utilization'),
+        label=_('Max Utilization'),
         required=False
     )
     tag = TagFilterField(model)
@@ -1272,7 +1272,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
         )
     )
     mgmt_only = forms.NullBooleanField(
-        label=_('Mgmt only'),
+        label=_('Mgmt Only'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -1280,7 +1280,7 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     )
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     wwn = forms.CharField(
         required=False,
@@ -1289,34 +1289,34 @@ class InterfaceFilterForm(PathEndpointFilterForm, DeviceComponentFilterForm):
     poe_mode = forms.MultipleChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
-        label=_('PoE mode')
+        label=_('PoE Mode')
     )
     poe_type = forms.MultipleChoiceField(
         choices=InterfacePoETypeChoices,
         required=False,
-        label=_('PoE type')
+        label=_('PoE Type')
     )
     rf_role = forms.MultipleChoiceField(
         choices=WirelessRoleChoices,
         required=False,
-        label=_('Wireless role')
+        label=_('Wireless Role')
     )
     rf_channel = forms.MultipleChoiceField(
         choices=WirelessChannelChoices,
         required=False,
-        label=_('Wireless channel')
+        label=_('Wireless Channel')
     )
     rf_channel_frequency = forms.IntegerField(
         required=False,
-        label=_('Channel frequency (MHz)')
+        label=_('Channel Frequency (MHz)')
     )
     rf_channel_width = forms.IntegerField(
         required=False,
-        label=_('Channel width (MHz)')
+        label=_('Channel Width (MHz)')
     )
     tx_power = forms.IntegerField(
         required=False,
-        label=_('Transmit power (dBm)'),
+        label=_('Transmit Power (dBm)'),
         min_value=0,
         max_value=127
     )
