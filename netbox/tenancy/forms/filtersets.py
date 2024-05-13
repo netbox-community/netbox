@@ -30,7 +30,7 @@ class TenantGroupFilterForm(NetBoxModelFilterSetForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        label=_('Parent group')
+        label=_('Parent Group')
     )
     tag = TagFilterField(model)
 
@@ -59,7 +59,7 @@ class ContactGroupFilterForm(NetBoxModelFilterSetForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
         required=False,
-        label=_('Parent group')
+        label=_('Parent Group')
     )
     tag = TagFilterField(model)
 
@@ -89,7 +89,7 @@ class ContactAssignmentFilterForm(NetBoxModelFilterSetForm):
     object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('contacts'),
         required=False,
-        label=_('Object type')
+        label=_('Object Type')
     )
     group_id = DynamicModelMultipleChoiceField(
         queryset=ContactGroup.objects.all(),
