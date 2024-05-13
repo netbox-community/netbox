@@ -62,6 +62,15 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 ---
 
+## ENABLE_TRANSLATION
+
+Default: True
+
+Provides a way to turn translation system off and make NetBox English-based for all users. Directly maps to [USE_I18N](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-USE_I18N) Django setting.
+
+
+---
+
 ## HTTP_PROXIES
 
 Default: None
@@ -198,11 +207,3 @@ If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 Default: UTC
 
 The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. Please see the [list of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
-
----
-
-## USE_I18N
-
-Default: True
-
-[Django setting](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-USE_I18N) which provides a way to turn translation system off and make NetBox English-based for all users.
