@@ -2005,10 +2005,12 @@ class CableTest(APIViewTestCases.APIViewTestCase):
         cls.create_data = [
             {
                 'a_terminations': [{
+                    'id': interfaces[4].pk,
                     'object_type': 'dcim.interface',
                     'object_id': interfaces[4].pk,
                 }],
                 'b_terminations': [{
+                    'id': interfaces[14].pk,
                     'object_type': 'dcim.interface',
                     'object_id': interfaces[14].pk,
                 }],
@@ -2016,10 +2018,12 @@ class CableTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'a_terminations': [{
+                    'id': interfaces[5].pk,
                     'object_type': 'dcim.interface',
                     'object_id': interfaces[5].pk,
                 }],
                 'b_terminations': [{
+                    'id': interfaces[15].pk,
                     'object_type': 'dcim.interface',
                     'object_id': interfaces[15].pk,
                 }],
@@ -2027,10 +2031,12 @@ class CableTest(APIViewTestCases.APIViewTestCase):
             },
             {
                 'a_terminations': [{
+                    'id': interfaces[6].pk,
                     'object_type': 'dcim.interface',
                     'object_id': interfaces[6].pk,
                 }],
                 'b_terminations': [{
+                    'id': interfaces[16].pk,
                     'object_type': 'dcim.interface',
                     'object_id': interfaces[16].pk,
                 }],
