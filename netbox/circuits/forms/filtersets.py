@@ -36,7 +36,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -133,7 +133,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         query_params={
             'provider_id': '$provider_id'
         },
-        label=_('Provider account')
+        label=_('Provider Account')
     )
     provider_network_id = DynamicModelMultipleChoiceField(
         queryset=ProviderNetwork.objects.all(),
@@ -141,7 +141,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         query_params={
             'provider_id': '$provider_id'
         },
-        label=_('Provider network')
+        label=_('Provider Network')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),
@@ -156,7 +156,7 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -168,19 +168,19 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         label=_('Site')
     )
     install_date = forms.DateField(
-        label=_('Install date'),
+        label=_('Install Date'),
         required=False,
         widget=DatePicker
     )
     termination_date = forms.DateField(
-        label=_('Termination date'),
+        label=_('Termination Date'),
         required=False,
         widget=DatePicker
     )
     commit_rate = forms.IntegerField(
         required=False,
         min_value=0,
-        label=_('Commit rate (Kbps)'),
+        label=_('Commit Rate (Kbps)'),
         widget=NumberWithOptions(
             options=CircuitCommitRateChoices
         )
