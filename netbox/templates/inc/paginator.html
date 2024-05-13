@@ -5,7 +5,8 @@
   <div
       class="d-flex justify-content-between align-items-center border-{% if placement == 'top' %}bottom{% else %}top{% endif %} p-2"
       hx-target="closest .htmx-container"
-      hx-disinherit="hx-select hx-swap"
+      hx-disinherit="hx-select"
+      hx-swap="outerHTML"
       {% if not table.embedded %}hx-push-url="true"{% endif %}
   >
 
