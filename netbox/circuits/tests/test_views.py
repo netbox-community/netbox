@@ -115,6 +115,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        Site.objects.create(name='Site 1', slug='site-1')
 
         providers = (
             Provider(name='Provider 1', slug='provider-1'),
@@ -183,6 +184,51 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
             'comments': 'New comments',
         }
+
+        @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+        def test_bulk_import_objects_with_terminations(self):
+            json_data = """
+                [
+                  {
+                    "cid": "Circuit 7",
+                    "provider": "Provider1",
+                    "type": "Circuit Type 1",
+                    "status": "active",
+                    "description": "Testing Import",
+                    "terminations": [
+                      {
+                        "term_side": "A",
+                        "site": "Site 1"
+                      },
+                      {
+                        "term_side": "Z",
+                        "site": "Site 1"
+                      }
+                    ]
+                  }
+                ]
+            """
+            initial_count = self._get_queryset().count()
+            data = {
+                'data': json_data,
+                'format': ImportFormatChoices.JSON,
+            }
+
+            # Assign model-level permission
+            obj_perm = ObjectPermission(
+                name='Test permission',
+                actions=['add']
+            )
+            obj_perm.save()
+            obj_perm.users.add(self.user)
+            obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+            # Try GET with model-level permission
+            self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+
+            # Test POST with permission
+            self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+            self.assertEqual(self._get_queryset().count(), initial_count + 1)
 
 
 class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
