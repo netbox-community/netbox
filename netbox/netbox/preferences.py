@@ -31,9 +31,9 @@ PREFERENCES = {
             ('', _('Auto')),
             *settings.LANGUAGES,
         ),
-        description=_('Forces UI translation to the specified language.'),
+        description=_('Forces UI translation to the specified language'),
         warning=(
-            f"Translation is globally disabled inside configuration.py"
+            _("Support for translation has been disabled locally")
             if not settings.ENABLE_TRANSLATION
             else ''
         )

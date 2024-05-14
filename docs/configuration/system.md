@@ -66,8 +66,7 @@ Email is sent from NetBox only for critical events or if configured for [logging
 
 Default: True
 
-Provides a way to turn translation system off and make NetBox English-based for all users. Directly maps to [USE_I18N](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-USE_I18N) Django setting.
-
+Enables language translation for the user interface. (This parameter maps to Django's [USE_I18N](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-USE_I18N) setting.)
 
 ---
 

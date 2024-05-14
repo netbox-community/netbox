@@ -446,6 +446,7 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 # Use timezone-aware datetime objects
 USE_TZ = True
 
+# Toggle language translation support
 USE_I18N = ENABLE_TRANSLATION
 
 # WSGI
