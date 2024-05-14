@@ -84,7 +84,7 @@ class VirtualMachineType(ConfigContextMixin, ContactsMixin, NetBoxObjectType):
     primary_ip4: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
     primary_ip6: Annotated["IPAddressType", strawberry.lazy('ipam.graphql.types')] | None
 
-    interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    interfaces: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
     services: List[Annotated["ServiceType", strawberry.lazy('ipam.graphql.types')]]
     virtualdisks: List[Annotated["VirtualDiskType", strawberry.lazy('virtualization.graphql.types')]]
 
@@ -102,8 +102,8 @@ class VMInterfaceType(IPAddressesMixin, ComponentType):
     vrf: Annotated["VRFType", strawberry.lazy('ipam.graphql.types')] | None
 
     tagged_vlans: List[Annotated["VLANType", strawberry.lazy('ipam.graphql.types')]]
-    bridge_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
-    child_interfaces: List[Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')]]
+    bridge_interfaces: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
+    child_interfaces: List[Annotated["VMInterfaceType", strawberry.lazy('virtualization.graphql.types')]]
 
 
 @strawberry_django.type(

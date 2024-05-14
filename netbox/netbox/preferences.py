@@ -23,7 +23,7 @@ PREFERENCES = {
         ),
         description=_('Enable dynamic UI navigation'),
         default=False,
-        experimental=True
+        warning=_('Experimental feature')
     ),
     'locale.language': UserPreference(
         label=_('Language'),
@@ -31,7 +31,12 @@ PREFERENCES = {
             ('', _('Auto')),
             *settings.LANGUAGES,
         ),
-        description=_('Forces UI translation to the specified language.')
+        description=_('Forces UI translation to the specified language'),
+        warning=(
+            _("Support for translation has been disabled locally")
+            if not settings.TRANSLATION_ENABLED
+            else ''
+        )
     ),
     'pagination.per_page': UserPreference(
         label=_('Page length'),
