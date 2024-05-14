@@ -298,7 +298,7 @@ class CircuitBulkImportView(generic.BulkImportView):
         'circuits.add_circuittermination',
     ]
     related_object_forms = {
-        'terminations': forms.CircuitTerminationImportForm,
+        'terminations': forms.CircuitTerminationImportRelatedForm,
     }
 
     def prep_related_object_data(self, parent, data):

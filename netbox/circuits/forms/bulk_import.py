@@ -13,6 +13,7 @@ from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugFiel
 __all__ = (
     'CircuitImportForm',
     'CircuitTerminationImportForm',
+    'CircuitTerminationImportRelatedForm',
     'CircuitTypeImportForm',
     'ProviderImportForm',
     'ProviderAccountImportForm',
@@ -112,7 +113,7 @@ class CircuitImportForm(NetBoxModelImportForm):
         ]
 
 
-class CircuitTerminationImportForm(NetBoxModelImportForm):
+class BaseCircuitTerminationImportForm(forms.ModelForm):
     circuit = CSVModelChoiceField(
         label=_('Circuit'),
         queryset=Circuit.objects.all(),
@@ -141,3 +142,11 @@ class CircuitTerminationImportForm(NetBoxModelImportForm):
             'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description', 'tags'
         ]
+
+
+class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
+    pass
+
+
+class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTerminationImportForm):
+    pass
