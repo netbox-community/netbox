@@ -1,6 +1,9 @@
 # NetBox v4.0
 
-## v4.0.2 (FUTURE)
+## v4.0.2 (2024-05-14)
+
+!!! warning "Important"
+    This release includes an important security fix, and is a strongly recommended update for all users. More details will follow.
 
 ### Enhancements
 
