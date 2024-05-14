@@ -34,7 +34,7 @@ PREFERENCES = {
         description=_('Forces UI translation to the specified language'),
         warning=(
             _("Support for translation has been disabled locally")
-            if not settings.ENABLE_TRANSLATION
+            if not settings.TRANSLATION_ENABLED
             else ''
         )
     ),

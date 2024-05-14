@@ -92,7 +92,6 @@ DEVELOPER = getattr(configuration, 'DEVELOPER', False)
 DJANGO_ADMIN_ENABLED = getattr(configuration, 'DJANGO_ADMIN_ENABLED', False)
 DOCS_ROOT = getattr(configuration, 'DOCS_ROOT', os.path.join(os.path.dirname(BASE_DIR), 'docs'))
 EMAIL = getattr(configuration, 'EMAIL', {})
-ENABLE_TRANSLATION = getattr(configuration, 'ENABLE_TRANSLATION', True)
 EVENTS_PIPELINE = getattr(configuration, 'EVENTS_PIPELINE', (
     'extras.events.process_event_queue',
 ))
@@ -157,6 +156,7 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
 for param in CONFIG_PARAMS:
@@ -447,7 +447,7 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 USE_TZ = True
 
 # Toggle language translation support
-USE_I18N = ENABLE_TRANSLATION
+USE_I18N = TRANSLATION_ENABLED
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
