@@ -1,5 +1,28 @@
 # NetBox v4.0
 
+## v4.0.2 (2024-05-14)
+
+!!! warning "Important"
+    This release includes an important security fix, and is a strongly recommended update for all users. More details will follow.
+
+### Enhancements
+
+* [#15119](https://github.com/netbox-community/netbox/issues/15119) - Add cluster & cluster group UI filter fields for VLAN groups
+* [#16090](https://github.com/netbox-community/netbox/issues/16090) - Include current NetBox version when an unsupported plugin is detected
+* [#16096](https://github.com/netbox-community/netbox/issues/16096) - Introduce the `ENABLE_TRANSLATION` configuration parameter
+* [#16107](https://github.com/netbox-community/netbox/issues/16107) - Change the default value for `LOGIN_REQUIRED` to True
+* [#16127](https://github.com/netbox-community/netbox/issues/16127) - Add integration point for unsupported settings
+
+### Bug Fixes
+
+* [#16077](https://github.com/netbox-community/netbox/issues/16077) - Fix display of parameter values when viewing configuration revisions
+* [#16078](https://github.com/netbox-community/netbox/issues/16078) - Fix integer filters mistakenly marked as required for GraphQL API
+* [#16101](https://github.com/netbox-community/netbox/issues/16101) - Fix initial loading of pagination widget for dynamic object tables
+* [#16123](https://github.com/netbox-community/netbox/issues/16123) - Fix custom script execution via REST API
+* [#16124](https://github.com/netbox-community/netbox/issues/16124) - Fix GraphQL API support for querying virtual machine interfaces
+
+---
+
 ## v4.0.1 (2024-05-09)
 
 ### Enhancements

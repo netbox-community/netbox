@@ -41,3 +41,6 @@ DEFAULT_ACTION_PERMISSIONS = {
 # General-purpose tokens
 CENSOR_TOKEN = '********'
 CENSOR_TOKEN_CHANGED = '***CHANGED***'
+
+# Placeholder text for empty tables
+EMPTY_TABLE_TEXT = 'No results found'

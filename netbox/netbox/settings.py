@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.1'
+VERSION = '4.0.2'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -105,7 +105,7 @@ LANGUAGE_CODE = getattr(configuration, 'DEFAULT_LANGUAGE', 'en-us')
 LANGUAGE_COOKIE_PATH = CSRF_COOKIE_PATH
 LOGGING = getattr(configuration, 'LOGGING', {})
 LOGIN_PERSISTENCE = getattr(configuration, 'LOGIN_PERSISTENCE', False)
-LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', False)
+LOGIN_REQUIRED = getattr(configuration, 'LOGIN_REQUIRED', True)
 LOGIN_TIMEOUT = getattr(configuration, 'LOGIN_TIMEOUT', None)
 LOGOUT_REDIRECT_URL = getattr(configuration, 'LOGOUT_REDIRECT_URL', 'home')
 MEDIA_ROOT = getattr(configuration, 'MEDIA_ROOT', os.path.join(BASE_DIR, 'media')).rstrip('/')
@@ -156,6 +156,7 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
 for param in CONFIG_PARAMS:
@@ -444,6 +445,9 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 # Use timezone-aware datetime objects
 USE_TZ = True
+
+# Toggle language translation support
+USE_I18N = TRANSLATION_ENABLED
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'
@@ -801,3 +805,10 @@ for plugin_name in PLUGINS:
     RQ_QUEUES.update({
         f"{plugin_name}.{queue}": RQ_PARAMS for queue in plugin_config.queues
     })
+
+# UNSUPPORTED FUNCTIONALITY: Import any local overrides.
+try:
+    from .local_settings import *
+    _UNSUPPORTED_SETTINGS = True
+except ImportError:
+    pass

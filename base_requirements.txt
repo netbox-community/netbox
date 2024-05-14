@@ -131,7 +131,7 @@ social-auth-app-django
 strawberry-graphql
 
 # Strawberry GraphQL Django extension
-# https://github.com/strawberry-graphql/strawberry-django/blob/main/CHANGELOG.md
+# https://github.com/strawberry-graphql/strawberry-django/releases
 strawberry-graphql-django
 
 # SVG image rendering (used for rack elevations)
