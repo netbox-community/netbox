@@ -136,17 +136,21 @@ class BaseCircuitTerminationImportForm(forms.ModelForm):
         required=False
     )
 
+
+class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
+    class Meta:
+        model = CircuitTermination
+        fields = [
+            'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'pp_info', 'description'
+        ]
+
+
+class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTerminationImportForm):
+
     class Meta:
         model = CircuitTermination
         fields = [
             'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
             'pp_info', 'description', 'tags'
         ]
-
-
-class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
-    pass
-
-
-class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTerminationImportForm):
-    pass
