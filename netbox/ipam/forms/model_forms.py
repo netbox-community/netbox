@@ -355,6 +355,15 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             ):
                 self.initial['primary_for_parent'] = True
 
+            if type(instance.assigned_object) is Interface:
+                self.fields['interface'].widget.add_query_params({
+                    'device_id': instance.assigned_object.device.pk,
+                })
+            elif type(instance.assigned_object) is VMInterface:
+                self.fields['vminterface'].widget.add_query_params({
+                    'virtual_machine_id': instance.assigned_object.virtual_machine.pk,
+                })
+
         # Disable object assignment fields if the IP address is designated as primary
         if self.initial.get('primary_for_parent'):
             self.fields['interface'].disabled = True
