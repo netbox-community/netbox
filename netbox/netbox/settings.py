@@ -156,6 +156,7 @@ SESSION_FILE_PATH = getattr(configuration, 'SESSION_FILE_PATH', None)
 STORAGE_BACKEND = getattr(configuration, 'STORAGE_BACKEND', None)
 STORAGE_CONFIG = getattr(configuration, 'STORAGE_CONFIG', {})
 TIME_ZONE = getattr(configuration, 'TIME_ZONE', 'UTC')
+TRANSLATION_ENABLED = getattr(configuration, 'TRANSLATION_ENABLED', True)
 
 # Load any dynamic configuration parameters which have been hard-coded in the configuration file
 for param in CONFIG_PARAMS:
@@ -444,6 +445,9 @@ LOGIN_REDIRECT_URL = f'/{BASE_PATH}'
 
 # Use timezone-aware datetime objects
 USE_TZ = True
+
+# Toggle language translation support
+USE_I18N = TRANSLATION_ENABLED
 
 # WSGI
 WSGI_APPLICATION = 'netbox.wsgi.application'

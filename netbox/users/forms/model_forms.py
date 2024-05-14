@@ -40,11 +40,8 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
             help_text = f'<code>{field_name}</code>'
             if preference.description:
                 help_text = f'{preference.description}<br />{help_text}'
-            if preference.experimental:
-                help_text = (
-                    f'<span class="text-danger"><i class="mdi mdi-alert"></i> Experimental feature</span><br />'
-                    f'{help_text}'
-                )
+            if warning := preference.warning:
+                help_text = f'<span class="text-danger"><i class="mdi mdi-alert"></i> {warning}</span><br />{help_text}'
             field_kwargs = {
                 'label': preference.label,
                 'choices': preference.choices,
