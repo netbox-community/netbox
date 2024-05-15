@@ -712,6 +712,7 @@ RQ_QUEUES.update({
 
 # Supported translation languages
 LANGUAGES = (
+    ('de', _('German')),
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
@@ -719,6 +720,8 @@ LANGUAGES = (
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
     ('tr', _('Turkish')),
+    ('uk', _('Ukrainian')),
+    ('zh', _('Chinese')),
 )
 LOCALE_PATHS = (
     BASE_DIR + '/translations',

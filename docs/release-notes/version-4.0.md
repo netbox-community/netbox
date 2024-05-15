@@ -2,6 +2,12 @@
 
 ## v4.0.3 (FUTURE)
 
+### Enhancements
+
+* [#14639](https://github.com/netbox-community/netbox/issues/14639) - Add Ukrainian translation support
+* [#14686](https://github.com/netbox-community/netbox/issues/14686) - Add German translation support
+* [#14855](https://github.com/netbox-community/netbox/issues/14855) - Add Chinese translation support
+
 ---
 
 ## v4.0.2 (2024-05-14)
