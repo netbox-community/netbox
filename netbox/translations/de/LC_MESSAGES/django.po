@@ -667,7 +667,7 @@ msgstr "Betriebsstatus"
 #: virtualization/forms/bulk_import.py:119 vpn/forms/bulk_import.py:63
 #: wireless/forms/bulk_import.py:59 wireless/forms/bulk_import.py:101
 msgid "Assigned tenant"
-msgstr "Zugewiesener Mieter"
+msgstr "Zugewiesener Mandant"
 
 #: circuits/forms/bulk_import.py:122 circuits/forms/filtersets.py:144
 #: circuits/forms/model_forms.py:142
@@ -2644,7 +2644,7 @@ msgstr "Meister (Name)"
 
 #: dcim/filtersets.py:1858 tenancy/filtersets.py:246
 msgid "Tenant (ID)"
-msgstr "Mieter (ID)"
+msgstr "Mandant (ID)"
 
 #: dcim/filtersets.py:1864 extras/filtersets.py:570 tenancy/filtersets.py:252
 msgid "Tenant (slug)"
