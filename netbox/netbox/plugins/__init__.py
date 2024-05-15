@@ -138,13 +138,15 @@ class PluginConfig(AppConfig):
             min_version = version.parse(cls.min_version)
             if current_version < min_version:
                 raise ImproperlyConfigured(
-                    f"Plugin {cls.__module__} requires NetBox minimum version {cls.min_version}."
+                    f"Plugin {cls.__module__} requires NetBox minimum version {cls.min_version} (current: "
+                    f"{netbox_version})."
                 )
         if cls.max_version is not None:
             max_version = version.parse(cls.max_version)
             if current_version > max_version:
                 raise ImproperlyConfigured(
-                    f"Plugin {cls.__module__} requires NetBox maximum version {cls.max_version}."
+                    f"Plugin {cls.__module__} requires NetBox maximum version {cls.max_version} (current: "
+                    f"{netbox_version})."
                 )
 
         # Verify required configuration settings

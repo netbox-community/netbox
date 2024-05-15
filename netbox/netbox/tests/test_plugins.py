@@ -42,6 +42,7 @@ class PluginTest(TestCase):
         url = reverse('admin:dummy_plugin_dummymodel_add')
         self.assertEqual(url, '/admin/dummy_plugin/dummymodel/add/')
 
+    @override_settings(LOGIN_REQUIRED=False)
     def test_views(self):
 
         # Test URL resolution
@@ -53,7 +54,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
-    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'])
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], LOGIN_REQUIRED=False)
     def test_api_views(self):
 
         # Test URL resolution
@@ -65,6 +66,7 @@ class PluginTest(TestCase):
         response = client.get(url)
         self.assertEqual(response.status_code, 200)
 
+    @override_settings(LOGIN_REQUIRED=False)
     def test_registered_views(self):
 
         # Test URL resolution

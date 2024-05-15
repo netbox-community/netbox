@@ -240,9 +240,9 @@ class ScriptViewSet(ModelViewSet):
             raise RQWorkerNotRunningException()
 
         if input_serializer.is_valid():
-            script.result = Job.enqueue(
+            Job.enqueue(
                 run_script,
-                instance=script.module,
+                instance=script,
                 name=script.python_class.class_name,
                 user=request.user,
                 data=input_serializer.data['data'],

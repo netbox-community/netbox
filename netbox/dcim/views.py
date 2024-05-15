@@ -30,7 +30,9 @@ from utilities.query_functions import CollateAsChar
 from utilities.views import (
     GetRelatedModelsMixin, GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
 )
+from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.models import VirtualMachine
+from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .models import *
@@ -2052,6 +2054,24 @@ class DeviceRenderConfigView(generic.ObjectView):
         }
 
 
+@register_model_view(Device, 'virtual-machines')
+class DeviceVirtualMachinesView(generic.ObjectChildrenView):
+    queryset = Device.objects.all()
+    child_model = VirtualMachine
+    table = VirtualMachineTable
+    filterset = VirtualMachineFilterSet
+    tab = ViewTab(
+        label=_('Virtual Machines'),
+        badge=lambda obj: VirtualMachine.objects.filter(cluster=obj.cluster, device=obj).count(),
+        weight=2200,
+        hide_if_empty=True,
+        permission='virtualization.view_virtualmachine'
+    )
+
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(cluster=parent.cluster, device=parent)
+
+
 class DeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
     model_form = forms.DeviceImportForm
@@ -2922,7 +2942,6 @@ class InventoryItemChildrenView(generic.ObjectChildrenView):
     child_model = InventoryItem
     table = tables.InventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
-    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Children'),
         badge=lambda obj: obj.child_items.count(),
