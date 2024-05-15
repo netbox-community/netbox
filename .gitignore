@@ -17,6 +17,7 @@ yarn-error.log*
 /venv/
 /*.sh
 local_requirements.txt
+local_settings.py
 !upgrade.sh
 fabfile.py
 gunicorn.py
