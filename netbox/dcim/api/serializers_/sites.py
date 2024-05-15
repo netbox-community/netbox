@@ -32,7 +32,7 @@ class RegionSerializer(NestedGroupModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
     def create(self, request, *args, **kwargs):
-        # this is required as tenant_count is added in the view with add_related_count
+        # this is required as site_count is added in the view with add_related_count
         instance = super().create(request, *args, **kwargs)
         instance.site_count = 0
         return instance
@@ -52,7 +52,7 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
     def create(self, request, *args, **kwargs):
-        # this is required as tenant_count is added in the view with add_related_count
+        # this is required as site_count is added in the view with add_related_count
         instance = super().create(request, *args, **kwargs)
         instance.site_count = 0
         return instance
@@ -110,7 +110,7 @@ class LocationSerializer(NestedGroupModelSerializer):
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')
 
     def create(self, request, *args, **kwargs):
-        # this is required as tenant_count is added in the view with add_related_count
+        # this is required as rack_count is added in the view with add_related_count
         instance = super().create(request, *args, **kwargs)
         instance.rack_count = 0
         return instance
