@@ -229,17 +229,18 @@ class RegionListView(generic.ObjectListView):
 class RegionView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Region.objects.all()
 
-    def get_extra_related_models(self, request, regions):
-        return (
-            (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
-            (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
-        )
-
     def get_extra_context(self, request, instance):
         regions = instance.get_descendants(include_self=True)
 
         return {
-            'related_models': self.get_related_models(request, regions),
+            'related_models': self.get_related_models(
+                request,
+                regions,
+                extra=(
+                    (Location.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+                    (Rack.objects.restrict(request.user, 'view').filter(site__region__in=regions), 'region_id'),
+                ),
+            ),
         }
 
 
@@ -310,17 +311,18 @@ class SiteGroupListView(generic.ObjectListView):
 class SiteGroupView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = SiteGroup.objects.all()
 
-    def get_extra_related_models(self, request, groups):
-        return (
-            (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
-            (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
-        )
-
     def get_extra_context(self, request, instance):
         groups = instance.get_descendants(include_self=True)
 
         return {
-            'related_models': self.get_related_models(request, groups),
+            'related_models': self.get_related_models(
+                request,
+                groups,
+                extra=(
+                    (Location.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                    (Rack.objects.restrict(request.user, 'view').filter(site__group__in=groups), 'site_group_id'),
+                ),
+            ),
         }
 
 
@@ -385,18 +387,20 @@ class SiteListView(generic.ObjectListView):
 class SiteView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = Site.objects.prefetch_related('tenant__group')
 
-    def get_extra_related_models(self, request, instance):
-        return (
-            (VLANGroup.objects.restrict(request.user, 'view').filter(
-                scope_type=ContentType.objects.get_for_model(Site),
-                scope_id=instance.pk
-            ), 'site'),
-            (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
-        )
-
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance, [CableTermination, CircuitTermination]),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                [CableTermination, CircuitTermination],
+                (
+                    (VLANGroup.objects.restrict(request.user, 'view').filter(
+                        scope_type=ContentType.objects.get_for_model(Site),
+                        scope_id=instance.pk
+                    ), 'site'),
+                    (Circuit.objects.restrict(request.user, 'view').filter(terminations__site=instance).distinct(), 'site_id'),
+                ),
+            ),
         }
 
 
@@ -3598,14 +3602,15 @@ class VirtualDeviceContextListView(generic.ObjectListView):
 class VirtualDeviceContextView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = VirtualDeviceContext.objects.all()
 
-    def get_extra_related_models(self, request, instance):
-        return (
-            (Interface.objects.restrict(request.user, 'view').filter(vdcs__in=[instance]), 'vdc_id'),
-        )
-
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                extra=(
+                    (Interface.objects.restrict(request.user, 'view').filter(vdcs__in=[instance]), 'vdc_id'),
+                ),
+            ),
         }
 
 

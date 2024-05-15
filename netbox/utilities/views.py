@@ -151,14 +151,7 @@ class GetRelatedModelsMixin:
     Provides logic for collecting all related models for the currently viewed model.
     """
 
-    def get_extra_related_models(self, request, instance):
-        """
-        Get extra related models for `instance`, which extend `get_related_models`. Can be used to implement custom
-        lookups for nested and non-direct relationships.
-        """
-        return []
-
-    def get_related_models(self, request, instance, omit=[]):
+    def get_related_models(self, request, instance, omit=[], extra=[]):
         """
         Get related models of the view's `queryset` model without those listed in `omit`. Will be sorted alphabetical.
 
@@ -168,6 +161,8 @@ class GetRelatedModelsMixin:
                 related objects in this list (e.g. to find sites of a region including child regions).
             omit: Remove relationships to these models from the result. Needs to be passed, if related models don't
                 provide a `_list` view.
+            extra: Add extra models to the list of automatically determined related models. Can be used to add indirect
+                relationships.
         """
         model = self.queryset.model
         related = filter(
@@ -186,7 +181,7 @@ class GetRelatedModelsMixin:
             )
             for model, field in related
         ]
-        related_models.extend(self.get_extra_related_models(request, instance))
+        related_models.extend(extra)
 
         return sorted(related_models, key=lambda x: x[0].model._meta.verbose_name.lower())
 

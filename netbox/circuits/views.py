@@ -150,17 +150,19 @@ class ProviderNetworkListView(generic.ObjectListView):
 class ProviderNetworkView(GetRelatedModelsMixin, generic.ObjectView):
     queryset = ProviderNetwork.objects.all()
 
-    def get_extra_related_models(self, request, instance):
-        return (
-            (
-                Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
-                'provider_network_id',
-            ),
-        )
-
     def get_extra_context(self, request, instance):
         return {
-            'related_models': self.get_related_models(request, instance, [CircuitTermination]),
+            'related_models': self.get_related_models(
+                request,
+                instance,
+                [CircuitTermination],
+                (
+                    (
+                        Circuit.objects.restrict(request.user, 'view').filter(terminations__provider_network=instance),
+                        'provider_network_id',
+                    ),
+                ),
+            ),
         }
 
 
