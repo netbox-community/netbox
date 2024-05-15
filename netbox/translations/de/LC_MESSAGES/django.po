@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Jeremy Stretch, 2024
+# Niklas R., 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-05-14 13:22+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Niklas R., 2024\n"
 "Language-Team: German (https://app.transifex.com/netbox-community/teams/178115/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -587,7 +588,7 @@ msgstr "Status"
 #: wireless/forms/bulk_import.py:55 wireless/forms/bulk_import.py:97
 #: wireless/forms/filtersets.py:35 wireless/forms/filtersets.py:75
 msgid "Tenant"
-msgstr "Mieter"
+msgstr "Mandant"
 
 #: circuits/forms/bulk_edit.py:143 circuits/forms/filtersets.py:171
 msgid "Install date"
