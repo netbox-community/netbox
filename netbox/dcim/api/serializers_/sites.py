@@ -31,6 +31,12 @@ class RegionSerializer(NestedGroupModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
+    def create(self, request, *args, **kwargs):
+        # this is required as tenant_count is added in the view with add_related_count
+        instance = super().create(request, *args, **kwargs)
+        instance.site_count = 0
+        return instance
+
 
 class SiteGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
@@ -44,6 +50,12 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
             'last_updated', 'site_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
+
+    def create(self, request, *args, **kwargs):
+        # this is required as tenant_count is added in the view with add_related_count
+        instance = super().create(request, *args, **kwargs)
+        instance.site_count = 0
+        return instance
 
 
 class SiteSerializer(NetBoxModelSerializer):
@@ -96,3 +108,9 @@ class LocationSerializer(NestedGroupModelSerializer):
             'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')
+
+    def create(self, request, *args, **kwargs):
+        # this is required as tenant_count is added in the view with add_related_count
+        instance = super().create(request, *args, **kwargs)
+        instance.rack_count = 0
+        return instance

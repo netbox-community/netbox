@@ -27,6 +27,12 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'wirelesslan_count', '_depth')
 
+    def create(self, request, *args, **kwargs):
+        # this is required as tenant_count is added in the view with add_related_count
+        instance = super().create(request, *args, **kwargs)
+        instance.wirelesslan_count = 0
+        return instance
+
 
 class WirelessLANSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslan-detail')

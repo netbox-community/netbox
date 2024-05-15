@@ -31,6 +31,12 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'contact_count', '_depth')
 
+    def create(self, request, *args, **kwargs):
+        # this is required as tenant_count is added in the view with add_related_count
+        instance = super().create(request, *args, **kwargs)
+        instance.contact_count = 0
+        return instance
+
 
 class ContactRoleSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactrole-detail')
