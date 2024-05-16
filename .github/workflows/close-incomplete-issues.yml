@@ -22,7 +22,7 @@ jobs:
             to include all the requested detail, and then ask that the issue be reopened.
           days-before-stale: 7
           days-before-close: 7
-          only-issue-labels: 'status: needs revisions'
+          only-issue-labels: 'status: revisions needed'
           operations-per-run: 100
           remove-stale-when-updated: false
           stale-issue-label: 'pending closure'
