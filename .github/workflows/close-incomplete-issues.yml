@@ -1,0 +1,33 @@
+# close-stale-issues (https://github.com/marketplace/actions/close-stale-issues)
+name: Close incomplete issues
+
+on:
+  schedule:
+    - cron: '15 4 * * *'
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  issues: write
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          close-issue-message: >
+            This issue is being closed as no further information has been provided. If
+            you would like to revisit this topic, please first modify your original post
+            to include all the requested detail, and then ask that the issue be reopened.
+          days-before-stale: 7
+          days-before-close: 7
+          only-issue-labels: 'status: needs revisions'
+          operations-per-run: 100
+          remove-stale-when-updated: false
+          stale-issue-label: 'pending closure'
+          stale-issue-message: >
+            This is a reminder that additional information is needed in order to further
+            triage this issue. If the requested details are not provided, the issue will
+            soon be closed automatically.
+          start-date: 2024-05-14
