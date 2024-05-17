@@ -372,19 +372,19 @@ ADMIN_MENU = Menu(
                     link=f'users:user_list',
                     link_text=_('Users'),
                     auth_required=True,
-                    permissions=[f'auth.view_user'],
+                    permissions=[f'users.view_user'],
                     buttons=(
                         MenuItemButton(
                             link=f'users:user_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_user']
+                            permissions=[f'users.add_user']
                         ),
                         MenuItemButton(
                             link=f'users:user_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_user']
+                            permissions=[f'users.add_user']
                         )
                     )
                 ),
@@ -392,19 +392,19 @@ ADMIN_MENU = Menu(
                     link=f'users:group_list',
                     link_text=_('Groups'),
                     auth_required=True,
-                    permissions=[f'auth.view_group'],
+                    permissions=[f'users.view_group'],
                     buttons=(
                         MenuItemButton(
                             link=f'users:group_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_group']
+                            permissions=[f'users.add_group']
                         ),
                         MenuItemButton(
                             link=f'users:group_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_group']
+                            permissions=[f'users.add_group']
                         )
                     )
                 ),
