@@ -17,7 +17,7 @@ __all__ = (
 class WirelessLANGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='wireless-api:wirelesslangroup-detail')
     parent = NestedWirelessLANGroupSerializer(required=False, allow_null=True, default=None)
-    wirelesslan_count = serializers.IntegerField(read_only=True)
+    wirelesslan_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = WirelessLANGroup
@@ -26,12 +26,6 @@ class WirelessLANGroupSerializer(NestedGroupModelSerializer):
             'last_updated', 'wirelesslan_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'wirelesslan_count', '_depth')
-
-    def create(self, request, *args, **kwargs):
-        # this is required as wirelesslan_count is added in the view with add_related_count
-        instance = super().create(request, *args, **kwargs)
-        instance.wirelesslan_count = 0
-        return instance
 
 
 class WirelessLANSerializer(NetBoxModelSerializer):

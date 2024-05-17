@@ -14,7 +14,7 @@ __all__ = (
 class TenantGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
     parent = NestedTenantGroupSerializer(required=False, allow_null=True)
-    tenant_count = serializers.IntegerField(read_only=True)
+    tenant_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = TenantGroup
@@ -23,12 +23,6 @@ class TenantGroupSerializer(NestedGroupModelSerializer):
             'last_updated', 'tenant_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tenant_count', '_depth')
-
-    def create(self, request, *args, **kwargs):
-        # this is required as tenant_count is added in the view with add_related_count
-        instance = super().create(request, *args, **kwargs)
-        instance.tenant_count = 0
-        return instance
 
 
 class TenantSerializer(NetBoxModelSerializer):

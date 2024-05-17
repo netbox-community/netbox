@@ -21,7 +21,7 @@ __all__ = (
 class RegionSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True, default=None)
-    site_count = serializers.IntegerField(read_only=True)
+    site_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Region
@@ -31,17 +31,11 @@ class RegionSerializer(NestedGroupModelSerializer):
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
 
-    def create(self, request, *args, **kwargs):
-        # this is required as site_count is added in the view with add_related_count
-        instance = super().create(request, *args, **kwargs)
-        instance.site_count = 0
-        return instance
-
 
 class SiteGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
     parent = NestedSiteGroupSerializer(required=False, allow_null=True, default=None)
-    site_count = serializers.IntegerField(read_only=True)
+    site_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = SiteGroup
@@ -50,12 +44,6 @@ class SiteGroupSerializer(NestedGroupModelSerializer):
             'last_updated', 'site_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'site_count', '_depth')
-
-    def create(self, request, *args, **kwargs):
-        # this is required as site_count is added in the view with add_related_count
-        instance = super().create(request, *args, **kwargs)
-        instance.site_count = 0
-        return instance
 
 
 class SiteSerializer(NetBoxModelSerializer):
@@ -98,8 +86,8 @@ class LocationSerializer(NestedGroupModelSerializer):
     parent = NestedLocationSerializer(required=False, allow_null=True, default=None)
     status = ChoiceField(choices=LocationStatusChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
-    rack_count = serializers.IntegerField(read_only=True)
-    device_count = serializers.IntegerField(read_only=True)
+    rack_count = serializers.IntegerField(read_only=True, default=0)
+    device_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Location
@@ -108,9 +96,3 @@ class LocationSerializer(NestedGroupModelSerializer):
             'tags', 'custom_fields', 'created', 'last_updated', 'rack_count', 'device_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'rack_count', '_depth')
-
-    def create(self, request, *args, **kwargs):
-        # this is required as rack_count is added in the view with add_related_count
-        instance = super().create(request, *args, **kwargs)
-        instance.rack_count = 0
-        return instance

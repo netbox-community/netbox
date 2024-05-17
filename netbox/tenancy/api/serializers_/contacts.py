@@ -21,7 +21,7 @@ __all__ = (
 class ContactGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactgroup-detail')
     parent = NestedContactGroupSerializer(required=False, allow_null=True, default=None)
-    contact_count = serializers.IntegerField(read_only=True)
+    contact_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = ContactGroup
@@ -30,12 +30,6 @@ class ContactGroupSerializer(NestedGroupModelSerializer):
             'last_updated', 'contact_count', '_depth',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'contact_count', '_depth')
-
-    def create(self, request, *args, **kwargs):
-        # this is required as contact_count is added in the view with add_related_count
-        instance = super().create(request, *args, **kwargs)
-        instance.contact_count = 0
-        return instance
 
 
 class ContactRoleSerializer(NetBoxModelSerializer):
