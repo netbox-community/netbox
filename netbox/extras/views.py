@@ -1044,11 +1044,11 @@ class BaseScriptView(generic.ObjectView):
     queryset = Script.objects.all()
 
     def _get_script_class(self, script):
-        script_class = script.python_class
-        if script_class:
-            script_class = script_class()
-
-        return script_class
+        """
+        Return an instance of the Script's Python class
+        """
+        if script_class := script.python_class:
+            return script_class()
 
 
 class ScriptView(BaseScriptView):
