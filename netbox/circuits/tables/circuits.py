@@ -10,6 +10,7 @@ from .columns import CommitRateColumn
 
 __all__ = (
     'CircuitTable',
+    'CircuitTerminationTable',
     'CircuitTypeTable',
 )
 
@@ -88,3 +89,31 @@ class CircuitTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable):
         default_columns = (
             'pk', 'cid', 'provider', 'type', 'status', 'tenant', 'termination_a', 'termination_z', 'description',
         )
+
+
+class CircuitTerminationTable(NetBoxTable):
+    circuit = tables.Column(
+        verbose_name=_('Circuit'),
+        linkify=True
+    )
+    provider = tables.Column(
+        verbose_name=_('Provider'),
+        linkify=True,
+        accessor='circuit.provider'
+    )
+    site = tables.Column(
+        verbose_name=_('Site'),
+        linkify=True
+    )
+    provider_network = tables.Column(
+        verbose_name=_('Provider Network'),
+        linkify=True
+    )
+
+    class Meta(NetBoxTable.Meta):
+        model = CircuitTermination
+        fields = (
+            'pk', 'id', 'circuit', 'provider', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed',
+            'xconnect_id', 'pp_info', 'description', 'created', 'last_updated', 'actions',
+        )
+        default_columns = ('pk', 'id', 'circuit', 'provider', 'term_side', 'description')
