@@ -1,11 +1,10 @@
 from django import forms
-
-from circuits.choices import CircuitStatusChoices, CircuitTerminationSideChoices
-from circuits.models import *
-from circuits.choices import *
-from dcim.models import Site
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from circuits.choices import *
+from circuits.models import *
+from dcim.models import Site
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
