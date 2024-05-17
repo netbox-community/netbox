@@ -417,6 +417,13 @@ class CircuitTerminationTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'circuit_id': [circuits[0].pk, circuits[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'provider': [providers[0].slug, providers[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
     def test_site(self):
         sites = Site.objects.all()[:2]
         params = {'site_id': [sites[0].pk, sites[1].pk]}
