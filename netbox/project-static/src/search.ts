@@ -31,7 +31,6 @@ function clearLinkParams(): void {
  * Update the Export View link to add the Quick Search parameters.
  * @param event
  */
-
 function handleQuickSearchParams(event: Event): void {
   const quickSearchParameters = event.currentTarget as HTMLInputElement;
 
@@ -39,7 +38,7 @@ function handleQuickSearchParams(event: Event): void {
   clearLinkParams();
 
   if (quickSearchParameters != null) {
-    const link = document.getElementById("current_view") as HTMLLinkElement;
+    const link = document.getElementById("export_current_view") as HTMLLinkElement;
     const search_parameter = `q=${quickSearchParameters.value}`;
     const linkUpdated = link?.href + "&" + search_parameter;
     link.setAttribute("href", linkUpdated);
