@@ -1,10 +1,6 @@
 import { getElements, isTruthy } from './util';
 
 const COLOR_MODE_KEY = 'netbox-color-mode';
-const TEXT_WHEN_DARK = 'Light Mode';
-const TEXT_WHEN_LIGHT = 'Dark Mode';
-const ICON_WHEN_DARK = 'mdi-lightbulb-on';
-const ICON_WHEN_LIGHT = 'mdi-lightbulb';
 
 /**
  * Determine if a value is a supported color mode string value.
@@ -24,29 +20,17 @@ function storeColorMode(mode: ColorMode): void {
 }
 
 function updateElements(targetMode: ColorMode): void {
-  document.documentElement.setAttribute(`data-${COLOR_MODE_KEY}`, targetMode);
-
-  for (const text of getElements<HTMLSpanElement>('span.color-mode-text')) {
-    if (targetMode === 'light') {
-      text.innerText = TEXT_WHEN_LIGHT;
-    } else if (targetMode === 'dark') {
-      text.innerText = TEXT_WHEN_DARK;
-    }
-  }
-  for (const icon of getElements<HTMLSpanElement>('i.color-mode-icon', 'span.color-mode-icon')) {
-    if (targetMode === 'light') {
-      icon.classList.remove(ICON_WHEN_DARK);
-      icon.classList.add(ICON_WHEN_LIGHT);
-    } else if (targetMode === 'dark') {
-      icon.classList.remove(ICON_WHEN_LIGHT);
-      icon.classList.add(ICON_WHEN_DARK);
-    }
+  const body = document.querySelector('body');
+  if (body && targetMode == 'dark') {
+    body.setAttribute('data-bs-theme', 'dark');
+  } else if (body) {
+    body.setAttribute('data-bs-theme', 'light');
   }
 
   for (const elevation of getElements<HTMLObjectElement>('.rack_elevation')) {
     const svg = elevation.contentDocument?.querySelector('svg') ?? null;
     if (svg !== null) {
-      svg.setAttribute(`data-${COLOR_MODE_KEY}`, targetMode);
+      svg.setAttribute(`data-bs-theme`, targetMode);
     }
   }
 }
@@ -57,9 +41,8 @@ function updateElements(targetMode: ColorMode): void {
  * @param mode Target color mode.
  */
 export function setColorMode(mode: ColorMode): void {
-  for (const func of [storeColorMode, updateElements]) {
-    func(mode);
-  }
+  storeColorMode(mode);
+  updateElements(mode);
 }
 
 /**
@@ -82,9 +65,8 @@ function handleColorModeToggle(): void {
 function defaultColorMode(): void {
   // Get the current color mode value from local storage.
   const currentValue = localStorage.getItem(COLOR_MODE_KEY) as Nullable<ColorMode>;
-  const serverValue = document.documentElement.getAttribute(`data-${COLOR_MODE_KEY}`);
 
-  if (isTruthy(serverValue) && isTruthy(currentValue)) {
+  if (isTruthy(currentValue)) {
     return setColorMode(currentValue);
   }
 
@@ -98,7 +80,7 @@ function defaultColorMode(): void {
     }
   }
 
-  if (isTruthy(currentValue) && !isTruthy(serverValue) && isColorMode(currentValue)) {
+  if (isTruthy(currentValue) && isColorMode(currentValue)) {
     return setColorMode(currentValue);
   }
 

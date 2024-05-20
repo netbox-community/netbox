@@ -2,7 +2,9 @@ from django.contrib.auth.mixins import AccessMixin
 from django.core.exceptions import ImproperlyConfigured
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch
+from django.utils.translation import gettext_lazy as _
 
+from netbox.plugins import PluginConfig
 from netbox.registry import registry
 from .permissions import resolve_permission
 
@@ -11,6 +13,7 @@ __all__ = (
     'GetReturnURLMixin',
     'ObjectPermissionRequiredMixin',
     'ViewTab',
+    'get_viewname',
     'register_model_view',
 )
 
@@ -34,7 +37,9 @@ class ContentTypePermissionRequiredMixin(AccessMixin):
         """
         Return the specific permission necessary to perform the requested action on an object.
         """
-        raise NotImplementedError(f"{self.__class__.__name__} must implement get_required_permission()")
+        raise NotImplementedError(_("{self.__class__.__name__} must implement get_required_permission()").format(
+            class_name=self.__class__.__name__
+        ))
 
     def has_permission(self):
         user = self.request.user
@@ -68,7 +73,9 @@ class ObjectPermissionRequiredMixin(AccessMixin):
         """
         Return the specific permission necessary to perform the requested action on an object.
         """
-        raise NotImplementedError(f"{self.__class__.__name__} must implement get_required_permission()")
+        raise NotImplementedError(_("{class_name} must implement get_required_permission()").format(
+            class_name=self.__class__.__name__
+        ))
 
     def has_permission(self):
         user = self.request.user
@@ -89,8 +96,10 @@ class ObjectPermissionRequiredMixin(AccessMixin):
 
         if not hasattr(self, 'queryset'):
             raise ImproperlyConfigured(
-                '{} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views which define '
-                'a base queryset'.format(self.__class__.__name__)
+                _(
+                    '{class_name} has no queryset defined. ObjectPermissionRequiredMixin may only be used on views '
+                    'which define a base queryset'
+                ).format(class_name=self.__class__.__name__)
             )
 
         if not self.has_permission():
@@ -171,6 +180,39 @@ class ViewTab:
         if callable(self.badge):
             return self.badge(instance)
         return self.badge
+
+
+#
+# Utility functions
+#
+
+def get_viewname(model, action=None, rest_api=False):
+    """
+    Return the view name for the given model and action, if valid.
+
+    :param model: The model or instance to which the view applies
+    :param action: A string indicating the desired action (if any); e.g. "add" or "list"
+    :param rest_api: A boolean indicating whether this is a REST API view
+    """
+    is_plugin = isinstance(model._meta.app_config, PluginConfig)
+    app_label = model._meta.app_label
+    model_name = model._meta.model_name
+
+    if rest_api:
+        viewname = f'{app_label}-api:{model_name}'
+        if is_plugin:
+            viewname = f'plugins-api:{viewname}'
+        if action:
+            viewname = f'{viewname}-{action}'
+
+    else:
+        viewname = f'{app_label}:{model_name}'
+        if is_plugin:
+            viewname = f'plugins:{viewname}'
+        if action:
+            viewname = f'{viewname}_{action}'
+
+    return viewname
 
 
 def register_model_view(model, name='', path=None, kwargs=None):

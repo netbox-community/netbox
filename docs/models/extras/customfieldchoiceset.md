@@ -1,7 +1,5 @@
 # Custom Field Choice Sets
 
-!!! info "This feature was introduced in NetBox v3.6."
-
 Single- and multi-selection [custom fields](../../customization/custom-fields.md) must define a set of valid choices from which the user may choose when defining the field value. These choices are defined as sets that may be reused among multiple custom fields.
 
 A choice set must define a base choice set and/or a set of arbitrary extra choices.

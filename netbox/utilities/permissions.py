@@ -1,13 +1,13 @@
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.utils.translation import gettext_lazy as _
 
 __all__ = (
     'get_permission_for_model',
     'permission_is_exempt',
     'qs_filter_from_constraints',
     'resolve_permission',
-    'resolve_permission_ct',
+    'resolve_permission_type',
 )
 
 
@@ -36,26 +36,27 @@ def resolve_permission(name):
         action, model_name = codename.rsplit('_', 1)
     except ValueError:
         raise ValueError(
-            f"Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>"
+            _("Invalid permission name: {name}. Must be in the format <app_label>.<action>_<model>").format(name=name)
         )
 
     return app_label, action, model_name
 
 
-def resolve_permission_ct(name):
+def resolve_permission_type(name):
     """
-    Given a permission name, return the relevant ContentType and action. For example, "dcim.view_site" returns
+    Given a permission name, return the relevant ObjectType and action. For example, "dcim.view_site" returns
     (Site, "view").
 
     :param name: Permission name in the format <app_label>.<action>_<model>
     """
+    from core.models import ObjectType
     app_label, action, model_name = resolve_permission(name)
     try:
-        content_type = ContentType.objects.get(app_label=app_label, model=model_name)
-    except ContentType.DoesNotExist:
-        raise ValueError(f"Unknown app_label/model_name for {name}")
+        object_type = ObjectType.objects.get_by_natural_key(app_label=app_label, model=model_name)
+    except ObjectType.DoesNotExist:
+        raise ValueError(_("Unknown app_label/model_name for {name}").format(name=name))
 
-    return content_type, action
+    return object_type, action
 
 
 def permission_is_exempt(name):

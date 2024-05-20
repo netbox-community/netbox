@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from ipam.choices import *
 from ipam.constants import *
 from ipam.fields import IPNetworkField, IPAddressField
@@ -268,7 +268,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as 100% utilized")
+        help_text=_("Treat as fully utilized")
     )
 
     # Cached depth & child counts
@@ -427,10 +427,10 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
 
         prefix = netaddr.IPSet(self.prefix)
         child_ips = netaddr.IPSet([ip.address.ip for ip in self.get_child_ips()])
-        child_ranges = netaddr.IPSet()
+        child_ranges = []
         for iprange in self.get_child_ranges():
-            child_ranges.add(iprange.range)
-        available_ips = prefix - child_ips - child_ranges
+            child_ranges.append(iprange.range)
+        available_ips = prefix - child_ips - netaddr.IPSet(child_ranges)
 
         # IPv6 /127's, pool, or IPv4 /31-/32 sets are fully usable
         if (self.family == 6 and self.prefix.prefixlen >= 127) or self.is_pool or (self.family == 4 and self.prefix.prefixlen >= 31):
@@ -535,7 +535,7 @@ class IPRange(PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as 100% utilized")
+        help_text=_("Treat as fully utilized")
     )
 
     clone_fields = (
@@ -574,7 +574,7 @@ class IPRange(PrimaryModel):
             if not self.end_address > self.start_address:
                 raise ValidationError({
                     'end_address': _(
-                        "Ending address must be lower than the starting address ({start_address})"
+                        "Ending address must be greater than the starting address ({start_address})"
                     ).format(start_address=self.start_address)
                 })
 
@@ -692,7 +692,7 @@ class IPRange(PrimaryModel):
             ip.address.ip for ip in self.get_child_ips()
         ]).size
 
-        return int(float(child_count) / self.size * 100)
+        return min(float(child_count) / self.size * 100, 100)
 
 
 class IPAddress(PrimaryModel):
@@ -844,6 +844,25 @@ class IPAddress(PrimaryModel):
                     'address': _("Cannot create IP address with /0 mask.")
                 })
 
+            # Do not allow assigning a network ID or broadcast address to an interface.
+            if self.assigned_object:
+                if self.address.ip == self.address.network:
+                    msg = _("{ip} is a network ID, which may not be assigned to an interface.").format(
+                        ip=self.address.ip
+                    )
+                    if self.address.version == 4 and self.address.prefixlen not in (31, 32):
+                        raise ValidationError(msg)
+                    if self.address.version == 6 and self.address.prefixlen not in (127, 128):
+                        raise ValidationError(msg)
+                if (
+                        self.address.version == 4 and self.address.ip == self.address.broadcast and
+                        self.address.prefixlen not in (31, 32)
+                ):
+                    msg = _("{ip} is a broadcast address, which may not be assigned to an interface.").format(
+                        ip=self.address.ip
+                    )
+                    raise ValidationError(msg)
+
             # Enforce unique IP space (if applicable)
             if (self.vrf is None and get_config().ENFORCE_GLOBAL_UNIQUE) or (self.vrf and self.vrf.enforce_unique):
                 duplicate_ips = self.get_duplicates()
@@ -861,7 +880,7 @@ class IPAddress(PrimaryModel):
 
         if self._original_assigned_object_id and self._original_assigned_object_type_id:
             parent = getattr(self.assigned_object, 'parent_object', None)
-            ct = ContentType.objects.get_for_id(self._original_assigned_object_type_id)
+            ct = ObjectType.objects.get_for_id(self._original_assigned_object_type_id)
             original_assigned_object = ct.get_object_for_this_type(pk=self._original_assigned_object_id)
             original_parent = getattr(original_assigned_object, 'parent_object', None)
 

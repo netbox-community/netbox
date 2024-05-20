@@ -378,7 +378,7 @@ class IPAddressImportForm(NetBoxModelImportForm):
 
         # Set as primary for device/VM
         if self.cleaned_data.get('is_primary'):
-            parent = self.cleaned_data['device'] or self.cleaned_data['virtual_machine']
+            parent = self.cleaned_data.get('device') or self.cleaned_data.get('virtual_machine')
             if self.instance.address.version == 4:
                 parent.primary_ip4 = ipaddress
             elif self.instance.address.version == 6:

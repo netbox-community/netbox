@@ -1,7 +1,7 @@
 ---
 name: 🐛 Bug Report
 description: Report a reproducible bug in the current release of NetBox
-labels: ["type: bug"]
+labels: ["type: bug", "status: needs triage"]
 body:
   - type: markdown
     attributes:
@@ -13,17 +13,20 @@ body:
   - type: dropdown
     attributes:
       label: Deployment Type
-      description: How are you running NetBox?
+      description: >
+        How are you running NetBox? (For issues with the Docker image, please go to the
+        [netbox-docker](https://github.com/netbox-community/netbox-docker) repo.)
       options:
-        - Self-hosted
         - NetBox Cloud
+        - NetBox Enterprise
+        - Self-hosted
     validations:
       required: true
   - type: input
     attributes:
       label: NetBox Version
       description: What version of NetBox are you currently running?
-      placeholder: v3.7.1
+      placeholder: v4.0.2
     validations:
       required: true
   - type: dropdown
@@ -31,10 +34,9 @@ body:
       label: Python Version
       description: What version of Python are you currently running?
       options:
-        - "3.8"
-        - "3.9"
         - "3.10"
         - "3.11"
+        - "3.12"
     validations:
       required: true
   - type: textarea

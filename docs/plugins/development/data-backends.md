@@ -20,4 +20,4 @@ backends = [MyDataBackend]
 !!! tip
     The path to the list of search indexes can be modified by setting `data_backends` in the PluginConfig instance.
 
-::: core.data_backends.DataBackend
+::: netbox.data_backends.DataBackend

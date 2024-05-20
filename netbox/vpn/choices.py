@@ -124,7 +124,7 @@ class EncryptionAlgorithmChoices(ChoiceSet):
         (ENCRYPTION_AES256_CBC, '256-bit AES (CBC)'),
         (ENCRYPTION_AES256_GCM, '256-bit AES (GCM)'),
         (ENCRYPTION_3DES, '3DES'),
-        (ENCRYPTION_3DES, 'DES'),
+        (ENCRYPTION_DES, 'DES'),
     )
 
 

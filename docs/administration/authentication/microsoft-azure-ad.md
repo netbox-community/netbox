@@ -73,7 +73,7 @@ You should be redirected to Microsoft's authentication portal. Enter the usernam
 
 If successful, you will be redirected back to the NetBox UI, and will be logged in as the AD user. You can verify this by navigating to your profile (using the button at top right).
 
-This user account has been replicated locally to NetBox, and can now be assigned groups and permissions by navigating to Admin > Permissions.
+This user account has been replicated locally to NetBox, and can now be assigned groups and permissions.
 
 ## Troubleshooting
 

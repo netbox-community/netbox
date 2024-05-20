@@ -33,6 +33,15 @@ VMINTERFACE_BUTTONS = """
     </ul>
   </span>
 {% endif %}
+{% if perms.vpn.add_tunnel and not record.tunnel_termination %}
+  <a href="{% url 'vpn:tunnel_add' %}?termination1_type=virtualization.virtualmachine&termination1_parent={{ record.virtual_machine.pk }}&termination1_termination={{ record.pk }}&return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Create a tunnel" class="btn btn-success btn-sm">
+    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
+  </a>
+{% elif perms.vpn.delete_tunneltermination and record.tunnel_termination %}
+  <a href="{% url 'vpn:tunneltermination_delete' pk=record.tunnel_termination.pk %}?return_url={% url 'virtualization:virtualmachine_interfaces' pk=object.pk %}" title="Remove tunnel" class="btn btn-danger btn-sm">
+    <i class="mdi mdi-tunnel-outline" aria-hidden="true"></i>
+  </a>
+{% endif %}
 """
 
 
@@ -63,6 +72,10 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     )
     role = columns.ColoredLabelColumn(
         verbose_name=_('Role'),
+    )
+    platform = tables.Column(
+        linkify=True,
+        verbose_name=_('Platform')
     )
     comments = columns.MarkdownColumn(
         verbose_name=_('Comments'),
@@ -97,9 +110,9 @@ class VirtualMachineTable(TenancyColumnsMixin, ContactsColumnMixin, NetBoxTable)
     class Meta(NetBoxTable.Meta):
         model = VirtualMachine
         fields = (
-            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'platform',
-            'vcpus', 'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments',
-            'config_template', 'contacts', 'tags', 'created', 'last_updated',
+            'pk', 'id', 'name', 'status', 'site', 'cluster', 'device', 'role', 'tenant', 'tenant_group', 'vcpus',
+            'memory', 'disk', 'primary_ip4', 'primary_ip6', 'primary_ip', 'description', 'comments', 'config_template',
+            'contacts', 'tags', 'created', 'last_updated',
         )
         default_columns = (
             'pk', 'name', 'status', 'site', 'cluster', 'role', 'tenant', 'vcpus', 'memory', 'disk', 'primary_ip',

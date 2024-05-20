@@ -8,6 +8,7 @@ from drf_spectacular.plumbing import (
     build_basic_type, build_choice_field, build_media_type_object, build_object_type, get_doc,
 )
 from drf_spectacular.types import OpenApiTypes
+from rest_framework import serializers
 from rest_framework.relations import ManyRelatedField
 
 from netbox.api.fields import ChoiceField, SerializedPKRelatedField
@@ -155,8 +156,6 @@ class NetBoxAutoSchema(AutoSchema):
                 remove_fields.append(child_name)
             if isinstance(child, (ChoiceField, WritableNestedSerializer)):
                 properties[child_name] = None
-            elif isinstance(child, ManyRelatedField) and isinstance(child.child_relation, SerializedPKRelatedField):
-                properties[child_name] = None
 
         if not properties:
             return None
@@ -256,3 +255,14 @@ class NetBoxAutoSchema(AutoSchema):
         if '{id}' in self.path:
             return f"{self.method.capitalize()} a {model_name} object."
         return f"{self.method.capitalize()} a list of {model_name} objects."
+
+
+class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
+    target_class = 'netbox.api.fields.SerializedPKRelatedField'
+
+    def map_serializer_field(self, auto_schema, direction):
+        if direction == "response":
+            component = auto_schema.resolve_serializer(self.target.serializer, direction)
+            return component.ref if component else None
+        else:
+            return build_basic_type(OpenApiTypes.INT)

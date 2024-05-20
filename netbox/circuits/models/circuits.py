@@ -227,16 +227,16 @@ class CircuitTermination(
         return f'{self.circuit}: Termination {self.term_side}'
 
     def get_absolute_url(self):
-        return self.circuit.get_absolute_url()
+        return reverse('circuits:circuittermination', args=[self.pk])
 
     def clean(self):
         super().clean()
 
         # Must define either site *or* provider network
         if self.site is None and self.provider_network is None:
-            raise ValidationError("A circuit termination must attach to either a site or a provider network.")
+            raise ValidationError(_("A circuit termination must attach to either a site or a provider network."))
         if self.site and self.provider_network:
-            raise ValidationError("A circuit termination cannot attach to both a site and a provider network.")
+            raise ValidationError(_("A circuit termination cannot attach to both a site and a provider network."))
 
     def to_objectchange(self, action):
         objectchange = super().to_objectchange(action)

@@ -9,36 +9,34 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Module Type" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <td>{% trans "Manufacturer" %}</td>
-              <td>{{ object.manufacturer|linkify }}</td>
-            </tr>
-            <tr>
-              <td>{% trans "Model Name" %}</td>
-              <td>{{ object.model }}</td>
-            </tr>
-            <tr>
-              <td>{% trans "Part Number" %}</td>
-              <td>{{ object.part_number|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-            <tr>
-                <td>{% trans "Weight" %}</td>
-                <td>
-                {% if object.weight %}
-                  {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-                </td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Manufacturer" %}</th>
+            <td>{{ object.manufacturer|linkify }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Model Name" %}</th>
+            <td>{{ object.model }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Part Number" %}</th>
+            <td>{{ object.part_number|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Weight" %}</th>
+            <td>
+            {% if object.weight %}
+              {{ object.weight|floatformat }} {{ object.get_weight_unit_display }}
+            {% else %}
+              {{ ''|placeholder }}
+            {% endif %}
+            </td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% include 'inc/panels/comments.html' %}

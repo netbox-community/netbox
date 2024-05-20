@@ -5,21 +5,19 @@ from functools import cached_property
 from django.contrib.contenttypes.fields import GenericRelation
 from django.core.validators import ValidationError
 from django.db import models
-from django.db.models.signals import class_prepared
-from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from taggit.managers import TaggableManager
 
 from core.choices import JobStatusChoices
-from core.models import ContentType
+from core.models import ObjectType
 from extras.choices import *
-from extras.utils import is_taggable, register_features
+from extras.utils import is_taggable
 from netbox.config import get_config
 from netbox.registry import registry
 from netbox.signals import post_clean
 from utilities.json import CustomFieldJSONEncoder
-from utilities.utils import serialize_object
+from utilities.serialization import serialize_object
 from utilities.views import register_model_view
 
 __all__ = (
@@ -37,6 +35,7 @@ __all__ = (
     'JournalingMixin',
     'SyncedDataMixin',
     'TagsMixin',
+    'register_models',
 )
 
 
@@ -275,16 +274,20 @@ class CustomFieldsMixin(models.Model):
         # Validate all field values
         for field_name, value in self.custom_field_data.items():
             if field_name not in custom_fields:
-                raise ValidationError(f"Unknown field name '{field_name}' in custom field data.")
+                raise ValidationError(_("Unknown field name '{name}' in custom field data.").format(
+                    name=field_name
+                ))
             try:
                 custom_fields[field_name].validate(value)
             except ValidationError as e:
-                raise ValidationError(f"Invalid value for custom field '{field_name}': {e.message}")
+                raise ValidationError(_("Invalid value for custom field '{name}': {error}").format(
+                    name=field_name, error=e.message
+                ))
 
         # Check for missing required values
         for cf in custom_fields.values():
             if cf.required and cf.name not in self.custom_field_data:
-                raise ValidationError(f"Missing required custom field '{cf.name}'.")
+                raise ValidationError(_("Missing required custom field '{name}'.").format(name=cf.name))
 
 
 class CustomLinksMixin(models.Model):
@@ -326,7 +329,9 @@ class ImageAttachmentsMixin(models.Model):
     Enables the assignments of ImageAttachments.
     """
     images = GenericRelation(
-        to='extras.ImageAttachment'
+        to='extras.ImageAttachment',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:
@@ -338,7 +343,9 @@ class ContactsMixin(models.Model):
     Enables the assignments of Contacts (via ContactAssignment).
     """
     contacts = GenericRelation(
-        to='tenancy.ContactAssignment'
+        to='tenancy.ContactAssignment',
+        content_type_field='object_type',
+        object_id_field='object_id'
     )
 
     class Meta:
@@ -487,17 +494,17 @@ class SyncedDataMixin(models.Model):
         ret = super().save(*args, **kwargs)
 
         # Create/delete AutoSyncRecord as needed
-        content_type = ContentType.objects.get_for_model(self)
+        object_type = ObjectType.objects.get_for_model(self)
         if self.auto_sync_enabled:
-            AutoSyncRecord.objects.get_or_create(
-                datafile=self.data_file,
-                object_type=content_type,
-                object_id=self.pk
+            AutoSyncRecord.objects.update_or_create(
+                object_type=object_type,
+                object_id=self.pk,
+                defaults={'datafile': self.data_file}
             )
         else:
             AutoSyncRecord.objects.filter(
                 datafile=self.data_file,
-                object_type=content_type,
+                object_type=object_type,
                 object_id=self.pk
             ).delete()
 
@@ -507,10 +514,10 @@ class SyncedDataMixin(models.Model):
         from core.models import AutoSyncRecord
 
         # Delete AutoSyncRecord
-        content_type = ContentType.objects.get_for_model(self)
+        object_type = ObjectType.objects.get_for_model(self)
         AutoSyncRecord.objects.filter(
             datafile=self.data_file,
-            object_type=content_type,
+            object_type=object_type,
             object_id=self.pk
         ).delete()
 
@@ -547,7 +554,9 @@ class SyncedDataMixin(models.Model):
         Inheriting models must override this method with specific logic to copy data from the assigned DataFile
         to the local instance. This method should *NOT* call save() on the instance.
         """
-        raise NotImplementedError(f"{self.__class__} must implement a sync_data() method.")
+        raise NotImplementedError(_("{class_name} must implement a sync_data() method.").format(
+            class_name=self.__class__
+        ))
 
 
 #
@@ -576,36 +585,49 @@ registry['model_features'].update({
 })
 
 
-@receiver(class_prepared)
-def _register_features(sender, **kwargs):
-    # Record each applicable feature for the model in the registry
-    features = {
-        feature for feature, cls in FEATURES_MAP.items() if issubclass(sender, cls)
-    }
-    register_features(sender, features)
+def register_models(*models):
+    """
+    Register one or more models in NetBox. This entails:
 
-    # Register applicable feature views for the model
-    if issubclass(sender, JournalingMixin):
-        register_model_view(
-            sender,
-            'journal',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectJournalView')
-    if issubclass(sender, ChangeLoggingMixin):
-        register_model_view(
-            sender,
-            'changelog',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectChangeLogView')
-    if issubclass(sender, JobsMixin):
-        register_model_view(
-            sender,
-            'jobs',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectJobsView')
-    if issubclass(sender, SyncedDataMixin):
-        register_model_view(
-            sender,
-            'sync',
-            kwargs={'model': sender}
-        )('netbox.views.generic.ObjectSyncDataView')
+     - Determining whether the model is considered "public" (available for reference by other models)
+     - Registering which features the model supports (e.g. bookmarks, custom fields, etc.)
+     - Registering any feature-specific views for the model (e.g. ObjectJournalView instances)
+
+    register_model() should be called for each relevant model under the ready() of an app's AppConfig class.
+    """
+    for model in models:
+        app_label, model_name = model._meta.label_lower.split('.')
+
+        # Register public models
+        if not getattr(model, '_netbox_private', False):
+            registry['models'][app_label].add(model_name)
+
+        # Record each applicable feature for the model in the registry
+        features = {
+            feature for feature, cls in FEATURES_MAP.items() if issubclass(model, cls)
+        }
+        for feature in features:
+            try:
+                registry['model_features'][feature][app_label].add(model_name)
+            except KeyError:
+                raise KeyError(
+                    f"{feature} is not a valid model feature! Valid keys are: {registry['model_features'].keys()}"
+                )
+
+        # Register applicable feature views for the model
+        if issubclass(model, JournalingMixin):
+            register_model_view(model, 'journal', kwargs={'model': model})(
+                'netbox.views.generic.ObjectJournalView'
+            )
+        if issubclass(model, ChangeLoggingMixin):
+            register_model_view(model, 'changelog', kwargs={'model': model})(
+                'netbox.views.generic.ObjectChangeLogView'
+            )
+        if issubclass(model, JobsMixin):
+            register_model_view(model, 'jobs', kwargs={'model': model})(
+                'netbox.views.generic.ObjectJobsView'
+            )
+        if issubclass(model, SyncedDataMixin):
+            register_model_view(model, 'sync', kwargs={'model': model})(
+                'netbox.views.generic.ObjectSyncDataView'
+            )

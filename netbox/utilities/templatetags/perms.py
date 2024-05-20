@@ -6,6 +6,7 @@ __all__ = (
     'can_add',
     'can_change',
     'can_delete',
+    'can_run',
     'can_sync',
     'can_view',
 )
@@ -24,8 +25,9 @@ def can_view(user, instance):
 
 
 @register.filter()
-def can_add(user, instance):
-    return _check_permission(user, instance, 'add')
+def can_add(user, model):
+    permission = get_permission_for_model(model, 'add')
+    return user.has_perm(perm=permission)
 
 
 @register.filter()
@@ -41,3 +43,8 @@ def can_delete(user, instance):
 @register.filter()
 def can_sync(user, instance):
     return _check_permission(user, instance, 'sync')
+
+
+@register.filter()
+def can_run(user, instance):
+    return _check_permission(user, instance, 'run')

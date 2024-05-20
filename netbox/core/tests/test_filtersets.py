@@ -1,8 +1,6 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.test import TestCase
-from django.utils import timezone
-
 from utilities.testing import ChangeLoggedFilterSetTests
 from ..choices import *
 from ..filtersets import *
@@ -12,6 +10,7 @@ from ..models import *
 class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DataSource.objects.all()
     filterset = DataSourceFilterSet
+    ignore_fields = ('ignore_rules', 'parameters')
 
     @classmethod
     def setUpTestData(cls):
@@ -72,6 +71,7 @@ class DataSourceTestCase(TestCase, ChangeLoggedFilterSetTests):
 class DataFileTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = DataFile.objects.all()
     filterset = DataFileFilterSet
+    ignore_fields = ('data',)
 
     @classmethod
     def setUpTestData(cls):

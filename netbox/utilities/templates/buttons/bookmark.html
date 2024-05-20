@@ -5,11 +5,11 @@
     <input type="hidden" name="{{ field }}" value="{{ value }}" />
   {% endfor %}
   {% if bookmark %}
-    <button type="submit" class="btn btn-sm btn-info">
+    <button type="submit" class="btn btn-cyan">
       <i class="mdi mdi-bookmark-minus"></i> {% trans "Unbookmark" %}
     </button>
   {% else %}
-    <button type="submit" class="btn btn-sm btn-info">
+    <button type="submit" class="btn btn-cyan">
       <i class="mdi mdi-bookmark-check"></i> {% trans "Bookmark" %}
     </button>
   {% endif %}

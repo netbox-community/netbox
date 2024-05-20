@@ -1,0 +1,22 @@
+// Disable smooth scrolling for intra-page links
+html {
+  scroll-behavior: auto !important;
+}
+
+// Prevent dropdown menus from being clipped inside responsive tables
+.table-responsive {
+  .dropdown, .btn-group, .btn-group-vertical {
+    position: static;
+  }
+}
+
+// Enforce a minimum width for progress bars
+.progress {
+  min-width: 80px;
+}
+
+// Reduce vertical margin around dropdown menu divider
+hr.dropdown-divider {
+  margin-bottom: 0.25rem;
+  margin-top: 0.25rem;
+}

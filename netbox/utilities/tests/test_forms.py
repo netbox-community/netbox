@@ -1,7 +1,7 @@
 from django import forms
 from django.test import TestCase
 
-from utilities.choices import ImportFormatChoices
+from netbox.choices import ImportFormatChoices
 from utilities.forms.bulk_import import BulkImportForm
 from utilities.forms.forms import BulkRenameForm
 from utilities.forms.utils import expand_alphanumeric_pattern, expand_ipaddress_pattern
@@ -191,7 +191,16 @@ class ExpandAlphanumeric(TestCase):
 
         self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
 
-    def test_set(self):
+    def test_set_numeric(self):
+        input = 'r[1,2]a'
+        output = sorted([
+            'r1a',
+            'r2a',
+        ])
+
+        self.assertEqual(sorted(expand_alphanumeric_pattern(input)), output)
+
+    def test_set_alpha(self):
         input = '[r,t]1a'
         output = sorted([
             'r1a',

@@ -9,15 +9,15 @@ from django.dispatch import Signal
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.models import ChangeLoggedModel, PrimaryModel
+from utilities.conversion import to_meters
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import to_meters
 from wireless.models import WirelessLink
 from .device_components import FrontPort, RearPort, PathEndpoint
 
@@ -160,25 +160,26 @@ class Cable(PrimaryModel):
 
         # Validate length and length_unit
         if self.length is not None and not self.length_unit:
-            raise ValidationError("Must specify a unit when setting a cable length")
+            raise ValidationError(_("Must specify a unit when setting a cable length"))
 
         if self.pk is None and (not self.a_terminations or not self.b_terminations):
-            raise ValidationError("Must define A and B terminations when creating a new cable.")
+            raise ValidationError(_("Must define A and B terminations when creating a new cable."))
 
         if self._terminations_modified:
 
             # Check that all termination objects for either end are of the same type
             for terms in (self.a_terminations, self.b_terminations):
                 if len(terms) > 1 and not all(isinstance(t, type(terms[0])) for t in terms[1:]):
-                    raise ValidationError("Cannot connect different termination types to same end of cable.")
+                    raise ValidationError(_("Cannot connect different termination types to same end of cable."))
 
             # Check that termination types are compatible
             if self.a_terminations and self.b_terminations:
                 a_type = self.a_terminations[0]._meta.model_name
                 b_type = self.b_terminations[0]._meta.model_name
                 if b_type not in COMPATIBLE_TERMINATION_TYPES.get(a_type):
-                    raise ValidationError(f"Incompatible termination types: {a_type} and {b_type}")
-
+                    raise ValidationError(
+                        _("Incompatible termination types: {type_a} and {type_b}").format(type_a=a_type, type_b=b_type)
+                    )
                 if a_type == b_type:
                     # can't directly use self.a_terminations here as possible they
                     # don't have pk yet
@@ -317,23 +318,34 @@ class CableTermination(ChangeLoggedModel):
         super().clean()
 
         # Check for existing termination
-        existing_termination = CableTermination.objects.exclude(cable=self.cable).filter(
+        qs = CableTermination.objects.filter(
             termination_type=self.termination_type,
             termination_id=self.termination_id
-        ).first()
+        )
+        if self.cable.pk:
+            qs = qs.exclude(cable=self.cable)
+
+        existing_termination = qs.first()
         if existing_termination is not None:
             raise ValidationError(
-                f"Duplicate termination found for {self.termination_type.app_label}.{self.termination_type.model} "
-                f"{self.termination_id}: cable {existing_termination.cable.pk}"
+                _("Duplicate termination found for {app_label}.{model} {termination_id}: cable {cable_pk}".format(
+                    app_label=self.termination_type.app_label,
+                    model=self.termination_type.model,
+                    termination_id=self.termination_id,
+                    cable_pk=existing_termination.cable.pk
+                ))
             )
-
         # Validate interface type (if applicable)
         if self.termination_type.model == 'interface' and self.termination.type in NONCONNECTABLE_IFACE_TYPES:
-            raise ValidationError(f"Cables cannot be terminated to {self.termination.get_type_display()} interfaces")
+            raise ValidationError(
+                _("Cables cannot be terminated to {type_display} interfaces").format(
+                    type_display=self.termination.get_type_display()
+                )
+            )
 
         # A CircuitTermination attached to a ProviderNetwork cannot have a Cable
         if self.termination_type.model == 'circuittermination' and self.termination.provider_network is not None:
-            raise ValidationError("Circuit terminations attached to a provider network may not be cabled.")
+            raise ValidationError(_("Circuit terminations attached to a provider network may not be cabled."))
 
     def save(self, *args, **kwargs):
 
@@ -469,13 +481,13 @@ class CablePath(models.Model):
     def origin_type(self):
         if self.path:
             ct_id, _ = decompile_path_node(self.path[0][0])
-            return ContentType.objects.get_for_id(ct_id)
+            return ObjectType.objects.get_for_id(ct_id)
 
     @property
     def destination_type(self):
         if self.is_complete:
             ct_id, _ = decompile_path_node(self.path[-1][0])
-            return ContentType.objects.get_for_id(ct_id)
+            return ObjectType.objects.get_for_id(ct_id)
 
     @property
     def path_objects(self):
@@ -582,7 +594,7 @@ class CablePath(models.Model):
 
             # Step 6: Determine the far-end terminations
             if isinstance(links[0], Cable):
-                termination_type = ContentType.objects.get_for_model(terminations[0])
+                termination_type = ObjectType.objects.get_for_model(terminations[0])
                 local_cable_terminations = CableTermination.objects.filter(
                     termination_type=termination_type,
                     termination_id__in=[t.pk for t in terminations]
@@ -735,7 +747,7 @@ class CablePath(models.Model):
         # Prefetch path objects using one query per model type. Prefetch related devices where appropriate.
         prefetched = {}
         for ct_id, object_ids in to_prefetch.items():
-            model_class = ContentType.objects.get_for_id(ct_id).model_class()
+            model_class = ObjectType.objects.get_for_id(ct_id).model_class()
             queryset = model_class.objects.filter(pk__in=object_ids)
             if hasattr(model_class, 'device'):
                 queryset = queryset.prefetch_related('device')
@@ -762,7 +774,7 @@ class CablePath(models.Model):
         """
         Return all Cable IDs within the path.
         """
-        cable_ct = ContentType.objects.get_for_model(Cable).pk
+        cable_ct = ObjectType.objects.get_for_model(Cable).pk
         cable_ids = []
 
         for node in self._nodes:

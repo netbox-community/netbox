@@ -79,7 +79,8 @@ class IKEPolicy(PrimaryModel):
     )
     mode = models.CharField(
         verbose_name=_('mode'),
-        choices=IKEModeChoices
+        choices=IKEModeChoices,
+        blank=True
     )
     proposals = models.ManyToManyField(
         to='vpn.IKEProposal',
@@ -108,6 +109,17 @@ class IKEPolicy(PrimaryModel):
 
     def get_absolute_url(self):
         return reverse('vpn:ikepolicy', args=[self.pk])
+
+    def clean(self):
+        super().clean()
+
+        # Mode is required
+        if self.version == IKEVersionChoices.VERSION_1 and not self.mode:
+            raise ValidationError(_("Mode is required for selected IKE version"))
+
+        # Mode cannot be used
+        if self.version == IKEVersionChoices.VERSION_2 and self.mode:
+            raise ValidationError(_("Mode cannot be used for selected IKE version"))
 
 
 #

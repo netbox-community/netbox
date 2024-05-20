@@ -2,24 +2,50 @@ import importlib
 import logging
 
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
+from django.db.models.fields.reverse_related import ManyToManyRel
 from django.db.models.signals import m2m_changed, post_save, pre_delete
 from django.dispatch import receiver, Signal
 from django.utils.translation import gettext_lazy as _
 from django_prometheus.models import model_deletes, model_inserts, model_updates
 
+from core.models import ObjectType
 from core.signals import job_end, job_start
 from extras.constants import EVENT_JOB_END, EVENT_JOB_START
 from extras.events import process_event_rules
 from extras.models import EventRule
-from extras.validators import CustomValidator
 from netbox.config import get_config
 from netbox.context import current_request, events_queue
+from netbox.models.features import ChangeLoggingMixin
 from netbox.signals import post_clean
 from utilities.exceptions import AbortRequest
 from .choices import ObjectChangeActionChoices
 from .events import enqueue_object, get_snapshots, serialize_for_event
 from .models import CustomField, ObjectChange, TaggedItem
+from .validators import CustomValidator
+
+
+def run_validators(instance, validators):
+    """
+    Run the provided iterable of validators for the instance.
+    """
+    request = current_request.get()
+    for validator in validators:
+
+        # Loading a validator class by dotted path
+        if type(validator) is str:
+            module, cls = validator.rsplit('.', 1)
+            validator = getattr(importlib.import_module(module), cls)()
+
+        # Constructing a new instance on the fly from a ruleset
+        elif type(validator) is dict:
+            validator = CustomValidator(validator)
+
+        elif not issubclass(validator.__class__, CustomValidator):
+            raise ImproperlyConfigured(f"Invalid value for custom validator: {validator}")
+
+        validator(instance, request)
+
 
 #
 # Change logging/webhooks
@@ -68,21 +94,23 @@ def handle_changed_object(sender, instance, **kwargs):
     else:
         return
 
-    # Record an ObjectChange if applicable
-    if m2m_changed:
-        ObjectChange.objects.filter(
+    # Create/update an ObjectChange record for this change
+    objectchange = instance.to_objectchange(action)
+    # If this is a many-to-many field change, check for a previous ObjectChange instance recorded
+    # for this object by this request and update it
+    if m2m_changed and (
+        prev_change := ObjectChange.objects.filter(
             changed_object_type=ContentType.objects.get_for_model(instance),
             changed_object_id=instance.pk,
             request_id=request.id
-        ).update(
-            postchange_data=instance.to_objectchange(action).postchange_data
-        )
-    else:
-        objectchange = instance.to_objectchange(action)
-        if objectchange and objectchange.has_changes:
-            objectchange.user = request.user
-            objectchange.request_id = request.id
-            objectchange.save()
+        ).first()
+    ):
+        prev_change.postchange_data = objectchange.postchange_data
+        prev_change.save()
+    elif objectchange and objectchange.has_changes:
+        objectchange.user = request.user
+        objectchange.request_id = request.id
+        objectchange.save()
 
     # If this is an M2M change, update the previously queued webhook (from post_save)
     queue = events_queue.get()
@@ -106,6 +134,18 @@ def handle_deleted_object(sender, instance, **kwargs):
     """
     Fires when an object is deleted.
     """
+    # Run any deletion protection rules for the object. Note that this must occur prior
+    # to queueing any events for the object being deleted, in case a validation error is
+    # raised, causing the deletion to fail.
+    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
+    validators = get_config().PROTECTION_RULES.get(model_name, [])
+    try:
+        run_validators(instance, validators)
+    except ValidationError as e:
+        raise AbortRequest(
+            _("Deletion is prevented by a protection rule: {message}").format(message=e)
+        )
+
     # Get the current request, or bail if not set
     request = current_request.get()
     if request is None:
@@ -119,6 +159,25 @@ def handle_deleted_object(sender, instance, **kwargs):
         objectchange.user = request.user
         objectchange.request_id = request.id
         objectchange.save()
+
+    # Django does not automatically send an m2m_changed signal for the reverse direction of a
+    # many-to-many relationship (see https://code.djangoproject.com/ticket/17688), so we need to
+    # trigger one manually. We do this by checking for any reverse M2M relationships on the
+    # instance being deleted, and explicitly call .remove() on the remote M2M field to delete
+    # the association. This triggers an m2m_changed signal with the `post_remove` action type
+    # for the forward direction of the relationship, ensuring that the change is recorded.
+    for relation in instance._meta.related_objects:
+        if type(relation) is not ManyToManyRel:
+            continue
+        related_model = relation.related_model
+        related_field_name = relation.remote_field.name
+        if not issubclass(related_model, ChangeLoggingMixin):
+            # We only care about triggering the m2m_changed signal for models which support
+            # change logging
+            continue
+        for obj in related_model.objects.filter(**{related_field_name: instance.pk}):
+            obj.snapshot()  # Ensure the change record includes the "before" state
+            getattr(obj, related_field_name).remove(instance)
 
     # Enqueue webhooks
     queue = events_queue.get()
@@ -171,56 +230,28 @@ def handle_cf_deleted(instance, **kwargs):
     """
     Handle the cleanup of old custom field data when a CustomField is deleted.
     """
-    instance.remove_stale_data(instance.content_types.all())
+    instance.remove_stale_data(instance.object_types.all())
 
 
 post_save.connect(handle_cf_renamed, sender=CustomField)
 pre_delete.connect(handle_cf_deleted, sender=CustomField)
-m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.content_types.through)
-m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.content_types.through)
+m2m_changed.connect(handle_cf_added_obj_types, sender=CustomField.object_types.through)
+m2m_changed.connect(handle_cf_removed_obj_types, sender=CustomField.object_types.through)
 
 
 #
 # Custom validation
 #
 
-def run_validators(instance, validators):
-
-    for validator in validators:
-
-        # Loading a validator class by dotted path
-        if type(validator) is str:
-            module, cls = validator.rsplit('.', 1)
-            validator = getattr(importlib.import_module(module), cls)()
-
-        # Constructing a new instance on the fly from a ruleset
-        elif type(validator) is dict:
-            validator = CustomValidator(validator)
-
-        validator(instance)
-
-
 @receiver(post_clean)
 def run_save_validators(sender, instance, **kwargs):
+    """
+    Run any custom validation rules for the model prior to calling save().
+    """
     model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
     validators = get_config().CUSTOM_VALIDATORS.get(model_name, [])
 
     run_validators(instance, validators)
-
-
-@receiver(pre_delete)
-def run_delete_validators(sender, instance, **kwargs):
-    model_name = f'{sender._meta.app_label}.{sender._meta.model_name}'
-    validators = get_config().PROTECTION_RULES.get(model_name, [])
-
-    try:
-        run_validators(instance, validators)
-    except ValidationError as e:
-        raise AbortRequest(
-            _("Deletion is prevented by a protection rule: {message}").format(
-                message=e
-            )
-        )
 
 
 #
@@ -234,8 +265,8 @@ def validate_assigned_tags(sender, instance, action, model, pk_set, **kwargs):
     """
     if action != 'pre_add':
         return
-    ct = ContentType.objects.get_for_model(instance)
-    # Retrieve any applied Tags that are restricted to certain object_types
+    ct = ObjectType.objects.get_for_model(instance)
+    # Retrieve any applied Tags that are restricted to certain object types
     for tag in model.objects.filter(pk__in=pk_set, object_types__isnull=False).prefetch_related('object_types'):
         if ct not in tag.object_types.all():
             raise AbortRequest(f"Tag {tag} cannot be assigned to {ct.model} objects.")
@@ -250,8 +281,9 @@ def process_job_start_event_rules(sender, **kwargs):
     """
     Process event rules for jobs starting.
     """
-    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, content_types=sender.object_type)
-    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, sender.user.username)
+    event_rules = EventRule.objects.filter(type_job_start=True, enabled=True, object_types=sender.object_type)
+    username = sender.user.username if sender.user else None
+    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_START, sender.data, username)
 
 
 @receiver(job_end)
@@ -259,5 +291,6 @@ def process_job_end_event_rules(sender, **kwargs):
     """
     Process event rules for jobs terminating.
     """
-    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, content_types=sender.object_type)
-    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, sender.user.username)
+    event_rules = EventRule.objects.filter(type_job_end=True, enabled=True, object_types=sender.object_type)
+    username = sender.user.username if sender.user else None
+    process_event_rules(event_rules, sender.object_type.model, EVENT_JOB_END, sender.data, username)

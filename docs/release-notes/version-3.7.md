@@ -1,6 +1,186 @@
 # NetBox v3.7
 
-## v3.7.2 (FUTURE)
+## v3.7.8 (2024-05-06)
+
+### Enhancements
+
+* [#12127](https://github.com/netbox-community/netbox/issues/12127) - Enable adding new cables directly from navigation menu
+
+### Bug Fixes
+
+* [#15877](https://github.com/netbox-community/netbox/issues/15877) - Account for virtual chassis membership when assigning related interfaces via bulk edit
+* [#15917](https://github.com/netbox-community/netbox/issues/15917) - Fix pagination through search results within dropdown fields
+* [#15925](https://github.com/netbox-community/netbox/issues/15925) - Fix SVG rendering of cable traces to circuit terminations
+* [#15948](https://github.com/netbox-community/netbox/issues/15948) - Fix cable trace SVG generation for cables with multiple terminations at both ends
+* [#15960](https://github.com/netbox-community/netbox/issues/15960) - Replace CSV export formatting for several many-to-many fields
+* [#15961](https://github.com/netbox-community/netbox/issues/15961) - Fix secret toggle button for IKE policies
+
+---
+
+## v3.7.7 (2024-05-01)
+
+### Enhancements
+
+* [#15428](https://github.com/netbox-community/netbox/issues/15428) - Show usage counts for associated objects on config template list
+* [#15812](https://github.com/netbox-community/netbox/issues/15812) - Add Date & DateTime variable types for custom scripts
+* [#15894](https://github.com/netbox-community/netbox/issues/15894) - Cache the generated API schema definition for shorter loading times
+
+### Bug Fixes
+
+* [#11460](https://github.com/netbox-community/netbox/issues/11460) - Fix AttributeError exception when editing a cable with only one end terminated
+* [#13712](https://github.com/netbox-community/netbox/issues/13712) - Fix row highlighting for device interface list display
+* [#13806](https://github.com/netbox-community/netbox/issues/13806) - Fix "mark" button tooltip on button activation for device interface list display
+* [#13922](https://github.com/netbox-community/netbox/issues/13922) - Fix SVG drawing error on multiple termination trace with multiple devices
+* [#14241](https://github.com/netbox-community/netbox/issues/14241) - Fix random interface swap when performing cable trace with multiple termination
+* [#14852](https://github.com/netbox-community/netbox/issues/14852) - Fix NoReverseMatch exception when viewing an event rule which references a deleted custom script
+* [#15524](https://github.com/netbox-community/netbox/issues/15524) - Fix rounding error when reporting IP range utilization
+* [#15548](https://github.com/netbox-community/netbox/issues/15548) - Ignore many-to-many mappings when checking dependencies of an object being deleted
+* [#15845](https://github.com/netbox-community/netbox/issues/15845) - Avoid extraneous database queries when fetching assigned IP addresses via REST API
+* [#15872](https://github.com/netbox-community/netbox/issues/15872) - `BANNER_MAINTENANCE` content should permit custom HTML
+* [#15891](https://github.com/netbox-community/netbox/issues/15891) - Ensure deterministic ordering for scripts & reports
+* [#15896](https://github.com/netbox-community/netbox/issues/15896) - Fix retention of default value when editing a custom JSON field
+* [#15899](https://github.com/netbox-community/netbox/issues/15899) - Fix exception when enabling the tags column on the L2VPN terminations table
+
+---
+
+## v3.7.6 (2024-04-22)
+
+!!! warning
+    If remote authentication is in use with Gunicorn v22.0 or later, it may be necessary to configure Gunicorn's [`header_map`](https://docs.gunicorn.org/en/stable/settings.html#header-map) setting to preserve authentication headers.
+
+### Enhancements
+
+* [#14690](https://github.com/netbox-community/netbox/issues/14690) - Improve rendering of JSON data in configuration form
+* [#15427](https://github.com/netbox-community/netbox/issues/15427) - Enable compatibility with non-Amazon S3 providers for remote data sources
+* [#15640](https://github.com/netbox-community/netbox/issues/15640) - Add global search support for L2VPN identifiers
+* [#15644](https://github.com/netbox-community/netbox/issues/15644) - Introduce new configuration parameters for enabling HTTP Strict Transport Security (HSTS)
+
+### Bug Fixes
+
+* [#15541](https://github.com/netbox-community/netbox/issues/15541) - Restore ability to modify assigned component template when adding/modifying an inventory item template
+* [#15582](https://github.com/netbox-community/netbox/issues/15582) - Fix permission constraints for synchronization of remote data sources
+* [#15588](https://github.com/netbox-community/netbox/issues/15588) - Correct OpenAPI schema definitions for read-only fields which may return null values
+* [#15635](https://github.com/netbox-community/netbox/issues/15635) - Extend plugin removal instruction to include reindexing the global search cache
+* [#15654](https://github.com/netbox-community/netbox/issues/15654) - Fix `AttributeError` exception when attempting to save an incomplete tunnel termination
+* [#15668](https://github.com/netbox-community/netbox/issues/15668) - Fix permission required to display virtual disks tab on virtual machine UI view
+* [#15685](https://github.com/netbox-community/netbox/issues/15685) - Allow filtering cables by decimal values using UI filter form
+* [#15761](https://github.com/netbox-community/netbox/issues/15761) - Add missing `ike_policy` & `ike_policy_id` filters for IKE proposals
+* [#15771](https://github.com/netbox-community/netbox/issues/15771) - Include `id` in list of supported fields for all bulk import forms
+* [#15790](https://github.com/netbox-community/netbox/issues/15790) - Fix live preview support for EventRule comments
+
+---
+
+## v3.7.5 (2024-04-04)
+
+### Enhancements
+
+* [#14707](https://github.com/netbox-community/netbox/issues/14707) - Clarify interface designation when creating tunnel terminations
+* [#15039](https://github.com/netbox-community/netbox/issues/15039) - Allow API tokens to be cloned
+
+### Bug Fixes
+
+* [#14799](https://github.com/netbox-community/netbox/issues/14799) - Avoid caching modified reports & scripts
+* [#15029](https://github.com/netbox-community/netbox/issues/15029) - Raise a clean validation error when attempting to make duplicate FHRP group assignments
+* [#15102](https://github.com/netbox-community/netbox/issues/15102) - Fix usage of selector widget for form fields referencing users/groups
+* [#15435](https://github.com/netbox-community/netbox/issues/15435) - Correct permissions name to allow adding a module bay to a device via the UI
+* [#15502](https://github.com/netbox-community/netbox/issues/15502) - Fix KeyError exception when modifying an IP address assigned to a virtual machine
+* [#15597](https://github.com/netbox-community/netbox/issues/15597) - Restore help modal for `button_class` field on custom link bulk import form
+* [#15598](https://github.com/netbox-community/netbox/issues/15598) - Fix exception when creating a device from a device type with one or more child inventory items
+* [#15608](https://github.com/netbox-community/netbox/issues/15608) - Avoid caching values of null fields in search index
+* [#15609](https://github.com/netbox-community/netbox/issues/15609) - Fix filtering of the providers list by assigned ASN
+
+---
+
+## v3.7.4 (2024-03-13)
+
+### Enhancements
+
+* [#14206](https://github.com/netbox-community/netbox/issues/14206) - Add additional FibreChannel SFP+ interface types
+* [#14366](https://github.com/netbox-community/netbox/issues/14366) - Enable custom links for config contexts & templates
+* [#15291](https://github.com/netbox-community/netbox/issues/15291) - Add tunnel termination buttons to VM interfaces table
+* [#15297](https://github.com/netbox-community/netbox/issues/15297) - Linkify platform column in device & virtual machine tables
+
+### Bug Fixes
+
+* [#13722](https://github.com/netbox-community/netbox/issues/13722) - Fix range expansion for comma-separated numerical values
+* [#14832](https://github.com/netbox-community/netbox/issues/14832) - Enable querying IP addresses for an FHRP group via GraphQL
+* [#15220](https://github.com/netbox-community/netbox/issues/15220) - Fix validation check when bulk editing the mask length of IP addresses
+* [#15232](https://github.com/netbox-community/netbox/issues/15232) - Permit user with sufficient permissions to assign an inventory item to a device type
+* [#15241](https://github.com/netbox-community/netbox/issues/15241) - Restore missing `display` field on VirtualDisk serialization in REST API
+* [#15243](https://github.com/netbox-community/netbox/issues/15243) - Correct representation of installed module when listing module bays using REST API brief mode
+* [#15316](https://github.com/netbox-community/netbox/issues/15316) - Fix selection of 3DES encryption for IKE & IPSec proposals
+* [#15322](https://github.com/netbox-community/netbox/issues/15322) - Add description field to YAML export for device & module types
+* [#15336](https://github.com/netbox-community/netbox/issues/15336) - Correct label for recurring scheduled jobs
+* [#15347](https://github.com/netbox-community/netbox/issues/15347) - Fix querying virtual machine contacts via GraphQL
+* [#15356](https://github.com/netbox-community/netbox/issues/15356) - Fix assignment of front & rear images to device types via REST API
+
+---
+
+## v3.7.3 (2024-02-21)
+
+### Enhancements
+
+* [#14587](https://github.com/netbox-community/netbox/issues/14587) - Display a human-friendly name for the OpenID Connect remote auth backend
+* [#14946](https://github.com/netbox-community/netbox/issues/14946) - Remove `associate_by_email()` from default social auth pipeline
+* [#14966](https://github.com/netbox-community/netbox/issues/14966) - Add PostgreSQL index for object type & ID on CachedValue table to improve performance
+* [#15177](https://github.com/netbox-community/netbox/issues/15177) - Add "last login" time to user display & REST API serializer
+
+### Bug Fixes
+
+* [#14058](https://github.com/netbox-community/netbox/issues/14058) - Limit platform options by manufacturer when editing a device or device type
+* [#14064](https://github.com/netbox-community/netbox/issues/14064) - Resolving parent location should consider assigned site when bulk importing locations
+* [#14079](https://github.com/netbox-community/netbox/issues/14079) - Ensure changes are logged on related objects when deleting an object referenced via a many-to-many relationship (e.g. tags)
+* [#14405](https://github.com/netbox-community/netbox/issues/14405) - Clean up formatting of link peers in bulk CSV export of cable termination objects
+* [#14689](https://github.com/netbox-community/netbox/issues/14689) - Preserve "empty" default values for JSON custom fields
+* [#14952](https://github.com/netbox-community/netbox/issues/14952) - Update existing AutoSyncRecord when changing the data file of an auto-synced object
+* [#15059](https://github.com/netbox-community/netbox/issues/15059) - Correct IP address count link in VM interfaces table
+* [#15067](https://github.com/netbox-community/netbox/issues/15067) - Fix uncaught exception when attempting invalid device bay import
+* [#15070](https://github.com/netbox-community/netbox/issues/15070) - Fix inclusion of `config_template` field on REST API serializer for virtual machines
+* [#15084](https://github.com/netbox-community/netbox/issues/15084) - Fix "add export template" link under "export" button on object list views
+* [#15090](https://github.com/netbox-community/netbox/issues/15090) - Ensure protection rules are evaluated prior to enqueueing events when deleting an object
+* [#15091](https://github.com/netbox-community/netbox/issues/15091) - Fix designation of the active tab for assigned object when modifying an L2VPN termination
+* [#15101](https://github.com/netbox-community/netbox/issues/15101) - Correct OpenAPI schema for rack elevation REST API endpoint
+* [#15115](https://github.com/netbox-community/netbox/issues/15115) - Fix unhandled exception with invalid permission constraints
+* [#15126](https://github.com/netbox-community/netbox/issues/15126) - `group` field should be optional when creating VPN tunnel via REST API
+* [#15127](https://github.com/netbox-community/netbox/issues/15127) - Add missing group column to VPN tunnels table
+* [#15133](https://github.com/netbox-community/netbox/issues/15133) - Fix FHRP group representation on assignments REST API endpoint using brief mode
+* [#15174](https://github.com/netbox-community/netbox/issues/15174) - Warn that permission constraints are not supported for reports or scripts
+* [#15184](https://github.com/netbox-community/netbox/issues/15184) - Correct REST API schema definition for `front_image` & `rear_image` on DeviceType
+* [#15185](https://github.com/netbox-community/netbox/issues/15185) - Ensure error messages pertaining to related objects are displayed on the bulk import form
+* [#15192](https://github.com/netbox-community/netbox/issues/15192) - Fix exception when viewing current config when no history is present
+
+---
+
+## v3.7.2 (2024-02-05)
+
+### Enhancements
+
+* [#13729](https://github.com/netbox-community/netbox/issues/13729) - Omit sensitive data source parameters from change log data
+* [#14645](https://github.com/netbox-community/netbox/issues/14645) - Limit the number of assigned IP addresses displayed under interfaces list
+
+### Bug Fixes
+
+* [#14500](https://github.com/netbox-community/netbox/issues/14500) - Optimize calculation of available child prefixes & ranges when viewing a prefix
+* [#14511](https://github.com/netbox-community/netbox/issues/14511) - Fix GraphQL support for interfaces connected to provider networks
+* [#14572](https://github.com/netbox-community/netbox/issues/14572) - Correct the number of jobs listed for individual report & script modules
+* [#14703](https://github.com/netbox-community/netbox/issues/14703) - Revert to the default layout when encountering a misconfigured dashboard
+* [#14755](https://github.com/netbox-community/netbox/issues/14755) - Fix validation of choice values & labels when creating a custom field choice set via the REST API
+* [#14838](https://github.com/netbox-community/netbox/issues/14838) - Avoid corrupting JSON data when changing the action type while editing an event rule
+* [#14839](https://github.com/netbox-community/netbox/issues/14839) - Fix form validation error when attempting to terminate a tunnel to a virtual machine interface
+* [#14840](https://github.com/netbox-community/netbox/issues/14840) - Fix `NoReverseMatch` exception when rendering a custom field which references a user
+* [#14847](https://github.com/netbox-community/netbox/issues/14847) - IKE policy mode may be set inly when IKEv1 is selected
+* [#14851](https://github.com/netbox-community/netbox/issues/14851) - Automatically remove any associated bookmarks when deleting a user
+* [#14879](https://github.com/netbox-community/netbox/issues/14879) - Include custom fields in REST API representation of data sources
+* [#14885](https://github.com/netbox-community/netbox/issues/14885) - Add missing "group" field to VPN tunnel creation form
+* [#14892](https://github.com/netbox-community/netbox/issues/14892) - Fix exception when running report/script via command line due to missing username
+* [#14920](https://github.com/netbox-community/netbox/issues/14920) - Include button to display available status choices when bulk importing virtual device contexts
+* [#14945](https://github.com/netbox-community/netbox/issues/14945) - Fix "select all" button for device type components
+* [#14947](https://github.com/netbox-community/netbox/issues/14947) - Ensure that application & removal of tags is always recorded in an object's change log
+* [#14962](https://github.com/netbox-community/netbox/issues/14962) - Fix config context rendering for VMs assigned directly to a site (rather than via a cluster)
+* [#14999](https://github.com/netbox-community/netbox/issues/14999) - Fix "create & add another" link for interface FHRP group assignment
+* [#15015](https://github.com/netbox-community/netbox/issues/15015) - Pre-populate assigned tenant when allocating next available IP address under prefix view
+* [#15020](https://github.com/netbox-community/netbox/issues/15020) - Automatically update all VMs when changing a cluster's assigned site
+* [#15025](https://github.com/netbox-community/netbox/issues/15025) - The `can_add()` template filter should accept a model (not an instance)
 
 ---
 

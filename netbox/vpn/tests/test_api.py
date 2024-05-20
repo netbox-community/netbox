@@ -19,7 +19,7 @@ class AppTest(APITestCase):
 
 class TunnelGroupTest(APIViewTestCases.APIViewTestCase):
     model = TunnelGroup
-    brief_fields = ['display', 'id', 'name', 'slug', 'tunnel_count', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'slug', 'tunnel_count', 'url']
     create_data = (
         {
             'name': 'Tunnel Group 4',
@@ -51,7 +51,7 @@ class TunnelGroupTest(APIViewTestCases.APIViewTestCase):
 
 class TunnelTest(APIViewTestCases.APIViewTestCase):
     model = Tunnel
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'status': TunnelStatusChoices.STATUS_PLANNED,
         'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
@@ -105,7 +105,6 @@ class TunnelTest(APIViewTestCases.APIViewTestCase):
             {
                 'name': 'Tunnel 6',
                 'status': TunnelStatusChoices.STATUS_DISABLED,
-                'group': tunnel_groups[1].pk,
                 'encapsulation': TunnelEncapsulationChoices.ENCAP_GRE,
             },
         ]
@@ -180,7 +179,7 @@ class TunnelTerminationTest(APIViewTestCases.APIViewTestCase):
 
 class IKEProposalTest(APIViewTestCases.APIViewTestCase):
     model = IKEProposal
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'authentication_method': AuthenticationMethodChoices.CERTIFICATES,
         'encryption_algorithm': EncryptionAlgorithmChoices.ENCRYPTION_AES192_CBC,
@@ -244,7 +243,7 @@ class IKEProposalTest(APIViewTestCases.APIViewTestCase):
 
 class IKEPolicyTest(APIViewTestCases.APIViewTestCase):
     model = IKEPolicy
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'version': IKEVersionChoices.VERSION_1,
         'mode': IKEModeChoices.AGGRESSIVE,
@@ -318,7 +317,7 @@ class IKEPolicyTest(APIViewTestCases.APIViewTestCase):
 
 class IPSecProposalTest(APIViewTestCases.APIViewTestCase):
     model = IPSecProposal
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'encryption_algorithm': EncryptionAlgorithmChoices.ENCRYPTION_AES192_CBC,
         'authentication_algorithm': AuthenticationAlgorithmChoices.AUTH_HMAC_MD5,
@@ -368,7 +367,7 @@ class IPSecProposalTest(APIViewTestCases.APIViewTestCase):
 
 class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
     model = IPSecPolicy
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
     bulk_update_data = {
         'pfs_group': DHGroupChoices.GROUP_5,
         'description': 'New description',
@@ -430,7 +429,7 @@ class IPSecPolicyTest(APIViewTestCases.APIViewTestCase):
 
 class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
     model = IPSecProfile
-    brief_fields = ['display', 'id', 'name', 'url']
+    brief_fields = ['description', 'display', 'id', 'name', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -520,7 +519,7 @@ class IPSecProfileTest(APIViewTestCases.APIViewTestCase):
 
 class L2VPNTest(APIViewTestCases.APIViewTestCase):
     model = L2VPN
-    brief_fields = ['display', 'id', 'identifier', 'name', 'slug', 'type', 'url']
+    brief_fields = ['description', 'display', 'id', 'identifier', 'name', 'slug', 'type', 'url']
     create_data = [
         {
             'name': 'L2VPN 4',

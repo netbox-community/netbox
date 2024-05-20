@@ -1,9 +1,7 @@
-from django.core.exceptions import FieldError, MultipleObjectsReturned, ObjectDoesNotExist
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
 
 from extras.models import Tag
-from utilities.utils import dict_to_filter_params
+from utilities.api import get_related_object_by_attrs
 from .base import BaseModelSerializer
 
 __all__ = (
@@ -19,38 +17,8 @@ class WritableNestedSerializer(BaseModelSerializer):
     subclassed to return a full representation of the related object on read.
     """
     def to_internal_value(self, data):
-
-        if data is None:
-            return None
-
-        # Dictionary of related object attributes
-        if isinstance(data, dict):
-            params = dict_to_filter_params(data)
-            queryset = self.Meta.model.objects
-            try:
-                return queryset.get(**params)
-            except ObjectDoesNotExist:
-                raise ValidationError(f"Related object not found using the provided attributes: {params}")
-            except MultipleObjectsReturned:
-                raise ValidationError(f"Multiple objects match the provided attributes: {params}")
-            except FieldError as e:
-                raise ValidationError(e)
-
-        # Integer PK of related object
-        try:
-            # Cast as integer in case a PK was mistakenly sent as a string
-            pk = int(data)
-        except (TypeError, ValueError):
-            raise ValidationError(
-                f"Related objects must be referenced by numeric ID or by dictionary of attributes. Received an "
-                f"unrecognized value: {data}"
-            )
-
-        # Look up object by PK
-        try:
-            return self.Meta.model.objects.get(pk=pk)
-        except ObjectDoesNotExist:
-            raise ValidationError(f"Related object not found using the provided numeric ID: {pk}")
+        queryset = self.Meta.model.objects.all()
+        return get_related_object_by_attrs(queryset, data)
 
 
 # Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers

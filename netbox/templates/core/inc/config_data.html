@@ -1,0 +1,149 @@
+{% load i18n %}
+
+<table class="table table-hover attr-table">
+
+  {# Rack elevations #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Rack elevations" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Default unit height" %}</th>
+    <td>{{ config.RACK_ELEVATION_DEFAULT_UNIT_HEIGHT }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Default unit width" %}</th>
+    <td class="border-0">{{ config.RACK_ELEVATION_DEFAULT_UNIT_WIDTH }}</td>
+  </tr>
+
+  {# Power feeds #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Power feeds" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Default voltage" %}</th>
+    <td>{{ config.POWERFEED_DEFAULT_VOLTAGE }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Default amperage" %}</th>
+    <td>{{ config.POWERFEED_DEFAULT_AMPERAGE }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Default max utilization" %}</th>
+    <td class="border-0">{{ config.POWERFEED_DEFAULT_MAX_UTILIZATION }}</td>
+  </tr>
+
+  {# IPAM #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "IPAM" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Enforce global unique" %}</th>
+    <td>{% checkmark config.ENFORCE_GLOBAL_UNIQUE %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Prefer IPv4" %}</th>
+    <td class="border-0">{% checkmark config.PREFER_IPV4 %}</td>
+  </tr>
+
+  {# Security #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Security" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Allowed URL schemes" %}</th>
+    <td class="border-0">{{ config.ALLOWED_URL_SCHEMES|join:", "|placeholder }}</td>
+  </tr>
+
+  {# Banners #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Banners" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Login banner" %}</th>
+    <td>{{ config.BANNER_LOGIN|placeholder }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Maintenance banner" %}</th>
+    <td>{{ config.BANNER_MAINTENANCE|placeholder }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Top banner" %}</th>
+    <td>{{ config.BANNER_TOP|placeholder }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Bottom banner" %}</th>
+    <td class="border-0">{{ config.BANNER_BOTTOM|placeholder }}</td>
+  </tr>
+
+  {# Pagination #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Pagination" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Paginate count" %}</th>
+    <td>{{ config.PAGINATE_COUNT }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Max page size" %}</th>
+    <td class="border-0">{{ config.MAX_PAGE_SIZE }}</td>
+  </tr>
+
+  {# Validation #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Validation" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Custom validators" %}</th>
+    {% if config.CUSTOM_VALIDATORS %}
+      <td><pre>{{ config.CUSTOM_VALIDATORS|json }}</pre></td>
+    {% else %}
+      <td>{{ ''|placeholder }}</td>
+    {% endif %}
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Protection rules" %}</th>
+    {% if config.PROTECTION_RULES %}
+      <td class="border-0"><pre>{{ config.PROTECTION_RULES|json }}</pre></td>
+    {% else %}
+      <td class="border-0">{{ ''|placeholder }}</td>
+    {% endif %}
+  </tr>
+
+  {# User Preferences #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "User preferences" %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Default preferences" %}</th>
+    {% if config.DEFAULT_USER_PREFERENCES %}
+      <td class="border-0"><pre>{{ config.DEFAULT_USER_PREFERENCES|json }}</pre></td>
+    {% else %}
+      <td class="border-0">{{ ''|placeholder }}</td>
+    {% endif %}
+  </tr>
+
+  {# Miscellaneous #}
+  <tr>
+    <td colspan="2" class="bg-secondary-subtle fs-5 fw-bold border-0 py-1">{% trans "Miscellaneous" %}</td>
+  <tr>
+  <th scope="row" class="ps-3">{% trans "Maintenance mode" %}</th>
+    <td>{% checkmark config.MAINTENANCE_MODE %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "GraphQL enabled" %}</th>
+    <td>{% checkmark config.GRAPHQL_ENABLED %}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Changelog retention" %}</th>
+    <td>{{ config.CHANGELOG_RETENTION }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="ps-3">{% trans "Job retention" %}</th>
+    <td>{{ config.JOB_RETENTION }}</td>
+  </tr>
+  <tr>
+    <th scope="row" class="border-0 ps-3">{% trans "Maps URL" %}</th>
+    <td class="border-0">{{ config.MAPS_URL }}</td>
+  </tr>
+
+</table>

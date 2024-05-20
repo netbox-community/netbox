@@ -3,7 +3,7 @@
     <object data="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" class="rack_elevation"></object>
 </div>
 <div class="text-center mt-3">
-    <a class="btn btn-outline-primary btn-sm" href="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}">
+    <a class="btn btn-outline-primary" href="{% url 'dcim-api:rack-elevation' pk=object.pk %}?face={{face}}&render=svg{% if extra_params %}&{{ extra_params }}{% endif %}" hx-boost="false">
         <i class="mdi mdi-file-download"></i> {% trans "Download SVG" %}
     </a>
 </div>

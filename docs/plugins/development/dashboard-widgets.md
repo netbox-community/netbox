@@ -47,3 +47,14 @@ class ReminderWidget(DashboardWidget):
     def render(self, request):
         return self.config.get('content')
 ```
+
+## Initialization
+
+To register the widget, it becomes essential to import the widget module. The recommended approach is to accomplish this within the `ready` method situated in your `PluginConfig`:
+
+```python
+class FooBarConfig(PluginConfig):
+    def ready(self):
+        super().ready()
+        from . import widgets  # point this to the above widget module you created
+```

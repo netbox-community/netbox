@@ -44,7 +44,7 @@ class ConfigRevision(models.Model):
         return gettext('Config revision #{id}').format(id=self.pk)
 
     def __getattr__(self, item):
-        if item in self.data:
+        if self.data and item in self.data:
             return self.data[item]
         return super().__getattribute__(item)
 

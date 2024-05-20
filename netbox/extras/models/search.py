@@ -4,9 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 from netbox.search.utils import get_indexer
-from netbox.registry import registry
 from utilities.fields import RestrictedGenericForeignKey
-from utilities.utils import content_type_identifier
 from ..fields import CachedValueField
 
 __all__ = (
@@ -57,6 +55,9 @@ class CachedValue(models.Model):
         ordering = ('weight', 'object_type', 'value', 'object_id')
         verbose_name = _('cached value')
         verbose_name_plural = _('cached values')
+        indexes = (
+            models.Index(fields=('object_type', 'object_id'), name='extras_cachedvalue_object'),
+        )
 
     def __str__(self):
         return f'{self.object_type} {self.object_id}: {self.field}={self.value}'

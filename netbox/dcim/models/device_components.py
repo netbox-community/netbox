@@ -12,8 +12,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import MACAddressField, WWNField
+from netbox.choices import ColorChoices
 from netbox.models import OrganizationalModel, NetBoxModel
-from utilities.choices import ColorChoices
 from utilities.fields import ColorField, NaturalOrderingField
 from utilities.mptt import TreeManager
 from utilities.ordering import naturalize_interface
@@ -1133,13 +1133,13 @@ class DeviceBay(ComponentModel, TrackingModelMixin):
         super().clean()
 
         # Validate that the parent Device can have DeviceBays
-        if not self.device.device_type.is_parent_device:
+        if hasattr(self, 'device') and not self.device.device_type.is_parent_device:
             raise ValidationError(_("This type of device ({device_type}) does not support device bays.").format(
                 device_type=self.device.device_type
             ))
 
         # Cannot install a device into itself, obviously
-        if self.device == self.installed_device:
+        if self.installed_device and getattr(self, 'device', None) == self.installed_device:
             raise ValidationError(_("Cannot install a device into itself."))
 
         # Check that the installed device is not already installed elsewhere

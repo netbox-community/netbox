@@ -1,9 +1,7 @@
-from django.contrib.contenttypes.models import ContentType
 from rest_framework import serializers
 from rest_framework.fields import CreateOnlyDefault
 
 from extras.api.customfields import CustomFieldsDataField, CustomFieldDefaultValues
-from extras.models import CustomField
 from .nested import NestedTagSerializer
 
 __all__ = (

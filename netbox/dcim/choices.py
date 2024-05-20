@@ -399,6 +399,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -520,6 +524,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
         )),
@@ -635,6 +644,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -749,6 +762,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
         )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
         )),
@@ -848,6 +866,8 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Ethernet Backplane
     TYPE_1GE_KX = '1000base-kx'
+    TYPE_2GE_KX = '2.5gbase-kx'
+    TYPE_5GE_KR = '5gbase-kr'
     TYPE_10GE_KR = '10gbase-kr'
     TYPE_10GE_KX4 = '10gbase-kx4'
     TYPE_25GE_KR = '25gbase-kr'
@@ -889,7 +909,10 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_8GFC_SFP_PLUS = '8gfc-sfpp'
     TYPE_16GFC_SFP_PLUS = '16gfc-sfpp'
     TYPE_32GFC_SFP28 = '32gfc-sfp28'
+    TYPE_32GFC_SFP_PLUS = '32gfc-sfpp'
     TYPE_64GFC_QSFP_PLUS = '64gfc-qsfpp'
+    TYPE_64GFC_SFP_DD = '64gfc-sfpdd'
+    TYPE_64GFC_SFP_PLUS = '64gfc-sfpp'
     TYPE_128GFC_QSFP28 = '128gfc-qsfp28'
 
     # InfiniBand
@@ -1005,6 +1028,8 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Ethernet (backplane)'),
             (
                 (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
+                (TYPE_2GE_KX, '2.5GBASE-KX (2.5GE)'),
+                (TYPE_5GE_KR, '5GBASE-KR (5GE)'),
                 (TYPE_10GE_KR, '10GBASE-KR (10GE)'),
                 (TYPE_10GE_KX4, '10GBASE-KX4 (10GE)'),
                 (TYPE_25GE_KR, '25GBASE-KR (25GE)'),
@@ -1058,7 +1083,10 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_8GFC_SFP_PLUS, 'SFP+ (8GFC)'),
                 (TYPE_16GFC_SFP_PLUS, 'SFP+ (16GFC)'),
                 (TYPE_32GFC_SFP28, 'SFP28 (32GFC)'),
+                (TYPE_32GFC_SFP_PLUS, 'SFP+ (32GFC)'),
                 (TYPE_64GFC_QSFP_PLUS, 'QSFP+ (64GFC)'),
+                (TYPE_64GFC_SFP_DD, 'SFP-DD (64GFC)'),
+                (TYPE_64GFC_SFP_PLUS, 'SFP+ (64GFC)'),
                 (TYPE_128GFC_QSFP28, 'QSFP28 (128GFC)'),
             )
         ),

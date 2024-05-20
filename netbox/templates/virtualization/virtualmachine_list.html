@@ -4,20 +4,20 @@
 {% block bulk_buttons %}
   {% if perms.virtualization.change_virtualmachine %}
     <div class="dropdown">
-      <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+      <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
         <i class="mdi mdi-plus-thick" aria-hidden="true"></i> {% trans "Add Components" %}
       </button>
       <ul class="dropdown-menu">
         {% if perms.virtualization.add_vminterface %}
           <li>
-            <button type="submit" formaction="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'virtualization:virtualmachine_bulk_add_vminterface' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Interfaces" %}
             </button>
           </li>
         {% endif %}
         {% if perms.virtualization.add_virtualdisk %}
           <li>
-            <button type="submit" formaction="{% url 'virtualization:virtualmachine_bulk_add_virtualdisk' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
+            <button type="submit" {% formaction %}="{% url 'virtualization:virtualmachine_bulk_add_virtualdisk' %}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}" class="dropdown-item">
               {% trans "Virtual Disks" %}
             </button>
           </li>

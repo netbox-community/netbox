@@ -93,6 +93,8 @@ class JSONField(_JSONField):
     """
     Custom wrapper around Django's built-in JSONField to avoid presenting "null" as the default text.
     """
+    empty_values = [None, '', ()]
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if not self.help_text:
@@ -105,7 +107,12 @@ class JSONField(_JSONField):
             return value
         if value in ('', None):
             return ''
-        return json.dumps(value, sort_keys=True, indent=4)
+        if type(value) is str:
+            try:
+                value = json.loads(value, cls=self.decoder)
+            except json.decoder.JSONDecodeError:
+                return value
+        return json.dumps(value, sort_keys=True, indent=4, ensure_ascii=False, cls=self.encoder)
 
 
 class MACAddressField(forms.Field):

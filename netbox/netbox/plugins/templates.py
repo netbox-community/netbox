@@ -1,4 +1,5 @@
 from django.template.loader import get_template
+from django.utils.translation import gettext as _
 
 __all__ = (
     'PluginTemplateExtension',
@@ -31,7 +32,7 @@ class PluginTemplateExtension:
         if extra_context is None:
             extra_context = {}
         elif not isinstance(extra_context, dict):
-            raise TypeError("extra_context must be a dictionary")
+            raise TypeError(_("extra_context must be a dictionary"))
 
         return get_template(template_name).render({**self.context, **extra_context})
 

@@ -1,0 +1,8 @@
+// Entry for all 3rd party library imports that do not rely on Tabler or NetBox styles.
+@import '../node_modules/@mdi/font/css/materialdesignicons.min.css';
+@import '../node_modules/flatpickr/dist/flatpickr.min.css';
+@import 'gridstack/dist/gridstack.min.css';
+
+// Fonts
+@import url("../node_modules/typeface-inter/inter.css");
+@import url("../node_modules/typeface-roboto-mono/index.css");

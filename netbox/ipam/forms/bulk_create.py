@@ -1,7 +1,6 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from utilities.forms import BootstrapMixin
 from utilities.forms.fields import ExpandableIPAddressField
 
 __all__ = (
@@ -9,7 +8,7 @@ __all__ = (
 )
 
 
-class IPAddressBulkCreateForm(BootstrapMixin, forms.Form):
+class IPAddressBulkCreateForm(forms.Form):
     pattern = ExpandableIPAddressField(
         label=_('Address pattern')
     )

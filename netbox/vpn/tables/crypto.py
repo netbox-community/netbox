@@ -63,7 +63,7 @@ class IKEPolicyTable(NetBoxTable):
     mode = tables.Column(
         verbose_name=_('Mode')
     )
-    proposals = tables.ManyToManyColumn(
+    proposals = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name=_('Proposals')
     )
@@ -129,7 +129,7 @@ class IPSecPolicyTable(NetBoxTable):
         verbose_name=_('Name'),
         linkify=True
     )
-    proposals = tables.ManyToManyColumn(
+    proposals = columns.ManyToManyColumn(
         linkify_item=True,
         verbose_name=_('Proposals')
     )

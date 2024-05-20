@@ -9,11 +9,11 @@ from jinja2.sandbox import SandboxedEnvironment
 
 from extras.querysets import ConfigContextQuerySet
 from netbox.config import get_config
-from netbox.registry import registry
 from netbox.models import ChangeLoggedModel
-from netbox.models.features import CloningMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
-from utilities.jinja2 import ConfigTemplateLoader
-from utilities.utils import deepmerge
+from netbox.models.features import CloningMixin, CustomLinksMixin, ExportTemplatesMixin, SyncedDataMixin, TagsMixin
+from netbox.registry import registry
+from utilities.data import deepmerge
+from utilities.jinja2 import DataFileLoader
 
 __all__ = (
     'ConfigContext',
@@ -26,7 +26,7 @@ __all__ = (
 # Config contexts
 #
 
-class ConfigContext(SyncedDataMixin, CloningMixin, ChangeLoggedModel):
+class ConfigContext(SyncedDataMixin, CloningMixin, CustomLinksMixin, ChangeLoggedModel):
     """
     A ConfigContext represents a set of arbitrary data available to any Device or VirtualMachine matching its assigned
     qualifiers (region, site, etc.). For example, the data stored in a ConfigContext assigned to site A and tenant B
@@ -182,7 +182,7 @@ class ConfigContextModel(models.Model):
 
         if not hasattr(self, 'config_context_data'):
             # The annotation is not available, so we fall back to manually querying for the config context objects
-            config_context_data = ConfigContext.objects.get_for_object(self, aggregate_data=True)
+            config_context_data = ConfigContext.objects.get_for_object(self, aggregate_data=True) or []
         else:
             # The attribute may exist, but the annotated value could be None if there is no config context data
             config_context_data = self.config_context_data or []
@@ -210,7 +210,7 @@ class ConfigContextModel(models.Model):
 # Config templates
 #
 
-class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
+class ConfigTemplate(SyncedDataMixin, CustomLinksMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedModel):
     name = models.CharField(
         verbose_name=_('name'),
         max_length=100
@@ -290,7 +290,7 @@ class ConfigTemplate(SyncedDataMixin, ExportTemplatesMixin, TagsMixin, ChangeLog
         """
         # Initialize the template loader & cache the base template code (if applicable)
         if self.data_file:
-            loader = ConfigTemplateLoader(data_source=self.data_source)
+            loader = DataFileLoader(data_source=self.data_source)
             loader.cache_templates({
                 self.data_file.path: self.template_code
             })
