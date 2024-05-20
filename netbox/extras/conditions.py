@@ -136,11 +136,6 @@ class ConditionSet:
         if type(ruleset) is not dict:
             raise ValueError(_("Ruleset must be a dictionary, not {ruleset}.").format(ruleset=type(ruleset)))
 
-        if len(ruleset) != 1:
-            raise ValueError(_("Ruleset must have exactly one logical operator (found {ruleset})").format(
-                ruleset=len(ruleset)))
-            raise ValueError(f"Ruleset must be a dictionary, not {type(ruleset)}.")
-
         if len(ruleset) == 1:
             self.logic = (list(ruleset.keys())[0]).lower()
             if self.logic not in (AND, OR):
