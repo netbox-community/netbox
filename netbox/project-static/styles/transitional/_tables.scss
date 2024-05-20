@@ -42,6 +42,9 @@ table.attr-table {
     overflow-wrap: anywhere;
   }
 
+  tr > th {
+    text-transform: capitalize;
+  }
 }
 
 // Remove bottom margin from <pre> elements inside table cells
