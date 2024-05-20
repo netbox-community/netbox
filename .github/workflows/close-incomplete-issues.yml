@@ -16,17 +16,51 @@ jobs:
     steps:
       - uses: actions/stale@v9
         with:
-          close-issue-message: >
-            This issue is being closed as no further information has been provided. If
-            you would like to revisit this topic, please first modify your original post
-            to include all the requested detail, and then ask that the issue be reopened.
+          close-issue-message: |
+            Hey there,
+
+            We hope this message finds you well. Unfortunately, it's been 14 days since we
+            last heard from you regarding this issue. Absent the updates requested by the
+            NetBox maintainer assigned to triage it, we're unable to move your issue
+            forward to a resolution.
+
+            Regrettably, per NetBox project policy, issues that haven't received necessary
+            updates within 14 days are automatically closed. We would prefer to handle
+            this situation more personally, but present limitations of GitHub issues don't
+            leave us with many good options.
+
+            We genuinely appreciate your interest in helping improve NetBox by opening this
+            issue. Please know that its closure isn't a reflection of the value we place
+            on your contribution, but rather a pragmatic measure to enable our small team
+            to work through the high volume of new issues that come in each week.
+
+            This doesn't have to be the end of the road for your issue. When you are ready
+            to move forward, please first modify your original issue body to include all
+            the requested detail, and then ask that the issue be reopened.
+
+            Thank you for your understanding and for being part of the NetBox community.
+
+            Best regards,
+            A bot that helps the NetBox maintainers stay sane
           days-before-stale: 7
           days-before-close: 7
           only-issue-labels: 'status: revisions needed'
           operations-per-run: 100
           remove-stale-when-updated: false
           stale-issue-label: 'pending closure'
-          stale-issue-message: >
-            This is a reminder that additional information is needed in order to further
-            triage this issue. If the requested details are not provided, the issue will
-            soon be closed automatically.
+          stale-issue-message: |
+            Hi there,
+
+            Thank you for your interest in helping improve NetBox by opening this issue.
+            The maintainer assigned to triage your issue has requested needed updates, but
+            it seems that we haven't received any updates in past 7 days to help us move
+            the issue forward to a resolution.
+
+            We understand that life often gets busy, and sometimes it's challenging to find
+            the time to provide updates. Please provide the needed updates within the next
+            7 days so that your issue does not suffer the fate of automatic closure.
+
+            Thank you for your understanding and cooperation.
+
+            Best regards,
+            A robot acting on behalf of the NetBox maintainers
