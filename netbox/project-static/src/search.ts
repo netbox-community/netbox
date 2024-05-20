@@ -21,7 +21,7 @@ function quickSearchEventHandler(event: Event): void {
  * Clear the existing search parameters in the link to export Current View.
  */
 function clearLinkParams(): void {
-  const link = document.getElementById("current_view") as HTMLLinkElement;
+  const link = document.getElementById("export_current_view") as HTMLLinkElement;
   let linkUpdated = link?.href.split("&")[0];
   link.setAttribute("href", linkUpdated);
 }
