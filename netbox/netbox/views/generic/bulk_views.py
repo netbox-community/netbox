@@ -4,7 +4,6 @@ from copy import deepcopy
 
 from django.contrib import messages
 from django.contrib.contenttypes.fields import GenericRel
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ObjectDoesNotExist, ValidationError
 from django.db import transaction, IntegrityError
 from django.db.models import ManyToManyField, ProtectedError, RestrictedError
@@ -17,16 +16,16 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_tables2.export import TableExport
 
+from core.models import ObjectType
 from extras.models import ExportTemplate
 from extras.signals import clear_events
 from utilities.error_handlers import handle_protectederror
 from utilities.exceptions import AbortRequest, AbortTransaction, PermissionsViolation
 from utilities.forms import BulkRenameForm, ConfirmationForm, restrict_form_fields
 from utilities.forms.bulk_import import BulkImportForm
-from utilities.htmx import is_embedded, is_htmx
+from utilities.htmx import htmx_partial
 from utilities.permissions import get_permission_for_model
-from utilities.utils import get_viewname
-from utilities.views import GetReturnURLMixin
+from utilities.views import GetReturnURLMixin, get_viewname
 from .base import BaseMultiObjectView
 from .mixins import ActionsMixin, TableMixin
 from .utils import get_prerequisite_model
@@ -125,7 +124,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             request: The current request
         """
         model = self.queryset.model
-        content_type = ContentType.objects.get_for_model(model)
+        object_type = ObjectType.objects.get_for_model(model)
 
         if self.filterset:
             self.queryset = self.filterset(request.GET, self.queryset, request=request).qs
@@ -144,7 +143,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
             # Render an ExportTemplate
             elif request.GET['export']:
-                template = get_object_or_404(ExportTemplate, content_types=content_type, name=request.GET['export'])
+                template = get_object_or_404(ExportTemplate, object_types=object_type, name=request.GET['export'])
                 return self.export_template(template, request)
 
             # Check for YAML export support on the model
@@ -163,8 +162,8 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
         table = self.get_table(self.queryset, request, has_bulk_actions)
 
         # If this is an HTMX request, return only the rendered table HTML
-        if is_htmx(request):
-            if is_embedded(request):
+        if htmx_partial(request):
+            if not request.htmx.target:
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:
@@ -315,11 +314,20 @@ class BulkImportView(GetReturnURLMixin, BaseMultiObjectView):
         return data
 
     def _get_form_fields(self):
-        # Exclude any fields which use a HiddenInput widget
-        return {
-            name: field for name, field in self.model_form().fields.items()
-            if type(field.widget) is not HiddenInput
-        }
+        form = self.model_form()
+        required_fields = {}
+        optional_fields = {}
+
+        # Return only visible fields, with required fields listed first
+        for field in form.visible_fields():
+            if field.is_hidden:
+                continue
+            elif field.field.required:
+                required_fields[field.name] = field.field
+            else:
+                optional_fields[field.name] = field.field
+
+        return {**required_fields, **optional_fields}
 
     def _save_object(self, import_form, model_form, request):
 

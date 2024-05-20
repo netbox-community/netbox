@@ -1,4 +1,3 @@
-import graphene
 from circuits.graphql.types import CircuitTerminationType, ProviderNetworkType
 from circuits.models import CircuitTermination, ProviderNetwork
 from dcim.graphql.types import (
@@ -37,79 +36,7 @@ from dcim.models import (
 )
 
 
-class LinkPeerType(graphene.Union):
-    class Meta:
-        types = (
-            CircuitTerminationType,
-            ConsolePortType,
-            ConsoleServerPortType,
-            FrontPortType,
-            InterfaceType,
-            PowerFeedType,
-            PowerOutletType,
-            PowerPortType,
-            RearPortType,
-        )
-
-    @classmethod
-    def resolve_type(cls, instance, info):
-        if type(instance) is CircuitTermination:
-            return CircuitTerminationType
-        if type(instance) is ConsolePortType:
-            return ConsolePortType
-        if type(instance) is ConsoleServerPort:
-            return ConsoleServerPortType
-        if type(instance) is FrontPort:
-            return FrontPortType
-        if type(instance) is Interface:
-            return InterfaceType
-        if type(instance) is PowerFeed:
-            return PowerFeedType
-        if type(instance) is PowerOutlet:
-            return PowerOutletType
-        if type(instance) is PowerPort:
-            return PowerPortType
-        if type(instance) is RearPort:
-            return RearPortType
-
-
-class CableTerminationTerminationType(graphene.Union):
-    class Meta:
-        types = (
-            CircuitTerminationType,
-            ConsolePortType,
-            ConsoleServerPortType,
-            FrontPortType,
-            InterfaceType,
-            PowerFeedType,
-            PowerOutletType,
-            PowerPortType,
-            RearPortType,
-        )
-
-    @classmethod
-    def resolve_type(cls, instance, info):
-        if type(instance) is CircuitTermination:
-            return CircuitTerminationType
-        if type(instance) is ConsolePortType:
-            return ConsolePortType
-        if type(instance) is ConsoleServerPort:
-            return ConsoleServerPortType
-        if type(instance) is FrontPort:
-            return FrontPortType
-        if type(instance) is Interface:
-            return InterfaceType
-        if type(instance) is PowerFeed:
-            return PowerFeedType
-        if type(instance) is PowerOutlet:
-            return PowerOutletType
-        if type(instance) is PowerPort:
-            return PowerPortType
-        if type(instance) is RearPort:
-            return RearPortType
-
-
-class InventoryItemTemplateComponentType(graphene.Union):
+class InventoryItemTemplateComponentType:
     class Meta:
         types = (
             ConsolePortTemplateType,
@@ -139,7 +66,7 @@ class InventoryItemTemplateComponentType(graphene.Union):
             return RearPortTemplateType
 
 
-class InventoryItemComponentType(graphene.Union):
+class InventoryItemComponentType:
     class Meta:
         types = (
             ConsolePortType,
@@ -169,7 +96,7 @@ class InventoryItemComponentType(graphene.Union):
             return RearPortType
 
 
-class ConnectedEndpointType(graphene.Union):
+class ConnectedEndpointType:
     class Meta:
         types = (
             CircuitTerminationType,

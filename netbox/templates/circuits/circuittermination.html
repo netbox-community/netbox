@@ -1,0 +1,51 @@
+{% extends 'generic/object.html' %}
+{% load helpers %}
+{% load plugins %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+  {{ block.super }}
+  <li class="breadcrumb-item"><a href="{% url 'circuits:circuit_list' %}?provider_id={{ object.circuit.provider.pk }}">{{ object.circuit.provider }}</a></li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col col-md-6">
+
+      <div class="card">
+            {% if object %}
+              <table class="table table-hover attr-table">
+                  <tr>
+                    <th scope="row">{% trans "Circuit" %}</th>
+                    <td>
+                      {{ object.circuit|linkify }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">{% trans "Provider" %}</th>
+                    <td>
+                      {{ object.circuit.provider|linkify }}
+                    </td>
+                  </tr>
+                  {% include 'circuits/inc/circuit_termination_fields.html' with termination=object %}
+              </table>
+          {% else %}
+            <div class="card-body">
+              <span class="text-muted">{% trans "None" %}</span>
+            </div>
+          {% endif %}
+      </div>
+      {% plugin_left_page object %}
+    </div>
+    <div class="col col-md-6">
+      {% include 'inc/panels/custom_fields.html' %}
+      {% include 'inc/panels/tags.html' %}
+      {% plugin_right_page object %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col col-md-12">
+      {% plugin_full_width_page object %}
+    </div>
+  </div>
+{% endblock %}

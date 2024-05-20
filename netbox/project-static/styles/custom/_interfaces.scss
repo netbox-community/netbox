@@ -1,0 +1,29 @@
+@use 'sass:map';
+
+// Interface row coloring
+tr[data-cable-status=connected] {
+  background-color: rgba(map.get($theme-colors, "green"), 0.15);
+}
+tr[data-cable-status=planned] {
+  background-color: rgba(map.get($theme-colors, "blue"), 0.15);
+}
+tr[data-cable-status=decommissioning] {
+  background-color: rgba(map.get($theme-colors, "yellow"), 0.15);
+}
+tr[data-mark-connected=true] {
+  background-color: rgba(map.get($theme-colors, "success"), 0.15);
+}
+tr[data-virtual=true] {
+  background-color: rgba(map.get($theme-colors, "primary"), 0.15);
+}
+tr[data-enabled=disabled] {
+  background-color: rgba(map.get($theme-colors, "danger"), 0.15);
+}
+
+// Only show the correct button depending on the cable status
+tr[data-cable-status=connected] button.mark-installed {
+  display: none;
+}
+tr:not([data-cable-status=connected]) button.mark-planned {
+  display: none;
+}

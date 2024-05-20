@@ -131,9 +131,6 @@ EMAIL = {
     'FROM_EMAIL': '',
 }
 
-# Localization
-ENABLE_LOCALIZATION = False
-
 # Exempt certain models from the enforcement of view permissions. Models listed here will be viewable by all users and
 # by anonymous users. List models in the form `<app>.<model>`. Add '*' to this list to exempt all models.
 EXEMPT_VIEW_PERMISSIONS = [
@@ -160,9 +157,8 @@ LOGGING = {}
 # authenticated to NetBox indefinitely.
 LOGIN_PERSISTENCE = False
 
-# Setting this to True will permit only authenticated users to access any part of NetBox. By default, anonymous users
-# are permitted to access most data in NetBox but not make any changes.
-LOGIN_REQUIRED = False
+# Setting this to False will permit unauthenticated users to access most areas of NetBox (but not make any changes).
+LOGIN_REQUIRED = True
 
 # The length of time (in seconds) for which a user will remain logged into the web UI before being prompted to
 # re-authenticate. (Default: 1209600 [14 days])
@@ -237,12 +233,3 @@ SESSION_FILE_PATH = None
 
 # Time zone (default: UTC)
 TIME_ZONE = 'UTC'
-
-# Date/time formatting. See the following link for supported formats:
-# https://docs.djangoproject.com/en/stable/ref/templates/builtins/#date
-DATE_FORMAT = 'N j, Y'
-SHORT_DATE_FORMAT = 'Y-m-d'
-TIME_FORMAT = 'g:i a'
-SHORT_TIME_FORMAT = 'H:i:s'
-DATETIME_FORMAT = 'N j, Y g:i a'
-SHORT_DATETIME_FORMAT = 'Y-m-d H:i'

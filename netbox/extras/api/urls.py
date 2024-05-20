@@ -20,10 +20,9 @@ router.register('image-attachments', views.ImageAttachmentViewSet)
 router.register('journal-entries', views.JournalEntryViewSet)
 router.register('config-contexts', views.ConfigContextViewSet)
 router.register('config-templates', views.ConfigTemplateViewSet)
-router.register('reports', views.ReportViewSet, basename='report')
 router.register('scripts', views.ScriptViewSet, basename='script')
 router.register('object-changes', views.ObjectChangeViewSet)
-router.register('content-types', views.ContentTypeViewSet)
+router.register('object-types', views.ObjectTypeViewSet)
 
 app_name = 'extras-api'
 urlpatterns = [

@@ -1,15 +1,15 @@
-from django.contrib.contenttypes.models import ContentType as ContentType_, ContentTypeManager as ContentTypeManager_
+from django.contrib.contenttypes.models import ContentType, ContentTypeManager
 from django.db.models import Q
 
 from netbox.registry import registry
 
 __all__ = (
-    'ContentType',
-    'ContentTypeManager',
+    'ObjectType',
+    'ObjectTypeManager',
 )
 
 
-class ContentTypeManager(ContentTypeManager_):
+class ObjectTypeManager(ContentTypeManager):
 
     def public(self):
         """
@@ -40,11 +40,11 @@ class ContentTypeManager(ContentTypeManager_):
         return self.get_queryset().filter(q)
 
 
-class ContentType(ContentType_):
+class ObjectType(ContentType):
     """
     Wrap Django's native ContentType model to use our custom manager.
     """
-    objects = ContentTypeManager()
+    objects = ObjectTypeManager()
 
     class Meta:
         proxy = True

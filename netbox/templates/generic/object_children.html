@@ -2,6 +2,27 @@
 {% load helpers %}
 {% load i18n %}
 
+{% comment %}
+Blocks:
+  - content:                   Primary page content
+    - table_controls:          Control elements for the child objects table
+    - bulk_controls:           Bulk action buttons which appear beneath the child objects table
+      - bulk_edit_controls:    Bulk edit buttons
+      - bulk_delete_controls:  Bulk delete buttons
+      - bulk_extra_controls:   Other bulk action buttons
+  - modals:                    Any pre-loaded modals
+
+Context:
+  - base_template:  The template which this template extends
+  - object:         The parent object
+  - child_model:    The model of child objects being displayed
+  - table:          The table containing child objects
+  - table_config:   The ID of the table configuration modal
+  - actions:        A list of enabled bulk actions
+  - tab:            The currently active tab
+  - return_url:     The URL to which the user is redirected after performing a bulk action
+{% endcomment %}
+
 {% block content %}
     {% block table_controls %}
         {% include 'inc/table_controls_htmx.html' with table_modal=table_config %}
@@ -9,46 +30,42 @@
     <form method="post">
         {% csrf_token %}
         <div class="card">
-            <div class="card-body htmx-container table-responsive" id="object_list">
+            <div class="htmx-container table-responsive" id="object_list">
                 {% include 'htmx/table.html' %}
             </div>
         </div>
-        <div class="noprint bulk-buttons">
+        <div class="d-print-none mt-2">
             {% block bulk_controls %}
-                <div class="bulk-button-group">
-                    <div class="btn-group" role="group">
-                        {# Bulk edit buttons #}
-                        {% block bulk_edit_controls %}
-                            {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
-                                {% if 'bulk_edit' in actions and bulk_edit_view %}
-                                    <button type="submit" name="_edit"
-                                            formaction="{% url bulk_edit_view %}?return_url={{ return_url }}"
-                                            class="btn btn-warning btn-sm">
-                                        <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
-                                    </button>
-                                {% endif %}
-                            {% endwith %}
-                        {% endblock bulk_edit_controls %}
-                    </div>
-                    <div class="btn-group" role="group">
-                        {# Bulk delete buttons #}
-                        {% block bulk_delete_controls %}
-                            {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
-                                {% if 'bulk_delete' in actions and bulk_delete_view %}
-                                    <button type="submit"
-                                            formaction="{% url bulk_delete_view %}?return_url={{ return_url }}"
-                                            class="btn btn-danger btn-sm">
-                                        <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete Selected" %}
-                                    </button>
-                                {% endif %}
-                            {% endwith %}
-                        {% endblock bulk_delete_controls %}
-                    </div>
+                <div class="btn-group" role="group">
+                    {# Bulk edit buttons #}
+                    {% block bulk_edit_controls %}
+                        {% with bulk_edit_view=child_model|validated_viewname:"bulk_edit" %}
+                            {% if 'bulk_edit' in actions and bulk_edit_view %}
+                                <button type="submit" name="_edit"
+                                        {% formaction %}="{% url bulk_edit_view %}?return_url={{ return_url }}"
+                                        class="btn btn-warning">
+                                    <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
+                                </button>
+                            {% endif %}
+                        {% endwith %}
+                    {% endblock bulk_edit_controls %}
                 </div>
-                <div class="bulk-button-group">
-                    {# Other bulk action buttons #}
-                    {% block bulk_extra_controls %}{% endblock %}
+                <div class="btn-group" role="group">
+                    {# Bulk delete buttons #}
+                    {% block bulk_delete_controls %}
+                        {% with bulk_delete_view=child_model|validated_viewname:"bulk_delete" %}
+                            {% if 'bulk_delete' in actions and bulk_delete_view %}
+                                <button type="submit"
+                                        {% formaction %}="{% url bulk_delete_view %}?return_url={{ return_url }}"
+                                        class="btn btn-danger">
+                                    <i class="mdi mdi-trash-can-outline" aria-hidden="true"></i> {% trans "Delete Selected" %}
+                                </button>
+                            {% endif %}
+                        {% endwith %}
+                    {% endblock bulk_delete_controls %}
                 </div>
+                {# Other bulk action buttons #}
+                {% block bulk_extra_controls %}{% endblock %}
             {% endblock bulk_controls %}
         </div>
     </form>

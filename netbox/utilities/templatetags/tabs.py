@@ -4,7 +4,7 @@ from django.urls.exceptions import NoReverseMatch
 from django.utils.module_loading import import_string
 
 from netbox.registry import registry
-from utilities.utils import get_viewname
+from utilities.views import get_viewname
 
 __all__ = (
     'model_view_tabs',

@@ -14,3 +14,7 @@ timeout = 120
 # The maximum number of requests a worker can handle before being respawned
 max_requests = 5000
 max_requests_jitter = 500
+
+# Uncomment this line to accept HTTP headers containing underscores, e.g. for remote
+# authentication support. See https://docs.gunicorn.org/en/stable/settings.html#header-map
+# header-map = 'dangerous'

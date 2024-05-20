@@ -5,4 +5,8 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-        import users.signals
+        from netbox.models.features import register_models
+        from . import signals
+
+        # Register models
+        register_models(*self.get_models())

@@ -16,10 +16,7 @@ BASE_PATH = 'netbox/'
 
 Default: `en-us` (US English)
 
-Defines the default preferred language/locale for requests that do not specify one. This is used to alter e.g. the display of dates and numbers to fit the user's locale. See [this list](http://www.i18nguy.com/unicode/language-identifiers.html) of standard language codes. (This parameter maps to Django's [`LANGUAGE_CODE`](https://docs.djangoproject.com/en/stable/ref/settings/#language-code) internal setting.)
-
-!!! note
-    Altering this parameter will *not* change the language used in NetBox. We hope to provide translation support in a future NetBox release.
+Defines the default preferred language/locale for requests that do not specify one. (This parameter maps to Django's [`LANGUAGE_CODE`](https://docs.djangoproject.com/en/stable/ref/settings/#language-code) internal setting.)
 
 ---
 
@@ -62,14 +59,6 @@ Email is sent from NetBox only for critical events or if configured for [logging
   fail_silently=False
 )
 ```
-
----
-
-## ENABLE_LOCALIZATION
-
-Default: False
-
-Determines if localization features are enabled or not. This should only be enabled for development or testing purposes as netbox is not yet fully localized. Turning this on will localize numeric and date formats (overriding any configured [system defaults](./date-time.md#date-and-time-formatting)) based on the browser locale as well as translate certain strings from third party modules.
 
 ---
 
@@ -203,3 +192,17 @@ A dictionary of configuration parameters for the storage backend configured as `
 If `STORAGE_BACKEND` is not defined, this setting will be ignored.
 
 ---
+
+## TIME_ZONE
+
+Default: UTC
+
+The time zone NetBox will use when dealing with dates and times. It is recommended to use UTC time unless you have a specific need to use a local time zone. Please see the [list of available time zones](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones).
+
+---
+
+## TRANSLATION_ENABLED
+
+Default: True
+
+Enables language translation for the user interface. (This parameter maps to Django's [USE_I18N](https://docs.djangoproject.com/en/stable/ref/settings/#std-setting-USE_I18N) setting.)

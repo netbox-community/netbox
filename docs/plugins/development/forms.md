@@ -15,16 +15,18 @@ NetBox provides several base form classes for use by plugins.
 
 This is the base form for creating and editing NetBox models. It extends Django's ModelForm to add support for tags and custom fields.
 
-| Attribute   | Description                                                 |
-|-------------|-------------------------------------------------------------|
-| `fieldsets` | A tuple of two-tuples defining the form's layout (optional) |
+| Attribute   | Description                                                                           |
+|-------------|---------------------------------------------------------------------------------------|
+| `fieldsets` | A tuple of `FieldSet` instances which control how form fields are rendered (optional) |
 
 **Example**
 
 ```python
+from django.utils.translation import gettext_lazy as _
 from dcim.models import Site
 from netbox.forms import NetBoxModelForm
 from utilities.forms.fields import CommentField, DynamicModelChoiceField
+from utilities.forms.rendering import FieldSet
 from .models import MyModel
 
 class MyModelForm(NetBoxModelForm):
@@ -33,8 +35,8 @@ class MyModelForm(NetBoxModelForm):
     )
     comments = CommentField()
     fieldsets = (
-        ('Model Stuff', ('name', 'status', 'site', 'tags')),
-        ('Tenancy', ('tenant_group', 'tenant')),
+        FieldSet('name', 'status', 'site', 'tags', name=_('Model Stuff')),
+        FieldSet('tenant_group', 'tenant', name=_('Tenancy')),
     )
 
     class Meta:
@@ -52,6 +54,7 @@ This form facilitates the bulk import of new objects from CSV, JSON, or YAML dat
 **Example**
 
 ```python
+from django.utils.translation import gettext_lazy as _
 from dcim.models import Site
 from netbox.forms import NetBoxModelImportForm
 from utilities.forms import CSVModelChoiceField
@@ -62,7 +65,7 @@ class MyModelImportForm(NetBoxModelImportForm):
     site = CSVModelChoiceField(
         queryset=Site.objects.all(),
         to_field_name='name',
-        help_text='Assigned site'
+        help_text=_('Assigned site')
     )
 
     class Meta:
@@ -77,16 +80,18 @@ This form facilitates editing multiple objects in bulk. Unlike a model form, thi
 | Attribute         | Description                                                                                 |
 |-------------------|---------------------------------------------------------------------------------------------|
 | `model`           | The model of object being edited                                                            |
-| `fieldsets`       | A tuple of two-tuples defining the form's layout (optional)                                 |
+| `fieldsets`       | A tuple of `FieldSet` instances which control how form fields are rendered (optional)       |
 | `nullable_fields` | A tuple of fields which can be nullified (set to empty) using the bulk edit form (optional) |
 
 **Example**
 
 ```python
 from django import forms
+from django.utils.translation import gettext_lazy as _
 from dcim.models import Site
 from netbox.forms import NetBoxModelImportForm
 from utilities.forms import CommentField, DynamicModelChoiceField
+from utilities.forms.rendering import FieldSet
 from .models import MyModel, MyModelStatusChoices
 
 
@@ -106,7 +111,7 @@ class MyModelEditForm(NetBoxModelImportForm):
 
     model = MyModel
     fieldsets = (
-        ('Model Stuff', ('name', 'status', 'site')),
+        FieldSet('name', 'status', 'site', name=_('Model Stuff')),
     )
     nullable_fields = ('site', 'comments')
 ```
@@ -115,10 +120,10 @@ class MyModelEditForm(NetBoxModelImportForm):
 
 This form class is used to render a form expressly for filtering a list of objects. Its fields should correspond to filters defined on the model's filter set.
 
-| Attribute         | Description                                                 |
-|-------------------|-------------------------------------------------------------|
-| `model`           | The model of object being edited                            |
-| `fieldsets`       | A tuple of two-tuples defining the form's layout (optional) |
+| Attribute   | Description                                                                           |
+|-------------|---------------------------------------------------------------------------------------|
+| `model`     | The model of object being edited                                                      |
+| `fieldsets` | A tuple of `FieldSet` instances which control how form fields are rendered (optional) |
 
 **Example**
 
@@ -206,3 +211,13 @@ In addition to the [form fields provided by Django](https://docs.djangoproject.c
 ::: utilities.forms.fields.CSVMultipleContentTypeField
     options:
       members: false
+
+## Form Rendering
+
+::: utilities.forms.rendering.FieldSet
+
+::: utilities.forms.rendering.InlineFields
+
+::: utilities.forms.rendering.TabbedGroups
+
+::: utilities.forms.rendering.ObjectAttribute

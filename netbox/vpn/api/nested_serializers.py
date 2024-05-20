@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema_serializer
 from rest_framework import serializers
 
+from netbox.api.fields import RelatedObjectCountField
 from netbox.api.serializers import WritableNestedSerializer
 from vpn import models
 
@@ -23,7 +24,7 @@ __all__ = (
 )
 class NestedTunnelGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
-    tunnel_count = serializers.IntegerField(read_only=True)
+    tunnel_count = RelatedObjectCountField('tunnels')
 
     class Meta:
         model = models.TunnelGroup

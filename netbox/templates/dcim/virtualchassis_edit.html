@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/object_edit.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load i18n %}
@@ -9,106 +9,104 @@
   {% endblocktrans %}
 {% endblock %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
-      <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
-        {% for form in formset %}
-          {% render_errors form %}
-        {% endfor %}
+{% block content %}
+  <div class="tab-pane show active" id="edit-form" role="tabpanel" aria-labelledby="object-list-tab">
+    <form action="" method="post" enctype="multipart/form-data" class="object-edit">
+      {% for form in formset %}
+        {% render_errors form %}
+      {% endfor %}
 
-        {% csrf_token %}
-        {{ pk_form.pk }}
-        {{ formset.management_form }}
-        <div class="field-group my-5">
-          <div class="row mb-2">
-            <h5 class="offset-sm-3">{% trans "Virtual Chassis" %}</h5>
-          </div>
-          {% render_field vc_form.name %}
-          {% render_field vc_form.domain %}
-          {% render_field vc_form.description %}
-          {% render_field vc_form.master %}
-          {% render_field vc_form.tags %}
+      {% csrf_token %}
+      {{ pk_form.pk }}
+      {{ formset.management_form }}
+      <div class="field-group my-5">
+        <div class="row">
+          <h5 class="col-9 offset-3">{% trans "Virtual Chassis" %}</h5>
         </div>
+        {% render_field vc_form.name %}
+        {% render_field vc_form.domain %}
+        {% render_field vc_form.description %}
+        {% render_field vc_form.master %}
+        {% render_field vc_form.tags %}
+      </div>
 
-        <div class="field-group my-5">
-          {% render_field vc_form.comments %}
-        </div>
+      <div class="field-group my-5">
+        {% render_field vc_form.comments %}
+      </div>
 
-        {% if vc_form.custom_fields %}
-          <div class="field-group mb-5">
-            <div class="row mb-2">
-              <h5 class="offset-sm-3">{% trans "Custom Fields" %}</h5>
-            </div>
-            {% render_custom_fields vc_form %}
-          </div>
-        {% endif %}
-
+      {% if vc_form.custom_fields %}
         <div class="field-group mb-5">
-          <h5 class="text-center">{% trans "Members" %}</h5>
-          <table class="table">
-              <thead>
-                  <tr>
-                      <th>{% trans "Device" %}</th>
-                      <th>{% trans "ID" %}</th>
-                      <th>{% trans "Rack/Unit" %}</th>
-                      <th>{% trans "Serial" %}</th>
-                      <th>{% trans "Position" %}</th>
-                      <th>{% trans "Priority" %}</th>
-                      <th></th>
-                  </tr>
-              </thead>
-              <tbody>
-                  {% for form in formset %}
-                      {% for field in form.hidden_fields %}
-                          {{ field }}
-                      {% endfor %}
-                      {% with device=form.instance virtual_chassis=vc_form.instance %}
-                          <tr>
-                              <td>{{ device|linkify }}</td>
-                              <td>{{ device.pk }}</td>
-                              <td>
-                                  {% if device.rack %}
-                                      {{ device.rack }} / {{ device.position|floatformat }}
-                                  {% else %}
-                                      {{ ''|placeholder }}
-                                  {% endif %}
-                              </td>
-                              <td>{{ device.serial|placeholder }}</td>
-                              <td>
-                                  {{ form.vc_position }}
-                                  {% if form.vc_position.errors %}
-                                      <br /><small class="text-danger">{{ form.vc_position.errors.0 }}</small>
-                                  {% endif %}
-                              </td>
-                              <td>
-                                  {{ form.vc_priority }}
-                                  {% if form.vc_priority.errors %}
-                                      <br /><small class="text-danger">{{ form.vc_priority.errors.0 }}</small>
-                                  {% endif %}
-                              </td>
-                              <td>
-                                  {% if virtual_chassis.pk %}
-                                      <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger btn-sm{% if virtual_chassis.master == device %} disabled{% endif %}">
-                                          <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
-                                      </a>
-                                  {% endif %}
-                              </td>
-                          </tr>
-                      {% endwith %}
-                  {% endfor %}
-              </tbody>
-          </table>
+          <div class="row">
+            <h5 class="col-9 offset-3">{% trans "Custom Fields" %}</h5>
+          </div>
+          {% render_custom_fields vc_form %}
         </div>
-        <div class="text-end">
-            <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-            {% if vc_form.instance.pk %}
-                <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
-            {% else %}
-                <button type="submit" name="_create" class="btn btn-primary">{% trans "Create" %}</button>
-            {% endif %}
-        </div>
-      </form>
-    </div>
+      {% endif %}
+
+      <div class="field-group mb-5">
+        <h5 class="text-center">{% trans "Members" %}</h5>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>{% trans "Device" %}</th>
+                    <th>{% trans "ID" %}</th>
+                    <th>{% trans "Rack/Unit" %}</th>
+                    <th>{% trans "Serial" %}</th>
+                    <th>{% trans "Position" %}</th>
+                    <th>{% trans "Priority" %}</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for form in formset %}
+                    {% for field in form.hidden_fields %}
+                        {{ field }}
+                    {% endfor %}
+                    {% with device=form.instance virtual_chassis=vc_form.instance %}
+                        <tr>
+                            <td>{{ device|linkify }}</td>
+                            <td>{{ device.pk }}</td>
+                            <td>
+                                {% if device.rack %}
+                                    {{ device.rack }} / {{ device.position|floatformat }}
+                                {% else %}
+                                    {{ ''|placeholder }}
+                                {% endif %}
+                            </td>
+                            <td>{{ device.serial|placeholder }}</td>
+                            <td>
+                                {{ form.vc_position }}
+                                {% if form.vc_position.errors %}
+                                    <small class="text-danger">{{ form.vc_position.errors.0 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ form.vc_priority }}
+                                {% if form.vc_priority.errors %}
+                                    <small class="text-danger">{{ form.vc_priority.errors.0 }}</small>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if virtual_chassis.pk %}
+                                    <a href="{% url 'dcim:virtualchassis_remove_member' pk=device.pk %}?return_url={% url 'dcim:virtualchassis_edit' pk=virtual_chassis.pk %}" class="btn btn-danger{% if virtual_chassis.master == device %} disabled{% endif %}">
+                                        <span class="mdi mdi-trash-can-outline" aria-hidden="true"></span>
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endwith %}
+                {% endfor %}
+            </tbody>
+        </table>
+      </div>
+      <div class="text-end">
+          <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+          {% if vc_form.instance.pk %}
+              <button type="submit" name="_update" class="btn btn-primary">{% trans "Save" %}</button>
+          {% else %}
+              <button type="submit" name="_create" class="btn btn-primary">{% trans "Create" %}</button>
+          {% endif %}
+      </div>
+    </form>
   </div>
-{% endblock %}
+{% endblock content %}

@@ -3,7 +3,7 @@ from django.utils.translation import gettext as _
 
 from account.tables import UserTokenTable
 from netbox.tables import NetBoxTable, columns
-from users.models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from users.models import Group, ObjectPermission, Token, User
 
 __all__ = (
     'GroupTable',
@@ -33,7 +33,7 @@ class UserTable(NetBoxTable):
     )
     groups = columns.ManyToManyColumn(
         verbose_name=_('Groups'),
-        linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
+        linkify_item=('users:group', {'pk': tables.A('pk')})
     )
     is_active = columns.BooleanColumn(
         verbose_name=_('Is Active'),
@@ -49,7 +49,7 @@ class UserTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = NetBoxUser
+        model = User
         fields = (
             'pk', 'id', 'username', 'first_name', 'last_name', 'email', 'groups', 'is_active', 'is_staff',
             'is_superuser', 'last_login',
@@ -67,11 +67,8 @@ class GroupTable(NetBoxTable):
     )
 
     class Meta(NetBoxTable.Meta):
-        model = NetBoxGroup
-        fields = (
-            'pk', 'id', 'name', 'users_count',
-        )
-        default_columns = ('pk', 'name', 'users_count', )
+        model = Group
+        fields = ('pk', 'id', 'name', 'users_count', 'description')
 
 
 class ObjectPermissionTable(NetBoxTable):
@@ -103,11 +100,11 @@ class ObjectPermissionTable(NetBoxTable):
     )
     users = columns.ManyToManyColumn(
         verbose_name=_('Users'),
-        linkify_item=('users:netboxuser', {'pk': tables.A('pk')})
+        linkify_item=('users:user', {'pk': tables.A('pk')})
     )
     groups = columns.ManyToManyColumn(
         verbose_name=_('Groups'),
-        linkify_item=('users:netboxgroup', {'pk': tables.A('pk')})
+        linkify_item=('users:group', {'pk': tables.A('pk')})
     )
     actions = columns.ActionsColumn(
         actions=('edit', 'delete'),

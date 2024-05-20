@@ -3,8 +3,8 @@
 # its most recent release.
 
 # This script will invoke Python with the value of the PYTHON environment
-# variable (if set), or fall back to "python3". Note that NetBox v3.2+ requires
-# Python 3.8 or later.
+# variable (if set), or fall back to "python3". Note that NetBox v4.0+ requires
+# Python 3.10 or later.
 
 cd "$(dirname "$0")"
 
@@ -15,15 +15,15 @@ VIRTUALENV="$(pwd -P)/venv"
 PYTHON="${PYTHON:-python3}"
 
 # Validate the minimum required Python version
-COMMAND="${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 8) else 0)'"
+COMMAND="${PYTHON} -c 'import sys; exit(1 if sys.version_info < (3, 10) else 0)'"
 PYTHON_VERSION=$(eval "${PYTHON} -V")
 eval $COMMAND || {
   echo "--------------------------------------------------------------------"
   echo "ERROR: Unsupported Python version: ${PYTHON_VERSION}. NetBox requires"
-  echo "Python 3.8 or later. To specify an alternate Python executable, set"
+  echo "Python 3.10 or later. To specify an alternate Python executable, set"
   echo "the PYTHON environment variable. For example:"
   echo ""
-  echo "  sudo PYTHON=/usr/bin/python3.8 ./upgrade.sh"
+  echo "  sudo PYTHON=/usr/bin/python3.10 ./upgrade.sh"
   echo ""
   echo "To show your current Python version: ${PYTHON} -V"
   echo "--------------------------------------------------------------------"

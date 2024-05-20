@@ -18,96 +18,88 @@
 <div class="row">
 	<div class="col col-md-6">
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Power Feed" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Power Panel" %}</th>
-                        <td>{{ object.power_panel|linkify }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Rack" %}</th>
-                        <td>{{ object.rack|linkify|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Type" %}</th>
-                        <td>{% badge object.get_type_display bg_color=object.get_type_color %}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Status" %}</th>
-                        <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Description" %}</th>
-                        <td>{{ object.description|placeholder }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Tenant" %}</th>
-                        <td>
-                            {% if object.tenant.group %}
-                              {{ object.tenant.group|linkify }} /
-                            {% endif %}
-                            {{ object.tenant|linkify|placeholder }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Connected Device" %}</th>
-                        <td>
-                            {% if object.connected_endpoints %}
-                                {{ object.connected_endpoints.0.device|linkify }} ({{ object.connected_endpoints.0|linkify:"name" }})
-                            {% else %}
-                                {{ ''|placeholder }}
-                            {% endif %}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Utilization (Allocated" %})</th>
-                        {% with utilization=object.connected_endpoints.0.get_power_draw %}
-                            {% if utilization %}
-                                <td>
-                                    {{ utilization.allocated }}{% trans "VA" %} / {{ object.available_power }}{% trans "VA" %}
-                                    {% if object.available_power > 0 %}
-                                        {% utilization_graph utilization.allocated|percentage:object.available_power %}
-                                    {% endif %}
-                                </td>
-                            {% else %}
-                                <td>{{ ''|placeholder }}</td>
-                            {% endif %}
-                        {% endwith %}
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Power Feed" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Power Panel" %}</th>
+                    <td>{{ object.power_panel|linkify }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Rack" %}</th>
+                    <td>{{ object.rack|linkify|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Type" %}</th>
+                    <td>{% badge object.get_type_display bg_color=object.get_type_color %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Status" %}</th>
+                    <td>{% badge object.get_status_display bg_color=object.get_status_color %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Description" %}</th>
+                    <td>{{ object.description|placeholder }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Tenant" %}</th>
+                    <td>
+                        {% if object.tenant.group %}
+                          {{ object.tenant.group|linkify }} /
+                        {% endif %}
+                        {{ object.tenant|linkify|placeholder }}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Connected Device" %}</th>
+                    <td>
+                        {% if object.connected_endpoints %}
+                            {{ object.connected_endpoints.0.device|linkify }} ({{ object.connected_endpoints.0|linkify:"name" }})
+                        {% else %}
+                            {{ ''|placeholder }}
+                        {% endif %}
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Utilization (Allocated" %})</th>
+                    {% with utilization=object.connected_endpoints.0.get_power_draw %}
+                        {% if utilization %}
+                            <td>
+                                {{ utilization.allocated }}{% trans "VA" %} / {{ object.available_power }}{% trans "VA" %}
+                                {% if object.available_power > 0 %}
+                                    {% utilization_graph utilization.allocated|percentage:object.available_power %}
+                                {% endif %}
+                            </td>
+                        {% else %}
+                            <td>{{ ''|placeholder }}</td>
+                        {% endif %}
+                    {% endwith %}
+                </tr>
+            </table>
         </div>
         <div class="card">
-            <h5 class="card-header">
-                {% trans "Electrical Characteristics" %}
-            </h5>
-            <div class="card-body">
-                <table class="table table-hover attr-table">
-                    <tr>
-                        <th scope="row">{% trans "Supply" %}</th>
-                        <td>{{ object.get_supply_display }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Voltage" %}</th>
-                        <td>{{ object.voltage }}{% trans "V" context "Abbreviation for volts" %}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Amperage" %}</th>
-                        <td>{{ object.amperage }}{% trans "A" context "Abbreviation for amperes" %}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Phase" %}</th>
-                        <td>{{ object.get_phase_display }}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">{% trans "Max Utilization" %}</th>
-                        <td>{{ object.max_utilization }}%</td>
-                    </tr>
-                </table>
-            </div>
+            <h5 class="card-header">{% trans "Electrical Characteristics" %}</h5>
+            <table class="table table-hover attr-table">
+                <tr>
+                    <th scope="row">{% trans "Supply" %}</th>
+                    <td>{{ object.get_supply_display }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Voltage" %}</th>
+                    <td>{{ object.voltage }}{% trans "V" context "Abbreviation for volts" %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Amperage" %}</th>
+                    <td>{{ object.amperage }}{% trans "A" context "Abbreviation for amperes" %}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Phase" %}</th>
+                    <td>{{ object.get_phase_display }}</td>
+                </tr>
+                <tr>
+                    <th scope="row">{% trans "Max Utilization" %}</th>
+                    <td>{{ object.max_utilization }}%</td>
+                </tr>
+            </table>
         </div>
         {% include 'inc/panels/custom_fields.html' %}
         {% include 'inc/panels/tags.html' %}
@@ -116,27 +108,26 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Connection" %}</h5>
-        <div class="card-body">
-          {% if object.mark_connected %}
-            <div class="text-muted">
-              <span class="text-success"><i class="mdi mdi-check-bold"></i></span> {% trans "Marked as connected" %}
-            </div>
-          {% elif object.cable %}
-            {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:powerfeed_trace' %}
-          {% else %}
-            <div class="text-muted">
-              {% trans "Not connected" %}
-            </div>
-          {% endif %}
-        </div>
+        {% if object.mark_connected %}
+          <div class="card-body">
+            <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+            {% trans "Marked as connected" %}
+          </div>
+        {% elif object.cable %}
+          {% include 'dcim/inc/connection_endpoints.html' with trace_url='dcim:powerfeed_trace' %}
+        {% else %}
+          <div class="card-body text-muted">
+            {% trans "Not connected" %}
+          </div>
+        {% endif %}
         {% if not object.mark_connected and not object.cable %}
-        <div class="card-footer">
-          {% if perms.dcim.add_cable %}
-            <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" class="btn btn-primary btn-sm float-end">
-              <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
-            </a>
-          {% endif %}
-        </div>
+          <div class="card-footer">
+            {% if perms.dcim.add_cable %}
+              <a href="{% url 'dcim:cable_add' %}?a_terminations_type=dcim.powerfeed&a_terminations={{ object.pk }}&b_terminations_type=dcim.powerport&return_url={{ object.get_absolute_url }}" class="btn btn-primary float-end">
+                <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Connect" %}
+              </a>
+            {% endif %}
+          </div>
         {% endif %}
       </div>
       {% include 'inc/panels/comments.html' %}
