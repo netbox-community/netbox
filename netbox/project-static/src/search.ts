@@ -11,7 +11,6 @@ function quickSearchEventHandler(event: Event): void {
   if (isTruthy(clearbtn)) {
     if (quicksearch.value === "") {
       clearbtn.classList.add("invisible");
-      clearLinkParams();
     } else {
       clearbtn.classList.remove("invisible");
     }
