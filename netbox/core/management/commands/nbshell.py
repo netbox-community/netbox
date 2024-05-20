@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 
-from core.models import ContentType
+from core.models import ObjectType
 
 APPS = ('circuits', 'core', 'dcim', 'extras', 'ipam', 'tenancy', 'users', 'virtualization', 'vpn', 'wireless')
 
@@ -60,7 +60,7 @@ class Command(BaseCommand):
                 pass
 
         # Additional objects to include
-        namespace['ContentType'] = ContentType
+        namespace['ObjectType'] = ObjectType
         namespace['User'] = get_user_model()
 
         # Load convenience commands

@@ -1,7 +1,7 @@
 ---
 name: 📖 Documentation Change
 description: Suggest an addition or modification to the NetBox documentation
-labels: ["type: documentation", "needs triage"]
+labels: ["type: documentation", "status: needs triage"]
 body:
   - type: dropdown
     attributes:

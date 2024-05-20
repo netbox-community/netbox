@@ -3,15 +3,18 @@ from django.utils.translation import gettext_lazy as _
 
 from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
 from circuits.models import *
+from dcim.models import Site
 from ipam.models import ASN
 from netbox.forms import NetBoxModelBulkEditForm
 from tenancy.models import Tenant
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField
-from utilities.forms.widgets import DatePicker, NumberWithOptions
+from utilities.forms.rendering import FieldSet, TabbedGroups
+from utilities.forms.widgets import BulkEditNullBooleanSelect, DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitBulkEditForm',
+    'CircuitTerminationBulkEditForm',
     'CircuitTypeBulkEditForm',
     'ProviderBulkEditForm',
     'ProviderAccountBulkEditForm',
@@ -34,7 +37,7 @@ class ProviderBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Provider
     fieldsets = (
-        (None, ('asns', 'description')),
+        FieldSet('asns', 'description'),
     )
     nullable_fields = (
         'asns', 'description', 'comments',
@@ -56,7 +59,7 @@ class ProviderAccountBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ProviderAccount
     fieldsets = (
-        (None, ('provider', 'description')),
+        FieldSet('provider', 'description'),
     )
     nullable_fields = (
         'description', 'comments',
@@ -83,7 +86,7 @@ class ProviderNetworkBulkEditForm(NetBoxModelBulkEditForm):
 
     model = ProviderNetwork
     fieldsets = (
-        (None, ('provider', 'service_id', 'description')),
+        FieldSet('provider', 'service_id', 'description'),
     )
     nullable_fields = (
         'service_id', 'description', 'comments',
@@ -103,7 +106,7 @@ class CircuitTypeBulkEditForm(NetBoxModelBulkEditForm):
 
     model = CircuitType
     fieldsets = (
-        (None, ('color', 'description')),
+        FieldSet('color', 'description'),
     )
     nullable_fields = ('color', 'description')
 
@@ -164,10 +167,55 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
 
     model = Circuit
     fieldsets = (
-        (_('Circuit'), ('provider', 'type', 'status', 'description')),
-        (_('Service Parameters'), ('provider_account', 'install_date', 'termination_date', 'commit_rate')),
-        (_('Tenancy'), ('tenant',)),
+        FieldSet('provider', 'type', 'status', 'description', name=_('Circuit')),
+        FieldSet('provider_account', 'install_date', 'termination_date', 'commit_rate', name=_('Service Parameters')),
+        FieldSet('tenant', name=_('Tenancy')),
     )
     nullable_fields = (
         'tenant', 'commit_rate', 'description', 'comments',
     )
+
+
+class CircuitTerminationBulkEditForm(NetBoxModelBulkEditForm):
+    description = forms.CharField(
+        label=_('Description'),
+        max_length=200,
+        required=False
+    )
+    site = DynamicModelChoiceField(
+        label=_('Site'),
+        queryset=Site.objects.all(),
+        required=False
+    )
+    provider_network = DynamicModelChoiceField(
+        label=_('Provider Network'),
+        queryset=ProviderNetwork.objects.all(),
+        required=False
+    )
+    port_speed = forms.IntegerField(
+        required=False,
+        label=_('Port speed (Kbps)'),
+    )
+    upstream_speed = forms.IntegerField(
+        required=False,
+        label=_('Upstream speed (Kbps)'),
+    )
+    mark_connected = forms.NullBooleanField(
+        label=_('Mark connected'),
+        required=False,
+        widget=BulkEditNullBooleanSelect
+    )
+
+    model = CircuitTermination
+    fieldsets = (
+        FieldSet(
+            'description',
+            TabbedGroups(
+                FieldSet('site', name=_('Site')),
+                FieldSet('provider_network', name=_('Provider Network')),
+            ),
+            'mark_connected', name=_('Circuit Termination')
+        ),
+        FieldSet('port_speed', 'upstream_speed', name=_('Termination Details')),
+    )
+    nullable_fields = ('description')

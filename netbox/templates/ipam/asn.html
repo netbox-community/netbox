@@ -18,33 +18,31 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "ASN" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <td>{% trans "AS Number" %}</td>
-              <td>{{ object.asn_with_asdot }}</td>
-            </tr>
-            <tr>
-              <td>{% trans "RIR" %}</td>
-              <td>
-                <a href="{% url 'ipam:asn_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
-              </td>
-            </tr>
-            <tr>
-              <td>{% trans "Tenant" %}</td>
-              <td>
-                {% if object.tenant.group %}
-                  {{ object.tenant.group|linkify }} /
-                {% endif %}
-                {{ object.tenant|linkify|placeholder }}
-              </td>
-            </tr>
-            <tr>
-              <td>{% trans "Description" %}</td>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "AS Number" %}</th>
+            <td>{{ object.asn_with_asdot }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "RIR" %}</th>
+            <td>
+              <a href="{% url 'ipam:asn_list' %}?rir={{ object.rir.slug }}">{{ object.rir }}</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Tenant" %}</th>
+            <td>
+              {% if object.tenant.group %}
+                {{ object.tenant.group|linkify }} /
+              {% endif %}
+              {{ object.tenant|linkify|placeholder }}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% plugin_left_page object %}
       {% include 'inc/panels/tags.html' %}

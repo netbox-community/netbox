@@ -2,8 +2,8 @@
 
 {% block site_meta %}
   {{ super() }}
-  {# Disable search indexing unless we're building for ReadTheDocs (see #10496) #}
-  {% if page.canonical_url != 'https://docs.netbox.dev/' %}
+  {# Disable search indexing unless we're building for ReadTheDocs #}
+  {% if not config.extra.readthedocs %}
     <meta name="robots" content="noindex">
   {% endif %}
 {% endblock %}

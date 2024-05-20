@@ -15,7 +15,7 @@
     <div class="row">
       <div class="col col-md-12">
         <div class="card">
-          <div class="card-body htmx-container table-responsive" id="object_list">
+          <div class="htmx-container table-responsive" id="object_list">
             {% include 'htmx/table.html' %}
           </div>
         </div>
@@ -23,12 +23,10 @@
     </div>
 
     {# Form buttons #}
-    <div class="noprint bulk-buttons">
-      <div class="bulk-button-group">
-        {% if 'bulk_delete' in actions %}
-          {% bulk_delete_button model query_params=request.GET %}
-        {% endif %}
-      </div>
+    <div class="btn-list d-print-none mt-2">
+      {% if 'bulk_delete' in actions %}
+        {% bulk_delete_button model query_params=request.GET %}
+      {% endif %}
     </div>
   </form>
 {% endblock %}

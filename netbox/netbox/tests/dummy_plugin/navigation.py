@@ -4,23 +4,23 @@ from netbox.plugins.navigation import PluginMenu, PluginMenuButton, PluginMenuIt
 
 items = (
     PluginMenuItem(
-        link='plugins:dummy_plugin:dummy_models',
+        link='plugins:dummy_plugin:dummy_model_list',
         link_text='Item 1',
         buttons=(
             PluginMenuButton(
-                link='admin:dummy_plugin_dummymodel_add',
-                title='Add a new dummy model',
+                link='plugins:dummy_plugin:dummy_model_add',
+                title='Button 1',
                 icon_class='mdi mdi-plus-thick',
             ),
             PluginMenuButton(
-                link='admin:dummy_plugin_dummymodel_add',
-                title='Add a new dummy model',
+                link='plugins:dummy_plugin:dummy_model_add',
+                title='Button 2',
                 icon_class='mdi mdi-plus-thick',
             ),
         )
     ),
     PluginMenuItem(
-        link='plugins:dummy_plugin:dummy_models',
+        link='plugins:dummy_plugin:dummy_model_list',
         link_text='Item 2',
     ),
 )

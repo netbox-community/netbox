@@ -1,4 +1,5 @@
 import tempfile
+from datetime import date, datetime, timezone
 
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
@@ -322,3 +323,47 @@ class ScriptVariablesTest(TestCase):
         form = TestScript().as_form(data, None)
         self.assertTrue(form.is_valid())
         self.assertEqual(form.cleaned_data['var1'], IPNetwork(data['var1']))
+
+    def test_datevar(self):
+
+        class TestScript(Script):
+
+            var1 = DateVar()
+            var2 = DateVar(required=False)
+
+        # Test date validation
+        data = {'var1': 'not a date'}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
+        # Validate valid data
+        input_date = date(2024, 4, 1)
+        data = {'var1': input_date}
+        form = TestScript().as_form(data, None)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'], input_date)
+        # Validate required=False works for this Var type
+        self.assertEqual(form.cleaned_data['var2'], None)
+
+    def test_datetimevar(self):
+
+        class TestScript(Script):
+
+            var1 = DateTimeVar()
+            var2 = DateTimeVar(required=False)
+
+        # Test datetime validation
+        data = {'var1': 'not a datetime'}
+        form = TestScript().as_form(data, None)
+        self.assertFalse(form.is_valid())
+        self.assertIn('var1', form.errors)
+
+        # Validate valid data
+        input_datetime = datetime(2024, 4, 1, 8, 0, 0, 0, timezone.utc)
+        data = {'var1': input_datetime}
+        form = TestScript().as_form(data, None)
+        self.assertTrue(form.is_valid())
+        self.assertEqual(form.cleaned_data['var1'], input_datetime)
+        # Validate required=False works for this Var type
+        self.assertEqual(form.cleaned_data['var2'], None)

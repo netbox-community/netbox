@@ -60,18 +60,17 @@ function handleSecretToggle(state: StateManager<SecretState>, button: HTMLButton
   toggleSecretButton(hidden, button);
 }
 
+function toggleCallback(event: MouseEvent) {
+  handleSecretToggle(secretState, event.currentTarget as HTMLButtonElement);
+}
+
 /**
  * Initialize secret toggle button.
  */
 export function initSecretToggle(): void {
   hideSecret();
   for (const button of getElements<HTMLButtonElement>('button.toggle-secret')) {
-    button.addEventListener(
-      'click',
-      event => {
-        handleSecretToggle(secretState, event.currentTarget as HTMLButtonElement);
-      },
-      false,
-    );
+    button.removeEventListener('click', toggleCallback);
+    button.addEventListener('click', toggleCallback);
   }
 }

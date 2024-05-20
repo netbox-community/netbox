@@ -13,30 +13,28 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "Inventory Item Role" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Color" %}</th>
-            <td>
-              <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Inventory Items" %}</th>
-            <td>
-              <a href="{% url 'dcim:inventoryitem_list' %}?role_id={{ object.pk }}">{{ inventoryitem_count }}</a>
-            </td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Color" %}</th>
+          <td>
+            <span class="badge color-label" style="background-color: #{{ object.color }}">&nbsp;</span>
+          </td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Inventory Items" %}</th>
+          <td>
+            <a href="{% url 'dcim:inventoryitem_list' %}?role_id={{ object.pk }}">{{ inventoryitem_count }}</a>
+          </td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}

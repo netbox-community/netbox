@@ -5,7 +5,7 @@ from extras.tables import ObjectChangeTable
 from netbox.views import generic
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
-from .models import NetBoxGroup, NetBoxUser, ObjectPermission, Token
+from .models import Group, User, ObjectPermission, Token
 
 
 #
@@ -28,6 +28,7 @@ class TokenView(generic.ObjectView):
 class TokenEditView(generic.ObjectEditView):
     queryset = Token.objects.all()
     form = forms.TokenForm
+    template_name = 'users/token_edit.html'
 
 
 @register_model_view(Token, 'delete')
@@ -56,15 +57,15 @@ class TokenBulkDeleteView(generic.BulkDeleteView):
 #
 
 class UserListView(generic.ObjectListView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
-    filterset_form = forms.NetBoxUserFilterForm
+    filterset_form = forms.UserFilterForm
     table = tables.UserTable
 
 
-@register_model_view(NetBoxUser)
+@register_model_view(User)
 class UserView(generic.ObjectView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     template_name = 'users/user.html'
 
     def get_extra_context(self, request, instance):
@@ -76,31 +77,31 @@ class UserView(generic.ObjectView):
         }
 
 
-@register_model_view(NetBoxUser, 'edit')
+@register_model_view(User, 'edit')
 class UserEditView(generic.ObjectEditView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     form = forms.UserForm
 
 
-@register_model_view(NetBoxUser, 'delete')
+@register_model_view(User, 'delete')
 class UserDeleteView(generic.ObjectDeleteView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
 
 
 class UserBulkEditView(generic.BulkEditView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
     form = forms.UserBulkEditForm
 
 
 class UserBulkImportView(generic.BulkImportView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     model_form = forms.UserImportForm
 
 
 class UserBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxUser.objects.all()
+    queryset = User.objects.all()
     filterset = filtersets.UserFilterSet
     table = tables.UserTable
 
@@ -110,36 +111,43 @@ class UserBulkDeleteView(generic.BulkDeleteView):
 #
 
 class GroupListView(generic.ObjectListView):
-    queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
+    queryset = Group.objects.annotate(users_count=Count('user')).order_by('name')
     filterset = filtersets.GroupFilterSet
-    filterset_form = forms.NetBoxGroupFilterForm
+    filterset_form = forms.GroupFilterForm
     table = tables.GroupTable
 
 
-@register_model_view(NetBoxGroup)
+@register_model_view(Group)
 class GroupView(generic.ObjectView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
     template_name = 'users/group.html'
 
 
-@register_model_view(NetBoxGroup, 'edit')
+@register_model_view(Group, 'edit')
 class GroupEditView(generic.ObjectEditView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
     form = forms.GroupForm
 
 
-@register_model_view(NetBoxGroup, 'delete')
+@register_model_view(Group, 'delete')
 class GroupDeleteView(generic.ObjectDeleteView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
 
 
 class GroupBulkImportView(generic.BulkImportView):
-    queryset = NetBoxGroup.objects.all()
+    queryset = Group.objects.all()
     model_form = forms.GroupImportForm
 
 
+class GroupBulkEditView(generic.BulkEditView):
+    queryset = Group.objects.all()
+    filterset = filtersets.GroupFilterSet
+    table = tables.GroupTable
+    form = forms.GroupBulkEditForm
+
+
 class GroupBulkDeleteView(generic.BulkDeleteView):
-    queryset = NetBoxGroup.objects.annotate(users_count=Count('user'))
+    queryset = Group.objects.annotate(users_count=Count('user')).order_by('name')
     filterset = filtersets.GroupFilterSet
     table = tables.GroupTable
 

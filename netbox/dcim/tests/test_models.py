@@ -1,13 +1,13 @@
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 
 from circuits.models import *
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.models import *
 from extras.models import CustomField
 from tenancy.models import Tenant
-from utilities.utils import drange
+from utilities.data import drange
 
 
 class LocationTestCase(TestCase):
@@ -293,8 +293,8 @@ class DeviceTestCase(TestCase):
 
         # Create a CustomField with a default value & assign it to all component models
         cf1 = CustomField.objects.create(name='cf1', default='foo')
-        cf1.content_types.set(
-            ContentType.objects.filter(app_label='dcim', model__in=[
+        cf1.object_types.set(
+            ObjectType.objects.filter(app_label='dcim', model__in=[
                 'consoleport',
                 'consoleserverport',
                 'powerport',
@@ -532,30 +532,6 @@ class DeviceTestCase(TestCase):
         # Two devices assigned to the same Site and different Tenants should pass validation
         device2.full_clean()
         device2.save()
-
-    def test_old_device_role_field(self):
-        """
-        Ensure that the old device role field sets the value in the new role field.
-        """
-
-        # Test getter method
-        device = Device(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            role=DeviceRole.objects.first(),
-            name='Test Device 1',
-            device_role=DeviceRole.objects.first()
-        )
-        device.full_clean()
-        device.save()
-
-        self.assertEqual(device.role, device.device_role)
-
-        # Test setter method
-        device.device_role = DeviceRole.objects.last()
-        device.full_clean()
-        device.save()
-        self.assertEqual(device.role, device.device_role)
 
 
 class CableTestCase(TestCase):

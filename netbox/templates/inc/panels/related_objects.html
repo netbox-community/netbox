@@ -10,9 +10,9 @@
           {{ qs.model|meta:"verbose_name_plural"|bettertitle }}
           {% with count=qs.count %}
             {% if count %}
-              <span class="badge bg-primary rounded-pill">{{ count }}</span>
+              <span class="badge text-bg-primary rounded-pill">{{ count }}</span>
             {% else %}
-              <span class="badge bg-light rounded-pill">&mdash;</span>
+              <span class="badge text-bg-light rounded-pill">&mdash;</span>
             {% endif %}
           {% endwith %}
         </a>

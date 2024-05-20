@@ -1,0 +1,82 @@
+{% extends 'generic/object.html' %}
+{% load i18n %}
+{% load helpers %}
+{% load render_table from django_tables2 %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'core:background_queue_list' %}">{% trans 'Background Queues' %}</a></li>
+{% endblock breadcrumbs %}
+
+{% block title %}{% trans "Worker Info" %} {{ job.id }}{% endblock %}
+
+{% block subtitle %}
+  <div class="text-secondary fs-5">
+    <span>{% trans "Created" %} {{ worker.birth_date|isodatetime }}</span>
+  </div>
+{% endblock subtitle %}
+
+{% block object_identifier %}{% endblock %}
+
+{% block controls %}
+  <div class="controls">
+    <div class="control-group">
+      {% block extra_controls %}{% endblock %}
+    </div>
+  </div>
+{% endblock controls %}
+
+{% block tabs %}
+  <ul class="nav nav-tabs">
+    <li class="nav-item" role="presentation">
+      <a class="nav-link active" role="tab">{% trans "Worker" %}</a>
+    </li>
+  </ul>
+{% endblock tabs %}
+
+{% block content %}
+    <div class="row">
+      <div class="col col-md-12">
+        <div class="card">
+          <h5 class="card-header">{% trans "Worker" %}</h5>
+          <table class="table table-hover attr-table">
+            <tr>
+              <th scope="row">{% trans "Name" %}</th>
+              <td>{{ worker.name|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "State" %}</th>
+              <td>{{ worker.get_state|bettertitle|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Birth" %}</th>
+              <td>{{ worker.birth_date|isodatetime }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Queues" %}</th>
+              <td>{{ worker.queue_names|join:", " }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "PID" %}</th>
+              <td>{{ worker.pid|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Curent Job" %}</th>
+              <td>{{ job.func_name|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Successful job count" %}</th>
+              <td>{{ worker.successful_job_count|placeholder }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Failed job count" %}</th>
+              <td>{{ worker.failed_job_count }}</td>
+            </tr>
+            <tr>
+              <th scope="row">{% trans "Total working time" %}</th>
+              <td>{{ total_working_time }} {% trans "seconds" %}</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+{% endblock content %}

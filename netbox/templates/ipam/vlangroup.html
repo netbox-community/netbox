@@ -14,7 +14,7 @@
 
 {% block extra_controls %}
   {% if perms.ipam.add_vlan %}
-    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-sm btn-primary">
+    <a href="{% url 'ipam:vlan_add' %}?group={{ object.pk }}" class="btn btn-primary">
       <span class="mdi mdi-plus-thick" aria-hidden="true"></span> {% trans "Add VLAN" %}
     </a>
   {% endif %}
@@ -25,30 +25,28 @@
 	<div class="col col-md-6">
     <div class="card">
       <h5 class="card-header">{% trans "VLAN Group" %}</h5>
-      <div class="card-body">
-        <table class="table table-hover attr-table">
-          <tr>
-            <th scope="row">{% trans "Name" %}</th>
-            <td>{{ object.name }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Description" %}</th>
-            <td>{{ object.description|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Scope" %}</th>
-            <td>{{ object.scope|linkify|placeholder }}</td>
-          </tr>
-          <tr>
-            <th scope="row">{% trans "Permitted VIDs" %}</th>
-            <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
-          </tr>
-          <tr>
-            <th scope="row">Utilization</th>
-            <td>{% utilization_graph object.utilization %}</td>
-          </tr>
-        </table>
-      </div>
+      <table class="table table-hover attr-table">
+        <tr>
+          <th scope="row">{% trans "Name" %}</th>
+          <td>{{ object.name }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Description" %}</th>
+          <td>{{ object.description|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Scope" %}</th>
+          <td>{{ object.scope|linkify|placeholder }}</td>
+        </tr>
+        <tr>
+          <th scope="row">{% trans "Permitted VIDs" %}</th>
+          <td>{{ object.min_vid }} - {{ object.max_vid }}</td>
+        </tr>
+        <tr>
+          <th scope="row">Utilization</th>
+          <td>{% utilization_graph object.utilization %}</td>
+        </tr>
+      </table>
     </div>
     {% include 'inc/panels/tags.html' %}
     {% plugin_left_page object %}

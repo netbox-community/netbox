@@ -3,7 +3,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
 
 from netbox.views import generic
-from utilities.utils import count_related, get_related_models
+from utilities.query import count_related
+from utilities.relations import get_related_models
 from utilities.views import register_model_view, ViewTab
 from . import filtersets, forms, tables
 from .models import *
@@ -23,7 +24,7 @@ class ObjectContactsView(generic.ObjectChildrenView):
 
     def get_children(self, request, parent):
         return ContactAssignment.objects.restrict(request.user, 'view').filter(
-            content_type=ContentType.objects.get_for_model(parent),
+            object_type=ContentType.objects.get_for_model(parent),
             object_id=parent.pk
         ).order_by('priority', 'contact', 'role')
 
@@ -31,7 +32,7 @@ class ObjectContactsView(generic.ObjectChildrenView):
         table = super().get_table(*args, **kwargs)
 
         # Hide object columns
-        table.columns.hide('content_type')
+        table.columns.hide('object_type')
         table.columns.hide('object')
 
         return table
@@ -369,13 +370,12 @@ class ContactAssignmentListView(generic.ObjectListView):
 class ContactAssignmentEditView(generic.ObjectEditView):
     queryset = ContactAssignment.objects.all()
     form = forms.ContactAssignmentForm
-    template_name = 'tenancy/contactassignment_edit.html'
 
     def alter_object(self, instance, request, args, kwargs):
         if not instance.pk:
             # Assign the object based on URL kwargs
-            content_type = get_object_or_404(ContentType, pk=request.GET.get('content_type'))
-            instance.object = get_object_or_404(content_type.model_class(), pk=request.GET.get('object_id'))
+            object_type = get_object_or_404(ContentType, pk=request.GET.get('object_type'))
+            instance.object = get_object_or_404(object_type.model_class(), pk=request.GET.get('object_id'))
         return instance
 
     def get_extra_addanother_params(self, request):

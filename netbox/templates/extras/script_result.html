@@ -1,4 +1,4 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load buttons %}
 {% load perms %}
@@ -10,56 +10,98 @@
   {{ script.Meta.description|markdown }}
 {% endblock %}
 
-{% block header %}
-  <div class="row noprint">
-    <div class="col col-md-12">
-      <nav class="breadcrumb-container px-3" aria-label="breadcrumb">
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
-          <li class="breadcrumb-item"><a href="{% url 'extras:script' module=script.module name=script.class_name %}">{{ script }}</a></li>
-          <li class="breadcrumb-item">{{ job.created|annotated_date }}</li>
-        </ol>
-      </nav>
-    </div>
+{% block page-header %}
+  <div class="container-fluid mt-2">
+    <nav class="breadcrumb-container" aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}">{% trans "Scripts" %}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'extras:script_list' %}#module.{{ script.module }}">{{ script.module|bettertitle }}</a></li>
+        <li class="breadcrumb-item"><a href="{{ script.get_absolute_url }}">{{ script }}</a></li>
+        <li class="breadcrumb-item">{{ job.created|isodatetime }}</li>
+      </ol>
+    </nav>
   </div>
-  {{ block.super }}
-{% endblock header %}
+{% endblock page-header %}
 
 {% block controls %}
-  <div class="controls">
-    <div class="control-group">
-      {% if request.user|can_delete:job %}
-        {% delete_button job %}
-      {% endif %}
-    </div>
-  </div>
+  {% if request.user|can_delete:job %}
+    {% delete_button job %}
+  {% endif %}
 {% endblock controls %}
 
-{% block content-wrapper %}
-  <ul class="nav nav-tabs px-3" role="tablist">
+{% block tabs %}
+  <ul class="nav nav-tabs" role="tablist">
     <li class="nav-item" role="presentation">
-      <a href="#log" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Log" %}</a>
-    </li>
-    <li class="nav-item" role="presentation">
-      <a href="#source" role="tab" data-bs-toggle="tab" class="nav-link">{% trans "Source" %}</a>
+      <a href="#results" role="tab" data-bs-toggle="tab" class="nav-link active">{% trans "Results" %}</a>
     </li>
   </ul>
-  <div class="tab-content mb-3">
-    <div role="tabpanel" class="tab-pane active" id="log">
-      <div class="row">
-        <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="load delay:0.5s, every 5s"{% endif %}>
-          {% include 'extras/htmx/script_result.html' %}
+{% endblock %}
+
+{% block content %}
+    {# Object list tab #}
+    <div class="tab-pane show active" id="results" role="tabpanel" aria-labelledby="results-tab">
+
+      {# Object table controls #}
+      <div class="row mb-3">
+        <div class="col-auto ms-auto d-print-none">
+          {% if request.user.is_authenticated %}
+            <div class="table-configure input-group">
+              <button type="button" data-bs-toggle="modal" title="{% trans "Configure Table" %}" data-bs-target="#ObjectTable_config"
+                class="btn">
+                <i class="mdi mdi-cog"></i> {% trans "Configure Table" %}
+              </button>
+            </div>
+          {% endif %}
         </div>
       </div>
+
+      <form method="post" class="form form-horizontal">
+        {% csrf_token %}
+        {# "Select all" form #}
+        {% if table.paginator.num_pages > 1 %}
+          <div id="select-all-box" class="d-none card d-print-none">
+            <div class="form col-md-12">
+              <div class="card-body">
+                <div class="form-check">
+                  <input type="checkbox" id="select-all" name="_all" class="form-check-input" />
+                  <label for="select-all" class="form-check-label">
+                    {% blocktrans trimmed with count=table.rows|length object_type_plural=table.data.verbose_name_plural %}
+                      Select <strong>all {{ count }} {{ object_type_plural }}</strong> matching query
+                    {% endblocktrans %}
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="form form-horizontal">
+          {% csrf_token %}
+          <input type="hidden" name="return_url" value="{% if return_url %}{{ return_url }}{% else %}{{ request.path }}{% if request.GET %}?{{ request.GET.urlencode }}{% endif %}{% endif %}" />
+
+          {# Objects table #}
+            <div class="col col-md-12"{% if not job.completed %} hx-get="{% url 'extras:script_result' job_pk=job.pk %}" hx-trigger="load delay:0.5s, every 5s"{% endif %}>
+              {% include 'extras/htmx/script_result.html' %}
+            </div>
+          {# /Objects table #}
+
+        </div>
+      </form>
     </div>
-    <div role="tabpanel" class="tab-pane" id="source">
-      <p><code>{{ script.filename }}</code></p>
-      <pre class="block">{{ script.source }}</pre>
-    </div>
-  </div>
-{% endblock content-wrapper %}
+    {# /Object list tab #}
+
+    {# Filters tab #}
+    {% if filter_form %}
+      <div class="tab-pane show" id="filters-form" role="tabpanel" aria-labelledby="filters-form-tab">
+        {% include 'inc/filter_list.html' %}
+      </div>
+    {% endif %}
+    {# /Filters tab #}
+
+{% endblock content %}
 
 {% block modals %}
-  {% include 'inc/htmx_modal.html' %}
+  {% if job.completed %}
+  {% table_config_form table table_name="ObjectTable" %}
+  {% endif %}
 {% endblock modals %}

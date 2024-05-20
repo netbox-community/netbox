@@ -1,14 +1,15 @@
 from django import template
-from django.http import QueryDict
 
 from extras.choices import CustomFieldTypeChoices
-from utilities.utils import dict_to_querydict
+from utilities.querydict import dict_to_querydict
 
 __all__ = (
     'badge',
     'checkmark',
     'copy_content',
     'customfield_value',
+    'htmx_table',
+    'formaction',
     'tag',
 )
 
@@ -114,3 +115,14 @@ def htmx_table(context, viewname, return_url=None, **kwargs):
         'viewname': viewname,
         'url_params': url_params,
     }
+
+
+@register.simple_tag(takes_context=True)
+def formaction(context):
+    """
+    Replace the 'formaction' attribute on an HTML element with the appropriate HTMX attributes
+    if HTMX navigation is enabled (per the user's preferences).
+    """
+    if context.get('htmx_navigation', False):
+        return 'hx-push-url="true" hx-post'
+    return 'formaction'

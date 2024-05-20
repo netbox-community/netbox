@@ -6,7 +6,7 @@ from dcim.views import PathTraceView
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
 from utilities.forms import ConfirmationForm
-from utilities.utils import count_related
+from utilities.query import count_related
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import *
@@ -298,7 +298,7 @@ class CircuitBulkImportView(generic.BulkImportView):
         'circuits.add_circuittermination',
     ]
     related_object_forms = {
-        'terminations': forms.CircuitTerminationImportForm,
+        'terminations': forms.CircuitTerminationImportRelatedForm,
     }
 
     def prep_related_object_data(self, parent, data):
@@ -408,16 +408,45 @@ class CircuitContactsView(ObjectContactsView):
 # Circuit terminations
 #
 
+class CircuitTerminationListView(generic.ObjectListView):
+    queryset = CircuitTermination.objects.all()
+    filterset = filtersets.CircuitTerminationFilterSet
+    filterset_form = forms.CircuitTerminationFilterForm
+    table = tables.CircuitTerminationTable
+
+
+@register_model_view(CircuitTermination)
+class CircuitTerminationView(generic.ObjectView):
+    queryset = CircuitTermination.objects.all()
+
+
 @register_model_view(CircuitTermination, 'edit')
 class CircuitTerminationEditView(generic.ObjectEditView):
     queryset = CircuitTermination.objects.all()
     form = forms.CircuitTerminationForm
-    template_name = 'circuits/circuittermination_edit.html'
 
 
 @register_model_view(CircuitTermination, 'delete')
 class CircuitTerminationDeleteView(generic.ObjectDeleteView):
     queryset = CircuitTermination.objects.all()
+
+
+class CircuitTerminationBulkImportView(generic.BulkImportView):
+    queryset = CircuitTermination.objects.all()
+    model_form = forms.CircuitTerminationImportForm
+
+
+class CircuitTerminationBulkEditView(generic.BulkEditView):
+    queryset = CircuitTermination.objects.all()
+    filterset = filtersets.CircuitTerminationFilterSet
+    table = tables.CircuitTerminationTable
+    form = forms.CircuitTerminationBulkEditForm
+
+
+class CircuitTerminationBulkDeleteView(generic.BulkDeleteView):
+    queryset = CircuitTermination.objects.all()
+    filterset = filtersets.CircuitTerminationFilterSet
+    table = tables.CircuitTerminationTable
 
 
 # Trace view

@@ -19,7 +19,7 @@ class AppTest(APITestCase):
 
 class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
     model = WirelessLANGroup
-    brief_fields = ['_depth', 'display', 'id', 'name', 'slug', 'url', 'wirelesslan_count']
+    brief_fields = ['_depth', 'description', 'display', 'id', 'name', 'slug', 'url', 'wirelesslan_count']
     create_data = [
         {
             'name': 'Wireless LAN Group 4',
@@ -48,7 +48,7 @@ class WirelessLANGroupTest(APIViewTestCases.APIViewTestCase):
 
 class WirelessLANTest(APIViewTestCases.APIViewTestCase):
     model = WirelessLAN
-    brief_fields = ['display', 'id', 'ssid', 'url']
+    brief_fields = ['description', 'display', 'id', 'ssid', 'url']
 
     @classmethod
     def setUpTestData(cls):
@@ -110,7 +110,7 @@ class WirelessLANTest(APIViewTestCases.APIViewTestCase):
 
 class WirelessLinkTest(APIViewTestCases.APIViewTestCase):
     model = WirelessLink
-    brief_fields = ['display', 'id', 'ssid', 'url']
+    brief_fields = ['description', 'display', 'id', 'ssid', 'url']
     bulk_update_data = {
         'status': 'planned',
     }
