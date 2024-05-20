@@ -181,7 +181,6 @@ class ClusterVirtualMachinesView(generic.ObjectChildrenView):
     child_model = VirtualMachine
     table = tables.VirtualMachineTable
     filterset = filtersets.VirtualMachineFilterSet
-    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Virtual Machines'),
         badge=lambda obj: obj.virtual_machines.count(),
@@ -388,7 +387,7 @@ class VirtualMachineVirtualDisksView(generic.ObjectChildrenView):
     tab = ViewTab(
         label=_('Virtual Disks'),
         badge=lambda obj: obj.virtual_disk_count,
-        permission='virtualization.view_virtual_disk',
+        permission='virtualization.view_virtualdisk',
         weight=500
     )
     actions = {

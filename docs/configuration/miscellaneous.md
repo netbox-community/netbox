@@ -33,9 +33,6 @@ This defines custom content to be displayed on the login page above the login fo
 
 !!! tip "Dynamic Configuration Parameter"
 
-!!! note
-    This parameter was added in NetBox v3.5.
-
 This adds a banner to the top of every page when maintenance mode is enabled. HTML is allowed.
 
 ---
@@ -115,9 +112,6 @@ Default: True
 
 By default, NetBox will prevent the creation of duplicate prefixes and IP addresses in the global table (that is, those which are not assigned to any VRF). This validation can be disabled by setting `ENFORCE_GLOBAL_UNIQUE` to False.
 
-!!! info "Changed in v3.7"
-    The default value for this parameter was changed from False to True in NetBox v3.7.
-
 ---
 
 ## FILE_UPLOAD_MAX_MEMORY_SIZE
@@ -141,9 +135,6 @@ Setting this to False will disable the GraphQL API.
 ## JOB_RETENTION
 
 !!! tip "Dynamic Configuration Parameter"
-
-!!! note
-    This parameter was renamed from `JOBRESULT_RETENTION` in NetBox v3.5.
 
 Default: 90
 
@@ -239,9 +230,6 @@ The maximum execution time of a background task (such as running a custom script
 
 ## RQ_RETRY_INTERVAL
 
-!!! note
-    This parameter was added in NetBox v3.5.
-
 Default: `60`
 
 This parameter controls how frequently a failed job is retried, up to the maximum number of times specified by `RQ_RETRY_MAX`. This must be either an integer specifying the number of seconds to wait between successive attempts, or a list of such values. For example, `[60, 300, 3600]` will retry the task after 1 minute, 5 minutes, and 1 hour.
@@ -249,9 +237,6 @@ This parameter controls how frequently a failed job is retried, up to the maximu
 ---
 
 ## RQ_RETRY_MAX
-
-!!! note
-    This parameter was added in NetBox v3.5.
 
 Default: `0` (retries disabled)
 

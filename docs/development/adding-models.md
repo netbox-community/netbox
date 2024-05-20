@@ -77,7 +77,7 @@ Create the following for each model:
 
 ## 13. GraphQL API components
 
-Create a Graphene object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
+Create a GraphQL object type for the model in `graphql/types.py` by subclassing the appropriate class from `netbox.graphql.types`.
 
 Also extend the schema class defined in `graphql/schema.py` with the individual object and object list fields per the established convention.
 

@@ -15,8 +15,6 @@ from utilities.forms import get_selected_values, TableConfigForm
 from utilities.views import get_viewname
 
 __all__ = (
-    'annotated_date',
-    'annotated_now',
     'applied_filters',
     'as_range',
     'divide',
@@ -103,34 +101,6 @@ def humanize_megabytes(mb):
     if not mb % 1024:
         return f'{int(mb / 1024)} GB'
     return f'{mb} MB'
-
-
-@register.filter(expects_localtime=True)
-def annotated_date(date_value):
-    """
-    Returns date as HTML span with short date format as the content and the
-    (long) date format as the title.
-    """
-    if not date_value:
-        return ''
-
-    if type(date_value) is datetime.date:
-        long_ts = date(date_value, 'DATE_FORMAT')
-        short_ts = date(date_value, 'SHORT_DATE_FORMAT')
-    else:
-        long_ts = date(date_value, 'DATETIME_FORMAT')
-        short_ts = date(date_value, 'SHORT_DATETIME_FORMAT')
-
-    return mark_safe(f'<span title="{long_ts}">{short_ts}</span>')
-
-
-@register.simple_tag
-def annotated_now():
-    """
-    Returns the current date piped through the annotated_date filter.
-    """
-    tzinfo = timezone.get_current_timezone() if settings.USE_TZ else None
-    return annotated_date(datetime.datetime.now(tz=tzinfo))
 
 
 @register.filter()

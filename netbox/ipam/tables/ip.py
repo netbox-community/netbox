@@ -378,7 +378,7 @@ class IPAddressTable(TenancyColumnsMixin, NetBoxTable):
         orderable=False,
         verbose_name=_('NAT (Inside)')
     )
-    nat_outside = tables.ManyToManyColumn(
+    nat_outside = columns.ManyToManyColumn(
         linkify_item=True,
         orderable=False,
         verbose_name=_('NAT (Outside)')

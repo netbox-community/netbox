@@ -1,3 +1,5 @@
+import json
+
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -35,7 +37,11 @@ class NetBoxModelForm(CheckLastUpdatedMixin, CustomFieldsMixin, TagsMixin, forms
     def _get_form_field(self, customfield):
         if self.instance.pk:
             form_field = customfield.to_form_field(set_initial=False)
-            form_field.initial = self.instance.custom_field_data.get(customfield.name, None)
+            initial = self.instance.custom_field_data.get(customfield.name)
+            if customfield.type == CustomFieldTypeChoices.TYPE_JSON:
+                form_field.initial = json.dumps(initial)
+            else:
+                form_field.initial = initial
             return form_field
 
         return customfield.to_form_field()
@@ -74,17 +80,12 @@ class NetBoxModelImportForm(CSVModelForm, NetBoxModelForm):
     """
     Base form for creating a NetBox objects from CSV data. Used for bulk importing.
     """
-    id = forms.IntegerField(
-        label=_('Id'),
-        required=False,
-        help_text='Numeric ID of an existing object to update (if not creating a new object)'
-    )
     tags = CSVModelMultipleChoiceField(
         label=_('Tags'),
         queryset=Tag.objects.all(),
         required=False,
         to_field_name='slug',
-        help_text='Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")'
+        help_text=_('Tag slugs separated by commas, encased with double quotes (e.g. "tag1,tag2,tag3")')
     )
 
     def _get_custom_fields(self, content_type):

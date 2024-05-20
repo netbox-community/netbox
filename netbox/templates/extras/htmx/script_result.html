@@ -1,4 +1,3 @@
-{% load humanize %}
 {% load helpers %}
 {% load log_levels %}
 {% load i18n %}
@@ -6,11 +5,11 @@
 <div class="htmx-container">
   <p>
     {% if job.started %}
-      {% trans "Started" %}: <strong>{{ job.started|annotated_date }}</strong>
+      {% trans "Started" %}: <strong>{{ job.started|isodatetime }}</strong>
     {% elif job.scheduled %}
-      {% trans "Scheduled for" %}: <strong>{{ job.scheduled|annotated_date }}</strong> ({{ job.scheduled|naturaltime }})
+      {% trans "Scheduled for" %}: <strong>{{ job.scheduled|isodatetime }}</strong>
     {% else %}
-      {% trans "Created" %}: <strong>{{ job.created|annotated_date }}</strong>
+      {% trans "Created" %}: <strong>{{ job.created|isodatetime }}</strong>
     {% endif %}
     {% if job.completed %}
       {% trans "Duration" %}: <strong>{{ job.duration }}</strong>

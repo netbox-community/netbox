@@ -101,7 +101,7 @@ CONNECTIONS_MENU = Menu(
         MenuGroup(
             label=_('Connections'),
             items=(
-                get_model_item('dcim', 'cable', _('Cables'), actions=['import']),
+                get_model_item('dcim', 'cable', _('Cables')),
                 get_model_item('wireless', 'wirelesslink', _('Wireless Links')),
                 MenuItem(
                     link='dcim:interface_connections_list',
@@ -258,6 +258,7 @@ CIRCUITS_MENU = Menu(
             items=(
                 get_model_item('circuits', 'circuit', _('Circuits')),
                 get_model_item('circuits', 'circuittype', _('Circuit Types')),
+                get_model_item('circuits', 'circuittermination', _('Circuit Terminations')),
             ),
         ),
         MenuGroup(
@@ -368,78 +369,59 @@ ADMIN_MENU = Menu(
         MenuGroup(
             label=_('Authentication'),
             items=(
-                # Proxy model for auth.User
                 MenuItem(
                     link=f'users:user_list',
                     link_text=_('Users'),
-                    permissions=[f'auth.view_user'],
-                    staff_only=True,
+                    auth_required=True,
+                    permissions=[f'users.view_user'],
                     buttons=(
                         MenuItemButton(
                             link=f'users:user_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_user']
+                            permissions=[f'users.add_user']
                         ),
                         MenuItemButton(
                             link=f'users:user_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_user']
+                            permissions=[f'users.add_user']
                         )
                     )
                 ),
-                # Proxy model for auth.Group
                 MenuItem(
                     link=f'users:group_list',
                     link_text=_('Groups'),
-                    permissions=[f'auth.view_group'],
-                    staff_only=True,
+                    auth_required=True,
+                    permissions=[f'users.view_group'],
                     buttons=(
                         MenuItemButton(
                             link=f'users:group_add',
                             title='Add',
                             icon_class='mdi mdi-plus-thick',
-                            permissions=[f'auth.add_group']
+                            permissions=[f'users.add_group']
                         ),
                         MenuItemButton(
                             link=f'users:group_import',
                             title='Import',
                             icon_class='mdi mdi-upload',
-                            permissions=[f'auth.add_group']
+                            permissions=[f'users.add_group']
                         )
                     )
                 ),
                 MenuItem(
                     link=f'users:token_list',
                     link_text=_('API Tokens'),
+                    auth_required=True,
                     permissions=[f'users.view_token'],
-                    staff_only=True,
                     buttons=get_model_buttons('users', 'token')
                 ),
                 MenuItem(
                     link=f'users:objectpermission_list',
                     link_text=_('Permissions'),
+                    auth_required=True,
                     permissions=[f'users.view_objectpermission'],
-                    staff_only=True,
                     buttons=get_model_buttons('users', 'objectpermission', actions=['add'])
-                ),
-            ),
-        ),
-        MenuGroup(
-            label=_('Configuration'),
-            items=(
-                MenuItem(
-                    link='core:config',
-                    link_text=_('Current Config'),
-                    permissions=['core.view_configrevision'],
-                    staff_only=True
-                ),
-                MenuItem(
-                    link='core:configrevision_list',
-                    link_text=_('Config Revisions'),
-                    permissions=['core.view_configrevision'],
-                    staff_only=True
                 ),
             ),
         ),
@@ -447,14 +429,20 @@ ADMIN_MENU = Menu(
             label=_('System'),
             items=(
                 MenuItem(
-                    link='core:plugin_list',
-                    link_text=_('Plugins'),
-                    staff_only=True
+                    link='core:system',
+                    link_text=_('System'),
+                    auth_required=True
+                ),
+                MenuItem(
+                    link='core:configrevision_list',
+                    link_text=_('Configuration History'),
+                    auth_required=True,
+                    permissions=['core.view_configrevision']
                 ),
                 MenuItem(
                     link='core:background_queue_list',
                     link_text=_('Background Tasks'),
-                    staff_only=True
+                    auth_required=True
                 ),
             ),
         ),

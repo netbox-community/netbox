@@ -20,7 +20,7 @@
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Created" %}</th>
-                        <td>{{ object.created|annotated_date }}</td>
+                        <td>{{ object.created|isodatetime:"minutes" }}</td>
                     </tr>
                     <tr>
                         <th scope="row">{% trans "Created By" %}</th>

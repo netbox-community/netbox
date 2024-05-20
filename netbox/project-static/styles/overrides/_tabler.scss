@@ -27,3 +27,8 @@ pre {
   // Tabler sets display: flex
   display: inline-block;;
 }
+
+table a {
+  // Adjust table anchor link contrast as not enough contrast in dark mode
+  filter: brightness(110%);
+}

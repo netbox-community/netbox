@@ -14,3 +14,9 @@ html {
 .progress {
   min-width: 80px;
 }
+
+// Reduce vertical margin around dropdown menu divider
+hr.dropdown-divider {
+  margin-bottom: 0.25rem;
+  margin-top: 0.25rem;
+}

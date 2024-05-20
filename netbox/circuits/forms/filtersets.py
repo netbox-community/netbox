@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices, CircuitTerminationSideChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
@@ -13,6 +13,7 @@ from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitFilterForm',
+    'CircuitTerminationFilterForm',
     'CircuitTypeFilterForm',
     'ProviderFilterForm',
     'ProviderAccountFilterForm',
@@ -25,7 +26,7 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     fieldsets = (
         FieldSet('q', 'filter_id', 'tag'),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
-        FieldSet('asn', name=_('ASN')),
+        FieldSet('asn_id', name=_('ASN')),
         FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     region_id = DynamicModelMultipleChoiceField(
@@ -46,10 +47,6 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
             'site_group_id': '$site_group_id',
         },
         label=_('Site')
-    )
-    asn = forms.IntegerField(
-        required=False,
-        label=_('ASN (legacy)')
     )
     asn_id = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
@@ -188,5 +185,48 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         widget=NumberWithOptions(
             options=CircuitCommitRateChoices
         )
+    )
+    tag = TagFilterField(model)
+
+
+class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
+    model = CircuitTermination
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('circuit_id', 'term_side', name=_('Circuit')),
+        FieldSet('provider_id', 'provider_network_id', name=_('Provider')),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
+        },
+        label=_('Site')
+    )
+    circuit_id = DynamicModelMultipleChoiceField(
+        queryset=Circuit.objects.all(),
+        required=False,
+        label=_('Circuit')
+    )
+    term_side = forms.MultipleChoiceField(
+        label=_('Term Side'),
+        choices=CircuitTerminationSideChoices,
+        required=False
+    )
+    provider_network_id = DynamicModelMultipleChoiceField(
+        queryset=ProviderNetwork.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Provider network')
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
     )
     tag = TagFilterField(model)

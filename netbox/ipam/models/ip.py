@@ -574,7 +574,7 @@ class IPRange(PrimaryModel):
             if not self.end_address > self.start_address:
                 raise ValidationError({
                     'end_address': _(
-                        "Ending address must be lower than the starting address ({start_address})"
+                        "Ending address must be greater than the starting address ({start_address})"
                     ).format(start_address=self.start_address)
                 })
 
@@ -692,7 +692,7 @@ class IPRange(PrimaryModel):
             ip.address.ip for ip in self.get_child_ips()
         ]).size
 
-        return int(float(child_count) / self.size * 100)
+        return min(float(child_count) / self.size * 100, 100)
 
 
 class IPAddress(PrimaryModel):

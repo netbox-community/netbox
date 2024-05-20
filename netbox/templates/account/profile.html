@@ -31,11 +31,11 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Account Created" %}</th>
-            <td>{{ request.user.date_joined|annotated_date }}</td>
+            <td>{{ request.user.date_joined|isodate }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Last Login" %}</th>
-            <td>{{ request.user.last_login|annotated_date }}</td>
+            <td>{{ request.user.last_login|isodatetime:"minutes"|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Superuser" %}</th>
@@ -66,7 +66,7 @@
       <div class="col-md-12">
         <div class="card">
           <h5 class="card-header text-center">{% trans "Recent Activity" %}</h5>
-          <div class="card-body table-responsive">
+          <div class="table-responsive">
             {% render_table changelog_table 'inc/table.html' %}
           </div>
         </div>

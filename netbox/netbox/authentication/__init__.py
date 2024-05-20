@@ -14,6 +14,7 @@ from users.models import Group, ObjectPermission
 from utilities.permissions import (
     permission_is_exempt, qs_filter_from_constraints, resolve_permission, resolve_permission_type,
 )
+from .misc import _mirror_groups
 
 UserModel = get_user_model()
 
@@ -313,7 +314,7 @@ class RemoteUserBackend(_RemoteUserBackend):
 
 # Create a new instance of django-auth-ldap's LDAPBackend with our own ObjectPermissions
 try:
-    from django_auth_ldap.backend import LDAPBackend as LDAPBackend_
+    from django_auth_ldap.backend import _LDAPUser, LDAPBackend as LDAPBackend_
 
     class NBLDAPBackend(ObjectPermissionMixin, LDAPBackend_):
         def get_permission_filter(self, user_obj):
@@ -323,6 +324,10 @@ try:
                     hasattr(user_obj.ldap_user, "group_names")):
                 permission_filter = permission_filter | Q(groups__name__in=user_obj.ldap_user.group_names)
             return permission_filter
+
+    # Patch with our modified _mirror_groups() method to support our custom Group model
+    _LDAPUser._mirror_groups = _mirror_groups
+
 except ModuleNotFoundError:
     pass
 

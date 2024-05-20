@@ -1,4 +1,5 @@
 from django import forms
+from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from circuits.models import Circuit, CircuitTermination
@@ -88,25 +89,42 @@ def get_cable_form(a_type, b_type):
 
     class _CableForm(CableForm, metaclass=FormMetaclass):
 
-        def __init__(self, *args, **kwargs):
+        def __init__(self, *args, initial=None, **kwargs):
+            initial = initial or {}
+
+            if a_type:
+                a_ct = ContentType.objects.get_for_model(a_type)
+                initial['a_terminations_type'] = f'{a_ct.app_label}.{a_ct.model}'
+            if b_type:
+                b_ct = ContentType.objects.get_for_model(b_type)
+                initial['b_terminations_type'] = f'{b_ct.app_label}.{b_ct.model}'
 
             # TODO: Temporary hack to work around list handling limitations with utils.normalize_querydict()
             for field_name in ('a_terminations', 'b_terminations'):
-                if field_name in kwargs.get('initial', {}) and type(kwargs['initial'][field_name]) is not list:
-                    kwargs['initial'][field_name] = [kwargs['initial'][field_name]]
+                if field_name in initial and type(initial[field_name]) is not list:
+                    initial[field_name] = [initial[field_name]]
 
-            super().__init__(*args, **kwargs)
+            super().__init__(*args, initial=initial, **kwargs)
 
             if self.instance and self.instance.pk:
                 # Initialize A/B terminations when modifying an existing Cable instance
-                self.initial['a_terminations'] = self.instance.a_terminations
-                self.initial['b_terminations'] = self.instance.b_terminations
+                if a_type and self.instance.a_terminations and a_ct == ContentType.objects.get_for_model(self.instance.a_terminations[0]):
+                    self.initial['a_terminations'] = self.instance.a_terminations
+                if b_type and self.instance.b_terminations and b_ct == ContentType.objects.get_for_model(self.instance.b_terminations[0]):
+                    self.initial['b_terminations'] = self.instance.b_terminations
+            else:
+                # Need to clear terminations if swapped type - but need to do it only
+                # if not from instance
+                if a_type:
+                    initial.pop('a_terminations', None)
+                if b_type:
+                    initial.pop('b_terminations', None)
 
         def clean(self):
             super().clean()
 
             # Set the A/B terminations on the Cable instance
-            self.instance.a_terminations = self.cleaned_data['a_terminations']
-            self.instance.b_terminations = self.cleaned_data['b_terminations']
+            self.instance.a_terminations = self.cleaned_data.get('a_terminations', [])
+            self.instance.b_terminations = self.cleaned_data.get('b_terminations', [])
 
     return _CableForm

@@ -165,7 +165,8 @@ class CustomFieldFilterSet(ChangeLoggedModelFilterSet):
             Q(name__icontains=value) |
             Q(label__icontains=value) |
             Q(group_name__icontains=value) |
-            Q(description__icontains=value)
+            Q(description__icontains=value) |
+            Q(comments__icontains=value)
         )
 
 

@@ -1,0 +1,90 @@
+{% load helpers %}
+{% load i18n %}
+
+{% if termination.site %}
+  <tr>
+    <th scope="row">{% trans "Site" %}</th>
+    <td>
+      {% if termination.site.region %}
+        {{ termination.site.region|linkify }} /
+      {% endif %}
+      {{ termination.site|linkify }}
+    </td>
+  </tr>
+  <tr>
+    <th scope="row">{% trans "Termination" %}</th>
+    <td>
+      {% if termination.mark_connected %}
+        <span class="text-success"><i class="mdi mdi-check-bold"></i></span>
+        <span class="text-muted">{% trans "Marked as connected" %}</span>
+      {% elif termination.cable %}
+        <a class="d-block d-md-inline" href="{{ termination.cable.get_absolute_url }}">{{ termination.cable }}</a> {% trans "to" %}
+        {% for peer in termination.link_peers %}
+          {% if peer.device %}
+            {{ peer.device|linkify }}<br/>
+          {% elif peer.circuit %}
+            {{ peer.circuit|linkify }}<br/>
+          {% endif %}
+          {{ peer|linkify }}{% if not forloop.last %},{% endif %}
+        {% endfor %}
+        <div class="mt-1">
+          <a href="{% url 'circuits:circuittermination_trace' pk=termination.pk %}" class="btn btn-primary lh-1" title="{% trans "Trace" %}">
+            <i class="mdi mdi-transit-connection-variant" aria-hidden="true"></i> {% trans "Trace" %}
+          </a>
+          {% if perms.dcim.change_cable %}
+            <a href="{% url 'dcim:cable_edit' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Edit cable" %}" class="btn btn-warning lh-1">
+              <i class="mdi mdi-ethernet-cable" aria-hidden="true"></i> {% trans "Edit" %}
+            </a>
+          {% endif %}
+          {% if perms.dcim.delete_cable %}
+            <a href="{% url 'dcim:cable_delete' pk=termination.cable.pk %}?return_url={{ termination.circuit.get_absolute_url }}" title="{% trans "Remove cable" %}" class="btn btn-danger lh-1">
+              <i class="mdi mdi-ethernet-cable-off" aria-hidden="true"></i> {% trans "Disconnect" %}
+            </a>
+          {% endif %}
+        </div>
+      {% elif perms.dcim.add_cable %}
+        <div class="dropdown">
+          <button type="button" class="btn btn-success dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="mdi mdi-ethernet-cable" aria-hidden="true"></span> {% trans "Connect" %}
+          </button>
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.interface&return_url={{ object.get_absolute_url }}">{% trans "Interface" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.frontport&return_url={{ object.get_absolute_url }}">{% trans "Front Port" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=dcim.rearport&return_url={{ object.get_absolute_url }}">{% trans "Rear Port" %}</a></li>
+            <li><a class="dropdown-item" href="{% url 'dcim:cable_add' %}?a_terminations_type=circuits.circuittermination&a_terminations={{ termination.pk }}&b_terminations_type=circuits.circuittermination&return_url={{ object.get_absolute_url }}">{% trans "Circuit Termination" %}</a></li>
+          </ul>
+        </div>
+      {% endif %}
+    </td>
+  </tr>
+{% else %}
+  <tr>
+    <th scope="row">{% trans "Provider Network" %}</th>
+    <td>{{ termination.provider_network.provider|linkify }} / {{ termination.provider_network|linkify }}</td>
+  </tr>
+{% endif %}
+  <tr>
+      <th scope="row">{% trans "Speed" %}</th>
+      <td>
+      {% if termination.port_speed and termination.upstream_speed %}
+          <i class="mdi mdi-arrow-down-bold" title="{% trans "Downstream" %}"></i> {{ termination.port_speed|humanize_speed }} &nbsp;
+          <i class="mdi mdi-arrow-up-bold" title="{% trans "Upstream" %}"></i> {{ termination.upstream_speed|humanize_speed }}
+      {% elif termination.port_speed %}
+          {{ termination.port_speed|humanize_speed }}
+      {% else %}
+          {{ ''|placeholder }}
+      {% endif %}
+      </td>
+  </tr>
+  <tr>
+      <th scope="row">{% trans "Cross-Connect" %}</th>
+      <td>{{ termination.xconnect_id|placeholder }}</td>
+  </tr>
+  <tr>
+      <th scope="row">{% trans "Patch Panel/Port" %}</th>
+      <td>{{ termination.pp_info|placeholder }}</td>
+  </tr>
+  <tr>
+      <th scope="row">{% trans "Description" %}</th>
+      <td>{{ termination.description|placeholder }}</td>
+  </tr>

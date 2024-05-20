@@ -12,37 +12,33 @@
 {% endblock %}
 
 {% block form %}
-    <form action="{% querystring request %}" method="post" class="form form-horizontal">
-        {% csrf_token %}
-        {% for field in form.hidden_fields %}
-            {{ field }}
-        {% endfor %}
-        <div class="row mb-3">
-            <div class="col col-md-8 offset-md-2">
-                <div class="field-group">
-                    <h6>{% trans "Select IP Address" %}</h6>
-                    {% render_field form.vrf_id %}
-                    {% render_field form.q %}
-                </div>
-            </div>
+  <form action="{% querystring request %}" method="post" class="form form-horizontal">
+    {% csrf_token %}
+    {% for field in form.hidden_fields %}
+      {{ field }}
+    {% endfor %}
+    <div class="field-group my-5">
+      <div class="row">
+        <h5 class="col-9 offset-3">{% trans "Select IP Address" %}</h5>
+      </div>
+      {% render_field form.vrf_id %}
+      {% render_field form.q %}
+    </div>
+    <div class="text-end my-3">
+      <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+      <button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
+    </div>
+  </form>
+  {% if table %}
+    <div class="row mb-3">
+      <div class="col col-md-12">
+        <h3>{% trans "Search Results" %}</h3>
+        <div class="table-responsive">
+          {% render_table table 'inc/table.html' %}
         </div>
-        <div class="row mb-3">
-            <div class="col col-md-8 offset-md-2 text-end">
-                <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
-                <button type="submit" class="btn btn-primary">{% trans "Search" %}</button>
-            </div>
-        </div>
-    </form>
-    {% if table %}
-        <div class="row mb-3">
-            <div class="col col-md-12">
-                <h3>{% trans "Search Results" %}</h3>
-                <div class="table-responsive">
-                  {% render_table table 'inc/table.html' %}
-                </div>
-            </div>
-        </div>
-    {% endif %}
+      </div>
+    </div>
+  {% endif %}
 {% endblock form %}
 
 {% block buttons %}

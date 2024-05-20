@@ -71,7 +71,7 @@ class CustomFieldImportForm(CSVModelForm):
         fields = (
             'name', 'label', 'group_name', 'type', 'object_types', 'related_object_type', 'required', 'description',
             'search_weight', 'filter_logic', 'default', 'choice_set', 'weight', 'validation_minimum',
-            'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable',
+            'validation_maximum', 'validation_regex', 'ui_visible', 'ui_editable', 'is_cloneable', 'comments',
         )
 
 
@@ -115,6 +115,12 @@ class CustomLinkImportForm(CSVModelForm):
         label=_('Object types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
         help_text=_("One or more assigned object types")
+    )
+    button_class = CSVChoiceField(
+        label=_('button class'),
+        required=False,
+        choices=CustomLinkButtonClassChoices,
+        help_text=_('The class of the first link in a group will be used for the dropdown button')
     )
 
     class Meta:

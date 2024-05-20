@@ -53,7 +53,7 @@ class DeviceSerializer(NetBoxModelSerializer):
     )
     status = ChoiceField(choices=DeviceStatusChoices, required=False)
     airflow = ChoiceField(choices=DeviceAirflowChoices, allow_blank=True, required=False)
-    primary_ip = IPAddressSerializer(nested=True, read_only=True)
+    primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
     primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)
     primary_ip6 = IPAddressSerializer(nested=True, required=False, allow_null=True)
     oob_ip = IPAddressSerializer(nested=True, required=False, allow_null=True)
@@ -101,7 +101,7 @@ class DeviceSerializer(NetBoxModelSerializer):
 
 
 class DeviceWithConfigContextSerializer(DeviceSerializer):
-    config_context = serializers.SerializerMethodField(read_only=True)
+    config_context = serializers.SerializerMethodField(read_only=True, allow_null=True)
 
     class Meta(DeviceSerializer.Meta):
         fields = [
@@ -122,6 +122,7 @@ class DeviceWithConfigContextSerializer(DeviceSerializer):
 class VirtualDeviceContextSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:virtualdevicecontext-detail')
     device = DeviceSerializer(nested=True)
+    identifier = serializers.IntegerField(allow_null=True, max_value=32767, min_value=0, required=False, default=None)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True, default=None)
     primary_ip = IPAddressSerializer(nested=True, read_only=True, allow_null=True)
     primary_ip4 = IPAddressSerializer(nested=True, required=False, allow_null=True)

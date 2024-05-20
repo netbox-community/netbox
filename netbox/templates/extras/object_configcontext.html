@@ -6,28 +6,13 @@
 {% block content %}
     <div class="row">
         <div class="col col-md-6">
-            <div class="card">
-                <h5 class="card-header d-flex justify-content-between">
-                    {% trans "Rendered Context" %}
-                    {% include 'extras/inc/configcontext_format.html' %}
-                </h5>
-                <div class="card-body">
-                    {% include 'extras/inc/configcontext_data.html' with data=rendered_context format=format %}
-                </div>
-            </div>
+          <div class="card">
+            {% include 'extras/inc/configcontext_data.html' with title="Rendered Context" data=rendered_context format=format copyid="rendered_context" %}
+          </div>
         </div>
         <div class="col col-md-6">
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Local Context" %}
-                </h5>
-                <div class="card-body">
-                    {% if object.local_context_data %}
-                        {% include 'extras/inc/configcontext_data.html' with data=object.local_context_data format=format %}
-                    {% else %}
-                        <span class="text-muted">{% trans "None" %}</span>
-                    {% endif %}
-                </div>
+                {% include 'extras/inc/configcontext_data.html' with title="Local Context" data=object.local_context_data format=format copyid="local_context" %}
                 <div class="card-footer">
                     <span class="help-block">
                         <i class="mdi mdi-information-outline"></i>
@@ -36,8 +21,11 @@
                 </div>
             </div>
             <div class="card">
-                <h5 class="card-header">
-                    {% trans "Source Contexts" %}
+                <h5 class="card-header d-flex justify-content-between">
+                  {% trans "Source Contexts" %}
+                  <div>
+                    {% include 'extras/inc/format_toggle.html' %}
+                  </div>
                 </h5>
                 {% for context in source_contexts %}
                     <div class="card-body">

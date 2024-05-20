@@ -13,8 +13,8 @@ from utilities.forms.widgets import DateTimePicker
 __all__ = (
     'GroupFilterForm',
     'ObjectPermissionFilterForm',
-    'UserFilterForm',
     'TokenFilterForm',
+    'UserFilterForm',
 )
 
 

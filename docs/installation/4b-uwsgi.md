@@ -17,7 +17,7 @@ pip3 install pyuwsgi
 Once installed, add the package to `local_requirements.txt` to ensure it is re-installed during future rebuilds of the virtual environment:
 
 ```no-highlight
-sudo sh -c "echo 'pyuwgsi' >> /opt/netbox/local_requirements.txt"
+sudo sh -c "echo 'pyuwsgi' >> /opt/netbox/local_requirements.txt"
 ```
 
 ## Configuration

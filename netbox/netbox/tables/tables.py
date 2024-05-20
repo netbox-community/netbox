@@ -14,6 +14,7 @@ from django_tables2.data import TableQuerysetData
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomLink
+from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -52,7 +53,7 @@ class BaseTable(tables.Table):
 
         # Set default empty_text if none was provided
         if self.empty_text is None:
-            self.empty_text = f"No {self._meta.model._meta.verbose_name_plural} found"
+            self.empty_text = _("No {model_name} found").format(model_name=self._meta.model._meta.verbose_name_plural)
 
         # Determine the table columns to display by checking the following:
         #   1. User's configuration for the table
@@ -258,7 +259,7 @@ class SearchTable(tables.Table):
         attrs = {
             'class': 'table table-hover object-list',
         }
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
 
     def __init__(self, data, highlight=None, **kwargs):
         self.highlight = highlight

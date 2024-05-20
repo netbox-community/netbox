@@ -255,3 +255,14 @@ class NetBoxAutoSchema(AutoSchema):
         if '{id}' in self.path:
             return f"{self.method.capitalize()} a {model_name} object."
         return f"{self.method.capitalize()} a list of {model_name} objects."
+
+
+class FixSerializedPKRelatedField(OpenApiSerializerFieldExtension):
+    target_class = 'netbox.api.fields.SerializedPKRelatedField'
+
+    def map_serializer_field(self, auto_schema, direction):
+        if direction == "response":
+            component = auto_schema.resolve_serializer(self.target.serializer, direction)
+            return component.ref if component else None
+        else:
+            return build_basic_type(OpenApiTypes.INT)

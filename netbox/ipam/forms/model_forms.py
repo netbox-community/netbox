@@ -355,6 +355,15 @@ class IPAddressForm(TenancyForm, NetBoxModelForm):
             ):
                 self.initial['primary_for_parent'] = True
 
+            if type(instance.assigned_object) is Interface:
+                self.fields['interface'].widget.add_query_params({
+                    'device_id': instance.assigned_object.device.pk,
+                })
+            elif type(instance.assigned_object) is VMInterface:
+                self.fields['vminterface'].widget.add_query_params({
+                    'virtual_machine_id': instance.assigned_object.virtual_machine.pk,
+                })
+
         # Disable object assignment fields if the IP address is designated as primary
         if self.initial.get('primary_for_parent'):
             self.fields['interface'].disabled = True
@@ -532,6 +541,24 @@ class FHRPGroupAssignmentForm(forms.ModelForm):
         ipaddresses = self.instance.interface.ip_addresses.all()
         for ipaddress in ipaddresses:
             self.fields['group'].widget.add_query_param('related_ip', ipaddress.pk)
+
+    def clean_group(self):
+        group = self.cleaned_data['group']
+
+        conflicting_assignments = FHRPGroupAssignment.objects.filter(
+            interface_type=self.instance.interface_type,
+            interface_id=self.instance.interface_id,
+            group=group
+        )
+        if self.instance.id:
+            conflicting_assignments = conflicting_assignments.exclude(id=self.instance.id)
+
+        if conflicting_assignments.exists():
+            raise forms.ValidationError(
+                _('Assignment already exists')
+            )
+
+        return group
 
 
 class VLANGroupForm(NetBoxModelForm):

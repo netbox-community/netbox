@@ -64,6 +64,12 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=ASN.objects.all(),
         label=_('ASN (ID)'),
     )
+    asn = django_filters.ModelMultipleChoiceFilter(
+        field_name='asns__asn',
+        queryset=ASN.objects.all(),
+        to_field_name='asn',
+        label=_('ASN'),
+    )
 
     class Meta:
         model = Provider
@@ -268,6 +274,17 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ProviderNetwork.objects.all(),
         label=_('ProviderNetwork (ID)'),
+    )
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__provider_id',
+        queryset=Provider.objects.all(),
+        label=_('Provider (ID)'),
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__provider__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label=_('Provider (slug)'),
     )
 
     class Meta:

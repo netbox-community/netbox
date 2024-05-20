@@ -1,5 +1,17 @@
 {% load helpers %}
+{% load i18n %}
 
-<div class="rendered-context-data mt-1">
-    <pre class="block">{% if format == 'json' %}{{ data|json }}{% elif format == 'yaml' %}{{ data|yaml }}{% else %}{{ data }}{% endif %}</pre>
+{% if title %}
+  <h5 class="card-header d-flex justify-content-between">
+    {% trans title %}
+    <div>
+      {% if copyid %}{% copy_content copyid %}{% endif %}
+      {% include 'extras/inc/format_toggle.html' %}
+    </div>
+  </h5>
+{% endif %}
+<div class="card-body">
+  <div class="rendered-context-data mt-1">
+    <pre class="block" {% if copyid %}id="{{ copyid }}{% endif %}">{% if format == 'json' %}{{ data|json }}{% elif format == 'yaml' %}{{ data|yaml }}{% else %}{{ data }}{% endif %}</pre>
+  </div>
 </div>

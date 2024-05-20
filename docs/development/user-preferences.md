@@ -11,4 +11,3 @@ The `users.UserConfig` model holds individual preferences for each user in the f
 | pagination.placement     | Where to display the paginator controls relative to the table |
 | tables.${table}.columns  | The ordered list of columns to display when viewing the table |
 | tables.${table}.ordering | A list of column names by which the table should be ordered   |
-| ui.colormode             | Light or dark mode in the user interface                      |

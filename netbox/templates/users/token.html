@@ -1,6 +1,6 @@
 {% extends 'generic/object.html' %}
-{% load i18n %}
 {% load helpers %}
+{% load i18n %}
 {% load render_table from django_tables2 %}
 
 {% block title %}{% trans "Token" %} {{ object }}{% endblock %}
@@ -33,15 +33,15 @@
           </tr>
           <tr>
             <th scope="row">{% trans "Created" %}</th>
-            <td>{{ object.created|annotated_date }}</td>
+            <td>{{ object.created|isodatetime }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Expires" %}</th>
-            <td>{{ object.expires|placeholder }}</td>
+            <td>{{ object.expires|isodatetime|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Last used" %}</th>
-            <td>{{ object.last_used|placeholder }}</td>
+            <td>{{ object.last_used|isodatetime|placeholder }}</td>
           </tr>
           <tr>
             <th scope="row">{% trans "Allowed IPs" %}</th>

@@ -82,7 +82,7 @@ class AvailableVLANSerializer(serializers.Serializer):
     Representation of a VLAN which does not exist in the database.
     """
     vid = serializers.IntegerField(read_only=True)
-    group = VLANGroupSerializer(nested=True, read_only=True)
+    group = VLANGroupSerializer(nested=True, read_only=True, allow_null=True)
 
     def to_representation(self, instance):
         return {

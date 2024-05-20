@@ -3,6 +3,19 @@
 {% load form_helpers %}
 {% load i18n %}
 
+{% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
+Context:
+  - form:              The bulk edit form class
+  - obj_type_plural:   The plural form of the object type
+  - selected_objects:  A queryset matching the objects selected for bulk renaming
+  - return_url:        The URL to which the user is redirected after submitting the form
+{% endcomment %}
+
 {% block title %}
   {% trans "Renaming" %} {{ selected_objects|length }} {{ obj_type_plural|bettertitle }}
 {% endblock %}

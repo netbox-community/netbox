@@ -3,7 +3,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.forms import SimpleArrayField
 from django.core.exceptions import FieldError
-from django.utils.html import mark_safe
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 
 from core.models import ObjectType
@@ -37,7 +37,11 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
         preference_fields = {}
         for field_name, preference in PREFERENCES.items():
             description = f'{preference.description}<br />' if preference.description else ''
-            help_text = f'{description}<code>{field_name}</code>'
+            help_text = f'<code>{field_name}</code>'
+            if preference.description:
+                help_text = f'{preference.description}<br />{help_text}'
+            if warning := preference.warning:
+                help_text = f'<span class="text-danger"><i class="mdi mdi-alert"></i> {warning}</span><br />{help_text}'
             field_kwargs = {
                 'label': preference.label,
                 'choices': preference.choices,
@@ -55,7 +59,7 @@ class UserConfigFormMetaclass(forms.models.ModelFormMetaclass):
 class UserConfigForm(forms.ModelForm, metaclass=UserConfigFormMetaclass):
     fieldsets = (
         FieldSet(
-            'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.colormode', 'ui.htmx_navigation',
+            'locale.language', 'pagination.per_page', 'pagination.placement', 'ui.htmx_navigation',
             name=_('User Interface')
         ),
         FieldSet('data_format', name=_('Miscellaneous')),

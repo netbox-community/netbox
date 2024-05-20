@@ -28,7 +28,9 @@ from utilities.permissions import get_permission_for_model
 from utilities.query import count_related
 from utilities.query_functions import CollateAsChar
 from utilities.views import GetReturnURLMixin, ObjectPermissionRequiredMixin, ViewTab, register_model_view
+from virtualization.filtersets import VirtualMachineFilterSet
 from virtualization.models import VirtualMachine
+from virtualization.tables import VirtualMachineTable
 from . import filtersets, forms, tables
 from .choices import DeviceFaceChoices
 from .models import *
@@ -2085,6 +2087,24 @@ class DeviceRenderConfigView(generic.ObjectView):
         }
 
 
+@register_model_view(Device, 'virtual-machines')
+class DeviceVirtualMachinesView(generic.ObjectChildrenView):
+    queryset = Device.objects.all()
+    child_model = VirtualMachine
+    table = VirtualMachineTable
+    filterset = VirtualMachineFilterSet
+    tab = ViewTab(
+        label=_('Virtual Machines'),
+        badge=lambda obj: VirtualMachine.objects.filter(cluster=obj.cluster, device=obj).count(),
+        weight=2200,
+        hide_if_empty=True,
+        permission='virtualization.view_virtualmachine'
+    )
+
+    def get_children(self, request, parent):
+        return self.child_model.objects.restrict(request.user, 'view').filter(cluster=parent.cluster, device=parent)
+
+
 class DeviceBulkImportView(generic.BulkImportView):
     queryset = Device.objects.all()
     model_form = forms.DeviceImportForm
@@ -2965,7 +2985,6 @@ class InventoryItemChildrenView(generic.ObjectChildrenView):
     child_model = InventoryItem
     table = tables.InventoryItemTable
     filterset = filtersets.InventoryItemFilterSet
-    template_name = 'generic/object_children.html'
     tab = ViewTab(
         label=_('Children'),
         badge=lambda obj: obj.child_items.count(),
@@ -3160,12 +3179,6 @@ class CableListView(generic.ObjectListView):
     filterset = filtersets.CableFilterSet
     filterset_form = forms.CableFilterForm
     table = tables.CableTable
-    actions = {
-        'import': {'add'},
-        'export': {'view'},
-        'bulk_edit': {'change'},
-        'bulk_delete': {'delete'},
-    }
 
 
 @register_model_view(Cable)
@@ -3177,34 +3190,29 @@ class CableView(generic.ObjectView):
 class CableEditView(generic.ObjectEditView):
     queryset = Cable.objects.all()
     template_name = 'dcim/cable_edit.html'
+    htmx_template_name = 'dcim/htmx/cable_edit.html'
 
-    def dispatch(self, request, *args, **kwargs):
-
-        # If creating a new Cable, initialize the form class using URL query params
-        if 'pk' not in kwargs:
-            self.form = forms.get_cable_form(
-                a_type=CABLE_TERMINATION_TYPES.get(request.GET.get('a_terminations_type')),
-                b_type=CABLE_TERMINATION_TYPES.get(request.GET.get('b_terminations_type'))
-            )
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_object(self, **kwargs):
+    def alter_object(self, obj, request, url_args, url_kwargs):
         """
-        Hack into get_object() to set the form class when editing an existing Cable, since ObjectEditView
+        Hack into alter_object() to set the form class when editing an existing Cable, since ObjectEditView
         doesn't currently provide a hook for dynamic class resolution.
         """
-        obj = super().get_object(**kwargs)
+        a_terminations_type = CABLE_TERMINATION_TYPES.get(
+            request.GET.get('a_terminations_type') or request.POST.get('a_terminations_type')
+        )
+        b_terminations_type = CABLE_TERMINATION_TYPES.get(
+            request.GET.get('b_terminations_type') or request.POST.get('b_terminations_type')
+        )
 
         if obj.pk:
-            # TODO: Optimize this logic
-            termination_a = obj.terminations.filter(cable_end='A').first()
-            a_type = termination_a.termination._meta.model if termination_a else None
-            termination_b = obj.terminations.filter(cable_end='B').first()
-            b_type = termination_b.termination._meta.model if termination_b else None
-            self.form = forms.get_cable_form(a_type, b_type)
+            if not a_terminations_type and (termination_a := obj.terminations.filter(cable_end='A').first()):
+                a_terminations_type = termination_a.termination._meta.model
+            if not b_terminations_type and (termination_b := obj.terminations.filter(cable_end='B').first()):
+                b_terminations_type = termination_b.termination._meta.model
 
-        return obj
+        self.form = forms.get_cable_form(a_terminations_type, b_terminations_type)
+
+        return super().alter_object(obj, request, url_args, url_kwargs)
 
     def get_extra_addanother_params(self, request):
 

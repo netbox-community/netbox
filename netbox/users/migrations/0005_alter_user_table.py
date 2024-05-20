@@ -33,6 +33,9 @@ class Migration(migrations.Migration):
             table=None,
         ),
 
+        # Convert the `id` column to a 64-bit integer (BigAutoField is implied by DEFAULT_AUTO_FIELD)
+        migrations.RunSQL("ALTER TABLE users_user ALTER COLUMN id TYPE bigint"),
+
         # Rename auth_user_* sequences
         migrations.RunSQL("ALTER TABLE auth_user_groups_id_seq RENAME TO users_user_groups_id_seq"),
         migrations.RunSQL("ALTER TABLE auth_user_id_seq RENAME TO users_user_id_seq"),

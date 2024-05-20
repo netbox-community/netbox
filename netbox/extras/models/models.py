@@ -732,7 +732,7 @@ class JournalEntry(CustomFieldsMixin, CustomLinksMixin, TagsMixin, ExportTemplat
 
     def __str__(self):
         created = timezone.localtime(self.created)
-        return f"{date_format(created, format='SHORT_DATETIME_FORMAT')} ({self.get_kind_display()})"
+        return f"{created.date().isoformat()} {created.time().isoformat(timespec='minutes')} ({self.get_kind_display()})"
 
     def get_absolute_url(self):
         return reverse('extras:journalentry', args=[self.pk])

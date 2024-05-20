@@ -16,7 +16,7 @@
   <div class="row mb-3">
     <div class="col col-md-12">
       <div class="card">
-        <div class="card-body table-responsive">
+        <div class="table-responsive">
           {% render_table table 'inc/table.html' %}
           {% include 'inc/paginator.html' with paginator=table.paginator page=table.page %}
         </div>

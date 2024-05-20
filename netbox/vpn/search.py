@@ -75,6 +75,7 @@ class L2VPNIndex(SearchIndex):
     fields = (
         ('name', 100),
         ('slug', 110),
+        ('identifier', 200),
         ('description', 500),
         ('comments', 5000),
     )

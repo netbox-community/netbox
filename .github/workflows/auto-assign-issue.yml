@@ -13,8 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: pozil/auto-assign-issue@v1
-        if: "contains(github.event.issue.labels.*.name, 'type: bug') || contains(github.event.issue.labels.*.name, 'type: feature')"
+        if: "contains(github.event.issue.labels.*.name, 'status: needs triage')"
         with:
-          assignees: abhi1693,arthanson,DanSheps,jeffgdotorg,jeremystretch
+          # Weighted assignments
+          assignees: arthanson:3, jeffgdotorg:3, jeremystretch:3, abhi1693, DanSheps
           numOfAssignee: 1
           abortIfPreviousAssignees: true

@@ -1,10 +1,10 @@
 import json
 
 import django_tables2 as tables
-from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
+from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.tables import BaseTable, NetBoxTable, columns
 from .template_code import *
 
@@ -78,7 +78,7 @@ class CustomFieldTable(NetBoxTable):
         fields = (
             'pk', 'id', 'name', 'object_types', 'label', 'type', 'related_object_type', 'group_name', 'required',
             'default', 'description', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable', 'is_cloneable',
-            'weight', 'choice_set', 'choices', 'created', 'last_updated',
+            'weight', 'choice_set', 'choices', 'comments', 'created', 'last_updated',
         )
         default_columns = ('pk', 'name', 'object_types', 'label', 'group_name', 'type', 'required', 'description')
 
@@ -419,23 +419,43 @@ class ConfigTemplateTable(NetBoxTable):
     tags = columns.TagColumn(
         url_name='extras:configtemplate_list'
     )
+    role_count = columns.LinkedCountColumn(
+        viewname='dcim:devicerole_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Device Roles')
+    )
+    platform_count = columns.LinkedCountColumn(
+        viewname='dcim:platform_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Platforms')
+    )
+    device_count = columns.LinkedCountColumn(
+        viewname='dcim:device_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Devices')
+    )
+    vm_count = columns.LinkedCountColumn(
+        viewname='virtualization:virtualmachine_list',
+        url_params={'config_template_id': 'pk'},
+        verbose_name=_('Virtual Machines')
+    )
 
     class Meta(NetBoxTable.Meta):
         model = ConfigTemplate
         fields = (
-            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'created', 'last_updated',
-            'tags',
+            'pk', 'id', 'name', 'description', 'data_source', 'data_file', 'data_synced', 'role_count',
+            'platform_count', 'device_count', 'vm_count', 'created', 'last_updated', 'tags',
         )
         default_columns = (
-            'pk', 'name', 'description', 'is_synced',
+            'pk', 'name', 'description', 'is_synced', 'device_count', 'vm_count',
         )
 
 
 class ObjectChangeTable(NetBoxTable):
-    time = tables.DateTimeColumn(
+    time = columns.DateTimeColumn(
         verbose_name=_('Time'),
-        linkify=True,
-        format=settings.SHORT_DATETIME_FORMAT
+        timespec='minutes',
+        linkify=True
     )
     user_name = tables.Column(
         verbose_name=_('Username')
@@ -475,10 +495,10 @@ class ObjectChangeTable(NetBoxTable):
 
 
 class JournalEntryTable(NetBoxTable):
-    created = tables.DateTimeColumn(
+    created = columns.DateTimeColumn(
         verbose_name=_('Created'),
-        linkify=True,
-        format=settings.SHORT_DATETIME_FORMAT
+        timespec='minutes',
+        linkify=True
     )
     assigned_object_type = columns.ContentTypeColumn(
         verbose_name=_('Object Type')
@@ -525,12 +545,12 @@ class ScriptResultsTable(BaseTable):
         template_code="""{% load log_levels %}{% log_level record.status %}""",
         verbose_name=_('Level')
     )
-    message = tables.Column(
+    message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
 
     class Meta(BaseTable.Meta):
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
             'index', 'time', 'status', 'message',
         )
@@ -546,27 +566,22 @@ class ReportResultsTable(BaseTable):
     time = tables.Column(
         verbose_name=_('Time')
     )
-    status = tables.Column(
-        empty_values=(),
-        verbose_name=_('Level')
-    )
     status = tables.TemplateColumn(
         template_code="""{% load log_levels %}{% log_level record.status %}""",
         verbose_name=_('Level')
     )
-
     object = tables.Column(
         verbose_name=_('Object')
     )
     url = tables.Column(
         verbose_name=_('URL')
     )
-    message = tables.Column(
+    message = columns.MarkdownColumn(
         verbose_name=_('Message')
     )
 
     class Meta(BaseTable.Meta):
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
         fields = (
             'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )

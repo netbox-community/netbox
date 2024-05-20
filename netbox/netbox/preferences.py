@@ -15,27 +15,27 @@ def get_page_lengths():
 PREFERENCES = {
 
     # User interface
-    'ui.colormode': UserPreference(
-        label=_('Color mode'),
-        choices=(
-            ('light', _('Light')),
-            ('dark', _('Dark')),
-        ),
-        default='light',
-    ),
     'ui.htmx_navigation': UserPreference(
         label=_('HTMX Navigation'),
         choices=(
             ('', _('Disabled')),
             ('true', _('Enabled')),
         ),
-        default=False
+        description=_('Enable dynamic UI navigation'),
+        default=False,
+        warning=_('Experimental feature')
     ),
     'locale.language': UserPreference(
         label=_('Language'),
         choices=(
             ('', _('Auto')),
             *settings.LANGUAGES,
+        ),
+        description=_('Forces UI translation to the specified language'),
+        warning=(
+            _("Support for translation has been disabled locally")
+            if not settings.TRANSLATION_ENABLED
+            else ''
         )
     ),
     'pagination.per_page': UserPreference(
@@ -51,8 +51,8 @@ PREFERENCES = {
             ('top', _('Top')),
             ('both', _('Both')),
         ),
-        description=_('Where the paginator controls will be displayed relative to a table'),
-        default='bottom'
+        default='bottom',
+        description=_('Where the paginator controls will be displayed relative to a table')
     ),
 
     # Miscellaneous
@@ -62,6 +62,7 @@ PREFERENCES = {
             ('json', 'JSON'),
             ('yaml', 'YAML'),
         ),
+        description=_('The preferred syntax for displaying generic data within the UI')
     ),
 
 }

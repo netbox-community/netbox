@@ -96,9 +96,18 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
     Proxy model for script module files.
     """
     objects = ScriptModuleManager()
+    error = None
+
+    event_rules = GenericRelation(
+        to='extras.EventRule',
+        content_type_field='action_object_type',
+        object_id_field='action_object_id',
+        for_concrete_model=False
+    )
 
     class Meta:
         proxy = True
+        ordering = ('file_root', 'file_path')
         verbose_name = _('script module')
         verbose_name_plural = _('script modules')
 
@@ -118,6 +127,7 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
         try:
             module = self.get_module()
         except Exception as e:
+            self.error = e
             logger.debug(f"Failed to load script: {self.python_name} error: {e}")
             module = None
 
@@ -165,8 +175,8 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 
     def save(self, *args, **kwargs):
         self.file_root = ManagedFileRootPathChoices.SCRIPTS
+        super().save(*args, **kwargs)
         self.sync_classes()
-        return super().save(*args, **kwargs)
 
 
 @receiver(post_save, sender=ScriptModule)

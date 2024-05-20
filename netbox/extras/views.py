@@ -13,6 +13,7 @@ from core.choices import ManagedFileRootPathChoices
 from core.forms import ManagedFileForm
 from core.models import Job
 from core.tables import JobTable
+from dcim.models import Device, DeviceRole, Platform
 from extras.dashboard.forms import DashboardWidgetAddForm, DashboardWidgetForm
 from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
@@ -28,6 +29,7 @@ from utilities.request import copy_safe_request
 from utilities.rqworker import get_workers_for_queue
 from utilities.templatetags.builtins.filters import render_markdown
 from utilities.views import ContentTypePermissionRequiredMixin, get_viewname, register_model_view
+from virtualization.models import VirtualMachine
 from . import filtersets, forms, tables
 from .models import *
 from .scripts import run_script
@@ -627,7 +629,12 @@ class ObjectConfigContextView(generic.ObjectView):
 #
 
 class ConfigTemplateListView(generic.ObjectListView):
-    queryset = ConfigTemplate.objects.all()
+    queryset = ConfigTemplate.objects.annotate(
+        device_count=count_related(Device, 'config_template'),
+        vm_count=count_related(VirtualMachine, 'config_template'),
+        role_count=count_related(DeviceRole, 'config_template'),
+        platform_count=count_related(Platform, 'config_template'),
+    )
     filterset = filtersets.ConfigTemplateFilterSet
     filterset_form = forms.ConfigTemplateFilterForm
     table = tables.ConfigTemplateTable
@@ -1035,7 +1042,9 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         return 'extras.view_script'
 
     def get(self, request):
-        script_modules = ScriptModule.objects.restrict(request.user).prefetch_related('jobs')
+        script_modules = ScriptModule.objects.restrict(request.user).prefetch_related(
+            'data_source', 'data_file', 'jobs'
+        )
 
         return render(request, 'extras/script_list.html', {
             'model': ScriptModule,
@@ -1043,12 +1052,27 @@ class ScriptListView(ContentTypePermissionRequiredMixin, View):
         })
 
 
-class ScriptView(generic.ObjectView):
+class BaseScriptView(generic.ObjectView):
     queryset = Script.objects.all()
+
+    def _get_script_class(self, script):
+        """
+        Return an instance of the Script's Python class
+        """
+        if script_class := script.python_class:
+            return script_class()
+
+
+class ScriptView(BaseScriptView):
 
     def get(self, request, **kwargs):
         script = self.get_object(**kwargs)
-        script_class = script.python_class()
+        script_class = self._get_script_class(script)
+        if not script_class:
+            return render(request, 'extras/script.html', {
+                'script': script,
+            })
+
         form = script_class.as_form(initial=normalize_querydict(request.GET))
 
         return render(request, 'extras/script.html', {
@@ -1060,10 +1084,15 @@ class ScriptView(generic.ObjectView):
 
     def post(self, request, **kwargs):
         script = self.get_object(**kwargs)
-        script_class = script.python_class()
 
         if not request.user.has_perm('extras.run_script', obj=script):
             return HttpResponseForbidden()
+
+        script_class = self._get_script_class(script)
+        if not script_class:
+            return render(request, 'extras/script.html', {
+                'script': script,
+            })
 
         form = script_class.as_form(request.POST, request.FILES)
 
@@ -1094,21 +1123,22 @@ class ScriptView(generic.ObjectView):
         })
 
 
-class ScriptSourceView(generic.ObjectView):
+class ScriptSourceView(BaseScriptView):
     queryset = Script.objects.all()
 
     def get(self, request, **kwargs):
         script = self.get_object(**kwargs)
+        script_class = self._get_script_class(script)
 
         return render(request, 'extras/script/source.html', {
             'script': script,
-            'script_class': script.python_class(),
+            'script_class': script_class,
             'job_count': script.jobs.count(),
             'tab': 'source',
         })
 
 
-class ScriptJobsView(generic.ObjectView):
+class ScriptJobsView(BaseScriptView):
     queryset = Script.objects.all()
 
     def get(self, request, **kwargs):

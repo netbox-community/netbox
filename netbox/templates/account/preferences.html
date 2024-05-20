@@ -39,30 +39,32 @@
             {% trans "Clear table preferences" %}
           </label>
           <div class="col-sm-9">
-            <table class="table table-hover object-list">
-              <thead>
-                <tr>
-                  <th>
-                    <input type="checkbox" class="toggle form-check-input" title="{% trans "Toggle All" %}">
-                  </th>
-                  <th>{% trans "Table" %}</th>
-                  <th>{% trans "Ordering" %}</th>
-                  <th>{% trans "Columns" %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for table, prefs in request.user.config.data.tables.items %}
+            <div class="card">
+              <table class="table table-hover object-list">
+                <thead>
                   <tr>
-                    <td>
-                      <input type="checkbox" name="pk" value="tables.{{ table }}" class="form-check-input" />
-                    </td>
-                    <td>{{ table }}</td>
-                    <td>{{ prefs.ordering|join:", "|placeholder }}</td>
-                    <td>{{ prefs.columns|join:", "|placeholder }}</td>
+                    <th>
+                      <input type="checkbox" class="toggle form-check-input" title="{% trans "Toggle All" %}">
+                    </th>
+                    <th>{% trans "Table" %}</th>
+                    <th>{% trans "Ordering" %}</th>
+                    <th>{% trans "Columns" %}</th>
                   </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {% for table, prefs in request.user.config.data.tables.items %}
+                    <tr>
+                      <td>
+                        <input type="checkbox" name="pk" value="tables.{{ table }}" class="form-check-input" />
+                      </td>
+                      <td>{{ table }}</td>
+                      <td>{{ prefs.ordering|join:", "|placeholder }}</td>
+                      <td>{{ prefs.columns|join:", "|placeholder }}</td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         {% else %}
           <div class="col-9 offset-3">

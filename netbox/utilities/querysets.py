@@ -20,14 +20,14 @@ class RestrictedPrefetch(Prefetch):
 
         super().__init__(lookup, queryset=queryset, to_attr=to_attr)
 
-    def get_current_queryset(self, level):
+    def get_current_querysets(self, level):
         params = {
             'user': self.restrict_user,
             'action': self.restrict_action,
         }
 
-        if qs := super().get_current_queryset(level):
-            return qs.restrict(**params)
+        if querysets := super().get_current_querysets(level):
+            return [qs.restrict(**params) for qs in querysets]
 
         # Bit of a hack. If no queryset is defined, pass through the dict of restrict()
         # kwargs to be handled by the field. This is necessary e.g. for GenericForeignKey
@@ -49,11 +49,11 @@ class RestrictedQuerySet(QuerySet):
         permission_required = get_permission_for_model(self.model, action)
 
         # Bypass restriction for superusers and exempt views
-        if user.is_superuser or permission_is_exempt(permission_required):
+        if user and user.is_superuser or permission_is_exempt(permission_required):
             qs = self
 
         # User is anonymous or has not been granted the requisite permission
-        elif not user.is_authenticated or permission_required not in user.get_all_permissions():
+        elif user is None or not user.is_authenticated or permission_required not in user.get_all_permissions():
             qs = self.none()
 
         # Filter the queryset to include only objects with allowed attributes

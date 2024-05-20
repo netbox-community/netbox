@@ -13,8 +13,7 @@ from netbox.forms import NetBoxModelForm
 from tenancy.forms import TenancyForm
 from utilities.forms import add_blank_choice
 from utilities.forms.fields import (
-    CommentField, ContentTypeChoiceField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField,
-    NumericArrayField, SlugField,
+    CommentField, DynamicModelChoiceField, DynamicModelMultipleChoiceField, JSONField, NumericArrayField, SlugField,
 )
 from utilities.forms.rendering import FieldSet, InlineFields, TabbedGroups
 from utilities.forms.widgets import APISelect, ClearableFileInput, HTMXSelect, NumberWithOptions, SelectWithPK
@@ -629,14 +628,33 @@ class ModuleForm(ModuleCommonForm, NetBoxModelForm):
             self.fields['adopt_components'].disabled = True
 
 
+def get_termination_type_choices():
+    return add_blank_choice([
+        (f'{ct.app_label}.{ct.model}', ct.model_class()._meta.verbose_name.title())
+        for ct in ContentType.objects.filter(CABLE_TERMINATION_MODELS)
+    ])
+
+
 class CableForm(TenancyForm, NetBoxModelForm):
+    a_terminations_type = forms.ChoiceField(
+        choices=get_termination_type_choices,
+        required=False,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
+    b_terminations_type = forms.ChoiceField(
+        choices=get_termination_type_choices,
+        required=False,
+        widget=HTMXSelect(),
+        label=_('Type')
+    )
     comments = CommentField()
 
     class Meta:
         model = Cable
         fields = [
-            'type', 'status', 'tenant_group', 'tenant', 'label', 'color', 'length', 'length_unit', 'description',
-            'comments', 'tags',
+            'a_terminations_type', 'b_terminations_type', 'type', 'status', 'tenant_group', 'tenant', 'label', 'color',
+            'length', 'length_unit', 'description', 'comments', 'tags',
         ]
         error_messages = {
             'length': {
@@ -1003,30 +1021,127 @@ class InventoryItemTemplateForm(ComponentTemplateForm):
         queryset=Manufacturer.objects.all(),
         required=False
     )
-    component_type = ContentTypeChoiceField(
-        queryset=ContentType.objects.all(),
-        limit_choices_to=MODULAR_COMPONENT_TEMPLATE_MODELS,
+
+    # Assigned component selectors
+    consoleporttemplate = DynamicModelChoiceField(
+        queryset=ConsolePortTemplate.objects.all(),
         required=False,
-        widget=forms.HiddenInput
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Console port template')
     )
-    component_id = forms.IntegerField(
+    consoleserverporttemplate = DynamicModelChoiceField(
+        queryset=ConsoleServerPortTemplate.objects.all(),
         required=False,
-        widget=forms.HiddenInput
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Console server port template')
+    )
+    frontporttemplate = DynamicModelChoiceField(
+        queryset=FrontPortTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Front port template')
+    )
+    interfacetemplate = DynamicModelChoiceField(
+        queryset=InterfaceTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Interface template')
+    )
+    poweroutlettemplate = DynamicModelChoiceField(
+        queryset=PowerOutletTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Power outlet template')
+    )
+    powerporttemplate = DynamicModelChoiceField(
+        queryset=PowerPortTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Power port template')
+    )
+    rearporttemplate = DynamicModelChoiceField(
+        queryset=RearPortTemplate.objects.all(),
+        required=False,
+        query_params={
+            'device_type_id': '$device_type'
+        },
+        label=_('Rear port template')
     )
 
     fieldsets = (
         FieldSet(
             'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
-            'component_type', 'component_id',
         ),
+        FieldSet(
+            TabbedGroups(
+                FieldSet('interfacetemplate', name=_('Interface')),
+                FieldSet('consoleporttemplate', name=_('Console Port')),
+                FieldSet('consoleserverporttemplate', name=_('Console Server Port')),
+                FieldSet('frontporttemplate', name=_('Front Port')),
+                FieldSet('rearporttemplate', name=_('Rear Port')),
+                FieldSet('powerporttemplate', name=_('Power Port')),
+                FieldSet('poweroutlettemplate', name=_('Power Outlet')),
+            ),
+            name=_('Component Assignment')
+        )
     )
 
     class Meta:
         model = InventoryItemTemplate
         fields = [
             'device_type', 'parent', 'name', 'label', 'role', 'manufacturer', 'part_id', 'description',
-            'component_type', 'component_id',
         ]
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs.get('instance')
+        initial = kwargs.get('initial', {}).copy()
+        component_type = initial.get('component_type')
+        component_id = initial.get('component_id')
+
+        if instance:
+            # When editing set the initial value for component selection
+            for component_model in ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS):
+                if type(instance.component) is component_model.model_class():
+                    initial[component_model.model] = instance.component
+                    break
+        elif component_type and component_id:
+            # When adding the InventoryItem from a component page
+            if content_type := ContentType.objects.filter(MODULAR_COMPONENT_TEMPLATE_MODELS).filter(pk=component_type).first():
+                if component := content_type.model_class().objects.filter(pk=component_id).first():
+                    initial[content_type.model] = component
+
+        kwargs['initial'] = initial
+
+        super().__init__(*args, **kwargs)
+
+    def clean(self):
+        super().clean()
+
+        # Handle object assignment
+        selected_objects = [
+            field for field in (
+                'consoleporttemplate', 'consoleserverporttemplate', 'frontporttemplate', 'interfacetemplate',
+                'poweroutlettemplate', 'powerporttemplate', 'rearporttemplate'
+            ) if self.cleaned_data[field]
+        ]
+        if len(selected_objects) > 1:
+            raise forms.ValidationError(_("An InventoryItem can only be assigned to a single component."))
+        elif selected_objects:
+            self.instance.component = self.cleaned_data[selected_objects[0]]
+        else:
+            self.instance.component = None
 
 
 #

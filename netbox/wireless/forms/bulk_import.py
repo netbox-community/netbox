@@ -42,7 +42,7 @@ class WirelessLANImportForm(NetBoxModelImportForm):
     status = CSVChoiceField(
         label=_('Status'),
         choices=WirelessLANStatusChoices,
-        help_text='Operational status'
+        help_text=_('Operational status')
     )
     vlan = CSVModelChoiceField(
         label=_('VLAN'),

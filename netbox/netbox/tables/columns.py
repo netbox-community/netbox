@@ -10,7 +10,6 @@ from django.db.models import DateField, DateTimeField
 from django.template import Context, Template
 from django.urls import reverse
 from django.utils.dateparse import parse_date
-from django.utils.formats import date_format
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
@@ -52,18 +51,17 @@ __all__ = (
 #
 
 @library.register
-class DateColumn(tables.DateColumn):
+class DateColumn(tables.Column):
     """
-    Overrides the default implementation of DateColumn to better handle null values, returning a default value for
-    tables and null when exporting data. It is registered in the tables library to use this class instead of the
-    default, making this behavior consistent in all fields of type DateField.
+    Render a datetime.date in ISO 8601 format.
     """
     def render(self, value):
         if value:
-            return date_format(value, format="SHORT_DATE_FORMAT")
+            return value.isoformat()
 
     def value(self, value):
-        return value
+        if value:
+            return value.isoformat()
 
     @classmethod
     def from_field(cls, field, **kwargs):
@@ -72,16 +70,24 @@ class DateColumn(tables.DateColumn):
 
 
 @library.register
-class DateTimeColumn(tables.DateTimeColumn):
+class DateTimeColumn(tables.Column):
     """
-    Overrides the default implementation of DateTimeColumn to better handle null values, returning a default value for
-    tables and null when exporting data. It is registered in the tables library to use this class instead of the
-    default, making this behavior consistent in all fields of type DateTimeField.
+    Render a datetime.datetime in ISO 8601 format.
+
+    Args:
+        timespec: Granularity specification; passed through to datetime.isoformat()
     """
+    def __init__(self, *args, timespec='seconds', **kwargs):
+        self.timespec = timespec
+        super().__init__(*args, **kwargs)
+
+    def render(self, value):
+        if value:
+            return f"{value.date().isoformat()} {value.time().isoformat(timespec=self.timespec)}"
+
     def value(self, value):
         if value:
-            return date_format(value, format="SHORT_DATETIME_FORMAT")
-        return None
+            return value.isoformat()
 
     @classmethod
     def from_field(cls, field, **kwargs):
@@ -498,7 +504,7 @@ class CustomFieldColumn(tables.Column):
         if self.customfield.type == CustomFieldTypeChoices.TYPE_LONGTEXT and value:
             return render_markdown(value)
         if self.customfield.type == CustomFieldTypeChoices.TYPE_DATE and value:
-            return date_format(parse_date(value), format="SHORT_DATE_FORMAT")
+            return parse_date(value).isoformat()
         if value is not None:
             obj = self.customfield.deserialize(value)
             return mark_safe(self._linkify_item(obj))

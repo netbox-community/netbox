@@ -53,6 +53,7 @@ class CustomFieldForm(forms.ModelForm):
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False
     )
+    comments = CommentField()
 
     fieldsets = (
         FieldSet(
@@ -272,15 +273,13 @@ class EventRuleForm(NetBoxModelForm):
         required=False,
         help_text=_('Enter parameters to pass to the action in <a href="https://json.org/">JSON</a> format.')
     )
+    comments = CommentField()
 
     fieldsets = (
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
         FieldSet('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', name=_('Events')),
         FieldSet('conditions', name=_('Conditions')),
-        FieldSet(
-            'action_type', 'action_choice', 'action_object_type', 'action_object_id', 'action_data',
-            name=_('Action')
-        ),
+        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
     )
 
     class Meta:
