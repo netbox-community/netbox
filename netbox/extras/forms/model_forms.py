@@ -122,7 +122,7 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
                 label = label.replace('\\:', ':')
             except ValueError:
                 value, label = line, line
-            data.append((value, label))
+            data.append((value.strip(), label.strip()))
         return data
 
 
