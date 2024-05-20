@@ -5,8 +5,11 @@ from django.urls import reverse
 
 from circuits.choices import *
 from circuits.models import *
+from core.models import ObjectType
 from dcim.models import Cable, Interface, Site
 from ipam.models import ASN, RIR
+from netbox.choices import ImportFormatChoices
+from users.models import ObjectPermission
 from utilities.testing import ViewTestCases, create_tags, create_test_device
 
 
@@ -115,6 +118,7 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        Site.objects.create(name='Site 1', slug='site-1')
 
         providers = (
             Provider(name='Provider 1', slug='provider-1'),
@@ -183,6 +187,51 @@ class CircuitTestCase(ViewTestCases.PrimaryObjectViewTestCase):
             'description': 'New description',
             'comments': 'New comments',
         }
+
+    @override_settings(EXEMPT_VIEW_PERMISSIONS=['*'], EXEMPT_EXCLUDE_MODELS=[])
+    def test_bulk_import_objects_with_terminations(self):
+        json_data = """
+            [
+              {
+                "cid": "Circuit 7",
+                "provider": "Provider 1",
+                "type": "Circuit Type 1",
+                "status": "active",
+                "description": "Testing Import",
+                "terminations": [
+                  {
+                    "term_side": "A",
+                    "site": "Site 1"
+                  },
+                  {
+                    "term_side": "Z",
+                    "site": "Site 1"
+                  }
+                ]
+              }
+            ]
+        """
+        initial_count = self._get_queryset().count()
+        data = {
+            'data': json_data,
+            'format': ImportFormatChoices.JSON,
+        }
+
+        # Assign model-level permission
+        obj_perm = ObjectPermission(
+            name='Test permission',
+            actions=['add']
+        )
+        obj_perm.save()
+        obj_perm.users.add(self.user)
+        obj_perm.object_types.add(ObjectType.objects.get_for_model(self.model))
+
+        # Try GET with model-level permission
+        self.assertHttpStatus(self.client.get(self._get_url('import')), 200)
+
+        # Test POST with permission
+        self.assertHttpStatus(self.client.post(self._get_url('import'), data), 302)
+        self.assertEqual(self._get_queryset().count(), initial_count + 1)
 
 
 class ProviderAccountTestCase(ViewTestCases.PrimaryObjectViewTestCase):
@@ -287,10 +336,7 @@ class ProviderNetworkTestCase(ViewTestCases.PrimaryObjectViewTestCase):
         }
 
 
-class CircuitTerminationTestCase(
-    ViewTestCases.EditObjectViewTestCase,
-    ViewTestCases.DeleteObjectViewTestCase,
-):
+class CircuitTerminationTestCase(ViewTestCases.PrimaryObjectViewTestCase):
     model = CircuitTermination
 
     @classmethod
@@ -324,6 +370,24 @@ class CircuitTerminationTestCase(
             'circuit': circuits[2].pk,
             'term_side': 'A',
             'site': sites[2].pk,
+            'description': 'New description',
+        }
+
+        cls.csv_data = (
+            "circuit,term_side,site,description",
+            "Circuit 3,A,Site 1,Foo",
+            "Circuit 3,Z,Site 1,Bar",
+        )
+
+        cls.csv_update_data = (
+            "id,port_speed,description",
+            f"{circuit_terminations[0].pk},100,New description7",
+            f"{circuit_terminations[1].pk},200,New description8",
+            f"{circuit_terminations[2].pk},300,New description9",
+        )
+
+        cls.bulk_edit_data = {
+            'port_speed': 400,
             'description': 'New description',
         }
 

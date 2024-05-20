@@ -399,6 +399,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -520,6 +524,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
         )),
@@ -635,6 +644,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -748,6 +761,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_A, 'USB Type A'),
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
+        )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
         )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),

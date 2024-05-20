@@ -4,9 +4,19 @@
 
 ### Enhancements
 
+* [#12984](https://github.com/netbox-community/netbox/issues/12984) - Add Molex Micro-Fit power port & outlet types
 * [#14639](https://github.com/netbox-community/netbox/issues/14639) - Add Ukrainian translation support
 * [#14686](https://github.com/netbox-community/netbox/issues/14686) - Add German translation support
 * [#14855](https://github.com/netbox-community/netbox/issues/14855) - Add Chinese translation support
+* [#15353](https://github.com/netbox-community/netbox/issues/15353) - Improve error reporting when custom scripts fail to load
+* [#15496](https://github.com/netbox-community/netbox/issues/15496) - Implement dedicated views for management of circuit terminations
+
+### Bug Fixes
+
+* [#13293](https://github.com/netbox-community/netbox/issues/13293) - Limit interface selector for IP address to current device/VM
+* [#14953](https://github.com/netbox-community/netbox/issues/14953) - Ensure annotated count fields are present in REST API response data when creating new objects
+* [#14982](https://github.com/netbox-community/netbox/issues/14982) - Fix OpenAPI schema definition for SerializedPKRelatedFields
+* [#16138](https://github.com/netbox-community/netbox/issues/16138) - Fix support for referencing users & groups in object permissions
 
 ---
 
