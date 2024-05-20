@@ -62,14 +62,13 @@ export function initQuickSearch(): void {
 
     if (isTruthy(clearbtn)) {
       clearbtn.addEventListener("click", async () => {
-          const search = new Event('search');
-          quicksearch.value = '';
-          await new Promise(f => setTimeout(f, 100));
-          quicksearch.dispatchEvent(search);
-        },
-        {
-          passive: true
-        })
+        const search = new Event('search');
+        quicksearch.value = '';
+        await new Promise(f => setTimeout(f, 100));
+        quicksearch.dispatchEvent(search);
+      }, {
+        passive: true
+      })
     }
   }
 }
