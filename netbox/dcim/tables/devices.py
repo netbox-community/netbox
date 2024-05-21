@@ -313,6 +313,10 @@ class ModularDeviceComponentTable(DeviceComponentTable):
         verbose_name=_('Module'),
         linkify=True
     )
+    inventory_items = columns.ManyToManyColumn(
+        linkify_item=True,
+        verbose_name=_('Inventory Items'),
+    )
 
 
 class CableTerminationTable(NetBoxTable):
@@ -358,10 +362,6 @@ class ConsolePortTable(ModularDeviceComponentTable, PathEndpointTable):
             'args': [Accessor('device_id')],
         }
     )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:consoleport_list'
     )
@@ -405,10 +405,6 @@ class ConsoleServerPortTable(ModularDeviceComponentTable, PathEndpointTable):
             'viewname': 'dcim:device_consoleserverports',
             'args': [Accessor('device_id')],
         }
-    )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
     )
     tags = columns.TagColumn(
         url_name='dcim:consoleserverport_list'
@@ -461,10 +457,6 @@ class PowerPortTable(ModularDeviceComponentTable, PathEndpointTable):
     allocated_draw = tables.Column(
         verbose_name=_('Allocated draw (W)')
     )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:powerport_list'
     )
@@ -516,10 +508,6 @@ class PowerOutletTable(ModularDeviceComponentTable, PathEndpointTable):
     power_port = tables.Column(
         verbose_name=_('Power Port'),
         linkify=True
-    )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
     )
     tags = columns.TagColumn(
         url_name='dcim:poweroutlet_list'
@@ -634,10 +622,6 @@ class InterfaceTable(ModularDeviceComponentTable, BaseInterfaceTable, PathEndpoi
         verbose_name=_('VRF'),
         linkify=True
     )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:interface_list'
     )
@@ -721,10 +705,6 @@ class FrontPortTable(ModularDeviceComponentTable, CableTerminationTable):
         verbose_name=_('Rear Port'),
         linkify=True
     )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
-    )
     tags = columns.TagColumn(
         url_name='dcim:frontport_list'
     )
@@ -777,10 +757,6 @@ class RearPortTable(ModularDeviceComponentTable, CableTerminationTable):
     )
     color = columns.ColorColumn(
         verbose_name=_('Color'),
-    )
-    inventory_items = columns.ManyToManyColumn(
-        linkify_item=True,
-        verbose_name=_('Inventory Items'),
     )
     tags = columns.TagColumn(
         url_name='dcim:rearport_list'
