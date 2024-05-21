@@ -148,7 +148,7 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     preshared_key = forms.CharField(
-        label=_('Pre-shared key'),
+        label=_('Pre-Shared Key'),
         required=False
     )
     description = forms.CharField(

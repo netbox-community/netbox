@@ -18,7 +18,7 @@ Authentication attributes for wireless LANs include:
 
 * **Type** - Open, WEP, WPA, etc.
 * **Cipher** - Auto, TKIP, or AES
-* **Pre-shared key (PSK)** - The secret key configured on all participating clients
+* **Pre-Shared Key (PSK)** - The secret key configured on all participating clients
 
 The definition of authentication parameters is optional.
 

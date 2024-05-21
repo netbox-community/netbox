@@ -708,7 +708,7 @@ class CableBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     length_unit = forms.ChoiceField(
-        label=_('Length unit'),
+        label=_('Length Unit'),
         choices=add_blank_choice(CableLengthUnitChoices),
         required=False,
         initial=''

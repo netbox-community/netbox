@@ -51041,7 +51041,7 @@ definitions:
         format: decimal
         x-nullable: true
       length_unit:
-        title: Length unit
+        title: Length Unit
         required:
           - label
           - value
@@ -51169,7 +51169,7 @@ definitions:
         format: decimal
         x-nullable: true
       length_unit:
-        title: Length unit
+        title: Length Unit
         type: string
         enum:
           - km
@@ -65033,7 +65033,7 @@ definitions:
         maximum: 32767
         minimum: 0
       auth_type:
-        title: Authentication type
+        title: Authentication Type
         type: string
         enum:
           - plaintext
@@ -69373,7 +69373,7 @@ definitions:
               - tkip
               - aes
       auth_psk:
-        title: Pre-shared key
+        title: Pre-Shared Key
         type: string
         maxLength: 64
       comments:
@@ -69462,7 +69462,7 @@ definitions:
           - tkip
           - aes
       auth_psk:
-        title: Pre-shared key
+        title: Pre-Shared Key
         type: string
         maxLength: 64
       comments:
@@ -69577,7 +69577,7 @@ definitions:
               - tkip
               - aes
       auth_psk:
-        title: Pre-shared key
+        title: Pre-Shared Key
         type: string
         maxLength: 64
       description:
@@ -69663,7 +69663,7 @@ definitions:
           - tkip
           - aes
       auth_psk:
-        title: Pre-shared key
+        title: Pre-Shared Key
         type: string
         maxLength: 64
       description:

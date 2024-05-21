@@ -59,16 +59,16 @@ class WirelessLANImportForm(NetBoxModelImportForm):
         help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
-        label=_('Authentication type'),
+        label=_('Authentication Type'),
         choices=WirelessAuthTypeChoices,
         required=False,
-        help_text=_('Authentication type')
+        help_text=_('Authentication Type')
     )
     auth_cipher = CSVChoiceField(
-        label=_('Authentication cipher'),
+        label=_('Authentication Cipher'),
         choices=WirelessAuthCipherChoices,
         required=False,
-        help_text=_('Authentication cipher')
+        help_text=_('Authentication Cipher')
     )
 
     class Meta:
@@ -101,16 +101,16 @@ class WirelessLinkImportForm(NetBoxModelImportForm):
         help_text=_('Assigned tenant')
     )
     auth_type = CSVChoiceField(
-        label=_('Authentication type'),
+        label=_('Authentication Type'),
         choices=WirelessAuthTypeChoices,
         required=False,
-        help_text=_('Authentication type')
+        help_text=_('Authentication Type')
     )
     auth_cipher = CSVChoiceField(
-        label=_('Authentication cipher'),
+        label=_('Authentication Cipher'),
         choices=WirelessAuthCipherChoices,
         required=False,
-        help_text=_('Authentication cipher')
+        help_text=_('Authentication Cipher')
     )
 
     class Meta:

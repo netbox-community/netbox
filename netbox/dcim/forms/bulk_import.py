@@ -1171,10 +1171,10 @@ class CableImportForm(NetBoxModelImportForm):
         help_text=_('Assigned tenant')
     )
     length_unit = CSVChoiceField(
-        label=_('Length unit'),
+        label=_('Length Unit'),
         choices=CableLengthUnitChoices,
         required=False,
-        help_text=_('Length unit')
+        help_text=_('Length Unit')
     )
 
     class Meta:

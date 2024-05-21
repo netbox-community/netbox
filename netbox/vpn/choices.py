@@ -89,7 +89,7 @@ class AuthenticationMethodChoices(ChoiceSet):
     DSA_SIGNATURES = 'dsa-signatures'
 
     CHOICES = (
-        (PRESHARED_KEYS, _('Pre-shared keys')),
+        (PRESHARED_KEYS, _('Pre-Shared Keys')),
         (CERTIFICATES, _('Certificates')),
         (RSA_SIGNATURES, _('RSA signatures')),
         (DSA_SIGNATURES, _('DSA signatures')),

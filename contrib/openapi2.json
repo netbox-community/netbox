@@ -72879,7 +72879,7 @@
                     "x-nullable": true
                 },
                 "length_unit": {
-                    "title": "Length unit",
+                    "title": "Length Unit",
                     "required": [
                         "label",
                         "value"
@@ -73038,7 +73038,7 @@
                     "x-nullable": true
                 },
                 "length_unit": {
-                    "title": "Length unit",
+                    "title": "Length Unit",
                     "type": "string",
                     "enum": [
                         "km",
@@ -89655,7 +89655,7 @@
                     "minimum": 0
                 },
                 "auth_type": {
-                    "title": "Authentication type",
+                    "title": "Authentication Type",
                     "type": "string",
                     "enum": [
                         "plaintext",
@@ -95185,7 +95185,7 @@
                     }
                 },
                 "auth_psk": {
-                    "title": "Pre-shared key",
+                    "title": "Pre-Shared Key",
                     "type": "string",
                     "maxLength": 64
                 },
@@ -95298,7 +95298,7 @@
                     ]
                 },
                 "auth_psk": {
-                    "title": "Pre-shared key",
+                    "title": "Pre-Shared Key",
                     "type": "string",
                     "maxLength": 64
                 },
@@ -95451,7 +95451,7 @@
                     }
                 },
                 "auth_psk": {
-                    "title": "Pre-shared key",
+                    "title": "Pre-Shared Key",
                     "type": "string",
                     "maxLength": 64
                 },
@@ -95561,7 +95561,7 @@
                     ]
                 },
                 "auth_psk": {
-                    "title": "Pre-shared key",
+                    "title": "Pre-Shared Key",
                     "type": "string",
                     "maxLength": 64
                 },

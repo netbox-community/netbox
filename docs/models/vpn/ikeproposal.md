@@ -17,7 +17,7 @@ The strategy employed for authenticating the IKE peer. Available options are lis
 
 | Name           |
 |----------------|
-| Pre-shared key |
+| Pre-Shared Key |
 | Certificate    |
 | RSA signature  |
 | DSA signature  |

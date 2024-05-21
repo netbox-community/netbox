@@ -3077,7 +3077,7 @@ msgstr "Длина"
 
 #: dcim/forms/bulk_edit.py:711 dcim/forms/bulk_import.py:1174
 #: dcim/forms/bulk_import.py:1177 dcim/forms/filtersets.py:983
-msgid "Length unit"
+msgid "Length Unit"
 msgstr "Единица длины"
 
 #: dcim/forms/bulk_edit.py:735 templates/dcim/virtualchassis.html:23
@@ -8406,7 +8406,7 @@ msgstr "Идентификатор группы"
 #: wireless/forms/bulk_import.py:62 wireless/forms/bulk_import.py:65
 #: wireless/forms/bulk_import.py:104 wireless/forms/bulk_import.py:107
 #: wireless/forms/filtersets.py:54 wireless/forms/filtersets.py:88
-msgid "Authentication type"
+msgid "Authentication Type"
 msgstr "Тип аутентификации"
 
 #: ipam/forms/bulk_edit.py:388 ipam/forms/filtersets.py:399
@@ -14100,7 +14100,7 @@ msgid "Main"
 msgstr "Главная"
 
 #: vpn/choices.py:92
-msgid "Pre-shared keys"
+msgid "Pre-Shared Keys"
 msgstr "PSK"
 
 #: vpn/choices.py:93
@@ -14209,7 +14209,7 @@ msgstr "Время жизни SA"
 #: vpn/forms/bulk_edit.py:151 wireless/forms/bulk_edit.py:79
 #: wireless/forms/bulk_edit.py:126 wireless/forms/filtersets.py:64
 #: wireless/forms/filtersets.py:98
-msgid "Pre-shared key"
+msgid "Pre-Shared Key"
 msgstr "Предварительный общий ключ"
 
 #: vpn/forms/bulk_edit.py:237 vpn/forms/bulk_import.py:239
@@ -14541,7 +14541,7 @@ msgstr "Предприятие WPA"
 #: wireless/forms/bulk_import.py:68 wireless/forms/bulk_import.py:71
 #: wireless/forms/bulk_import.py:110 wireless/forms/bulk_import.py:113
 #: wireless/forms/filtersets.py:59 wireless/forms/filtersets.py:93
-msgid "Authentication cipher"
+msgid "Authentication Cipher"
 msgstr "Шифр аутентификации"
 
 #: wireless/forms/bulk_import.py:52

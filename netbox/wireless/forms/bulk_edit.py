@@ -65,18 +65,18 @@ class WirelessLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     auth_type = forms.ChoiceField(
-        label=_('Authentication type'),
+        label=_('Authentication Type'),
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
     auth_cipher = forms.ChoiceField(
-        label=_('Authentication cipher'),
+        label=_('Authentication Cipher'),
         choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
     )
     auth_psk = forms.CharField(
         required=False,
-        label=_('Pre-shared key')
+        label=_('Pre-Shared Key')
     )
     description = forms.CharField(
         label=_('Description'),
@@ -112,18 +112,18 @@ class WirelessLinkBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     auth_type = forms.ChoiceField(
-        label=_('Authentication type'),
+        label=_('Authentication Type'),
         choices=add_blank_choice(WirelessAuthTypeChoices),
         required=False
     )
     auth_cipher = forms.ChoiceField(
-        label=_('Authentication cipher'),
+        label=_('Authentication Cipher'),
         choices=add_blank_choice(WirelessAuthCipherChoices),
         required=False
     )
     auth_psk = forms.CharField(
         required=False,
-        label=_('Pre-shared key')
+        label=_('Pre-Shared Key')
     )
     description = forms.CharField(
         label=_('Description'),

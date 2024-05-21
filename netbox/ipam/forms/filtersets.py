@@ -399,7 +399,7 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
     auth_type = forms.MultipleChoiceField(
         choices=FHRPGroupAuthTypeChoices,
         required=False,
-        label=_('Authentication type')
+        label=_('Authentication Type')
     )
     auth_key = forms.CharField(
         required=False,

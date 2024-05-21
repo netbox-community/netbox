@@ -380,7 +380,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     auth_type = forms.ChoiceField(
         choices=add_blank_choice(FHRPGroupAuthTypeChoices),
         required=False,
-        label=_('Authentication type')
+        label=_('Authentication Type')
     )
     auth_key = forms.CharField(
         max_length=255,
