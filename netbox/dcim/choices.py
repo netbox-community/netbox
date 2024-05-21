@@ -892,6 +892,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_GSM = 'gsm'
     TYPE_CDMA = 'cdma'
     TYPE_LTE = 'lte'
+    TYPE_4G = '4g'
+    TYPE_5G = '5g'
 
     # SONET
     TYPE_SONET_OC3 = 'sonet-oc3'
@@ -1060,6 +1062,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_GSM, 'GSM'),
                 (TYPE_CDMA, 'CDMA'),
                 (TYPE_LTE, 'LTE'),
+                (TYPE_4G, '4G'),
+                (TYPE_5G, '5G'),
             )
         ),
         (
