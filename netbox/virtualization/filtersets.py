@@ -86,13 +86,13 @@ class ClusterFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ClusterType.objects.all(),
-        label=_('Cluster type (ID)'),
+        label=_('Cluster Type (ID)'),
     )
     type = django_filters.ModelMultipleChoiceFilter(
         field_name='type__slug',
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        label=_('Cluster type (slug)'),
+        label=_('Cluster Type (slug)'),
     )
     status = django_filters.MultipleChoiceFilter(
         choices=ClusterStatusChoices,
@@ -138,13 +138,13 @@ class VirtualMachineFilterSet(
     cluster_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type',
         queryset=ClusterType.objects.all(),
-        label=_('Cluster type (ID)'),
+        label=_('Cluster Type (ID)'),
     )
     cluster_type = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type__slug',
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        label=_('Cluster type (slug)'),
+        label=_('Cluster Type (slug)'),
     )
     cluster_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Cluster.objects.all(),
@@ -275,13 +275,13 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),
-        label=_('Virtual machine (ID)'),
+        label=_('Virtual Machine (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
     )
     parent_id = django_filters.ModelMultipleChoiceFilter(
         field_name='parent',
@@ -314,13 +314,13 @@ class VirtualDiskFilterSet(NetBoxModelFilterSet):
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine',
         queryset=VirtualMachine.objects.all(),
-        label=_('Virtual machine (ID)'),
+        label=_('Virtual Machine (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
     )
 
     class Meta:

@@ -91786,7 +91786,7 @@
                     "x-nullable": true
                 },
                 "virtual_machine": {
-                    "title": "Virtual machine",
+                    "title": "Virtual Machine",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -94734,7 +94734,7 @@
                     "readOnly": true
                 },
                 "virtual_machine": {
-                    "title": "Virtual machine",
+                    "title": "Virtual Machine",
                     "type": "integer"
                 },
                 "name": {

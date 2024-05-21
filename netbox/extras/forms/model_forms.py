@@ -415,7 +415,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         required=False
     )
     cluster_types = DynamicModelMultipleChoiceField(
-        label=_('Cluster types'),
+        label=_('Cluster Types'),
         queryset=ClusterType.objects.all(),
         required=False
     )

@@ -728,7 +728,7 @@ class ServiceForm(NetBoxModelForm):
         selector=True
     )
     virtual_machine = DynamicModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         selector=True

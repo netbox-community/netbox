@@ -401,12 +401,12 @@ class L2VPNTerminationFilterSet(NetBoxModelFilterSet):
         field_name='vminterface__virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
-        label=_('Virtual machine (name)'),
+        label=_('Virtual Machine (name)'),
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         field_name='vminterface__virtual_machine',
         queryset=VirtualMachine.objects.all(),
-        label=_('Virtual machine (ID)'),
+        label=_('Virtual Machine (ID)'),
     )
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',

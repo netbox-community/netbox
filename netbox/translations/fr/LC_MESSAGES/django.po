@@ -5077,7 +5077,7 @@ msgid "module types"
 msgstr "types de modules"
 
 #: dcim/models/devices.py:475
-msgid "Virtual machines may be assigned to this role"
+msgid "Virtual Machines may be assigned to this role"
 msgstr "Des machines virtuelles peuvent être affectées à ce rôle"
 
 #: dcim/models/devices.py:487
@@ -6509,12 +6509,12 @@ msgid "Data file (ID)"
 msgstr "Fichier de données (ID)"
 
 #: extras/filtersets.py:526 virtualization/forms/filtersets.py:118
-msgid "Cluster type"
+msgid "Cluster Type"
 msgstr "Type de cluster"
 
 #: extras/filtersets.py:532 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:147
-msgid "Cluster type (slug)"
+msgid "Cluster Type (slug)"
 msgstr "Type de cluster (slug)"
 
 #: extras/filtersets.py:537 ipam/forms/bulk_edit.py:476
@@ -6838,7 +6838,7 @@ msgid "Roles"
 msgstr "Rôles"
 
 #: extras/forms/filtersets.py:385 extras/forms/model_forms.py:418
-msgid "Cluster types"
+msgid "Cluster Types"
 msgstr "Types de clusters"
 
 #: extras/forms/filtersets.py:390 extras/forms/model_forms.py:423
@@ -8312,13 +8312,13 @@ msgstr "Préfixe parent"
 
 #: ipam/filtersets.py:616 ipam/filtersets.py:856 ipam/filtersets.py:1091
 #: vpn/filtersets.py:404
-msgid "Virtual machine (name)"
+msgid "Virtual Machine (name)"
 msgstr "Machine virtuelle (nom)"
 
 #: ipam/filtersets.py:621 ipam/filtersets.py:861 ipam/filtersets.py:1085
 #: virtualization/filtersets.py:278 virtualization/filtersets.py:317
 #: vpn/filtersets.py:409
-msgid "Virtual machine (ID)"
+msgid "Virtual Machine (ID)"
 msgstr "Machine virtuelle (ID)"
 
 #: ipam/filtersets.py:627 vpn/filtersets.py:97 vpn/filtersets.py:415
@@ -8550,7 +8550,7 @@ msgstr "Appareil parent auquel est attribuée l'interface (le cas échéant)"
 #: virtualization/forms/filtersets.py:244
 #: virtualization/forms/model_forms.py:288 vpn/forms/bulk_import.py:93
 #: vpn/forms/bulk_import.py:290
-msgid "Virtual machine"
+msgid "Virtual Machine"
 msgstr "Machine virtuelle"
 
 #: ipam/forms/bulk_import.py:314
@@ -13956,7 +13956,7 @@ msgid "Parent Group (slug)"
 msgstr "Groupe de parents (limace)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:141
-msgid "Cluster type (ID)"
+msgid "Cluster Type (ID)"
 msgstr "Type de cluster (ID)"
 
 #: virtualization/filtersets.py:130
@@ -14070,7 +14070,7 @@ msgid "disk (GB)"
 msgstr "disque (Go)"
 
 #: virtualization/models/virtualmachines.py:161
-msgid "Virtual machine name must be unique per cluster."
+msgid "Virtual Machine name must be unique per cluster."
 msgstr "Le nom de la machine virtuelle doit être unique par cluster."
 
 #: virtualization/models/virtualmachines.py:164

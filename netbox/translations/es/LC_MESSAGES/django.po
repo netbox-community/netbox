@@ -5072,7 +5072,7 @@ msgid "module types"
 msgstr "tipos de módulos"
 
 #: dcim/models/devices.py:475
-msgid "Virtual machines may be assigned to this role"
+msgid "Virtual Machines may be assigned to this role"
 msgstr "Se pueden asignar máquinas virtuales a esta función"
 
 #: dcim/models/devices.py:487
@@ -6499,12 +6499,12 @@ msgid "Data file (ID)"
 msgstr "Archivo de datos (ID)"
 
 #: extras/filtersets.py:526 virtualization/forms/filtersets.py:118
-msgid "Cluster type"
+msgid "Cluster Type"
 msgstr "Tipo de clúster"
 
 #: extras/filtersets.py:532 virtualization/filtersets.py:95
 #: virtualization/filtersets.py:147
-msgid "Cluster type (slug)"
+msgid "Cluster Type (slug)"
 msgstr "Tipo de clúster (babosa)"
 
 #: extras/filtersets.py:537 ipam/forms/bulk_edit.py:476
@@ -6829,7 +6829,7 @@ msgid "Roles"
 msgstr "Funciones"
 
 #: extras/forms/filtersets.py:385 extras/forms/model_forms.py:418
-msgid "Cluster types"
+msgid "Cluster Types"
 msgstr "Tipos de clústeres"
 
 #: extras/forms/filtersets.py:390 extras/forms/model_forms.py:423
@@ -8289,13 +8289,13 @@ msgstr "Prefijo principal"
 
 #: ipam/filtersets.py:616 ipam/filtersets.py:856 ipam/filtersets.py:1091
 #: vpn/filtersets.py:404
-msgid "Virtual machine (name)"
+msgid "Virtual Machine (name)"
 msgstr "Máquina virtual (nombre)"
 
 #: ipam/filtersets.py:621 ipam/filtersets.py:861 ipam/filtersets.py:1085
 #: virtualization/filtersets.py:278 virtualization/filtersets.py:317
 #: vpn/filtersets.py:409
-msgid "Virtual machine (ID)"
+msgid "Virtual Machine (ID)"
 msgstr "Máquina virtual (ID)"
 
 #: ipam/filtersets.py:627 vpn/filtersets.py:97 vpn/filtersets.py:415
@@ -8527,7 +8527,7 @@ msgstr "Dispositivo principal de la interfaz asignada (si existe)"
 #: virtualization/forms/filtersets.py:244
 #: virtualization/forms/model_forms.py:288 vpn/forms/bulk_import.py:93
 #: vpn/forms/bulk_import.py:290
-msgid "Virtual machine"
+msgid "Virtual Machine"
 msgstr "Máquina virtual"
 
 #: ipam/forms/bulk_import.py:314
@@ -13919,7 +13919,7 @@ msgid "Parent Group (slug)"
 msgstr "Grupo de padres (babosas)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:141
-msgid "Cluster type (ID)"
+msgid "Cluster Type (ID)"
 msgstr "Tipo de clúster (ID)"
 
 #: virtualization/filtersets.py:130
@@ -14034,7 +14034,7 @@ msgid "disk (GB)"
 msgstr "disco (GB)"
 
 #: virtualization/models/virtualmachines.py:161
-msgid "Virtual machine name must be unique per cluster."
+msgid "Virtual Machine name must be unique per cluster."
 msgstr "El nombre de la máquina virtual debe ser único por clúster."
 
 #: virtualization/models/virtualmachines.py:164

@@ -523,13 +523,13 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
     cluster_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_types',
         queryset=ClusterType.objects.all(),
-        label=_('Cluster type'),
+        label=_('Cluster Type'),
     )
     cluster_type = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_types__slug',
         queryset=ClusterType.objects.all(),
         to_field_name='slug',
-        label=_('Cluster type (slug)'),
+        label=_('Cluster Type (slug)'),
     )
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster_groups',

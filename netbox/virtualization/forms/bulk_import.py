@@ -143,7 +143,7 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
 
 class VMInterfaceImportForm(NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
     )
@@ -204,7 +204,7 @@ class VMInterfaceImportForm(NetBoxModelImportForm):
 
 class VirtualDiskImportForm(NetBoxModelImportForm):
     virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         to_field_name='name'
     )

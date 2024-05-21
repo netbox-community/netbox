@@ -115,7 +115,7 @@ class VirtualMachineFilterForm(
         queryset=ClusterType.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster type')
+        label=_('Cluster Type')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),
@@ -205,7 +205,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
         query_params={
             'cluster_id': '$cluster_id'
         },
-        label=_('Virtual machine')
+        label=_('Virtual Machine')
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -241,7 +241,7 @@ class VirtualDiskFilterForm(NetBoxModelFilterSetForm):
     virtual_machine_id = DynamicModelMultipleChoiceField(
         queryset=VirtualMachine.objects.all(),
         required=False,
-        label=_('Virtual machine')
+        label=_('Virtual Machine')
     )
     size = forms.IntegerField(
         label=_('Size (GB)'),

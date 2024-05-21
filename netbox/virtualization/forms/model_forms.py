@@ -285,7 +285,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
 
 class VMComponentForm(NetBoxModelForm):
     virtual_machine = DynamicModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         selector=True
     )

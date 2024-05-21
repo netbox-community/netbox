@@ -613,12 +613,12 @@ class IPAddressFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     virtual_machine = MultiValueCharFilter(
         method='filter_virtual_machine',
         field_name='name',
-        label=_('Virtual machine (name)'),
+        label=_('Virtual Machine (name)'),
     )
     virtual_machine_id = MultiValueNumberFilter(
         method='filter_virtual_machine',
         field_name='pk',
-        label=_('Virtual machine (ID)'),
+        label=_('Virtual Machine (ID)'),
     )
     interface = django_filters.ModelMultipleChoiceFilter(
         field_name='interface__name',
@@ -853,12 +853,12 @@ class FHRPGroupAssignmentFilterSet(ChangeLoggedModelFilterSet):
     virtual_machine = MultiValueCharFilter(
         method='filter_virtual_machine',
         field_name='name',
-        label=_('Virtual machine (name)'),
+        label=_('Virtual Machine (name)'),
     )
     virtual_machine_id = MultiValueNumberFilter(
         method='filter_virtual_machine',
         field_name='pk',
-        label=_('Virtual machine (ID)'),
+        label=_('Virtual Machine (ID)'),
     )
 
     class Meta:
@@ -1082,13 +1082,13 @@ class ServiceFilterSet(NetBoxModelFilterSet):
     )
     virtual_machine_id = django_filters.ModelMultipleChoiceFilter(
         queryset=VirtualMachine.objects.all(),
-        label=_('Virtual machine (ID)'),
+        label=_('Virtual Machine (ID)'),
     )
     virtual_machine = django_filters.ModelMultipleChoiceFilter(
         field_name='virtual_machine__name',
         queryset=VirtualMachine.objects.all(),
         to_field_name='name',
-        label=_('Virtual machine (name)'),
+        label=_('Virtual Machine (name)'),
     )
     ip_address_id = django_filters.ModelMultipleChoiceFilter(
         field_name='ipaddresses',

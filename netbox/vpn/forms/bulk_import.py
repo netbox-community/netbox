@@ -90,7 +90,7 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
         help_text=_('Parent device of assigned interface')
     )
     virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
@@ -287,7 +287,7 @@ class L2VPNTerminationImportForm(NetBoxModelImportForm):
         help_text=_('Parent device (for interface)')
     )
     virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',

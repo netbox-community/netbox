@@ -66697,7 +66697,7 @@ definitions:
         type: integer
         x-nullable: true
       virtual_machine:
-        title: Virtual machine
+        title: Virtual Machine
         type: integer
         x-nullable: true
       name:
@@ -69020,7 +69020,7 @@ definitions:
         type: string
         readOnly: true
       virtual_machine:
-        title: Virtual machine
+        title: Virtual Machine
         type: integer
       name:
         title: Name

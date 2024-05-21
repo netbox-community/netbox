@@ -197,7 +197,7 @@ class VirtualMachineBulkEditForm(NetBoxModelBulkEditForm):
 
 class VMInterfaceBulkEditForm(NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         disabled=True,
@@ -323,7 +323,7 @@ class VMInterfaceBulkRenameForm(BulkRenameForm):
 
 class VirtualDiskBulkEditForm(NetBoxModelBulkEditForm):
     virtual_machine = forms.ModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         disabled=True,

@@ -307,7 +307,7 @@ class IPAddressImportForm(NetBoxModelImportForm):
         help_text=_('Parent device of assigned interface (if any)')
     )
     virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
@@ -493,7 +493,7 @@ class ServiceImportForm(NetBoxModelImportForm):
         help_text=_('Required if not assigned to a VM')
     )
     virtual_machine = CSVModelChoiceField(
-        label=_('Virtual machine'),
+        label=_('Virtual Machine'),
         queryset=VirtualMachine.objects.all(),
         required=False,
         to_field_name='name',
