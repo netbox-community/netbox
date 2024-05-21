@@ -112,6 +112,13 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
             query_params.pop('export')
             return redirect(f'{request.path}?{query_params.urlencode()}')
 
+    def _is_embedded_path(self, request):
+        if 'return_url' in request.GET:
+            if request.GET['return_url'] != request.path:
+                return True
+
+        return False
+
     #
     # Request handlers
     #
@@ -163,7 +170,7 @@ class ObjectListView(BaseMultiObjectView, ActionsMixin, TableMixin):
 
         # If this is an HTMX request, return only the rendered table HTML
         if htmx_partial(request):
-            if not request.htmx.target:
+            if not request.htmx.target and self._is_embedded_path(request):
                 table.embedded = True
                 # Hide selection checkboxes
                 if 'pk' in table.base_columns:
