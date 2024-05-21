@@ -13,7 +13,7 @@ import { initSideNav } from './sidenav';
 import { initDashboard } from './dashboard';
 import { initRackElevation } from './racks';
 import { initHtmx } from './htmx';
-import {initSavedFilterSelect} from "./savedFiltersSelect";
+import { initSavedFilterSelect } from "./forms/savedFiltersSelect";
 
 function initDocument(): void {
   for (const init of [
