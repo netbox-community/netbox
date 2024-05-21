@@ -51880,7 +51880,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:
@@ -52409,7 +52409,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:
@@ -52848,7 +52848,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
       name:
         title: Name
@@ -53113,7 +53113,7 @@ definitions:
         description: Virtual machines may be assigned to this role
         type: boolean
       config_template:
-        title: Config template
+        title: Config Template
         type: integer
         x-nullable: true
       description:
@@ -53185,7 +53185,7 @@ definitions:
         maxLength: 100
         minLength: 1
       part_number:
-        title: Part number
+        title: Part Number
         description: Discrete part number (optional)
         type: string
         maxLength: 50
@@ -53334,7 +53334,7 @@ definitions:
         title: Manufacturer
         type: integer
       default_platform:
-        title: Default platform
+        title: Default Platform
         type: integer
         x-nullable: true
       model:
@@ -53350,7 +53350,7 @@ definitions:
         maxLength: 100
         minLength: 1
       part_number:
-        title: Part number
+        title: Part Number
         description: Discrete part number (optional)
         type: string
         maxLength: 50
@@ -53648,7 +53648,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:
@@ -54502,7 +54502,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:
@@ -54646,13 +54646,13 @@ definitions:
         type: integer
         x-nullable: true
       poe_mode:
-        title: PoE mode
+        title: PoE Mode
         type: string
         enum:
           - pd
           - pse
       poe_type:
-        title: PoE type
+        title: PoE Type
         type: string
         enum:
           - type1-ieee802.3af
@@ -55739,13 +55739,13 @@ definitions:
         format: decimal
         x-nullable: true
       rf_channel_width:
-        title: Channel width (MHz)
+        title: Channel Width (MHz)
         description: Populated by selected channel (if set)
         type: number
         format: decimal
         x-nullable: true
       tx_power:
-        title: Transmit power (dBm)
+        title: Transmit Power (dBm)
         type: integer
         maximum: 127
         minimum: 0
@@ -56054,13 +56054,13 @@ definitions:
           - tagged
           - tagged-all
       rf_role:
-        title: Wireless role
+        title: Wireless Role
         type: string
         enum:
           - ap
           - station
       rf_channel:
-        title: Wireless channel
+        title: Wireless Channel
         type: string
         enum:
           - 2.4g-1-2412-22
@@ -56261,13 +56261,13 @@ definitions:
           - 60g-26-63720-6480
           - 60g-27-65880-6480
       poe_mode:
-        title: PoE mode
+        title: PoE Mode
         type: string
         enum:
           - pd
           - pse
       poe_type:
-        title: PoE type
+        title: PoE Type
         type: string
         enum:
           - type1-ieee802.3af
@@ -56285,13 +56285,13 @@ definitions:
         format: decimal
         x-nullable: true
       rf_channel_width:
-        title: Channel width (MHz)
+        title: Channel Width (MHz)
         description: Populated by selected channel (if set)
         type: number
         format: decimal
         x-nullable: true
       tx_power:
-        title: Transmit power (dBm)
+        title: Transmit Power (dBm)
         type: integer
         maximum: 127
         minimum: 0
@@ -56599,7 +56599,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
       parent:
         title: Parent
@@ -57197,7 +57197,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
       name:
         title: Name
@@ -57408,7 +57408,7 @@ definitions:
         maxLength: 100
         minLength: 1
       part_number:
-        title: Part number
+        title: Part Number
         description: Discrete part number (optional)
         type: string
         maxLength: 50
@@ -57493,7 +57493,7 @@ definitions:
         maxLength: 100
         minLength: 1
       part_number:
-        title: Part number
+        title: Part Number
         description: Discrete part number (optional)
         type: string
         maxLength: 50
@@ -57863,7 +57863,7 @@ definitions:
         type: integer
         x-nullable: true
       config_template:
-        title: Config template
+        title: Config Template
         type: integer
         x-nullable: true
       napalm_driver:
@@ -58592,7 +58592,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:
@@ -59708,7 +59708,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:
@@ -61266,7 +61266,7 @@ definitions:
         type: string
         readOnly: true
       device_type:
-        title: Device type
+        title: Device Type
         type: integer
         x-nullable: true
       module_type:

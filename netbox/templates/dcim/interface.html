@@ -82,7 +82,7 @@
             <td>{{ object.get_mode_display|placeholder }}</td>
           </tr>
           <tr>
-            <th scope="row">{% trans "Transmit power (dBm)" %}</th>
+            <th scope="row">{% trans "Transmit Power (dBm)" %}</th>
             <td>{{ object.tx_power|placeholder }}</td>
           </tr>
           <tr>
@@ -346,7 +346,7 @@
           {% endif %}
         </h5>
         {% htmx_table 'ipam:ipaddress_list' interface_id=object.pk %}
-        
+
       </div>
     </div>
   </div>

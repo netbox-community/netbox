@@ -2204,7 +2204,7 @@ msgstr "Dreiphasig"
 
 #: dcim/fields.py:45
 #, python-brace-format
-msgid "Invalid MAC address format: {value}"
+msgid "Invalid MAC Address format: {value}"
 msgstr "Ungültiges MAC-Adressformat: {value}"
 
 #: dcim/fields.py:71
@@ -2299,11 +2299,11 @@ msgid "Manufacturer (slug)"
 msgstr "Hersteller (Slug)"
 
 #: dcim/filtersets.py:491
-msgid "Default platform (ID)"
+msgid "Default Platform (ID)"
 msgstr "Standardplattform (ID)"
 
 #: dcim/filtersets.py:497
-msgid "Default platform (slug)"
+msgid "Default Platform (slug)"
 msgstr "Standardplattform (Slug)"
 
 #: dcim/filtersets.py:500 dcim/forms/filtersets.py:452
@@ -2317,37 +2317,37 @@ msgstr "Hat ein hinteres Bild"
 #: dcim/filtersets.py:509 dcim/filtersets.py:630 dcim/filtersets.py:1068
 #: dcim/forms/filtersets.py:466 dcim/forms/filtersets.py:562
 #: dcim/forms/filtersets.py:776
-msgid "Has console ports"
+msgid "Has Console Ports"
 msgstr "Hat Konsolenanschlüsse"
 
 #: dcim/filtersets.py:513 dcim/filtersets.py:634 dcim/filtersets.py:1072
 #: dcim/forms/filtersets.py:473 dcim/forms/filtersets.py:569
 #: dcim/forms/filtersets.py:783
-msgid "Has console server ports"
+msgid "Has Console Server Ports"
 msgstr "Hat Konsolenserver-Ports"
 
 #: dcim/filtersets.py:517 dcim/filtersets.py:638 dcim/filtersets.py:1076
 #: dcim/forms/filtersets.py:480 dcim/forms/filtersets.py:576
 #: dcim/forms/filtersets.py:790
-msgid "Has power ports"
+msgid "Has Power Ports"
 msgstr "Hat Stromanschlüsse"
 
 #: dcim/filtersets.py:521 dcim/filtersets.py:642 dcim/filtersets.py:1080
 #: dcim/forms/filtersets.py:487 dcim/forms/filtersets.py:583
 #: dcim/forms/filtersets.py:797
-msgid "Has power outlets"
+msgid "Has Power Outlets"
 msgstr "Hat Steckdosen"
 
 #: dcim/filtersets.py:525 dcim/filtersets.py:646 dcim/filtersets.py:1084
 #: dcim/forms/filtersets.py:494 dcim/forms/filtersets.py:590
 #: dcim/forms/filtersets.py:804
-msgid "Has interfaces"
+msgid "Has Interfaces"
 msgstr "Hat Schnittstellen"
 
 #: dcim/filtersets.py:529 dcim/filtersets.py:650 dcim/filtersets.py:1088
 #: dcim/forms/filtersets.py:501 dcim/forms/filtersets.py:597
 #: dcim/forms/filtersets.py:811
-msgid "Has pass-through ports"
+msgid "Has Pass-Through Ports"
 msgstr "Hat Pass-Through-Anschlüsse"
 
 #: dcim/filtersets.py:533 dcim/filtersets.py:1092 dcim/forms/filtersets.py:515
@@ -2363,7 +2363,7 @@ msgid "Has inventory items"
 msgstr "Hat Inventargegenstände"
 
 #: dcim/filtersets.py:698 dcim/filtersets.py:937 dcim/filtersets.py:1363
-msgid "Device type (ID)"
+msgid "Device Type (ID)"
 msgstr "Gerätetyp (ID)"
 
 #: dcim/filtersets.py:717 dcim/filtersets.py:1244
@@ -2380,11 +2380,11 @@ msgstr "Übergeordneter Inventarartikel (ID)"
 
 #: dcim/filtersets.py:869 dcim/filtersets.py:895 dcim/filtersets.py:1064
 #: virtualization/filtersets.py:238
-msgid "Config template (ID)"
+msgid "Config Template (ID)"
 msgstr "Konfigurationsvorlage (ID)"
 
 #: dcim/filtersets.py:933
-msgid "Device type (slug)"
+msgid "Device Type (slug)"
 msgstr "Gerätetyp (Slug)"
 
 #: dcim/filtersets.py:953
@@ -2426,13 +2426,13 @@ msgstr "Ist in voller Tiefe"
 #: dcim/models/device_components.py:519 virtualization/filtersets.py:230
 #: virtualization/filtersets.py:297 virtualization/forms/filtersets.py:172
 #: virtualization/forms/filtersets.py:219
-msgid "MAC address"
+msgid "MAC Address"
 msgstr "MAC-Adresse"
 
 #: dcim/filtersets.py:1047 dcim/filtersets.py:1201
 #: dcim/forms/filtersets.py:755 dcim/forms/filtersets.py:841
 #: virtualization/filtersets.py:234 virtualization/forms/filtersets.py:176
-msgid "Has a primary IP"
+msgid "Has a Primary IP"
 msgstr "Hat eine primäre IP"
 
 #: dcim/filtersets.py:1051
@@ -2488,15 +2488,15 @@ msgid "Device (name)"
 msgstr "Gerät (Name)"
 
 #: dcim/filtersets.py:1369
-msgid "Device type (model)"
+msgid "Device Type (model)"
 msgstr "Gerätetyp (Modell)"
 
 #: dcim/filtersets.py:1374
-msgid "Device role (ID)"
+msgid "Device Role (ID)"
 msgstr "Geräterolle (ID)"
 
 #: dcim/filtersets.py:1380
-msgid "Device role (slug)"
+msgid "Device Role (slug)"
 msgstr "Geräterolle (Slug)"
 
 #: dcim/filtersets.py:1385
@@ -2903,12 +2903,12 @@ msgstr "Hersteller"
 
 #: dcim/forms/bulk_edit.py:407 dcim/forms/bulk_import.py:325
 #: dcim/forms/filtersets.py:434 dcim/forms/model_forms.py:297
-msgid "Default platform"
+msgid "Default Platform"
 msgstr "Standardplattform"
 
 #: dcim/forms/bulk_edit.py:412 dcim/forms/bulk_edit.py:471
 #: dcim/forms/filtersets.py:437 dcim/forms/filtersets.py:557
-msgid "Part number"
+msgid "Part Number"
 msgstr "Nummer des Artikels"
 
 #: dcim/forms/bulk_edit.py:416
@@ -2954,19 +2954,19 @@ msgstr "VM-Rolle"
 #: virtualization/forms/bulk_import.py:133
 #: virtualization/forms/filtersets.py:184
 #: virtualization/forms/model_forms.py:215
-msgid "Config template"
+msgid "Config Template"
 msgstr "Vorlage konfigurieren"
 
 #: dcim/forms/bulk_edit.py:559 dcim/forms/bulk_edit.py:959
 #: dcim/forms/bulk_import.py:437 dcim/forms/filtersets.py:112
 #: dcim/forms/model_forms.py:444 dcim/forms/model_forms.py:817
 #: dcim/forms/model_forms.py:834 extras/filtersets.py:499
-msgid "Device type"
+msgid "Device Type"
 msgstr "Art des Geräts"
 
 #: dcim/forms/bulk_edit.py:570 dcim/forms/bulk_import.py:418
 #: dcim/forms/filtersets.py:117 dcim/forms/model_forms.py:452
-msgid "Device role"
+msgid "Device Role"
 msgstr "Rolle „Gerät“"
 
 #: dcim/forms/bulk_edit.py:593 dcim/forms/bulk_import.py:443
@@ -3155,7 +3155,7 @@ msgstr "Nur Verwaltung"
 #: dcim/forms/object_import.py:90
 #: dcim/models/device_component_templates.py:411
 #: dcim/models/device_components.py:671
-msgid "PoE mode"
+msgid "PoE Mode"
 msgstr "PoE-Modus"
 
 #: dcim/forms/bulk_edit.py:1043 dcim/forms/bulk_edit.py:1345
@@ -3163,12 +3163,12 @@ msgstr "PoE-Modus"
 #: dcim/forms/object_import.py:95
 #: dcim/models/device_component_templates.py:417
 #: dcim/models/device_components.py:677
-msgid "PoE type"
+msgid "PoE Type"
 msgstr "PoE-Typ"
 
 #: dcim/forms/bulk_edit.py:1049 dcim/forms/filtersets.py:1302
 #: dcim/forms/object_import.py:100
-msgid "Wireless role"
+msgid "Wireless Role"
 msgstr "Drahtlose Rolle"
 
 #: dcim/forms/bulk_edit.py:1186 dcim/forms/model_forms.py:609
@@ -3581,7 +3581,7 @@ msgid "Rf role"
 msgstr "Rf-Rolle"
 
 #: dcim/forms/bulk_import.py:846
-msgid "Wireless role (AP/station)"
+msgid "Wireless Role (AP/station)"
 msgstr "Drahtlose Rolle (AP/Station)"
 
 #: dcim/forms/bulk_import.py:882
@@ -3811,7 +3811,7 @@ msgid "Has an OOB IP"
 msgstr "Hat eine OOB-IP"
 
 #: dcim/forms/filtersets.py:769
-msgid "Virtual chassis member"
+msgid "Virtual Chassis Member"
 msgstr "Virtuelles Chassis-Mitglied"
 
 #: dcim/forms/filtersets.py:1121
@@ -3840,7 +3840,7 @@ msgid "Kind"
 msgstr "Freundlich"
 
 #: dcim/forms/filtersets.py:1275
-msgid "Mgmt only"
+msgid "Mgmt Only"
 msgstr "Nur Verwaltung"
 
 #: dcim/forms/filtersets.py:1287 dcim/forms/model_forms.py:1327
@@ -3849,7 +3849,7 @@ msgid "WWN"
 msgstr "WWN"
 
 #: dcim/forms/filtersets.py:1307
-msgid "Wireless channel"
+msgid "Wireless Channel"
 msgstr "Drahtloser Kanal"
 
 #: dcim/forms/filtersets.py:1311
@@ -3857,11 +3857,11 @@ msgid "Channel frequency (MHz)"
 msgstr "Kanalfrequenz (MHz)"
 
 #: dcim/forms/filtersets.py:1315
-msgid "Channel width (MHz)"
+msgid "Channel Width (MHz)"
 msgstr "Kanalbreite (MHz)"
 
 #: dcim/forms/filtersets.py:1319 templates/dcim/interface.html:85
-msgid "Transmit power (dBm)"
+msgid "Transmit Power (dBm)"
 msgstr "Sendeleistung (dBm)"
 
 #: dcim/forms/filtersets.py:1342 dcim/forms/filtersets.py:1364
@@ -4794,7 +4794,7 @@ msgstr ""
 "Bei der Festlegung eines PoE-Typs muss der PoE-Modus angegeben werden."
 
 #: dcim/models/device_components.py:874
-msgid "Wireless role may be set only on wireless interfaces."
+msgid "Wireless Role may be set only on wireless interfaces."
 msgstr ""
 "Die Wireless-Rolle kann nur auf drahtlosen Schnittstellen festgelegt werden."
 
@@ -6567,7 +6567,7 @@ msgid "Tag (slug)"
 msgstr "Schlagwort (Schnecke)"
 
 #: extras/filtersets.py:645 extras/forms/filtersets.py:438
-msgid "Has local config context data"
+msgid "Has Local Config Context Data"
 msgstr "Hat lokale Konfigurationskontextdaten"
 
 #: extras/filtersets.py:670
@@ -6856,7 +6856,7 @@ msgid "Locations"
 msgstr "Standorte"
 
 #: extras/forms/filtersets.py:370 extras/forms/model_forms.py:403
-msgid "Device types"
+msgid "Device Types"
 msgstr "Typen von Geräten"
 
 #: extras/forms/filtersets.py:375 extras/forms/model_forms.py:408
@@ -13736,7 +13736,7 @@ msgstr ""
 "formatieren."
 
 #: utilities/forms/fields/fields.py:124
-msgid "MAC address must be in EUI-48 format"
+msgid "MAC Address must be in EUI-48 format"
 msgstr "Die MAC-Adresse muss im EUI-48-Format sein"
 
 #: utilities/forms/forms.py:52

@@ -408,13 +408,13 @@ class InterfaceTemplate(ModularComponentTemplateModel):
         max_length=50,
         choices=InterfacePoEModeChoices,
         blank=True,
-        verbose_name=_('PoE mode')
+        verbose_name=_('PoE Mode')
     )
     poe_type = models.CharField(
         max_length=50,
         choices=InterfacePoETypeChoices,
         blank=True,
-        verbose_name=_('PoE type')
+        verbose_name=_('PoE Type')
     )
     rf_role = models.CharField(
         max_length=30,

@@ -73939,7 +73939,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -74578,7 +74578,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -75104,7 +75104,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer"
                 },
                 "name": {
@@ -75434,7 +75434,7 @@
                     "type": "boolean"
                 },
                 "config_template": {
-                    "title": "Config template",
+                    "title": "Config Template",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -75525,7 +75525,7 @@
                     "minLength": 1
                 },
                 "part_number": {
-                    "title": "Part number",
+                    "title": "Part Number",
                     "description": "Discrete part number (optional)",
                     "type": "string",
                     "maxLength": 50
@@ -75716,7 +75716,7 @@
                     "type": "integer"
                 },
                 "default_platform": {
-                    "title": "Default platform",
+                    "title": "Default Platform",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -75735,7 +75735,7 @@
                     "minLength": 1
                 },
                 "part_number": {
-                    "title": "Part number",
+                    "title": "Part Number",
                     "description": "Discrete part number (optional)",
                     "type": "string",
                     "maxLength": 50
@@ -76084,7 +76084,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -77060,7 +77060,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -77212,7 +77212,7 @@
                     "x-nullable": true
                 },
                 "poe_mode": {
-                    "title": "PoE mode",
+                    "title": "PoE Mode",
                     "type": "string",
                     "enum": [
                         "pd",
@@ -77220,7 +77220,7 @@
                     ]
                 },
                 "poe_type": {
-                    "title": "PoE type",
+                    "title": "PoE Type",
                     "type": "string",
                     "enum": [
                         "type1-ieee802.3af",
@@ -78450,14 +78450,14 @@
                     "x-nullable": true
                 },
                 "rf_channel_width": {
-                    "title": "Channel width (MHz)",
+                    "title": "Channel Width (MHz)",
                     "description": "Populated by selected channel (if set)",
                     "type": "number",
                     "format": "decimal",
                     "x-nullable": true
                 },
                 "tx_power": {
-                    "title": "Transmit power (dBm)",
+                    "title": "Transmit Power (dBm)",
                     "type": "integer",
                     "maximum": 127,
                     "minimum": 0,
@@ -78817,7 +78817,7 @@
                     ]
                 },
                 "rf_role": {
-                    "title": "Wireless role",
+                    "title": "Wireless Role",
                     "type": "string",
                     "enum": [
                         "ap",
@@ -78825,7 +78825,7 @@
                     ]
                 },
                 "rf_channel": {
-                    "title": "Wireless channel",
+                    "title": "Wireless Channel",
                     "type": "string",
                     "enum": [
                         "2.4g-1-2412-22",
@@ -79028,7 +79028,7 @@
                     ]
                 },
                 "poe_mode": {
-                    "title": "PoE mode",
+                    "title": "PoE Mode",
                     "type": "string",
                     "enum": [
                         "pd",
@@ -79036,7 +79036,7 @@
                     ]
                 },
                 "poe_type": {
-                    "title": "PoE type",
+                    "title": "PoE Type",
                     "type": "string",
                     "enum": [
                         "type1-ieee802.3af",
@@ -79057,14 +79057,14 @@
                     "x-nullable": true
                 },
                 "rf_channel_width": {
-                    "title": "Channel width (MHz)",
+                    "title": "Channel Width (MHz)",
                     "description": "Populated by selected channel (if set)",
                     "type": "number",
                     "format": "decimal",
                     "x-nullable": true
                 },
                 "tx_power": {
-                    "title": "Transmit power (dBm)",
+                    "title": "Transmit Power (dBm)",
                     "type": "integer",
                     "maximum": 127,
                     "minimum": 0,
@@ -79444,7 +79444,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer"
                 },
                 "parent": {
@@ -80189,7 +80189,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer"
                 },
                 "name": {
@@ -80453,7 +80453,7 @@
                     "minLength": 1
                 },
                 "part_number": {
-                    "title": "Part number",
+                    "title": "Part Number",
                     "description": "Discrete part number (optional)",
                     "type": "string",
                     "maxLength": 50
@@ -80562,7 +80562,7 @@
                     "minLength": 1
                 },
                 "part_number": {
-                    "title": "Part number",
+                    "title": "Part Number",
                     "description": "Discrete part number (optional)",
                     "type": "string",
                     "maxLength": 50
@@ -81032,7 +81032,7 @@
                     "x-nullable": true
                 },
                 "config_template": {
-                    "title": "Config template",
+                    "title": "Config Template",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -81908,7 +81908,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -83170,7 +83170,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -85000,7 +85000,7 @@
                     "readOnly": true
                 },
                 "device_type": {
-                    "title": "Device type",
+                    "title": "Device Type",
                     "type": "integer",
                     "x-nullable": true
                 },

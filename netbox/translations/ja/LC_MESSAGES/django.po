@@ -2188,7 +2188,7 @@ msgstr "三相"
 
 #: dcim/fields.py:45
 #, python-brace-format
-msgid "Invalid MAC address format: {value}"
+msgid "Invalid MAC Address format: {value}"
 msgstr "MAC アドレス形式が無効です: {value}"
 
 #: dcim/fields.py:71
@@ -2283,11 +2283,11 @@ msgid "Manufacturer (slug)"
 msgstr "メーカ (slug)"
 
 #: dcim/filtersets.py:491
-msgid "Default platform (ID)"
+msgid "Default Platform (ID)"
 msgstr "デフォルトプラットフォーム (ID)"
 
 #: dcim/filtersets.py:497
-msgid "Default platform (slug)"
+msgid "Default Platform (slug)"
 msgstr "デフォルトプラットフォーム (slug)"
 
 #: dcim/filtersets.py:500 dcim/forms/filtersets.py:452
@@ -2301,37 +2301,37 @@ msgstr "背面画像がある"
 #: dcim/filtersets.py:509 dcim/filtersets.py:630 dcim/filtersets.py:1068
 #: dcim/forms/filtersets.py:466 dcim/forms/filtersets.py:562
 #: dcim/forms/filtersets.py:776
-msgid "Has console ports"
+msgid "Has Console Ports"
 msgstr "コンソールポートがある"
 
 #: dcim/filtersets.py:513 dcim/filtersets.py:634 dcim/filtersets.py:1072
 #: dcim/forms/filtersets.py:473 dcim/forms/filtersets.py:569
 #: dcim/forms/filtersets.py:783
-msgid "Has console server ports"
+msgid "Has Console Server Ports"
 msgstr "コンソールサーバポートがある"
 
 #: dcim/filtersets.py:517 dcim/filtersets.py:638 dcim/filtersets.py:1076
 #: dcim/forms/filtersets.py:480 dcim/forms/filtersets.py:576
 #: dcim/forms/filtersets.py:790
-msgid "Has power ports"
+msgid "Has Power Ports"
 msgstr "電源ポートがある"
 
 #: dcim/filtersets.py:521 dcim/filtersets.py:642 dcim/filtersets.py:1080
 #: dcim/forms/filtersets.py:487 dcim/forms/filtersets.py:583
 #: dcim/forms/filtersets.py:797
-msgid "Has power outlets"
+msgid "Has Power Outlets"
 msgstr "電源コンセントがある"
 
 #: dcim/filtersets.py:525 dcim/filtersets.py:646 dcim/filtersets.py:1084
 #: dcim/forms/filtersets.py:494 dcim/forms/filtersets.py:590
 #: dcim/forms/filtersets.py:804
-msgid "Has interfaces"
+msgid "Has Interfaces"
 msgstr "インタフェースがある"
 
 #: dcim/filtersets.py:529 dcim/filtersets.py:650 dcim/filtersets.py:1088
 #: dcim/forms/filtersets.py:501 dcim/forms/filtersets.py:597
 #: dcim/forms/filtersets.py:811
-msgid "Has pass-through ports"
+msgid "Has Pass-Through Ports"
 msgstr "パススルーポートがある"
 
 #: dcim/filtersets.py:533 dcim/filtersets.py:1092 dcim/forms/filtersets.py:515
@@ -2347,7 +2347,7 @@ msgid "Has inventory items"
 msgstr "在庫品目がある"
 
 #: dcim/filtersets.py:698 dcim/filtersets.py:937 dcim/filtersets.py:1363
-msgid "Device type (ID)"
+msgid "Device Type (ID)"
 msgstr "デバイスタイプ (ID)"
 
 #: dcim/filtersets.py:717 dcim/filtersets.py:1244
@@ -2364,11 +2364,11 @@ msgstr "親在庫品目 (ID)"
 
 #: dcim/filtersets.py:869 dcim/filtersets.py:895 dcim/filtersets.py:1064
 #: virtualization/filtersets.py:238
-msgid "Config template (ID)"
+msgid "Config Template (ID)"
 msgstr "設定テンプレート (ID)"
 
 #: dcim/filtersets.py:933
-msgid "Device type (slug)"
+msgid "Device Type (slug)"
 msgstr "デバイスタイプ (slug)"
 
 #: dcim/filtersets.py:953
@@ -2410,13 +2410,13 @@ msgstr "奥行きをすべて使うか"
 #: dcim/models/device_components.py:519 virtualization/filtersets.py:230
 #: virtualization/filtersets.py:297 virtualization/forms/filtersets.py:172
 #: virtualization/forms/filtersets.py:219
-msgid "MAC address"
+msgid "MAC Address"
 msgstr "MAC アドレス"
 
 #: dcim/filtersets.py:1047 dcim/filtersets.py:1201
 #: dcim/forms/filtersets.py:755 dcim/forms/filtersets.py:841
 #: virtualization/filtersets.py:234 virtualization/forms/filtersets.py:176
-msgid "Has a primary IP"
+msgid "Has a Primary IP"
 msgstr "プライマリ IP がある"
 
 #: dcim/filtersets.py:1051
@@ -2472,15 +2472,15 @@ msgid "Device (name)"
 msgstr "デバイス (名前)"
 
 #: dcim/filtersets.py:1369
-msgid "Device type (model)"
+msgid "Device Type (model)"
 msgstr "デバイスタイプ (モデル)"
 
 #: dcim/filtersets.py:1374
-msgid "Device role (ID)"
+msgid "Device Role (ID)"
 msgstr "デバイスロール (ID)"
 
 #: dcim/filtersets.py:1380
-msgid "Device role (slug)"
+msgid "Device Role (slug)"
 msgstr "デバイスロール (slug)"
 
 #: dcim/filtersets.py:1385
@@ -2885,12 +2885,12 @@ msgstr "メーカ"
 
 #: dcim/forms/bulk_edit.py:407 dcim/forms/bulk_import.py:325
 #: dcim/forms/filtersets.py:434 dcim/forms/model_forms.py:297
-msgid "Default platform"
+msgid "Default Platform"
 msgstr "デフォルトプラットフォーム"
 
 #: dcim/forms/bulk_edit.py:412 dcim/forms/bulk_edit.py:471
 #: dcim/forms/filtersets.py:437 dcim/forms/filtersets.py:557
-msgid "Part number"
+msgid "Part Number"
 msgstr "パーツ番号"
 
 #: dcim/forms/bulk_edit.py:416
@@ -2936,19 +2936,19 @@ msgstr "VMのロール"
 #: virtualization/forms/bulk_import.py:133
 #: virtualization/forms/filtersets.py:184
 #: virtualization/forms/model_forms.py:215
-msgid "Config template"
+msgid "Config Template"
 msgstr "設定テンプレート"
 
 #: dcim/forms/bulk_edit.py:559 dcim/forms/bulk_edit.py:959
 #: dcim/forms/bulk_import.py:437 dcim/forms/filtersets.py:112
 #: dcim/forms/model_forms.py:444 dcim/forms/model_forms.py:817
 #: dcim/forms/model_forms.py:834 extras/filtersets.py:499
-msgid "Device type"
+msgid "Device Type"
 msgstr "デバイスタイプ"
 
 #: dcim/forms/bulk_edit.py:570 dcim/forms/bulk_import.py:418
 #: dcim/forms/filtersets.py:117 dcim/forms/model_forms.py:452
-msgid "Device role"
+msgid "Device Role"
 msgstr "デバイスロール"
 
 #: dcim/forms/bulk_edit.py:593 dcim/forms/bulk_import.py:443
@@ -3137,7 +3137,7 @@ msgstr "管理のみ"
 #: dcim/forms/object_import.py:90
 #: dcim/models/device_component_templates.py:411
 #: dcim/models/device_components.py:671
-msgid "PoE mode"
+msgid "PoE Mode"
 msgstr "PoE モード"
 
 #: dcim/forms/bulk_edit.py:1043 dcim/forms/bulk_edit.py:1345
@@ -3145,12 +3145,12 @@ msgstr "PoE モード"
 #: dcim/forms/object_import.py:95
 #: dcim/models/device_component_templates.py:417
 #: dcim/models/device_components.py:677
-msgid "PoE type"
+msgid "PoE Type"
 msgstr "PoE タイプ"
 
 #: dcim/forms/bulk_edit.py:1049 dcim/forms/filtersets.py:1302
 #: dcim/forms/object_import.py:100
-msgid "Wireless role"
+msgid "Wireless Role"
 msgstr "無線ロール"
 
 #: dcim/forms/bulk_edit.py:1186 dcim/forms/model_forms.py:609
@@ -3558,7 +3558,7 @@ msgid "Rf role"
 msgstr "RF ロール"
 
 #: dcim/forms/bulk_import.py:846
-msgid "Wireless role (AP/station)"
+msgid "Wireless Role (AP/station)"
 msgstr "無線ロール (AP/ステーション)"
 
 #: dcim/forms/bulk_import.py:882
@@ -3781,7 +3781,7 @@ msgid "Has an OOB IP"
 msgstr "OOB IP アドレスを持っている"
 
 #: dcim/forms/filtersets.py:769
-msgid "Virtual chassis member"
+msgid "Virtual Chassis Member"
 msgstr "バーチャルシャーシメンバー"
 
 #: dcim/forms/filtersets.py:1121
@@ -3810,7 +3810,7 @@ msgid "Kind"
 msgstr "種類"
 
 #: dcim/forms/filtersets.py:1275
-msgid "Mgmt only"
+msgid "Mgmt Only"
 msgstr "管理のみ"
 
 #: dcim/forms/filtersets.py:1287 dcim/forms/model_forms.py:1327
@@ -3819,7 +3819,7 @@ msgid "WWN"
 msgstr "WWN"
 
 #: dcim/forms/filtersets.py:1307
-msgid "Wireless channel"
+msgid "Wireless Channel"
 msgstr "無線チャネル"
 
 #: dcim/forms/filtersets.py:1311
@@ -3827,11 +3827,11 @@ msgid "Channel frequency (MHz)"
 msgstr "チャネル周波数 (MHz)"
 
 #: dcim/forms/filtersets.py:1315
-msgid "Channel width (MHz)"
+msgid "Channel Width (MHz)"
 msgstr "チャネル幅 (MHz)"
 
 #: dcim/forms/filtersets.py:1319 templates/dcim/interface.html:85
-msgid "Transmit power (dBm)"
+msgid "Transmit Power (dBm)"
 msgstr "送信出力 (dBm)"
 
 #: dcim/forms/filtersets.py:1342 dcim/forms/filtersets.py:1364
@@ -6387,7 +6387,7 @@ msgid "Tag (slug)"
 msgstr "タグ (slug)"
 
 #: extras/filtersets.py:645 extras/forms/filtersets.py:438
-msgid "Has local config context data"
+msgid "Has Local Config Context Data"
 msgstr "ローカル設定コンテキストがある"
 
 #: extras/filtersets.py:670
@@ -6668,7 +6668,7 @@ msgid "Locations"
 msgstr "ロケーション"
 
 #: extras/forms/filtersets.py:370 extras/forms/model_forms.py:403
-msgid "Device types"
+msgid "Device Types"
 msgstr "デバイスタイプ"
 
 #: extras/forms/filtersets.py:375 extras/forms/model_forms.py:408
@@ -13324,7 +13324,7 @@ msgid "Enter context data in <a href=\"https://json.org/\">JSON</a> format."
 msgstr "にコンテキストデータを入力してください <a href=\"https://json.org/\">JSON</a> フォーマット。"
 
 #: utilities/forms/fields/fields.py:124
-msgid "MAC address must be in EUI-48 format"
+msgid "MAC Address must be in EUI-48 format"
 msgstr "MAC アドレスは EUI-48 形式である必要があります"
 
 #: utilities/forms/forms.py:52

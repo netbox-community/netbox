@@ -496,7 +496,7 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device_types',
         queryset=DeviceType.objects.all(),
-        label=_('Device type'),
+        label=_('Device Type'),
     )
     device_role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='roles',
@@ -642,7 +642,7 @@ class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
 class LocalConfigContextFilterSet(django_filters.FilterSet):
     local_context_data = django_filters.BooleanFilter(
         method='_local_context_data',
-        label=_('Has local config context data'),
+        label=_('Has Local Config Context Data'),
     )
 
     def _local_context_data(self, queryset, name, value):

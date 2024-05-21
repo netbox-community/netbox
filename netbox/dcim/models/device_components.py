@@ -516,7 +516,7 @@ class BaseInterface(models.Model):
     mac_address = MACAddressField(
         null=True,
         blank=True,
-        verbose_name=_('MAC address')
+        verbose_name=_('MAC Address')
     )
     mtu = models.PositiveIntegerField(
         blank=True,
@@ -668,13 +668,13 @@ class Interface(ModularComponentModel, BaseInterface, CabledObjectModel, PathEnd
         max_length=50,
         choices=InterfacePoEModeChoices,
         blank=True,
-        verbose_name=_('PoE mode')
+        verbose_name=_('PoE Mode')
     )
     poe_type = models.CharField(
         max_length=50,
         choices=InterfacePoETypeChoices,
         blank=True,
-        verbose_name=_('PoE type')
+        verbose_name=_('PoE Type')
     )
     wireless_link = models.ForeignKey(
         to='wireless.WirelessLink',

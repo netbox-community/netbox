@@ -15,7 +15,7 @@ class InterfaceCommonForm(forms.Form):
     mac_address = forms.CharField(
         empty_value=None,
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     mtu = forms.IntegerField(
         required=False,

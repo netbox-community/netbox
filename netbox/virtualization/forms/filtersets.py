@@ -169,11 +169,11 @@ class VirtualMachineFilterForm(
     )
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     has_primary_ip = forms.NullBooleanField(
         required=False,
-        label=_('Has a primary IP'),
+        label=_('Has a Primary IP'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -181,7 +181,7 @@ class VirtualMachineFilterForm(
     config_template_id = DynamicModelMultipleChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
-        label=_('Config template')
+        label=_('Config Template')
     )
     tag = TagFilterField(model)
 
@@ -216,7 +216,7 @@ class VMInterfaceFilterForm(NetBoxModelFilterSetForm):
     )
     mac_address = forms.CharField(
         required=False,
-        label=_('MAC address')
+        label=_('MAC Address')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),

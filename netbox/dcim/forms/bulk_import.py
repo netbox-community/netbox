@@ -322,7 +322,7 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         help_text=_('The manufacturer which produces this device type')
     )
     default_platform = forms.ModelChoiceField(
-        label=_('Default platform'),
+        label=_('Default Platform'),
         queryset=Platform.objects.all(),
         to_field_name='name',
         required=False,
@@ -373,11 +373,11 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
 
 class DeviceRoleImportForm(NetBoxModelImportForm):
     config_template = CSVModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Config template')
+        help_text=_('Config Template')
     )
     slug = SlugField()
 
@@ -399,11 +399,11 @@ class PlatformImportForm(NetBoxModelImportForm):
         help_text=_('Limit platform assignments to this manufacturer')
     )
     config_template = CSVModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Config template')
+        help_text=_('Config Template')
     )
 
     class Meta:
@@ -415,7 +415,7 @@ class PlatformImportForm(NetBoxModelImportForm):
 
 class BaseDeviceImportForm(NetBoxModelImportForm):
     role = CSVModelChoiceField(
-        label=_('Device role'),
+        label=_('Device Role'),
         queryset=DeviceRole.objects.all(),
         to_field_name='name',
         help_text=_('Assigned role')
@@ -431,13 +431,13 @@ class BaseDeviceImportForm(NetBoxModelImportForm):
         label=_('Manufacturer'),
         queryset=Manufacturer.objects.all(),
         to_field_name='name',
-        help_text=_('Device type manufacturer')
+        help_text=_('Device Type manufacturer')
     )
     device_type = CSVModelChoiceField(
-        label=_('Device type'),
+        label=_('Device Type'),
         queryset=DeviceType.objects.all(),
         to_field_name='model',
-        help_text=_('Device type model')
+        help_text=_('Device Type model')
     )
     platform = CSVModelChoiceField(
         label=_('Platform'),
@@ -528,11 +528,11 @@ class DeviceImportForm(BaseDeviceImportForm):
         help_text=_('Airflow direction')
     )
     config_template = CSVModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Config template')
+        help_text=_('Config Template')
     )
 
     class Meta(BaseDeviceImportForm.Meta):
@@ -818,13 +818,13 @@ class InterfaceImportForm(NetBoxModelImportForm):
         label=_('Poe mode'),
         choices=InterfacePoEModeChoices,
         required=False,
-        help_text=_('PoE mode')
+        help_text=_('PoE Mode')
     )
     poe_type = CSVChoiceField(
         label=_('Poe type'),
         choices=InterfacePoETypeChoices,
         required=False,
-        help_text=_('PoE type')
+        help_text=_('PoE Type')
     )
     mode = CSVChoiceField(
         label=_('Mode'),

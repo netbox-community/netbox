@@ -400,7 +400,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         required=False
     )
     device_types = DynamicModelMultipleChoiceField(
-        label=_('Device types'),
+        label=_('Device Types'),
         queryset=DeviceType.objects.all(),
         required=False
     )

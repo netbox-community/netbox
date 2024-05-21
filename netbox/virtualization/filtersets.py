@@ -227,15 +227,15 @@ class VirtualMachineFilterSet(
     )
     mac_address = MultiValueMACAddressFilter(
         field_name='interfaces__mac_address',
-        label=_('MAC address'),
+        label=_('MAC Address'),
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
-        label=_('Has a primary IP'),
+        label=_('Has a Primary IP'),
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
-        label=_('Config template (ID)'),
+        label=_('Config Template (ID)'),
     )
 
     class Meta:
@@ -294,7 +294,7 @@ class VMInterfaceFilterSet(NetBoxModelFilterSet, CommonInterfaceFilterSet):
         label=_('Bridged interface (ID)'),
     )
     mac_address = MultiValueMACAddressFilter(
-        label=_('MAC address'),
+        label=_('MAC Address'),
     )
 
     class Meta:

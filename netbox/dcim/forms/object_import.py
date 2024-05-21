@@ -87,17 +87,17 @@ class InterfaceTemplateImportForm(forms.ModelForm):
     poe_mode = forms.ChoiceField(
         choices=InterfacePoEModeChoices,
         required=False,
-        label=_('PoE mode')
+        label=_('PoE Mode')
     )
     poe_type = forms.ChoiceField(
         choices=InterfacePoETypeChoices,
         required=False,
-        label=_('PoE type')
+        label=_('PoE Type')
     )
     rf_role = forms.ChoiceField(
         choices=WirelessRoleChoices,
         required=False,
-        label=_('Wireless role')
+        label=_('Wireless Role')
     )
 
     class Meta:

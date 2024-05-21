@@ -404,12 +404,12 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     default_platform = DynamicModelChoiceField(
-        label=_('Default platform'),
+        label=_('Default Platform'),
         queryset=Platform.objects.all(),
         required=False
     )
     part_number = forms.CharField(
-        label=_('Part number'),
+        label=_('Part Number'),
         required=False
     )
     u_height = forms.IntegerField(
@@ -468,7 +468,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     part_number = forms.CharField(
-        label=_('Part number'),
+        label=_('Part Number'),
         required=False
     )
     weight = forms.DecimalField(
@@ -508,7 +508,7 @@ class DeviceRoleBulkEditForm(NetBoxModelBulkEditForm):
         label=_('VM role')
     )
     config_template = DynamicModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
@@ -532,7 +532,7 @@ class PlatformBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     config_template = DynamicModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
@@ -556,7 +556,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     device_type = DynamicModelChoiceField(
-        label=_('Device type'),
+        label=_('Device Type'),
         queryset=DeviceType.objects.all(),
         required=False,
         context={
@@ -567,7 +567,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     role = DynamicModelChoiceField(
-        label=_('Device role'),
+        label=_('Device Role'),
         queryset=DeviceRole.objects.all(),
         required=False
     )
@@ -615,7 +615,7 @@ class DeviceBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     config_template = DynamicModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
@@ -956,7 +956,7 @@ class PowerOutletTemplateBulkEditForm(BulkEditForm):
         widget=forms.MultipleHiddenInput()
     )
     device_type = forms.ModelChoiceField(
-        label=_('Device type'),
+        label=_('Device Type'),
         queryset=DeviceType.objects.all(),
         required=False,
         disabled=True,
@@ -1034,19 +1034,19 @@ class InterfaceTemplateBulkEditForm(BulkEditForm):
         choices=add_blank_choice(InterfacePoEModeChoices),
         required=False,
         initial='',
-        label=_('PoE mode')
+        label=_('PoE Mode')
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
-        label=_('PoE type')
+        label=_('PoE Type')
     )
     rf_role = forms.ChoiceField(
         choices=add_blank_choice(WirelessRoleChoices),
         required=False,
         initial='',
-        label=_('Wireless role')
+        label=_('Wireless Role')
     )
 
     nullable_fields = ('label', 'description', 'poe_mode', 'poe_type', 'rf_role')
@@ -1336,13 +1336,13 @@ class InterfaceBulkEditForm(
         choices=add_blank_choice(InterfacePoEModeChoices),
         required=False,
         initial='',
-        label=_('PoE mode')
+        label=_('PoE Mode')
     )
     poe_type = forms.ChoiceField(
         choices=add_blank_choice(InterfacePoETypeChoices),
         required=False,
         initial='',
-        label=_('PoE type')
+        label=_('PoE Type')
     )
     mark_connected = forms.NullBooleanField(
         label=_('Mark connected'),

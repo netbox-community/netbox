@@ -129,8 +129,8 @@ class VirtualMachineImportForm(NetBoxModelImportForm):
         queryset=ConfigTemplate.objects.all(),
         to_field_name='name',
         required=False,
-        label=_('Config template'),
-        help_text=_('Config template')
+        label=_('Config Template'),
+        help_text=_('Config Template')
     )
 
     class Meta:

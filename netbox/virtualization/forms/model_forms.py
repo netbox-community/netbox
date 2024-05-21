@@ -212,7 +212,7 @@ class VirtualMachineForm(TenancyForm, NetBoxModelForm):
     config_template = DynamicModelChoiceField(
         queryset=ConfigTemplate.objects.all(),
         required=False,
-        label=_('Config template')
+        label=_('Config Template')
     )
     comments = CommentField()
 

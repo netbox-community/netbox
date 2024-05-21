@@ -551,7 +551,7 @@ class ConfigTemplateTestCase(
 
         cls.form_data = {
             'name': 'Config Template X',
-            'description': 'Config template',
+            'description': 'Config Template',
             'template_code': TEMPLATE_CODE,
         }
 

@@ -488,13 +488,13 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     )
     default_platform_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Platform.objects.all(),
-        label=_('Default platform (ID)'),
+        label=_('Default Platform (ID)'),
     )
     default_platform = django_filters.ModelMultipleChoiceFilter(
         field_name='default_platform__slug',
         queryset=Platform.objects.all(),
         to_field_name='slug',
-        label=_('Default platform (slug)'),
+        label=_('Default Platform (slug)'),
     )
     has_front_image = django_filters.BooleanFilter(
         label=_('Has a front image'),
@@ -506,27 +506,27 @@ class DeviceTypeFilterSet(NetBoxModelFilterSet):
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
-        label=_('Has console ports'),
+        label=_('Has Console Ports'),
     )
     console_server_ports = django_filters.BooleanFilter(
         method='_console_server_ports',
-        label=_('Has console server ports'),
+        label=_('Has Console Server Ports'),
     )
     power_ports = django_filters.BooleanFilter(
         method='_power_ports',
-        label=_('Has power ports'),
+        label=_('Has Power Ports'),
     )
     power_outlets = django_filters.BooleanFilter(
         method='_power_outlets',
-        label=_('Has power outlets'),
+        label=_('Has Power Outlets'),
     )
     interfaces = django_filters.BooleanFilter(
         method='_interfaces',
-        label=_('Has interfaces'),
+        label=_('Has Interfaces'),
     )
     pass_through_ports = django_filters.BooleanFilter(
         method='_pass_through_ports',
-        label=_('Has pass-through ports'),
+        label=_('Has Pass-Through Ports'),
     )
     module_bays = django_filters.BooleanFilter(
         method='_module_bays',
@@ -627,27 +627,27 @@ class ModuleTypeFilterSet(NetBoxModelFilterSet):
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
-        label=_('Has console ports'),
+        label=_('Has Console Ports'),
     )
     console_server_ports = django_filters.BooleanFilter(
         method='_console_server_ports',
-        label=_('Has console server ports'),
+        label=_('Has Console Server Ports'),
     )
     power_ports = django_filters.BooleanFilter(
         method='_power_ports',
-        label=_('Has power ports'),
+        label=_('Has Power Ports'),
     )
     power_outlets = django_filters.BooleanFilter(
         method='_power_outlets',
-        label=_('Has power outlets'),
+        label=_('Has Power Outlets'),
     )
     interfaces = django_filters.BooleanFilter(
         method='_interfaces',
-        label=_('Has interfaces'),
+        label=_('Has Interfaces'),
     )
     pass_through_ports = django_filters.BooleanFilter(
         method='_pass_through_ports',
-        label=_('Has pass-through ports'),
+        label=_('Has Pass-Through Ports'),
     )
 
     class Meta:
@@ -695,7 +695,7 @@ class DeviceTypeComponentFilterSet(django_filters.FilterSet):
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
         field_name='device_type_id',
-        label=_('Device type (ID)'),
+        label=_('Device Type (ID)'),
     )
 
     # TODO: Remove in v4.1
@@ -866,7 +866,7 @@ class InventoryItemTemplateFilterSet(ChangeLoggedModelFilterSet, DeviceTypeCompo
 class DeviceRoleFilterSet(OrganizationalModelFilterSet):
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
-        label=_('Config template (ID)'),
+        label=_('Config Template (ID)'),
     )
 
     class Meta:
@@ -892,7 +892,7 @@ class PlatformFilterSet(OrganizationalModelFilterSet):
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
-        label=_('Config template (ID)'),
+        label=_('Config Template (ID)'),
     )
 
     class Meta:
@@ -930,11 +930,11 @@ class DeviceFilterSet(
         field_name='device_type__slug',
         queryset=DeviceType.objects.all(),
         to_field_name='slug',
-        label=_('Device type (slug)'),
+        label=_('Device Type (slug)'),
     )
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DeviceType.objects.all(),
-        label=_('Device type (ID)'),
+        label=_('Device Type (ID)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='role_id',
@@ -1037,14 +1037,14 @@ class DeviceFilterSet(
     )
     mac_address = MultiValueMACAddressFilter(
         field_name='interfaces__mac_address',
-        label=_('MAC address'),
+        label=_('MAC Address'),
     )
     serial = MultiValueCharFilter(
         lookup_expr='iexact'
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
-        label=_('Has a primary IP'),
+        label=_('Has a Primary IP'),
     )
     has_oob_ip = django_filters.BooleanFilter(
         method='_has_oob_ip',
@@ -1061,31 +1061,31 @@ class DeviceFilterSet(
     )
     config_template_id = django_filters.ModelMultipleChoiceFilter(
         queryset=ConfigTemplate.objects.all(),
-        label=_('Config template (ID)'),
+        label=_('Config Template (ID)'),
     )
     console_ports = django_filters.BooleanFilter(
         method='_console_ports',
-        label=_('Has console ports'),
+        label=_('Has Console Ports'),
     )
     console_server_ports = django_filters.BooleanFilter(
         method='_console_server_ports',
-        label=_('Has console server ports'),
+        label=_('Has Console Server Ports'),
     )
     power_ports = django_filters.BooleanFilter(
         method='_power_ports',
-        label=_('Has power ports'),
+        label=_('Has Power Ports'),
     )
     power_outlets = django_filters.BooleanFilter(
         method='_power_outlets',
-        label=_('Has power outlets'),
+        label=_('Has Power Outlets'),
     )
     interfaces = django_filters.BooleanFilter(
         method='_interfaces',
-        label=_('Has interfaces'),
+        label=_('Has Interfaces'),
     )
     pass_through_ports = django_filters.BooleanFilter(
         method='_pass_through_ports',
-        label=_('Has pass-through ports'),
+        label=_('Has Pass-Through Ports'),
     )
     module_bays = django_filters.BooleanFilter(
         method='_module_bays',
@@ -1198,7 +1198,7 @@ class VirtualDeviceContextFilterSet(NetBoxModelFilterSet, TenancyFilterSet, Prim
     )
     has_primary_ip = django_filters.BooleanFilter(
         method='_has_primary_ip',
-        label=_('Has a primary IP')
+        label=_('Has a Primary IP')
     )
 
     class Meta:
@@ -1360,24 +1360,24 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
     device_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__device_type',
         queryset=DeviceType.objects.all(),
-        label=_('Device type (ID)'),
+        label=_('Device Type (ID)'),
     )
     device_type = django_filters.ModelMultipleChoiceFilter(
         field_name='device__device_type__model',
         queryset=DeviceType.objects.all(),
         to_field_name='model',
-        label=_('Device type (model)'),
+        label=_('Device Type (model)'),
     )
     role_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role',
         queryset=DeviceRole.objects.all(),
-        label=_('Device role (ID)'),
+        label=_('Device Role (ID)'),
     )
     role = django_filters.ModelMultipleChoiceFilter(
         field_name='device__role__slug',
         queryset=DeviceRole.objects.all(),
         to_field_name='slug',
-        label=_('Device role (slug)'),
+        label=_('Device Role (slug)'),
     )
     virtual_chassis_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__virtual_chassis',

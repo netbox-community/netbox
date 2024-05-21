@@ -294,7 +294,7 @@ class DeviceTypeForm(NetBoxModelForm):
         queryset=Manufacturer.objects.all()
     )
     default_platform = DynamicModelChoiceField(
-        label=_('Default platform'),
+        label=_('Default Platform'),
         queryset=Platform.objects.all(),
         required=False,
         selector=True,
@@ -355,7 +355,7 @@ class ModuleTypeForm(NetBoxModelForm):
 
 class DeviceRoleForm(NetBoxModelForm):
     config_template = DynamicModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
@@ -381,7 +381,7 @@ class PlatformForm(NetBoxModelForm):
         required=False
     )
     config_template = DynamicModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
@@ -441,7 +441,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         )
     )
     device_type = DynamicModelChoiceField(
-        label=_('Device type'),
+        label=_('Device Type'),
         queryset=DeviceType.objects.all(),
         context={
             'parent': 'manufacturer',
@@ -449,7 +449,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         selector=True
     )
     role = DynamicModelChoiceField(
-        label=_('Device role'),
+        label=_('Device Role'),
         queryset=DeviceRole.objects.all()
     )
     platform = DynamicModelChoiceField(
@@ -492,7 +492,7 @@ class DeviceForm(TenancyForm, NetBoxModelForm):
         help_text=_("The priority of the device in the virtual chassis")
     )
     config_template = DynamicModelChoiceField(
-        label=_('Config template'),
+        label=_('Config Template'),
         queryset=ConfigTemplate.objects.all(),
         required=False
     )
@@ -814,7 +814,7 @@ class VCMemberSelectForm(forms.Form):
 
 class ComponentTemplateForm(forms.ModelForm):
     device_type = DynamicModelChoiceField(
-        label=_('Device type'),
+        label=_('Device Type'),
         queryset=DeviceType.objects.all(),
         context={
             'parent': 'manufacturer',
@@ -831,7 +831,7 @@ class ComponentTemplateForm(forms.ModelForm):
 
 class ModularComponentTemplateForm(ComponentTemplateForm):
     device_type = DynamicModelChoiceField(
-        label=_('Device type'),
+        label=_('Device Type'),
         queryset=DeviceType.objects.all().all(),
         required=False,
         context={

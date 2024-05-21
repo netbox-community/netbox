@@ -367,7 +367,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     device_type_id = DynamicModelMultipleChoiceField(
         queryset=DeviceType.objects.all(),
         required=False,
-        label=_('Device types')
+        label=_('Device Types')
     )
     role_id = DynamicModelMultipleChoiceField(
         queryset=DeviceRole.objects.all(),
@@ -435,7 +435,7 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
 class LocalConfigContextFilterForm(forms.Form):
     local_context_data = forms.NullBooleanField(
         required=False,
-        label=_('Has local config context data'),
+        label=_('Has Local Config Context Data'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
