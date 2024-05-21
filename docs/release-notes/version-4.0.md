@@ -5,18 +5,26 @@
 ### Enhancements
 
 * [#12984](https://github.com/netbox-community/netbox/issues/12984) - Add Molex Micro-Fit power port & outlet types
+* [#13764](https://github.com/netbox-community/netbox/issues/13764) - Enable contact assignments for aggregates, prefixes, IP ranges, and IP addresses
 * [#14639](https://github.com/netbox-community/netbox/issues/14639) - Add Ukrainian translation support
+* [#14653](https://github.com/netbox-community/netbox/issues/14653) - Add an inventory items table column for all device components
 * [#14686](https://github.com/netbox-community/netbox/issues/14686) - Add German translation support
 * [#14855](https://github.com/netbox-community/netbox/issues/14855) - Add Chinese translation support
 * [#15353](https://github.com/netbox-community/netbox/issues/15353) - Improve error reporting when custom scripts fail to load
 * [#15496](https://github.com/netbox-community/netbox/issues/15496) - Implement dedicated views for management of circuit terminations
+* [#15603](https://github.com/netbox-community/netbox/issues/15603) - Add 4G & 5G cellular interface types
+* [#15962](https://github.com/netbox-community/netbox/issues/15962) - Enable UNIX socket connections for Redis
 
 ### Bug Fixes
 
 * [#13293](https://github.com/netbox-community/netbox/issues/13293) - Limit interface selector for IP address to current device/VM
 * [#14953](https://github.com/netbox-community/netbox/issues/14953) - Ensure annotated count fields are present in REST API response data when creating new objects
 * [#14982](https://github.com/netbox-community/netbox/issues/14982) - Fix OpenAPI schema definition for SerializedPKRelatedFields
+* [#15082](https://github.com/netbox-community/netbox/issues/15082) - Strip whitespace from choice values & labels when creating a custom field choice set
 * [#16138](https://github.com/netbox-community/netbox/issues/16138) - Fix support for referencing users & groups in object permissions
+* [#16164](https://github.com/netbox-community/netbox/issues/16164) - Correct display of selected values in UI when filtering object list by a null value
+* [#16173](https://github.com/netbox-community/netbox/issues/16173) - Fix TypeError exception when viewing object list with no pagination preference defined
+* [#16228](https://github.com/netbox-community/netbox/issues/16228) - Fix permissions enforcement for GraphQL queries of users & groups
 
 ---
 
