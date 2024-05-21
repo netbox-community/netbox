@@ -191,14 +191,14 @@ class CustomField(CloningMixin, ExportTemplatesMixin, ChangeLoggedModel):
         max_length=50,
         choices=CustomFieldUIVisibleChoices,
         default=CustomFieldUIVisibleChoices.ALWAYS,
-        verbose_name=_('UI visible'),
+        verbose_name=_('UI Visible'),
         help_text=_('Specifies whether the custom field is displayed in the UI')
     )
     ui_editable = models.CharField(
         max_length=50,
         choices=CustomFieldUIEditableChoices,
         default=CustomFieldUIEditableChoices.YES,
-        verbose_name=_('UI editable'),
+        verbose_name=_('UI Editable'),
         help_text=_('Specifies whether the custom field value can be edited in the UI')
     )
     is_cloneable = models.BooleanField(

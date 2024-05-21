@@ -132,7 +132,7 @@ def tzoffset(value):
 
 
 #
-# Content types
+# Content Types
 #
 
 @register.filter()

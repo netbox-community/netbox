@@ -434,7 +434,7 @@ class ExportTemplate(SyncedDataMixin, CloningMixin, ExportTemplatesMixin, Change
     mime_type = models.CharField(
         max_length=50,
         blank=True,
-        verbose_name=_('MIME type'),
+        verbose_name=_('MIME Type'),
         help_text=_('Defaults to <code>text/plain; charset=utf-8</code>')
     )
     file_extension = models.CharField(

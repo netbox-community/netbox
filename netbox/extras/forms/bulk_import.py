@@ -47,20 +47,20 @@ class CustomFieldImportForm(CSVModelForm):
         help_text=_("Object Type (for object or multi-object fields)")
     )
     choice_set = CSVModelChoiceField(
-        label=_('Choice set'),
+        label=_('Choice Set'),
         queryset=CustomFieldChoiceSet.objects.all(),
         to_field_name='name',
         required=False,
-        help_text=_('Choice set (for selection fields)')
+        help_text=_('Choice Set (for selection fields)')
     )
     ui_visible = CSVChoiceField(
-        label=_('UI visible'),
+        label=_('UI Visible'),
         choices=CustomFieldUIVisibleChoices,
         required=False,
         help_text=_('Whether the custom field is displayed in the UI')
     )
     ui_editable = CSVChoiceField(
-        label=_('UI editable'),
+        label=_('UI Editable'),
         choices=CustomFieldUIEditableChoices,
         required=False,
         help_text=_('Whether the custom field is editable in the UI')

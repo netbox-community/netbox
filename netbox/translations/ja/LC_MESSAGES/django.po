@@ -6395,7 +6395,7 @@ msgid "User name"
 msgstr "ユーザ名"
 
 #: extras/forms/bulk_edit.py:32 extras/forms/filtersets.py:57
-msgid "Group name"
+msgid "Group Name"
 msgstr "グループ名"
 
 #: extras/forms/bulk_edit.py:40 extras/forms/filtersets.py:65
@@ -6406,20 +6406,20 @@ msgstr "必須"
 
 #: extras/forms/bulk_edit.py:53 extras/forms/bulk_import.py:57
 #: extras/forms/filtersets.py:79 extras/models/customfields.py:194
-msgid "UI visible"
+msgid "UI Visible"
 msgstr "UI で表示される"
 
 #: extras/forms/bulk_edit.py:58 extras/forms/bulk_import.py:63
 #: extras/forms/filtersets.py:84 extras/models/customfields.py:201
-msgid "UI editable"
+msgid "UI Editable"
 msgstr "UI で編集可能"
 
 #: extras/forms/bulk_edit.py:63 extras/forms/filtersets.py:87
-msgid "Is cloneable"
+msgid "Is Cloneable"
 msgstr "複製可能"
 
 #: extras/forms/bulk_edit.py:103 extras/forms/filtersets.py:127
-msgid "New window"
+msgid "New Window"
 msgstr "新しいウィンドウ"
 
 #: extras/forms/bulk_edit.py:112
@@ -6428,15 +6428,15 @@ msgstr "ボタンクラス"
 
 #: extras/forms/bulk_edit.py:129 extras/forms/filtersets.py:165
 #: extras/models/models.py:437
-msgid "MIME type"
+msgid "MIME Type"
 msgstr "MIMEタイプ"
 
 #: extras/forms/bulk_edit.py:134 extras/forms/filtersets.py:168
-msgid "File extension"
+msgid "File Extension"
 msgstr "ファイル拡張子"
 
 #: extras/forms/bulk_edit.py:139 extras/forms/filtersets.py:172
-msgid "As attachment"
+msgid "As Attachment"
 msgstr "添付ファイルとして"
 
 #: extras/forms/bulk_edit.py:167 extras/forms/filtersets.py:214
@@ -6521,11 +6521,11 @@ msgid "Object Type (for object or multi-object fields)"
 msgstr "オブジェクトタイプ (オブジェクトフィールドまたはマルチオブジェクトフィールド用)"
 
 #: extras/forms/bulk_import.py:50 extras/forms/filtersets.py:74
-msgid "Choice set"
+msgid "Choice Set"
 msgstr "選択肢"
 
 #: extras/forms/bulk_import.py:54
-msgid "Choice set (for selection fields)"
+msgid "Choice Set (for selection fields)"
 msgstr "選択肢 (選択フィールド用)"
 
 #: extras/forms/bulk_import.py:60
@@ -6584,11 +6584,11 @@ msgid "The classification of entry"
 msgstr "エントリの分類"
 
 #: extras/forms/filtersets.py:49 extras/forms/model_forms.py:47
-msgid "Related object type"
+msgid "Related Object Type"
 msgstr "関連オブジェクトタイプ"
 
 #: extras/forms/filtersets.py:54
-msgid "Field type"
+msgid "Field Type"
 msgstr "フィールドタイプ"
 
 #: extras/forms/filtersets.py:98 extras/tables/tables.py:70
@@ -6609,7 +6609,7 @@ msgid "Data File"
 msgstr "データファイル"
 
 #: extras/forms/filtersets.py:161
-msgid "Content types"
+msgid "Content Types"
 msgstr "コンテンツタイプ"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
@@ -6646,11 +6646,11 @@ msgid "Job terminations"
 msgstr "ジョブの終了"
 
 #: extras/forms/filtersets.py:316
-msgid "Tagged object type"
+msgid "Tagged Object Type"
 msgstr "タグ付きオブジェクトタイプ"
 
 #: extras/forms/filtersets.py:321
-msgid "Allowed object type"
+msgid "Allowed Object Type"
 msgstr "許可されるオブジェクトタイプ"
 
 #: extras/forms/filtersets.py:350 extras/forms/model_forms.py:383

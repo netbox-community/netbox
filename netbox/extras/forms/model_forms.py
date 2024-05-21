@@ -44,7 +44,7 @@ class CustomFieldForm(forms.ModelForm):
         queryset=ObjectType.objects.with_feature('custom_fields')
     )
     related_object_type = ContentTypeChoiceField(
-        label=_('Related object type'),
+        label=_('Related Object Type'),
         queryset=ObjectType.objects.public(),
         required=False,
         help_text=_("Type of the related object (for object/multi-object fields only)")

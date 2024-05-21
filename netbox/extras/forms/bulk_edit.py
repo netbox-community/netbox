@@ -29,7 +29,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         widget=forms.MultipleHiddenInput
     )
     group_name = forms.CharField(
-        label=_('Group name'),
+        label=_('Group Name'),
         required=False
     )
     description = forms.CharField(
@@ -50,17 +50,17 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False
     )
     ui_visible = forms.ChoiceField(
-        label=_("UI visible"),
+        label=_("UI Visible"),
         choices=add_blank_choice(CustomFieldUIVisibleChoices),
         required=False
     )
     ui_editable = forms.ChoiceField(
-        label=_("UI editable"),
+        label=_("UI Editable"),
         choices=add_blank_choice(CustomFieldUIEditableChoices),
         required=False
     )
     is_cloneable = forms.NullBooleanField(
-        label=_('Is cloneable'),
+        label=_('Is Cloneable'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -100,7 +100,7 @@ class CustomLinkBulkEditForm(BulkEditForm):
         widget=BulkEditNullBooleanSelect()
     )
     new_window = forms.NullBooleanField(
-        label=_('New window'),
+        label=_('New Window'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
@@ -126,17 +126,17 @@ class ExportTemplateBulkEditForm(BulkEditForm):
         required=False
     )
     mime_type = forms.CharField(
-        label=_('MIME type'),
+        label=_('MIME Type'),
         max_length=50,
         required=False
     )
     file_extension = forms.CharField(
-        label=_('File extension'),
+        label=_('File Extension'),
         max_length=15,
         required=False
     )
     as_attachment = forms.NullBooleanField(
-        label=_('As attachment'),
+        label=_('As Attachment'),
         required=False,
         widget=BulkEditNullBooleanSelect()
     )

@@ -122,7 +122,7 @@
 * [#8456](https://github.com/netbox-community/netbox/issues/8456) - Fix redundant display of VRF RD in prefix view
 * [#8465](https://github.com/netbox-community/netbox/issues/8465) - Accept empty string values for Interface `rf_channel` in REST API
 * [#8498](https://github.com/netbox-community/netbox/issues/8498) - Fix display of selected content type filters in object list views
-* [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content types REST API endpoint should not require model permission
+* [#8499](https://github.com/netbox-community/netbox/issues/8499) - Content Types REST API endpoint should not require model permission
 * [#8512](https://github.com/netbox-community/netbox/issues/8512) - Correct file permissions to allow execution of housekeeping script
 * [#8527](https://github.com/netbox-community/netbox/issues/8527) - Fix display of changelog retention period
 
@@ -329,7 +329,7 @@ Webhooks now include a `conditions` field, which may be used to specify conditio
 }
 ```
 
-Multiple conditions may be nested using AND/OR logic as well. For more information, please see the [conditional logic documentation](../reference/conditions.md). 
+Multiple conditions may be nested using AND/OR logic as well. For more information, please see the [conditional logic documentation](../reference/conditions.md).
 
 #### Interface Bridging ([#6346](https://github.com/netbox-community/netbox/issues/6346))
 
@@ -423,7 +423,7 @@ Support for single sign-on (SSO) authentication has been added via the [python-s
     * The `display` field now includes the device's asset tag, if set
     * Added `airflow` field
 * dcim.DeviceType
-    * Added `airflow` field 
+    * Added `airflow` field
 * dcim.FrontPort
     * `cable_peer` has been renamed to `link_peer`
     * `cable_peer_type` has been renamed to `link_peer_type`

@@ -46,15 +46,15 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     related_object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         required=False,
-        label=_('Related object type')
+        label=_('Related Object Type')
     )
     type = forms.MultipleChoiceField(
         choices=CustomFieldTypeChoices,
         required=False,
-        label=_('Field type')
+        label=_('Field Type')
     )
     group_name = forms.CharField(
-        label=_('Group name'),
+        label=_('Group Name'),
         required=False
     )
     weight = forms.IntegerField(
@@ -71,20 +71,20 @@ class CustomFieldFilterForm(SavedFiltersMixin, FilterForm):
     choice_set_id = DynamicModelMultipleChoiceField(
         queryset=CustomFieldChoiceSet.objects.all(),
         required=False,
-        label=_('Choice set')
+        label=_('Choice Set')
     )
     ui_visible = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldUIVisibleChoices),
         required=False,
-        label=_('UI visible')
+        label=_('UI Visible')
     )
     ui_editable = forms.ChoiceField(
         choices=add_blank_choice(CustomFieldUIEditableChoices),
         required=False,
-        label=_('UI editable')
+        label=_('UI Editable')
     )
     is_cloneable = forms.NullBooleanField(
-        label=_('Is cloneable'),
+        label=_('Is Cloneable'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -124,7 +124,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
         )
     )
     new_window = forms.NullBooleanField(
-        label=_('New window'),
+        label=_('New Window'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -158,18 +158,18 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('export_templates'),
         required=False,
-        label=_('Content types')
+        label=_('Content Types')
     )
     mime_type = forms.CharField(
         required=False,
-        label=_('MIME type')
+        label=_('MIME Type')
     )
     file_extension = forms.CharField(
-        label=_('File extension'),
+        label=_('File Extension'),
         required=False
     )
     as_attachment = forms.NullBooleanField(
-        label=_('As attachment'),
+        label=_('As Attachment'),
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
@@ -313,12 +313,12 @@ class TagFilterForm(SavedFiltersMixin, FilterForm):
     content_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('tags'),
         required=False,
-        label=_('Tagged object type')
+        label=_('Tagged Object Type')
     )
     for_object_type_id = ContentTypeChoiceField(
         queryset=ObjectType.objects.with_feature('tags'),
         required=False,
-        label=_('Allowed object type')
+        label=_('Allowed Object Type')
     )
 
 

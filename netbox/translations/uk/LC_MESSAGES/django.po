@@ -6501,7 +6501,7 @@ msgid "User name"
 msgstr "Ім'я користувача"
 
 #: extras/forms/bulk_edit.py:32 extras/forms/filtersets.py:57
-msgid "Group name"
+msgid "Group Name"
 msgstr "Назва групи"
 
 #: extras/forms/bulk_edit.py:40 extras/forms/filtersets.py:65
@@ -6512,20 +6512,20 @@ msgstr "Обов'язково"
 
 #: extras/forms/bulk_edit.py:53 extras/forms/bulk_import.py:57
 #: extras/forms/filtersets.py:79 extras/models/customfields.py:194
-msgid "UI visible"
+msgid "UI Visible"
 msgstr "Видимий інтерфейс користувача"
 
 #: extras/forms/bulk_edit.py:58 extras/forms/bulk_import.py:63
 #: extras/forms/filtersets.py:84 extras/models/customfields.py:201
-msgid "UI editable"
+msgid "UI Editable"
 msgstr "Інтерфейс користувача редагований"
 
 #: extras/forms/bulk_edit.py:63 extras/forms/filtersets.py:87
-msgid "Is cloneable"
+msgid "Is Cloneable"
 msgstr "Чи можна клонувати"
 
 #: extras/forms/bulk_edit.py:103 extras/forms/filtersets.py:127
-msgid "New window"
+msgid "New Window"
 msgstr "Нове вікно"
 
 #: extras/forms/bulk_edit.py:112
@@ -6534,15 +6534,15 @@ msgstr "Клас кнопок"
 
 #: extras/forms/bulk_edit.py:129 extras/forms/filtersets.py:165
 #: extras/models/models.py:437
-msgid "MIME type"
+msgid "MIME Type"
 msgstr "Тип MIME"
 
 #: extras/forms/bulk_edit.py:134 extras/forms/filtersets.py:168
-msgid "File extension"
+msgid "File Extension"
 msgstr "розширення файлу"
 
 #: extras/forms/bulk_edit.py:139 extras/forms/filtersets.py:172
-msgid "As attachment"
+msgid "As Attachment"
 msgstr "Як вкладення"
 
 #: extras/forms/bulk_edit.py:167 extras/forms/filtersets.py:214
@@ -6627,11 +6627,11 @@ msgid "Object Type (for object or multi-object fields)"
 msgstr "Тип об'єкта (для об'єктів або полів з кількома об'єктами)"
 
 #: extras/forms/bulk_import.py:50 extras/forms/filtersets.py:74
-msgid "Choice set"
+msgid "Choice Set"
 msgstr "Набір вибору"
 
 #: extras/forms/bulk_import.py:54
-msgid "Choice set (for selection fields)"
+msgid "Choice Set (for selection fields)"
 msgstr "Набір вибору (для полів виділення)"
 
 #: extras/forms/bulk_import.py:60
@@ -6692,11 +6692,11 @@ msgid "The classification of entry"
 msgstr "Класифікація вступу"
 
 #: extras/forms/filtersets.py:49 extras/forms/model_forms.py:47
-msgid "Related object type"
+msgid "Related Object Type"
 msgstr "Пов'язаний тип об'єкта"
 
 #: extras/forms/filtersets.py:54
-msgid "Field type"
+msgid "Field Type"
 msgstr "Тип поля"
 
 #: extras/forms/filtersets.py:98 extras/tables/tables.py:70
@@ -6717,7 +6717,7 @@ msgid "Data File"
 msgstr "Файл даних"
 
 #: extras/forms/filtersets.py:161
-msgid "Content types"
+msgid "Content Types"
 msgstr "Типи контенту"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
@@ -6754,11 +6754,11 @@ msgid "Job terminations"
 msgstr "Припинення роботи"
 
 #: extras/forms/filtersets.py:316
-msgid "Tagged object type"
+msgid "Tagged Object Type"
 msgstr "Тип об'єкта з позначкою"
 
 #: extras/forms/filtersets.py:321
-msgid "Allowed object type"
+msgid "Allowed Object Type"
 msgstr "Дозволений тип об'єкта"
 
 #: extras/forms/filtersets.py:350 extras/forms/model_forms.py:383

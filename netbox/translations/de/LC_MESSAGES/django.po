@@ -6575,7 +6575,7 @@ msgid "User name"
 msgstr "Nutzername"
 
 #: extras/forms/bulk_edit.py:32 extras/forms/filtersets.py:57
-msgid "Group name"
+msgid "Group Name"
 msgstr "Name der Gruppe"
 
 #: extras/forms/bulk_edit.py:40 extras/forms/filtersets.py:65
@@ -6586,20 +6586,20 @@ msgstr "Erforderlich"
 
 #: extras/forms/bulk_edit.py:53 extras/forms/bulk_import.py:57
 #: extras/forms/filtersets.py:79 extras/models/customfields.py:194
-msgid "UI visible"
+msgid "UI Visible"
 msgstr "UI sichtbar"
 
 #: extras/forms/bulk_edit.py:58 extras/forms/bulk_import.py:63
 #: extras/forms/filtersets.py:84 extras/models/customfields.py:201
-msgid "UI editable"
+msgid "UI Editable"
 msgstr "UI editierbar"
 
 #: extras/forms/bulk_edit.py:63 extras/forms/filtersets.py:87
-msgid "Is cloneable"
+msgid "Is Cloneable"
 msgstr "Ist klonbar"
 
 #: extras/forms/bulk_edit.py:103 extras/forms/filtersets.py:127
-msgid "New window"
+msgid "New Window"
 msgstr "Neues Fenster"
 
 #: extras/forms/bulk_edit.py:112
@@ -6608,15 +6608,15 @@ msgstr "Button-Klasse"
 
 #: extras/forms/bulk_edit.py:129 extras/forms/filtersets.py:165
 #: extras/models/models.py:437
-msgid "MIME type"
+msgid "MIME Type"
 msgstr "MIME-Typ"
 
 #: extras/forms/bulk_edit.py:134 extras/forms/filtersets.py:168
-msgid "File extension"
+msgid "File Extension"
 msgstr "Dateierweiterung"
 
 #: extras/forms/bulk_edit.py:139 extras/forms/filtersets.py:172
-msgid "As attachment"
+msgid "As Attachment"
 msgstr "Als Anlage"
 
 #: extras/forms/bulk_edit.py:167 extras/forms/filtersets.py:214
@@ -6701,11 +6701,11 @@ msgid "Object Type (for object or multi-object fields)"
 msgstr "Objekttyp (für Objekt- oder Mehrfachobjektfelder)"
 
 #: extras/forms/bulk_import.py:50 extras/forms/filtersets.py:74
-msgid "Choice set"
+msgid "Choice Set"
 msgstr "Auswahlset"
 
 #: extras/forms/bulk_import.py:54
-msgid "Choice set (for selection fields)"
+msgid "Choice Set (for selection fields)"
 msgstr "Auswahlset (für Auswahlfelder)"
 
 #: extras/forms/bulk_import.py:60
@@ -6772,11 +6772,11 @@ msgid "The classification of entry"
 msgstr "Die Klassifizierung der Einreise"
 
 #: extras/forms/filtersets.py:49 extras/forms/model_forms.py:47
-msgid "Related object type"
+msgid "Related Object Type"
 msgstr "Verwandter Objekttyp"
 
 #: extras/forms/filtersets.py:54
-msgid "Field type"
+msgid "Field Type"
 msgstr "Typ des Feldes"
 
 #: extras/forms/filtersets.py:98 extras/tables/tables.py:70
@@ -6797,7 +6797,7 @@ msgid "Data File"
 msgstr "Datendatei"
 
 #: extras/forms/filtersets.py:161
-msgid "Content types"
+msgid "Content Types"
 msgstr "Inhaltstypen"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
@@ -6834,11 +6834,11 @@ msgid "Job terminations"
 msgstr "Kündigungen von Arbeitsstellen"
 
 #: extras/forms/filtersets.py:316
-msgid "Tagged object type"
+msgid "Tagged Object Type"
 msgstr "Typ des markierten Objekts"
 
 #: extras/forms/filtersets.py:321
-msgid "Allowed object type"
+msgid "Allowed Object Type"
 msgstr "Erlaubter Objekttyp"
 
 #: extras/forms/filtersets.py:350 extras/forms/model_forms.py:383

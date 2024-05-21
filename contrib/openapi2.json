@@ -87509,7 +87509,7 @@
                     "maxLength": 50
                 },
                 "group_name": {
-                    "title": "Group name",
+                    "title": "Group Name",
                     "description": "Custom fields within the same group will be displayed together",
                     "type": "string",
                     "maxLength": 50
@@ -87724,7 +87724,7 @@
                     "maxLength": 50
                 },
                 "group_name": {
-                    "title": "Group name",
+                    "title": "Group Name",
                     "description": "Custom fields within the same group will be displayed together",
                     "type": "string",
                     "maxLength": 50
@@ -87894,7 +87894,7 @@
                     "minimum": 0
                 },
                 "group_name": {
-                    "title": "Group name",
+                    "title": "Group Name",
                     "description": "Links with the same group will appear as a dropdown menu",
                     "type": "string",
                     "maxLength": 50
@@ -87922,7 +87922,7 @@
                     ]
                 },
                 "new_window": {
-                    "title": "New window",
+                    "title": "New Window",
                     "description": "Force link to open in a new window",
                     "type": "boolean"
                 },
@@ -88004,19 +88004,19 @@
                     "minLength": 1
                 },
                 "mime_type": {
-                    "title": "MIME type",
+                    "title": "MIME Type",
                     "description": "Defaults to <code>text/plain</code>",
                     "type": "string",
                     "maxLength": 50
                 },
                 "file_extension": {
-                    "title": "File extension",
+                    "title": "File Extension",
                     "description": "Extension to append to the rendered filename",
                     "type": "string",
                     "maxLength": 15
                 },
                 "as_attachment": {
-                    "title": "As attachment",
+                    "title": "As Attachment",
                     "description": "Download file as attachment",
                     "type": "boolean"
                 },
@@ -88105,19 +88105,19 @@
                     "minLength": 1
                 },
                 "mime_type": {
-                    "title": "MIME type",
+                    "title": "MIME Type",
                     "description": "Defaults to <code>text/plain</code>",
                     "type": "string",
                     "maxLength": 50
                 },
                 "file_extension": {
-                    "title": "File extension",
+                    "title": "File Extension",
                     "description": "Extension to append to the rendered filename",
                     "type": "string",
                     "maxLength": 15
                 },
                 "as_attachment": {
-                    "title": "As attachment",
+                    "title": "As Attachment",
                     "description": "Download file as attachment",
                     "type": "boolean"
                 },

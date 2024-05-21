@@ -6376,7 +6376,7 @@ msgid "User name"
 msgstr "用户名"
 
 #: extras/forms/bulk_edit.py:32 extras/forms/filtersets.py:57
-msgid "Group name"
+msgid "Group Name"
 msgstr "群组名称"
 
 #: extras/forms/bulk_edit.py:40 extras/forms/filtersets.py:65
@@ -6387,20 +6387,20 @@ msgstr "必填项"
 
 #: extras/forms/bulk_edit.py:53 extras/forms/bulk_import.py:57
 #: extras/forms/filtersets.py:79 extras/models/customfields.py:194
-msgid "UI visible"
+msgid "UI Visible"
 msgstr "用户界面可见"
 
 #: extras/forms/bulk_edit.py:58 extras/forms/bulk_import.py:63
 #: extras/forms/filtersets.py:84 extras/models/customfields.py:201
-msgid "UI editable"
+msgid "UI Editable"
 msgstr "用户界面可编辑"
 
 #: extras/forms/bulk_edit.py:63 extras/forms/filtersets.py:87
-msgid "Is cloneable"
+msgid "Is Cloneable"
 msgstr "是可克隆的"
 
 #: extras/forms/bulk_edit.py:103 extras/forms/filtersets.py:127
-msgid "New window"
+msgid "New Window"
 msgstr "新窗口"
 
 #: extras/forms/bulk_edit.py:112
@@ -6409,15 +6409,15 @@ msgstr "按钮类别"
 
 #: extras/forms/bulk_edit.py:129 extras/forms/filtersets.py:165
 #: extras/models/models.py:437
-msgid "MIME type"
+msgid "MIME Type"
 msgstr "哑剧类型"
 
 #: extras/forms/bulk_edit.py:134 extras/forms/filtersets.py:168
-msgid "File extension"
+msgid "File Extension"
 msgstr "文件扩展名"
 
 #: extras/forms/bulk_edit.py:139 extras/forms/filtersets.py:172
-msgid "As attachment"
+msgid "As Attachment"
 msgstr "作为附件"
 
 #: extras/forms/bulk_edit.py:167 extras/forms/filtersets.py:214
@@ -6502,11 +6502,11 @@ msgid "Object Type (for object or multi-object fields)"
 msgstr "对象类型（适用于对象或多对象字段）"
 
 #: extras/forms/bulk_import.py:50 extras/forms/filtersets.py:74
-msgid "Choice set"
+msgid "Choice Set"
 msgstr "选择集"
 
 #: extras/forms/bulk_import.py:54
-msgid "Choice set (for selection fields)"
+msgid "Choice Set (for selection fields)"
 msgstr "选择集（用于选择字段）"
 
 #: extras/forms/bulk_import.py:60
@@ -6563,11 +6563,11 @@ msgid "The classification of entry"
 msgstr "参赛分类"
 
 #: extras/forms/filtersets.py:49 extras/forms/model_forms.py:47
-msgid "Related object type"
+msgid "Related Object Type"
 msgstr "相关对象类型"
 
 #: extras/forms/filtersets.py:54
-msgid "Field type"
+msgid "Field Type"
 msgstr "字段类型"
 
 #: extras/forms/filtersets.py:98 extras/tables/tables.py:70
@@ -6588,7 +6588,7 @@ msgid "Data File"
 msgstr "数据文件"
 
 #: extras/forms/filtersets.py:161
-msgid "Content types"
+msgid "Content Types"
 msgstr "内容类型"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
@@ -6625,11 +6625,11 @@ msgid "Job terminations"
 msgstr "终止工作"
 
 #: extras/forms/filtersets.py:316
-msgid "Tagged object type"
+msgid "Tagged Object Type"
 msgstr "标记的对象类型"
 
 #: extras/forms/filtersets.py:321
-msgid "Allowed object type"
+msgid "Allowed Object Type"
 msgstr "允许的对象类型"
 
 #: extras/forms/filtersets.py:350 extras/forms/model_forms.py:383
