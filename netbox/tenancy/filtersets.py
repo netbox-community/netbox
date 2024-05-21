@@ -179,14 +179,14 @@ class TenantGroupFilterSet(OrganizationalModelFilterSet):
         queryset=TenantGroup.objects.all(),
         field_name='parent',
         lookup_expr='in',
-        label=_('Tenant group (ID)'),
+        label=_('Tenant Group (ID)'),
     )
     ancestor = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='parent',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Tenant group (slug)'),
+        label=_('Tenant Group (slug)'),
     )
 
     class Meta:
@@ -199,14 +199,14 @@ class TenantFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=TenantGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
-        label=_('Tenant group (ID)'),
+        label=_('Tenant Group (ID)'),
     )
     group = TreeNodeMultipleChoiceFilter(
         queryset=TenantGroup.objects.all(),
         field_name='group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Tenant group (slug)'),
+        label=_('Tenant Group (slug)'),
     )
 
     class Meta:

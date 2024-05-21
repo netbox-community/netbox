@@ -22,7 +22,7 @@ class WirelessLANGroupFilterForm(NetBoxModelFilterSetForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=WirelessLANGroup.objects.all(),
         required=False,
-        label=_('Parent group')
+        label=_('Parent Group')
     )
     tag = TagFilterField(model)
 

@@ -228,7 +228,7 @@ class RackImportForm(NetBoxModelImportForm):
         help_text=_('Unit for outer dimensions')
     )
     weight_unit = CSVChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=WeightUnitChoices,
         required=False,
         help_text=_('Unit for rack weights')
@@ -334,7 +334,7 @@ class DeviceTypeImportForm(NetBoxModelImportForm):
         help_text=_('Device weight'),
     )
     weight_unit = CSVChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=WeightUnitChoices,
         required=False,
         help_text=_('Unit for device weight')
@@ -360,7 +360,7 @@ class ModuleTypeImportForm(NetBoxModelImportForm):
         help_text=_('Module weight'),
     )
     weight_unit = CSVChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=WeightUnitChoices,
         required=False,
         help_text=_('Unit for module weight')

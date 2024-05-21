@@ -72599,7 +72599,7 @@
                     "readOnly": true
                 },
                 "object_type": {
-                    "title": "Object type",
+                    "title": "Object Type",
                     "type": "string",
                     "readOnly": true
                 },
@@ -72758,7 +72758,7 @@
             "type": "object",
             "properties": {
                 "object_type": {
-                    "title": "Object type",
+                    "title": "Object Type",
                     "type": "string"
                 },
                 "object_id": {
@@ -73578,7 +73578,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this device",
                     "type": "string",
                     "maxLength": 50,
@@ -75607,7 +75607,7 @@
                     "x-nullable": true
                 },
                 "weight_unit": {
-                    "title": "Weight unit",
+                    "title": "Weight Unit",
                     "required": [
                         "label",
                         "value"
@@ -75781,7 +75781,7 @@
                     "x-nullable": true
                 },
                 "weight_unit": {
-                    "title": "Weight unit",
+                    "title": "Weight Unit",
                     "type": "string",
                     "enum": [
                         "kg",
@@ -79585,7 +79585,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this item",
                     "type": "string",
                     "maxLength": 50,
@@ -79716,7 +79716,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this item",
                     "type": "string",
                     "maxLength": 50,
@@ -80465,7 +80465,7 @@
                     "x-nullable": true
                 },
                 "weight_unit": {
-                    "title": "Weight unit",
+                    "title": "Weight Unit",
                     "required": [
                         "label",
                         "value"
@@ -80574,7 +80574,7 @@
                     "x-nullable": true
                 },
                 "weight_unit": {
-                    "title": "Weight unit",
+                    "title": "Weight Unit",
                     "type": "string",
                     "enum": [
                         "kg",
@@ -80753,7 +80753,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this device",
                     "type": "string",
                     "maxLength": 50,
@@ -80849,7 +80849,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this device",
                     "type": "string",
                     "maxLength": 50,
@@ -84308,7 +84308,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this rack",
                     "type": "string",
                     "maxLength": 50,
@@ -84390,7 +84390,7 @@
                     "x-nullable": true
                 },
                 "max_weight": {
-                    "title": "Max weight",
+                    "title": "Max Weight",
                     "description": "Maximum load capacity for the rack",
                     "type": "integer",
                     "maximum": 2147483647,
@@ -84398,7 +84398,7 @@
                     "x-nullable": true
                 },
                 "weight_unit": {
-                    "title": "Weight unit",
+                    "title": "Weight Unit",
                     "required": [
                         "label",
                         "value"
@@ -84596,7 +84596,7 @@
                     "maxLength": 50
                 },
                 "asset_tag": {
-                    "title": "Asset tag",
+                    "title": "Asset Tag",
                     "description": "A unique tag used to identify this rack",
                     "type": "string",
                     "maxLength": 50,
@@ -84640,7 +84640,7 @@
                     "x-nullable": true
                 },
                 "max_weight": {
-                    "title": "Max weight",
+                    "title": "Max Weight",
                     "description": "Maximum load capacity for the rack",
                     "type": "integer",
                     "maximum": 2147483647,
@@ -84648,7 +84648,7 @@
                     "x-nullable": true
                 },
                 "weight_unit": {
-                    "title": "Weight unit",
+                    "title": "Weight Unit",
                     "type": "string",
                     "enum": [
                         "kg",
@@ -87486,7 +87486,7 @@
                     }
                 },
                 "object_type": {
-                    "title": "Object type",
+                    "title": "Object Type",
                     "type": "string"
                 },
                 "data_type": {
@@ -87701,7 +87701,7 @@
                     ]
                 },
                 "object_type": {
-                    "title": "Object type",
+                    "title": "Object Type",
                     "type": "string"
                 },
                 "data_type": {

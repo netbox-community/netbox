@@ -95,7 +95,7 @@ class ClusterAddDevicesForm(forms.Form):
         null_option='None'
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False,
         null_option='None'

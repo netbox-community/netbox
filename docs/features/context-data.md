@@ -18,7 +18,7 @@ Config contexts can be computed for objects based on the following criteria:
 | Type          | Devices          | Virtual Machines |
 |---------------|------------------|------------------|
 | Region        | :material-check: | :material-check: |
-| Site group    | :material-check: | :material-check: |
+| Site Group    | :material-check: | :material-check: |
 | Site          | :material-check: | :material-check: |
 | Location      | :material-check: |                  |
 | Device type   | :material-check: |                  |
@@ -27,7 +27,7 @@ Config contexts can be computed for objects based on the following criteria:
 | Cluster type  |                  | :material-check: |
 | Cluster group |                  | :material-check: |
 | Cluster       |                  | :material-check: |
-| Tenant group  | :material-check: | :material-check: |
+| Tenant Group  | :material-check: | :material-check: |
 | Tenant        | :material-check: | :material-check: |
 | Tag           | :material-check: | :material-check: |
 

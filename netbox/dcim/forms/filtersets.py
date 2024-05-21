@@ -73,7 +73,7 @@ class DeviceComponentFilterForm(NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -153,7 +153,7 @@ class SiteGroupFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     parent_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Parent group')
+        label=_('Parent Group')
     )
     tag = TagFilterField(model)
 
@@ -180,7 +180,7 @@ class SiteFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     asn_id = DynamicModelMultipleChoiceField(
         queryset=ASN.objects.all(),
@@ -206,7 +206,7 @@ class LocationFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelF
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -267,7 +267,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     location_id = DynamicModelMultipleChoiceField(
         queryset=Location.objects.all(),
@@ -304,7 +304,7 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     tag = TagFilterField(model)
@@ -314,12 +314,12 @@ class RackFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilte
         min_value=1
     )
     max_weight = forms.IntegerField(
-        label=_('Max weight'),
+        label=_('Max Weight'),
         required=False,
         min_value=1
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
@@ -362,7 +362,7 @@ class RackReservationFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -530,7 +530,7 @@ class DeviceTypeFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
@@ -605,7 +605,7 @@ class ModuleTypeFilterForm(NetBoxModelFilterSetForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False
     )
@@ -669,7 +669,7 @@ class DeviceFilterForm(
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -738,7 +738,7 @@ class DeviceFilterForm(
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     mac_address = forms.CharField(
@@ -875,7 +875,7 @@ class ModuleFilterForm(LocalConfigContextFilterForm, TenancyFilterForm, NetBoxMo
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     tag = TagFilterField(model)
@@ -896,7 +896,7 @@ class VirtualChassisFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1010,7 +1010,7 @@ class PowerPanelFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1049,7 +1049,7 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -1427,7 +1427,7 @@ class InventoryItemFilterForm(DeviceComponentFilterForm):
         required=False
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         required=False
     )
     discovered = forms.NullBooleanField(

@@ -40,7 +40,7 @@ __all__ = (
 
 class CustomFieldForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('custom_fields')
     )
     related_object_type = ContentTypeChoiceField(
@@ -128,7 +128,7 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
 
 class CustomLinkForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('custom_links')
     )
 
@@ -160,7 +160,7 @@ class CustomLinkForm(forms.ModelForm):
 
 class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('export_templates')
     )
     template_code = forms.CharField(
@@ -201,7 +201,7 @@ class ExportTemplateForm(SyncedDataMixin, forms.ModelForm):
 class SavedFilterForm(forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.all()
     )
     parameters = JSONField()
@@ -227,7 +227,7 @@ class SavedFilterForm(forms.ModelForm):
 
 class BookmarkForm(forms.ModelForm):
     object_type = ContentTypeChoiceField(
-        label=_('Object type'),
+        label=_('Object Type'),
         queryset=ObjectType.objects.with_feature('bookmarks')
     )
 
@@ -258,7 +258,7 @@ class WebhookForm(NetBoxModelForm):
 
 class EventRuleForm(NetBoxModelForm):
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
     )
     action_choice = forms.ChoiceField(
@@ -362,7 +362,7 @@ class EventRuleForm(NetBoxModelForm):
 class TagForm(forms.ModelForm):
     slug = SlugField()
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('tags'),
         required=False
     )
@@ -385,7 +385,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         required=False
     )
     site_groups = DynamicModelMultipleChoiceField(
-        label=_('Site groups'),
+        label=_('Site Groups'),
         queryset=SiteGroup.objects.all(),
         required=False
     )
@@ -430,7 +430,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         required=False
     )
     tenant_groups = DynamicModelMultipleChoiceField(
-        label=_('Tenant groups'),
+        label=_('Tenant Groups'),
         queryset=TenantGroup.objects.all(),
         required=False
     )

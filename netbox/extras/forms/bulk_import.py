@@ -31,7 +31,7 @@ __all__ = (
 
 class CustomFieldImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('custom_fields'),
         help_text=_("One or more assigned object types")
     )
@@ -41,10 +41,10 @@ class CustomFieldImportForm(CSVModelForm):
         help_text=_('Field data type (e.g. text, integer, etc.)')
     )
     related_object_type = CSVContentTypeField(
-        label=_('Object type'),
+        label=_('Object Type'),
         queryset=ObjectType.objects.public(),
         required=False,
-        help_text=_("Object type (for object or multi-object fields)")
+        help_text=_("Object Type (for object or multi-object fields)")
     )
     choice_set = CSVModelChoiceField(
         label=_('Choice set'),
@@ -112,7 +112,7 @@ class CustomFieldChoiceSetImportForm(CSVModelForm):
 
 class CustomLinkImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
         help_text=_("One or more assigned object types")
     )
@@ -133,7 +133,7 @@ class CustomLinkImportForm(CSVModelForm):
 
 class ExportTemplateImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('export_templates'),
         help_text=_("One or more assigned object types")
     )
@@ -156,7 +156,7 @@ class ConfigTemplateImportForm(CSVModelForm):
 
 class SavedFilterImportForm(CSVModelForm):
     object_types = CSVMultipleContentTypeField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.all(),
         help_text=_("One or more assigned object types")
     )
@@ -180,7 +180,7 @@ class WebhookImportForm(NetBoxModelImportForm):
 
 class EventRuleImportForm(NetBoxModelImportForm):
     object_types = CSVMultipleContentTypeField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('event_rules'),
         help_text=_("One or more assigned object types")
     )

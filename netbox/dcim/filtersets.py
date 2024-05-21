@@ -124,14 +124,14 @@ class SiteGroupFilterSet(OrganizationalModelFilterSet, ContactModelFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='parent',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     ancestor = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='parent',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
 
     class Meta:
@@ -221,14 +221,14 @@ class LocationFilterSet(TenancyFilterSet, ContactModelFilterSet, OrganizationalM
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -307,14 +307,14 @@ class RackFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilterSe
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -416,14 +416,14 @@ class RackReservationFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='rack__site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='rack__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     location_id = TreeNodeMultipleChoiceFilter(
         queryset=Location.objects.all(),
@@ -979,14 +979,14 @@ class DeviceFilterSet(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -1305,14 +1305,14 @@ class DeviceComponentFilterSet(django_filters.FilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='device__site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='device__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='device__site',
@@ -1832,14 +1832,14 @@ class VirtualChassisFilterSet(NetBoxModelFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='master__site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='master__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='master__site',
@@ -2075,14 +2075,14 @@ class PowerPanelFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -2133,14 +2133,14 @@ class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpoi
         queryset=SiteGroup.objects.all(),
         field_name='power_panel__site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='power_panel__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='power_panel__site',

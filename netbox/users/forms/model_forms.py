@@ -270,7 +270,7 @@ class GroupForm(forms.ModelForm):
 
 class ObjectPermissionForm(forms.ModelForm):
     object_types = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.all(),
         limit_choices_to=OBJECTPERMISSION_OBJECT_TYPES,
         widget=forms.SelectMultiple(attrs={'size': 6})

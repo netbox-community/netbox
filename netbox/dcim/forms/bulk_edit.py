@@ -228,7 +228,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={
@@ -274,7 +274,7 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         label=_('Serial Number')
     )
     asset_tag = forms.CharField(
-        label=_('Asset tag'),
+        label=_('Asset Tag'),
         max_length=50,
         required=False
     )
@@ -323,12 +323,12 @@ class RackBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     max_weight = forms.IntegerField(
-        label=_('Max weight'),
+        label=_('Max Weight'),
         min_value=0,
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
         initial=''
@@ -438,7 +438,7 @@ class DeviceTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
         initial=''
@@ -477,7 +477,7 @@ class ModuleTypeBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     weight_unit = forms.ChoiceField(
-        label=_('Weight unit'),
+        label=_('Weight Unit'),
         choices=add_blank_choice(WeightUnitChoices),
         required=False,
         initial=''
@@ -760,7 +760,7 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
         }
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={

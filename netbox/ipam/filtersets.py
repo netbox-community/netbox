@@ -349,14 +349,14 @@ class PrefixFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),
@@ -955,14 +955,14 @@ class VLANFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         queryset=Site.objects.all(),

@@ -112,7 +112,7 @@ class CustomLinkFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type', 'enabled', 'new_window', 'weight', name=_('Attributes')),
     )
     object_type = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.with_feature('custom_links'),
         required=False
     )
@@ -183,7 +183,7 @@ class ImageAttachmentFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type_id', 'name', name=_('Attributes')),
     )
     object_type_id = ContentTypeChoiceField(
-        label=_('Object type'),
+        label=_('Object Type'),
         queryset=ObjectType.objects.with_feature('image_attachments'),
         required=False
     )
@@ -199,7 +199,7 @@ class SavedFilterFilterForm(SavedFiltersMixin, FilterForm):
         FieldSet('object_type', 'enabled', 'shared', 'weight', name=_('Attributes')),
     )
     object_type = ContentTypeMultipleChoiceField(
-        label=_('Object types'),
+        label=_('Object Types'),
         queryset=ObjectType.objects.public(),
         required=False
     )
@@ -257,7 +257,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     object_type_id = ContentTypeMultipleChoiceField(
         queryset=ObjectType.objects.with_feature('event_rules'),
         required=False,
-        label=_('Object type')
+        label=_('Object Type')
     )
     action_type = forms.ChoiceField(
         choices=add_blank_choice(EventRuleActionChoices),
@@ -352,7 +352,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site groups')
+        label=_('Site Groups')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -397,7 +397,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     tenant_group_id = DynamicModelMultipleChoiceField(
         queryset=TenantGroup.objects.all(),
         required=False,
-        label=_('Tenant groups')
+        label=_('Tenant Groups')
     )
     tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),

@@ -2,10 +2,10 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 # Translators:
 # Jeremy Stretch, 2024
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
@@ -125,7 +125,7 @@ msgstr "Región (slug)"
 #: dcim/filtersets.py:2078 dcim/filtersets.py:2136 ipam/filtersets.py:352
 #: ipam/filtersets.py:958 virtualization/filtersets.py:58
 #: virtualization/filtersets.py:186
-msgid "Site group (ID)"
+msgid "Site Group (ID)"
 msgstr "Grupo de sitios (ID)"
 
 #: circuits/filtersets.py:49 circuits/filtersets.py:216 dcim/filtersets.py:134
@@ -134,7 +134,7 @@ msgstr "Grupo de sitios (ID)"
 #: dcim/filtersets.py:2085 dcim/filtersets.py:2143 extras/filtersets.py:467
 #: ipam/filtersets.py:359 ipam/filtersets.py:965
 #: virtualization/filtersets.py:65 virtualization/filtersets.py:193
-msgid "Site group (slug)"
+msgid "Site Group (slug)"
 msgstr "Grupo de sitios (slug)"
 
 #: circuits/filtersets.py:54 circuits/forms/bulk_import.py:116
@@ -761,7 +761,7 @@ msgstr "Región"
 #: virtualization/forms/bulk_edit.py:86 virtualization/forms/filtersets.py:69
 #: virtualization/forms/filtersets.py:138
 #: virtualization/forms/model_forms.py:98
-msgid "Site group"
+msgid "Site Group"
 msgstr "Grupo de sitios"
 
 #: circuits/forms/filtersets.py:62 circuits/forms/filtersets.py:80
@@ -2779,7 +2779,7 @@ msgstr "Número de serie"
 #: dcim/forms/bulk_edit.py:277 dcim/forms/filtersets.py:307
 #: dcim/forms/filtersets.py:741 dcim/forms/filtersets.py:878
 #: dcim/forms/filtersets.py:1430
-msgid "Asset tag"
+msgid "Asset Tag"
 msgstr "Etiqueta de activo"
 
 #: dcim/forms/bulk_edit.py:287 dcim/forms/bulk_import.py:220
@@ -2833,7 +2833,7 @@ msgid "Weight"
 msgstr "Peso"
 
 #: dcim/forms/bulk_edit.py:326 dcim/forms/filtersets.py:317
-msgid "Max weight"
+msgid "Max Weight"
 msgstr "Peso máximo"
 
 #: dcim/forms/bulk_edit.py:331 dcim/forms/bulk_edit.py:441
@@ -2841,7 +2841,7 @@ msgstr "Peso máximo"
 #: dcim/forms/bulk_import.py:337 dcim/forms/bulk_import.py:363
 #: dcim/forms/filtersets.py:322 dcim/forms/filtersets.py:533
 #: dcim/forms/filtersets.py:608
-msgid "Weight unit"
+msgid "Weight Unit"
 msgstr "Unidad de peso"
 
 #: dcim/forms/bulk_edit.py:345 dcim/forms/bulk_edit.py:808
@@ -3775,7 +3775,7 @@ msgstr "Región principal"
 #: tenancy/forms/bulk_import.py:62 tenancy/forms/filtersets.py:33
 #: tenancy/forms/filtersets.py:62 wireless/forms/bulk_import.py:25
 #: wireless/forms/filtersets.py:25
-msgid "Parent group"
+msgid "Parent Group"
 msgstr "Grupo de padres"
 
 #: dcim/forms/filtersets.py:247 dcim/forms/filtersets.py:332
@@ -6519,12 +6519,12 @@ msgstr "Grupo de racimos (babosa)"
 
 #: extras/filtersets.py:553 tenancy/forms/forms.py:16
 #: tenancy/forms/forms.py:39
-msgid "Tenant group"
+msgid "Tenant Group"
 msgstr "Grupo de inquilinos"
 
 #: extras/filtersets.py:559 tenancy/filtersets.py:189
 #: tenancy/filtersets.py:209
-msgid "Tenant group (slug)"
+msgid "Tenant Group (slug)"
 msgstr "Grupo de inquilinos (slug)"
 
 #: extras/filtersets.py:575 extras/forms/model_forms.py:371
@@ -6647,7 +6647,7 @@ msgstr "Está activo"
 #: extras/forms/model_forms.py:131 extras/forms/model_forms.py:163
 #: extras/forms/model_forms.py:204 extras/forms/model_forms.py:261
 #: extras/forms/model_forms.py:365 users/forms/model_forms.py:273
-msgid "Object types"
+msgid "Object Types"
 msgstr "Tipos de objetos"
 
 #: extras/forms/bulk_import.py:36 extras/forms/bulk_import.py:117
@@ -6663,11 +6663,11 @@ msgstr "Tipo de datos de campo (por ejemplo, texto, entero, etc.)"
 #: extras/forms/bulk_import.py:44 extras/forms/filtersets.py:186
 #: extras/forms/filtersets.py:260 extras/forms/model_forms.py:230
 #: tenancy/forms/filtersets.py:92
-msgid "Object type"
+msgid "Object Type"
 msgstr "Tipo de objeto"
 
 #: extras/forms/bulk_import.py:47
-msgid "Object type (for object or multi-object fields)"
+msgid "Object Type (for object or multi-object fields)"
 msgstr "Tipo de objeto (para campos de objetos o de varios objetos)"
 
 #: extras/forms/bulk_import.py:50 extras/forms/filtersets.py:74
@@ -6812,7 +6812,7 @@ msgid "Regions"
 msgstr "Regiones"
 
 #: extras/forms/filtersets.py:355 extras/forms/model_forms.py:388
-msgid "Site groups"
+msgid "Site Groups"
 msgstr "Grupos de sitios"
 
 #: extras/forms/filtersets.py:365 extras/forms/model_forms.py:398
@@ -6844,7 +6844,7 @@ msgid "Clusters"
 msgstr "Clústers"
 
 #: extras/forms/filtersets.py:400 extras/forms/model_forms.py:433
-msgid "Tenant groups"
+msgid "Tenant Groups"
 msgstr "Grupos de inquilinos"
 
 #: extras/forms/filtersets.py:454 extras/forms/filtersets.py:492
@@ -9708,7 +9708,7 @@ msgid "Regex"
 msgstr "Regex"
 
 #: netbox/forms/__init__.py:34
-msgid "Object type(s)"
+msgid "Object Type(s)"
 msgstr "Tipo(s) de objeto(s)"
 
 #: netbox/forms/base.py:88
@@ -13131,7 +13131,7 @@ msgid "Parent tenant group (slug)"
 msgstr "Grupo de padres e inquilinos (slug)"
 
 #: tenancy/filtersets.py:182 tenancy/filtersets.py:202
-msgid "Tenant group (ID)"
+msgid "Tenant Group (ID)"
 msgstr "Grupo de inquilinos (ID)"
 
 #: tenancy/filtersets.py:235
@@ -13636,7 +13636,7 @@ msgstr ""
 "objetos"
 
 #: utilities/forms/fields/csv.py:97
-msgid "Object type must be specified as \"<app>.<model>\""
+msgid "Object Type must be specified as \"<app>.<model>\""
 msgstr "El tipo de objeto debe especificarse como»<app>.<model>»"
 
 #: utilities/forms/fields/csv.py:101
@@ -13911,11 +13911,11 @@ msgstr ""
 "conjunto de consultas base"
 
 #: virtualization/filtersets.py:79
-msgid "Parent group (ID)"
+msgid "Parent Group (ID)"
 msgstr "Grupo de padres (ID)"
 
 #: virtualization/filtersets.py:85
-msgid "Parent group (slug)"
+msgid "Parent Group (slug)"
 msgstr "Grupo de padres (babosas)"
 
 #: virtualization/filtersets.py:89 virtualization/filtersets.py:141

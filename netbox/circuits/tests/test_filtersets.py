@@ -180,9 +180,9 @@ class CircuitTestCase(TestCase, ChangeLoggedFilterSetTests):
         Site.objects.bulk_create(sites)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()

@@ -83,7 +83,7 @@ class ClusterBulkEditForm(NetBoxModelBulkEditForm):
         required=False,
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False,
     )

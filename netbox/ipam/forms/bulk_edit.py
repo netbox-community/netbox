@@ -208,7 +208,7 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False
     )
@@ -442,7 +442,7 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     sitegroup = DynamicModelChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site = DynamicModelChoiceField(
         label=_('Site'),
@@ -514,7 +514,7 @@ class VLANBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False
     )

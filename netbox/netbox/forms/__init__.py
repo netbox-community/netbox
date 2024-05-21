@@ -31,7 +31,7 @@ class SearchForm(forms.Form):
     obj_types = forms.MultipleChoiceField(
         choices=[],
         required=False,
-        label=_('Object type(s)')
+        label=_('Object Type(s)')
     )
     lookup = forms.ChoiceField(
         choices=LOOKUP_CHOICES,

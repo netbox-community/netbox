@@ -39,14 +39,14 @@ class ProviderFilterSet(NetBoxModelFilterSet, ContactModelFilterSet):
         queryset=SiteGroup.objects.all(),
         field_name='circuits__terminations__site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='circuits__terminations__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='circuits__terminations__site',
@@ -206,14 +206,14 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
         queryset=SiteGroup.objects.all(),
         field_name='terminations__site__group',
         lookup_expr='in',
-        label=_('Site group (ID)'),
+        label=_('Site Group (ID)'),
     )
     site_group = TreeNodeMultipleChoiceFilter(
         queryset=SiteGroup.objects.all(),
         field_name='terminations__site__group',
         lookup_expr='in',
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__site',

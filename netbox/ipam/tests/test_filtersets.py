@@ -217,9 +217,9 @@ class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
         RouteTarget.objects.bulk_create(route_targets)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -318,9 +318,9 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
     def setUpTestData(cls):
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -480,9 +480,9 @@ class AggregateTestCase(TestCase, ChangeLoggedFilterSetTests):
         RIR.objects.bulk_create(rirs)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -640,9 +640,9 @@ class PrefixTestCase(TestCase, ChangeLoggedFilterSetTests):
         Role.objects.bulk_create(roles)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -824,9 +824,9 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
         Role.objects.bulk_create(roles)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -1039,9 +1039,9 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         FHRPGroup.objects.bulk_create(fhrp_groups)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -1671,9 +1671,9 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         Role.objects.bulk_create(roles)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()

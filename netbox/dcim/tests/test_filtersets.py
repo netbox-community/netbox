@@ -217,9 +217,9 @@ class SiteTestCase(TestCase, ChangeLoggedFilterSetTests):
             group.save()
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -515,9 +515,9 @@ class RackTestCase(TestCase, ChangeLoggedFilterSetTests):
         RackRole.objects.bulk_create(rack_roles)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -782,9 +782,9 @@ class RackReservationTestCase(TestCase, ChangeLoggedFilterSetTests):
         User.objects.bulk_create(users)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -1967,9 +1967,9 @@ class DeviceTestCase(TestCase, ChangeLoggedFilterSetTests):
         Cluster.objects.bulk_create(clusters)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()
@@ -5162,9 +5162,9 @@ class PowerFeedTestCase(TestCase, ChangeLoggedFilterSetTests):
         Rack.objects.bulk_create(racks)
 
         tenant_groups = (
-            TenantGroup(name='Tenant group 1', slug='tenant-group-1'),
-            TenantGroup(name='Tenant group 2', slug='tenant-group-2'),
-            TenantGroup(name='Tenant group 3', slug='tenant-group-3'),
+            TenantGroup(name='Tenant Group 1', slug='tenant-group-1'),
+            TenantGroup(name='Tenant Group 2', slug='tenant-group-2'),
+            TenantGroup(name='Tenant Group 3', slug='tenant-group-3'),
         )
         for tenantgroup in tenant_groups:
             tenantgroup.save()

@@ -581,7 +581,7 @@ class VLANGroupForm(NetBoxModelForm):
         initial_params={
             'sites': '$site'
         },
-        label=_('Site group')
+        label=_('Site Group')
     )
     site = DynamicModelChoiceField(
         label=_('Site'),

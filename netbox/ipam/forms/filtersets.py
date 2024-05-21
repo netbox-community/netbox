@@ -219,7 +219,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -424,7 +424,7 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     sitegroup = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),
@@ -484,7 +484,7 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     site_group_id = DynamicModelMultipleChoiceField(
         queryset=SiteGroup.objects.all(),
         required=False,
-        label=_('Site group')
+        label=_('Site Group')
     )
     site_id = DynamicModelMultipleChoiceField(
         queryset=Site.objects.all(),

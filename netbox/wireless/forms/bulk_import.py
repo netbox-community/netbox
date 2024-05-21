@@ -22,7 +22,7 @@ class WirelessLANGroupImportForm(NetBoxModelImportForm):
         queryset=WirelessLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent group')
+        help_text=_('Parent Group')
     )
     slug = SlugField()
 

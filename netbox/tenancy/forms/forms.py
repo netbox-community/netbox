@@ -13,7 +13,7 @@ __all__ = (
 
 class TenancyForm(forms.Form):
     tenant_group = DynamicModelChoiceField(
-        label=_('Tenant group'),
+        label=_('Tenant Group'),
         queryset=TenantGroup.objects.all(),
         required=False,
         null_option='None',
@@ -36,7 +36,7 @@ class TenancyFilterForm(forms.Form):
         queryset=TenantGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Tenant group')
+        label=_('Tenant Group')
     )
     tenant_id = DynamicModelMultipleChoiceField(
         queryset=Tenant.objects.all(),

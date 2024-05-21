@@ -25,7 +25,7 @@ class TenantGroupImportForm(NetBoxModelImportForm):
         queryset=TenantGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent group')
+        help_text=_('Parent Group')
     )
     slug = SlugField()
 
@@ -59,7 +59,7 @@ class ContactGroupImportForm(NetBoxModelImportForm):
         queryset=ContactGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Parent group')
+        help_text=_('Parent Group')
     )
     slug = SlugField()
 

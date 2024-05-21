@@ -380,7 +380,7 @@ class VirtualChassisCreateForm(NetBoxModelForm):
         }
     )
     site_group = DynamicModelChoiceField(
-        label=_('Site group'),
+        label=_('Site Group'),
         queryset=SiteGroup.objects.all(),
         required=False,
         initial_params={

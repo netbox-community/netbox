@@ -464,12 +464,12 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
         field_name='site_groups__slug',
         queryset=SiteGroup.objects.all(),
         to_field_name='slug',
-        label=_('Site group (slug)'),
+        label=_('Site Group (slug)'),
     )
     site_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='site_groups',
         queryset=SiteGroup.objects.all(),
-        label=_('Site group'),
+        label=_('Site Group'),
     )
     site_id = django_filters.ModelMultipleChoiceFilter(
         field_name='sites',
@@ -550,13 +550,13 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
     tenant_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups',
         queryset=TenantGroup.objects.all(),
-        label=_('Tenant group'),
+        label=_('Tenant Group'),
     )
     tenant_group = django_filters.ModelMultipleChoiceFilter(
         field_name='tenant_groups__slug',
         queryset=TenantGroup.objects.all(),
         to_field_name='slug',
-        label=_('Tenant group (slug)'),
+        label=_('Tenant Group (slug)'),
     )
     tenant_id = django_filters.ModelMultipleChoiceFilter(
         field_name='tenants',
