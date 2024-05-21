@@ -87146,7 +87146,7 @@
                     "uniqueItems": true
                 },
                 "data_source": {
-                    "title": "Data source",
+                    "title": "Data Source",
                     "description": "Remote data source",
                     "type": "integer",
                     "x-nullable": true
@@ -87159,7 +87159,7 @@
                     "minLength": 1
                 },
                 "data_file": {
-                    "title": "Data file",
+                    "title": "Data File",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -87325,7 +87325,7 @@
                     "minLength": 1
                 },
                 "data_source": {
-                    "title": "Data source",
+                    "title": "Data Source",
                     "description": "Remote data source",
                     "type": "integer",
                     "x-nullable": true
@@ -87338,7 +87338,7 @@
                     "minLength": 1
                 },
                 "data_file": {
-                    "title": "Data file",
+                    "title": "Data File",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -88122,7 +88122,7 @@
                     "type": "boolean"
                 },
                 "data_source": {
-                    "title": "Data source",
+                    "title": "Data Source",
                     "description": "Remote data source",
                     "type": "integer",
                     "x-nullable": true
@@ -88135,7 +88135,7 @@
                     "minLength": 1
                 },
                 "data_file": {
-                    "title": "Data file",
+                    "title": "Data File",
                     "type": "integer",
                     "x-nullable": true
                 },

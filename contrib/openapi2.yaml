@@ -62994,7 +62994,7 @@ definitions:
           pattern: ^[-\w]+$
         uniqueItems: true
       data_source:
-        title: Data source
+        title: Data Source
         description: Remote data source
         type: integer
         x-nullable: true
@@ -63005,7 +63005,7 @@ definitions:
         readOnly: true
         minLength: 1
       data_file:
-        title: Data file
+        title: Data File
         type: integer
         x-nullable: true
       data_synced:
@@ -63140,7 +63140,7 @@ definitions:
         type: string
         minLength: 1
       data_source:
-        title: Data source
+        title: Data Source
         description: Remote data source
         type: integer
         x-nullable: true
@@ -63151,7 +63151,7 @@ definitions:
         readOnly: true
         minLength: 1
       data_file:
-        title: Data file
+        title: Data File
         type: integer
         x-nullable: true
       data_synced:
@@ -63801,7 +63801,7 @@ definitions:
         description: Download file as attachment
         type: boolean
       data_source:
-        title: Data source
+        title: Data Source
         description: Remote data source
         type: integer
         x-nullable: true
@@ -63812,7 +63812,7 @@ definitions:
         readOnly: true
         minLength: 1
       data_file:
-        title: Data file
+        title: Data File
         type: integer
         x-nullable: true
       data_synced:

@@ -145,12 +145,12 @@ class ExportTemplateFilterForm(SavedFiltersMixin, FilterForm):
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file_id = DynamicModelMultipleChoiceField(
         queryset=DataFile.objects.all(),
         required=False,
-        label=_('Data file'),
+        label=_('Data File'),
         query_params={
             'source_id': '$data_source_id'
         }
@@ -334,12 +334,12 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file_id = DynamicModelMultipleChoiceField(
         queryset=DataFile.objects.all(),
         required=False,
-        label=_('Data file'),
+        label=_('Data File'),
         query_params={
             'source_id': '$data_source_id'
         }
@@ -419,12 +419,12 @@ class ConfigTemplateFilterForm(SavedFiltersMixin, FilterForm):
     data_source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file_id = DynamicModelMultipleChoiceField(
         queryset=DataFile.objects.all(),
         required=False,
-        label=_('Data file'),
+        label=_('Data File'),
         query_params={
             'source_id': '$data_source_id'
         }

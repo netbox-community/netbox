@@ -54,7 +54,7 @@ class DataFileFilterForm(NetBoxModelFilterSetForm):
     source_id = DynamicModelMultipleChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
 
 

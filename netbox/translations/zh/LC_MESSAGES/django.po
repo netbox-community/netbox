@@ -1274,11 +1274,11 @@ msgstr "AWS 私有访问密钥"
 
 #: core/filtersets.py:49 extras/filtersets.py:245 extras/filtersets.py:585
 #: extras/filtersets.py:617
-msgid "Data source (ID)"
+msgid "Data Source (ID)"
 msgstr "数据源 (ID)"
 
 #: core/filtersets.py:55
-msgid "Data source (name)"
+msgid "Data Source (name)"
 msgstr "数据源（名称）"
 
 #: core/forms/bulk_edit.py:25 core/forms/filtersets.py:40
@@ -1334,7 +1334,7 @@ msgstr "文件"
 #: core/forms/filtersets.py:57 core/forms/mixins.py:16
 #: extras/forms/filtersets.py:148 extras/forms/filtersets.py:337
 #: extras/forms/filtersets.py:422
-msgid "Data source"
+msgid "Data Source"
 msgstr "数据源"
 
 #: core/forms/filtersets.py:67 extras/forms/filtersets.py:449
@@ -6326,7 +6326,7 @@ msgid "Script module (ID)"
 msgstr "脚本模块 (ID)"
 
 #: extras/filtersets.py:249 extras/filtersets.py:589 extras/filtersets.py:621
-msgid "Data file (ID)"
+msgid "Data File (ID)"
 msgstr "数据文件 (ID)"
 
 #: extras/filtersets.py:526 virtualization/forms/filtersets.py:118
@@ -6584,7 +6584,7 @@ msgstr "数据"
 #: extras/forms/filtersets.py:153 extras/forms/filtersets.py:342
 #: extras/forms/filtersets.py:427 netbox/choices.py:133
 #: utilities/forms/bulk_import.py:26
-msgid "Data file"
+msgid "Data File"
 msgstr "数据文件"
 
 #: extras/forms/filtersets.py:161

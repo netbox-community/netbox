@@ -13,7 +13,7 @@ class SyncedDataMixin(forms.Form):
     data_source = DynamicModelChoiceField(
         queryset=DataSource.objects.all(),
         required=False,
-        label=_('Data source')
+        label=_('Data Source')
     )
     data_file = DynamicModelChoiceField(
         queryset=DataFile.objects.all(),

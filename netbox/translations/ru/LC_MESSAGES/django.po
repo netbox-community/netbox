@@ -1287,11 +1287,11 @@ msgstr "Секретный ключ доступа AWS"
 
 #: core/filtersets.py:49 extras/filtersets.py:245 extras/filtersets.py:585
 #: extras/filtersets.py:617
-msgid "Data source (ID)"
+msgid "Data Source (ID)"
 msgstr "Источник данных (ID)"
 
 #: core/filtersets.py:55
-msgid "Data source (name)"
+msgid "Data Source (name)"
 msgstr "Источник данных (имя)"
 
 #: core/forms/bulk_edit.py:25 core/forms/filtersets.py:40
@@ -1347,7 +1347,7 @@ msgstr "Файл"
 #: core/forms/filtersets.py:57 core/forms/mixins.py:16
 #: extras/forms/filtersets.py:148 extras/forms/filtersets.py:337
 #: extras/forms/filtersets.py:422
-msgid "Data source"
+msgid "Data Source"
 msgstr "Источник данных"
 
 #: core/forms/filtersets.py:67 extras/forms/filtersets.py:449
@@ -6479,7 +6479,7 @@ msgid "Script module (ID)"
 msgstr "Модуль сценария (ID)"
 
 #: extras/filtersets.py:249 extras/filtersets.py:589 extras/filtersets.py:621
-msgid "Data file (ID)"
+msgid "Data File (ID)"
 msgstr "Файл данных (ID)"
 
 #: extras/filtersets.py:526 virtualization/forms/filtersets.py:118
@@ -6744,7 +6744,7 @@ msgstr "Данные"
 #: extras/forms/filtersets.py:153 extras/forms/filtersets.py:342
 #: extras/forms/filtersets.py:427 netbox/choices.py:133
 #: utilities/forms/bulk_import.py:26
-msgid "Data file"
+msgid "Data File"
 msgstr "Файл данных"
 
 #: extras/forms/filtersets.py:161

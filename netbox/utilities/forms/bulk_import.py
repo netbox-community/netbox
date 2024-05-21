@@ -23,7 +23,7 @@ class BulkImportForm(SyncedDataMixin, forms.Form):
         help_text=_("Enter object data in CSV, JSON or YAML format.")
     )
     upload_file = forms.FileField(
-        label=_("Data file"),
+        label=_("Data File"),
         required=False
     )
     format = forms.ChoiceField(

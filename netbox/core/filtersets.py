@@ -46,13 +46,13 @@ class DataFileFilterSet(ChangeLoggedModelFilterSet):
     )
     source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data source (ID)'),
+        label=_('Data Source (ID)'),
     )
     source = django_filters.ModelMultipleChoiceFilter(
         field_name='source__name',
         queryset=DataSource.objects.all(),
         to_field_name='name',
-        label=_('Data source (name)'),
+        label=_('Data Source (name)'),
     )
 
     class Meta:

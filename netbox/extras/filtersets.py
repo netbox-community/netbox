@@ -242,11 +242,11 @@ class ExportTemplateFilterSet(ChangeLoggedModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data source (ID)'),
+        label=_('Data Source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data file (ID)'),
+        label=_('Data File (ID)'),
     )
 
     class Meta:
@@ -582,11 +582,11 @@ class ConfigContextFilterSet(ChangeLoggedModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data source (ID)'),
+        label=_('Data Source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data file (ID)'),
+        label=_('Data File (ID)'),
     )
 
     # TODO: Remove in v4.1
@@ -614,11 +614,11 @@ class ConfigTemplateFilterSet(ChangeLoggedModelFilterSet):
     )
     data_source_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data source (ID)'),
+        label=_('Data Source (ID)'),
     )
     data_file_id = django_filters.ModelMultipleChoiceFilter(
         queryset=DataSource.objects.all(),
-        label=_('Data file (ID)'),
+        label=_('Data File (ID)'),
     )
     tag = TagFilter()
 

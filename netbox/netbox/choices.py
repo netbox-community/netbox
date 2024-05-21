@@ -130,7 +130,7 @@ class ImportMethodChoices(ChoiceSet):
     CHOICES = [
         (DIRECT, _('Direct')),
         (UPLOAD, _('Upload')),
-        (DATA_FILE, _('Data file')),
+        (DATA_FILE, _('Data File')),
     ]
 
 
