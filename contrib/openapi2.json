@@ -71061,7 +71061,7 @@
                     "x-nullable": true
                 },
                 "provider_network": {
-                    "title": "Provider network",
+                    "title": "Provider Network",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -71543,7 +71543,7 @@
                     "x-nullable": true
                 },
                 "commit_rate": {
-                    "title": "Commit rate (Kbps)",
+                    "title": "Commit Rate (Kbps)",
                     "description": "Committed rate",
                     "type": "integer",
                     "maximum": 2147483647,
@@ -71628,7 +71628,7 @@
                     "type": "integer"
                 },
                 "provider_account": {
-                    "title": "Provider account",
+                    "title": "Provider Account",
                     "type": "integer",
                     "x-nullable": true
                 },
@@ -71666,7 +71666,7 @@
                     "x-nullable": true
                 },
                 "commit_rate": {
-                    "title": "Commit rate (Kbps)",
+                    "title": "Commit Rate (Kbps)",
                     "description": "Committed rate",
                     "type": "integer",
                     "maximum": 2147483647,

@@ -123,7 +123,7 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     provider_account = DynamicModelChoiceField(
-        label=_('Provider account'),
+        label=_('Provider Account'),
         queryset=ProviderAccount.objects.all(),
         required=False,
         query_params={
@@ -142,18 +142,18 @@ class CircuitBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     install_date = forms.DateField(
-        label=_('Install date'),
+        label=_('Install Date'),
         required=False,
         widget=DatePicker()
     )
     termination_date = forms.DateField(
-        label=_('Termination date'),
+        label=_('Termination Date'),
         required=False,
         widget=DatePicker()
     )
     commit_rate = forms.IntegerField(
         required=False,
-        label=_('Commit rate (Kbps)'),
+        label=_('Commit Rate (Kbps)'),
         widget=NumberWithOptions(
             options=CircuitCommitRateChoices
         )

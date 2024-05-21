@@ -162,18 +162,18 @@ class CircuitFilterSet(NetBoxModelFilterSet, TenancyFilterSet, ContactModelFilte
     provider_account_id = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account',
         queryset=ProviderAccount.objects.all(),
-        label=_('Provider account (ID)'),
+        label=_('Provider Account (ID)'),
     )
     provider_account = django_filters.ModelMultipleChoiceFilter(
         field_name='provider_account__account',
         queryset=Provider.objects.all(),
         to_field_name='account',
-        label=_('Provider account (account)'),
+        label=_('Provider Account (account)'),
     )
     provider_network_id = django_filters.ModelMultipleChoiceFilter(
         field_name='terminations__provider_network',
         queryset=ProviderNetwork.objects.all(),
-        label=_('Provider network (ID)'),
+        label=_('Provider Network (ID)'),
     )
     type_id = django_filters.ModelMultipleChoiceFilter(
         queryset=CircuitType.objects.all(),

@@ -219,15 +219,15 @@ msgid "Provider (slug)"
 msgstr "Provedor (slug)"
 
 #: circuits/filtersets.py:165
-msgid "Provider account (ID)"
+msgid "Provider Account (ID)"
 msgstr "Conta do provedor (ID)"
 
 #: circuits/filtersets.py:171
-msgid "Provider account (account)"
+msgid "Provider Account (account)"
 msgstr "Conta do provedor (conta)"
 
 #: circuits/filtersets.py:176
-msgid "Provider network (ID)"
+msgid "Provider Network (ID)"
 msgstr "Rede do provedor (ID)"
 
 #: circuits/filtersets.py:180
@@ -472,7 +472,7 @@ msgstr "Tipo"
 
 #: circuits/forms/bulk_edit.py:124 circuits/forms/bulk_import.py:81
 #: circuits/forms/filtersets.py:136 circuits/forms/model_forms.py:96
-msgid "Provider account"
+msgid "Provider Account"
 msgstr "Conta do provedor"
 
 #: circuits/forms/bulk_edit.py:132 circuits/forms/bulk_import.py:94
@@ -591,15 +591,15 @@ msgid "Tenant"
 msgstr "Inquilino"
 
 #: circuits/forms/bulk_edit.py:143 circuits/forms/filtersets.py:171
-msgid "Install date"
+msgid "Install Date"
 msgstr "Data de instalação"
 
 #: circuits/forms/bulk_edit.py:148 circuits/forms/filtersets.py:176
-msgid "Termination date"
+msgid "Termination Date"
 msgstr "Data de rescisão"
 
 #: circuits/forms/bulk_edit.py:154 circuits/forms/filtersets.py:183
-msgid "Commit rate (Kbps)"
+msgid "Commit Rate (Kbps)"
 msgstr "Taxa de confirmação (Kbps)"
 
 #: circuits/forms/bulk_edit.py:169 circuits/forms/model_forms.py:110
@@ -671,7 +671,7 @@ msgstr "Inquilino designado"
 
 #: circuits/forms/bulk_import.py:122 circuits/forms/filtersets.py:144
 #: circuits/forms/model_forms.py:142
-msgid "Provider network"
+msgid "Provider Network"
 msgstr "Rede de provedores"
 
 #: circuits/forms/filtersets.py:27 circuits/forms/filtersets.py:115

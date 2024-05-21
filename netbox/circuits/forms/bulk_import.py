@@ -79,7 +79,7 @@ class CircuitImportForm(NetBoxModelImportForm):
         help_text=_('Assigned provider')
     )
     provider_account = CSVModelChoiceField(
-        label=_('Provider account'),
+        label=_('Provider Account'),
         queryset=ProviderAccount.objects.all(),
         to_field_name='name',
         help_text=_('Assigned provider account'),
@@ -129,7 +129,7 @@ class BaseCircuitTerminationImportForm(forms.ModelForm):
         required=False
     )
     provider_network = CSVModelChoiceField(
-        label=_('Provider network'),
+        label=_('Provider Network'),
         queryset=ProviderNetwork.objects.all(),
         to_field_name='name',
         required=False

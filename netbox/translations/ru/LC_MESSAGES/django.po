@@ -226,15 +226,15 @@ msgid "Provider (slug)"
 msgstr "Провайдер (подстрока)"
 
 #: circuits/filtersets.py:165
-msgid "Provider account (ID)"
+msgid "Provider Account (ID)"
 msgstr "Аккаунт провайдера (ID)"
 
 #: circuits/filtersets.py:171
-msgid "Provider account (account)"
+msgid "Provider Account (account)"
 msgstr "Учетная запись провайдера (учетная запись)"
 
 #: circuits/filtersets.py:176
-msgid "Provider network (ID)"
+msgid "Provider Network (ID)"
 msgstr "Сеть провайдера (ID)"
 
 #: circuits/filtersets.py:180
@@ -479,7 +479,7 @@ msgstr "Тип"
 
 #: circuits/forms/bulk_edit.py:124 circuits/forms/bulk_import.py:81
 #: circuits/forms/filtersets.py:136 circuits/forms/model_forms.py:96
-msgid "Provider account"
+msgid "Provider Account"
 msgstr "Аккаунт провайдера"
 
 #: circuits/forms/bulk_edit.py:132 circuits/forms/bulk_import.py:94
@@ -598,15 +598,15 @@ msgid "Tenant"
 msgstr "Тенант"
 
 #: circuits/forms/bulk_edit.py:143 circuits/forms/filtersets.py:171
-msgid "Install date"
+msgid "Install Date"
 msgstr "Дата установки"
 
 #: circuits/forms/bulk_edit.py:148 circuits/forms/filtersets.py:176
-msgid "Termination date"
+msgid "Termination Date"
 msgstr "Дата отключения"
 
 #: circuits/forms/bulk_edit.py:154 circuits/forms/filtersets.py:183
-msgid "Commit rate (Kbps)"
+msgid "Commit Rate (Kbps)"
 msgstr "Гарантированная скорость (Кбит/с)"
 
 #: circuits/forms/bulk_edit.py:169 circuits/forms/model_forms.py:110
@@ -678,7 +678,7 @@ msgstr "Назначенный тенант"
 
 #: circuits/forms/bulk_import.py:122 circuits/forms/filtersets.py:144
 #: circuits/forms/model_forms.py:142
-msgid "Provider network"
+msgid "Provider Network"
 msgstr "Сеть провайдера"
 
 #: circuits/forms/filtersets.py:27 circuits/forms/filtersets.py:115

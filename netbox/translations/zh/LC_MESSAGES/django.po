@@ -218,15 +218,15 @@ msgid "Provider (slug)"
 msgstr "提供商（slug）"
 
 #: circuits/filtersets.py:165
-msgid "Provider account (ID)"
+msgid "Provider Account (ID)"
 msgstr "提供商账户 (ID)"
 
 #: circuits/filtersets.py:171
-msgid "Provider account (account)"
+msgid "Provider Account (account)"
 msgstr "提供商账户（账户）"
 
 #: circuits/filtersets.py:176
-msgid "Provider network (ID)"
+msgid "Provider Network (ID)"
 msgstr "提供商网络 (ID)"
 
 #: circuits/filtersets.py:180
@@ -471,7 +471,7 @@ msgstr "类型"
 
 #: circuits/forms/bulk_edit.py:124 circuits/forms/bulk_import.py:81
 #: circuits/forms/filtersets.py:136 circuits/forms/model_forms.py:96
-msgid "Provider account"
+msgid "Provider Account"
 msgstr "提供商账户"
 
 #: circuits/forms/bulk_edit.py:132 circuits/forms/bulk_import.py:94
@@ -590,15 +590,15 @@ msgid "Tenant"
 msgstr "租户"
 
 #: circuits/forms/bulk_edit.py:143 circuits/forms/filtersets.py:171
-msgid "Install date"
+msgid "Install Date"
 msgstr "安装日期"
 
 #: circuits/forms/bulk_edit.py:148 circuits/forms/filtersets.py:176
-msgid "Termination date"
+msgid "Termination Date"
 msgstr "终止日期"
 
 #: circuits/forms/bulk_edit.py:154 circuits/forms/filtersets.py:183
-msgid "Commit rate (Kbps)"
+msgid "Commit Rate (Kbps)"
 msgstr "提交速率 (Kbps)"
 
 #: circuits/forms/bulk_edit.py:169 circuits/forms/model_forms.py:110
@@ -670,7 +670,7 @@ msgstr "分配的租户"
 
 #: circuits/forms/bulk_import.py:122 circuits/forms/filtersets.py:144
 #: circuits/forms/model_forms.py:142
-msgid "Provider network"
+msgid "Provider Network"
 msgstr "提供商网络"
 
 #: circuits/forms/filtersets.py:27 circuits/forms/filtersets.py:115

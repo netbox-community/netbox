@@ -93,7 +93,7 @@ class CircuitForm(TenancyForm, NetBoxModelForm):
         selector=True
     )
     provider_account = DynamicModelChoiceField(
-        label=_('Provider account'),
+        label=_('Provider Account'),
         queryset=ProviderAccount.objects.all(),
         required=False,
         query_params={
@@ -139,7 +139,7 @@ class CircuitTerminationForm(NetBoxModelForm):
         selector=True
     )
     provider_network = DynamicModelChoiceField(
-        label=_('Provider network'),
+        label=_('Provider Network'),
         queryset=ProviderNetwork.objects.all(),
         required=False,
         selector=True

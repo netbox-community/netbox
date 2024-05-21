@@ -49602,7 +49602,7 @@ definitions:
         type: integer
         x-nullable: true
       provider_network:
-        title: Provider network
+        title: Provider Network
         type: integer
         x-nullable: true
       port_speed:
@@ -49987,7 +49987,7 @@ definitions:
         format: date
         x-nullable: true
       commit_rate:
-        title: Commit rate (Kbps)
+        title: Commit Rate (Kbps)
         description: Committed rate
         type: integer
         maximum: 2147483647
@@ -50054,7 +50054,7 @@ definitions:
         title: Provider
         type: integer
       provider_account:
-        title: Provider account
+        title: Provider Account
         type: integer
         x-nullable: true
       type:
@@ -50085,7 +50085,7 @@ definitions:
         format: date
         x-nullable: true
       commit_rate:
-        title: Commit rate (Kbps)
+        title: Commit Rate (Kbps)
         description: Committed rate
         type: integer
         maximum: 2147483647
