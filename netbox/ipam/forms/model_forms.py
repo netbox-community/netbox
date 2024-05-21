@@ -45,12 +45,12 @@ __all__ = (
 
 class VRFForm(TenancyForm, NetBoxModelForm):
     import_targets = DynamicModelMultipleChoiceField(
-        label=_('Import targets'),
+        label=_('Import Targets'),
         queryset=RouteTarget.objects.all(),
         required=False
     )
     export_targets = DynamicModelMultipleChoiceField(
-        label=_('Export targets'),
+        label=_('Export Targets'),
         queryset=RouteTarget.objects.all(),
         required=False
     )
@@ -621,7 +621,7 @@ class VLANGroupForm(NetBoxModelForm):
         initial_params={
             'clusters': '$cluster'
         },
-        label=_('Cluster group')
+        label=_('Cluster Group')
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),

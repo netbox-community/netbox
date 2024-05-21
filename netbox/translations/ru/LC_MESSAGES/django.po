@@ -3216,7 +3216,7 @@ msgstr "Режим"
 #: ipam/forms/bulk_import.py:177 ipam/forms/filtersets.py:498
 #: ipam/models/vlans.py:84 virtualization/forms/bulk_edit.py:240
 #: virtualization/forms/model_forms.py:321
-msgid "VLAN group"
+msgid "VLAN Group"
 msgstr "Группа VLAN"
 
 #: dcim/forms/bulk_edit.py:1369 dcim/forms/model_forms.py:1304
@@ -6494,11 +6494,11 @@ msgstr "Тип кластера (подстрока)"
 #: extras/filtersets.py:537 ipam/forms/bulk_edit.py:476
 #: ipam/forms/filtersets.py:457 ipam/forms/model_forms.py:615
 #: virtualization/forms/filtersets.py:112
-msgid "Cluster group"
+msgid "Cluster Group"
 msgstr "Кластерная группа"
 
 #: extras/filtersets.py:543 virtualization/filtersets.py:136
-msgid "Cluster group (slug)"
+msgid "Cluster Group (slug)"
 msgstr "Группа кластеров (подстрока)"
 
 #: extras/filtersets.py:553 tenancy/forms/forms.py:16
@@ -6819,7 +6819,7 @@ msgid "Cluster types"
 msgstr "Типы кластеров"
 
 #: extras/forms/filtersets.py:390 extras/forms/model_forms.py:423
-msgid "Cluster groups"
+msgid "Cluster Groups"
 msgstr "Кластерные группы"
 
 #: extras/forms/filtersets.py:395 extras/forms/model_forms.py:428
@@ -8229,7 +8229,7 @@ msgstr "Префиксы, содержащие этот префикс или IP
 
 #: ipam/filtersets.py:304 ipam/filtersets.py:572 ipam/forms/bulk_edit.py:327
 #: ipam/forms/filtersets.py:195 ipam/forms/filtersets.py:324
-msgid "Mask length"
+msgid "Mask Length"
 msgstr "Длина маски"
 
 #: ipam/filtersets.py:373 vpn/filtersets.py:446
@@ -8374,13 +8374,13 @@ msgstr "Длина префикса"
 
 #: ipam/forms/bulk_edit.py:253 ipam/forms/filtersets.py:240
 #: templates/ipam/prefix.html:85
-msgid "Is a pool"
+msgid "Is a Pool"
 msgstr "Это пул"
 
 #: ipam/forms/bulk_edit.py:258 ipam/forms/bulk_edit.py:302
 #: ipam/forms/filtersets.py:247 ipam/forms/filtersets.py:286
 #: ipam/models/ip.py:271 ipam/models/ip.py:538
-msgid "Treat as fully utilized"
+msgid "Treat as Fully Utilized"
 msgstr "Считать полностью использованным"
 
 #: ipam/forms/bulk_edit.py:350 ipam/models/ip.py:771
@@ -8410,7 +8410,7 @@ msgid "Authentication Type"
 msgstr "Тип аутентификации"
 
 #: ipam/forms/bulk_edit.py:388 ipam/forms/filtersets.py:399
-msgid "Authentication key"
+msgid "Authentication Key"
 msgstr "Ключ аутентификации"
 
 #: ipam/forms/bulk_edit.py:405 ipam/forms/filtersets.py:376
@@ -8543,7 +8543,7 @@ msgid "Maximum child VLAN VID (default: {maximum})"
 msgstr "Максимальный ID дочерней VLAN (по умолчанию: {maximum})"
 
 #: ipam/forms/bulk_import.py:448
-msgid "Assigned VLAN group"
+msgid "Assigned VLAN Group"
 msgstr "Назначенная VLAN группа"
 
 #: ipam/forms/bulk_import.py:479 ipam/forms/bulk_import.py:505
@@ -8570,12 +8570,12 @@ msgstr "Цели маршрута"
 
 #: ipam/forms/filtersets.py:53 ipam/forms/model_forms.py:48
 #: vpn/forms/filtersets.py:224 vpn/forms/model_forms.py:397
-msgid "Import targets"
+msgid "Import Targets"
 msgstr "Цели импорта"
 
 #: ipam/forms/filtersets.py:58 ipam/forms/model_forms.py:53
 #: vpn/forms/filtersets.py:229 vpn/forms/model_forms.py:402
-msgid "Export targets"
+msgid "Export Targets"
 msgstr "Экспортные цели"
 
 #: ipam/forms/filtersets.py:73
@@ -8592,7 +8592,7 @@ msgstr "Частное"
 
 #: ipam/forms/filtersets.py:105 ipam/forms/filtersets.py:190
 #: ipam/forms/filtersets.py:265 ipam/forms/filtersets.py:319
-msgid "Address family"
+msgid "Address Family"
 msgstr "Семейство адресов"
 
 #: ipam/forms/filtersets.py:119 templates/ipam/asnrange.html:25
@@ -8608,7 +8608,7 @@ msgid "End"
 msgstr "Конец"
 
 #: ipam/forms/filtersets.py:185
-msgid "Search within"
+msgid "Search Within"
 msgstr "Поиск внутри"
 
 #: ipam/forms/filtersets.py:206 ipam/forms/filtersets.py:335
@@ -8632,7 +8632,7 @@ msgid "Assigned VM"
 msgstr "назначенная виртуальная машина"
 
 #: ipam/forms/filtersets.py:359
-msgid "Assigned to an interface"
+msgid "Assigned to an Interface"
 msgstr "Назначено интерфейсу"
 
 #: ipam/forms/filtersets.py:366 templates/ipam/ipaddress.html:51
@@ -9114,7 +9114,7 @@ msgid "Highest permissible ID of a child VLAN"
 msgstr "Максимально допустимый ID дочерней VLAN"
 
 #: ipam/models/vlans.py:85
-msgid "VLAN groups"
+msgid "VLAN Groups"
 msgstr "Группы VLAN"
 
 #: ipam/models/vlans.py:95
@@ -9136,7 +9136,7 @@ msgid "The specific site to which this VLAN is assigned (if any)"
 msgstr "Конкретный сайт, которому назначена эта VLAN (если есть)"
 
 #: ipam/models/vlans.py:153
-msgid "VLAN group (optional)"
+msgid "VLAN Group (optional)"
 msgstr "Группа VLAN (опционально)"
 
 #: ipam/models/vlans.py:161
@@ -13866,7 +13866,7 @@ msgid "Cluster type (ID)"
 msgstr "Тип кластера (ID)"
 
 #: virtualization/filtersets.py:130
-msgid "Cluster group (ID)"
+msgid "Cluster Group (ID)"
 msgstr "Кластерная группа (ID)"
 
 #: virtualization/filtersets.py:151 virtualization/filtersets.py:267

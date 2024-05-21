@@ -1358,7 +1358,7 @@ class InterfaceBulkEditForm(
     vlan_group = DynamicModelChoiceField(
         queryset=VLANGroup.objects.all(),
         required=False,
-        label=_('VLAN group')
+        label=_('VLAN Group')
     )
     untagged_vlan = DynamicModelChoiceField(
         queryset=VLAN.objects.all(),

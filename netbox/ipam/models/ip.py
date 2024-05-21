@@ -269,7 +269,7 @@ class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as fully utilized")
+        help_text=_("Treat as Fully Utilized")
     )
 
     # Cached depth & child counts
@@ -536,7 +536,7 @@ class IPRange(ContactsMixin, PrimaryModel):
     mark_utilized = models.BooleanField(
         verbose_name=_('mark utilized'),
         default=False,
-        help_text=_("Treat as fully utilized")
+        help_text=_("Treat as Fully Utilized")
     )
 
     clone_fields = (

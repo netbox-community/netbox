@@ -221,12 +221,12 @@ class L2VPNFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     import_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
-        label=_('Import targets')
+        label=_('Import Targets')
     )
     export_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
-        label=_('Export targets')
+        label=_('Export Targets')
     )
     tag = TagFilterField(model)
 

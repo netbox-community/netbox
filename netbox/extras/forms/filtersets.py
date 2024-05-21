@@ -387,7 +387,7 @@ class ConfigContextFilterForm(SavedFiltersMixin, FilterForm):
     cluster_group_id = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        label=_('Cluster groups')
+        label=_('Cluster Groups')
     )
     cluster_id = DynamicModelMultipleChoiceField(
         queryset=Cluster.objects.all(),

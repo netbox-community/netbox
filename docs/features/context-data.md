@@ -25,7 +25,7 @@ Config contexts can be computed for objects based on the following criteria:
 | Role          | :material-check: | :material-check: |
 | Platform      | :material-check: | :material-check: |
 | Cluster type  |                  | :material-check: |
-| Cluster group |                  | :material-check: |
+| Cluster Group |                  | :material-check: |
 | Cluster       |                  | :material-check: |
 | Tenant Group  | :material-check: | :material-check: |
 | Tenant        | :material-check: | :material-check: |

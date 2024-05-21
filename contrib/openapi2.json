@@ -56759,7 +56759,7 @@
                 {
                     "name": "id",
                     "in": "path",
-                    "description": "A unique integer value identifying this VLAN group.",
+                    "description": "A unique integer value identifying this VLAN Group.",
                     "required": true,
                     "type": "integer"
                 }
@@ -89663,7 +89663,7 @@
                     ]
                 },
                 "auth_key": {
-                    "title": "Authentication key",
+                    "title": "Authentication Key",
                     "type": "string",
                     "maxLength": 255
                 },
@@ -90915,7 +90915,7 @@
                     "$ref": "#/definitions/NestedRole"
                 },
                 "is_pool": {
-                    "title": "Is a pool",
+                    "title": "Is a Pool",
                     "description": "All IP addresses within this prefix are considered usable",
                     "type": "boolean"
                 },
@@ -91040,7 +91040,7 @@
                     "x-nullable": true
                 },
                 "is_pool": {
-                    "title": "Is a pool",
+                    "title": "Is a Pool",
                     "description": "All IP addresses within this prefix are considered usable",
                     "type": "boolean"
                 },
@@ -92226,7 +92226,7 @@
                 },
                 "group": {
                     "title": "Group",
-                    "description": "VLAN group (optional)",
+                    "description": "VLAN Group (optional)",
                     "type": "integer",
                     "x-nullable": true
                 },

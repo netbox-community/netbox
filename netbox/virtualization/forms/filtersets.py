@@ -109,7 +109,7 @@ class VirtualMachineFilterForm(
         queryset=ClusterGroup.objects.all(),
         required=False,
         null_option='None',
-        label=_('Cluster group')
+        label=_('Cluster Group')
     )
     cluster_type_id = DynamicModelMultipleChoiceField(
         queryset=ClusterType.objects.all(),

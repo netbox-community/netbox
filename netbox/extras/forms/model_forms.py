@@ -420,7 +420,7 @@ class ConfigContextForm(SyncedDataMixin, forms.ModelForm):
         required=False
     )
     cluster_groups = DynamicModelMultipleChoiceField(
-        label=_('Cluster groups'),
+        label=_('Cluster Groups'),
         queryset=ClusterGroup.objects.all(),
         required=False
     )

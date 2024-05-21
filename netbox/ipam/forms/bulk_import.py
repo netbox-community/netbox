@@ -174,7 +174,7 @@ class PrefixImportForm(NetBoxModelImportForm):
         help_text=_('Assigned site')
     )
     vlan_group = CSVModelChoiceField(
-        label=_('VLAN group'),
+        label=_('VLAN Group'),
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
@@ -445,7 +445,7 @@ class VLANImportForm(NetBoxModelImportForm):
         queryset=VLANGroup.objects.all(),
         required=False,
         to_field_name='name',
-        help_text=_('Assigned VLAN group')
+        help_text=_('Assigned VLAN Group')
     )
     tenant = CSVModelChoiceField(
         label=_('Tenant'),

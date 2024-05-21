@@ -39600,7 +39600,7 @@ paths:
     parameters:
       - name: id
         in: path
-        description: A unique integer value identifying this VLAN group.
+        description: A unique integer value identifying this VLAN Group.
         required: true
         type: integer
   /ipam/vlan-groups/{id}/available-vlans/:
@@ -65039,7 +65039,7 @@ definitions:
           - plaintext
           - md5
       auth_key:
-        title: Authentication key
+        title: Authentication Key
         type: string
         maxLength: 255
       description:
@@ -66017,7 +66017,7 @@ definitions:
       role:
         $ref: '#/definitions/NestedRole'
       is_pool:
-        title: Is a pool
+        title: Is a Pool
         description: All IP addresses within this prefix are considered usable
         type: boolean
       mark_utilized:
@@ -66116,7 +66116,7 @@ definitions:
         type: integer
         x-nullable: true
       is_pool:
-        title: Is a pool
+        title: Is a Pool
         description: All IP addresses within this prefix are considered usable
         type: boolean
       mark_utilized:
@@ -67042,7 +67042,7 @@ definitions:
         x-nullable: true
       group:
         title: Group
-        description: VLAN group (optional)
+        description: VLAN Group (optional)
         type: integer
         x-nullable: true
       vid:

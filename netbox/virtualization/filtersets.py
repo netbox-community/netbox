@@ -127,13 +127,13 @@ class VirtualMachineFilterSet(
     cluster_group_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group',
         queryset=ClusterGroup.objects.all(),
-        label=_('Cluster group (ID)'),
+        label=_('Cluster Group (ID)'),
     )
     cluster_group = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__group__slug',
         queryset=ClusterGroup.objects.all(),
         to_field_name='slug',
-        label=_('Cluster group (slug)'),
+        label=_('Cluster Group (slug)'),
     )
     cluster_type_id = django_filters.ModelMultipleChoiceFilter(
         field_name='cluster__type',

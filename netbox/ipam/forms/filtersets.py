@@ -50,12 +50,12 @@ class VRFFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     import_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
-        label=_('Import targets')
+        label=_('Import Targets')
     )
     export_target_id = DynamicModelMultipleChoiceField(
         queryset=RouteTarget.objects.all(),
         required=False,
-        label=_('Export targets')
+        label=_('Export Targets')
     )
     tag = TagFilterField(model)
 
@@ -102,7 +102,7 @@ class AggregateFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label=_('Address family')
+        label=_('Address Family')
     )
     rir_id = DynamicModelMultipleChoiceField(
         queryset=RIR.objects.all(),
@@ -183,17 +183,17 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
                 'placeholder': 'Prefix',
             }
         ),
-        label=_('Search within')
+        label=_('Search Within')
     )
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label=_('Address family')
+        label=_('Address Family')
     )
     mask_length = forms.MultipleChoiceField(
         required=False,
         choices=PREFIX_MASK_LENGTH_CHOICES,
-        label=_('Mask length')
+        label=_('Mask Length')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -238,14 +238,14 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     is_pool = forms.NullBooleanField(
         required=False,
-        label=_('Is a pool'),
+        label=_('Is a Pool'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
-        label=_('Treat as fully utilized'),
+        label=_('Treat as Fully Utilized'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -269,7 +269,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label=_('Address family')
+        label=_('Address Family')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -290,7 +290,7 @@ class IPRangeFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
-        label=_('Treat as fully utilized'),
+        label=_('Treat as Fully Utilized'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -323,12 +323,12 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     family = forms.ChoiceField(
         required=False,
         choices=add_blank_choice(IPAddressFamilyChoices),
-        label=_('Address family')
+        label=_('Address Family')
     )
     mask_length = forms.ChoiceField(
         required=False,
         choices=IPADDRESS_MASK_LENGTH_CHOICES,
-        label=_('Mask length')
+        label=_('Mask Length')
     )
     vrf_id = DynamicModelMultipleChoiceField(
         queryset=VRF.objects.all(),
@@ -363,7 +363,7 @@ class IPAddressFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     )
     assigned_to_interface = forms.NullBooleanField(
         required=False,
-        label=_('Assigned to an interface'),
+        label=_('Assigned to an Interface'),
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
@@ -403,7 +403,7 @@ class FHRPGroupFilterForm(NetBoxModelFilterSetForm):
     )
     auth_key = forms.CharField(
         required=False,
-        label=_('Authentication key')
+        label=_('Authentication Key')
     )
     tag = TagFilterField(model)
 
@@ -461,7 +461,7 @@ class VLANGroupFilterForm(NetBoxModelFilterSetForm):
     cluster_group = DynamicModelMultipleChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        label=_('Cluster group')
+        label=_('Cluster Group')
     )
 
     tag = TagFilterField(model)
@@ -502,7 +502,7 @@ class VLANFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         query_params={
             'region': '$region'
         },
-        label=_('VLAN group')
+        label=_('VLAN Group')
     )
     status = forms.MultipleChoiceField(
         label=_('Status'),

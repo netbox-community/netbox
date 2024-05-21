@@ -250,12 +250,12 @@ class PrefixBulkEditForm(NetBoxModelBulkEditForm):
     is_pool = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label=_('Is a pool')
+        label=_('Is a Pool')
     )
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label=_('Treat as fully utilized')
+        label=_('Treat as Fully Utilized')
     )
     description = forms.CharField(
         label=_('Description'),
@@ -299,7 +299,7 @@ class IPRangeBulkEditForm(NetBoxModelBulkEditForm):
     mark_utilized = forms.NullBooleanField(
         required=False,
         widget=BulkEditNullBooleanSelect(),
-        label=_('Treat as fully utilized')
+        label=_('Treat as Fully Utilized')
     )
     description = forms.CharField(
         label=_('Description'),
@@ -324,7 +324,7 @@ class IPAddressBulkEditForm(NetBoxModelBulkEditForm):
         label=_('VRF')
     )
     mask_length = forms.IntegerField(
-        label=_('Mask length'),
+        label=_('Mask Length'),
         min_value=IPADDRESS_MASK_LENGTH_MIN,
         max_value=IPADDRESS_MASK_LENGTH_MAX,
         required=False
@@ -385,7 +385,7 @@ class FHRPGroupBulkEditForm(NetBoxModelBulkEditForm):
     auth_key = forms.CharField(
         max_length=255,
         required=False,
-        label=_('Authentication key')
+        label=_('Authentication Key')
     )
     name = forms.CharField(
         label=_('Name'),
@@ -473,7 +473,7 @@ class VLANGroupBulkEditForm(NetBoxModelBulkEditForm):
     clustergroup = DynamicModelChoiceField(
         queryset=ClusterGroup.objects.all(),
         required=False,
-        label=_('Cluster group')
+        label=_('Cluster Group')
     )
     cluster = DynamicModelChoiceField(
         label=_('Cluster'),

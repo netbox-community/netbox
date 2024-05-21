@@ -394,12 +394,12 @@ class IPSecProfileForm(NetBoxModelForm):
 class L2VPNForm(TenancyForm, NetBoxModelForm):
     slug = SlugField()
     import_targets = DynamicModelMultipleChoiceField(
-        label=_('Import targets'),
+        label=_('Import Targets'),
         queryset=RouteTarget.objects.all(),
         required=False
     )
     export_targets = DynamicModelMultipleChoiceField(
-        label=_('Export targets'),
+        label=_('Export Targets'),
         queryset=RouteTarget.objects.all(),
         required=False
     )

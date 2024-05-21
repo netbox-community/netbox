@@ -20,7 +20,7 @@ __all__ = (
 
 class VLANGroup(OrganizationalModel):
     """
-    A VLAN group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
+    A VLAN Group is an arbitrary collection of VLANs within which VLAN IDs and names must be unique.
     """
     name = models.CharField(
         verbose_name=_('name'),
@@ -81,8 +81,8 @@ class VLANGroup(OrganizationalModel):
                 name='%(app_label)s_%(class)s_unique_scope_slug'
             ),
         )
-        verbose_name = _('VLAN group')
-        verbose_name_plural = _('VLAN groups')
+        verbose_name = _('VLAN Group')
+        verbose_name_plural = _('VLAN Groups')
 
     def get_absolute_url(self):
         return reverse('ipam:vlangroup', args=[self.pk])
@@ -150,7 +150,7 @@ class VLAN(PrimaryModel):
         related_name='vlans',
         blank=True,
         null=True,
-        help_text=_("VLAN group (optional)")
+        help_text=_("VLAN Group (optional)")
     )
     vid = models.PositiveSmallIntegerField(
         verbose_name=_('VLAN ID'),
