@@ -94,30 +94,21 @@ REDIS = {
 }
 ```
 
-!!! note
-    If you are upgrading from a NetBox release older than v2.7.0, please note that the Redis connection configuration
-    settings have changed. Manual modification to bring the `REDIS` section inline with the above specification is
-    necessary
-
 !!! warning
     It is highly recommended to keep the task and cache databases separate. Using the same database number on the
     same Redis instance for both may result in queued background tasks being lost during cache flushing events.
 
-### Using Redis with UNIX sockets
+### UNIX Socket Support
 
-Redis may be configured by using the `URL` configuration setting,
-instead of specifying `HOST`, `PORT`, and so on.
-This can be used to specify a UNIX socket connection.
-
-For example:
+Redis may alternatively be configured by specifying a complete URL instead of individual components. This approach supports the use of a UNIX socket connection. For example:
 
 ```python
 REDIS = {
-    "tasks": {
-        "URL": "unix:///run/redis-netbox/redis.sock?db=0"
+    'tasks': {
+        'URL': 'unix:///run/redis-netbox/redis.sock?db=0'
     },
-    "caching": {
-        "URL": "unix:///run/redis-netbox/redis.sock?db=1"
+    'caching': {
+        'URL': 'unix:///run/redis-netbox/redis.sock?db=1'
     },
 }
 ```
