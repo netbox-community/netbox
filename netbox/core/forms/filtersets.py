@@ -78,42 +78,42 @@ class JobFilterForm(SavedFiltersMixin, FilterForm):
         required=False
     )
     created__after = forms.DateTimeField(
-        label=_('Created after'),
+        label=_('Created After'),
         required=False,
         widget=DateTimePicker()
     )
     created__before = forms.DateTimeField(
-        label=_('Created before'),
+        label=_('Created Before'),
         required=False,
         widget=DateTimePicker()
     )
     scheduled__after = forms.DateTimeField(
-        label=_('Scheduled after'),
+        label=_('Scheduled After'),
         required=False,
         widget=DateTimePicker()
     )
     scheduled__before = forms.DateTimeField(
-        label=_('Scheduled before'),
+        label=_('Scheduled Before'),
         required=False,
         widget=DateTimePicker()
     )
     started__after = forms.DateTimeField(
-        label=_('Started after'),
+        label=_('Started After'),
         required=False,
         widget=DateTimePicker()
     )
     started__before = forms.DateTimeField(
-        label=_('Started before'),
+        label=_('Started Before'),
         required=False,
         widget=DateTimePicker()
     )
     completed__after = forms.DateTimeField(
-        label=_('Completed after'),
+        label=_('Completed After'),
         required=False,
         widget=DateTimePicker()
     )
     completed__before = forms.DateTimeField(
-        label=_('Completed before'),
+        label=_('Completed Before'),
         required=False,
         widget=DateTimePicker()
     )

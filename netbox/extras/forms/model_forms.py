@@ -294,7 +294,7 @@ class EventRuleForm(NetBoxModelForm):
             'type_update': _('Updates'),
             'type_delete': _('Deletions'),
             'type_job_start': _('Job executions'),
-            'type_job_end': _('Job terminations'),
+            'type_job_end': _('Job Terminations'),
         }
         widgets = {
             'conditions': forms.Textarea(attrs={'class': 'font-monospace'}),

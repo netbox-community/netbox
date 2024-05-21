@@ -27,7 +27,7 @@ The events which will trigger the rule. At least one event type must be selected
 | Creations  | A new object has been created        |
 | Updates    | An existing object has been modified |
 | Deletions  | An object has been deleted           |
-| Job starts | A job for an object starts           |
+| Job Starts | A job for an object starts           |
 | Job ends   | A job for an object terminates       |
 
 ### Conditions

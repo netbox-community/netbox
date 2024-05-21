@@ -1353,35 +1353,35 @@ msgid "Object Type"
 msgstr "Тип об'єкта"
 
 #: core/forms/filtersets.py:81
-msgid "Created after"
+msgid "Created After"
 msgstr "Створено після"
 
 #: core/forms/filtersets.py:86
-msgid "Created before"
+msgid "Created Before"
 msgstr "Створено раніше"
 
 #: core/forms/filtersets.py:91
-msgid "Scheduled after"
+msgid "Scheduled After"
 msgstr "Заплановано після"
 
 #: core/forms/filtersets.py:96
-msgid "Scheduled before"
+msgid "Scheduled Before"
 msgstr "Заплановано раніше"
 
 #: core/forms/filtersets.py:101
-msgid "Started after"
+msgid "Started After"
 msgstr "Починається після"
 
 #: core/forms/filtersets.py:106
-msgid "Started before"
+msgid "Started Before"
 msgstr "Починав раніше"
 
 #: core/forms/filtersets.py:111
-msgid "Completed after"
+msgid "Completed After"
 msgstr "Завершено після"
 
 #: core/forms/filtersets.py:116
-msgid "Completed before"
+msgid "Completed Before"
 msgstr "Завершено раніше"
 
 #: core/forms/filtersets.py:123 dcim/forms/bulk_edit.py:361
@@ -6552,7 +6552,7 @@ msgstr "Спільний"
 
 #: extras/forms/bulk_edit.py:190 extras/forms/filtersets.py:243
 #: extras/models/models.py:202
-msgid "HTTP method"
+msgid "HTTP Method"
 msgstr "метод HTTP"
 
 #: extras/forms/bulk_edit.py:194 extras/forms/filtersets.py:237
@@ -6721,7 +6721,7 @@ msgid "Content Types"
 msgstr "Типи контенту"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
-msgid "HTTP content type"
+msgid "HTTP Content Type"
 msgstr "Тип вмісту HTTP"
 
 #: extras/forms/filtersets.py:255 extras/forms/model_forms.py:280
@@ -6730,27 +6730,27 @@ msgid "Events"
 msgstr "Події"
 
 #: extras/forms/filtersets.py:265
-msgid "Action type"
+msgid "Action Type"
 msgstr "Тип дії"
 
 #: extras/forms/filtersets.py:279
-msgid "Object creations"
+msgid "Object Creations"
 msgstr "Створення об'єктів"
 
 #: extras/forms/filtersets.py:286
-msgid "Object updates"
+msgid "Object Updates"
 msgstr "Оновлення об'єктів"
 
 #: extras/forms/filtersets.py:293
-msgid "Object deletions"
+msgid "Object Deletions"
 msgstr "Видалення об'єктів"
 
 #: extras/forms/filtersets.py:300
-msgid "Job starts"
+msgid "Job Starts"
 msgstr "Початок роботи"
 
 #: extras/forms/filtersets.py:307 extras/forms/model_forms.py:297
-msgid "Job terminations"
+msgid "Job Terminations"
 msgstr "Припинення роботи"
 
 #: extras/forms/filtersets.py:316
@@ -7514,7 +7514,7 @@ msgstr ""
 
 #: extras/models/models.py:194
 msgid ""
-"This URL will be called using the HTTP method defined when the webhook is "
+"This URL will be called using the HTTP Method defined when the webhook is "
 "called. Jinja2 template processing is supported with the same context as the"
 " request body."
 msgstr ""
@@ -7539,7 +7539,7 @@ msgstr "додаткові заголовки"
 #: extras/models/models.py:217
 msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
-"HTTP content type. Headers should be defined in the format <code>Name: "
+"HTTP Content Type. Headers should be defined in the format <code>Name: "
 "Value</code>. Jinja2 template processing is supported with the same context "
 "as the request body (below)."
 msgstr ""

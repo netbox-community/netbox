@@ -1354,35 +1354,35 @@ msgid "Object Type"
 msgstr "Tipo de objeto"
 
 #: core/forms/filtersets.py:81
-msgid "Created after"
+msgid "Created After"
 msgstr "Creado después"
 
 #: core/forms/filtersets.py:86
-msgid "Created before"
+msgid "Created Before"
 msgstr "Creado antes"
 
 #: core/forms/filtersets.py:91
-msgid "Scheduled after"
+msgid "Scheduled After"
 msgstr "Programado después"
 
 #: core/forms/filtersets.py:96
-msgid "Scheduled before"
+msgid "Scheduled Before"
 msgstr "Programado antes"
 
 #: core/forms/filtersets.py:101
-msgid "Started after"
+msgid "Started After"
 msgstr "Comenzó después"
 
 #: core/forms/filtersets.py:106
-msgid "Started before"
+msgid "Started Before"
 msgstr "Comenzó antes"
 
 #: core/forms/filtersets.py:111
-msgid "Completed after"
+msgid "Completed After"
 msgstr "Completado después"
 
 #: core/forms/filtersets.py:116
-msgid "Completed before"
+msgid "Completed Before"
 msgstr "Completado antes"
 
 #: core/forms/filtersets.py:123 dcim/forms/bulk_edit.py:361
@@ -6596,7 +6596,7 @@ msgstr "Compartido"
 
 #: extras/forms/bulk_edit.py:190 extras/forms/filtersets.py:243
 #: extras/models/models.py:202
-msgid "HTTP method"
+msgid "HTTP Method"
 msgstr "Método HTTP"
 
 #: extras/forms/bulk_edit.py:194 extras/forms/filtersets.py:237
@@ -6766,7 +6766,7 @@ msgid "Content Types"
 msgstr "Tipos de contenido"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
-msgid "HTTP content type"
+msgid "HTTP Content Type"
 msgstr "Tipo de contenido HTTP"
 
 #: extras/forms/filtersets.py:255 extras/forms/model_forms.py:280
@@ -6775,27 +6775,27 @@ msgid "Events"
 msgstr "Eventos"
 
 #: extras/forms/filtersets.py:265
-msgid "Action type"
+msgid "Action Type"
 msgstr "Tipo de acción"
 
 #: extras/forms/filtersets.py:279
-msgid "Object creations"
+msgid "Object Creations"
 msgstr "Creaciones de objetos"
 
 #: extras/forms/filtersets.py:286
-msgid "Object updates"
+msgid "Object Updates"
 msgstr "Actualizaciones de objetos"
 
 #: extras/forms/filtersets.py:293
-msgid "Object deletions"
+msgid "Object Deletions"
 msgstr "Eliminaciones de objetos"
 
 #: extras/forms/filtersets.py:300
-msgid "Job starts"
+msgid "Job Starts"
 msgstr "Comienza el trabajo"
 
 #: extras/forms/filtersets.py:307 extras/forms/model_forms.py:297
-msgid "Job terminations"
+msgid "Job Terminations"
 msgstr "Cese de puestos"
 
 #: extras/forms/filtersets.py:316
@@ -7575,7 +7575,7 @@ msgstr ""
 
 #: extras/models/models.py:194
 msgid ""
-"This URL will be called using the HTTP method defined when the webhook is "
+"This URL will be called using the HTTP Method defined when the webhook is "
 "called. Jinja2 template processing is supported with the same context as the"
 " request body."
 msgstr ""
@@ -7600,7 +7600,7 @@ msgstr "encabezados adicionales"
 #: extras/models/models.py:217
 msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
-"HTTP content type. Headers should be defined in the format <code>Name: "
+"HTTP Content Type. Headers should be defined in the format <code>Name: "
 "Value</code>. Jinja2 template processing is supported with the same context "
 "as the request body (below)."
 msgstr ""

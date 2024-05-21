@@ -191,7 +191,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         max_length=500,
         verbose_name=_('URL'),
         help_text=_(
-            "This URL will be called using the HTTP method defined when the webhook is called. Jinja2 template "
+            "This URL will be called using the HTTP Method defined when the webhook is called. Jinja2 template "
             "processing is supported with the same context as the request body."
         )
     )
@@ -199,12 +199,12 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         max_length=30,
         choices=WebhookHttpMethodChoices,
         default=WebhookHttpMethodChoices.METHOD_POST,
-        verbose_name=_('HTTP method')
+        verbose_name=_('HTTP Method')
     )
     http_content_type = models.CharField(
         max_length=100,
         default=HTTP_CONTENT_TYPE_JSON,
-        verbose_name=_('HTTP content type'),
+        verbose_name=_('HTTP Content Type'),
         help_text=_(
             'The complete list of official content types is available '
             '<a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.'
@@ -214,7 +214,7 @@ class Webhook(CustomFieldsMixin, ExportTemplatesMixin, TagsMixin, ChangeLoggedMo
         verbose_name=_('additional headers'),
         blank=True,
         help_text=_(
-            "User-supplied HTTP headers to be sent with the request in addition to the HTTP content type. Headers "
+            "User-supplied HTTP headers to be sent with the request in addition to the HTTP Content Type. Headers "
             "should be defined in the format <code>Name: Value</code>. Jinja2 template processing is supported with "
             "the same context as the request body (below)."
         )

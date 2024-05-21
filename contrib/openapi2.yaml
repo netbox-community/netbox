@@ -64307,7 +64307,7 @@ definitions:
         type: boolean
       payload_url:
         title: URL
-        description: This URL will be called using the HTTP method defined when the
+        description: This URL will be called using the HTTP Method defined when the
           webhook is called. Jinja2 template processing is supported with the same
           context as the request body.
         type: string
@@ -64317,7 +64317,7 @@ definitions:
         title: Enabled
         type: boolean
       http_method:
-        title: HTTP method
+        title: HTTP Method
         type: string
         enum:
           - GET
@@ -64326,7 +64326,7 @@ definitions:
           - PATCH
           - DELETE
       http_content_type:
-        title: HTTP content type
+        title: HTTP Content Type
         description: The complete list of official content types is available <a href="https://www.iana.org/assignments/media-types/media-types.xhtml">here</a>.
         type: string
         maxLength: 100
@@ -64334,7 +64334,7 @@ definitions:
       additional_headers:
         title: Additional headers
         description: 'User-supplied HTTP headers to be sent with the request in addition
-          to the HTTP content type. Headers should be defined in the format <code>Name:
+          to the HTTP Content Type. Headers should be defined in the format <code>Name:
           Value</code>. Jinja2 template processing is supported with the same context
           as the request body (below).'
         type: string

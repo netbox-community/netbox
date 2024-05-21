@@ -187,7 +187,7 @@ class WebhookBulkEditForm(NetBoxModelBulkEditForm):
     http_method = forms.ChoiceField(
         choices=add_blank_choice(WebhookHttpMethodChoices),
         required=False,
-        label=_('HTTP method')
+        label=_('HTTP Method')
     )
     payload_url = forms.CharField(
         required=False,

@@ -1350,35 +1350,35 @@ msgid "Object Type"
 msgstr "物体类型"
 
 #: core/forms/filtersets.py:81
-msgid "Created after"
+msgid "Created After"
 msgstr "之后创建"
 
 #: core/forms/filtersets.py:86
-msgid "Created before"
+msgid "Created Before"
 msgstr "之前创建"
 
 #: core/forms/filtersets.py:91
-msgid "Scheduled after"
+msgid "Scheduled After"
 msgstr "预定在之后"
 
 #: core/forms/filtersets.py:96
-msgid "Scheduled before"
+msgid "Scheduled Before"
 msgstr "之前预定的"
 
 #: core/forms/filtersets.py:101
-msgid "Started after"
+msgid "Started After"
 msgstr "之后开始"
 
 #: core/forms/filtersets.py:106
-msgid "Started before"
+msgid "Started Before"
 msgstr "之前开始的"
 
 #: core/forms/filtersets.py:111
-msgid "Completed after"
+msgid "Completed After"
 msgstr "之后完成"
 
 #: core/forms/filtersets.py:116
-msgid "Completed before"
+msgid "Completed Before"
 msgstr "之前完成"
 
 #: core/forms/filtersets.py:123 dcim/forms/bulk_edit.py:361
@@ -6427,7 +6427,7 @@ msgstr "共享的"
 
 #: extras/forms/bulk_edit.py:190 extras/forms/filtersets.py:243
 #: extras/models/models.py:202
-msgid "HTTP method"
+msgid "HTTP Method"
 msgstr "HTTP 方法"
 
 #: extras/forms/bulk_edit.py:194 extras/forms/filtersets.py:237
@@ -6592,7 +6592,7 @@ msgid "Content Types"
 msgstr "内容类型"
 
 #: extras/forms/filtersets.py:233 extras/models/models.py:207
-msgid "HTTP content type"
+msgid "HTTP Content Type"
 msgstr "HTTP 内容类型"
 
 #: extras/forms/filtersets.py:255 extras/forms/model_forms.py:280
@@ -6601,27 +6601,27 @@ msgid "Events"
 msgstr "活动"
 
 #: extras/forms/filtersets.py:265
-msgid "Action type"
+msgid "Action Type"
 msgstr "操作类型"
 
 #: extras/forms/filtersets.py:279
-msgid "Object creations"
+msgid "Object Creations"
 msgstr "物体创作"
 
 #: extras/forms/filtersets.py:286
-msgid "Object updates"
+msgid "Object Updates"
 msgstr "对象更新"
 
 #: extras/forms/filtersets.py:293
-msgid "Object deletions"
+msgid "Object Deletions"
 msgstr "删除对象"
 
 #: extras/forms/filtersets.py:300
-msgid "Job starts"
+msgid "Job Starts"
 msgstr "作业开始"
 
 #: extras/forms/filtersets.py:307 extras/forms/model_forms.py:297
-msgid "Job terminations"
+msgid "Job Terminations"
 msgstr "终止工作"
 
 #: extras/forms/filtersets.py:316
@@ -7351,7 +7351,7 @@ msgstr "必须选择至少一种事件类型：创建、更新、删除、作业
 
 #: extras/models/models.py:194
 msgid ""
-"This URL will be called using the HTTP method defined when the webhook is "
+"This URL will be called using the HTTP Method defined when the webhook is "
 "called. Jinja2 template processing is supported with the same context as the"
 " request body."
 msgstr "将使用调用 webhook 时定义的 HTTP 方法调用此 URL。支持 Jinja2 模板处理，其上下文与请求正文相同。"
@@ -7372,7 +7372,7 @@ msgstr "其他标题"
 #: extras/models/models.py:217
 msgid ""
 "User-supplied HTTP headers to be sent with the request in addition to the "
-"HTTP content type. Headers should be defined in the format <code>Name: "
+"HTTP Content Type. Headers should be defined in the format <code>Name: "
 "Value</code>. Jinja2 template processing is supported with the same context "
 "as the request body (below)."
 msgstr ""

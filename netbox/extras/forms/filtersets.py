@@ -230,7 +230,7 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
         FieldSet('payload_url', 'http_method', 'http_content_type', name=_('Attributes')),
     )
     http_content_type = forms.CharField(
-        label=_('HTTP content type'),
+        label=_('HTTP Content Type'),
         required=False
     )
     payload_url = forms.CharField(
@@ -240,7 +240,7 @@ class WebhookFilterForm(NetBoxModelFilterSetForm):
     http_method = forms.MultipleChoiceField(
         choices=WebhookHttpMethodChoices,
         required=False,
-        label=_('HTTP method')
+        label=_('HTTP Method')
     )
     tag = TagFilterField(model)
 
@@ -262,7 +262,7 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
     action_type = forms.ChoiceField(
         choices=add_blank_choice(EventRuleActionChoices),
         required=False,
-        label=_('Action type')
+        label=_('Action Type')
     )
     enabled = forms.NullBooleanField(
         label=_('Enabled'),
@@ -276,35 +276,35 @@ class EventRuleFilterForm(NetBoxModelFilterSetForm):
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Object creations')
+        label=_('Object Creations')
     )
     type_update = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Object updates')
+        label=_('Object Updates')
     )
     type_delete = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Object deletions')
+        label=_('Object Deletions')
     )
     type_job_start = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Job starts')
+        label=_('Job Starts')
     )
     type_job_end = forms.NullBooleanField(
         required=False,
         widget=forms.Select(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         ),
-        label=_('Job terminations')
+        label=_('Job Terminations')
     )
 
 

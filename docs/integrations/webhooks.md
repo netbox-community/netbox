@@ -14,9 +14,9 @@ For example, suppose you want to automatically configure a monitoring system to 
 For example, you might create a NetBox webhook to [trigger a Slack message](https://api.slack.com/messaging/webhooks) any time an IP address is created. You can accomplish this using the following configuration:
 
 * Object type: IPAM > IP address
-* HTTP method: `POST`
+* HTTP Method: `POST`
 * URL: Slack incoming webhook URL
-* HTTP content type: `application/json`
+* HTTP Content Type: `application/json`
 * Body template: `{"text": "IP address {{ data['address'] }} was created by {{ username }}!"}`
 
 ### Available Context
@@ -46,7 +46,7 @@ If no body template is specified, the request body will be populated with a JSON
         "id": 19,
         "name": "Site 1",
         "slug": "site-1",
-        "status": 
+        "status":
             "value": "active",
             "label": "Active",
             "id": 1
