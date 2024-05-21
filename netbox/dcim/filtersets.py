@@ -1100,9 +1100,9 @@ class DeviceFilterSet(
         queryset=IPAddress.objects.all(),
         label=_('OOB IP (ID)'),
     )
-    has_virtual_device_contexts = django_filters.BooleanFilter(
-        method='_has_virtual_device_contexts',
-        label=_('Has virtual device contexts'),
+    has_virtual_device_context = django_filters.BooleanFilter(
+        method='_has_virtual_device_context',
+        label=_('Has virtual device context'),
     )
 
     class Meta:
@@ -1180,7 +1180,7 @@ class DeviceFilterSet(
     def _device_bays(self, queryset, name, value):
         return queryset.exclude(devicebays__isnull=value)
 
-    def _has_virtual_device_contexts(self, queryset, name, value):
+    def _has_virtual_device_context(self, queryset, name, value):
         params = Q(vdcs__isnull=False)
         if value:
             return queryset.filter(params).distinct()

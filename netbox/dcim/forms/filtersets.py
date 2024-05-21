@@ -657,7 +657,7 @@ class DeviceFilterForm(
         ),
         FieldSet(
             'has_primary_ip', 'has_oob_ip', 'virtual_chassis_member', 'config_template_id', 'local_context_data',
-            'has_virtual_device_contexts',
+            'has_virtual_device_context',
             name=_('Miscellaneous')
         )
     )
@@ -814,7 +814,7 @@ class DeviceFilterForm(
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
-    has_virtual_device_contexts = forms.NullBooleanField(
+    has_virtual_device_context = forms.NullBooleanField(
         required=False,
         label=_('Has virtual device contexts'),
         widget=forms.Select(
