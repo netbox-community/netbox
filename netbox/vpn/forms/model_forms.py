@@ -367,11 +367,11 @@ class IPSecPolicyForm(NetBoxModelForm):
 class IPSecProfileForm(NetBoxModelForm):
     ike_policy = DynamicModelChoiceField(
         queryset=IKEPolicy.objects.all(),
-        label=_('IKE policy')
+        label=_('IKE Policy')
     )
     ipsec_policy = DynamicModelChoiceField(
         queryset=IPSecPolicy.objects.all(),
-        label=_('IPSec policy')
+        label=_('IPSec Policy')
     )
     comments = CommentField()
 

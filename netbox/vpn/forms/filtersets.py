@@ -61,7 +61,7 @@ class TunnelFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
     ipsec_profile_id = DynamicModelMultipleChoiceField(
         queryset=IPSecProfile.objects.all(),
         required=False,
-        label=_('IPSec profile')
+        label=_('IPSec Profile')
     )
     tunnel_id = forms.IntegerField(
         required=False,
@@ -98,17 +98,17 @@ class IKEProposalFilterForm(NetBoxModelFilterSetForm):
         ),
     )
     authentication_method = forms.MultipleChoiceField(
-        label=_('Authentication method'),
+        label=_('Authentication Method'),
         choices=AuthenticationMethodChoices,
         required=False
     )
     encryption_algorithm = forms.MultipleChoiceField(
-        label=_('Encryption algorithm'),
+        label=_('Encryption Algorithm'),
         choices=EncryptionAlgorithmChoices,
         required=False
     )
     authentication_algorithm = forms.MultipleChoiceField(
-        label=_('Authentication algorithm'),
+        label=_('Authentication Algorithm'),
         choices=AuthenticationAlgorithmChoices,
         required=False
     )
@@ -127,7 +127,7 @@ class IKEPolicyFilterForm(NetBoxModelFilterSetForm):
         FieldSet('version', 'mode', 'proposal_id', name=_('Parameters')),
     )
     version = forms.MultipleChoiceField(
-        label=_('IKE version'),
+        label=_('IKE Version'),
         choices=IKEVersionChoices,
         required=False
     )
@@ -151,12 +151,12 @@ class IPSecProposalFilterForm(NetBoxModelFilterSetForm):
         FieldSet('encryption_algorithm', 'authentication_algorithm', name=_('Parameters')),
     )
     encryption_algorithm = forms.MultipleChoiceField(
-        label=_('Encryption algorithm'),
+        label=_('Encryption Algorithm'),
         choices=EncryptionAlgorithmChoices,
         required=False
     )
     authentication_algorithm = forms.MultipleChoiceField(
-        label=_('Authentication algorithm'),
+        label=_('Authentication Algorithm'),
         choices=AuthenticationAlgorithmChoices,
         required=False
     )
@@ -196,12 +196,12 @@ class IPSecProfileFilterForm(NetBoxModelFilterSetForm):
     ike_policy_id = DynamicModelMultipleChoiceField(
         queryset=IKEPolicy.objects.all(),
         required=False,
-        label=_('IKE policy')
+        label=_('IKE Policy')
     )
     ipsec_policy_id = DynamicModelMultipleChoiceField(
         queryset=IPSecPolicy.objects.all(),
         required=False,
-        label=_('IPSec policy')
+        label=_('IPSec Policy')
     )
     tag = TagFilterField(model)
 

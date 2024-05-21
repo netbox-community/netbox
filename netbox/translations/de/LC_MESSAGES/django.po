@@ -12996,21 +12996,21 @@ msgstr "IKE-Vorschlag"
 
 #: templates/vpn/ikeproposal.html:21 vpn/forms/bulk_edit.py:97
 #: vpn/forms/bulk_import.py:145 vpn/forms/filtersets.py:101
-msgid "Authentication method"
+msgid "Authentication Method"
 msgstr "Methode der Authentifizierung"
 
 #: templates/vpn/ikeproposal.html:25 templates/vpn/ipsecproposal.html:21
 #: vpn/forms/bulk_edit.py:102 vpn/forms/bulk_edit.py:172
 #: vpn/forms/bulk_import.py:149 vpn/forms/bulk_import.py:195
 #: vpn/forms/filtersets.py:106 vpn/forms/filtersets.py:154
-msgid "Encryption algorithm"
+msgid "Encryption Algorithm"
 msgstr "Verschlüsselungsalgorithmus"
 
 #: templates/vpn/ikeproposal.html:29 templates/vpn/ipsecproposal.html:25
 #: vpn/forms/bulk_edit.py:107 vpn/forms/bulk_edit.py:177
 #: vpn/forms/bulk_import.py:153 vpn/forms/bulk_import.py:200
 #: vpn/forms/filtersets.py:111 vpn/forms/filtersets.py:159
-msgid "Authentication algorithm"
+msgid "Authentication Algorithm"
 msgstr "Authentifizierungsalgorithmus"
 
 #: templates/vpn/ikeproposal.html:33
@@ -13069,7 +13069,7 @@ msgstr "Verkapselung"
 #: templates/vpn/tunnel.html:41 vpn/forms/bulk_edit.py:55
 #: vpn/forms/bulk_import.py:53 vpn/forms/filtersets.py:64
 #: vpn/models/crypto.py:250 vpn/tables/tunnels.py:51
-msgid "IPSec profile"
+msgid "IPSec Profile"
 msgstr "IPSec-Profil"
 
 #: templates/vpn/tunnel.html:45 vpn/forms/bulk_edit.py:69
@@ -14271,11 +14271,11 @@ msgid "Tunnel group (slug)"
 msgstr "Tunnelgruppe (Schnecke)"
 
 #: vpn/filtersets.py:54
-msgid "IPSec profile (ID)"
+msgid "IPSec Profile (ID)"
 msgstr "IPSec-Profil (ID)"
 
 #: vpn/filtersets.py:60
-msgid "IPSec profile (name)"
+msgid "IPSec Profile (name)"
 msgstr "IPSec-Profil (Name)"
 
 #: vpn/filtersets.py:81
@@ -14291,19 +14291,19 @@ msgid "Outside IP (ID)"
 msgstr "Externe IP (ID)"
 
 #: vpn/filtersets.py:130 vpn/filtersets.py:153 vpn/filtersets.py:282
-msgid "IKE policy (ID)"
+msgid "IKE Policy (ID)"
 msgstr "IKE-Richtlinie (ID)"
 
 #: vpn/filtersets.py:136 vpn/filtersets.py:159 vpn/filtersets.py:288
-msgid "IKE policy (name)"
+msgid "IKE Policy (name)"
 msgstr "IKE-Richtlinie (Name)"
 
 #: vpn/filtersets.py:215 vpn/filtersets.py:292
-msgid "IPSec policy (ID)"
+msgid "IPSec Policy (ID)"
 msgstr "IPSec-Richtlinie (ID)"
 
 #: vpn/filtersets.py:221 vpn/filtersets.py:298
-msgid "IPSec policy (name)"
+msgid "IPSec Policy (name)"
 msgstr "IPSec-Richtlinie (Name)"
 
 #: vpn/filtersets.py:367
@@ -14336,13 +14336,13 @@ msgstr "Vorab geteilter Schlüssel"
 #: vpn/forms/bulk_edit.py:237 vpn/forms/bulk_import.py:239
 #: vpn/forms/filtersets.py:199 vpn/forms/model_forms.py:370
 #: vpn/models/crypto.py:104
-msgid "IKE policy"
+msgid "IKE Policy"
 msgstr "IKE-Richtlinie"
 
 #: vpn/forms/bulk_edit.py:242 vpn/forms/bulk_import.py:244
 #: vpn/forms/filtersets.py:204 vpn/forms/model_forms.py:374
 #: vpn/models/crypto.py:209
-msgid "IPSec policy"
+msgid "IPSec Policy"
 msgstr "IPSec-Richtlinie"
 
 #: vpn/forms/bulk_import.py:50
@@ -14415,7 +14415,7 @@ msgstr ""
 "Es kann nicht sowohl eine Schnittstelle als auch ein VLAN zugewiesen werden."
 
 #: vpn/forms/filtersets.py:130
-msgid "IKE version"
+msgid "IKE Version"
 msgstr "IKE-Ausführung"
 
 #: vpn/forms/filtersets.py:142 vpn/forms/filtersets.py:175
@@ -14501,11 +14501,11 @@ msgid "IKE policies"
 msgstr "IKE-Richtlinien"
 
 #: vpn/models/crypto.py:118
-msgid "Mode is required for selected IKE version"
+msgid "Mode is required for selected IKE Version"
 msgstr "Der Modus ist für die ausgewählte IKE-Version erforderlich"
 
 #: vpn/models/crypto.py:122
-msgid "Mode cannot be used for selected IKE version"
+msgid "Mode cannot be used for selected IKE Version"
 msgstr "Der Modus kann nicht für die ausgewählte IKE-Version verwendet werden"
 
 #: vpn/models/crypto.py:136
@@ -14543,7 +14543,7 @@ msgid "IPSec policies"
 msgstr "IPSec-Richtlinien"
 
 #: vpn/models/crypto.py:251
-msgid "IPSec profiles"
+msgid "IPSec Profiles"
 msgstr "IPSec-Profile"
 
 #: vpn/models/l2vpn.py:116

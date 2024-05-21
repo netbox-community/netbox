@@ -101,7 +101,7 @@ class IKEPolicy(PrimaryModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('IKE policy')
+        verbose_name = _('IKE Policy')
         verbose_name_plural = _('IKE policies')
 
     def __str__(self):
@@ -115,11 +115,11 @@ class IKEPolicy(PrimaryModel):
 
         # Mode is required
         if self.version == IKEVersionChoices.VERSION_1 and not self.mode:
-            raise ValidationError(_("Mode is required for selected IKE version"))
+            raise ValidationError(_("Mode is required for selected IKE Version"))
 
         # Mode cannot be used
         if self.version == IKEVersionChoices.VERSION_2 and self.mode:
-            raise ValidationError(_("Mode cannot be used for selected IKE version"))
+            raise ValidationError(_("Mode cannot be used for selected IKE Version"))
 
 
 #
@@ -206,7 +206,7 @@ class IPSecPolicy(PrimaryModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('IPSec policy')
+        verbose_name = _('IPSec Policy')
         verbose_name_plural = _('IPSec policies')
 
     def __str__(self):
@@ -247,8 +247,8 @@ class IPSecProfile(PrimaryModel):
 
     class Meta:
         ordering = ('name',)
-        verbose_name = _('IPSec profile')
-        verbose_name_plural = _('IPSec profiles')
+        verbose_name = _('IPSec Profile')
+        verbose_name_plural = _('IPSec Profiles')
 
     def __str__(self):
         return self.name

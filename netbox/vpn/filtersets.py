@@ -51,13 +51,13 @@ class TunnelFilterSet(NetBoxModelFilterSet, TenancyFilterSet):
     )
     ipsec_profile_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IPSecProfile.objects.all(),
-        label=_('IPSec profile (ID)'),
+        label=_('IPSec Profile (ID)'),
     )
     ipsec_profile = django_filters.ModelMultipleChoiceFilter(
         field_name='ipsec_profile__name',
         queryset=IPSecProfile.objects.all(),
         to_field_name='name',
-        label=_('IPSec profile (name)'),
+        label=_('IPSec Profile (name)'),
     )
 
     class Meta:
@@ -127,13 +127,13 @@ class IKEProposalFilterSet(NetBoxModelFilterSet):
     ike_policy_id = django_filters.ModelMultipleChoiceFilter(
         field_name='ike_policies',
         queryset=IKEPolicy.objects.all(),
-        label=_('IKE policy (ID)'),
+        label=_('IKE Policy (ID)'),
     )
     ike_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ike_policies__name',
         queryset=IKEPolicy.objects.all(),
         to_field_name='name',
-        label=_('IKE policy (name)'),
+        label=_('IKE Policy (name)'),
     )
     authentication_method = django_filters.MultipleChoiceFilter(
         choices=AuthenticationMethodChoices
@@ -150,13 +150,13 @@ class IKEProposalFilterSet(NetBoxModelFilterSet):
     ike_policy_id = django_filters.ModelMultipleChoiceFilter(
         field_name='ike_policies',
         queryset=IKEPolicy.objects.all(),
-        label=_('IKE policy (ID)'),
+        label=_('IKE Policy (ID)'),
     )
     ike_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ike_policies__name',
         queryset=IKEPolicy.objects.all(),
         to_field_name='name',
-        label=_('IKE policy (name)'),
+        label=_('IKE Policy (name)'),
     )
 
     class Meta:
@@ -212,13 +212,13 @@ class IPSecProposalFilterSet(NetBoxModelFilterSet):
     ipsec_policy_id = django_filters.ModelMultipleChoiceFilter(
         field_name='ipsec_policies',
         queryset=IPSecPolicy.objects.all(),
-        label=_('IPSec policy (ID)'),
+        label=_('IPSec Policy (ID)'),
     )
     ipsec_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ipsec_policies__name',
         queryset=IPSecPolicy.objects.all(),
         to_field_name='name',
-        label=_('IPSec policy (name)'),
+        label=_('IPSec Policy (name)'),
     )
     encryption_algorithm = django_filters.MultipleChoiceFilter(
         choices=EncryptionAlgorithmChoices
@@ -279,23 +279,23 @@ class IPSecProfileFilterSet(NetBoxModelFilterSet):
     )
     ike_policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IKEPolicy.objects.all(),
-        label=_('IKE policy (ID)'),
+        label=_('IKE Policy (ID)'),
     )
     ike_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ike_policy__name',
         queryset=IKEPolicy.objects.all(),
         to_field_name='name',
-        label=_('IKE policy (name)'),
+        label=_('IKE Policy (name)'),
     )
     ipsec_policy_id = django_filters.ModelMultipleChoiceFilter(
         queryset=IPSecPolicy.objects.all(),
-        label=_('IPSec policy (ID)'),
+        label=_('IPSec Policy (ID)'),
     )
     ipsec_policy = django_filters.ModelMultipleChoiceFilter(
         field_name='ipsec_policy__name',
         queryset=IPSecPolicy.objects.all(),
         to_field_name='name',
-        label=_('IPSec policy (name)'),
+        label=_('IPSec Policy (name)'),
     )
 
     class Meta:

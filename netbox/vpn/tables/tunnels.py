@@ -48,7 +48,7 @@ class TunnelTable(TenancyColumnsMixin, NetBoxTable):
         verbose_name=_('Status')
     )
     ipsec_profile = tables.Column(
-        verbose_name=_('IPSec profile'),
+        verbose_name=_('IPSec Profile'),
         linkify=True
     )
     terminations_count = columns.LinkedCountColumn(

@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('preshared_key', models.TextField(blank=True)),
             ],
             options={
-                'verbose_name': 'IKE policy',
+                'verbose_name': 'IKE Policy',
                 'verbose_name_plural': 'IKE policies',
                 'ordering': ('name',),
             },
@@ -107,7 +107,7 @@ class Migration(migrations.Migration):
                 ('pfs_group', models.PositiveSmallIntegerField(blank=True, null=True)),
             ],
             options={
-                'verbose_name': 'IPSec policy',
+                'verbose_name': 'IPSec Policy',
                 'verbose_name_plural': 'IPSec policies',
                 'ordering': ('name',),
             },
@@ -138,8 +138,8 @@ class Migration(migrations.Migration):
                 ('tags', taggit.managers.TaggableManager(through='extras.TaggedItem', to='extras.Tag')),
             ],
             options={
-                'verbose_name': 'IPSec profile',
-                'verbose_name_plural': 'IPSec profiles',
+                'verbose_name': 'IPSec Profile',
+                'verbose_name_plural': 'IPSec Profiles',
                 'ordering': ('name',),
             },
         ),

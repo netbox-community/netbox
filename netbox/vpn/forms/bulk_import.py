@@ -50,7 +50,7 @@ class TunnelImportForm(NetBoxModelImportForm):
         help_text=_('Tunnel encapsulation')
     )
     ipsec_profile = CSVModelChoiceField(
-        label=_('IPSec profile'),
+        label=_('IPSec Profile'),
         queryset=IPSecProfile.objects.all(),
         required=False,
         to_field_name='name'
@@ -142,15 +142,15 @@ class TunnelTerminationImportForm(NetBoxModelImportForm):
 
 class IKEProposalImportForm(NetBoxModelImportForm):
     authentication_method = CSVChoiceField(
-        label=_('Authentication method'),
+        label=_('Authentication Method'),
         choices=AuthenticationMethodChoices
     )
     encryption_algorithm = CSVChoiceField(
-        label=_('Encryption algorithm'),
+        label=_('Encryption Algorithm'),
         choices=EncryptionAlgorithmChoices
     )
     authentication_algorithm = CSVChoiceField(
-        label=_('Authentication algorithm'),
+        label=_('Authentication Algorithm'),
         choices=AuthenticationAlgorithmChoices,
         required=False
     )
@@ -192,12 +192,12 @@ class IKEPolicyImportForm(NetBoxModelImportForm):
 
 class IPSecProposalImportForm(NetBoxModelImportForm):
     encryption_algorithm = CSVChoiceField(
-        label=_('Encryption algorithm'),
+        label=_('Encryption Algorithm'),
         choices=EncryptionAlgorithmChoices,
         required=False
     )
     authentication_algorithm = CSVChoiceField(
-        label=_('Authentication algorithm'),
+        label=_('Authentication Algorithm'),
         choices=AuthenticationAlgorithmChoices,
         required=False
     )
@@ -236,12 +236,12 @@ class IPSecProfileImportForm(NetBoxModelImportForm):
         help_text=_('IPSec protocol')
     )
     ike_policy = CSVModelChoiceField(
-        label=_('IKE policy'),
+        label=_('IKE Policy'),
         queryset=IKEPolicy.objects.all(),
         to_field_name='name'
     )
     ipsec_policy = CSVModelChoiceField(
-        label=_('IPSec policy'),
+        label=_('IPSec Policy'),
         queryset=IPSecPolicy.objects.all(),
         to_field_name='name'
     )

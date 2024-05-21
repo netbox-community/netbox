@@ -52,7 +52,7 @@ class TunnelBulkEditForm(NetBoxModelBulkEditForm):
     )
     ipsec_profile = DynamicModelMultipleChoiceField(
         queryset=IPSecProfile.objects.all(),
-        label=_('IPSec profile'),
+        label=_('IPSec Profile'),
         required=False
     )
     tenant = DynamicModelChoiceField(
@@ -94,17 +94,17 @@ class TunnelTerminationBulkEditForm(NetBoxModelBulkEditForm):
 
 class IKEProposalBulkEditForm(NetBoxModelBulkEditForm):
     authentication_method = forms.ChoiceField(
-        label=_('Authentication method'),
+        label=_('Authentication Method'),
         choices=add_blank_choice(AuthenticationMethodChoices),
         required=False
     )
     encryption_algorithm = forms.ChoiceField(
-        label=_('Encryption algorithm'),
+        label=_('Encryption Algorithm'),
         choices=add_blank_choice(EncryptionAlgorithmChoices),
         required=False
     )
     authentication_algorithm = forms.ChoiceField(
-        label=_('Authentication algorithm'),
+        label=_('Authentication Algorithm'),
         choices=add_blank_choice(AuthenticationAlgorithmChoices),
         required=False
     )
@@ -169,12 +169,12 @@ class IKEPolicyBulkEditForm(NetBoxModelBulkEditForm):
 
 class IPSecProposalBulkEditForm(NetBoxModelBulkEditForm):
     encryption_algorithm = forms.ChoiceField(
-        label=_('Encryption algorithm'),
+        label=_('Encryption Algorithm'),
         choices=add_blank_choice(EncryptionAlgorithmChoices),
         required=False
     )
     authentication_algorithm = forms.ChoiceField(
-        label=_('Authentication algorithm'),
+        label=_('Authentication Algorithm'),
         choices=add_blank_choice(AuthenticationAlgorithmChoices),
         required=False
     )
@@ -234,12 +234,12 @@ class IPSecProfileBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     ike_policy = DynamicModelChoiceField(
-        label=_('IKE policy'),
+        label=_('IKE Policy'),
         queryset=IKEPolicy.objects.all(),
         required=False
     )
     ipsec_policy = DynamicModelChoiceField(
-        label=_('IPSec policy'),
+        label=_('IPSec Policy'),
         queryset=IPSecPolicy.objects.all(),
         required=False
     )
