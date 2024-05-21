@@ -2656,7 +2656,7 @@ msgid "Unterminated"
 msgstr "Нерасторгнутый"
 
 #: dcim/filtersets.py:2158
-msgid "Power panel (ID)"
+msgid "Power Panel (ID)"
 msgstr "Панель питания (ID)"
 
 #: dcim/forms/bulk_create.py:40 extras/forms/filtersets.py:410
@@ -3086,7 +3086,7 @@ msgstr "Домен"
 
 #: dcim/forms/bulk_edit.py:803 dcim/forms/bulk_import.py:1296
 #: dcim/forms/filtersets.py:1069 dcim/forms/model_forms.py:695
-msgid "Power panel"
+msgid "Power Panel"
 msgstr "Панель питания"
 
 #: dcim/forms/bulk_edit.py:825 dcim/forms/bulk_import.py:1332
@@ -3110,7 +3110,7 @@ msgid "Amperage"
 msgstr "Сила тока"
 
 #: dcim/forms/bulk_edit.py:845 dcim/forms/filtersets.py:1109
-msgid "Max utilization"
+msgid "Max Utilization"
 msgstr "Максимальное использование"
 
 #: dcim/forms/bulk_edit.py:849 dcim/forms/bulk_edit.py:1208

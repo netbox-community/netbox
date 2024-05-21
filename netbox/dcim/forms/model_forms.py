@@ -692,7 +692,7 @@ class PowerPanelForm(NetBoxModelForm):
 
 class PowerFeedForm(TenancyForm, NetBoxModelForm):
     power_panel = DynamicModelChoiceField(
-        label=_('Power panel'),
+        label=_('Power Panel'),
         queryset=PowerPanel.objects.all(),
         selector=True
     )

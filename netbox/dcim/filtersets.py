@@ -2155,7 +2155,7 @@ class PowerFeedFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet, PathEndpoi
     )
     power_panel_id = django_filters.ModelMultipleChoiceFilter(
         queryset=PowerPanel.objects.all(),
-        label=_('Power panel (ID)'),
+        label=_('Power Panel (ID)'),
     )
     rack_id = django_filters.ModelMultipleChoiceFilter(
         field_name='rack',

@@ -81289,7 +81289,7 @@
                     "minimum": 1
                 },
                 "max_utilization": {
-                    "title": "Max utilization",
+                    "title": "Max Utilization",
                     "description": "Maximum permissible draw (percentage)",
                     "type": "integer",
                     "maximum": 100,
@@ -81407,7 +81407,7 @@
                     "readOnly": true
                 },
                 "power_panel": {
-                    "title": "Power panel",
+                    "title": "Power Panel",
                     "type": "integer"
                 },
                 "rack": {
@@ -81468,7 +81468,7 @@
                     "minimum": 1
                 },
                 "max_utilization": {
-                    "title": "Max utilization",
+                    "title": "Max Utilization",
                     "description": "Maximum permissible draw (percentage)",
                     "type": "integer",
                     "maximum": 100,

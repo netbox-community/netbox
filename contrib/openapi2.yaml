@@ -58059,7 +58059,7 @@ definitions:
         maximum: 32767
         minimum: 1
       max_utilization:
-        title: Max utilization
+        title: Max Utilization
         description: Maximum permissible draw (percentage)
         type: integer
         maximum: 100
@@ -58156,7 +58156,7 @@ definitions:
         type: string
         readOnly: true
       power_panel:
-        title: Power panel
+        title: Power Panel
         type: integer
       rack:
         title: Rack
@@ -58204,7 +58204,7 @@ definitions:
         maximum: 32767
         minimum: 1
       max_utilization:
-        title: Max utilization
+        title: Max Utilization
         description: Maximum permissible draw (percentage)
         type: integer
         maximum: 100

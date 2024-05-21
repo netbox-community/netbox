@@ -1293,7 +1293,7 @@ class PowerFeedImportForm(NetBoxModelImportForm):
         help_text=_('Assigned site')
     )
     power_panel = CSVModelChoiceField(
-        label=_('Power panel'),
+        label=_('Power Panel'),
         queryset=PowerPanel.objects.all(),
         to_field_name='name',
         help_text=_('Upstream power panel')

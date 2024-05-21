@@ -800,7 +800,7 @@ class PowerPanelBulkEditForm(NetBoxModelBulkEditForm):
 
 class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
     power_panel = DynamicModelChoiceField(
-        label=_('Power panel'),
+        label=_('Power Panel'),
         queryset=PowerPanel.objects.all(),
         required=False
     )
@@ -842,7 +842,7 @@ class PowerFeedBulkEditForm(NetBoxModelBulkEditForm):
         required=False
     )
     max_utilization = forms.IntegerField(
-        label=_('Max utilization'),
+        label=_('Max Utilization'),
         required=False
     )
     mark_connected = forms.NullBooleanField(

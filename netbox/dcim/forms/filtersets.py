@@ -1066,7 +1066,7 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         query_params={
             'site_id': '$site_id'
         },
-        label=_('Power panel')
+        label=_('Power Panel')
     )
     rack_id = DynamicModelMultipleChoiceField(
         queryset=Rack.objects.all(),
@@ -1106,7 +1106,7 @@ class PowerFeedFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
         required=False
     )
     max_utilization = forms.IntegerField(
-        label=_('Max utilization'),
+        label=_('Max Utilization'),
         required=False
     )
     tag = TagFilterField(model)
