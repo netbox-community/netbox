@@ -12,45 +12,41 @@
     <div class="col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Permission" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Enabled" %}</th>
-              <td>{% checkmark object.enabled %}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Enabled" %}</th>
+            <td>{% checkmark object.enabled %}</td>
+          </tr>
+        </table>
       </div>
       <div class="card">
         <h5 class="card-header">{% trans "Actions" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "View" %}</th>
-              <td>{% checkmark object.can_view %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Add" %}</th>
-              <td>{% checkmark object.can_add %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Change" %}</th>
-              <td>{% checkmark object.can_change %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Delete" %}</th>
-              <td>{% checkmark object.can_delete %}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "View" %}</th>
+            <td>{% checkmark object.can_view %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Add" %}</th>
+            <td>{% checkmark object.can_add %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Change" %}</th>
+            <td>{% checkmark object.can_change %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Delete" %}</th>
+            <td>{% checkmark object.can_delete %}</td>
+          </tr>
+        </table>
       </div>
       <div class="card">
         <h5 class="card-header">{% trans "Constraints" %}</h5>
@@ -76,7 +72,7 @@
         <h5 class="card-header">{% trans "Assigned Users" %}</h5>
         <div class="list-group list-group-flush">
           {% for user in object.users.all %}
-            <a href="{% url 'users:netboxuser' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
+            <a href="{% url 'users:user' pk=user.pk %}" class="list-group-item list-group-item-action">{{ user }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}
@@ -86,7 +82,7 @@
         <h5 class="card-header">{% trans "Assigned Groups" %}</h5>
         <div class="list-group list-group-flush">
           {% for group in object.groups.all %}
-            <a href="{% url 'users:netboxgroup' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
+            <a href="{% url 'users:group' pk=group.pk %}" class="list-group-item list-group-item-action">{{ group }}</a>
           {% empty %}
             <div class="list-group-item text-muted">{% trans "None" %}</div>
           {% endfor %}

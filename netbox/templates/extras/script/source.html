@@ -1,6 +1,14 @@
 {% extends 'extras/script/base.html' %}
+{% load i18n %}
 
 {% block content %}
-  <code class="h6 my-3 d-block">{{ script.filename }}</code>
-  <pre class="block">{{ script.source }}</pre>
+
+  {% if script_class %}
+    <code class="h6 my-3 d-block">{{ script_class.filename }}</code>
+    <pre class="block">{{ script_class.source }}</pre>
+  {% else %}
+      <p>{% trans "Error loading script" %}.</p>
+      <pre class="block">{{ script.module.error }}</pre>
+  {% endif %}
+
 {% endblock %}

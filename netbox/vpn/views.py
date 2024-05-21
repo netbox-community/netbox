@@ -1,7 +1,7 @@
 from ipam.tables import RouteTargetTable
 from netbox.views import generic
 from tenancy.views import ObjectContactsView
-from utilities.utils import count_related
+from utilities.query import count_related
 from utilities.views import register_model_view
 from . import filtersets, forms, tables
 from .models import *
@@ -479,7 +479,6 @@ class L2VPNTerminationView(generic.ObjectView):
 class L2VPNTerminationEditView(generic.ObjectEditView):
     queryset = L2VPNTermination.objects.all()
     form = forms.L2VPNTerminationForm
-    template_name = 'vpn/l2vpntermination_edit.html'
 
 
 @register_model_view(L2VPNTermination, 'delete')

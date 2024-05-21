@@ -3,27 +3,31 @@
 {% load i18n %}
 
 {% block title %}
-  {% blocktrans trimmed %}
-    Add New Member to Virtual Chassis {{ virtual_chassis }}
-  {% endblocktrans %}
 {% endblock %}
 
 {% block content %}
-    <form action="" method="post" enctype="multipart/form-data" class="form-object-edit">
-        {% render_errors membership_form %}
-        
-        {% csrf_token %}
-        <div class="card">
-            <h5 class="card-header">{% trans "Add New Member" %}</h5>
-            <div class="card-body">
-                {% render_form member_select_form %}
-                {% render_form membership_form %}
-            </div>
+  <h2>
+    {% blocktrans trimmed %}
+      Add New Member to Virtual Chassis {{ virtual_chassis }}
+    {% endblocktrans %}
+  </h2>
+  <form action="" method="post" enctype="multipart/form-data" class="object-edit">
+      {% render_errors membership_form %}
+
+      {% csrf_token %}
+      <div class="card">
+          <h5 class="card-header">{% trans "Add New Member" %}</h5>
+          <div class="card-body">
+              {% render_form member_select_form %}
+              {% render_form membership_form %}
+          </div>
+      </div>
+      <div class="text-end my-3">
+        <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+        <div class="btn-group" role="group" aria-label="{% trans "Actions" %}">
+          <button type="submit" name="_save" class="btn btn-primary">{% trans "Save" %}</button>
+          <button type="submit" name="_addanother" class="btn btn-outline-primary">{% trans "Save & Add Another" %}</button>
         </div>
-        <div class="text-end my-3">
-            <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-            <button type="submit" name="_addanother" class="btn btn-outline-primary">{% trans "Add Another" %}</button>
-            <button type="submit" name="_save" class="btn btn-primary">{% trans "Save" %}</button>
-        </div>
-    </form>
+      </div>
+  </form>
 {% endblock %}

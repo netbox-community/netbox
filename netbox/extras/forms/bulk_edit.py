@@ -5,7 +5,7 @@ from extras.choices import *
 from extras.models import *
 from netbox.forms import NetBoxModelBulkEditForm
 from utilities.forms import BulkEditForm, add_blank_choice
-from utilities.forms.fields import ColorField, DynamicModelChoiceField
+from utilities.forms.fields import ColorField, CommentField, DynamicModelChoiceField
 from utilities.forms.widgets import BulkEditNullBooleanSelect
 
 __all__ = (
@@ -64,6 +64,7 @@ class CustomFieldBulkEditForm(BulkEditForm):
         required=False,
         widget=BulkEditNullBooleanSelect()
     )
+    comments = CommentField()
 
     nullable_fields = ('group_name', 'description', 'choice_set')
 
@@ -316,8 +317,4 @@ class JournalEntryBulkEditForm(BulkEditForm):
         choices=add_blank_choice(JournalEntryKindChoices),
         required=False
     )
-    comments = forms.CharField(
-        label=_('Comments'),
-        required=False,
-        widget=forms.Textarea()
-    )
+    comments = CommentField()

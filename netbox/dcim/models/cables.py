@@ -9,15 +9,15 @@ from django.dispatch import Signal
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from core.models import ContentType
+from core.models import ObjectType
 from dcim.choices import *
 from dcim.constants import *
 from dcim.fields import PathField
 from dcim.utils import decompile_path_node, object_to_path_node
 from netbox.models import ChangeLoggedModel, PrimaryModel
+from utilities.conversion import to_meters
 from utilities.fields import ColorField
 from utilities.querysets import RestrictedQuerySet
-from utilities.utils import to_meters
 from wireless.models import WirelessLink
 from .device_components import FrontPort, RearPort, PathEndpoint
 
@@ -318,10 +318,14 @@ class CableTermination(ChangeLoggedModel):
         super().clean()
 
         # Check for existing termination
-        existing_termination = CableTermination.objects.exclude(cable=self.cable).filter(
+        qs = CableTermination.objects.filter(
             termination_type=self.termination_type,
             termination_id=self.termination_id
-        ).first()
+        )
+        if self.cable.pk:
+            qs = qs.exclude(cable=self.cable)
+
+        existing_termination = qs.first()
         if existing_termination is not None:
             raise ValidationError(
                 _("Duplicate termination found for {app_label}.{model} {termination_id}: cable {cable_pk}".format(
@@ -477,13 +481,13 @@ class CablePath(models.Model):
     def origin_type(self):
         if self.path:
             ct_id, _ = decompile_path_node(self.path[0][0])
-            return ContentType.objects.get_for_id(ct_id)
+            return ObjectType.objects.get_for_id(ct_id)
 
     @property
     def destination_type(self):
         if self.is_complete:
             ct_id, _ = decompile_path_node(self.path[-1][0])
-            return ContentType.objects.get_for_id(ct_id)
+            return ObjectType.objects.get_for_id(ct_id)
 
     @property
     def path_objects(self):
@@ -590,7 +594,7 @@ class CablePath(models.Model):
 
             # Step 6: Determine the far-end terminations
             if isinstance(links[0], Cable):
-                termination_type = ContentType.objects.get_for_model(terminations[0])
+                termination_type = ObjectType.objects.get_for_model(terminations[0])
                 local_cable_terminations = CableTermination.objects.filter(
                     termination_type=termination_type,
                     termination_id__in=[t.pk for t in terminations]
@@ -743,7 +747,7 @@ class CablePath(models.Model):
         # Prefetch path objects using one query per model type. Prefetch related devices where appropriate.
         prefetched = {}
         for ct_id, object_ids in to_prefetch.items():
-            model_class = ContentType.objects.get_for_id(ct_id).model_class()
+            model_class = ObjectType.objects.get_for_id(ct_id).model_class()
             queryset = model_class.objects.filter(pk__in=object_ids)
             if hasattr(model_class, 'device'):
                 queryset = queryset.prefetch_related('device')
@@ -770,7 +774,7 @@ class CablePath(models.Model):
         """
         Return all Cable IDs within the path.
         """
-        cable_ct = ContentType.objects.get_for_model(Cable).pk
+        cable_ct = ObjectType.objects.get_for_model(Cable).pk
         cable_ids = []
 
         for node in self._nodes:

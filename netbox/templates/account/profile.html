@@ -10,44 +10,42 @@
     <div class="col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Account Details" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Username" %}</th>
-              <td>{{ request.user.username }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Full Name" %}</th>
-              <td>
-                {% if request.user.first_name or request.user.last_name %}
-                  {{ request.user.first_name }} {{ request.user.last_name }}
-                {% else %}
-                  {{ ''|placeholder }}
-                {% endif %}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Email" %}</th>
-              <td>{{ request.user.email|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Account Created" %}</th>
-              <td>{{ request.user.date_joined|annotated_date }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Last Login" %}</th>
-              <td>{{ request.user.last_login|annotated_date }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Superuser" %}</th>
-              <td>{% checkmark request.user.is_superuser %}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Admin Access" %}</th>
-              <td>{% checkmark request.user.is_staff %}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Username" %}</th>
+            <td>{{ request.user.username }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Full Name" %}</th>
+            <td>
+              {% if request.user.first_name or request.user.last_name %}
+                {{ request.user.first_name }} {{ request.user.last_name }}
+              {% else %}
+                {{ ''|placeholder }}
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Email" %}</th>
+            <td>{{ request.user.email|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Account Created" %}</th>
+            <td>{{ request.user.date_joined|isodate }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Last Login" %}</th>
+            <td>{{ request.user.last_login|isodatetime:"minutes"|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Superuser" %}</th>
+            <td>{% checkmark request.user.is_superuser %}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Staff" %}</th>
+            <td>{% checkmark request.user.is_staff %}</td>
+          </tr>
+        </table>
       </div>
     </div>
     <div class="col-md-6">
@@ -68,7 +66,7 @@
       <div class="col-md-12">
         <div class="card">
           <h5 class="card-header text-center">{% trans "Recent Activity" %}</h5>
-          <div class="card-body table-responsive">
+          <div class="table-responsive">
             {% render_table changelog_table 'inc/table.html' %}
           </div>
         </div>

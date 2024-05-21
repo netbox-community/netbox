@@ -1,17 +1,19 @@
 from django import forms
 from django.utils.translation import gettext as _
 
-from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices
+from circuits.choices import CircuitCommitRateChoices, CircuitStatusChoices, CircuitTerminationSideChoices
 from circuits.models import *
 from dcim.models import Region, Site, SiteGroup
 from ipam.models import ASN
 from netbox.forms import NetBoxModelFilterSetForm
 from tenancy.forms import TenancyFilterForm, ContactModelFilterForm
 from utilities.forms.fields import ColorField, DynamicModelMultipleChoiceField, TagFilterField
+from utilities.forms.rendering import FieldSet
 from utilities.forms.widgets import DatePicker, NumberWithOptions
 
 __all__ = (
     'CircuitFilterForm',
+    'CircuitTerminationFilterForm',
     'CircuitTypeFilterForm',
     'ProviderFilterForm',
     'ProviderAccountFilterForm',
@@ -22,10 +24,10 @@ __all__ = (
 class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Provider
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('ASN'), ('asn_id',)),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('asn_id', name=_('ASN')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     region_id = DynamicModelMultipleChoiceField(
         queryset=Region.objects.all(),
@@ -57,8 +59,8 @@ class ProviderFilterForm(ContactModelFilterForm, NetBoxModelFilterSetForm):
 class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
     model = ProviderAccount
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('provider_id', 'account')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'account', name=_('Attributes')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -75,8 +77,8 @@ class ProviderAccountFilterForm(NetBoxModelFilterSetForm):
 class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
     model = ProviderNetwork
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('provider_id', 'service_id')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'service_id', name=_('Attributes')),
     )
     provider_id = DynamicModelMultipleChoiceField(
         queryset=Provider.objects.all(),
@@ -94,8 +96,8 @@ class ProviderNetworkFilterForm(NetBoxModelFilterSetForm):
 class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
     model = CircuitType
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Attributes'), ('color',)),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('color', name=_('Attributes')),
     )
     tag = TagFilterField(model)
 
@@ -108,12 +110,12 @@ class CircuitTypeFilterForm(NetBoxModelFilterSetForm):
 class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFilterSetForm):
     model = Circuit
     fieldsets = (
-        (None, ('q', 'filter_id', 'tag')),
-        (_('Provider'), ('provider_id', 'provider_account_id', 'provider_network_id')),
-        (_('Attributes'), ('type_id', 'status', 'install_date', 'termination_date', 'commit_rate')),
-        (_('Location'), ('region_id', 'site_group_id', 'site_id')),
-        (_('Tenant'), ('tenant_group_id', 'tenant_id')),
-        (_('Contacts'), ('contact', 'contact_role', 'contact_group')),
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('provider_id', 'provider_account_id', 'provider_network_id', name=_('Provider')),
+        FieldSet('type_id', 'status', 'install_date', 'termination_date', 'commit_rate', name=_('Attributes')),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+        FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
+        FieldSet('contact', 'contact_role', 'contact_group', name=_('Contacts')),
     )
     selector_fields = ('filter_id', 'q', 'region_id', 'site_group_id', 'site_id', 'provider_id', 'provider_network_id')
     type_id = DynamicModelMultipleChoiceField(
@@ -183,5 +185,48 @@ class CircuitFilterForm(TenancyFilterForm, ContactModelFilterForm, NetBoxModelFi
         widget=NumberWithOptions(
             options=CircuitCommitRateChoices
         )
+    )
+    tag = TagFilterField(model)
+
+
+class CircuitTerminationFilterForm(NetBoxModelFilterSetForm):
+    model = CircuitTermination
+    fieldsets = (
+        FieldSet('q', 'filter_id', 'tag'),
+        FieldSet('circuit_id', 'term_side', name=_('Circuit')),
+        FieldSet('provider_id', 'provider_network_id', name=_('Provider')),
+        FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
+    )
+    site_id = DynamicModelMultipleChoiceField(
+        queryset=Site.objects.all(),
+        required=False,
+        query_params={
+            'region_id': '$region_id',
+            'site_group_id': '$site_group_id',
+        },
+        label=_('Site')
+    )
+    circuit_id = DynamicModelMultipleChoiceField(
+        queryset=Circuit.objects.all(),
+        required=False,
+        label=_('Circuit')
+    )
+    term_side = forms.MultipleChoiceField(
+        label=_('Term Side'),
+        choices=CircuitTerminationSideChoices,
+        required=False
+    )
+    provider_network_id = DynamicModelMultipleChoiceField(
+        queryset=ProviderNetwork.objects.all(),
+        required=False,
+        query_params={
+            'provider_id': '$provider_id'
+        },
+        label=_('Provider network')
+    )
+    provider_id = DynamicModelMultipleChoiceField(
+        queryset=Provider.objects.all(),
+        required=False,
+        label=_('Provider')
     )
     tag = TagFilterField(model)

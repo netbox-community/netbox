@@ -1,0 +1,15 @@
+{% load i18n %}
+
+<div class="alert alert-warning bg-warning-subtle mx-3 my-2" role="alert">
+  <div class="d-flex">
+    <div>
+      <i class="mdi mdi-alert p-2"></i>
+    </div>
+    <div>
+      <h4 class="alert-title">{% block title %}{% trans title %}{% endblock %}</h4>
+      {% block content %}
+        <div class="text-secondary">{% trans message %}</div>
+      {% endblock content %}
+    </div>
+  </div>
+</div>

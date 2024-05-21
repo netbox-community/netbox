@@ -7,7 +7,7 @@ Getting started with NetBox development is pretty straightforward, and should fe
 * A Linux system or compatible environment
 * A PostgreSQL server, which can be installed locally [per the documentation](../installation/1-postgresql.md)
 * A Redis server, which can also be [installed locally](../installation/2-redis.md)
-* Python 3.8 or later
+* Python 3.10 or later
 
 ### 1. Fork the Repo
 

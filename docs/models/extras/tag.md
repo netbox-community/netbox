@@ -18,8 +18,6 @@ The color to use when displaying the tag in the NetBox UI.
 
 ### Object Types
 
-!!! info "This feature was introduced in NetBox v3.6."
-
 The assignment of a tag may be limited to a prescribed set of objects. For example, it may be desirable to limit the application of a specific tag to only devices and virtual machines.
 
 If no object types are specified, the tag will be assignable to any type of object.

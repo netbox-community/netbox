@@ -1,0 +1,45 @@
+// Rendered Markdown
+.rendered-markdown {
+
+  table {
+    width: 100%;
+
+    // Apply a border
+    th {
+      border-bottom: 2px solid #dddddd;
+      padding: 8px;
+    }
+    td {
+      border-top: 1px solid #dddddd;
+      padding: 8px;
+    }
+
+    // Map "align" attr of column headings
+    th[align="left"] {
+      text-align: left;
+    }
+    th[align="center"] {
+      text-align: center;
+    }
+    th[align="right"] {
+      text-align: right;
+    }
+  }
+
+}
+
+// Remove the bottom margin of <p> elements inside a table cell
+td > .rendered-markdown {
+  p:last-of-type {
+    margin-bottom: 0;
+  }
+}
+
+// Markdown preview
+.markdown-widget {
+  .preview {
+    border: 1px solid $border-color;
+    border-radius: $border-radius;
+    min-height: 200px;
+  }
+}

@@ -18,10 +18,10 @@ from dcim.choices import *
 from dcim.constants import *
 from extras.models import ConfigContextModel, CustomField
 from extras.querysets import ConfigContextModelQuerySet
+from netbox.choices import ColorChoices
 from netbox.config import ConfigItem
 from netbox.models import OrganizationalModel, PrimaryModel
 from netbox.models.features import ContactsMixin, ImageAttachmentsMixin
-from utilities.choices import ColorChoices
 from utilities.fields import ColorField, CounterCacheField, NaturalOrderingField
 from utilities.tracking import TrackingModelMixin
 from .device_components import *
@@ -222,7 +222,7 @@ class DeviceType(ImageAttachmentsMixin, PrimaryModel, WeightMixin):
 
     @property
     def get_full_name(self):
-        return f"{ self.manufacturer } { self.model }"
+        return f"{self.manufacturer} {self.model}"
 
     def to_yaml(self):
         data = {
@@ -689,11 +689,10 @@ class Device(
         blank=True,
         null=True
     )
-    vc_position = models.PositiveSmallIntegerField(
+    vc_position = models.PositiveIntegerField(
         verbose_name=_('VC position'),
         blank=True,
         null=True,
-        validators=[MaxValueValidator(255)],
         help_text=_('Virtual chassis position')
     )
     vc_priority = models.PositiveSmallIntegerField(
@@ -816,20 +815,6 @@ class Device(
 
     def get_absolute_url(self):
         return reverse('dcim:device', args=[self.pk])
-
-    @property
-    def device_role(self):
-        """
-        For backwards compatibility with pre-v3.6 code expecting a device_role to be present on Device.
-        """
-        return self.role
-
-    @device_role.setter
-    def device_role(self, value):
-        """
-        For backwards compatibility with pre-v3.6 code expecting a device_role to be present on Device.
-        """
-        self.role = value
 
     def clean(self):
         super().clean()
@@ -1103,7 +1088,7 @@ class Device(
 
         :param if_master: If True, return VC member interfaces only if this Device is the VC master.
         """
-        filter = Q(device=self)
+        filter = Q(device=self) if self.pk else Q()
         if self.virtual_chassis and (self.virtual_chassis.master == self or not if_master):
             filter |= Q(device__virtual_chassis=self.virtual_chassis, mgmt_only=False)
         return Interface.objects.filter(filter)

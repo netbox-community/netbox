@@ -2,16 +2,15 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from extras.choices import DurationChoices
-from utilities.forms import BootstrapMixin
 from utilities.forms.widgets import DateTimePicker, NumberWithOptions
-from utilities.utils import local_now
+from utilities.datetime import local_now
 
 __all__ = (
     'ScriptForm',
 )
 
 
-class ScriptForm(BootstrapMixin, forms.Form):
+class ScriptForm(forms.Form):
     _commit = forms.BooleanField(
         required=False,
         initial=True,

@@ -1,6 +1,6 @@
 {% load i18n %}
 {% if url %}
-  <button type="submit" name="_edit" formaction="{{ url }}" class="btn btn-warning btn-sm">
+  <button type="submit" name="_edit" {% formaction %}="{{ url }}" class="btn btn-yellow">
     <i class="mdi mdi-pencil" aria-hidden="true"></i> {% trans "Edit Selected" %}
   </button>
 {% endif %}

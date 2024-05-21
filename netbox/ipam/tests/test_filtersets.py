@@ -2,6 +2,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
 from netaddr import IPNetwork
 
+from circuits.models import Provider
 from dcim.choices import InterfaceTypeChoices
 from dcim.models import Device, DeviceRole, DeviceType, Interface, Location, Manufacturer, Rack, Region, Site, SiteGroup
 from ipam.choices import *
@@ -10,6 +11,8 @@ from ipam.models import *
 from tenancy.models import Tenant, TenantGroup
 from utilities.testing import ChangeLoggedFilterSetTests, create_test_device, create_test_virtualmachine
 from virtualization.models import Cluster, ClusterGroup, ClusterType, VirtualMachine, VMInterface
+from vpn.choices import L2VPNTypeChoices
+from vpn.models import L2VPN
 
 
 class ASNRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -110,13 +113,6 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         ]
         RIR.objects.bulk_create(rirs)
 
-        sites = [
-            Site(name='Site 1', slug='site-1'),
-            Site(name='Site 2', slug='site-2'),
-            Site(name='Site 3', slug='site-3')
-        ]
-        Site.objects.bulk_create(sites)
-
         tenants = [
             Tenant(name='Tenant 1', slug='tenant-1'),
             Tenant(name='Tenant 2', slug='tenant-2'),
@@ -136,12 +132,28 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         ASN.objects.bulk_create(asns)
 
+        sites = [
+            Site(name='Site 1', slug='site-1'),
+            Site(name='Site 2', slug='site-2'),
+            Site(name='Site 3', slug='site-3')
+        ]
+        Site.objects.bulk_create(sites)
         asns[0].sites.set([sites[0]])
         asns[1].sites.set([sites[1]])
         asns[2].sites.set([sites[2]])
         asns[3].sites.set([sites[0]])
         asns[4].sites.set([sites[1]])
         asns[5].sites.set([sites[2]])
+
+        providers = (
+            Provider(name='Provider 1', slug='provider-1'),
+            Provider(name='Provider 2', slug='provider-2'),
+            Provider(name='Provider 3', slug='provider-3'),
+        )
+        Provider.objects.bulk_create(providers)
+        providers[0].asns.add(asns[0])
+        providers[1].asns.add(asns[1])
+        providers[2].asns.add(asns[2])
 
     def test_q(self):
         params = {'q': 'foobar1'}
@@ -176,10 +188,23 @@ class ASNTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
+    def test_provider(self):
+        providers = Provider.objects.all()[:2]
+        params = {'provider_id': [providers[0].pk, providers[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
 
 class VRFTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VRF.objects.all()
     filterset = VRFFilterSet
+
+    def get_m2m_filter_name(self, field):
+        # Override filter names for import & export RouteTargets
+        if field.name == 'import_targets':
+            return 'import_target'
+        if field.name == 'export_targets':
+            return 'export_target'
+        return ChangeLoggedFilterSetTests.get_m2m_filter_name(field)
 
     @classmethod
     def setUpTestData(cls):
@@ -277,6 +302,18 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = RouteTarget.objects.all()
     filterset = RouteTargetFilterSet
 
+    def get_m2m_filter_name(self, field):
+        # Override filter names for import & export VRFs and L2VPNs
+        if field.name == 'importing_vrfs':
+            return 'importing_vrf'
+        if field.name == 'exporting_vrfs':
+            return 'exporting_vrf'
+        if field.name == 'importing_l2vpns':
+            return 'importing_l2vpn'
+        if field.name == 'exporting_l2vpns':
+            return 'exporting_l2vpn'
+        return ChangeLoggedFilterSetTests.get_m2m_filter_name(field)
+
     @classmethod
     def setUpTestData(cls):
 
@@ -322,6 +359,17 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
         vrfs[1].import_targets.add(route_targets[4], route_targets[5])
         vrfs[1].export_targets.add(route_targets[6], route_targets[7])
 
+        l2vpns = (
+            L2VPN(name='L2VPN 1', slug='l2vpn-1', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=100),
+            L2VPN(name='L2VPN 2', slug='l2vpn-2', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=200),
+            L2VPN(name='L2VPN 3', slug='l2vpn-3', type=L2VPNTypeChoices.TYPE_VXLAN, identifier=300),
+        )
+        L2VPN.objects.bulk_create(l2vpns)
+        l2vpns[0].import_targets.add(route_targets[0], route_targets[1])
+        l2vpns[0].export_targets.add(route_targets[2], route_targets[3])
+        l2vpns[1].import_targets.add(route_targets[4], route_targets[5])
+        l2vpns[1].export_targets.add(route_targets[6], route_targets[7])
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -342,6 +390,20 @@ class RouteTargetTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'exporting_vrf_id': [vrfs[0].pk, vrfs[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'exporting_vrf': [vrfs[0].rd, vrfs[1].rd]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_importing_l2vpn(self):
+        l2vpns = L2VPN.objects.all()[:2]
+        params = {'importing_l2vpn_id': [l2vpns[0].pk, l2vpns[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'importing_l2vpn': [l2vpns[0].identifier, l2vpns[1].identifier]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_exporting_l2vpn(self):
+        l2vpns = L2VPN.objects.all()[:2]
+        params = {'exporting_l2vpn_id': [l2vpns[0].pk, l2vpns[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'exporting_l2vpn': [l2vpns[0].identifier, l2vpns[1].identifier]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
 
     def test_tenant(self):
@@ -922,6 +984,7 @@ class IPRangeTestCase(TestCase, ChangeLoggedFilterSetTests):
 class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = IPAddress.objects.all()
     filterset = IPAddressFilterSet
+    ignore_fields = ('fhrpgroup',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1092,6 +1155,16 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         IPAddress.objects.bulk_create(ipaddresses)
 
+        services = (
+            Service(name='Service 1', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(name='Service 2', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+            Service(name='Service 3', protocol=ServiceProtocolChoices.PROTOCOL_TCP, ports=[1]),
+        )
+        Service.objects.bulk_create(services)
+        services[0].ipaddresses.add(ipaddresses[0])
+        services[1].ipaddresses.add(ipaddresses[1])
+        services[2].ipaddresses.add(ipaddresses[2])
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -1230,6 +1303,11 @@ class IPAddressTestCase(TestCase, ChangeLoggedFilterSetTests):
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
         params = {'tenant_group': [tenant_groups[0].slug, tenant_groups[1].slug]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_service(self):
+        services = Service.objects.all()[:2]
+        params = {'service_id': [services[0].pk, services[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 
 class FHRPGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -1475,6 +1553,7 @@ class VLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
 class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = VLAN.objects.all()
     filterset = VLANFilterSet
+    ignore_fields = ('interfaces_as_tagged', 'vminterfaces_as_tagged')
 
     @classmethod
     def setUpTestData(cls):
@@ -1733,6 +1812,7 @@ class VLANTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = ServiceTemplate.objects.all()
     filterset = ServiceTemplateFilterSet
+    ignore_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1797,6 +1877,7 @@ class ServiceTemplateTestCase(TestCase, ChangeLoggedFilterSetTests):
 class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
     queryset = Service.objects.all()
     filterset = ServiceFilterSet
+    ignore_fields = ('ports',)
 
     @classmethod
     def setUpTestData(cls):
@@ -1883,9 +1964,9 @@ class ServiceTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'virtual_machine': [vms[0].name, vms[1].name]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_ipaddress(self):
+    def test_ip_address(self):
         ips = IPAddress.objects.all()[:2]
-        params = {'ipaddress_id': [ips[0].pk, ips[1].pk]}
+        params = {'ip_address_id': [ips[0].pk, ips[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
-        params = {'ipaddress': [str(ips[0].address), str(ips[1].address)]}
+        params = {'ip_address': [str(ips[0].address), str(ips[1].address)]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)

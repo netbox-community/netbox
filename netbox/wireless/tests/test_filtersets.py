@@ -17,21 +17,32 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
     @classmethod
     def setUpTestData(cls):
 
-        groups = (
+        parent_groups = (
             WirelessLANGroup(name='Wireless LAN Group 1', slug='wireless-lan-group-1', description='A'),
             WirelessLANGroup(name='Wireless LAN Group 2', slug='wireless-lan-group-2', description='B'),
             WirelessLANGroup(name='Wireless LAN Group 3', slug='wireless-lan-group-3', description='C'),
+        )
+        for group in parent_groups:
+            group.save()
+
+        groups = (
+            WirelessLANGroup(name='Wireless LAN Group 1A', slug='wireless-lan-group-1a', parent=parent_groups[0], description='foobar1'),
+            WirelessLANGroup(name='Wireless LAN Group 1B', slug='wireless-lan-group-1b', parent=parent_groups[0], description='foobar2'),
+            WirelessLANGroup(name='Wireless LAN Group 2A', slug='wireless-lan-group-2a', parent=parent_groups[1]),
+            WirelessLANGroup(name='Wireless LAN Group 2B', slug='wireless-lan-group-2b', parent=parent_groups[1]),
+            WirelessLANGroup(name='Wireless LAN Group 3A', slug='wireless-lan-group-3a', parent=parent_groups[2]),
+            WirelessLANGroup(name='Wireless LAN Group 3B', slug='wireless-lan-group-3b', parent=parent_groups[2]),
         )
         for group in groups:
             group.save()
 
         child_groups = (
-            WirelessLANGroup(name='Wireless LAN Group 1A', slug='wireless-lan-group-1a', parent=groups[0], description='foobar1'),
-            WirelessLANGroup(name='Wireless LAN Group 1B', slug='wireless-lan-group-1b', parent=groups[0], description='foobar2'),
-            WirelessLANGroup(name='Wireless LAN Group 2A', slug='wireless-lan-group-2a', parent=groups[1]),
-            WirelessLANGroup(name='Wireless LAN Group 2B', slug='wireless-lan-group-2b', parent=groups[1]),
-            WirelessLANGroup(name='Wireless LAN Group 3A', slug='wireless-lan-group-3a', parent=groups[2]),
-            WirelessLANGroup(name='Wireless LAN Group 3B', slug='wireless-lan-group-3b', parent=groups[2]),
+            WirelessLANGroup(name='Wireless LAN Group 1A1', slug='wireless-lan-group-1a1', parent=groups[0]),
+            WirelessLANGroup(name='Wireless LAN Group 1B1', slug='wireless-lan-group-1b1', parent=groups[1]),
+            WirelessLANGroup(name='Wireless LAN Group 2A1', slug='wireless-lan-group-2a1', parent=groups[2]),
+            WirelessLANGroup(name='Wireless LAN Group 2B1', slug='wireless-lan-group-2b1', parent=groups[3]),
+            WirelessLANGroup(name='Wireless LAN Group 3A1', slug='wireless-lan-group-3a1', parent=groups[4]),
+            WirelessLANGroup(name='Wireless LAN Group 3B1', slug='wireless-lan-group-3b1', parent=groups[5]),
         )
         for group in child_groups:
             group.save()
@@ -48,16 +59,23 @@ class WirelessLANGroupTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'slug': ['wireless-lan-group-1', 'wireless-lan-group-2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
-    def test_parent(self):
-        parent_groups = WirelessLANGroup.objects.filter(parent__isnull=True)[:2]
-        params = {'parent_id': [parent_groups[0].pk, parent_groups[1].pk]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-        params = {'parent': [parent_groups[0].slug, parent_groups[1].slug]}
-        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
-
     def test_description(self):
         params = {'description': ['foobar1', 'foobar2']}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_parent(self):
+        groups = WirelessLANGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'parent_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+        params = {'parent': [groups[0].slug, groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 4)
+
+    def test_ancestor(self):
+        groups = WirelessLANGroup.objects.filter(parent__isnull=True)[:2]
+        params = {'ancestor_id': [groups[0].pk, groups[1].pk]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
+        params = {'ancestor': [groups[0].slug, groups[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 8)
 
 
 class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
@@ -135,6 +153,17 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         )
         WirelessLAN.objects.bulk_create(wireless_lans)
 
+        device = create_test_device('Device 1')
+        interfaces = (
+            Interface(device=device, name='Interface 1', type=InterfaceTypeChoices.TYPE_80211N),
+            Interface(device=device, name='Interface 2', type=InterfaceTypeChoices.TYPE_80211N),
+            Interface(device=device, name='Interface 3', type=InterfaceTypeChoices.TYPE_80211N),
+        )
+        Interface.objects.bulk_create(interfaces)
+        interfaces[0].wireless_lans.add(wireless_lans[0])
+        interfaces[1].wireless_lans.add(wireless_lans[1])
+        interfaces[2].wireless_lans.add(wireless_lans[2])
+
     def test_q(self):
         params = {'q': 'foobar1'}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 1)
@@ -180,6 +209,11 @@ class WirelessLANTestCase(TestCase, ChangeLoggedFilterSetTests):
         params = {'tenant_id': [tenants[0].pk, tenants[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
         params = {'tenant': [tenants[0].slug, tenants[1].slug]}
+        self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
+
+    def test_interface(self):
+        interfaces = Interface.objects.all()[:2]
+        params = {'interface_id': [interfaces[0].pk, interfaces[1].pk]}
         self.assertEqual(self.filterset(params, self.queryset).qs.count(), 2)
 
 

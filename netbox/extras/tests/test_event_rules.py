@@ -3,17 +3,18 @@ import uuid
 from unittest.mock import patch
 
 import django_rq
-from dcim.choices import SiteStatusChoices
-from dcim.models import Site
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
+from requests import Session
+from rest_framework import status
+
+from core.models import ObjectType
+from dcim.choices import SiteStatusChoices
+from dcim.models import Site
 from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
 from extras.events import enqueue_object, flush_events, serialize_for_event
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
-from requests import Session
-from rest_framework import status
 from utilities.testing import APITestCase
 
 
@@ -29,7 +30,7 @@ class EventRuleTest(APITestCase):
     @classmethod
     def setUpTestData(cls):
 
-        site_ct = ContentType.objects.get_for_model(Site)
+        site_type = ObjectType.objects.get_for_model(Site)
         DUMMY_URL = 'http://localhost:9000/'
         DUMMY_SECRET = 'LOOKATMEIMASECRETSTRING'
 
@@ -39,32 +40,32 @@ class EventRuleTest(APITestCase):
             Webhook(name='Webhook 3', payload_url=DUMMY_URL, secret=DUMMY_SECRET),
         ))
 
-        ct = ContentType.objects.get(app_label='extras', model='webhook')
+        webhook_type = ObjectType.objects.get(app_label='extras', model='webhook')
         event_rules = EventRule.objects.bulk_create((
             EventRule(
                 name='Webhook Event 1',
                 type_create=True,
                 action_type=EventRuleActionChoices.WEBHOOK,
-                action_object_type=ct,
+                action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
             EventRule(
                 name='Webhook Event 2',
                 type_update=True,
                 action_type=EventRuleActionChoices.WEBHOOK,
-                action_object_type=ct,
+                action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
             EventRule(
                 name='Webhook Event 3',
                 type_delete=True,
                 action_type=EventRuleActionChoices.WEBHOOK,
-                action_object_type=ct,
+                action_object_type=webhook_type,
                 action_object_id=webhooks[0].id
             ),
         ))
         for event_rule in event_rules:
-            event_rule.content_types.set([site_ct])
+            event_rule.object_types.set([site_type])
 
         Tag.objects.bulk_create((
             Tag(name='Foo', slug='foo'),

@@ -1,4 +1,5 @@
 # Prefix for nested serializers
+# TODO: Remove in v4.1
 NESTED_SERIALIZER_PREFIX = 'Nested'
 
 # RQ queue names
@@ -40,3 +41,6 @@ DEFAULT_ACTION_PERMISSIONS = {
 # General-purpose tokens
 CENSOR_TOKEN = '********'
 CENSOR_TOKEN_CHANGED = '***CHANGED***'
+
+# Placeholder text for empty tables
+EMPTY_TABLE_TEXT = 'No results found'

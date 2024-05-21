@@ -1,15 +1,29 @@
-{% extends 'base/layout.html' %}
+{% extends 'generic/_base.html' %}
 {% load helpers %}
 {% load form_helpers %}
 {% load render_table from django_tables2 %}
 {% load i18n %}
+
+{% comment %}
+Blocks:
+  - title:    Page title
+  - tabs:     Page tabs
+  - content:  Primary page content
+
+Context:
+  - form:               The object creation form
+  - parent_model_name:  The name of the model to which the new component belongs
+  - model_name:         The name of the component model
+  - table:              The table of newly-created component objects
+  - return_url:         The URL to which the user is redirected after submitting the form
+{% endcomment %}
 
 {% block title %}
   {% trans "Add" %} {{ model_name|title }}
 {% endblock %}
 
 {% block tabs %}
-  <ul class="nav nav-tabs px-3">
+  <ul class="nav nav-tabs">
     <li class="nav-item" role="presentation">
       <button class="nav-link active" id="component-form-tab" data-bs-toggle="tab" data-bs-target="#component-form" type="button" role="tab" aria-controls="component-form" aria-selected="true">
         {% trans "Bulk Creation" %}
@@ -24,53 +38,49 @@
   </ul>
 {% endblock %}
 
-{% block content-wrapper %}
-  <div class="tab-content">
-    {% block content %}
+{% block content %}
 
-      {# Component creation form #}
-      <div class="tab-pane show active" id="component-form" role="tabpanel" aria-labelledby="component-form-tab">
-        <form action="" method="post" class="form form-horizontal">
+  {# Component creation form #}
+  <div class="tab-pane show active" id="component-form" role="tabpanel" aria-labelledby="component-form-tab">
+    <form action="" method="post" class="form form-horizontal">
 
-          {% csrf_token %}
-          {% if request.POST.return_url %}
-            <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
-          {% endif %}
-          {% for field in form.hidden_fields %}
-            {{ field }}
-          {% endfor %}
+      {% csrf_token %}
+      {% if request.POST.return_url %}
+        <input type="hidden" name="return_url" value="{{ request.POST.return_url }}" />
+      {% endif %}
+      {% for field in form.hidden_fields %}
+        {{ field }}
+      {% endfor %}
 
-          <div class="row">
-            <div class="col col-md-12 col-lg-10 offset-lg-1">
-              <div class="card">
-                  <h5 class="card-header">{{ model_name|title }} {% trans "to Add" %}</h5>
-                  <div class="card-body">
-                      {% for field in form.visible_fields %}
-                          {% render_field field %}
-                      {% endfor %}
-                  </div>
-              </div>
-              <div class="form-group text-end">
-                  <div class="col col-md-12">
-                      <a href="{{ return_url }}" class="btn btn-outline-danger">{% trans "Cancel" %}</a>
-                      <button type="submit" name="_create" class="btn btn-primary">{% trans "Create" %}</button>
-                  </div>
-              </div>
+      <div class="row">
+        <div class="col col-md-12 col-lg-10 offset-lg-1">
+          <div class="card">
+            <h5 class="card-header">{{ model_name|title }} {% trans "to Add" %}</h5>
+            <div class="card-body">
+              {% for field in form.visible_fields %}
+                {% render_field field %}
+              {% endfor %}
             </div>
           </div>
-
-        </form>
-      </div>
-
-      {# Selected objects list #}
-      <div class="tab-pane" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
-        <div class="card">
-          <div class="card-body table-responsive">
-            {% render_table table 'inc/table.html' %}
+          <div class="form-group text-end">
+            <div class="col col-md-12">
+              <a href="{{ return_url }}" class="btn btn-outline-secondary">{% trans "Cancel" %}</a>
+              <button type="submit" name="_create" class="btn btn-primary">{% trans "Create" %}</button>
+            </div>
           </div>
         </div>
       </div>
 
-    {% endblock %}
+    </form>
   </div>
-{% endblock %}
+
+  {# Selected objects list #}
+  <div class="tab-pane" id="object-list" role="tabpanel" aria-labelledby="object-list-tab">
+    <div class="card">
+      <div class="card-body table-responsive">
+        {% render_table table 'inc/table.html' %}
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}

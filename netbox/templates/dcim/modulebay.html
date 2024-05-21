@@ -15,32 +15,30 @@
     <div class="col col-md-6">
       <div class="card">
         <h5 class="card-header">{% trans "Module Bay" %}</h5>
-        <div class="card-body">
-          <table class="table table-hover attr-table">
-            <tr>
-              <th scope="row">{% trans "Device" %}</th>
-              <td>
-                <a href="{% url 'dcim:device_modulebays' pk=object.device.pk %}">{{ object.device }}</a>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Name" %}</th>
-              <td>{{ object.name }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Label" %}</th>
-              <td>{{ object.label|placeholder }}</td>
-            </tr>
-            <tr>
-                <th scope="row">{% trans "Position" %}</th>
-                <td>{{ object.position|placeholder }}</td>
-            </tr>
-            <tr>
-              <th scope="row">{% trans "Description" %}</th>
-              <td>{{ object.description|placeholder }}</td>
-            </tr>
-          </table>
-        </div>
+        <table class="table table-hover attr-table">
+          <tr>
+            <th scope="row">{% trans "Device" %}</th>
+            <td>
+              <a href="{% url 'dcim:device_modulebays' pk=object.device.pk %}">{{ object.device }}</a>
+            </td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Name" %}</th>
+            <td>{{ object.name }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Label" %}</th>
+            <td>{{ object.label|placeholder }}</td>
+          </tr>
+          <tr>
+              <th scope="row">{% trans "Position" %}</th>
+              <td>{{ object.position|placeholder }}</td>
+          </tr>
+          <tr>
+            <th scope="row">{% trans "Description" %}</th>
+            <td>{{ object.description|placeholder }}</td>
+          </tr>
+        </table>
       </div>
       {% include 'inc/panels/tags.html' %}
       {% plugin_left_page object %}
@@ -49,7 +47,6 @@
       {% include 'inc/panels/custom_fields.html' %}
       <div class="card">
         <h5 class="card-header">{% trans "Installed Module" %}</h5>
-        <div class="card-body">
         {% if object.installed_module %}
           {% with module=object.installed_module %}
             <table class="table table-hover attr-table">
@@ -76,9 +73,8 @@
             </table>
           {% endwith %}
         {% else %}
-          <div class="text-muted">{% trans "None" %}</div>
+          <div class="card-body text-muted">{% trans "None" %}</div>
         {% endif %}
-        </div>
       </div>
       {% plugin_right_page object %}
     </div>

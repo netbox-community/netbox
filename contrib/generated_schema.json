@@ -353,6 +353,8 @@
                         "800gbase-x-qsfpdd",
                         "800gbase-x-osfp",
                         "1000base-kx",
+                        "2.5gbase-kx",
+                        "5gbase-kr",
                         "10gbase-kr",
                         "10gbase-kx4",
                         "25gbase-kr",
