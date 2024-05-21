@@ -42,7 +42,7 @@ plugins:
             show_root_toc_entry: false
             show_source: false
 extra:
-  readthedocs: !ENV READTHEDOCS
+  build_public: !ENV BUILD_PUBLIC
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/netbox-community/netbox

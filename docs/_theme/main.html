@@ -2,8 +2,8 @@
 
 {% block site_meta %}
   {{ super() }}
-  {# Disable search indexing unless we're building for ReadTheDocs #}
-  {% if not config.extra.readthedocs %}
+  {# Disable search indexing unless we're building for public consumption #}
+  {% if not config.extra.build_public %}
     <meta name="robots" content="noindex">
   {% endif %}
 {% endblock %}
