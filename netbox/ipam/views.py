@@ -9,6 +9,7 @@ from circuits.models import Provider
 from dcim.filtersets import InterfaceFilterSet
 from dcim.models import Interface, Site
 from netbox.views import generic
+from tenancy.views import ObjectContactsView
 from utilities.query import count_related
 from utilities.tables import get_table_ordering
 from utilities.views import ViewTab, register_model_view
@@ -1259,3 +1260,8 @@ class ServiceBulkDeleteView(generic.BulkDeleteView):
     queryset = Service.objects.prefetch_related('device', 'virtual_machine')
     filterset = filtersets.ServiceFilterSet
     table = tables.ServiceTable
+
+
+@register_model_view(Service, 'contacts')
+class ServiceContactsView(ObjectContactsView):
+    queryset = Service.objects.all()
