@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.3'
+VERSION = '4.0.4-dev'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
