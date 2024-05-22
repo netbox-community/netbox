@@ -399,6 +399,10 @@ class PowerPortTypeChoices(ChoiceSet):
     TYPE_USB_MICRO_AB = 'usb-micro-ab'
     TYPE_USB_3_B = 'usb-3-b'
     TYPE_USB_3_MICROB = 'usb-3-micro-b'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -520,6 +524,11 @@ class PowerPortTypeChoices(ChoiceSet):
             (TYPE_USB_3_B, 'USB 3.0 Type B'),
             (TYPE_USB_3_MICROB, 'USB 3.0 Micro B'),
         )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
         )),
@@ -635,6 +644,10 @@ class PowerOutletTypeChoices(ChoiceSet):
     TYPE_USB_A = 'usb-a'
     TYPE_USB_MICROB = 'usb-micro-b'
     TYPE_USB_C = 'usb-c'
+    # Molex
+    TYPE_MOLEX_MICRO_FIT_1X2 = 'molex-micro-fit-1x2'
+    TYPE_MOLEX_MICRO_FIT_2X2 = 'molex-micro-fit-2x2'
+    TYPE_MOLEX_MICRO_FIT_2X4 = 'molex-micro-fit-2x4'
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # Proprietary
@@ -749,6 +762,11 @@ class PowerOutletTypeChoices(ChoiceSet):
             (TYPE_USB_MICROB, 'USB Micro B'),
             (TYPE_USB_C, 'USB Type C'),
         )),
+        ('Molex', (
+            (TYPE_MOLEX_MICRO_FIT_1X2, 'Molex Micro-Fit 1x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X2, 'Molex Micro-Fit 2x2'),
+            (TYPE_MOLEX_MICRO_FIT_2X4, 'Molex Micro-Fit 2x4'),
+        )),
         ('DC', (
             (TYPE_DC, 'DC Terminal'),
         )),
@@ -848,6 +866,8 @@ class InterfaceTypeChoices(ChoiceSet):
 
     # Ethernet Backplane
     TYPE_1GE_KX = '1000base-kx'
+    TYPE_2GE_KX = '2.5gbase-kx'
+    TYPE_5GE_KR = '5gbase-kr'
     TYPE_10GE_KR = '10gbase-kr'
     TYPE_10GE_KX4 = '10gbase-kx4'
     TYPE_25GE_KR = '25gbase-kr'
@@ -872,6 +892,8 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_GSM = 'gsm'
     TYPE_CDMA = 'cdma'
     TYPE_LTE = 'lte'
+    TYPE_4G = '4g'
+    TYPE_5G = '5g'
 
     # SONET
     TYPE_SONET_OC3 = 'sonet-oc3'
@@ -919,12 +941,15 @@ class InterfaceTypeChoices(ChoiceSet):
     TYPE_DOCSIS = 'docsis'
 
     # PON
+    TYPE_BPON = 'bpon'
+    TYPE_EPON = 'epon'
+    TYPE_10G_EPON = '10g-epon'
     TYPE_GPON = 'gpon'
     TYPE_XG_PON = 'xg-pon'
     TYPE_XGS_PON = 'xgs-pon'
     TYPE_NG_PON2 = 'ng-pon2'
-    TYPE_EPON = 'epon'
-    TYPE_10G_EPON = '10g-epon'
+    TYPE_25G_PON = '25g-pon'
+    TYPE_50G_PON = '50g-pon'
 
     # Stacking
     TYPE_STACKWISE = 'cisco-stackwise'
@@ -1008,6 +1033,8 @@ class InterfaceTypeChoices(ChoiceSet):
             _('Ethernet (backplane)'),
             (
                 (TYPE_1GE_KX, '1000BASE-KX (1GE)'),
+                (TYPE_2GE_KX, '2.5GBASE-KX (2.5GE)'),
+                (TYPE_5GE_KR, '5GBASE-KR (5GE)'),
                 (TYPE_10GE_KR, '10GBASE-KR (10GE)'),
                 (TYPE_10GE_KX4, '10GBASE-KX4 (10GE)'),
                 (TYPE_25GE_KR, '25GBASE-KR (25GE)'),
@@ -1038,6 +1065,8 @@ class InterfaceTypeChoices(ChoiceSet):
                 (TYPE_GSM, 'GSM'),
                 (TYPE_CDMA, 'CDMA'),
                 (TYPE_LTE, 'LTE'),
+                (TYPE_4G, '4G'),
+                (TYPE_5G, '5G'),
             )
         ),
         (
@@ -1106,12 +1135,15 @@ class InterfaceTypeChoices(ChoiceSet):
         (
             'PON',
             (
-                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gps)'),
+                (TYPE_BPON, 'BPON (622 Mbps / 155 Mbps)'),
+                (TYPE_EPON, 'EPON (1 Gbps)'),
+                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_GPON, 'GPON (2.5 Gbps / 1.25 Gbps)'),
                 (TYPE_XG_PON, 'XG-PON (10 Gbps / 2.5 Gbps)'),
                 (TYPE_XGS_PON, 'XGS-PON (10 Gbps)'),
                 (TYPE_NG_PON2, 'NG-PON2 (TWDM-PON) (4x10 Gbps)'),
-                (TYPE_EPON, 'EPON (1 Gbps)'),
-                (TYPE_10G_EPON, '10G-EPON (10 Gbps)'),
+                (TYPE_25G_PON, '25G-PON (25 Gbps)'),
+                (TYPE_50G_PON, '50G-PON (50 Gbps)'),
             )
         ),
         (

@@ -122,7 +122,7 @@ class CustomFieldChoiceSetForm(forms.ModelForm):
                 label = label.replace('\\:', ':')
             except ValueError:
                 value, label = line, line
-            data.append((value, label))
+            data.append((value.strip(), label.strip()))
         return data
 
 
@@ -279,10 +279,7 @@ class EventRuleForm(NetBoxModelForm):
         FieldSet('name', 'description', 'object_types', 'enabled', 'tags', name=_('Event Rule')),
         FieldSet('type_create', 'type_update', 'type_delete', 'type_job_start', 'type_job_end', name=_('Events')),
         FieldSet('conditions', name=_('Conditions')),
-        FieldSet(
-            'action_type', 'action_choice', 'action_object_type', 'action_object_id', 'action_data',
-            name=_('Action')
-        ),
+        FieldSet('action_type', 'action_choice', 'action_data', name=_('Action')),
     )
 
     class Meta:

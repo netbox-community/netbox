@@ -72,7 +72,7 @@ In cases where upgrading a dependency to its most recent release is breaking, it
 
 ### Update UI Dependencies
 
-Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](http://0.0.0.0:9000/development/web-ui/#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
+Check whether any UI dependencies (JavaScript packages, fonts, etc.) need to be updated by running `yarn outdated` from within the `project-static/` directory. [Upgrade these dependencies](./web-ui.md#updating-dependencies) as necessary, then run `yarn bundle` to generate the necessary files for distribution.
 
 ### Rebuild the Device Type Definition Schema
 

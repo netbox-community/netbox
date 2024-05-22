@@ -1,4 +1,5 @@
 from copy import deepcopy
+from functools import cached_property
 
 import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
@@ -14,6 +15,7 @@ from django_tables2.data import TableQuerysetData
 from core.models import ObjectType
 from extras.choices import *
 from extras.models import CustomField, CustomLink
+from netbox.constants import EMPTY_TABLE_TEXT
 from netbox.registry import registry
 from netbox.tables import columns
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -188,6 +190,7 @@ class NetBoxTable(BaseTable):
     actions = columns.ActionsColumn()
 
     exempt_columns = ('pk', 'actions')
+    embedded = False
 
     class Meta(BaseTable.Meta):
         pass
@@ -217,12 +220,12 @@ class NetBoxTable(BaseTable):
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
-    @property
+    @cached_property
     def htmx_url(self):
         """
         Return the base HTML request URL for embedded tables.
         """
-        if getattr(self, 'embedded', False):
+        if self.embedded:
             viewname = get_viewname(self._meta.model, action='list')
             try:
                 return reverse(viewname)
@@ -258,7 +261,7 @@ class SearchTable(tables.Table):
         attrs = {
             'class': 'table table-hover object-list',
         }
-        empty_text = _('No results found')
+        empty_text = _(EMPTY_TABLE_TEXT)
 
     def __init__(self, data, highlight=None, **kwargs):
         self.highlight = highlight

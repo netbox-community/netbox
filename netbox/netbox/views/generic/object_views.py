@@ -93,6 +93,7 @@ class ObjectChildrenView(ObjectView, ActionsMixin, TableMixin):
     child_model = None
     table = None
     filterset = None
+    template_name = 'generic/object_children.html'
 
     def get_children(self, request, parent):
         """
