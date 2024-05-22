@@ -29,7 +29,7 @@ jobs:
             necessary.
           days-before-issue-stale: 90
           days-before-issue-close: 30
-          exempt-issue-labels: 'status: accepted,status: blocked,status: needs milestone'
+          exempt-issue-labels: 'status: accepted,status: backlog,status: blocked'
           stale-issue-label: 'pending closure'
           stale-issue-message: >
             This issue has been automatically marked as stale because it has not had
