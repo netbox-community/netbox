@@ -406,13 +406,13 @@ class PowerPortTypeChoices(ChoiceSet):
     # Direct current (DC)
     TYPE_DC = 'dc-terminal'
     # IEC 60130-10
-    TYPE_IEC_60130_A_55_21 = 'iec-60130-a-55mm-21mm'
-    TYPE_IEC_60130_A_55_25 = 'iec-60130-a-55mm-25mm'
-    TYPE_IEC_60130_B_60_21 = 'iec-60130-b-60mm-21mm'
-    TYPE_IEC_60130_B_60_25 = 'iec-60130-b-60mm-25mm'
-    TYPE_IEC_60130_C_38_11 = 'iec-60130-c-38mm-11mm'
-    TYPE_IEC_60130_D_63_31 = 'iec-60130-d-63mm-31mm'
-    TYPE_IEC_60130_E_34_13 = 'iec-60130-e-34mm-13mm'
+    TYPE_IEC_60130_A1 = 'iec-60130-a1'
+    TYPE_IEC_60130_A2 = 'iec-60130-a2'
+    TYPE_IEC_60130_B1 = 'iec-60130-b1'
+    TYPE_IEC_60130_B2 = 'iec-60130-b2'
+    TYPE_IEC_60130_C = 'iec-60130-c'
+    TYPE_IEC_60130_D = 'iec-60130-d'
+    TYPE_IEC_60130_E = 'iec-60130-e'
     # Proprietary
     TYPE_SAF_D_GRID = 'saf-d-grid'
     TYPE_NEUTRIK_POWERCON_20A = 'neutrik-powercon-20'
