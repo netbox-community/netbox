@@ -433,7 +433,7 @@ msgstr "Ідентифікатор служби"
 #: templates/dcim/rackrole.html:30 templates/dcim/rearport.html:40
 #: templates/extras/tag.html:26
 msgid "Color"
-msgstr "колір"
+msgstr "Колір"
 
 #: circuits/forms/bulk_edit.py:116 circuits/forms/bulk_import.py:89
 #: circuits/forms/filtersets.py:124 core/forms/bulk_edit.py:18
