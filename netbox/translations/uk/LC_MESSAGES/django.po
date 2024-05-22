@@ -598,7 +598,7 @@ msgstr "Статус"
 #: wireless/forms/bulk_import.py:55 wireless/forms/bulk_import.py:97
 #: wireless/forms/filtersets.py:35 wireless/forms/filtersets.py:75
 msgid "Tenant"
-msgstr "орендар"
+msgstr "Орендар"
 
 #: circuits/forms/bulk_edit.py:145 circuits/forms/filtersets.py:172
 msgid "Install date"
