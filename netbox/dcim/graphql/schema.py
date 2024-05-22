@@ -38,6 +38,8 @@ class DCIMQuery:
     def device(self, id: int) -> DeviceType:
         return models.Device.objects.get(pk=id)
     device_list: List[DeviceType] = strawberry_django.field()
+    device_connection: strawberry.relay.ListConnection[DeviceType] = strawberry_django.connection()
+
 
     @strawberry.field
     def device_bay(self, id: int) -> DeviceBayType:
@@ -72,7 +74,7 @@ class DCIMQuery:
     @strawberry.field
     def interface(self, id: int) -> InterfaceType:
         return models.Interface.objects.get(pk=id)
-    interface_list: List[InterfaceType] = strawberry_django.field()
+    interface_list: strawberry.relay.ListConnection[InterfaceType] = strawberry_django.connection()
 
     @strawberry.field
     def interface_template(self, id: int) -> InterfaceTemplateType:

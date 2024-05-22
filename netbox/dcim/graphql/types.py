@@ -210,7 +210,8 @@ class ConsoleServerPortTemplateType(ModularComponentTemplateType):
     fields='__all__',
     filters=DeviceFilter
 )
-class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType):
+class DeviceType(ConfigContextMixin, ImageAttachmentsMixin, ContactsMixin, NetBoxObjectType, strawberry.relay.Node):
+    id: strawberry.relay.GlobalID
     _name: str
     console_port_count: BigInt
     console_server_port_count: BigInt
@@ -308,7 +309,8 @@ class InventoryItemTemplateType(ComponentTemplateType):
 @strawberry_django.type(
     models.DeviceRole,
     fields='__all__',
-    filters=DeviceRoleFilter
+    filters=DeviceRoleFilter,
+    pagination=True
 )
 class DeviceRoleType(OrganizationalObjectType):
     color: str
@@ -378,7 +380,8 @@ class FrontPortTemplateType(ModularComponentTemplateType):
     exclude=('_path',),
     filters=InterfaceFilter
 )
-class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin):
+class InterfaceType(IPAddressesMixin, ModularComponentType, CabledObjectMixin, PathEndpointMixin, strawberry.relay.Node):
+    id: strawberry.relay.GlobalID
     mac_address: str | None
     wwn: str | None
     parent: Annotated["InterfaceType", strawberry.lazy('dcim.graphql.types')] | None
