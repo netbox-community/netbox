@@ -21,7 +21,7 @@ __all__ = (
 class RegionSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:region-detail')
     parent = NestedRegionSerializer(required=False, allow_null=True, default=None)
-    site_count = serializers.IntegerField(read_only=True)
+    site_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Region
@@ -35,7 +35,7 @@ class RegionSerializer(NestedGroupModelSerializer):
 class SiteGroupSerializer(NestedGroupModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:sitegroup-detail')
     parent = NestedSiteGroupSerializer(required=False, allow_null=True, default=None)
-    site_count = serializers.IntegerField(read_only=True)
+    site_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = SiteGroup
@@ -86,8 +86,8 @@ class LocationSerializer(NestedGroupModelSerializer):
     parent = NestedLocationSerializer(required=False, allow_null=True, default=None)
     status = ChoiceField(choices=LocationStatusChoices, required=False)
     tenant = TenantSerializer(nested=True, required=False, allow_null=True)
-    rack_count = serializers.IntegerField(read_only=True)
-    device_count = serializers.IntegerField(read_only=True)
+    rack_count = serializers.IntegerField(read_only=True, default=0)
+    device_count = serializers.IntegerField(read_only=True, default=0)
 
     class Meta:
         model = Location

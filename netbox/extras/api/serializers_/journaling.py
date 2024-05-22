@@ -43,7 +43,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     def validate(self, data):
 
         # Validate that the parent object exists
-        if 'assigned_object_type' in data and 'assigned_object_id' in data:
+        if not self.nested and 'assigned_object_type' in data and 'assigned_object_id' in data:
             try:
                 data['assigned_object_type'].get_object_for_this_type(id=data['assigned_object_id'])
             except ObjectDoesNotExist:
@@ -51,10 +51,7 @@ class JournalEntrySerializer(NetBoxModelSerializer):
                     f"Invalid assigned_object: {data['assigned_object_type']} ID {data['assigned_object_id']}"
                 )
 
-        # Enforce model validation
-        super().validate(data)
-
-        return data
+        return super().validate(data)
 
     @extend_schema_field(serializers.JSONField(allow_null=True))
     def get_assigned_object(self, instance):

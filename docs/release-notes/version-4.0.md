@@ -1,5 +1,37 @@
 # NetBox v4.0
 
+## v4.0.3 (2024-05-22)
+
+### Enhancements
+
+* [#12984](https://github.com/netbox-community/netbox/issues/12984) - Add Molex Micro-Fit power port & outlet types
+* [#13764](https://github.com/netbox-community/netbox/issues/13764) - Enable contact assignments for aggregates, prefixes, IP ranges, and IP addresses
+* [#14639](https://github.com/netbox-community/netbox/issues/14639) - Add Ukrainian translation support
+* [#14653](https://github.com/netbox-community/netbox/issues/14653) - Add an inventory items table column for all device components
+* [#14686](https://github.com/netbox-community/netbox/issues/14686) - Add German translation support
+* [#14855](https://github.com/netbox-community/netbox/issues/14855) - Add Chinese translation support
+* [#14948](https://github.com/netbox-community/netbox/issues/14948) - Introduce the `has_virtual_device_context` filter for devices
+* [#15353](https://github.com/netbox-community/netbox/issues/15353) - Improve error reporting when custom scripts fail to load
+* [#15496](https://github.com/netbox-community/netbox/issues/15496) - Implement dedicated views for management of circuit terminations
+* [#15603](https://github.com/netbox-community/netbox/issues/15603) - Add 4G & 5G cellular interface types
+* [#15962](https://github.com/netbox-community/netbox/issues/15962) - Enable UNIX socket connections for Redis
+
+### Bug Fixes
+
+* [#13293](https://github.com/netbox-community/netbox/issues/13293) - Limit interface selector for IP address to current device/VM
+* [#14953](https://github.com/netbox-community/netbox/issues/14953) - Ensure annotated count fields are present in REST API response data when creating new objects
+* [#14982](https://github.com/netbox-community/netbox/issues/14982) - Fix OpenAPI schema definition for SerializedPKRelatedFields
+* [#15082](https://github.com/netbox-community/netbox/issues/15082) - Strip whitespace from choice values & labels when creating a custom field choice set
+* [#16138](https://github.com/netbox-community/netbox/issues/16138) - Fix support for referencing users & groups in object permissions
+* [#16145](https://github.com/netbox-community/netbox/issues/16145) - Restore ability to reference custom scripts via module & name in REST API
+* [#16164](https://github.com/netbox-community/netbox/issues/16164) - Correct display of selected values in UI when filtering object list by a null value
+* [#16173](https://github.com/netbox-community/netbox/issues/16173) - Fix TypeError exception when viewing object list with no pagination preference defined
+* [#16228](https://github.com/netbox-community/netbox/issues/16228) - Fix permissions enforcement for GraphQL queries of users & groups
+* [#16232](https://github.com/netbox-community/netbox/issues/16232) - Preserve bulk action checkboxes on dynamic tables when using pagination
+* [#16240](https://github.com/netbox-community/netbox/issues/16240) - Fixed NoReverseMatch exception when adding circuit terminations to an object counts dashboard widget
+
+---
+
 ## v4.0.2 (2024-05-14)
 
 !!! warning "Important"
