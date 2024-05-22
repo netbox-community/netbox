@@ -296,7 +296,7 @@ msgstr "Мережа провайдера (ID)"
 #: netbox/navigation/menu.py:159 netbox/navigation/menu.py:162
 #: templates/circuits/provider.html:23
 msgid "ASNs"
-msgstr "АСН"
+msgstr "ASNs"
 
 #: circuits/forms/bulk_edit.py:32 circuits/forms/bulk_edit.py:54
 #: circuits/forms/bulk_edit.py:81 circuits/forms/bulk_edit.py:102
