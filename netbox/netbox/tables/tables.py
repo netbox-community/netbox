@@ -1,4 +1,5 @@
 from copy import deepcopy
+from functools import cached_property
 
 import django_tables2 as tables
 from django.contrib.auth.models import AnonymousUser
@@ -189,6 +190,7 @@ class NetBoxTable(BaseTable):
     actions = columns.ActionsColumn()
 
     exempt_columns = ('pk', 'actions')
+    embedded = False
 
     class Meta(BaseTable.Meta):
         pass
@@ -218,12 +220,12 @@ class NetBoxTable(BaseTable):
 
         super().__init__(*args, extra_columns=extra_columns, **kwargs)
 
-    @property
+    @cached_property
     def htmx_url(self):
         """
         Return the base HTML request URL for embedded tables.
         """
-        if getattr(self, 'embedded', False):
+        if self.embedded:
             viewname = get_viewname(self._meta.model, action='list')
             try:
                 return reverse(viewname)
