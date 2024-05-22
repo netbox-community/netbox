@@ -411,7 +411,7 @@ msgstr "Опис"
 #: templates/circuits/providernetwork.html:20
 #: templates/dcim/inc/cable_termination.html:51
 msgid "Provider"
-msgstr "провайдер"
+msgstr "Провайдер"
 
 #: circuits/forms/bulk_edit.py:78 circuits/forms/filtersets.py:89
 #: templates/circuits/providernetwork.html:28
