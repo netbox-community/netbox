@@ -5,6 +5,7 @@
 # 
 # Translators:
 # Jeremy Stretch, 2024
+# Vladyslav V. Prodan, 2024
 # 
 #, fuzzy
 msgid ""
@@ -13,7 +14,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-05-22 17:41+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Vladyslav V. Prodan, 2024\n"
 "Language-Team: Ukrainian (https://app.transifex.com/netbox-community/teams/178115/uk/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -201,7 +202,7 @@ msgstr "Ділянка (слимак)"
 
 #: circuits/filtersets.py:65
 msgid "ASN (ID)"
-msgstr "АСН (ІДЕНТИФІКАТОР)"
+msgstr "ASN (ІДЕНТИФІКАТОР)"
 
 #: circuits/filtersets.py:71 circuits/forms/filtersets.py:29
 #: ipam/forms/model_forms.py:157 ipam/models/asns.py:108
