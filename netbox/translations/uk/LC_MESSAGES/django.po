@@ -208,7 +208,7 @@ msgstr "ASN (ІДЕНТИФІКАТОР)"
 #: ipam/forms/model_forms.py:157 ipam/models/asns.py:108
 #: ipam/models/asns.py:125 ipam/tables/asn.py:41 templates/ipam/asn.html:20
 msgid "ASN"
-msgstr "АСН"
+msgstr "ASN"
 
 #: circuits/filtersets.py:93 circuits/filtersets.py:120
 #: circuits/filtersets.py:154 circuits/filtersets.py:281
