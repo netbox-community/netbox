@@ -123,13 +123,14 @@ Example prevents the deletion of a device entry:
         }
     ]
 }
-
-![image](https://github.com/netbox-community/netbox/assets/46369917/6fb69ab8-1f13-4b86-b84c-ce697af8f679)
 ```
+![IMG_0047](https://github.com/LHBL2003/netbox/assets/46369917/df92c21a-cc73-401b-9122-8a90062e3cde)
+
 
 If you navigate to a device, rack or site, you will find the path in the top right-hand corner:
 
-![image](https://github.com/netbox-community/netbox/assets/46369917/3f1c8f12-0714-4590-99d7-41ef5da7c1c3)
+![IMG_0048](https://github.com/LHBL2003/netbox/assets/46369917/197f0a98-691d-4636-8a19-0b738603bf63)
+
 
 Examples:
 - dcim.device
