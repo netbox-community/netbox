@@ -564,30 +564,6 @@ class DeviceTestCase(TestCase):
         with self.assertRaises(ValidationError):
             Device(name='device1', site=sites[0], device_type=device_type, role=device_role, cluster=clusters[1]).full_clean()
 
-    def test_old_device_role_field(self):
-        """
-        Ensure that the old device role field sets the value in the new role field.
-        """
-
-        # Test getter method
-        device = Device(
-            site=Site.objects.first(),
-            device_type=DeviceType.objects.first(),
-            role=DeviceRole.objects.first(),
-            name='Test Device 1',
-            device_role=DeviceRole.objects.first()
-        )
-        device.full_clean()
-        device.save()
-
-        self.assertEqual(device.role, device.device_role)
-
-        # Test setter method
-        device.device_role = DeviceRole.objects.last()
-        device.full_clean()
-        device.save()
-        self.assertEqual(device.role, device.device_role)
-
 
 class CableTestCase(TestCase):
 
