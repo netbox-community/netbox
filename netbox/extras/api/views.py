@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django_rq.queues import get_connection
 from rest_framework import status
@@ -215,21 +216,32 @@ class ScriptViewSet(ModelViewSet):
     _ignore_model_permissions = True
     lookup_value_regex = '[^/]+'  # Allow dots
 
+    def _get_script(self, pk):
+        # If pk is numeric, retrieve script by ID
+        if pk.isnumeric():
+            return get_object_or_404(self.queryset, pk=pk)
+
+        # Default to retrieval by module & name
+        try:
+            module_name, script_name = pk.split('.', maxsplit=1)
+        except ValueError:
+            raise Http404
+        return get_object_or_404(self.queryset, module__file_path=f'{module_name}.py', name=script_name)
+
     def retrieve(self, request, pk):
-        script = get_object_or_404(self.queryset, pk=pk)
+        script = self._get_script(pk)
         serializer = serializers.ScriptDetailSerializer(script, context={'request': request})
 
         return Response(serializer.data)
 
     def post(self, request, pk):
         """
-        Run a Script identified by the id and return the pending Job as the result
+        Run a Script identified by its numeric PK or module & name and return the pending Job as the result
         """
-
         if not request.user.has_perm('extras.run_script'):
             raise PermissionDenied("This user does not have permission to run scripts.")
 
-        script = get_object_or_404(self.queryset, pk=pk)
+        script = self._get_script(pk)
         input_serializer = serializers.ScriptInputSerializer(
             data=request.data,
             context={'script': script}

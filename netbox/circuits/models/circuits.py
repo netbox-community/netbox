@@ -227,7 +227,7 @@ class CircuitTermination(
         return f'{self.circuit}: Termination {self.term_side}'
 
     def get_absolute_url(self):
-        return self.circuit.get_absolute_url()
+        return reverse('circuits:circuittermination', args=[self.pk])
 
     def clean(self):
         super().clean()

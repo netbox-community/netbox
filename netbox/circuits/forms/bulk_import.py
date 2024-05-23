@@ -1,10 +1,10 @@
 from django import forms
-
-from circuits.choices import CircuitStatusChoices
-from circuits.models import *
-from dcim.models import Site
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
+
+from circuits.choices import *
+from circuits.models import *
+from dcim.models import Site
 from netbox.forms import NetBoxModelImportForm
 from tenancy.models import Tenant
 from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugField
@@ -12,6 +12,7 @@ from utilities.forms.fields import CSVChoiceField, CSVModelChoiceField, SlugFiel
 __all__ = (
     'CircuitImportForm',
     'CircuitTerminationImportForm',
+    'CircuitTerminationImportRelatedForm',
     'CircuitTypeImportForm',
     'ProviderImportForm',
     'ProviderAccountImportForm',
@@ -111,7 +112,16 @@ class CircuitImportForm(NetBoxModelImportForm):
         ]
 
 
-class CircuitTerminationImportForm(forms.ModelForm):
+class BaseCircuitTerminationImportForm(forms.ModelForm):
+    circuit = CSVModelChoiceField(
+        label=_('Circuit'),
+        queryset=Circuit.objects.all(),
+        to_field_name='cid',
+    )
+    term_side = CSVChoiceField(
+        label=_('Termination'),
+        choices=CircuitTerminationSideChoices,
+    )
     site = CSVModelChoiceField(
         label=_('Site'),
         queryset=Site.objects.all(),
@@ -125,9 +135,21 @@ class CircuitTerminationImportForm(forms.ModelForm):
         required=False
     )
 
+
+class CircuitTerminationImportRelatedForm(BaseCircuitTerminationImportForm):
     class Meta:
         model = CircuitTermination
         fields = [
             'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
-            'pp_info', 'description',
+            'pp_info', 'description'
+        ]
+
+
+class CircuitTerminationImportForm(NetBoxModelImportForm, BaseCircuitTerminationImportForm):
+
+    class Meta:
+        model = CircuitTermination
+        fields = [
+            'circuit', 'term_side', 'site', 'provider_network', 'port_speed', 'upstream_speed', 'xconnect_id',
+            'pp_info', 'description', 'tags'
         ]

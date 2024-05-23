@@ -275,6 +275,17 @@ class CircuitTerminationFilterSet(NetBoxModelFilterSet, CabledObjectFilterSet):
         queryset=ProviderNetwork.objects.all(),
         label=_('ProviderNetwork (ID)'),
     )
+    provider_id = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__provider_id',
+        queryset=Provider.objects.all(),
+        label=_('Provider (ID)'),
+    )
+    provider = django_filters.ModelMultipleChoiceFilter(
+        field_name='circuit__provider__slug',
+        queryset=Provider.objects.all(),
+        to_field_name='slug',
+        label=_('Provider (slug)'),
+    )
 
     class Meta:
         model = CircuitTermination

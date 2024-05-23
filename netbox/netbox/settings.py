@@ -25,7 +25,7 @@ from utilities.string import trailing_slash
 # Environment setup
 #
 
-VERSION = '4.0.2'
+VERSION = '4.0.3'
 HOSTNAME = platform.node()
 # Set the base directory two levels up
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -242,6 +242,7 @@ if 'tasks' not in REDIS:
 TASKS_REDIS = REDIS['tasks']
 TASKS_REDIS_HOST = TASKS_REDIS.get('HOST', 'localhost')
 TASKS_REDIS_PORT = TASKS_REDIS.get('PORT', 6379)
+TASKS_REDIS_URL = TASKS_REDIS.get('URL')
 TASKS_REDIS_SENTINELS = TASKS_REDIS.get('SENTINELS', [])
 TASKS_REDIS_USING_SENTINEL = all([
     isinstance(TASKS_REDIS_SENTINELS, (list, tuple)),
@@ -270,7 +271,7 @@ CACHING_REDIS_SENTINEL_SERVICE = REDIS['caching'].get('SENTINEL_SERVICE', 'defau
 CACHING_REDIS_PROTO = 'rediss' if REDIS['caching'].get('SSL', False) else 'redis'
 CACHING_REDIS_SKIP_TLS_VERIFY = REDIS['caching'].get('INSECURE_SKIP_TLS_VERIFY', False)
 CACHING_REDIS_CA_CERT_PATH = REDIS['caching'].get('CA_CERT_PATH', False)
-CACHING_REDIS_URL = f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}'
+CACHING_REDIS_URL = REDIS['caching'].get('URL', f'{CACHING_REDIS_PROTO}://{CACHING_REDIS_USERNAME_HOST}:{CACHING_REDIS_PORT}/{CACHING_REDIS_DATABASE}')
 
 # Configure Django's default cache to use Redis
 CACHES = {
@@ -678,6 +679,12 @@ if TASKS_REDIS_USING_SENTINEL:
             'socket_connect_timeout': TASKS_REDIS_SENTINEL_TIMEOUT
         },
     }
+elif TASKS_REDIS_URL:
+    RQ_PARAMS = {
+        'URL': TASKS_REDIS_URL,
+        'SSL': TASKS_REDIS_SSL,
+        'SSL_CERT_REQS': None if TASKS_REDIS_SKIP_TLS_VERIFY else 'required',
+    }
 else:
     RQ_PARAMS = {
         'HOST': TASKS_REDIS_HOST,
@@ -712,6 +719,7 @@ RQ_QUEUES.update({
 
 # Supported translation languages
 LANGUAGES = (
+    ('de', _('German')),
     ('en', _('English')),
     ('es', _('Spanish')),
     ('fr', _('French')),
@@ -719,6 +727,8 @@ LANGUAGES = (
     ('pt', _('Portuguese')),
     ('ru', _('Russian')),
     ('tr', _('Turkish')),
+    ('uk', _('Ukrainian')),
+    ('zh', _('Chinese')),
 )
 LOCALE_PATHS = (
     BASE_DIR + '/translations',
