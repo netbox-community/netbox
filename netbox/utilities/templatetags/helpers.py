@@ -93,14 +93,31 @@ def humanize_speed(speed):
 def humanize_megabytes(mb):
     """
     Express a number of megabytes in the most suitable unit (e.g. gigabytes or terabytes).
+    It considers the mb value as megabytes and converts it to the most suitable unit.
     """
+
+    # Factors in bytes
+    factors = {
+        "mega": 1024 ** 2,
+        "giga": 1024 ** 3,
+        "tera": 1024 ** 4,
+    }
+
     if not mb:
-        return ''
-    if not mb % 1048576:  # 1024^2
-        return f'{int(mb / 1048576)} TB'
-    if not mb % 1024:
-        return f'{int(mb / 1024)} GB'
-    return f'{int(mb) / (1048576):.2f} MB'
+        return ""
+
+    print(factors['mega'])
+
+    bytes = int(mb * 1024**2)
+
+    if bytes >= factors["tera"]:
+        return f"{bytes / factors["tera"]:.2f} TB"
+
+    if bytes >= factors["giga"]:
+        return f"{bytes / factors["giga"]:.2f} GB"
+
+    if bytes >= factors["mega"]:
+        return f"{bytes / factors["mega"]:.2f} MB"
 
 
 @register.filter()
