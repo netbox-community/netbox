@@ -111,13 +111,13 @@ def humanize_megabytes(mb):
     bytes = int(mb * 1024**2)
 
     if bytes >= factors["tera"]:
-        return f"{bytes / factors["tera"]:.2f} TB"
+        return f"{bytes / factors['tera']:.2f} TB"
 
     if bytes >= factors["giga"]:
-        return f"{bytes / factors["giga"]:.2f} GB"
+        return f"{bytes / factors['giga']:.2f} GB"
 
     if bytes >= factors["mega"]:
-        return f"{bytes / factors["mega"]:.2f} MB"
+        return f"{bytes / factors['mega']:.2f} MB"
 
 
 @register.filter()
