@@ -106,8 +106,6 @@ def humanize_megabytes(mb):
     if not mb:
         return ""
 
-    print(factors['mega'])
-
     bytes = int(mb * 1024**2)
 
     if bytes >= factors["tera"]:
