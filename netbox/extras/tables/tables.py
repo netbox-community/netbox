@@ -1,6 +1,7 @@
 import json
 
 import django_tables2 as tables
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from extras.models import *
@@ -564,6 +565,12 @@ class ScriptResultsTable(BaseTable):
             'index', 'time', 'status', 'message',
         )
 
+    def render_object(self, value, record):
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
+
+    def render_url(self, value):
+        return format_html("<a href='{}'>{}</a>", value, value)
+
 
 class ReportResultsTable(BaseTable):
     index = tables.Column(
@@ -594,3 +601,9 @@ class ReportResultsTable(BaseTable):
         fields = (
             'index', 'method', 'time', 'status', 'object', 'url', 'message',
         )
+
+    def render_object(self, value, record):
+        return format_html("<a href='{}'>{}</a>", record['url'], value)
+
+    def render_url(self, value):
+        return format_html("<a href='{}'>{}</a>", value, value)
