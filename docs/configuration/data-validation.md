@@ -113,7 +113,6 @@ PROTECTION_RULES = {
 ### Configuration via Web UI
 Example prevents the deletion of a device entry:
 
-![image](https://github.com/netbox-community/netbox/assets/46369917/6fb69ab8-1f13-4b86-b84c-ce697af8f679)
 ```python
 {
     "dcim.device": [
@@ -124,6 +123,8 @@ Example prevents the deletion of a device entry:
         }
     ]
 }
+
+![image](https://github.com/netbox-community/netbox/assets/46369917/6fb69ab8-1f13-4b86-b84c-ce697af8f679)
 ```
 
 If you navigate to a device, rack or site, you will find the path in the top right-hand corner:
