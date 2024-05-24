@@ -1,3 +1,5 @@
+from django.utils.translation import gettext_lazy as _
+
 # Events
 EVENT_CREATE = 'create'
 EVENT_UPDATE = 'update'
@@ -23,14 +25,14 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.BookmarksWidget',
         'width': 4,
         'height': 5,
-        'title': 'Bookmarks',
+        'title': _('Bookmarks'),
         'color': 'orange',
     },
     {
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 2,
-        'title': 'Organization',
+        'title': _('Organization'),
         'config': {
             'models': [
                 'dcim.site',
@@ -43,10 +45,10 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.NoteWidget',
         'width': 4,
         'height': 2,
-        'title': 'Welcome!',
+        'title': _('Welcome!'),
         'color': 'green',
         'config': {
-            'content': (
+            'content': _(
                 'This is your personal dashboard. Feel free to customize it by rearranging, resizing, or removing '
                 'widgets. You can also add new widgets using the "add widget" button below. Any changes affect only '
                 '_your_ dashboard, so feel free to experiment!'
@@ -57,7 +59,7 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 3,
-        'title': 'IPAM',
+        'title': _('IPAM'),
         'config': {
             'models': [
                 'ipam.vrf',
@@ -73,7 +75,7 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.RSSFeedWidget',
         'width': 4,
         'height': 4,
-        'title': 'NetBox News',
+        'title': _('NetBox News'),
         'config': {
             'feed_url': 'http://netbox.dev/rss/',
             'max_entries': 10,
@@ -84,7 +86,7 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 3,
-        'title': 'Circuits',
+        'title': _('Circuits'),
         'config': {
             'models': [
                 'circuits.provider',
@@ -98,7 +100,7 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 3,
-        'title': 'DCIM',
+        'title': _('DCIM'),
         'config': {
             'models': [
                 'dcim.site',
@@ -113,7 +115,7 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectCountsWidget',
         'width': 4,
         'height': 2,
-        'title': 'Virtualization',
+        'title': _('Virtualization'),
         'config': {
             'models': [
                 'virtualization.cluster',
@@ -125,7 +127,7 @@ DEFAULT_DASHBOARD = [
         'widget': 'extras.ObjectListWidget',
         'width': 12,
         'height': 5,
-        'title': 'Change Log',
+        'title': _('Change Log'),
         'color': 'blue',
         'config': {
             'model': 'extras.objectchange',
