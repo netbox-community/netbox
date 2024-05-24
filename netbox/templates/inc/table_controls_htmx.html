@@ -1,7 +1,7 @@
 {% load helpers %}
 {% load i18n %}
 
-<div class="row mb-3">
+<div class="row mb-3" id="results">
   <div class="col-auto d-print-none">
     <div class="input-group input-group-flat me-2 quicksearch" hx-disinherit="hx-select hx-swap">
       <input type="search" results="5" name="q" id="quicksearch" class="form-control px-2 py-1"
@@ -14,11 +14,13 @@
     </div>
   </div>
 
-  <div class="col-sm-auto d-print-none">
-    <label for="id_filter_id" class="my-1">{{ filter_form.filter_id.label }}</label>
+  <div class="col-auto d-print-none">
+    <div>
+      <label for="id_filter_id" class="my-1">{{ filter_form.filter_id.label }}</label>
+    </div>
   </div>
 
-  <div class="col-sm-auto d-print-none">
+  <div class="col-auto d-print-none">
     {{ filter_form.filter_id }}
   </div>
 

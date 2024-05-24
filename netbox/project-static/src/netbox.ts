@@ -14,6 +14,7 @@ import { initDashboard } from './dashboard';
 import { initRackElevation } from './racks';
 import { initHtmx } from './htmx';
 import { initSavedFilterSelect } from './forms/savedFiltersSelect';
+import { initAppliedFilter } from './appliedFilter';
 
 function initDocument(): void {
   for (const init of [
@@ -33,6 +34,7 @@ function initDocument(): void {
     initRackElevation,
     initHtmx,
     initSavedFilterSelect,
+    initAppliedFilter,
   ]) {
     init();
   }
