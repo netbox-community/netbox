@@ -64,7 +64,7 @@
                       </span>
                     {% endif %}
                   </td>
-                  <td>{{ script.python_class.description|markdown|placeholder }}</td>
+                  <td>{{ script.python_class.Meta.description|markdown|placeholder }}</td>
                   {% if last_job %}
                     <td>
                       <a href="{% url 'extras:script_result' job_pk=last_job.pk %}">{{ last_job.created|isodatetime }}</a>
