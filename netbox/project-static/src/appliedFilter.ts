@@ -1,4 +1,9 @@
 import { isTruthy } from './util';
+
+/**
+ * Initialize the applied filter display.
+ *
+ */
 export function initAppliedFilter(): void {
   const appliedFilter = document.getElementById('appliedfilters');
   if (isTruthy(appliedFilter)) {
