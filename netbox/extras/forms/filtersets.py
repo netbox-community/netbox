@@ -469,7 +469,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('Object Type'),
         widget=APISelectMultiple(
-            api_url='/api/extras/content-types/',
+            api_url='/api/extras/object-types/',
         )
     )
     kind = forms.ChoiceField(
@@ -512,6 +512,6 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('Object Type'),
         widget=APISelectMultiple(
-            api_url='/api/extras/content-types/',
+            api_url='/api/extras/object-types/',
         )
     )
