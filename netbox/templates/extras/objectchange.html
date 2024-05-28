@@ -112,7 +112,7 @@
             {% if object.prechange_data %}
               {% spaceless %}
                 <pre class="change-data">
-                  {% for k, v in object.prechange_data.items %}
+                  {% for k, v in object.prechange_data_clean.items %}
                     <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
                   {% endfor %}
                 </pre>
@@ -132,7 +132,7 @@
                 {% if object.postchange_data %}
                   {% spaceless %}
                     <pre class="change-data">
-                      {% for k, v in object.postchange_data.items %}
+                      {% for k, v in object.postchange_data_clean.items %}
                         <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
                       {% endfor %}
                     </pre>
