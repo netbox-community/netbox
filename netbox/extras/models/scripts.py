@@ -11,7 +11,8 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from core.choices import ManagedFileRootPathChoices
-from core.models import ManagedFile
+from core.models import DataSource, ManagedFile
+from core.signals import post_sync
 from extras.utils import is_script
 from netbox.models.features import JobsMixin, EventRulesMixin
 from utilities.querysets import RestrictedQuerySet
@@ -182,3 +183,10 @@ class ScriptModule(PythonModuleMixin, JobsMixin, ManagedFile):
 @receiver(post_save, sender=ScriptModule)
 def script_module_post_save_handler(instance, created, **kwargs):
     instance.sync_classes()
+
+
+@receiver(post_sync, sender=DataSource)
+def script_data_source_sync_handler(instance, **kwargs):
+    modules = ScriptModule.objects.filter(data_source=instance)
+    for module in modules:
+        module.sync_data()
