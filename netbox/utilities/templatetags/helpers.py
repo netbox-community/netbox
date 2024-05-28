@@ -8,9 +8,7 @@ from django.conf import settings
 from django.template.defaultfilters import date
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
-from django.utils.formats import get_format
 from django.utils.safestring import mark_safe
-from django.utils.translation import get_language
 
 from core.models import ObjectType
 from utilities.forms import get_selected_values, TableConfigForm
@@ -32,7 +30,6 @@ __all__ = (
     'startswith',
     'status_from_tag',
     'table_config_form',
-    'untranslate_decimal_separator',
     'utilization_graph',
     'validated_viewname',
     'viewname',
@@ -304,9 +301,3 @@ def applied_filters(context, model, form, query_params):
         'applied_filters': applied_filters,
         'save_link': save_link,
     }
-
-
-@register.filter()
-def untranslate_decimal_separator(number: str):
-    decimal_seperator = get_format('DECIMAL_SEPARATOR', get_language())
-    return str(number).replace(decimal_seperator, ".")
