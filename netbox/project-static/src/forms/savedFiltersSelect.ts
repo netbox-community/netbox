@@ -22,7 +22,7 @@ function handleSavedFilterChange(event: Event): void {
 export function initSavedFilterSelect(): void {
   const divResults = document.getElementById('results');
   if (isTruthy(divResults)) {
-    const savedFilterSelect = divResults.getElementsByTagName('select')[0];
+    const savedFilterSelect = document.getElementById('id_filter_id');
     if (isTruthy(savedFilterSelect)) {
       savedFilterSelect.addEventListener('change', handleSavedFilterChange);
     }
