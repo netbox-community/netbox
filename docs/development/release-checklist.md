@@ -86,15 +86,7 @@ This will automatically update the schema file at `contrib/generated_schema.json
 
 ### Update & Compile Translations
 
-Log into [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) to download the updated string maps. Download the resource (portable object, or `.po`) file for each language and save them to `netbox/translations/$lang/LC_MESSAGES/django.po`, overwriting the current files. (Be sure to click the **Download for use** link.)
-
-![Transifex download](../media/development/transifex_download.png)
-
-Once the resource files for all languages have been updated, compile the machine object (`.mo`) files using the `compilemessages` management command:
-
-```nohighlight
-./manage.py compilemessages
-```
+Updated language translations should be pulled from [Transifex](https://app.transifex.com/netbox-community/netbox/dashboard/) and re-compiled for each new release. Follow the documented process for [updating translated strings](./translations.md#updating-translated-strings) to do this.
 
 ### Update Version and Changelog
 

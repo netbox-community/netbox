@@ -75,6 +75,10 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.postchange_data['custom_fields']['cf2'], form_data['cf_cf2'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -112,6 +116,12 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.postchange_data['custom_fields']['cf2'], form_data['cf_cf2'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 3'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_delete_object(self):
         site = Site(
             name='Site 1',
@@ -141,6 +151,10 @@ class ChangeLogViewTest(ModelViewTestCase):
         self.assertEqual(oc.prechange_data['custom_fields']['cf2'], 'Bar')
         self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
         self.assertEqual(oc.postchange_data, None)
+
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
 
     def test_bulk_update_objects(self):
         sites = (
@@ -338,6 +352,10 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 1', 'Tag 2'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_update_object(self):
         site = Site(name='Site 1', slug='site-1')
         site.save()
@@ -370,6 +388,12 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.postchange_data['custom_fields'], data['custom_fields'])
         self.assertEqual(oc.postchange_data['tags'], ['Tag 3'])
 
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
+        self.assertIn('_name', oc.postchange_data)
+        self.assertNotIn('_name', oc.postchange_data_clean)
+
     def test_delete_object(self):
         site = Site(
             name='Site 1',
@@ -397,6 +421,10 @@ class ChangeLogAPITest(APITestCase):
         self.assertEqual(oc.prechange_data['custom_fields']['cf2'], 'Bar')
         self.assertEqual(oc.prechange_data['tags'], ['Tag 1', 'Tag 2'])
         self.assertEqual(oc.postchange_data, None)
+
+        # Check that private attributes were included in raw data but not display data
+        self.assertIn('_name', oc.prechange_data)
+        self.assertNotIn('_name', oc.prechange_data_clean)
 
     def test_bulk_create_objects(self):
         data = (

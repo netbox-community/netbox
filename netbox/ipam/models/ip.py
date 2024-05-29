@@ -18,6 +18,7 @@ from ipam.querysets import PrefixQuerySet
 from ipam.validators import DNSValidator
 from netbox.config import get_config
 from netbox.models import OrganizationalModel, PrimaryModel
+from netbox.models.features import ContactsMixin
 
 __all__ = (
     'Aggregate',
@@ -74,7 +75,7 @@ class RIR(OrganizationalModel):
         return reverse('ipam:rir', args=[self.pk])
 
 
-class Aggregate(GetAvailablePrefixesMixin, PrimaryModel):
+class Aggregate(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     """
     An aggregate exists at the root level of the IP address space hierarchy in NetBox. Aggregates are used to organize
     the hierarchy and track the overall utilization of available address space. Each Aggregate is assigned to a RIR.
@@ -206,7 +207,7 @@ class Role(OrganizationalModel):
         return reverse('ipam:role', args=[self.pk])
 
 
-class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
+class Prefix(ContactsMixin, GetAvailablePrefixesMixin, PrimaryModel):
     """
     A Prefix represents an IPv4 or IPv6 network, including mask length. Prefixes can optionally be assigned to Sites and
     VRFs. A Prefix must be assigned a status and may optionally be assigned a used-define Role. A Prefix can also be
@@ -486,7 +487,7 @@ class Prefix(GetAvailablePrefixesMixin, PrimaryModel):
         return min(utilization, 100)
 
 
-class IPRange(PrimaryModel):
+class IPRange(ContactsMixin, PrimaryModel):
     """
     A range of IP addresses, defined by start and end addresses.
     """
@@ -695,7 +696,7 @@ class IPRange(PrimaryModel):
         return min(float(child_count) / self.size * 100, 100)
 
 
-class IPAddress(PrimaryModel):
+class IPAddress(ContactsMixin, PrimaryModel):
     """
     An IPAddress represents an individual IPv4 or IPv6 address and its mask. The mask length should match what is
     configured in the real world. (Typically, only loopback interfaces are configured with /32 or /128 masks.) Like

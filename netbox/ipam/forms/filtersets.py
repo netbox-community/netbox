@@ -168,6 +168,7 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             'within_include', 'family', 'status', 'role_id', 'mask_length', 'is_pool', 'mark_utilized',
             name=_('Addressing')
         ),
+        FieldSet('vlan_id', name=_('VLAN Assignment')),
         FieldSet('vrf_id', 'present_in_vrf_id', name=_('VRF')),
         FieldSet('region_id', 'site_group_id', 'site_id', name=_('Location')),
         FieldSet('tenant_group_id', 'tenant_id', name=_('Tenant')),
@@ -249,6 +250,12 @@ class PrefixFilterForm(TenancyFilterForm, NetBoxModelFilterSetForm):
             choices=BOOLEAN_WITH_BLANK_CHOICES
         )
     )
+    vlan_id = DynamicModelMultipleChoiceField(
+        queryset=VLAN.objects.all(),
+        required=False,
+        label=_('VLAN'),
+    )
+
     tag = TagFilterField(model)
 
 
