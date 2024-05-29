@@ -24,6 +24,8 @@ def map_strawberry_type(field):
         pass
     elif isinstance(field, MultiValueCharFilter):
         should_create_function = False
+        # Note: Need to use the legacy FilterLookup from filters, not from
+        # strawberry_django.FilterLookup as we currently have USE_DEPRECATED_FILTERS
         attr_type = strawberry_django.filters.FilterLookup[str] | None
     elif isinstance(field, MultiValueDateFilter):
         attr_type = auto
