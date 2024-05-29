@@ -5,11 +5,11 @@
 # 
 # Translators:
 # Niklas, 2024
-# Martin R, 2024
-# chbally, 2024
-# fepilins, 2024
-# Robin Reinhardt, 2024
 # Jeremy Stretch, 2024
+# fepilins, 2024
+# chbally, 2024
+# Martin R, 2024
+# Robin Reinhardt, 2024
 # 
 #, fuzzy
 msgid ""
@@ -18,7 +18,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-05-22 17:41+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
-"Last-Translator: Jeremy Stretch, 2024\n"
+"Last-Translator: Robin Reinhardt, 2024\n"
 "Language-Team: German (https://app.transifex.com/netbox-community/teams/178115/de/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1472,7 +1472,7 @@ msgstr ""
 
 #: core/forms/model_forms.py:153 templates/dcim/rack_elevation_list.html:6
 msgid "Rack Elevations"
-msgstr "Rackhöhen"
+msgstr "Rack-Übersichten"
 
 #: core/forms/model_forms.py:157 dcim/choices.py:1445
 #: dcim/forms/bulk_edit.py:867 dcim/forms/bulk_edit.py:1250
@@ -2080,7 +2080,7 @@ msgstr "Virtuell"
 #: dcim/forms/model_forms.py:1341 netbox/navigation/menu.py:127
 #: netbox/navigation/menu.py:131 templates/dcim/interface.html:210
 msgid "Wireless"
-msgstr "Kabellos"
+msgstr "Drahtlos"
 
 #: dcim/choices.py:975
 msgid "Virtual interfaces"
@@ -3165,16 +3165,16 @@ msgstr "Maximale Auslastung"
 #: dcim/forms/bulk_edit.py:937 dcim/models/device_component_templates.py:256
 #: dcim/models/device_components.py:357
 msgid "Maximum power draw (watts)"
-msgstr "Maximaler Stromverbrauch (Watt)"
+msgstr "Maximale Leistungsaufnahme (Watt)"
 
 #: dcim/forms/bulk_edit.py:940
 msgid "Allocated draw"
-msgstr "Zugeteilte Zie"
+msgstr "Zugewiesene Leistungsaufnahme"
 
 #: dcim/forms/bulk_edit.py:943 dcim/models/device_component_templates.py:263
 #: dcim/models/device_components.py:364
 msgid "Allocated power draw (watts)"
-msgstr "Zugeteilte Leistungsaufnahme (Watt)"
+msgstr "Zugewiesene Leistungsaufnahme (Watt)"
 
 #: dcim/forms/bulk_edit.py:976 dcim/forms/bulk_import.py:731
 #: dcim/forms/model_forms.py:898 dcim/forms/model_forms.py:1223
@@ -3184,7 +3184,7 @@ msgstr "Stromanschluss"
 
 #: dcim/forms/bulk_edit.py:981 dcim/forms/bulk_import.py:738
 msgid "Feed leg"
-msgstr "Einspeiseseite"
+msgstr "Phasenlage"
 
 #: dcim/forms/bulk_edit.py:1027 dcim/forms/bulk_edit.py:1333
 msgid "Management only"
@@ -3209,7 +3209,7 @@ msgstr "PoE-Typ"
 #: dcim/forms/bulk_edit.py:1049 dcim/forms/filtersets.py:1310
 #: dcim/forms/object_import.py:100
 msgid "Wireless role"
-msgstr "Drahtlose Rolle"
+msgstr "Drahtlose Funktion"
 
 #: dcim/forms/bulk_edit.py:1186 dcim/forms/model_forms.py:609
 #: dcim/forms/model_forms.py:1168 dcim/tables/devices.py:313
@@ -3311,7 +3311,7 @@ msgstr "802.1Q-Switching"
 
 #: dcim/forms/bulk_edit.py:1467 dcim/forms/bulk_edit.py:1469
 msgid "Interface mode must be specified to assign VLANs"
-msgstr "Der Schnittstellenmodus muss angegeben werden, um VLANs zuzuweisen"
+msgstr "Der Schnittstellenmodus muss gesetzt werden, um VLANs zuzuweisen"
 
 #: dcim/forms/bulk_edit.py:1474 dcim/forms/common.py:50
 msgid "An access interface cannot have tagged VLANs assigned."
@@ -3555,7 +3555,7 @@ msgstr "Ausgangs-Typ"
 
 #: dcim/forms/bulk_import.py:735
 msgid "Local power port which feeds this outlet"
-msgstr "Lokaler Stromanschluss, der diese Steckdose speist"
+msgstr "Lokaler Stromanschluss, der diese Stromabgänge speist"
 
 #: dcim/forms/bulk_import.py:741
 msgid "Electrical phase (for three-phase circuits)"
@@ -3797,14 +3797,14 @@ msgstr ""
 #: dcim/forms/common.py:128
 #, python-brace-format
 msgid "A {model} named {name} already exists"
-msgstr "EIN {model} genannt {name} existiert bereits"
+msgstr "Ein {model} genannt {name} existiert bereits"
 
 #: dcim/forms/connections.py:48 dcim/forms/model_forms.py:683
 #: dcim/tables/power.py:66 templates/dcim/inc/cable_termination.html:37
 #: templates/dcim/powerfeed.html:24 templates/dcim/powerpanel.html:19
 #: templates/dcim/trace/powerpanel.html:4
 msgid "Power Panel"
-msgstr "Power-Panel"
+msgstr "Schalttafel"
 
 #: dcim/forms/connections.py:57 dcim/forms/model_forms.py:710
 #: templates/dcim/powerfeed.html:21 templates/dcim/powerport.html:80
@@ -4028,11 +4028,11 @@ msgstr "Schnittstellen-Vorlage"
 
 #: dcim/forms/model_forms.py:1064
 msgid "Power outlet template"
-msgstr "Vorlage für eine Steckdose"
+msgstr "Vorlage für Stromabgänge"
 
 #: dcim/forms/model_forms.py:1072
 msgid "Power port template"
-msgstr "Vorlage für den Stromanschluss"
+msgstr "Vorlage für Schalttafeln"
 
 #: dcim/forms/model_forms.py:1080
 msgid "Rear port template"
@@ -4097,7 +4097,7 @@ msgstr "Stromanschluss"
 #: dcim/forms/model_forms.py:1095 dcim/forms/model_forms.py:1533
 #: templates/dcim/poweroutlet.html:17 templates/dcim/powerport.html:77
 msgid "Power Outlet"
-msgstr "Stromanschluss"
+msgstr "Stromabgang"
 
 #: dcim/forms/model_forms.py:1097 dcim/forms/model_forms.py:1535
 msgid "Component Assignment"
@@ -4138,7 +4138,7 @@ msgstr "Frontanschluss"
 
 #: dcim/forms/model_forms.py:1503
 msgid "Power outlet"
-msgstr "Stromanschluss"
+msgstr "Stromabgang"
 
 #: dcim/forms/model_forms.py:1523 templates/dcim/inventoryitem.html:17
 msgid "Inventory Item"
@@ -4263,7 +4263,7 @@ msgstr "Kabel"
 
 #: dcim/models/cables.py:163
 msgid "Must specify a unit when setting a cable length"
-msgstr "Beim Einstellen einer Kabellänge muss eine Einheit angegeben werden"
+msgstr "Bei der Eingabe einer Kabellänge muss eine Einheit angegeben werden"
 
 #: dcim/models/cables.py:166
 msgid "Must define A and B terminations when creating a new cable."
@@ -4329,7 +4329,7 @@ msgstr "ist abgeschlossen"
 
 #: dcim/models/cables.py:454
 msgid "is split"
-msgstr "ist gespalten"
+msgstr "ist aufgeteilt"
 
 #: dcim/models/cables.py:462
 msgid "cable path"
@@ -4403,7 +4403,7 @@ msgstr "zugewiesene Auslastung"
 
 #: dcim/models/device_component_templates.py:269
 msgid "power port template"
-msgstr "Vorlage für den Stromanschluss"
+msgstr "Vorlage für Stromanschluss"
 
 #: dcim/models/device_component_templates.py:270
 msgid "power port templates"
@@ -4420,20 +4420,20 @@ msgstr ""
 #: dcim/models/device_component_templates.py:321
 #: dcim/models/device_components.py:478
 msgid "feed leg"
-msgstr "Einspeiseseite"
+msgstr "Phasenlage"
 
 #: dcim/models/device_component_templates.py:325
 #: dcim/models/device_components.py:482
 msgid "Phase (for three-phase feeds)"
-msgstr "Phase (für dreiphasige Einspeisungen)"
+msgstr "Phase (bei dreiphasiger Stromzufuhr)"
 
 #: dcim/models/device_component_templates.py:331
 msgid "power outlet template"
-msgstr "Steckdosenschablone"
+msgstr "Vorlage für Stromabgang"
 
 #: dcim/models/device_component_templates.py:332
 msgid "power outlet templates"
-msgstr "Vorlagen für Steckdosen"
+msgstr "Vorlagen für Stromabgänge"
 
 #: dcim/models/device_component_templates.py:341
 #, python-brace-format
@@ -4658,11 +4658,11 @@ msgstr "Stromanschlüsse"
 
 #: dcim/models/device_components.py:488
 msgid "power outlet"
-msgstr "Steckdose"
+msgstr "Stromabgang"
 
 #: dcim/models/device_components.py:489
 msgid "power outlets"
-msgstr "Steckdosen"
+msgstr "Stromabgänge"
 
 #: dcim/models/device_components.py:500
 #, python-brace-format
@@ -5106,8 +5106,8 @@ msgid ""
 "Device {device} in rack {rack} does not have sufficient space to accommodate"
 " a height of {height}U"
 msgstr ""
-"Gerät {device} im Gestell {rack} hat nicht genug Platz für eine Höhe von "
-"{height}U"
+"Gerät {device} im Rack {rack} hat nicht genug Platz für eine Höhe von "
+"{height}HE"
 
 #: dcim/models/devices.py:322
 #, python-brace-format
@@ -5484,7 +5484,7 @@ msgstr "Stromzufuhr"
 
 #: dcim/models/power.py:165
 msgid "power feeds"
-msgstr "Stromversorgungen"
+msgstr "Stromzufuhren"
 
 #: dcim/models/power.py:179
 #, python-brace-format
@@ -5492,8 +5492,8 @@ msgid ""
 "Rack {rack} ({rack_site}) and power panel {powerpanel} ({powerpanel_site}) "
 "are in different sites."
 msgstr ""
-"Gestell {rack} ({rack_site}) und Powerpanel {powerpanel} ({powerpanel_site})"
-" befinden sich an verschiedenen Standorten."
+"Rack {rack} ({rack_site}) und Schalttafel {powerpanel} ({powerpanel_site}) "
+"befinden sich an verschiedenen Orten."
 
 #: dcim/models/power.py:190
 msgid "Voltage cannot be negative for AC supply"
@@ -5624,8 +5624,8 @@ msgid ""
 "Rack must be at least {min_height}U tall to house currently installed "
 "devices."
 msgstr ""
-"Das Rack muss mindestens {min_height}U groß, um aktuell installierte Geräte "
-"unterzubringen."
+"Das Rack muss mindestens {min_height}HE groß sein, um aktuell installierten "
+"Geräte unterzubringen."
 
 #: dcim/models/racks.py:262
 #, python-brace-format
@@ -5633,8 +5633,8 @@ msgid ""
 "Rack unit numbering must begin at {position} or less to house currently "
 "installed devices."
 msgstr ""
-"Die Nummerierung der Rackeinheiten muss beginnen bei {position} oder "
-"weniger, um aktuell installierte Geräte unterzubringen."
+"Die Nummerierung der Höheneinheiten muss bei {position} oder weniger "
+"beginnen, um die aktuell installierten Geräte unterzubringen."
 
 #: dcim/models/racks.py:270
 #, python-brace-format
@@ -5656,7 +5656,7 @@ msgstr "HE-Reservierungen"
 #: dcim/models/racks.py:567
 #, python-brace-format
 msgid "Invalid unit(s) for {height}U rack: {unit_list}"
-msgstr "Ungültige Einheit(en) für {height}HE-Rack: {unit_list}"
+msgstr "Ungültige Einheit(en) für {height}HE Rack: {unit_list}"
 
 #: dcim/models/racks.py:580
 #, python-brace-format
@@ -6016,11 +6016,11 @@ msgstr "Artikel"
 #: dcim/tables/devicetypes.py:38 netbox/navigation/menu.py:71
 #: netbox/navigation/menu.py:73
 msgid "Device Types"
-msgstr "Gerätetypen"
+msgstr "Geräte-Typen"
 
 #: dcim/tables/devicetypes.py:43 netbox/navigation/menu.py:74
 msgid "Module Types"
-msgstr "Modultypen"
+msgstr "Modul-Typen"
 
 #: dcim/tables/devicetypes.py:53 extras/forms/filtersets.py:380
 #: extras/forms/model_forms.py:413 extras/tables/tables.py:430
@@ -6050,7 +6050,7 @@ msgstr "Instanzen"
 #: templates/dcim/devicetype/base.html:22 templates/dcim/module.html:22
 #: templates/dcim/moduletype/base.html:22
 msgid "Console Ports"
-msgstr "Konsolenanschlüsse"
+msgstr "Konsolen-Anschlüsse"
 
 #: dcim/tables/devicetypes.py:116 dcim/views.py:961 dcim/views.py:1200
 #: dcim/views.py:1886 netbox/navigation/menu.py:85
@@ -6095,18 +6095,18 @@ msgstr "Rückanschlüsse"
 #: netbox/navigation/menu.py:89 templates/dcim/device/base.html:49
 #: templates/dcim/device_list.html:57 templates/dcim/devicetype/base.html:46
 msgid "Device Bays"
-msgstr "Geräteeinsätze"
+msgstr "Geräte-Einsätze"
 
 #: dcim/tables/devicetypes.py:137 dcim/views.py:1051 dcim/views.py:1986
 #: netbox/navigation/menu.py:88 templates/dcim/device/base.html:46
 #: templates/dcim/device_list.html:64 templates/dcim/devicetype/base.html:43
 msgid "Module Bays"
-msgstr "Moduleinsätze"
+msgstr "Modul-Einsätze"
 
 #: dcim/tables/power.py:36 netbox/navigation/menu.py:282
 #: templates/dcim/powerpanel.html:51
 msgid "Power Feeds"
-msgstr "Stromversorgungen"
+msgstr "Stromzufuhren"
 
 #: dcim/tables/power.py:80 templates/dcim/powerfeed.html:99
 msgid "Max Utilization"
@@ -6932,7 +6932,7 @@ msgstr "Cluster"
 
 #: extras/forms/filtersets.py:400 extras/forms/model_forms.py:433
 msgid "Tenant groups"
-msgstr "Mandantengruppen"
+msgstr "Mandanten-Gruppen"
 
 #: extras/forms/filtersets.py:454 extras/forms/filtersets.py:492
 msgid "After"
@@ -8113,7 +8113,7 @@ msgstr "Ende des Auftrags"
 #: extras/tables/tables.py:425 netbox/navigation/menu.py:64
 #: templates/dcim/devicerole.html:8
 msgid "Device Roles"
-msgstr "Geräterollen"
+msgstr "Geräte-Rollen"
 
 #: extras/tables/tables.py:466 templates/account/profile.html:19
 #: templates/users/user.html:21
@@ -8694,7 +8694,7 @@ msgstr "{ip} ist diesem Gerät/dieser VM nicht zugewiesen."
 #: ipam/forms/filtersets.py:47 ipam/forms/model_forms.py:61
 #: netbox/navigation/menu.py:176 vpn/forms/model_forms.py:410
 msgid "Route Targets"
-msgstr "Ziele der Route"
+msgstr "Routen-Ziele"
 
 #: ipam/forms/filtersets.py:53 ipam/forms/model_forms.py:48
 #: vpn/forms/filtersets.py:224 vpn/forms/model_forms.py:397
@@ -9309,8 +9309,8 @@ msgid ""
 "VLAN is assigned to group {group} (scope: {scope}); cannot also assign to "
 "site {site}."
 msgstr ""
-"VLAN ist der Gruppe zugewiesen {group} (Umfang: {scope}); kann nicht auch "
-"dem Standort zugewiesen werden {site}."
+"VLAN ist der Gruppe {group} (Umfang: {scope}) zugewiesen; kann nicht auch "
+"dem Standort {site} zugewiesen werden."
 
 #: ipam/models/vlans.py:238
 #, python-brace-format
@@ -9350,7 +9350,7 @@ msgstr "Ziel der Route"
 
 #: ipam/models/vrfs.py:95
 msgid "route targets"
-msgstr "Ziele der Route"
+msgstr "Routen-Ziele"
 
 #: ipam/tables/asn.py:52
 msgid "ASDOT"
@@ -9672,7 +9672,7 @@ msgstr "Höhe der Rackeinheit in HE"
 
 #: netbox/config/parameters.py:86
 msgid "Default unit height for rendered rack elevations"
-msgstr "Standardeinheitshöhe für gerenderte Rackhöhen"
+msgstr "Standardhöhe für gerenderte Rackhöhen"
 
 #: netbox/config/parameters.py:91
 msgid "Rack unit width"
@@ -9680,31 +9680,31 @@ msgstr "Breite der Rackeinheit"
 
 #: netbox/config/parameters.py:93
 msgid "Default unit width for rendered rack elevations"
-msgstr "Standardeinheitsbreite für gerenderte Rackhöhen"
+msgstr "Standardbreite für gerenderte Rackhöhen"
 
 #: netbox/config/parameters.py:100
 msgid "Powerfeed voltage"
-msgstr "Einspeisespannung"
+msgstr "Spannung der Stromzufuhr"
 
 #: netbox/config/parameters.py:102
 msgid "Default voltage for powerfeeds"
-msgstr "Standardspannung für Stromversorgungen"
+msgstr "Standardspannung der Stromzufuhr"
 
 #: netbox/config/parameters.py:107
 msgid "Powerfeed amperage"
-msgstr "Stromstärke der Stromversorgung"
+msgstr "Stromstärke der Stromzufuhr"
 
 #: netbox/config/parameters.py:109
 msgid "Default amperage for powerfeeds"
-msgstr "Standardstromstärke für Stromversorgungen"
+msgstr "Standardstromstärke für Stromzufuhren"
 
 #: netbox/config/parameters.py:114
 msgid "Powerfeed max utilization"
-msgstr "Maximale Powerfeed-Auslastung"
+msgstr "Maximale Auslastung der Stromzufuhr"
 
 #: netbox/config/parameters.py:116
 msgid "Default max utilization for powerfeeds"
-msgstr "Maximale Standardauslastung für Powerfeeds"
+msgstr "Standardwert für die maximale Auslastung der Stromzufuhr"
 
 #: netbox/config/parameters.py:123 templates/core/inc/config_data.html:53
 msgid "Allowed URL schemes"
@@ -9894,11 +9894,11 @@ msgstr "Rack-Rollen"
 
 #: netbox/navigation/menu.py:31
 msgid "Elevations"
-msgstr "Erhebungen"
+msgstr "Übersichten"
 
 #: netbox/navigation/menu.py:40
 msgid "Tenant Groups"
-msgstr "Mandantengruppen"
+msgstr "Mandanten-Gruppen"
 
 #: netbox/navigation/menu.py:47
 msgid "Contact Groups"
@@ -9927,11 +9927,11 @@ msgstr "Hersteller"
 
 #: netbox/navigation/menu.py:79
 msgid "Device Components"
-msgstr "Komponenten des Geräts"
+msgstr "Gerät-Komponenten"
 
 #: netbox/navigation/menu.py:91 templates/dcim/inventoryitemrole.html:8
 msgid "Inventory Item Roles"
-msgstr "Rollen für Inventarartikel"
+msgstr "Inventarartikel-Rollen"
 
 #: netbox/navigation/menu.py:98 netbox/navigation/menu.py:102
 msgid "Connections"
@@ -9947,15 +9947,15 @@ msgstr "Drahtlose Verbindungen"
 
 #: netbox/navigation/menu.py:108
 msgid "Interface Connections"
-msgstr "Schnittstellenverbindungen"
+msgstr "Schnittstellen-Verbindungen"
 
 #: netbox/navigation/menu.py:113
 msgid "Console Connections"
-msgstr "Konsolenverbindungen"
+msgstr "Konsolen-Verbindungen"
 
 #: netbox/navigation/menu.py:118
 msgid "Power Connections"
-msgstr "Stromverbindungen"
+msgstr "Strom-Verbindungen"
 
 #: netbox/navigation/menu.py:134
 msgid "Wireless LAN Groups"
@@ -9994,11 +9994,11 @@ msgstr "Tunnel"
 
 #: netbox/navigation/menu.py:205 templates/vpn/tunnelgroup.html:8
 msgid "Tunnel Groups"
-msgstr "Tunnelgruppen"
+msgstr "Tunnel-Gruppen"
 
 #: netbox/navigation/menu.py:206
 msgid "Tunnel Terminations"
-msgstr "Tunnelabschlüsse"
+msgstr "Tunnel-Abschlüsse"
 
 #: netbox/navigation/menu.py:210 netbox/navigation/menu.py:212
 #: vpn/models/l2vpn.py:64
@@ -10897,7 +10897,7 @@ msgstr "Dateien"
 
 #: templates/core/inc/config_data.html:7
 msgid "Rack elevations"
-msgstr "Regalhöhen"
+msgstr "Rack-Übersichten"
 
 #: templates/core/inc/config_data.html:10
 msgid "Default unit height"
@@ -10909,7 +10909,7 @@ msgstr "Standardbreite der Einheit"
 
 #: templates/core/inc/config_data.html:20
 msgid "Power feeds"
-msgstr "Stromeinspeisungen"
+msgstr "Stromzufuhren"
 
 #: templates/core/inc/config_data.html:23
 msgid "Default voltage"
@@ -11255,7 +11255,7 @@ msgstr "Eingabe"
 
 #: templates/dcim/device.html:249
 msgid "Outlets"
-msgstr "Verkaufsstellen"
+msgstr "Abgänge"
 
 #: templates/dcim/device.html:250
 msgid "Allocated"
@@ -11331,7 +11331,7 @@ msgstr "Moduleinsätze hinzufügen"
 
 #: templates/dcim/device/poweroutlets.html:24
 msgid "Add Power Outlets"
-msgstr "Steckdosen hinzufügen"
+msgstr "Stromabgänge hinzufügen"
 
 #: templates/dcim/device/powerports.html:24
 msgid "Add Power Port"
@@ -11659,11 +11659,11 @@ msgstr "A"
 
 #: templates/dcim/poweroutlet.html:48
 msgid "Feed Leg"
-msgstr "Einspeiseseite"
+msgstr "Phasenlage"
 
 #: templates/dcim/powerpanel.html:72
 msgid "Add Power Feeds"
-msgstr "Power-Feeds hinzufügen"
+msgstr "Stromzufuhr hinzufügen"
 
 #: templates/dcim/powerport.html:44
 msgid "Maximum Draw"
@@ -12478,7 +12478,7 @@ msgstr "Ausgewählte bearbeiten"
 #: templates/generic/object_children.html:61
 #: utilities/templates/buttons/bulk_delete.html:4
 msgid "Delete Selected"
-msgstr "Ausgewähltes löschen"
+msgstr "Ausgewählte löschen"
 
 #: templates/generic/object_edit.html:24
 #, python-format
@@ -12571,8 +12571,8 @@ msgid ""
 "Before you can add a %(model)s you must first create a "
 "<strong>%(prerequisite_model)s</strong>."
 msgstr ""
-"Bevor Sie eine hinzufügen können %(model)s du musst zuerst eine erstellen "
-"<strong>%(prerequisite_model)s</strong>."
+"Bevor Sie ein %(model)s hinzufügen können, müssen Sie zunächst ein "
+"<strong>%(prerequisite_model)s</strong> erstellen."
 
 #: templates/inc/paginator.html:15
 msgid "Page selection"
@@ -12688,7 +12688,7 @@ msgstr "Weltweit"
 
 #: templates/ipam/ipaddress.html:85
 msgid "NAT (outside)"
-msgstr "NAT (draußen)"
+msgstr "NAT (außen)"
 
 #: templates/ipam/ipaddress_assign.html:8
 msgid "Assign an IP Address"
@@ -12716,7 +12716,7 @@ msgstr "Endadresse"
 
 #: templates/ipam/iprange.html:33 templates/ipam/prefix.html:110
 msgid "Marked fully utilized"
-msgstr "Als voll ausgelastet markiert"
+msgstr "Als voll belegt markiert"
 
 #: templates/ipam/prefix.html:99
 msgid "Addressing Details"
@@ -12780,7 +12780,7 @@ msgstr "VRFs importieren"
 
 #: templates/ipam/routetarget.html:44
 msgid "Exporting VRFs"
-msgstr "Exportieren von VRFs"
+msgstr "VRFs exportieren"
 
 #: templates/ipam/routetarget.html:52
 msgid "Importing L2VPNs"
@@ -12788,7 +12788,7 @@ msgstr "L2VPNs importieren"
 
 #: templates/ipam/routetarget.html:58
 msgid "Exporting L2VPNs"
-msgstr "Exportieren von L2VPNs"
+msgstr "L2VPNs exportieren"
 
 #: templates/ipam/vlan.html:88
 msgid "Add a Prefix"
@@ -13332,7 +13332,7 @@ msgstr "Mandantengruppe"
 
 #: tenancy/models/tenants.py:33
 msgid "tenant groups"
-msgstr "Mandantengruppen"
+msgstr "Mandanten-Gruppen"
 
 #: tenancy/models/tenants.py:70
 msgid "Tenant name must be unique per group."
@@ -13506,7 +13506,7 @@ msgstr "Die Liste der Aktionen, die durch diese Berechtigung gewährt wurden"
 
 #: users/models/permissions.py:44
 msgid "constraints"
-msgstr "Zwänge"
+msgstr "Einschränkungen"
 
 #: users/models/permissions.py:45
 msgid ""
@@ -13654,7 +13654,7 @@ msgstr "Ungültiger Wert '{weight}'für Gewicht (muss eine Zahl sein)"
 #, python-brace-format
 msgid "Unknown unit {unit}. Must be one of the following: {valid_units}"
 msgstr ""
-"Unbekannte Einheit {unit}. Muss einer der folgenden sein: {valid_units}"
+"Unbekannte Einheit {unit}. Es muss eine der folgenden sein: {valid_units}"
 
 #: utilities/conversion.py:45
 msgid "Length must be a positive number"
@@ -13855,8 +13855,8 @@ msgid ""
 "Invalid range: Ending value ({end}) must be greater than beginning value "
 "({begin})."
 msgstr ""
-"Ungültiger Bereich: Der Endwert ({end}) muss größer als der Anfangswert sein"
-" ({begin})."
+"Ungültiger Bereich: Der Endwert ({end}) muss größer als der Anfangswert "
+"({begin}) sein."
 
 #: utilities/forms/utils.py:232
 #, python-brace-format
@@ -13872,7 +13872,7 @@ msgstr "Doppelte oder widersprüchliche Spaltenüberschrift für“{header}“"
 #, python-brace-format
 msgid "Row {row}: Expected {count_expected} columns but found {count_found}"
 msgstr ""
-"Reihe {row}: Erwartet {count_expected} Spalten aber gefunden {count_found}"
+"Reihe {row}: {count_expected} Spalten erwartet, aber {count_found} gefunden"
 
 #: utilities/forms/utils.py:270
 #, python-brace-format
@@ -13933,8 +13933,8 @@ msgstr "Ungültige IP-Adresse gesetzt für {header}: {ip}"
 #, python-brace-format
 msgid "A column named {name} is already defined for table {table_name}"
 msgstr ""
-"Eine Spalte mit dem Namen {name} ist bereits für die Tabelle definiert "
-"{table_name}"
+"Eine Spalte mit dem Namen {name} ist bereits für die Tabelle {table_name} "
+"definiert"
 
 #: utilities/templates/builtins/customfield_value.html:30
 msgid "Not defined"
@@ -13986,7 +13986,7 @@ msgstr "Alles löschen"
 
 #: utilities/templates/helpers/table_config_form.html:8
 msgid "Table Configuration"
-msgstr "Konfiguration der Tabelle"
+msgstr "Tabellenkonfiguration"
 
 #: utilities/templates/helpers/table_config_form.html:31
 msgid "Move Up"
@@ -14021,12 +14021,12 @@ msgstr "{value} ist kein gültiger regulärer Ausdruck."
 #, python-brace-format
 msgid "{self.__class__.__name__} must implement get_required_permission()"
 msgstr ""
-"{self.__class__.__name__} muss get_required_permission () implementieren"
+"{self.__class__.__name__} muss get_required_permission() implementieren"
 
 #: utilities/views.py:76
 #, python-brace-format
 msgid "{class_name} must implement get_required_permission()"
-msgstr "{class_name} muss get_required_permission () implementieren"
+msgstr "{class_name} muss get_required_permission() implementieren"
 
 #: utilities/views.py:100
 #, python-brace-format
