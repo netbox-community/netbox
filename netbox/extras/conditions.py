@@ -135,7 +135,7 @@ class ConditionSet:
     def __init__(self, ruleset):
         if type(ruleset) is not dict:
             raise ValueError(_("Ruleset must be a dictionary, not {ruleset}.").format(ruleset=type(ruleset)))
-        print(len(ruleset))
+
         if len(ruleset) == 1:
             self.logic = (list(ruleset.keys())[0]).lower()
             if self.logic not in (AND, OR):
