@@ -493,8 +493,9 @@ class APIViewTestCases:
 
         def _build_filtered_query(self, name, **filters):
             """
-            Create a filtered query: i.e. ip_address_list(filters: {address: "1.1.1.1/24"}){.
+            Create a filtered query: i.e. device_list(filters: {name: {i_contains: "akron"}}){.
             """
+            # TODO: This should be extended to support AND, OR multi-lookups
             if filters:
                 for field_name, params in filters.items():
                     lookup = params['lookup']
