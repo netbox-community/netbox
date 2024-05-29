@@ -23,8 +23,8 @@ def map_strawberry_type(field):
     elif isinstance(field, MultiValueArrayFilter):
         pass
     elif isinstance(field, MultiValueCharFilter):
-        should_create_function = True
-        attr_type = List[str] | None
+        should_create_function = False
+        attr_type = strawberry_django.filters.FilterLookup[str] | None
     elif isinstance(field, MultiValueDateFilter):
         attr_type = auto
     elif isinstance(field, MultiValueDateTimeFilter):
