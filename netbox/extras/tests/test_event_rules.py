@@ -13,7 +13,6 @@ from dcim.choices import SiteStatusChoices
 from dcim.models import Site
 from extras.choices import EventRuleActionChoices, ObjectChangeActionChoices
 from extras.events import enqueue_object, flush_events, serialize_for_event
-from extras.forms import SavedFilterForm, EventRuleForm
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
 from utilities.testing import APITestCase
