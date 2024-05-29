@@ -14,7 +14,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-14 13:22+0000\n"
+"POT-Creation-Date: 2024-05-22 17:41+0000\n"
 "PO-Revision-Date: 2023-10-30 17:48+0000\n"
 "Last-Translator: Jeremy Stretch, 2024\n"
 "Language-Team: French (https://app.transifex.com/netbox-community/teams/178115/fr/)\n"
@@ -67,19 +67,19 @@ msgid "Your preferences have been updated."
 msgstr "Vos préférences ont été mises à jour."
 
 #: circuits/choices.py:21 dcim/choices.py:20 dcim/choices.py:102
-#: dcim/choices.py:174 dcim/choices.py:220 dcim/choices.py:1429
-#: dcim/choices.py:1505 dcim/choices.py:1555 virtualization/choices.py:20
+#: dcim/choices.py:174 dcim/choices.py:220 dcim/choices.py:1457
+#: dcim/choices.py:1533 dcim/choices.py:1583 virtualization/choices.py:20
 #: virtualization/choices.py:45 vpn/choices.py:18
 msgid "Planned"
 msgstr "Planifié"
 
-#: circuits/choices.py:22 netbox/navigation/menu.py:289
+#: circuits/choices.py:22 netbox/navigation/menu.py:290
 msgid "Provisioning"
 msgstr "Approvisionnement"
 
 #: circuits/choices.py:23 core/tables/tasks.py:22 dcim/choices.py:22
 #: dcim/choices.py:103 dcim/choices.py:173 dcim/choices.py:219
-#: dcim/choices.py:1504 dcim/choices.py:1554 extras/tables/tables.py:385
+#: dcim/choices.py:1532 dcim/choices.py:1582 extras/tables/tables.py:385
 #: ipam/choices.py:31 ipam/choices.py:49 ipam/choices.py:69
 #: ipam/choices.py:154 templates/extras/configcontext.html:25
 #: templates/users/user.html:37 users/forms/bulk_edit.py:38
@@ -89,7 +89,7 @@ msgid "Active"
 msgstr "Actif"
 
 #: circuits/choices.py:24 dcim/choices.py:172 dcim/choices.py:218
-#: dcim/choices.py:1503 dcim/choices.py:1556 virtualization/choices.py:24
+#: dcim/choices.py:1531 dcim/choices.py:1584 virtualization/choices.py:24
 #: virtualization/choices.py:43
 msgid "Offline"
 msgstr "Hors ligne"
@@ -104,8 +104,8 @@ msgstr "Mis hors service"
 
 #: circuits/filtersets.py:29 circuits/filtersets.py:196 dcim/filtersets.py:97
 #: dcim/filtersets.py:151 dcim/filtersets.py:211 dcim/filtersets.py:297
-#: dcim/filtersets.py:406 dcim/filtersets.py:969 dcim/filtersets.py:1295
-#: dcim/filtersets.py:1822 dcim/filtersets.py:2065 dcim/filtersets.py:2123
+#: dcim/filtersets.py:406 dcim/filtersets.py:969 dcim/filtersets.py:1305
+#: dcim/filtersets.py:1832 dcim/filtersets.py:2075 dcim/filtersets.py:2133
 #: ipam/filtersets.py:339 ipam/filtersets.py:945
 #: virtualization/filtersets.py:45 virtualization/filtersets.py:173
 #: vpn/filtersets.py:377
@@ -114,8 +114,8 @@ msgstr "Région (ID)"
 
 #: circuits/filtersets.py:36 circuits/filtersets.py:203 dcim/filtersets.py:104
 #: dcim/filtersets.py:157 dcim/filtersets.py:218 dcim/filtersets.py:304
-#: dcim/filtersets.py:413 dcim/filtersets.py:976 dcim/filtersets.py:1302
-#: dcim/filtersets.py:1829 dcim/filtersets.py:2072 dcim/filtersets.py:2130
+#: dcim/filtersets.py:413 dcim/filtersets.py:976 dcim/filtersets.py:1312
+#: dcim/filtersets.py:1839 dcim/filtersets.py:2082 dcim/filtersets.py:2140
 #: extras/filtersets.py:461 ipam/filtersets.py:346 ipam/filtersets.py:952
 #: virtualization/filtersets.py:52 virtualization/filtersets.py:180
 #: vpn/filtersets.py:372
@@ -124,8 +124,8 @@ msgstr "Région (slug)"
 
 #: circuits/filtersets.py:42 circuits/filtersets.py:209 dcim/filtersets.py:127
 #: dcim/filtersets.py:224 dcim/filtersets.py:310 dcim/filtersets.py:419
-#: dcim/filtersets.py:982 dcim/filtersets.py:1308 dcim/filtersets.py:1835
-#: dcim/filtersets.py:2078 dcim/filtersets.py:2136 ipam/filtersets.py:352
+#: dcim/filtersets.py:982 dcim/filtersets.py:1318 dcim/filtersets.py:1845
+#: dcim/filtersets.py:2088 dcim/filtersets.py:2146 ipam/filtersets.py:352
 #: ipam/filtersets.py:958 virtualization/filtersets.py:58
 #: virtualization/filtersets.py:186
 msgid "Site group (ID)"
@@ -133,16 +133,18 @@ msgstr "Groupe de sites (ID)"
 
 #: circuits/filtersets.py:49 circuits/filtersets.py:216 dcim/filtersets.py:134
 #: dcim/filtersets.py:231 dcim/filtersets.py:317 dcim/filtersets.py:426
-#: dcim/filtersets.py:989 dcim/filtersets.py:1315 dcim/filtersets.py:1842
-#: dcim/filtersets.py:2085 dcim/filtersets.py:2143 extras/filtersets.py:467
+#: dcim/filtersets.py:989 dcim/filtersets.py:1325 dcim/filtersets.py:1852
+#: dcim/filtersets.py:2095 dcim/filtersets.py:2153 extras/filtersets.py:467
 #: ipam/filtersets.py:359 ipam/filtersets.py:965
 #: virtualization/filtersets.py:65 virtualization/filtersets.py:193
 msgid "Site group (slug)"
 msgstr "Groupe de sites (slug)"
 
-#: circuits/filtersets.py:54 circuits/forms/bulk_import.py:116
-#: circuits/forms/filtersets.py:48 circuits/forms/filtersets.py:168
-#: circuits/forms/model_forms.py:136 circuits/forms/model_forms.py:152
+#: circuits/filtersets.py:54 circuits/forms/bulk_edit.py:186
+#: circuits/forms/bulk_edit.py:214 circuits/forms/bulk_import.py:126
+#: circuits/forms/filtersets.py:49 circuits/forms/filtersets.py:169
+#: circuits/forms/filtersets.py:207 circuits/forms/model_forms.py:136
+#: circuits/forms/model_forms.py:152 circuits/tables/circuits.py:105
 #: dcim/forms/bulk_edit.py:167 dcim/forms/bulk_edit.py:239
 #: dcim/forms/bulk_edit.py:575 dcim/forms/bulk_edit.py:771
 #: dcim/forms/bulk_import.py:130 dcim/forms/bulk_import.py:184
@@ -150,10 +152,10 @@ msgstr "Groupe de sites (slug)"
 #: dcim/forms/bulk_import.py:1262 dcim/forms/bulk_import.py:1290
 #: dcim/forms/filtersets.py:85 dcim/forms/filtersets.py:218
 #: dcim/forms/filtersets.py:265 dcim/forms/filtersets.py:374
-#: dcim/forms/filtersets.py:681 dcim/forms/filtersets.py:908
-#: dcim/forms/filtersets.py:932 dcim/forms/filtersets.py:1022
-#: dcim/forms/filtersets.py:1060 dcim/forms/filtersets.py:1468
-#: dcim/forms/filtersets.py:1492 dcim/forms/filtersets.py:1516
+#: dcim/forms/filtersets.py:682 dcim/forms/filtersets.py:916
+#: dcim/forms/filtersets.py:940 dcim/forms/filtersets.py:1030
+#: dcim/forms/filtersets.py:1068 dcim/forms/filtersets.py:1476
+#: dcim/forms/filtersets.py:1500 dcim/forms/filtersets.py:1524
 #: dcim/forms/model_forms.py:136 dcim/forms/model_forms.py:164
 #: dcim/forms/model_forms.py:206 dcim/forms/model_forms.py:406
 #: dcim/forms/model_forms.py:668 dcim/forms/object_create.py:391
@@ -163,11 +165,11 @@ msgstr "Groupe de sites (slug)"
 #: ipam/forms/bulk_edit.py:270 ipam/forms/bulk_edit.py:448
 #: ipam/forms/bulk_edit.py:522 ipam/forms/bulk_import.py:170
 #: ipam/forms/bulk_import.py:437 ipam/forms/filtersets.py:153
-#: ipam/forms/filtersets.py:230 ipam/forms/filtersets.py:425
-#: ipam/forms/filtersets.py:489 ipam/forms/model_forms.py:203
-#: ipam/forms/model_forms.py:578 ipam/forms/model_forms.py:673
+#: ipam/forms/filtersets.py:231 ipam/forms/filtersets.py:432
+#: ipam/forms/filtersets.py:496 ipam/forms/model_forms.py:203
+#: ipam/forms/model_forms.py:587 ipam/forms/model_forms.py:682
 #: ipam/tables/ip.py:244 ipam/tables/vlans.py:114 ipam/tables/vlans.py:216
-#: templates/circuits/inc/circuit_termination.html:32
+#: templates/circuits/inc/circuit_termination_fields.html:6
 #: templates/dcim/device.html:21 templates/dcim/inc/cable_termination.html:8
 #: templates/dcim/inc/cable_termination.html:33
 #: templates/dcim/location.html:37 templates/dcim/powerpanel.html:22
@@ -204,19 +206,21 @@ msgstr "Site (slug)"
 msgid "ASN (ID)"
 msgstr "ASN (ID)"
 
-#: circuits/filtersets.py:71 circuits/forms/filtersets.py:28
+#: circuits/filtersets.py:71 circuits/forms/filtersets.py:29
 #: ipam/forms/model_forms.py:157 ipam/models/asns.py:108
 #: ipam/models/asns.py:125 ipam/tables/asn.py:41 templates/ipam/asn.html:20
 msgid "ASN"
 msgstr "ASN"
 
 #: circuits/filtersets.py:93 circuits/filtersets.py:120
-#: circuits/filtersets.py:154 ipam/filtersets.py:243
+#: circuits/filtersets.py:154 circuits/filtersets.py:281
+#: ipam/filtersets.py:243
 msgid "Provider (ID)"
 msgstr "Fournisseur (ID)"
 
 #: circuits/filtersets.py:99 circuits/filtersets.py:126
-#: circuits/filtersets.py:160 ipam/filtersets.py:249
+#: circuits/filtersets.py:160 circuits/filtersets.py:287
+#: ipam/filtersets.py:249
 msgid "Provider (slug)"
 msgstr "Fournisseur (slug)"
 
@@ -242,8 +246,8 @@ msgstr "Type de circuit (slug)"
 
 #: circuits/filtersets.py:221 circuits/filtersets.py:266
 #: dcim/filtersets.py:235 dcim/filtersets.py:321 dcim/filtersets.py:394
-#: dcim/filtersets.py:993 dcim/filtersets.py:1320 dcim/filtersets.py:1847
-#: dcim/filtersets.py:2089 dcim/filtersets.py:2148 ipam/filtersets.py:232
+#: dcim/filtersets.py:993 dcim/filtersets.py:1330 dcim/filtersets.py:1857
+#: dcim/filtersets.py:2099 dcim/filtersets.py:2158 ipam/filtersets.py:232
 #: ipam/filtersets.py:363 ipam/filtersets.py:969
 #: virtualization/filtersets.py:69 virtualization/filtersets.py:197
 #: vpn/filtersets.py:387
@@ -255,13 +259,13 @@ msgid "Termination A (ID)"
 msgstr "Résiliation A (ID)"
 
 #: circuits/filtersets.py:258 core/filtersets.py:73 core/filtersets.py:132
-#: dcim/filtersets.py:693 dcim/filtersets.py:1289 dcim/filtersets.py:2196
+#: dcim/filtersets.py:693 dcim/filtersets.py:1299 dcim/filtersets.py:2206
 #: extras/filtersets.py:41 extras/filtersets.py:63 extras/filtersets.py:92
 #: extras/filtersets.py:127 extras/filtersets.py:176 extras/filtersets.py:204
 #: extras/filtersets.py:234 extras/filtersets.py:271 extras/filtersets.py:343
 #: extras/filtersets.py:390 extras/filtersets.py:450 extras/filtersets.py:613
 #: extras/filtersets.py:655 extras/filtersets.py:696
-#: ipam/forms/model_forms.py:438 netbox/filtersets.py:275
+#: ipam/forms/model_forms.py:447 netbox/filtersets.py:275
 #: netbox/forms/__init__.py:22 netbox/forms/base.py:165
 #: templates/htmx/object_selector.html:28 templates/inc/filter_list.html:45
 #: templates/ipam/ipaddress_assign.html:29 templates/search.html:7
@@ -271,9 +275,12 @@ msgstr "Résiliation A (ID)"
 msgid "Search"
 msgstr "Rechercher"
 
-#: circuits/filtersets.py:262 circuits/forms/bulk_edit.py:168
-#: circuits/forms/model_forms.py:109 circuits/forms/model_forms.py:131
+#: circuits/filtersets.py:262 circuits/forms/bulk_edit.py:170
+#: circuits/forms/bulk_import.py:117 circuits/forms/filtersets.py:196
+#: circuits/forms/filtersets.py:212 circuits/forms/model_forms.py:109
+#: circuits/forms/model_forms.py:131 circuits/tables/circuits.py:96
 #: dcim/forms/connections.py:71 templates/circuits/circuit.html:15
+#: templates/circuits/circuittermination.html:19
 #: templates/dcim/inc/cable_termination.html:55
 #: templates/dcim/trace/circuit.html:4
 msgid "Circuit"
@@ -283,48 +290,48 @@ msgstr "Circuit"
 msgid "ProviderNetwork (ID)"
 msgstr "Réseau fournisseur (ID)"
 
-#: circuits/forms/bulk_edit.py:26 circuits/forms/filtersets.py:53
+#: circuits/forms/bulk_edit.py:28 circuits/forms/filtersets.py:54
 #: circuits/forms/model_forms.py:27 circuits/tables/providers.py:33
 #: dcim/forms/bulk_edit.py:127 dcim/forms/filtersets.py:188
 #: dcim/forms/model_forms.py:122 dcim/tables/sites.py:94
-#: ipam/models/asns.py:126 ipam/tables/asn.py:27 ipam/views.py:218
+#: ipam/models/asns.py:126 ipam/tables/asn.py:27 ipam/views.py:219
 #: netbox/navigation/menu.py:159 netbox/navigation/menu.py:162
 #: templates/circuits/provider.html:23
 msgid "ASNs"
 msgstr "Numéros d'AS"
 
-#: circuits/forms/bulk_edit.py:30 circuits/forms/bulk_edit.py:52
-#: circuits/forms/bulk_edit.py:79 circuits/forms/bulk_edit.py:100
-#: circuits/forms/bulk_edit.py:160 core/forms/bulk_edit.py:28
-#: core/tables/plugins.py:29 dcim/forms/bulk_create.py:35
-#: dcim/forms/bulk_edit.py:72 dcim/forms/bulk_edit.py:91
-#: dcim/forms/bulk_edit.py:150 dcim/forms/bulk_edit.py:191
-#: dcim/forms/bulk_edit.py:209 dcim/forms/bulk_edit.py:337
-#: dcim/forms/bulk_edit.py:373 dcim/forms/bulk_edit.py:388
-#: dcim/forms/bulk_edit.py:447 dcim/forms/bulk_edit.py:486
-#: dcim/forms/bulk_edit.py:516 dcim/forms/bulk_edit.py:540
-#: dcim/forms/bulk_edit.py:613 dcim/forms/bulk_edit.py:665
-#: dcim/forms/bulk_edit.py:717 dcim/forms/bulk_edit.py:740
-#: dcim/forms/bulk_edit.py:788 dcim/forms/bulk_edit.py:858
-#: dcim/forms/bulk_edit.py:911 dcim/forms/bulk_edit.py:946
-#: dcim/forms/bulk_edit.py:986 dcim/forms/bulk_edit.py:1030
-#: dcim/forms/bulk_edit.py:1075 dcim/forms/bulk_edit.py:1102
-#: dcim/forms/bulk_edit.py:1120 dcim/forms/bulk_edit.py:1138
-#: dcim/forms/bulk_edit.py:1156 dcim/forms/bulk_edit.py:1575
-#: extras/forms/bulk_edit.py:36 extras/forms/bulk_edit.py:124
-#: extras/forms/bulk_edit.py:153 extras/forms/bulk_edit.py:183
-#: extras/forms/bulk_edit.py:264 extras/forms/bulk_edit.py:288
-#: extras/forms/bulk_edit.py:302 extras/tables/tables.py:58
-#: ipam/forms/bulk_edit.py:51 ipam/forms/bulk_edit.py:71
-#: ipam/forms/bulk_edit.py:91 ipam/forms/bulk_edit.py:115
-#: ipam/forms/bulk_edit.py:144 ipam/forms/bulk_edit.py:173
-#: ipam/forms/bulk_edit.py:192 ipam/forms/bulk_edit.py:261
-#: ipam/forms/bulk_edit.py:305 ipam/forms/bulk_edit.py:353
-#: ipam/forms/bulk_edit.py:396 ipam/forms/bulk_edit.py:424
-#: ipam/forms/bulk_edit.py:554 ipam/forms/bulk_edit.py:585
-#: templates/account/token.html:35 templates/circuits/circuit.html:59
-#: templates/circuits/circuittype.html:26
-#: templates/circuits/inc/circuit_termination.html:114
+#: circuits/forms/bulk_edit.py:32 circuits/forms/bulk_edit.py:54
+#: circuits/forms/bulk_edit.py:81 circuits/forms/bulk_edit.py:102
+#: circuits/forms/bulk_edit.py:162 circuits/forms/bulk_edit.py:181
+#: core/forms/bulk_edit.py:28 core/tables/plugins.py:29
+#: dcim/forms/bulk_create.py:35 dcim/forms/bulk_edit.py:72
+#: dcim/forms/bulk_edit.py:91 dcim/forms/bulk_edit.py:150
+#: dcim/forms/bulk_edit.py:191 dcim/forms/bulk_edit.py:209
+#: dcim/forms/bulk_edit.py:337 dcim/forms/bulk_edit.py:373
+#: dcim/forms/bulk_edit.py:388 dcim/forms/bulk_edit.py:447
+#: dcim/forms/bulk_edit.py:486 dcim/forms/bulk_edit.py:516
+#: dcim/forms/bulk_edit.py:540 dcim/forms/bulk_edit.py:613
+#: dcim/forms/bulk_edit.py:665 dcim/forms/bulk_edit.py:717
+#: dcim/forms/bulk_edit.py:740 dcim/forms/bulk_edit.py:788
+#: dcim/forms/bulk_edit.py:858 dcim/forms/bulk_edit.py:911
+#: dcim/forms/bulk_edit.py:946 dcim/forms/bulk_edit.py:986
+#: dcim/forms/bulk_edit.py:1030 dcim/forms/bulk_edit.py:1075
+#: dcim/forms/bulk_edit.py:1102 dcim/forms/bulk_edit.py:1120
+#: dcim/forms/bulk_edit.py:1138 dcim/forms/bulk_edit.py:1156
+#: dcim/forms/bulk_edit.py:1575 extras/forms/bulk_edit.py:36
+#: extras/forms/bulk_edit.py:124 extras/forms/bulk_edit.py:153
+#: extras/forms/bulk_edit.py:183 extras/forms/bulk_edit.py:264
+#: extras/forms/bulk_edit.py:288 extras/forms/bulk_edit.py:302
+#: extras/tables/tables.py:58 ipam/forms/bulk_edit.py:51
+#: ipam/forms/bulk_edit.py:71 ipam/forms/bulk_edit.py:91
+#: ipam/forms/bulk_edit.py:115 ipam/forms/bulk_edit.py:144
+#: ipam/forms/bulk_edit.py:173 ipam/forms/bulk_edit.py:192
+#: ipam/forms/bulk_edit.py:261 ipam/forms/bulk_edit.py:305
+#: ipam/forms/bulk_edit.py:353 ipam/forms/bulk_edit.py:396
+#: ipam/forms/bulk_edit.py:424 ipam/forms/bulk_edit.py:554
+#: ipam/forms/bulk_edit.py:585 templates/account/token.html:35
+#: templates/circuits/circuit.html:59 templates/circuits/circuittype.html:26
+#: templates/circuits/inc/circuit_termination_fields.html:88
 #: templates/circuits/provider.html:33
 #: templates/circuits/providernetwork.html:32
 #: templates/core/datasource.html:54 templates/dcim/cable.html:36
@@ -390,32 +397,35 @@ msgstr "Numéros d'AS"
 msgid "Description"
 msgstr "Description"
 
-#: circuits/forms/bulk_edit.py:47 circuits/forms/bulk_edit.py:69
-#: circuits/forms/bulk_edit.py:119 circuits/forms/bulk_import.py:34
-#: circuits/forms/bulk_import.py:49 circuits/forms/bulk_import.py:75
-#: circuits/forms/filtersets.py:67 circuits/forms/filtersets.py:85
-#: circuits/forms/filtersets.py:113 circuits/forms/filtersets.py:128
+#: circuits/forms/bulk_edit.py:49 circuits/forms/bulk_edit.py:71
+#: circuits/forms/bulk_edit.py:121 circuits/forms/bulk_import.py:35
+#: circuits/forms/bulk_import.py:50 circuits/forms/bulk_import.py:76
+#: circuits/forms/filtersets.py:68 circuits/forms/filtersets.py:86
+#: circuits/forms/filtersets.py:114 circuits/forms/filtersets.py:129
+#: circuits/forms/filtersets.py:197 circuits/forms/filtersets.py:230
 #: circuits/forms/model_forms.py:45 circuits/forms/model_forms.py:59
-#: circuits/forms/model_forms.py:91 circuits/tables/circuits.py:55
-#: circuits/tables/providers.py:72 circuits/tables/providers.py:103
-#: templates/circuits/circuit.html:18 templates/circuits/provider.html:20
+#: circuits/forms/model_forms.py:91 circuits/tables/circuits.py:56
+#: circuits/tables/circuits.py:100 circuits/tables/providers.py:72
+#: circuits/tables/providers.py:103 templates/circuits/circuit.html:18
+#: templates/circuits/circuittermination.html:25
+#: templates/circuits/provider.html:20
 #: templates/circuits/provideraccount.html:20
 #: templates/circuits/providernetwork.html:20
 #: templates/dcim/inc/cable_termination.html:51
 msgid "Provider"
 msgstr "Prestataire"
 
-#: circuits/forms/bulk_edit.py:76 circuits/forms/filtersets.py:88
+#: circuits/forms/bulk_edit.py:78 circuits/forms/filtersets.py:89
 #: templates/circuits/providernetwork.html:28
 msgid "Service ID"
 msgstr "Identifiant du service"
 
-#: circuits/forms/bulk_edit.py:96 circuits/forms/filtersets.py:104
+#: circuits/forms/bulk_edit.py:98 circuits/forms/filtersets.py:105
 #: dcim/forms/bulk_edit.py:205 dcim/forms/bulk_edit.py:502
 #: dcim/forms/bulk_edit.py:702 dcim/forms/bulk_edit.py:1071
 #: dcim/forms/bulk_edit.py:1098 dcim/forms/bulk_edit.py:1571
-#: dcim/forms/filtersets.py:975 dcim/forms/filtersets.py:1351
-#: dcim/forms/filtersets.py:1372 dcim/tables/devices.py:699
+#: dcim/forms/filtersets.py:983 dcim/forms/filtersets.py:1359
+#: dcim/forms/filtersets.py:1380 dcim/tables/devices.py:699
 #: dcim/tables/devices.py:759 dcim/tables/devices.py:986
 #: dcim/tables/devicetypes.py:245 dcim/tables/devicetypes.py:260
 #: dcim/tables/racks.py:32 extras/forms/bulk_edit.py:260
@@ -427,8 +437,8 @@ msgstr "Identifiant du service"
 msgid "Color"
 msgstr "Couleur"
 
-#: circuits/forms/bulk_edit.py:114 circuits/forms/bulk_import.py:88
-#: circuits/forms/filtersets.py:123 core/forms/bulk_edit.py:18
+#: circuits/forms/bulk_edit.py:116 circuits/forms/bulk_import.py:89
+#: circuits/forms/filtersets.py:124 core/forms/bulk_edit.py:18
 #: core/forms/filtersets.py:30 core/tables/data.py:20 core/tables/jobs.py:18
 #: dcim/forms/bulk_edit.py:282 dcim/forms/bulk_edit.py:680
 #: dcim/forms/bulk_edit.py:819 dcim/forms/bulk_edit.py:887
@@ -440,18 +450,18 @@ msgstr "Couleur"
 #: dcim/forms/bulk_import.py:725 dcim/forms/bulk_import.py:808
 #: dcim/forms/bulk_import.py:902 dcim/forms/bulk_import.py:944
 #: dcim/forms/bulk_import.py:1161 dcim/forms/bulk_import.py:1327
-#: dcim/forms/filtersets.py:287 dcim/forms/filtersets.py:866
-#: dcim/forms/filtersets.py:965 dcim/forms/filtersets.py:1086
-#: dcim/forms/filtersets.py:1156 dcim/forms/filtersets.py:1178
-#: dcim/forms/filtersets.py:1200 dcim/forms/filtersets.py:1217
-#: dcim/forms/filtersets.py:1251 dcim/forms/filtersets.py:1346
-#: dcim/forms/filtersets.py:1367 dcim/forms/model_forms.py:643
+#: dcim/forms/filtersets.py:287 dcim/forms/filtersets.py:874
+#: dcim/forms/filtersets.py:973 dcim/forms/filtersets.py:1094
+#: dcim/forms/filtersets.py:1164 dcim/forms/filtersets.py:1186
+#: dcim/forms/filtersets.py:1208 dcim/forms/filtersets.py:1225
+#: dcim/forms/filtersets.py:1259 dcim/forms/filtersets.py:1354
+#: dcim/forms/filtersets.py:1375 dcim/forms/model_forms.py:643
 #: dcim/forms/model_forms.py:649 dcim/forms/object_import.py:84
 #: dcim/forms/object_import.py:113 dcim/forms/object_import.py:145
 #: dcim/tables/devices.py:183 dcim/tables/devices.py:815
 #: dcim/tables/power.py:77 extras/forms/bulk_import.py:39
 #: extras/tables/tables.py:283 extras/tables/tables.py:355
-#: extras/tables/tables.py:473 netbox/tables/tables.py:237
+#: extras/tables/tables.py:473 netbox/tables/tables.py:239
 #: templates/circuits/circuit.html:30 templates/core/datasource.html:38
 #: templates/dcim/cable.html:15 templates/dcim/consoleport.html:36
 #: templates/dcim/consoleserverport.html:36 templates/dcim/frontport.html:36
@@ -472,13 +482,13 @@ msgstr "Couleur"
 msgid "Type"
 msgstr "Type"
 
-#: circuits/forms/bulk_edit.py:124 circuits/forms/bulk_import.py:81
-#: circuits/forms/filtersets.py:136 circuits/forms/model_forms.py:96
+#: circuits/forms/bulk_edit.py:126 circuits/forms/bulk_import.py:82
+#: circuits/forms/filtersets.py:137 circuits/forms/model_forms.py:96
 msgid "Provider account"
 msgstr "Identifiant de compte du prestataire"
 
-#: circuits/forms/bulk_edit.py:132 circuits/forms/bulk_import.py:94
-#: circuits/forms/filtersets.py:147 core/forms/filtersets.py:35
+#: circuits/forms/bulk_edit.py:134 circuits/forms/bulk_import.py:95
+#: circuits/forms/filtersets.py:148 core/forms/filtersets.py:35
 #: core/forms/filtersets.py:76 core/tables/data.py:23 core/tables/jobs.py:26
 #: core/tables/tasks.py:88 dcim/forms/bulk_edit.py:105
 #: dcim/forms/bulk_edit.py:180 dcim/forms/bulk_edit.py:261
@@ -490,9 +500,9 @@ msgstr "Identifiant de compte du prestataire"
 #: dcim/forms/bulk_import.py:1155 dcim/forms/bulk_import.py:1322
 #: dcim/forms/bulk_import.py:1386 dcim/forms/filtersets.py:171
 #: dcim/forms/filtersets.py:230 dcim/forms/filtersets.py:282
-#: dcim/forms/filtersets.py:727 dcim/forms/filtersets.py:835
-#: dcim/forms/filtersets.py:869 dcim/forms/filtersets.py:970
-#: dcim/forms/filtersets.py:1081 dcim/tables/devices.py:145
+#: dcim/forms/filtersets.py:728 dcim/forms/filtersets.py:843
+#: dcim/forms/filtersets.py:877 dcim/forms/filtersets.py:978
+#: dcim/forms/filtersets.py:1089 dcim/tables/devices.py:145
 #: dcim/tables/devices.py:818 dcim/tables/devices.py:1046
 #: dcim/tables/modules.py:69 dcim/tables/power.py:74 dcim/tables/racks.py:66
 #: dcim/tables/sites.py:82 dcim/tables/sites.py:133
@@ -500,9 +510,9 @@ msgstr "Identifiant de compte du prestataire"
 #: ipam/forms/bulk_edit.py:338 ipam/forms/bulk_edit.py:544
 #: ipam/forms/bulk_import.py:191 ipam/forms/bulk_import.py:256
 #: ipam/forms/bulk_import.py:292 ipam/forms/bulk_import.py:458
-#: ipam/forms/filtersets.py:209 ipam/forms/filtersets.py:274
-#: ipam/forms/filtersets.py:348 ipam/forms/filtersets.py:501
-#: ipam/forms/model_forms.py:457 ipam/tables/ip.py:236 ipam/tables/ip.py:309
+#: ipam/forms/filtersets.py:210 ipam/forms/filtersets.py:281
+#: ipam/forms/filtersets.py:355 ipam/forms/filtersets.py:508
+#: ipam/forms/model_forms.py:466 ipam/tables/ip.py:236 ipam/tables/ip.py:309
 #: ipam/tables/ip.py:359 ipam/tables/ip.py:421 ipam/tables/ip.py:448
 #: ipam/tables/vlans.py:122 ipam/tables/vlans.py:227
 #: templates/circuits/circuit.html:34 templates/core/datasource.html:46
@@ -533,8 +543,8 @@ msgstr "Identifiant de compte du prestataire"
 msgid "Status"
 msgstr "Statut"
 
-#: circuits/forms/bulk_edit.py:138 circuits/forms/bulk_import.py:99
-#: circuits/forms/filtersets.py:116 dcim/forms/bulk_edit.py:121
+#: circuits/forms/bulk_edit.py:140 circuits/forms/bulk_import.py:100
+#: circuits/forms/filtersets.py:117 dcim/forms/bulk_edit.py:121
 #: dcim/forms/bulk_edit.py:186 dcim/forms/bulk_edit.py:256
 #: dcim/forms/bulk_edit.py:368 dcim/forms/bulk_edit.py:588
 #: dcim/forms/bulk_edit.py:692 dcim/forms/bulk_edit.py:1599
@@ -544,9 +554,9 @@ msgstr "Statut"
 #: dcim/forms/bulk_import.py:1379 dcim/forms/filtersets.py:166
 #: dcim/forms/filtersets.py:198 dcim/forms/filtersets.py:249
 #: dcim/forms/filtersets.py:334 dcim/forms/filtersets.py:355
-#: dcim/forms/filtersets.py:652 dcim/forms/filtersets.py:827
-#: dcim/forms/filtersets.py:889 dcim/forms/filtersets.py:919
-#: dcim/forms/filtersets.py:1041 dcim/tables/power.py:88
+#: dcim/forms/filtersets.py:652 dcim/forms/filtersets.py:835
+#: dcim/forms/filtersets.py:897 dcim/forms/filtersets.py:927
+#: dcim/forms/filtersets.py:1049 dcim/tables/power.py:88
 #: extras/filtersets.py:564 extras/forms/filtersets.py:332
 #: extras/forms/filtersets.py:405 ipam/forms/bulk_edit.py:41
 #: ipam/forms/bulk_edit.py:66 ipam/forms/bulk_edit.py:110
@@ -560,8 +570,8 @@ msgstr "Statut"
 #: ipam/forms/bulk_import.py:451 ipam/forms/filtersets.py:48
 #: ipam/forms/filtersets.py:68 ipam/forms/filtersets.py:100
 #: ipam/forms/filtersets.py:120 ipam/forms/filtersets.py:143
-#: ipam/forms/filtersets.py:173 ipam/forms/filtersets.py:260
-#: ipam/forms/filtersets.py:303 ipam/forms/filtersets.py:469
+#: ipam/forms/filtersets.py:174 ipam/forms/filtersets.py:267
+#: ipam/forms/filtersets.py:310 ipam/forms/filtersets.py:476
 #: ipam/tables/ip.py:451 ipam/tables/vlans.py:224
 #: templates/circuits/circuit.html:38 templates/dcim/cable.html:23
 #: templates/dcim/device.html:78 templates/dcim/location.html:49
@@ -592,23 +602,23 @@ msgstr "Statut"
 msgid "Tenant"
 msgstr "Locataire"
 
-#: circuits/forms/bulk_edit.py:143 circuits/forms/filtersets.py:171
+#: circuits/forms/bulk_edit.py:145 circuits/forms/filtersets.py:172
 msgid "Install date"
 msgstr "Date d'installation"
 
-#: circuits/forms/bulk_edit.py:148 circuits/forms/filtersets.py:176
+#: circuits/forms/bulk_edit.py:150 circuits/forms/filtersets.py:177
 msgid "Termination date"
 msgstr "Date de résiliation"
 
-#: circuits/forms/bulk_edit.py:154 circuits/forms/filtersets.py:183
+#: circuits/forms/bulk_edit.py:156 circuits/forms/filtersets.py:184
 msgid "Commit rate (Kbps)"
 msgstr "Débit engagé (Kbits/s)"
 
-#: circuits/forms/bulk_edit.py:169 circuits/forms/model_forms.py:110
+#: circuits/forms/bulk_edit.py:171 circuits/forms/model_forms.py:110
 msgid "Service Parameters"
 msgstr "Paramètres du service"
 
-#: circuits/forms/bulk_edit.py:170 circuits/forms/model_forms.py:111
+#: circuits/forms/bulk_edit.py:172 circuits/forms/model_forms.py:111
 #: dcim/forms/model_forms.py:138 dcim/forms/model_forms.py:180
 #: dcim/forms/model_forms.py:228 dcim/forms/model_forms.py:267
 #: dcim/forms/model_forms.py:713 dcim/forms/model_forms.py:1636
@@ -627,26 +637,60 @@ msgstr "Paramètres du service"
 msgid "Tenancy"
 msgstr "Utilisateur"
 
-#: circuits/forms/bulk_import.py:37 circuits/forms/bulk_import.py:52
-#: circuits/forms/bulk_import.py:78
+#: circuits/forms/bulk_edit.py:191 circuits/forms/bulk_edit.py:215
+#: circuits/forms/model_forms.py:153 circuits/tables/circuits.py:109
+#: templates/circuits/inc/circuit_termination_fields.html:62
+#: templates/circuits/providernetwork.html:17
+msgid "Provider Network"
+msgstr "Réseau de fournisseurs"
+
+#: circuits/forms/bulk_edit.py:197
+msgid "Port speed (Kbps)"
+msgstr "Vitesse du port (Kbits/s)"
+
+#: circuits/forms/bulk_edit.py:201
+msgid "Upstream speed (Kbps)"
+msgstr "Vitesse ascendante (Kbits/s)"
+
+#: circuits/forms/bulk_edit.py:204 dcim/forms/bulk_edit.py:849
+#: dcim/forms/bulk_edit.py:1208 dcim/forms/bulk_edit.py:1225
+#: dcim/forms/bulk_edit.py:1242 dcim/forms/bulk_edit.py:1260
+#: dcim/forms/bulk_edit.py:1348 dcim/forms/bulk_edit.py:1487
+#: dcim/forms/bulk_edit.py:1504
+msgid "Mark connected"
+msgstr "Marquer comme connecté"
+
+#: circuits/forms/bulk_edit.py:217 circuits/forms/model_forms.py:155
+#: templates/circuits/inc/circuit_termination_fields.html:54
+#: templates/dcim/frontport.html:121 templates/dcim/interface.html:193
+#: templates/dcim/rearport.html:111
+msgid "Circuit Termination"
+msgstr "Terminaison de circuit"
+
+#: circuits/forms/bulk_edit.py:219 circuits/forms/model_forms.py:157
+msgid "Termination Details"
+msgstr "Détails de terminaison"
+
+#: circuits/forms/bulk_import.py:38 circuits/forms/bulk_import.py:53
+#: circuits/forms/bulk_import.py:79
 msgid "Assigned provider"
 msgstr "Prestataire assigné"
 
-#: circuits/forms/bulk_import.py:69 dcim/forms/bulk_import.py:178
+#: circuits/forms/bulk_import.py:70 dcim/forms/bulk_import.py:178
 #: dcim/forms/bulk_import.py:388 dcim/forms/bulk_import.py:1108
 #: dcim/forms/bulk_import.py:1187 extras/forms/bulk_import.py:232
 msgid "RGB color in hexadecimal. Example:"
 msgstr "Couleur RVB en hexadécimal. Exemple :"
 
-#: circuits/forms/bulk_import.py:84
+#: circuits/forms/bulk_import.py:85
 msgid "Assigned provider account"
 msgstr "Compte prestataire attribué"
 
-#: circuits/forms/bulk_import.py:91
+#: circuits/forms/bulk_import.py:92
 msgid "Type of circuit"
 msgstr "Type de circuit"
 
-#: circuits/forms/bulk_import.py:96 dcim/forms/bulk_import.py:89
+#: circuits/forms/bulk_import.py:97 dcim/forms/bulk_import.py:89
 #: dcim/forms/bulk_import.py:148 dcim/forms/bulk_import.py:204
 #: dcim/forms/bulk_import.py:452 dcim/forms/bulk_import.py:606
 #: dcim/forms/bulk_import.py:1324 ipam/forms/bulk_import.py:193
@@ -657,7 +701,7 @@ msgstr "Type de circuit"
 msgid "Operational status"
 msgstr "État opérationnel"
 
-#: circuits/forms/bulk_import.py:103 dcim/forms/bulk_import.py:110
+#: circuits/forms/bulk_import.py:104 dcim/forms/bulk_import.py:110
 #: dcim/forms/bulk_import.py:155 dcim/forms/bulk_import.py:286
 #: dcim/forms/bulk_import.py:428 dcim/forms/bulk_import.py:1171
 #: dcim/forms/bulk_import.py:1319 dcim/forms/bulk_import.py:1383
@@ -671,37 +715,46 @@ msgstr "État opérationnel"
 msgid "Assigned tenant"
 msgstr "Locataire assigné"
 
-#: circuits/forms/bulk_import.py:122 circuits/forms/filtersets.py:144
-#: circuits/forms/model_forms.py:142
+#: circuits/forms/bulk_import.py:122
+#: templates/circuits/inc/circuit_termination.html:6
+#: templates/circuits/inc/circuit_termination_fields.html:15
+#: templates/dcim/cable.html:68 templates/dcim/cable.html:72
+#: vpn/forms/bulk_import.py:100 vpn/forms/filtersets.py:77
+msgid "Termination"
+msgstr "Résiliation"
+
+#: circuits/forms/bulk_import.py:132 circuits/forms/filtersets.py:145
+#: circuits/forms/filtersets.py:225 circuits/forms/model_forms.py:142
 msgid "Provider network"
 msgstr "Réseau de fournisseurs"
 
-#: circuits/forms/filtersets.py:27 circuits/forms/filtersets.py:115
-#: dcim/forms/bulk_edit.py:248 dcim/forms/bulk_edit.py:346
-#: dcim/forms/bulk_edit.py:580 dcim/forms/bulk_edit.py:627
-#: dcim/forms/bulk_edit.py:780 dcim/forms/bulk_import.py:189
-#: dcim/forms/bulk_import.py:263 dcim/forms/bulk_import.py:491
-#: dcim/forms/bulk_import.py:1268 dcim/forms/bulk_import.py:1302
-#: dcim/forms/filtersets.py:93 dcim/forms/filtersets.py:246
-#: dcim/forms/filtersets.py:279 dcim/forms/filtersets.py:331
-#: dcim/forms/filtersets.py:382 dcim/forms/filtersets.py:649
-#: dcim/forms/filtersets.py:690 dcim/forms/filtersets.py:888
-#: dcim/forms/filtersets.py:917 dcim/forms/filtersets.py:937
-#: dcim/forms/filtersets.py:1001 dcim/forms/filtersets.py:1031
-#: dcim/forms/filtersets.py:1040 dcim/forms/filtersets.py:1151
-#: dcim/forms/filtersets.py:1173 dcim/forms/filtersets.py:1195
-#: dcim/forms/filtersets.py:1212 dcim/forms/filtersets.py:1232
-#: dcim/forms/filtersets.py:1340 dcim/forms/filtersets.py:1362
-#: dcim/forms/filtersets.py:1383 dcim/forms/filtersets.py:1398
-#: dcim/forms/filtersets.py:1412 dcim/forms/model_forms.py:179
-#: dcim/forms/model_forms.py:211 dcim/forms/model_forms.py:411
-#: dcim/forms/model_forms.py:673 dcim/tables/devices.py:162
-#: dcim/tables/power.py:30 dcim/tables/racks.py:58 dcim/tables/racks.py:143
-#: extras/filtersets.py:488 extras/forms/filtersets.py:329
-#: ipam/forms/bulk_edit.py:457 ipam/forms/filtersets.py:172
-#: ipam/forms/filtersets.py:407 ipam/forms/filtersets.py:430
-#: ipam/forms/filtersets.py:467 ipam/forms/model_forms.py:590
-#: templates/dcim/device.html:25 templates/dcim/device_edit.html:30
+#: circuits/forms/filtersets.py:28 circuits/forms/filtersets.py:116
+#: circuits/forms/filtersets.py:198 dcim/forms/bulk_edit.py:248
+#: dcim/forms/bulk_edit.py:346 dcim/forms/bulk_edit.py:580
+#: dcim/forms/bulk_edit.py:627 dcim/forms/bulk_edit.py:780
+#: dcim/forms/bulk_import.py:189 dcim/forms/bulk_import.py:263
+#: dcim/forms/bulk_import.py:491 dcim/forms/bulk_import.py:1268
+#: dcim/forms/bulk_import.py:1302 dcim/forms/filtersets.py:93
+#: dcim/forms/filtersets.py:246 dcim/forms/filtersets.py:279
+#: dcim/forms/filtersets.py:331 dcim/forms/filtersets.py:382
+#: dcim/forms/filtersets.py:649 dcim/forms/filtersets.py:691
+#: dcim/forms/filtersets.py:896 dcim/forms/filtersets.py:925
+#: dcim/forms/filtersets.py:945 dcim/forms/filtersets.py:1009
+#: dcim/forms/filtersets.py:1039 dcim/forms/filtersets.py:1048
+#: dcim/forms/filtersets.py:1159 dcim/forms/filtersets.py:1181
+#: dcim/forms/filtersets.py:1203 dcim/forms/filtersets.py:1220
+#: dcim/forms/filtersets.py:1240 dcim/forms/filtersets.py:1348
+#: dcim/forms/filtersets.py:1370 dcim/forms/filtersets.py:1391
+#: dcim/forms/filtersets.py:1406 dcim/forms/filtersets.py:1420
+#: dcim/forms/model_forms.py:179 dcim/forms/model_forms.py:211
+#: dcim/forms/model_forms.py:411 dcim/forms/model_forms.py:673
+#: dcim/tables/devices.py:162 dcim/tables/power.py:30 dcim/tables/racks.py:58
+#: dcim/tables/racks.py:143 extras/filtersets.py:488
+#: extras/forms/filtersets.py:329 ipam/forms/bulk_edit.py:457
+#: ipam/forms/filtersets.py:173 ipam/forms/filtersets.py:414
+#: ipam/forms/filtersets.py:437 ipam/forms/filtersets.py:474
+#: ipam/forms/model_forms.py:599 templates/dcim/device.html:25
+#: templates/dcim/device_edit.html:30
 #: templates/dcim/inc/cable_termination.html:12
 #: templates/dcim/location.html:26 templates/dcim/powerpanel.html:26
 #: templates/dcim/rack.html:26 templates/dcim/rackreservation.html:32
@@ -711,12 +764,12 @@ msgstr "Réseau de fournisseurs"
 msgid "Location"
 msgstr "Emplacement"
 
-#: circuits/forms/filtersets.py:29 circuits/forms/filtersets.py:117
+#: circuits/forms/filtersets.py:30 circuits/forms/filtersets.py:118
 #: dcim/forms/filtersets.py:137 dcim/forms/filtersets.py:151
 #: dcim/forms/filtersets.py:167 dcim/forms/filtersets.py:199
 #: dcim/forms/filtersets.py:250 dcim/forms/filtersets.py:335
 #: dcim/forms/filtersets.py:406 dcim/forms/filtersets.py:653
-#: dcim/forms/filtersets.py:1002 netbox/navigation/menu.py:44
+#: dcim/forms/filtersets.py:1010 netbox/navigation/menu.py:44
 #: netbox/navigation/menu.py:46 tenancy/forms/filtersets.py:42
 #: tenancy/tables/columns.py:70 tenancy/tables/contacts.py:25
 #: tenancy/views.py:19 virtualization/forms/filtersets.py:37
@@ -725,22 +778,22 @@ msgstr "Emplacement"
 msgid "Contacts"
 msgstr "Contacts"
 
-#: circuits/forms/filtersets.py:34 circuits/forms/filtersets.py:154
+#: circuits/forms/filtersets.py:35 circuits/forms/filtersets.py:155
 #: dcim/forms/bulk_edit.py:111 dcim/forms/bulk_edit.py:223
 #: dcim/forms/bulk_edit.py:755 dcim/forms/bulk_import.py:92
 #: dcim/forms/filtersets.py:71 dcim/forms/filtersets.py:178
 #: dcim/forms/filtersets.py:204 dcim/forms/filtersets.py:257
-#: dcim/forms/filtersets.py:360 dcim/forms/filtersets.py:667
-#: dcim/forms/filtersets.py:894 dcim/forms/filtersets.py:924
-#: dcim/forms/filtersets.py:1008 dcim/forms/filtersets.py:1047
-#: dcim/forms/filtersets.py:1460 dcim/forms/filtersets.py:1484
-#: dcim/forms/filtersets.py:1508 dcim/forms/model_forms.py:111
+#: dcim/forms/filtersets.py:360 dcim/forms/filtersets.py:668
+#: dcim/forms/filtersets.py:902 dcim/forms/filtersets.py:932
+#: dcim/forms/filtersets.py:1016 dcim/forms/filtersets.py:1055
+#: dcim/forms/filtersets.py:1468 dcim/forms/filtersets.py:1492
+#: dcim/forms/filtersets.py:1516 dcim/forms/model_forms.py:111
 #: dcim/forms/object_create.py:375 dcim/tables/devices.py:148
 #: dcim/tables/sites.py:85 extras/filtersets.py:455
 #: ipam/forms/bulk_edit.py:206 ipam/forms/bulk_edit.py:438
-#: ipam/forms/bulk_edit.py:512 ipam/forms/filtersets.py:216
-#: ipam/forms/filtersets.py:415 ipam/forms/filtersets.py:475
-#: ipam/forms/model_forms.py:562 templates/dcim/device.html:17
+#: ipam/forms/bulk_edit.py:512 ipam/forms/filtersets.py:217
+#: ipam/forms/filtersets.py:422 ipam/forms/filtersets.py:482
+#: ipam/forms/model_forms.py:571 templates/dcim/device.html:17
 #: templates/dcim/rack.html:16 templates/dcim/rackreservation.html:22
 #: templates/dcim/region.html:26 templates/dcim/site.html:30
 #: templates/ipam/prefix.html:49 templates/ipam/vlan.html:16
@@ -750,42 +803,42 @@ msgstr "Contacts"
 msgid "Region"
 msgstr "Région"
 
-#: circuits/forms/filtersets.py:39 circuits/forms/filtersets.py:159
+#: circuits/forms/filtersets.py:40 circuits/forms/filtersets.py:160
 #: dcim/forms/bulk_edit.py:231 dcim/forms/bulk_edit.py:763
 #: dcim/forms/filtersets.py:76 dcim/forms/filtersets.py:183
 #: dcim/forms/filtersets.py:209 dcim/forms/filtersets.py:270
-#: dcim/forms/filtersets.py:365 dcim/forms/filtersets.py:672
-#: dcim/forms/filtersets.py:899 dcim/forms/filtersets.py:1013
-#: dcim/forms/filtersets.py:1052 dcim/forms/object_create.py:383
+#: dcim/forms/filtersets.py:365 dcim/forms/filtersets.py:673
+#: dcim/forms/filtersets.py:907 dcim/forms/filtersets.py:1021
+#: dcim/forms/filtersets.py:1060 dcim/forms/object_create.py:383
 #: extras/filtersets.py:472 ipam/forms/bulk_edit.py:211
 #: ipam/forms/bulk_edit.py:445 ipam/forms/bulk_edit.py:517
-#: ipam/forms/filtersets.py:221 ipam/forms/filtersets.py:420
-#: ipam/forms/filtersets.py:480 ipam/forms/model_forms.py:575
+#: ipam/forms/filtersets.py:222 ipam/forms/filtersets.py:427
+#: ipam/forms/filtersets.py:487 ipam/forms/model_forms.py:584
 #: virtualization/forms/bulk_edit.py:86 virtualization/forms/filtersets.py:69
 #: virtualization/forms/filtersets.py:138
 #: virtualization/forms/model_forms.py:98
 msgid "Site group"
 msgstr "Groupe de sites"
 
-#: circuits/forms/filtersets.py:62 circuits/forms/filtersets.py:80
-#: circuits/forms/filtersets.py:99 circuits/forms/filtersets.py:114
+#: circuits/forms/filtersets.py:63 circuits/forms/filtersets.py:81
+#: circuits/forms/filtersets.py:100 circuits/forms/filtersets.py:115
 #: core/forms/filtersets.py:64 dcim/forms/bulk_edit.py:726
 #: dcim/forms/filtersets.py:165 dcim/forms/filtersets.py:197
-#: dcim/forms/filtersets.py:826 dcim/forms/filtersets.py:918
-#: dcim/forms/filtersets.py:1042 dcim/forms/filtersets.py:1150
-#: dcim/forms/filtersets.py:1172 dcim/forms/filtersets.py:1194
-#: dcim/forms/filtersets.py:1211 dcim/forms/filtersets.py:1228
-#: dcim/forms/filtersets.py:1339 dcim/forms/filtersets.py:1361
-#: dcim/forms/filtersets.py:1382 dcim/forms/filtersets.py:1397
-#: dcim/forms/filtersets.py:1410 extras/forms/filtersets.py:43
+#: dcim/forms/filtersets.py:834 dcim/forms/filtersets.py:926
+#: dcim/forms/filtersets.py:1050 dcim/forms/filtersets.py:1158
+#: dcim/forms/filtersets.py:1180 dcim/forms/filtersets.py:1202
+#: dcim/forms/filtersets.py:1219 dcim/forms/filtersets.py:1236
+#: dcim/forms/filtersets.py:1347 dcim/forms/filtersets.py:1369
+#: dcim/forms/filtersets.py:1390 dcim/forms/filtersets.py:1405
+#: dcim/forms/filtersets.py:1418 extras/forms/filtersets.py:43
 #: extras/forms/filtersets.py:112 extras/forms/filtersets.py:143
 #: extras/forms/filtersets.py:183 extras/forms/filtersets.py:199
 #: extras/forms/filtersets.py:230 extras/forms/filtersets.py:254
 #: extras/forms/filtersets.py:450 extras/forms/filtersets.py:488
-#: ipam/forms/filtersets.py:99 ipam/forms/filtersets.py:259
-#: ipam/forms/filtersets.py:300 ipam/forms/filtersets.py:375
-#: ipam/forms/filtersets.py:468 ipam/forms/filtersets.py:527
-#: ipam/forms/filtersets.py:545 netbox/tables/tables.py:253
+#: ipam/forms/filtersets.py:99 ipam/forms/filtersets.py:266
+#: ipam/forms/filtersets.py:307 ipam/forms/filtersets.py:382
+#: ipam/forms/filtersets.py:475 ipam/forms/filtersets.py:534
+#: ipam/forms/filtersets.py:552 netbox/tables/tables.py:255
 #: virtualization/forms/filtersets.py:45
 #: virtualization/forms/filtersets.py:103
 #: virtualization/forms/filtersets.py:194
@@ -794,28 +847,15 @@ msgstr "Groupe de sites"
 msgid "Attributes"
 msgstr "Attributs"
 
-#: circuits/forms/filtersets.py:70 circuits/tables/circuits.py:60
+#: circuits/forms/filtersets.py:71 circuits/tables/circuits.py:61
 #: circuits/tables/providers.py:66 templates/circuits/circuit.html:22
 #: templates/circuits/provideraccount.html:24
 msgid "Account"
 msgstr "Compte"
 
-#: circuits/forms/model_forms.py:153
-#: templates/circuits/inc/circuit_termination.html:88
-#: templates/circuits/providernetwork.html:17
-msgid "Provider Network"
-msgstr "Réseau de fournisseurs"
-
-#: circuits/forms/model_forms.py:155
-#: templates/circuits/inc/circuit_termination.html:80
-#: templates/dcim/frontport.html:121 templates/dcim/interface.html:193
-#: templates/dcim/rearport.html:111
-msgid "Circuit Termination"
-msgstr "Terminaison de circuit"
-
-#: circuits/forms/model_forms.py:157
-msgid "Termination Details"
-msgstr "Détails de terminaison"
+#: circuits/forms/filtersets.py:215
+msgid "Term Side"
+msgstr "Côté terme"
 
 #: circuits/models/circuits.py:25 dcim/models/cables.py:67
 #: dcim/models/device_component_templates.py:491
@@ -846,8 +886,8 @@ msgstr "ID de circuit unique"
 #: core/models/jobs.py:85 dcim/models/cables.py:49 dcim/models/devices.py:643
 #: dcim/models/devices.py:1155 dcim/models/devices.py:1364
 #: dcim/models/power.py:96 dcim/models/racks.py:98 dcim/models/sites.py:154
-#: dcim/models/sites.py:266 ipam/models/ip.py:252 ipam/models/ip.py:521
-#: ipam/models/ip.py:729 ipam/models/vlans.py:175
+#: dcim/models/sites.py:266 ipam/models/ip.py:253 ipam/models/ip.py:522
+#: ipam/models/ip.py:730 ipam/models/vlans.py:175
 #: virtualization/models/clusters.py:74
 #: virtualization/models/virtualmachines.py:84 vpn/models/tunnels.py:40
 #: wireless/models.py:94 wireless/models.py:158
@@ -1021,15 +1061,15 @@ msgstr "réseau de fournisseurs"
 msgid "provider networks"
 msgstr "réseaux de fournisseurs"
 
-#: circuits/tables/circuits.py:29 circuits/tables/providers.py:18
+#: circuits/tables/circuits.py:30 circuits/tables/providers.py:18
 #: circuits/tables/providers.py:69 circuits/tables/providers.py:99
 #: core/tables/data.py:16 core/tables/jobs.py:14 core/tables/plugins.py:13
 #: core/tables/tasks.py:11 core/tables/tasks.py:115
 #: dcim/forms/filtersets.py:61 dcim/forms/object_create.py:43
 #: dcim/tables/devices.py:60 dcim/tables/devices.py:97
 #: dcim/tables/devices.py:139 dcim/tables/devices.py:294
-#: dcim/tables/devices.py:376 dcim/tables/devices.py:420
-#: dcim/tables/devices.py:472 dcim/tables/devices.py:524
+#: dcim/tables/devices.py:380 dcim/tables/devices.py:424
+#: dcim/tables/devices.py:476 dcim/tables/devices.py:528
 #: dcim/tables/devices.py:644 dcim/tables/devices.py:726
 #: dcim/tables/devices.py:776 dcim/tables/devices.py:842
 #: dcim/tables/devices.py:957 dcim/tables/devices.py:977
@@ -1043,7 +1083,7 @@ msgstr "réseaux de fournisseurs"
 #: extras/tables/tables.py:209 extras/tables/tables.py:256
 #: extras/tables/tables.py:279 extras/tables/tables.py:329
 #: extras/tables/tables.py:381 extras/tables/tables.py:404
-#: ipam/forms/bulk_edit.py:391 ipam/forms/filtersets.py:379
+#: ipam/forms/bulk_edit.py:391 ipam/forms/filtersets.py:386
 #: ipam/tables/asn.py:16 ipam/tables/ip.py:85 ipam/tables/ip.py:159
 #: ipam/tables/services.py:15 ipam/tables/services.py:40
 #: ipam/tables/vlans.py:64 ipam/tables/vlans.py:110 ipam/tables/vrfs.py:26
@@ -1109,7 +1149,7 @@ msgstr "réseaux de fournisseurs"
 msgid "Name"
 msgstr "Nom"
 
-#: circuits/tables/circuits.py:38 circuits/tables/providers.py:45
+#: circuits/tables/circuits.py:39 circuits/tables/providers.py:45
 #: circuits/tables/providers.py:79 netbox/navigation/menu.py:253
 #: netbox/navigation/menu.py:257 netbox/navigation/menu.py:259
 #: templates/circuits/provider.html:57
@@ -1118,23 +1158,23 @@ msgstr "Nom"
 msgid "Circuits"
 msgstr "Circuits"
 
-#: circuits/tables/circuits.py:52 templates/circuits/circuit.html:26
+#: circuits/tables/circuits.py:53 templates/circuits/circuit.html:26
 msgid "Circuit ID"
 msgstr "Identifiant du circuit"
 
-#: circuits/tables/circuits.py:65 wireless/forms/model_forms.py:160
+#: circuits/tables/circuits.py:66 wireless/forms/model_forms.py:160
 msgid "Side A"
 msgstr "Côté A"
 
-#: circuits/tables/circuits.py:69
+#: circuits/tables/circuits.py:70
 msgid "Side Z"
 msgstr "Côté Z"
 
-#: circuits/tables/circuits.py:72 templates/circuits/circuit.html:55
+#: circuits/tables/circuits.py:73 templates/circuits/circuit.html:55
 msgid "Commit Rate"
 msgstr "Taux d'engagement"
 
-#: circuits/tables/circuits.py:75 circuits/tables/providers.py:48
+#: circuits/tables/circuits.py:76 circuits/tables/providers.py:48
 #: circuits/tables/providers.py:82 circuits/tables/providers.py:107
 #: dcim/tables/devices.py:1019 dcim/tables/devicetypes.py:92
 #: dcim/tables/modules.py:29 dcim/tables/modules.py:72 dcim/tables/power.py:39
@@ -1191,12 +1231,12 @@ msgstr "Terminé"
 
 #: core/choices.py:22 core/choices.py:59 core/constants.py:20
 #: core/tables/tasks.py:34 dcim/choices.py:176 dcim/choices.py:222
-#: dcim/choices.py:1506 extras/choices.py:226 virtualization/choices.py:47
+#: dcim/choices.py:1534 extras/choices.py:226 virtualization/choices.py:47
 msgid "Failed"
 msgstr "Échoué"
 
-#: core/choices.py:35 netbox/navigation/menu.py:319
-#: netbox/navigation/menu.py:323 templates/extras/script/base.html:14
+#: core/choices.py:35 netbox/navigation/menu.py:320
+#: netbox/navigation/menu.py:324 templates/extras/script/base.html:14
 #: templates/extras/script_list.html:7 templates/extras/script_list.html:12
 #: templates/extras/script_result.html:17
 msgid "Scripts"
@@ -1291,8 +1331,8 @@ msgstr "Source de données (nom)"
 
 #: core/forms/bulk_edit.py:25 core/forms/filtersets.py:40
 #: core/tables/data.py:26 dcim/forms/bulk_edit.py:1020
-#: dcim/forms/bulk_edit.py:1293 dcim/forms/filtersets.py:1268
-#: dcim/tables/devices.py:549 dcim/tables/devicetypes.py:221
+#: dcim/forms/bulk_edit.py:1293 dcim/forms/filtersets.py:1276
+#: dcim/tables/devices.py:553 dcim/tables/devicetypes.py:221
 #: extras/forms/bulk_edit.py:98 extras/forms/bulk_edit.py:162
 #: extras/forms/bulk_edit.py:221 extras/forms/filtersets.py:120
 #: extras/forms/filtersets.py:207 extras/forms/filtersets.py:268
@@ -1432,10 +1472,10 @@ msgstr ""
 msgid "Rack Elevations"
 msgstr "Élévations des baies"
 
-#: core/forms/model_forms.py:157 dcim/choices.py:1417
+#: core/forms/model_forms.py:157 dcim/choices.py:1445
 #: dcim/forms/bulk_edit.py:867 dcim/forms/bulk_edit.py:1250
 #: dcim/forms/bulk_edit.py:1268 dcim/tables/racks.py:89
-#: netbox/navigation/menu.py:275 netbox/navigation/menu.py:279
+#: netbox/navigation/menu.py:276 netbox/navigation/menu.py:280
 msgid "Power"
 msgstr "Pouvoir"
 
@@ -1468,7 +1508,7 @@ msgstr "Validation"
 msgid "User Preferences"
 msgstr "Préférences de l'utilisateur"
 
-#: core/forms/model_forms.py:167 dcim/forms/filtersets.py:660
+#: core/forms/model_forms.py:167 dcim/forms/filtersets.py:661
 #: templates/core/inc/config_data.html:127 users/forms/model_forms.py:65
 msgid "Miscellaneous"
 msgstr "Divers"
@@ -1614,7 +1654,7 @@ msgstr "chemin"
 msgid "File path relative to the data source's root"
 msgstr "Chemin du fichier par rapport à la racine de la source de données"
 
-#: core/models/data.py:303 ipam/models/ip.py:502
+#: core/models/data.py:303 ipam/models/ip.py:503
 msgid "size"
 msgstr "taille"
 
@@ -1733,7 +1773,7 @@ msgstr "Dernière mise à jour"
 
 #: core/tables/jobs.py:10 core/tables/tasks.py:76
 #: dcim/tables/devicetypes.py:161 extras/tables/tables.py:179
-#: extras/tables/tables.py:350 netbox/tables/tables.py:187
+#: extras/tables/tables.py:350 netbox/tables/tables.py:188
 #: templates/dcim/virtualchassis_edit.html:52 utilities/forms/forms.py:73
 #: wireless/tables/wirelesslink.py:16
 msgid "ID"
@@ -1742,7 +1782,7 @@ msgstr "IDENTIFIANT"
 #: core/tables/jobs.py:21 extras/choices.py:41 extras/tables/tables.py:241
 #: extras/tables/tables.py:287 extras/tables/tables.py:360
 #: extras/tables/tables.py:478 extras/tables/tables.py:509
-#: extras/tables/tables.py:574 netbox/tables/tables.py:241
+#: extras/tables/tables.py:574 netbox/tables/tables.py:243
 #: templates/extras/eventrule.html:84 templates/extras/journalentry.html:18
 #: templates/extras/objectchange.html:57 tenancy/tables/contacts.py:93
 #: vpn/tables/l2vpn.py:64
@@ -1787,7 +1827,7 @@ msgstr "Travailleurs"
 msgid "Host"
 msgstr "Hôte"
 
-#: core/tables/tasks.py:50 ipam/forms/filtersets.py:535
+#: core/tables/tasks.py:50 ipam/forms/filtersets.py:542
 msgid "Port"
 msgstr "Port"
 
@@ -1854,7 +1894,7 @@ msgid "Staging"
 msgstr "Mise en scène"
 
 #: dcim/choices.py:23 dcim/choices.py:178 dcim/choices.py:223
-#: dcim/choices.py:1430 virtualization/choices.py:23
+#: dcim/choices.py:1458 virtualization/choices.py:23
 #: virtualization/choices.py:48
 msgid "Decommissioning"
 msgstr "Démantèlement"
@@ -1914,7 +1954,7 @@ msgstr "Obsolète"
 msgid "Millimeters"
 msgstr "Millimètres"
 
-#: dcim/choices.py:115 dcim/choices.py:1452
+#: dcim/choices.py:115 dcim/choices.py:1480
 msgid "Inches"
 msgstr "Pouces"
 
@@ -1989,7 +2029,7 @@ msgstr "De droite à gauche"
 msgid "Side to rear"
 msgstr "D'un côté à l'arrière"
 
-#: dcim/choices.py:198 dcim/choices.py:1225
+#: dcim/choices.py:198 dcim/choices.py:1253
 msgid "Passive"
 msgstr "Passif"
 
@@ -1997,56 +2037,56 @@ msgstr "Passif"
 msgid "Mixed"
 msgstr "Mixte"
 
-#: dcim/choices.py:443 dcim/choices.py:680
+#: dcim/choices.py:447 dcim/choices.py:693
 msgid "NEMA (Non-locking)"
 msgstr "NEMA (non verrouillable)"
 
-#: dcim/choices.py:465 dcim/choices.py:702
+#: dcim/choices.py:469 dcim/choices.py:715
 msgid "NEMA (Locking)"
 msgstr "NEMA (verrouillage)"
 
-#: dcim/choices.py:488 dcim/choices.py:725
+#: dcim/choices.py:492 dcim/choices.py:738
 msgid "California Style"
 msgstr "Style californien"
 
-#: dcim/choices.py:496
+#: dcim/choices.py:500
 msgid "International/ITA"
 msgstr "International/ITA"
 
-#: dcim/choices.py:526 dcim/choices.py:755
+#: dcim/choices.py:535 dcim/choices.py:773
 msgid "Proprietary"
 msgstr "Propriétaire"
 
-#: dcim/choices.py:534 dcim/choices.py:764 dcim/choices.py:1141
-#: dcim/choices.py:1143 dcim/choices.py:1348 dcim/choices.py:1350
+#: dcim/choices.py:543 dcim/choices.py:782 dcim/choices.py:1169
+#: dcim/choices.py:1171 dcim/choices.py:1376 dcim/choices.py:1378
 #: netbox/navigation/menu.py:187
 msgid "Other"
 msgstr "Autres"
 
-#: dcim/choices.py:733
+#: dcim/choices.py:746
 msgid "ITA/International"
 msgstr "ITA/International"
 
-#: dcim/choices.py:794
+#: dcim/choices.py:812
 msgid "Physical"
 msgstr "Physique"
 
-#: dcim/choices.py:795 dcim/choices.py:954
+#: dcim/choices.py:813 dcim/choices.py:977
 msgid "Virtual"
 msgstr "Virtuel"
 
-#: dcim/choices.py:796 dcim/choices.py:1026 dcim/forms/bulk_edit.py:1408
-#: dcim/forms/filtersets.py:1231 dcim/forms/model_forms.py:933
+#: dcim/choices.py:814 dcim/choices.py:1049 dcim/forms/bulk_edit.py:1408
+#: dcim/forms/filtersets.py:1239 dcim/forms/model_forms.py:933
 #: dcim/forms/model_forms.py:1341 netbox/navigation/menu.py:127
 #: netbox/navigation/menu.py:131 templates/dcim/interface.html:210
 msgid "Wireless"
 msgstr "Sans fil"
 
-#: dcim/choices.py:952
+#: dcim/choices.py:975
 msgid "Virtual interfaces"
 msgstr "Interfaces virtuelles"
 
-#: dcim/choices.py:955 dcim/forms/bulk_edit.py:1303
+#: dcim/choices.py:978 dcim/forms/bulk_edit.py:1303
 #: dcim/forms/bulk_import.py:785 dcim/forms/model_forms.py:919
 #: dcim/tables/devices.py:656 templates/dcim/interface.html:106
 #: templates/virtualization/vminterface.html:43
@@ -2056,152 +2096,152 @@ msgstr "Interfaces virtuelles"
 msgid "Bridge"
 msgstr "Passerelle"
 
-#: dcim/choices.py:956
+#: dcim/choices.py:979
 msgid "Link Aggregation Group (LAG)"
 msgstr "Groupe d'agrégation de liens (LAG)"
 
-#: dcim/choices.py:960
+#: dcim/choices.py:983
 msgid "Ethernet (fixed)"
 msgstr "Ethernet (fixe)"
 
-#: dcim/choices.py:974
+#: dcim/choices.py:997
 msgid "Ethernet (modular)"
 msgstr "Ethernet (modulaire)"
 
-#: dcim/choices.py:1010
+#: dcim/choices.py:1033
 msgid "Ethernet (backplane)"
 msgstr "Ethernet (panneau arrière)"
 
-#: dcim/choices.py:1040
+#: dcim/choices.py:1063
 msgid "Cellular"
 msgstr "Cellulaire"
 
-#: dcim/choices.py:1090 dcim/forms/filtersets.py:303
-#: dcim/forms/filtersets.py:737 dcim/forms/filtersets.py:874
-#: dcim/forms/filtersets.py:1426 templates/dcim/inventoryitem.html:52
+#: dcim/choices.py:1115 dcim/forms/filtersets.py:303
+#: dcim/forms/filtersets.py:738 dcim/forms/filtersets.py:882
+#: dcim/forms/filtersets.py:1434 templates/dcim/inventoryitem.html:52
 #: templates/dcim/virtualchassis_edit.html:54
 msgid "Serial"
 msgstr "Série"
 
-#: dcim/choices.py:1105
+#: dcim/choices.py:1130
 msgid "Coaxial"
 msgstr "Coaxiale"
 
-#: dcim/choices.py:1122
+#: dcim/choices.py:1150
 msgid "Stacking"
 msgstr "Empilage"
 
-#: dcim/choices.py:1172
+#: dcim/choices.py:1200
 msgid "Half"
 msgstr "La moitié"
 
-#: dcim/choices.py:1173
+#: dcim/choices.py:1201
 msgid "Full"
 msgstr "Complet"
 
-#: dcim/choices.py:1174 netbox/preferences.py:31 wireless/choices.py:480
+#: dcim/choices.py:1202 netbox/preferences.py:31 wireless/choices.py:480
 msgid "Auto"
 msgstr "Automatique"
 
-#: dcim/choices.py:1185
+#: dcim/choices.py:1213
 msgid "Access"
 msgstr "Accès"
 
-#: dcim/choices.py:1186 ipam/tables/vlans.py:168 ipam/tables/vlans.py:213
+#: dcim/choices.py:1214 ipam/tables/vlans.py:168 ipam/tables/vlans.py:213
 #: templates/dcim/inc/interface_vlans_table.html:7
 msgid "Tagged"
 msgstr "Tagué"
 
-#: dcim/choices.py:1187
+#: dcim/choices.py:1215
 msgid "Tagged (All)"
 msgstr "Tagué (Tous)"
 
-#: dcim/choices.py:1216
+#: dcim/choices.py:1244
 msgid "IEEE Standard"
 msgstr "Norme IEEE"
 
-#: dcim/choices.py:1227
+#: dcim/choices.py:1255
 msgid "Passive 24V (2-pair)"
 msgstr "24 V passif (2 paires)"
 
-#: dcim/choices.py:1228
+#: dcim/choices.py:1256
 msgid "Passive 24V (4-pair)"
 msgstr "24 V passif (4 paires)"
 
-#: dcim/choices.py:1229
+#: dcim/choices.py:1257
 msgid "Passive 48V (2-pair)"
 msgstr "48 V passif (2 paires)"
 
-#: dcim/choices.py:1230
+#: dcim/choices.py:1258
 msgid "Passive 48V (4-pair)"
 msgstr "48 V passif (4 paires)"
 
-#: dcim/choices.py:1292 dcim/choices.py:1388
+#: dcim/choices.py:1320 dcim/choices.py:1416
 msgid "Copper"
 msgstr "Cuivre"
 
-#: dcim/choices.py:1315
+#: dcim/choices.py:1343
 msgid "Fiber Optic"
 msgstr "fibre optique"
 
-#: dcim/choices.py:1404
+#: dcim/choices.py:1432
 msgid "Fiber"
 msgstr "Fibre"
 
-#: dcim/choices.py:1428 dcim/forms/filtersets.py:1138
+#: dcim/choices.py:1456 dcim/forms/filtersets.py:1146
 msgid "Connected"
 msgstr "Connecté"
 
-#: dcim/choices.py:1447
+#: dcim/choices.py:1475
 msgid "Kilometers"
 msgstr "Kilomètres"
 
-#: dcim/choices.py:1448 templates/dcim/cable_trace.html:65
+#: dcim/choices.py:1476 templates/dcim/cable_trace.html:65
 msgid "Meters"
 msgstr "Compteurs"
 
-#: dcim/choices.py:1449
+#: dcim/choices.py:1477
 msgid "Centimeters"
 msgstr "Centimètres"
 
-#: dcim/choices.py:1450
+#: dcim/choices.py:1478
 msgid "Miles"
 msgstr "Miles"
 
-#: dcim/choices.py:1451 templates/dcim/cable_trace.html:66
+#: dcim/choices.py:1479 templates/dcim/cable_trace.html:66
 msgid "Feet"
 msgstr "Pieds"
 
-#: dcim/choices.py:1467 templates/dcim/device.html:319
+#: dcim/choices.py:1495 templates/dcim/device.html:319
 #: templates/dcim/rack.html:152
 msgid "Kilograms"
 msgstr "Kilogrammes"
 
-#: dcim/choices.py:1468
+#: dcim/choices.py:1496
 msgid "Grams"
 msgstr "Grammes"
 
-#: dcim/choices.py:1469 templates/dcim/rack.html:153
+#: dcim/choices.py:1497 templates/dcim/rack.html:153
 msgid "Pounds"
 msgstr "Livres"
 
-#: dcim/choices.py:1470
+#: dcim/choices.py:1498
 msgid "Ounces"
 msgstr "Onces"
 
-#: dcim/choices.py:1516 tenancy/choices.py:17
+#: dcim/choices.py:1544 tenancy/choices.py:17
 msgid "Primary"
 msgstr "Primaire"
 
-#: dcim/choices.py:1517
+#: dcim/choices.py:1545
 msgid "Redundant"
 msgstr "Redondant"
 
-#: dcim/choices.py:1538
+#: dcim/choices.py:1566
 msgid "Single phase"
 msgstr "Monophasé"
 
-#: dcim/choices.py:1539
+#: dcim/choices.py:1567
 msgid "Three-phase"
 msgstr "Triphasé"
 
@@ -2252,30 +2292,30 @@ msgid "Parent location (slug)"
 msgstr "Localisation du parent (limace)"
 
 #: dcim/filtersets.py:257 dcim/filtersets.py:333 dcim/filtersets.py:432
-#: dcim/filtersets.py:1005 dcim/filtersets.py:1331 dcim/filtersets.py:2101
+#: dcim/filtersets.py:1005 dcim/filtersets.py:1341 dcim/filtersets.py:2111
 msgid "Location (ID)"
 msgstr "Lieu (ID)"
 
 #: dcim/filtersets.py:264 dcim/filtersets.py:340 dcim/filtersets.py:439
-#: dcim/filtersets.py:1337 extras/filtersets.py:494
+#: dcim/filtersets.py:1347 extras/filtersets.py:494
 msgid "Location (slug)"
 msgstr "Emplacement (limace)"
 
 #: dcim/filtersets.py:354 dcim/filtersets.py:840 dcim/filtersets.py:942
-#: dcim/filtersets.py:1769 ipam/filtersets.py:381 ipam/filtersets.py:493
+#: dcim/filtersets.py:1779 ipam/filtersets.py:381 ipam/filtersets.py:493
 #: ipam/filtersets.py:989 virtualization/filtersets.py:210
 msgid "Role (ID)"
 msgstr "Rôle (ID)"
 
 #: dcim/filtersets.py:360 dcim/filtersets.py:846 dcim/filtersets.py:948
-#: dcim/filtersets.py:1775 extras/filtersets.py:510 ipam/filtersets.py:387
+#: dcim/filtersets.py:1785 extras/filtersets.py:510 ipam/filtersets.py:387
 #: ipam/filtersets.py:499 ipam/filtersets.py:995
 #: virtualization/filtersets.py:216
 msgid "Role (slug)"
 msgstr "Rôle (limace)"
 
-#: dcim/filtersets.py:389 dcim/filtersets.py:1010 dcim/filtersets.py:1342
-#: dcim/filtersets.py:2163
+#: dcim/filtersets.py:389 dcim/filtersets.py:1010 dcim/filtersets.py:1352
+#: dcim/filtersets.py:2173
 msgid "Rack (ID)"
 msgstr "Baie (ID)"
 
@@ -2290,14 +2330,14 @@ msgid "User (name)"
 msgstr "Utilisateur (nom)"
 
 #: dcim/filtersets.py:481 dcim/filtersets.py:620 dcim/filtersets.py:830
-#: dcim/filtersets.py:881 dcim/filtersets.py:921 dcim/filtersets.py:1233
-#: dcim/filtersets.py:1759
+#: dcim/filtersets.py:881 dcim/filtersets.py:921 dcim/filtersets.py:1243
+#: dcim/filtersets.py:1769
 msgid "Manufacturer (ID)"
 msgstr "Fabricant (ID)"
 
 #: dcim/filtersets.py:487 dcim/filtersets.py:626 dcim/filtersets.py:836
-#: dcim/filtersets.py:887 dcim/filtersets.py:927 dcim/filtersets.py:1239
-#: dcim/filtersets.py:1765
+#: dcim/filtersets.py:887 dcim/filtersets.py:927 dcim/filtersets.py:1249
+#: dcim/filtersets.py:1775
 msgid "Manufacturer (slug)"
 msgstr "Fabricant (limace)"
 
@@ -2319,37 +2359,37 @@ msgstr "Possède une image arrière"
 
 #: dcim/filtersets.py:509 dcim/filtersets.py:630 dcim/filtersets.py:1068
 #: dcim/forms/filtersets.py:466 dcim/forms/filtersets.py:562
-#: dcim/forms/filtersets.py:776
+#: dcim/forms/filtersets.py:777
 msgid "Has console ports"
 msgstr "Possède des ports de console"
 
 #: dcim/filtersets.py:513 dcim/filtersets.py:634 dcim/filtersets.py:1072
 #: dcim/forms/filtersets.py:473 dcim/forms/filtersets.py:569
-#: dcim/forms/filtersets.py:783
+#: dcim/forms/filtersets.py:784
 msgid "Has console server ports"
 msgstr "Possède des ports de serveur de console"
 
 #: dcim/filtersets.py:517 dcim/filtersets.py:638 dcim/filtersets.py:1076
 #: dcim/forms/filtersets.py:480 dcim/forms/filtersets.py:576
-#: dcim/forms/filtersets.py:790
+#: dcim/forms/filtersets.py:791
 msgid "Has power ports"
 msgstr "Possède des ports d'alimentation"
 
 #: dcim/filtersets.py:521 dcim/filtersets.py:642 dcim/filtersets.py:1080
 #: dcim/forms/filtersets.py:487 dcim/forms/filtersets.py:583
-#: dcim/forms/filtersets.py:797
+#: dcim/forms/filtersets.py:798
 msgid "Has power outlets"
 msgstr "Dispose de prises de courant"
 
 #: dcim/filtersets.py:525 dcim/filtersets.py:646 dcim/filtersets.py:1084
 #: dcim/forms/filtersets.py:494 dcim/forms/filtersets.py:590
-#: dcim/forms/filtersets.py:804
+#: dcim/forms/filtersets.py:805
 msgid "Has interfaces"
 msgstr "Possède des interfaces"
 
 #: dcim/filtersets.py:529 dcim/filtersets.py:650 dcim/filtersets.py:1088
 #: dcim/forms/filtersets.py:501 dcim/forms/filtersets.py:597
-#: dcim/forms/filtersets.py:811
+#: dcim/forms/filtersets.py:812
 msgid "Has pass-through ports"
 msgstr "Possède des ports d'intercommunication"
 
@@ -2365,19 +2405,19 @@ msgstr "Dispose de baies pour appareils"
 msgid "Has inventory items"
 msgstr "Possède des articles en inventaire"
 
-#: dcim/filtersets.py:698 dcim/filtersets.py:937 dcim/filtersets.py:1363
+#: dcim/filtersets.py:698 dcim/filtersets.py:937 dcim/filtersets.py:1373
 msgid "Device type (ID)"
 msgstr "Type d'appareil (ID)"
 
-#: dcim/filtersets.py:717 dcim/filtersets.py:1244
+#: dcim/filtersets.py:717 dcim/filtersets.py:1254
 msgid "Module type (ID)"
 msgstr "Type de module (ID)"
 
-#: dcim/filtersets.py:752 dcim/filtersets.py:1514
+#: dcim/filtersets.py:752 dcim/filtersets.py:1524
 msgid "Power port (ID)"
 msgstr "Port d'alimentation (ID)"
 
-#: dcim/filtersets.py:826 dcim/filtersets.py:1755
+#: dcim/filtersets.py:826 dcim/filtersets.py:1765
 msgid "Parent inventory item (ID)"
 msgstr "Article d'inventaire parent (ID)"
 
@@ -2403,8 +2443,8 @@ msgstr "Plateforme (ID)"
 msgid "Platform (slug)"
 msgstr "Plateforme (slug)"
 
-#: dcim/filtersets.py:999 dcim/filtersets.py:1326 dcim/filtersets.py:1853
-#: dcim/filtersets.py:2095 dcim/filtersets.py:2154
+#: dcim/filtersets.py:999 dcim/filtersets.py:1336 dcim/filtersets.py:1863
+#: dcim/filtersets.py:2105 dcim/filtersets.py:2164
 msgid "Site name (slug)"
 msgstr "Nom du site (slug)"
 
@@ -2425,15 +2465,15 @@ msgid "Is full depth"
 msgstr "Est en pleine profondeur"
 
 #: dcim/filtersets.py:1040 dcim/forms/common.py:18
-#: dcim/forms/filtersets.py:746 dcim/forms/filtersets.py:1283
+#: dcim/forms/filtersets.py:747 dcim/forms/filtersets.py:1291
 #: dcim/models/device_components.py:519 virtualization/filtersets.py:230
 #: virtualization/filtersets.py:297 virtualization/forms/filtersets.py:172
 #: virtualization/forms/filtersets.py:219
 msgid "MAC address"
 msgstr "Adresse MAC"
 
-#: dcim/filtersets.py:1047 dcim/filtersets.py:1201
-#: dcim/forms/filtersets.py:755 dcim/forms/filtersets.py:841
+#: dcim/filtersets.py:1047 dcim/filtersets.py:1211
+#: dcim/forms/filtersets.py:756 dcim/forms/filtersets.py:849
 #: virtualization/filtersets.py:234 virtualization/forms/filtersets.py:176
 msgid "Has a primary IP"
 msgstr "Possède une adresse IP principale"
@@ -2454,59 +2494,63 @@ msgstr "Est un membre virtuel du châssis"
 msgid "OOB IP (ID)"
 msgstr "ASTUCE SUR L'EMPLOI (ID)"
 
-#: dcim/filtersets.py:1184
+#: dcim/filtersets.py:1105
+msgid "Has virtual device context"
+msgstr "Possède un contexte de périphérique virtuel"
+
+#: dcim/filtersets.py:1194
 msgid "VDC (ID)"
 msgstr "VDC (IDENTIFIANT)"
 
-#: dcim/filtersets.py:1189
+#: dcim/filtersets.py:1199
 msgid "Device model"
 msgstr "Modèle d'appareil"
 
-#: dcim/filtersets.py:1194 ipam/filtersets.py:632 vpn/filtersets.py:102
+#: dcim/filtersets.py:1204 ipam/filtersets.py:632 vpn/filtersets.py:102
 #: vpn/filtersets.py:420
 msgid "Interface (ID)"
 msgstr "Interface (ID)"
 
-#: dcim/filtersets.py:1250
+#: dcim/filtersets.py:1260
 msgid "Module type (model)"
 msgstr "Type de module (modèle)"
 
-#: dcim/filtersets.py:1256
+#: dcim/filtersets.py:1266
 msgid "Module Bay (ID)"
 msgstr "Module Bay (ID)"
 
-#: dcim/filtersets.py:1260 dcim/filtersets.py:1352 ipam/filtersets.py:611
+#: dcim/filtersets.py:1270 dcim/filtersets.py:1362 ipam/filtersets.py:611
 #: ipam/filtersets.py:851 ipam/filtersets.py:1075
 #: virtualization/filtersets.py:161 vpn/filtersets.py:398
 msgid "Device (ID)"
 msgstr "Appareil (ID)"
 
-#: dcim/filtersets.py:1348
+#: dcim/filtersets.py:1358
 msgid "Rack (name)"
 msgstr "Baie (nom)"
 
-#: dcim/filtersets.py:1358 ipam/filtersets.py:606 ipam/filtersets.py:846
+#: dcim/filtersets.py:1368 ipam/filtersets.py:606 ipam/filtersets.py:846
 #: ipam/filtersets.py:1081 vpn/filtersets.py:393
 msgid "Device (name)"
 msgstr "Appareil (nom)"
 
-#: dcim/filtersets.py:1369
+#: dcim/filtersets.py:1379
 msgid "Device type (model)"
 msgstr "Type d'appareil (modèle)"
 
-#: dcim/filtersets.py:1374
+#: dcim/filtersets.py:1384
 msgid "Device role (ID)"
 msgstr "Rôle de l'appareil (ID)"
 
-#: dcim/filtersets.py:1380
+#: dcim/filtersets.py:1390
 msgid "Device role (slug)"
 msgstr "Rôle de l'appareil (slug)"
 
-#: dcim/filtersets.py:1385
+#: dcim/filtersets.py:1395
 msgid "Virtual Chassis (ID)"
 msgstr "Châssis virtuel (ID)"
 
-#: dcim/filtersets.py:1391 dcim/forms/filtersets.py:107
+#: dcim/filtersets.py:1401 dcim/forms/filtersets.py:107
 #: dcim/tables/devices.py:211 netbox/navigation/menu.py:66
 #: templates/dcim/device.html:119 templates/dcim/device_edit.html:93
 #: templates/dcim/virtualchassis.html:20
@@ -2515,37 +2559,37 @@ msgstr "Châssis virtuel (ID)"
 msgid "Virtual Chassis"
 msgstr "Châssis virtuel"
 
-#: dcim/filtersets.py:1411
+#: dcim/filtersets.py:1421
 msgid "Module (ID)"
 msgstr "Module (ID)"
 
-#: dcim/filtersets.py:1418
+#: dcim/filtersets.py:1428
 msgid "Cable (ID)"
 msgstr "Câble (ID)"
 
-#: dcim/filtersets.py:1527 ipam/forms/bulk_import.py:188
+#: dcim/filtersets.py:1537 ipam/forms/bulk_import.py:188
 #: vpn/forms/bulk_import.py:308
 msgid "Assigned VLAN"
 msgstr "VLAN attribué"
 
-#: dcim/filtersets.py:1531
+#: dcim/filtersets.py:1541
 msgid "Assigned VID"
 msgstr "VID attribué"
 
-#: dcim/filtersets.py:1536 dcim/forms/bulk_edit.py:1382
-#: dcim/forms/bulk_import.py:836 dcim/forms/filtersets.py:1326
+#: dcim/filtersets.py:1546 dcim/forms/bulk_edit.py:1382
+#: dcim/forms/bulk_import.py:836 dcim/forms/filtersets.py:1334
 #: dcim/forms/model_forms.py:1322 dcim/models/device_components.py:712
-#: dcim/tables/devices.py:618 ipam/filtersets.py:316 ipam/filtersets.py:327
+#: dcim/tables/devices.py:622 ipam/filtersets.py:316 ipam/filtersets.py:327
 #: ipam/filtersets.py:483 ipam/filtersets.py:584 ipam/filtersets.py:595
 #: ipam/forms/bulk_edit.py:227 ipam/forms/bulk_edit.py:282
 #: ipam/forms/bulk_edit.py:324 ipam/forms/bulk_import.py:156
 #: ipam/forms/bulk_import.py:242 ipam/forms/bulk_import.py:278
-#: ipam/forms/filtersets.py:67 ipam/forms/filtersets.py:171
-#: ipam/forms/filtersets.py:302 ipam/forms/model_forms.py:60
+#: ipam/forms/filtersets.py:67 ipam/forms/filtersets.py:172
+#: ipam/forms/filtersets.py:309 ipam/forms/model_forms.py:60
 #: ipam/forms/model_forms.py:200 ipam/forms/model_forms.py:245
-#: ipam/forms/model_forms.py:298 ipam/forms/model_forms.py:420
-#: ipam/forms/model_forms.py:434 ipam/forms/model_forms.py:448
-#: ipam/models/ip.py:232 ipam/models/ip.py:511 ipam/models/ip.py:719
+#: ipam/forms/model_forms.py:298 ipam/forms/model_forms.py:429
+#: ipam/forms/model_forms.py:443 ipam/forms/model_forms.py:457
+#: ipam/models/ip.py:233 ipam/models/ip.py:512 ipam/models/ip.py:720
 #: ipam/models/vrfs.py:62 ipam/tables/ip.py:241 ipam/tables/ip.py:306
 #: ipam/tables/ip.py:356 ipam/tables/ip.py:445
 #: templates/dcim/interface.html:133 templates/ipam/ipaddress.html:18
@@ -2561,18 +2605,18 @@ msgstr "VID attribué"
 msgid "VRF"
 msgstr "VRF"
 
-#: dcim/filtersets.py:1542 ipam/filtersets.py:322 ipam/filtersets.py:333
+#: dcim/filtersets.py:1552 ipam/filtersets.py:322 ipam/filtersets.py:333
 #: ipam/filtersets.py:489 ipam/filtersets.py:590 ipam/filtersets.py:601
 msgid "VRF (RD)"
 msgstr "VRF (RD)"
 
-#: dcim/filtersets.py:1547 ipam/filtersets.py:1016 vpn/filtersets.py:361
+#: dcim/filtersets.py:1557 ipam/filtersets.py:1016 vpn/filtersets.py:361
 msgid "L2VPN (ID)"
 msgstr "L2VPN (IDENTIFIANT)"
 
-#: dcim/filtersets.py:1553 dcim/forms/filtersets.py:1331
-#: dcim/tables/devices.py:566 ipam/filtersets.py:1022
-#: ipam/forms/filtersets.py:518 ipam/tables/vlans.py:133
+#: dcim/filtersets.py:1563 dcim/forms/filtersets.py:1339
+#: dcim/tables/devices.py:570 ipam/filtersets.py:1022
+#: ipam/forms/filtersets.py:525 ipam/tables/vlans.py:133
 #: templates/dcim/interface.html:93 templates/ipam/vlan.html:66
 #: templates/vpn/l2vpntermination.html:12
 #: virtualization/forms/filtersets.py:229 vpn/forms/bulk_import.py:280
@@ -2581,82 +2625,82 @@ msgstr "L2VPN (IDENTIFIANT)"
 msgid "L2VPN"
 msgstr "L2VPN"
 
-#: dcim/filtersets.py:1585
+#: dcim/filtersets.py:1595
 msgid "Virtual Chassis Interfaces for Device"
 msgstr "Interfaces de châssis virtuelles pour appareils"
 
-#: dcim/filtersets.py:1590
+#: dcim/filtersets.py:1600
 msgid "Virtual Chassis Interfaces for Device (ID)"
 msgstr "Interfaces de châssis virtuel pour le périphérique (ID)"
 
-#: dcim/filtersets.py:1594
+#: dcim/filtersets.py:1604
 msgid "Kind of interface"
 msgstr "Type d'interface"
 
-#: dcim/filtersets.py:1599 virtualization/filtersets.py:289
+#: dcim/filtersets.py:1609 virtualization/filtersets.py:289
 msgid "Parent interface (ID)"
 msgstr "Interface parent (ID)"
 
-#: dcim/filtersets.py:1604 virtualization/filtersets.py:294
+#: dcim/filtersets.py:1614 virtualization/filtersets.py:294
 msgid "Bridged interface (ID)"
 msgstr "Interface pontée (ID)"
 
-#: dcim/filtersets.py:1609
+#: dcim/filtersets.py:1619
 msgid "LAG interface (ID)"
 msgstr "Interface LAG (ID)"
 
-#: dcim/filtersets.py:1636 dcim/filtersets.py:1648
-#: dcim/forms/filtersets.py:1243 dcim/forms/model_forms.py:1634
+#: dcim/filtersets.py:1646 dcim/filtersets.py:1658
+#: dcim/forms/filtersets.py:1251 dcim/forms/model_forms.py:1634
 #: templates/dcim/virtualdevicecontext.html:15
 msgid "Virtual Device Context"
 msgstr "Contexte du périphérique virtuel"
 
-#: dcim/filtersets.py:1642
+#: dcim/filtersets.py:1652
 msgid "Virtual Device Context (Identifier)"
 msgstr "Contexte du périphérique virtuel (identifiant)"
 
-#: dcim/filtersets.py:1653 templates/wireless/wirelesslan.html:11
+#: dcim/filtersets.py:1663 templates/wireless/wirelesslan.html:11
 #: wireless/forms/model_forms.py:53
 msgid "Wireless LAN"
 msgstr "LAN sans fil"
 
-#: dcim/filtersets.py:1657 dcim/tables/devices.py:605
+#: dcim/filtersets.py:1667 dcim/tables/devices.py:609
 msgid "Wireless link"
 msgstr "Liaison sans fil"
 
-#: dcim/filtersets.py:1727
+#: dcim/filtersets.py:1737
 msgid "Installed module (ID)"
 msgstr "Module installé (ID)"
 
-#: dcim/filtersets.py:1738
+#: dcim/filtersets.py:1748
 msgid "Installed device (ID)"
 msgstr "Appareil installé (ID)"
 
-#: dcim/filtersets.py:1744
+#: dcim/filtersets.py:1754
 msgid "Installed device (name)"
 msgstr "Appareil installé (nom)"
 
-#: dcim/filtersets.py:1810
+#: dcim/filtersets.py:1820
 msgid "Master (ID)"
 msgstr "Maître (ID)"
 
-#: dcim/filtersets.py:1816
+#: dcim/filtersets.py:1826
 msgid "Master (name)"
 msgstr "Master (nom)"
 
-#: dcim/filtersets.py:1858 tenancy/filtersets.py:246
+#: dcim/filtersets.py:1868 tenancy/filtersets.py:246
 msgid "Tenant (ID)"
 msgstr "Locataire (ID)"
 
-#: dcim/filtersets.py:1864 extras/filtersets.py:570 tenancy/filtersets.py:252
+#: dcim/filtersets.py:1874 extras/filtersets.py:570 tenancy/filtersets.py:252
 msgid "Tenant (slug)"
 msgstr "Locataire (limace)"
 
-#: dcim/filtersets.py:1900 dcim/forms/filtersets.py:988
+#: dcim/filtersets.py:1910 dcim/forms/filtersets.py:996
 msgid "Unterminated"
 msgstr "Non terminé"
 
-#: dcim/filtersets.py:2158
+#: dcim/filtersets.py:2168
 msgid "Power panel (ID)"
 msgstr "Panneau d'alimentation (ID)"
 
@@ -2664,13 +2708,13 @@ msgstr "Panneau d'alimentation (ID)"
 #: extras/forms/model_forms.py:443 extras/forms/model_forms.py:495
 #: netbox/forms/base.py:84 netbox/forms/mixins.py:81
 #: netbox/tables/columns.py:458
-#: templates/circuits/inc/circuit_termination.html:118
+#: templates/circuits/inc/circuit_termination.html:32
 #: templates/generic/bulk_edit.html:65 templates/inc/panels/tags.html:5
 #: utilities/forms/fields/fields.py:81
 msgid "Tags"
 msgstr "Balises"
 
-#: dcim/forms/bulk_create.py:112 dcim/forms/filtersets.py:1388
+#: dcim/forms/bulk_create.py:112 dcim/forms/filtersets.py:1396
 #: dcim/forms/model_forms.py:431 dcim/forms/model_forms.py:486
 #: dcim/forms/object_create.py:197 dcim/forms/object_create.py:353
 #: dcim/tables/devices.py:170 dcim/tables/devices.py:702
@@ -2692,7 +2736,7 @@ msgstr ""
 #: dcim/forms/bulk_edit.py:116 dcim/forms/bulk_import.py:99
 #: dcim/forms/model_forms.py:116 dcim/tables/sites.py:89
 #: ipam/filtersets.py:985 ipam/forms/bulk_edit.py:531
-#: ipam/forms/bulk_import.py:444 ipam/forms/model_forms.py:517
+#: ipam/forms/bulk_import.py:444 ipam/forms/model_forms.py:526
 #: ipam/tables/fhrp.py:67 ipam/tables/vlans.py:118 ipam/tables/vlans.py:221
 #: templates/dcim/interface.html:284 templates/dcim/site.html:36
 #: templates/ipam/inc/panels/fhrp_groups.html:23 templates/ipam/vlan.html:27
@@ -2739,7 +2783,7 @@ msgstr "Fuseau horaire"
 #: dcim/forms/bulk_edit.py:267 dcim/forms/bulk_edit.py:1160
 #: dcim/forms/bulk_edit.py:1548 dcim/forms/bulk_import.py:207
 #: dcim/forms/bulk_import.py:1021 dcim/forms/filtersets.py:300
-#: dcim/forms/filtersets.py:705 dcim/forms/filtersets.py:1418
+#: dcim/forms/filtersets.py:706 dcim/forms/filtersets.py:1426
 #: dcim/forms/model_forms.py:219 dcim/forms/model_forms.py:1015
 #: dcim/forms/model_forms.py:1454 dcim/forms/object_import.py:181
 #: dcim/tables/devices.py:174 dcim/tables/devices.py:810
@@ -2749,10 +2793,10 @@ msgstr "Fuseau horaire"
 #: ipam/forms/bulk_edit.py:343 ipam/forms/bulk_edit.py:549
 #: ipam/forms/bulk_import.py:196 ipam/forms/bulk_import.py:261
 #: ipam/forms/bulk_import.py:297 ipam/forms/bulk_import.py:463
-#: ipam/forms/filtersets.py:236 ipam/forms/filtersets.py:282
-#: ipam/forms/filtersets.py:353 ipam/forms/filtersets.py:509
+#: ipam/forms/filtersets.py:237 ipam/forms/filtersets.py:289
+#: ipam/forms/filtersets.py:360 ipam/forms/filtersets.py:516
 #: ipam/forms/model_forms.py:186 ipam/forms/model_forms.py:219
-#: ipam/forms/model_forms.py:248 ipam/forms/model_forms.py:680
+#: ipam/forms/model_forms.py:248 ipam/forms/model_forms.py:689
 #: ipam/tables/ip.py:257 ipam/tables/ip.py:313 ipam/tables/ip.py:363
 #: ipam/tables/vlans.py:126 ipam/tables/vlans.py:230
 #: templates/dcim/device.html:179
@@ -2785,8 +2829,8 @@ msgid "Serial Number"
 msgstr "Numéro de série"
 
 #: dcim/forms/bulk_edit.py:277 dcim/forms/filtersets.py:307
-#: dcim/forms/filtersets.py:741 dcim/forms/filtersets.py:878
-#: dcim/forms/filtersets.py:1430
+#: dcim/forms/filtersets.py:742 dcim/forms/filtersets.py:886
+#: dcim/forms/filtersets.py:1438
 msgid "Asset tag"
 msgstr "Étiquette d'actif"
 
@@ -2857,14 +2901,14 @@ msgstr "Unité de poids"
 #: dcim/forms/bulk_import.py:498 dcim/forms/bulk_import.py:1309
 #: dcim/forms/bulk_import.py:1313 dcim/forms/filtersets.py:102
 #: dcim/forms/filtersets.py:340 dcim/forms/filtersets.py:354
-#: dcim/forms/filtersets.py:392 dcim/forms/filtersets.py:700
-#: dcim/forms/filtersets.py:946 dcim/forms/filtersets.py:1078
+#: dcim/forms/filtersets.py:392 dcim/forms/filtersets.py:701
+#: dcim/forms/filtersets.py:954 dcim/forms/filtersets.py:1086
 #: dcim/forms/model_forms.py:226 dcim/forms/model_forms.py:248
 #: dcim/forms/model_forms.py:422 dcim/forms/model_forms.py:700
 #: dcim/forms/object_create.py:400 dcim/tables/devices.py:166
 #: dcim/tables/power.py:70 dcim/tables/racks.py:148
-#: ipam/forms/bulk_edit.py:465 ipam/forms/filtersets.py:435
-#: ipam/forms/model_forms.py:601 templates/dcim/device.html:29
+#: ipam/forms/bulk_edit.py:465 ipam/forms/filtersets.py:442
+#: ipam/forms/model_forms.py:610 templates/dcim/device.html:29
 #: templates/dcim/inc/cable_termination.html:16
 #: templates/dcim/powerfeed.html:28 templates/dcim/rack.html:13
 #: templates/dcim/rack/base.html:4 templates/dcim/rackreservation.html:19
@@ -2876,7 +2920,7 @@ msgstr "Baie"
 #: dcim/forms/bulk_edit.py:349 dcim/forms/bulk_edit.py:628
 #: dcim/forms/filtersets.py:248 dcim/forms/filtersets.py:333
 #: dcim/forms/filtersets.py:416 dcim/forms/filtersets.py:543
-#: dcim/forms/filtersets.py:651 dcim/forms/filtersets.py:853
+#: dcim/forms/filtersets.py:651 dcim/forms/filtersets.py:861
 #: dcim/forms/model_forms.py:610 dcim/forms/model_forms.py:1524
 #: templates/dcim/device_edit.html:20
 msgid "Hardware"
@@ -2889,8 +2933,8 @@ msgstr "Matériel"
 #: dcim/forms/bulk_import.py:353 dcim/forms/bulk_import.py:395
 #: dcim/forms/bulk_import.py:431 dcim/forms/bulk_import.py:1027
 #: dcim/forms/filtersets.py:429 dcim/forms/filtersets.py:554
-#: dcim/forms/filtersets.py:630 dcim/forms/filtersets.py:710
-#: dcim/forms/filtersets.py:858 dcim/forms/filtersets.py:1423
+#: dcim/forms/filtersets.py:630 dcim/forms/filtersets.py:711
+#: dcim/forms/filtersets.py:866 dcim/forms/filtersets.py:1431
 #: dcim/forms/model_forms.py:281 dcim/forms/model_forms.py:293
 #: dcim/forms/model_forms.py:339 dcim/forms/model_forms.py:379
 #: dcim/forms/model_forms.py:1020 dcim/forms/model_forms.py:1459
@@ -2924,7 +2968,7 @@ msgstr "Exclure de l'utilisation"
 
 #: dcim/forms/bulk_edit.py:431 dcim/forms/bulk_edit.py:603
 #: dcim/forms/bulk_import.py:525 dcim/forms/filtersets.py:446
-#: dcim/forms/filtersets.py:732 templates/dcim/device.html:97
+#: dcim/forms/filtersets.py:733 templates/dcim/device.html:97
 #: templates/dcim/devicetype.html:65
 msgid "Airflow"
 msgstr "Débit d'air"
@@ -2951,7 +2995,7 @@ msgstr "rôle de machine virtuelle"
 #: dcim/forms/bulk_import.py:380 dcim/forms/bulk_import.py:402
 #: dcim/forms/bulk_import.py:406 dcim/forms/bulk_import.py:531
 #: dcim/forms/bulk_import.py:535 dcim/forms/filtersets.py:619
-#: dcim/forms/filtersets.py:635 dcim/forms/filtersets.py:751
+#: dcim/forms/filtersets.py:635 dcim/forms/filtersets.py:752
 #: dcim/forms/model_forms.py:358 dcim/forms/model_forms.py:384
 #: dcim/forms/model_forms.py:495 virtualization/forms/bulk_import.py:132
 #: virtualization/forms/bulk_import.py:133
@@ -2973,7 +3017,7 @@ msgid "Device role"
 msgstr "Rôle de l'appareil"
 
 #: dcim/forms/bulk_edit.py:593 dcim/forms/bulk_import.py:443
-#: dcim/forms/filtersets.py:724 dcim/forms/model_forms.py:394
+#: dcim/forms/filtersets.py:725 dcim/forms/model_forms.py:394
 #: dcim/forms/model_forms.py:456 dcim/tables/devices.py:187
 #: extras/filtersets.py:515 templates/dcim/device.html:183
 #: templates/dcim/platform.html:26
@@ -2995,28 +3039,28 @@ msgstr "Plateforme"
 #: dcim/forms/bulk_import.py:956 dcim/forms/bulk_import.py:968
 #: dcim/forms/bulk_import.py:1016 dcim/forms/bulk_import.py:1373
 #: dcim/forms/connections.py:24 dcim/forms/filtersets.py:129
-#: dcim/forms/filtersets.py:832 dcim/forms/filtersets.py:962
-#: dcim/forms/filtersets.py:1152 dcim/forms/filtersets.py:1174
-#: dcim/forms/filtersets.py:1196 dcim/forms/filtersets.py:1213
-#: dcim/forms/filtersets.py:1233 dcim/forms/filtersets.py:1341
-#: dcim/forms/filtersets.py:1363 dcim/forms/filtersets.py:1384
-#: dcim/forms/filtersets.py:1399 dcim/forms/filtersets.py:1413
-#: dcim/forms/filtersets.py:1476 dcim/forms/filtersets.py:1500
-#: dcim/forms/filtersets.py:1524 dcim/forms/model_forms.py:573
+#: dcim/forms/filtersets.py:840 dcim/forms/filtersets.py:970
+#: dcim/forms/filtersets.py:1160 dcim/forms/filtersets.py:1182
+#: dcim/forms/filtersets.py:1204 dcim/forms/filtersets.py:1221
+#: dcim/forms/filtersets.py:1241 dcim/forms/filtersets.py:1349
+#: dcim/forms/filtersets.py:1371 dcim/forms/filtersets.py:1392
+#: dcim/forms/filtersets.py:1407 dcim/forms/filtersets.py:1421
+#: dcim/forms/filtersets.py:1484 dcim/forms/filtersets.py:1508
+#: dcim/forms/filtersets.py:1532 dcim/forms/model_forms.py:573
 #: dcim/forms/model_forms.py:794 dcim/forms/model_forms.py:1153
 #: dcim/forms/model_forms.py:1608 dcim/forms/object_create.py:257
 #: dcim/tables/connections.py:22 dcim/tables/connections.py:41
 #: dcim/tables/connections.py:60 dcim/tables/devices.py:290
-#: dcim/tables/devices.py:355 dcim/tables/devices.py:399
-#: dcim/tables/devices.py:444 dcim/tables/devices.py:498
-#: dcim/tables/devices.py:590 dcim/tables/devices.py:692
+#: dcim/tables/devices.py:359 dcim/tables/devices.py:403
+#: dcim/tables/devices.py:448 dcim/tables/devices.py:502
+#: dcim/tables/devices.py:594 dcim/tables/devices.py:692
 #: dcim/tables/devices.py:752 dcim/tables/devices.py:802
 #: dcim/tables/devices.py:862 dcim/tables/devices.py:914
 #: dcim/tables/devices.py:1040 dcim/tables/modules.py:52
 #: extras/forms/filtersets.py:330 ipam/forms/bulk_import.py:303
-#: ipam/forms/bulk_import.py:489 ipam/forms/filtersets.py:551
-#: ipam/forms/model_forms.py:317 ipam/forms/model_forms.py:716
-#: ipam/forms/model_forms.py:749 ipam/forms/model_forms.py:775
+#: ipam/forms/bulk_import.py:489 ipam/forms/filtersets.py:558
+#: ipam/forms/model_forms.py:317 ipam/forms/model_forms.py:725
+#: ipam/forms/model_forms.py:758 ipam/forms/model_forms.py:784
 #: ipam/tables/vlans.py:176 templates/dcim/consoleport.html:20
 #: templates/dcim/consoleserverport.html:20 templates/dcim/device.html:14
 #: templates/dcim/device.html:128 templates/dcim/device_edit.html:10
@@ -3071,13 +3115,13 @@ msgstr "Type de module"
 msgid "Label"
 msgstr "Libellé"
 
-#: dcim/forms/bulk_edit.py:706 dcim/forms/filtersets.py:979
+#: dcim/forms/bulk_edit.py:706 dcim/forms/filtersets.py:987
 #: templates/dcim/cable.html:50
 msgid "Length"
 msgstr "Longueur"
 
 #: dcim/forms/bulk_edit.py:711 dcim/forms/bulk_import.py:1174
-#: dcim/forms/bulk_import.py:1177 dcim/forms/filtersets.py:983
+#: dcim/forms/bulk_import.py:1177 dcim/forms/filtersets.py:991
 msgid "Length unit"
 msgstr "Unité de longueur"
 
@@ -3086,40 +3130,33 @@ msgid "Domain"
 msgstr "Domaine"
 
 #: dcim/forms/bulk_edit.py:803 dcim/forms/bulk_import.py:1296
-#: dcim/forms/filtersets.py:1069 dcim/forms/model_forms.py:695
+#: dcim/forms/filtersets.py:1077 dcim/forms/model_forms.py:695
 msgid "Power panel"
 msgstr "panneau d'alimentation"
 
 #: dcim/forms/bulk_edit.py:825 dcim/forms/bulk_import.py:1332
-#: dcim/forms/filtersets.py:1091 templates/dcim/powerfeed.html:83
+#: dcim/forms/filtersets.py:1099 templates/dcim/powerfeed.html:83
 msgid "Supply"
 msgstr "Approvisionnement"
 
 #: dcim/forms/bulk_edit.py:831 dcim/forms/bulk_import.py:1337
-#: dcim/forms/filtersets.py:1096 templates/dcim/powerfeed.html:95
+#: dcim/forms/filtersets.py:1104 templates/dcim/powerfeed.html:95
 msgid "Phase"
 msgstr "Phase"
 
-#: dcim/forms/bulk_edit.py:837 dcim/forms/filtersets.py:1101
+#: dcim/forms/bulk_edit.py:837 dcim/forms/filtersets.py:1109
 #: templates/dcim/powerfeed.html:87
 msgid "Voltage"
 msgstr "tension"
 
-#: dcim/forms/bulk_edit.py:841 dcim/forms/filtersets.py:1105
+#: dcim/forms/bulk_edit.py:841 dcim/forms/filtersets.py:1113
 #: templates/dcim/powerfeed.html:91
 msgid "Amperage"
 msgstr "Ampérage"
 
-#: dcim/forms/bulk_edit.py:845 dcim/forms/filtersets.py:1109
+#: dcim/forms/bulk_edit.py:845 dcim/forms/filtersets.py:1117
 msgid "Max utilization"
 msgstr "Utilisation maximale"
-
-#: dcim/forms/bulk_edit.py:849 dcim/forms/bulk_edit.py:1208
-#: dcim/forms/bulk_edit.py:1225 dcim/forms/bulk_edit.py:1242
-#: dcim/forms/bulk_edit.py:1260 dcim/forms/bulk_edit.py:1348
-#: dcim/forms/bulk_edit.py:1487 dcim/forms/bulk_edit.py:1504
-msgid "Mark connected"
-msgstr "Marquer comme connecté"
 
 #: dcim/forms/bulk_edit.py:934
 msgid "Maximum draw"
@@ -3154,7 +3191,7 @@ msgid "Management only"
 msgstr "Gestion uniquement"
 
 #: dcim/forms/bulk_edit.py:1037 dcim/forms/bulk_edit.py:1339
-#: dcim/forms/bulk_import.py:821 dcim/forms/filtersets.py:1292
+#: dcim/forms/bulk_import.py:821 dcim/forms/filtersets.py:1300
 #: dcim/forms/object_import.py:90
 #: dcim/models/device_component_templates.py:411
 #: dcim/models/device_components.py:671
@@ -3162,14 +3199,14 @@ msgid "PoE mode"
 msgstr "Mode PoE"
 
 #: dcim/forms/bulk_edit.py:1043 dcim/forms/bulk_edit.py:1345
-#: dcim/forms/bulk_import.py:827 dcim/forms/filtersets.py:1297
+#: dcim/forms/bulk_import.py:827 dcim/forms/filtersets.py:1305
 #: dcim/forms/object_import.py:95
 #: dcim/models/device_component_templates.py:417
 #: dcim/models/device_components.py:677
 msgid "PoE type"
 msgstr "Type PoE"
 
-#: dcim/forms/bulk_edit.py:1049 dcim/forms/filtersets.py:1302
+#: dcim/forms/bulk_edit.py:1049 dcim/forms/filtersets.py:1310
 #: dcim/forms/object_import.py:100
 msgid "Wireless role"
 msgstr "Rôle sans fil"
@@ -3194,10 +3231,10 @@ msgid "Virtual device contexts"
 msgstr "Contextes des appareils virtuels"
 
 #: dcim/forms/bulk_edit.py:1324 dcim/forms/bulk_import.py:659
-#: dcim/forms/bulk_import.py:685 dcim/forms/filtersets.py:1161
-#: dcim/forms/filtersets.py:1183 dcim/forms/filtersets.py:1256
-#: dcim/tables/devices.py:602
-#: templates/circuits/inc/circuit_termination.html:93
+#: dcim/forms/bulk_import.py:685 dcim/forms/filtersets.py:1169
+#: dcim/forms/filtersets.py:1191 dcim/forms/filtersets.py:1264
+#: dcim/tables/devices.py:606
+#: templates/circuits/inc/circuit_termination_fields.html:67
 #: templates/dcim/consoleport.html:40 templates/dcim/consoleserverport.html:40
 msgid "Speed"
 msgstr "Vitesse"
@@ -3214,20 +3251,20 @@ msgid "Mode"
 msgstr "Mode"
 
 #: dcim/forms/bulk_edit.py:1361 dcim/forms/model_forms.py:1299
-#: ipam/forms/bulk_import.py:177 ipam/forms/filtersets.py:498
+#: ipam/forms/bulk_import.py:177 ipam/forms/filtersets.py:505
 #: ipam/models/vlans.py:84 virtualization/forms/bulk_edit.py:240
 #: virtualization/forms/model_forms.py:321
 msgid "VLAN group"
 msgstr "groupe VLAN"
 
 #: dcim/forms/bulk_edit.py:1369 dcim/forms/model_forms.py:1304
-#: dcim/tables/devices.py:575 virtualization/forms/bulk_edit.py:248
+#: dcim/tables/devices.py:579 virtualization/forms/bulk_edit.py:248
 #: virtualization/forms/model_forms.py:326
 msgid "Untagged VLAN"
 msgstr "VLAN non balisé"
 
 #: dcim/forms/bulk_edit.py:1377 dcim/forms/model_forms.py:1313
-#: dcim/tables/devices.py:581 virtualization/forms/bulk_edit.py:256
+#: dcim/tables/devices.py:585 virtualization/forms/bulk_edit.py:256
 #: virtualization/forms/model_forms.py:335
 msgid "Tagged VLANs"
 msgstr "VLAN balisés"
@@ -3237,12 +3274,12 @@ msgid "Wireless LAN group"
 msgstr "Groupe LAN sans fil"
 
 #: dcim/forms/bulk_edit.py:1392 dcim/forms/model_forms.py:1291
-#: dcim/tables/devices.py:611 netbox/navigation/menu.py:133
+#: dcim/tables/devices.py:615 netbox/navigation/menu.py:133
 #: templates/dcim/interface.html:280 wireless/tables/wirelesslan.py:24
 msgid "Wireless LANs"
 msgstr "Réseaux locaux sans fil"
 
-#: dcim/forms/bulk_edit.py:1401 dcim/forms/filtersets.py:1229
+#: dcim/forms/bulk_edit.py:1401 dcim/forms/filtersets.py:1237
 #: dcim/forms/model_forms.py:1334 ipam/forms/bulk_edit.py:271
 #: ipam/forms/bulk_edit.py:362 ipam/forms/filtersets.py:169
 #: templates/dcim/interface.html:122 templates/ipam/prefix.html:95
@@ -3255,7 +3292,7 @@ msgstr "Adressage"
 msgid "Operation"
 msgstr "Fonctionnement"
 
-#: dcim/forms/bulk_edit.py:1403 dcim/forms/filtersets.py:1230
+#: dcim/forms/bulk_edit.py:1403 dcim/forms/filtersets.py:1238
 #: dcim/forms/model_forms.py:932 dcim/forms/model_forms.py:1337
 msgid "PoE"
 msgstr "PoE"
@@ -3412,8 +3449,8 @@ msgstr "Châssis virtuel"
 #: dcim/forms/bulk_import.py:462 dcim/forms/model_forms.py:465
 #: dcim/tables/devices.py:207 extras/filtersets.py:548
 #: extras/forms/filtersets.py:331 ipam/forms/bulk_edit.py:479
-#: ipam/forms/filtersets.py:408 ipam/forms/filtersets.py:452
-#: ipam/forms/model_forms.py:618 templates/dcim/device.html:231
+#: ipam/forms/filtersets.py:415 ipam/forms/filtersets.py:459
+#: ipam/forms/model_forms.py:627 templates/dcim/device.html:231
 #: templates/virtualization/cluster.html:10
 #: templates/virtualization/virtualmachine.html:88
 #: templates/virtualization/virtualmachine.html:97
@@ -3557,7 +3594,7 @@ msgstr ""
 msgid "Physical medium"
 msgstr "Support physique"
 
-#: dcim/forms/bulk_import.py:813 dcim/forms/filtersets.py:1263
+#: dcim/forms/bulk_import.py:813 dcim/forms/filtersets.py:1271
 msgid "Duplex"
 msgstr "Duplex"
 
@@ -3575,8 +3612,8 @@ msgstr "Mode de fonctionnement IEEE 802.1Q (pour interfaces L2)"
 
 #: dcim/forms/bulk_import.py:840 ipam/forms/bulk_import.py:160
 #: ipam/forms/bulk_import.py:246 ipam/forms/bulk_import.py:282
-#: ipam/forms/filtersets.py:200 ipam/forms/filtersets.py:270
-#: ipam/forms/filtersets.py:329 virtualization/forms/bulk_import.py:175
+#: ipam/forms/filtersets.py:201 ipam/forms/filtersets.py:277
+#: ipam/forms/filtersets.py:336 virtualization/forms/bulk_import.py:175
 msgid "Assigned VRF"
 msgstr "VRF attribué"
 
@@ -3804,29 +3841,33 @@ msgstr "Composantes"
 msgid "Subdevice role"
 msgstr "Rôle du sous-appareil"
 
-#: dcim/forms/filtersets.py:718
+#: dcim/forms/filtersets.py:719
 msgid "Model"
 msgstr "Modèle"
 
-#: dcim/forms/filtersets.py:762
+#: dcim/forms/filtersets.py:763
 msgid "Has an OOB IP"
 msgstr "Possède une adresse IP OOB"
 
-#: dcim/forms/filtersets.py:769
+#: dcim/forms/filtersets.py:770
 msgid "Virtual chassis member"
 msgstr "Membre virtuel du châssis"
 
-#: dcim/forms/filtersets.py:1121
+#: dcim/forms/filtersets.py:819
+msgid "Has virtual device contexts"
+msgstr "Possède des contextes de périphériques virtuels"
+
+#: dcim/forms/filtersets.py:1129
 msgid "Cabled"
 msgstr "câblé"
 
-#: dcim/forms/filtersets.py:1128
+#: dcim/forms/filtersets.py:1136
 msgid "Occupied"
 msgstr "Occupé"
 
-#: dcim/forms/filtersets.py:1153 dcim/forms/filtersets.py:1175
-#: dcim/forms/filtersets.py:1197 dcim/forms/filtersets.py:1214
-#: dcim/forms/filtersets.py:1234 dcim/tables/devices.py:348
+#: dcim/forms/filtersets.py:1161 dcim/forms/filtersets.py:1183
+#: dcim/forms/filtersets.py:1205 dcim/forms/filtersets.py:1222
+#: dcim/forms/filtersets.py:1242 dcim/tables/devices.py:352
 #: templates/dcim/consoleport.html:55 templates/dcim/consoleserverport.html:55
 #: templates/dcim/frontport.html:69 templates/dcim/interface.html:140
 #: templates/dcim/powerfeed.html:110 templates/dcim/poweroutlet.html:59
@@ -3834,40 +3875,40 @@ msgstr "Occupé"
 msgid "Connection"
 msgstr "Connexion"
 
-#: dcim/forms/filtersets.py:1246 extras/forms/bulk_edit.py:316
+#: dcim/forms/filtersets.py:1254 extras/forms/bulk_edit.py:316
 #: extras/forms/bulk_import.py:242 extras/forms/filtersets.py:476
 #: extras/forms/model_forms.py:551 extras/tables/tables.py:512
 #: templates/extras/journalentry.html:30
 msgid "Kind"
 msgstr "Type"
 
-#: dcim/forms/filtersets.py:1275
+#: dcim/forms/filtersets.py:1283
 msgid "Mgmt only"
 msgstr "Gestion uniquement"
 
-#: dcim/forms/filtersets.py:1287 dcim/forms/model_forms.py:1327
+#: dcim/forms/filtersets.py:1295 dcim/forms/model_forms.py:1327
 #: dcim/models/device_components.py:630 templates/dcim/interface.html:129
 msgid "WWN"
 msgstr "WWN"
 
-#: dcim/forms/filtersets.py:1307
+#: dcim/forms/filtersets.py:1315
 msgid "Wireless channel"
 msgstr "Canal sans fil"
 
-#: dcim/forms/filtersets.py:1311
+#: dcim/forms/filtersets.py:1319
 msgid "Channel frequency (MHz)"
 msgstr "Fréquence du canal (MHz)"
 
-#: dcim/forms/filtersets.py:1315
+#: dcim/forms/filtersets.py:1323
 msgid "Channel width (MHz)"
 msgstr "Largeur du canal (MHz)"
 
-#: dcim/forms/filtersets.py:1319 templates/dcim/interface.html:85
+#: dcim/forms/filtersets.py:1327 templates/dcim/interface.html:85
 msgid "Transmit power (dBm)"
 msgstr "Puissance de transmission (dBm)"
 
-#: dcim/forms/filtersets.py:1342 dcim/forms/filtersets.py:1364
-#: dcim/tables/devices.py:320 templates/dcim/cable.html:12
+#: dcim/forms/filtersets.py:1350 dcim/forms/filtersets.py:1372
+#: dcim/tables/devices.py:324 templates/dcim/cable.html:12
 #: templates/dcim/cable_trace.html:46 templates/dcim/frontport.html:77
 #: templates/dcim/htmx/cable_edit.html:50
 #: templates/dcim/inc/connection_endpoints.html:4
@@ -3875,7 +3916,7 @@ msgstr "Puissance de transmission (dBm)"
 msgid "Cable"
 msgstr "câble"
 
-#: dcim/forms/filtersets.py:1434 dcim/tables/devices.py:933
+#: dcim/forms/filtersets.py:1442 dcim/tables/devices.py:933
 msgid "Discovered"
 msgstr "Découvert"
 
@@ -3996,7 +4037,7 @@ msgstr "Modèle de port arrière"
 #: dcim/tables/connections.py:65 ipam/forms/bulk_import.py:317
 #: ipam/forms/model_forms.py:278 ipam/forms/model_forms.py:287
 #: ipam/tables/fhrp.py:64 ipam/tables/ip.py:368 ipam/tables/vlans.py:165
-#: templates/circuits/inc/circuit_termination.html:77
+#: templates/circuits/inc/circuit_termination_fields.html:51
 #: templates/dcim/frontport.html:106 templates/dcim/interface.html:27
 #: templates/dcim/interface.html:184 templates/dcim/interface.html:310
 #: templates/dcim/rearport.html:102
@@ -4024,7 +4065,7 @@ msgid "Console Server Port"
 msgstr "Port du serveur de consoles"
 
 #: dcim/forms/model_forms.py:1092 dcim/forms/model_forms.py:1530
-#: templates/circuits/inc/circuit_termination.html:78
+#: templates/circuits/inc/circuit_termination_fields.html:52
 #: templates/dcim/consoleport.html:76 templates/dcim/consoleserverport.html:77
 #: templates/dcim/frontport.html:17 templates/dcim/frontport.html:115
 #: templates/dcim/interface.html:187 templates/dcim/rearport.html:105
@@ -4033,7 +4074,7 @@ msgstr "Port avant"
 
 #: dcim/forms/model_forms.py:1093 dcim/forms/model_forms.py:1531
 #: dcim/tables/devices.py:705
-#: templates/circuits/inc/circuit_termination.html:79
+#: templates/circuits/inc/circuit_termination_fields.html:53
 #: templates/dcim/consoleport.html:79 templates/dcim/consoleserverport.html:80
 #: templates/dcim/frontport.html:50 templates/dcim/frontport.html:118
 #: templates/dcim/interface.html:190 templates/dcim/rearport.html:17
@@ -4042,7 +4083,7 @@ msgid "Rear Port"
 msgstr "Port arrière"
 
 #: dcim/forms/model_forms.py:1094 dcim/forms/model_forms.py:1532
-#: dcim/tables/connections.py:46 dcim/tables/devices.py:505
+#: dcim/tables/connections.py:46 dcim/tables/devices.py:509
 #: templates/dcim/poweroutlet.html:44 templates/dcim/powerport.html:17
 msgid "Power Port"
 msgstr "Port d'alimentation"
@@ -5357,7 +5398,7 @@ msgstr ""
 
 #: dcim/models/mixins.py:15 extras/models/configs.py:41
 #: extras/models/models.py:341 extras/models/models.py:550
-#: extras/models/search.py:48 ipam/models/ip.py:193
+#: extras/models/search.py:48 ipam/models/ip.py:194
 msgid "weight"
 msgstr "poids"
 
@@ -5852,28 +5893,37 @@ msgstr "Articles d'inventaire"
 msgid "Module Bay"
 msgstr "Module Bay"
 
-#: dcim/tables/devices.py:326
+#: dcim/tables/devices.py:318 dcim/tables/devicetypes.py:48
+#: dcim/tables/devicetypes.py:140 dcim/views.py:1081 dcim/views.py:2024
+#: netbox/navigation/menu.py:90 templates/dcim/device/base.html:52
+#: templates/dcim/device_list.html:71 templates/dcim/devicetype/base.html:49
+#: templates/dcim/inc/panels/inventory_items.html:6
+#: templates/dcim/inventoryitemrole.html:32
+msgid "Inventory Items"
+msgstr "Articles d'inventaire"
+
+#: dcim/tables/devices.py:330
 msgid "Cable Color"
 msgstr "Couleur du câble"
 
-#: dcim/tables/devices.py:332
+#: dcim/tables/devices.py:336
 msgid "Link Peers"
 msgstr "Lier les pairs"
 
-#: dcim/tables/devices.py:335
+#: dcim/tables/devices.py:339
 msgid "Mark Connected"
 msgstr "Marquer comme connecté"
 
-#: dcim/tables/devices.py:451
+#: dcim/tables/devices.py:455
 msgid "Maximum draw (W)"
 msgstr "Tirage maximal (W)"
 
-#: dcim/tables/devices.py:454
+#: dcim/tables/devices.py:458
 msgid "Allocated draw (W)"
 msgstr "Tirage alloué (W)"
 
-#: dcim/tables/devices.py:554 ipam/forms/model_forms.py:738
-#: ipam/tables/fhrp.py:28 ipam/views.py:596 ipam/views.py:690
+#: dcim/tables/devices.py:558 ipam/forms/model_forms.py:747
+#: ipam/tables/fhrp.py:28 ipam/views.py:602 ipam/views.py:701
 #: netbox/navigation/menu.py:145 netbox/navigation/menu.py:147
 #: templates/dcim/interface.html:339 templates/ipam/ipaddress_bulk_add.html:15
 #: templates/ipam/service.html:40 templates/virtualization/vminterface.html:85
@@ -5881,12 +5931,12 @@ msgstr "Tirage alloué (W)"
 msgid "IP Addresses"
 msgstr "Adresses IP"
 
-#: dcim/tables/devices.py:560 netbox/navigation/menu.py:189
+#: dcim/tables/devices.py:564 netbox/navigation/menu.py:189
 #: templates/ipam/inc/panels/fhrp_groups.html:6
 msgid "FHRP Groups"
 msgstr "Groupes FHRP"
 
-#: dcim/tables/devices.py:572 templates/dcim/interface.html:89
+#: dcim/tables/devices.py:576 templates/dcim/interface.html:89
 #: templates/virtualization/vminterface.html:67 templates/vpn/tunnel.html:18
 #: templates/vpn/tunneltermination.html:13 vpn/forms/bulk_edit.py:76
 #: vpn/forms/bulk_import.py:76 vpn/forms/filtersets.py:42
@@ -5895,23 +5945,14 @@ msgstr "Groupes FHRP"
 msgid "Tunnel"
 msgstr "Tunnel"
 
-#: dcim/tables/devices.py:597 dcim/tables/devicetypes.py:224
+#: dcim/tables/devices.py:601 dcim/tables/devicetypes.py:224
 #: templates/dcim/interface.html:65
 msgid "Management Only"
 msgstr "Gestion uniquement"
 
-#: dcim/tables/devices.py:615
+#: dcim/tables/devices.py:619
 msgid "VDCs"
 msgstr "VDC"
-
-#: dcim/tables/devices.py:623 dcim/tables/devicetypes.py:48
-#: dcim/tables/devicetypes.py:140 dcim/views.py:1081 dcim/views.py:2024
-#: netbox/navigation/menu.py:90 templates/dcim/device/base.html:52
-#: templates/dcim/device_list.html:71 templates/dcim/devicetype/base.html:49
-#: templates/dcim/inc/panels/inventory_items.html:6
-#: templates/dcim/inventoryitemrole.html:32
-msgid "Inventory Items"
-msgstr "Articles d'inventaire"
 
 #: dcim/tables/devices.py:870 templates/dcim/modulebay.html:49
 msgid "Installed Module"
@@ -6028,7 +6069,7 @@ msgstr "Baies pour appareils"
 msgid "Module Bays"
 msgstr "Baies pour modules"
 
-#: dcim/tables/power.py:36 netbox/navigation/menu.py:281
+#: dcim/tables/power.py:36 netbox/navigation/menu.py:282
 #: templates/dcim/powerpanel.html:51
 msgid "Power Feeds"
 msgstr "Alimentations"
@@ -6518,7 +6559,7 @@ msgid "Cluster type (slug)"
 msgstr "Type de cluster (slug)"
 
 #: extras/filtersets.py:537 ipam/forms/bulk_edit.py:476
-#: ipam/forms/filtersets.py:457 ipam/forms/model_forms.py:615
+#: ipam/forms/filtersets.py:464 ipam/forms/model_forms.py:624
 #: virtualization/forms/filtersets.py:112
 msgid "Cluster group"
 msgstr "Groupe de clusters"
@@ -7023,7 +7064,7 @@ msgid "Tenants"
 msgstr "Locataires"
 
 #: extras/forms/model_forms.py:458 ipam/forms/filtersets.py:142
-#: ipam/forms/filtersets.py:546 ipam/forms/model_forms.py:321
+#: ipam/forms/filtersets.py:553 ipam/forms/model_forms.py:321
 #: templates/extras/configcontext.html:60 templates/ipam/ipaddress.html:59
 #: templates/ipam/vlan_edit.html:30 tenancy/forms/filtersets.py:87
 #: users/forms/model_forms.py:311
@@ -7864,11 +7905,11 @@ msgstr "script"
 msgid "scripts"
 msgstr "scripts"
 
-#: extras/models/scripts.py:110
+#: extras/models/scripts.py:111
 msgid "script module"
 msgstr "module de script"
 
-#: extras/models/scripts.py:111
+#: extras/models/scripts.py:112
 msgid "script modules"
 msgstr "modules de script"
 
@@ -8134,7 +8175,7 @@ msgstr "Widget supprimé : "
 msgid "Error deleting widget: "
 msgstr "Erreur lors de la suppression du widget : "
 
-#: extras/views.py:1081
+#: extras/views.py:1101
 msgid "Unable to run script: RQ worker process not running."
 msgstr ""
 "Impossible d'exécuter le script : le processus de travail RQ n'est pas en "
@@ -8284,7 +8325,7 @@ msgid "Prefixes which contain this prefix or IP"
 msgstr "Préfixes contenant ce préfixe ou cette adresse IP"
 
 #: ipam/filtersets.py:304 ipam/filtersets.py:572 ipam/forms/bulk_edit.py:327
-#: ipam/forms/filtersets.py:195 ipam/forms/filtersets.py:324
+#: ipam/forms/filtersets.py:196 ipam/forms/filtersets.py:331
 msgid "Mask length"
 msgstr "Longueur du masque"
 
@@ -8297,7 +8338,7 @@ msgid "VLAN number (1-4094)"
 msgstr "Numéro de VLAN (1-4094)"
 
 #: ipam/filtersets.py:471 ipam/filtersets.py:475 ipam/filtersets.py:567
-#: ipam/forms/model_forms.py:452 templates/tenancy/contact.html:53
+#: ipam/forms/model_forms.py:461 templates/tenancy/contact.html:53
 #: tenancy/forms/bulk_edit.py:113
 msgid "Address"
 msgstr "Adresse"
@@ -8357,7 +8398,7 @@ msgstr "Adresse IP intérieure NAT (ID)"
 msgid "IP address (ID)"
 msgstr "Adresse IP (ID)"
 
-#: ipam/filtersets.py:1102 ipam/models/ip.py:787
+#: ipam/filtersets.py:1102 ipam/models/ip.py:788
 msgid "IP address"
 msgstr "Adresse IP"
 
@@ -8413,7 +8454,7 @@ msgstr "Est privé"
 #: ipam/forms/filtersets.py:148 ipam/forms/model_forms.py:94
 #: ipam/forms/model_forms.py:107 ipam/forms/model_forms.py:129
 #: ipam/forms/model_forms.py:147 ipam/models/asns.py:31
-#: ipam/models/asns.py:103 ipam/models/ip.py:70 ipam/models/ip.py:89
+#: ipam/models/asns.py:103 ipam/models/ip.py:71 ipam/models/ip.py:90
 #: ipam/tables/asn.py:20 ipam/tables/asn.py:45
 #: templates/ipam/aggregate.html:18 templates/ipam/asn.html:27
 #: templates/ipam/asnrange.html:19 templates/ipam/rir.html:19
@@ -8428,36 +8469,36 @@ msgstr "Date d'ajout"
 msgid "Prefix length"
 msgstr "Longueur du préfixe"
 
-#: ipam/forms/bulk_edit.py:253 ipam/forms/filtersets.py:240
+#: ipam/forms/bulk_edit.py:253 ipam/forms/filtersets.py:241
 #: templates/ipam/prefix.html:85
 msgid "Is a pool"
 msgstr "C'est une piscine"
 
 #: ipam/forms/bulk_edit.py:258 ipam/forms/bulk_edit.py:302
-#: ipam/forms/filtersets.py:247 ipam/forms/filtersets.py:286
-#: ipam/models/ip.py:271 ipam/models/ip.py:538
+#: ipam/forms/filtersets.py:248 ipam/forms/filtersets.py:293
+#: ipam/models/ip.py:272 ipam/models/ip.py:539
 msgid "Treat as fully utilized"
 msgstr "Traiter comme s'il avait été pleinement utilisé"
 
-#: ipam/forms/bulk_edit.py:350 ipam/models/ip.py:771
+#: ipam/forms/bulk_edit.py:350 ipam/models/ip.py:772
 msgid "DNS name"
 msgstr "Nom DNS"
 
 #: ipam/forms/bulk_edit.py:371 ipam/forms/bulk_edit.py:572
 #: ipam/forms/bulk_import.py:393 ipam/forms/bulk_import.py:477
-#: ipam/forms/bulk_import.py:503 ipam/forms/filtersets.py:383
-#: ipam/forms/filtersets.py:530 templates/ipam/fhrpgroup.html:22
+#: ipam/forms/bulk_import.py:503 ipam/forms/filtersets.py:390
+#: ipam/forms/filtersets.py:537 templates/ipam/fhrpgroup.html:22
 #: templates/ipam/inc/panels/fhrp_groups.html:24
 #: templates/ipam/service.html:32 templates/ipam/servicetemplate.html:19
 msgid "Protocol"
 msgstr "Protocole"
 
-#: ipam/forms/bulk_edit.py:378 ipam/forms/filtersets.py:390
+#: ipam/forms/bulk_edit.py:378 ipam/forms/filtersets.py:397
 #: ipam/tables/fhrp.py:22 templates/ipam/fhrpgroup.html:26
 msgid "Group ID"
 msgstr "ID de groupe"
 
-#: ipam/forms/bulk_edit.py:383 ipam/forms/filtersets.py:395
+#: ipam/forms/bulk_edit.py:383 ipam/forms/filtersets.py:402
 #: wireless/forms/bulk_edit.py:68 wireless/forms/bulk_edit.py:115
 #: wireless/forms/bulk_import.py:62 wireless/forms/bulk_import.py:65
 #: wireless/forms/bulk_import.py:104 wireless/forms/bulk_import.py:107
@@ -8465,12 +8506,12 @@ msgstr "ID de groupe"
 msgid "Authentication type"
 msgstr "Type d'authentification"
 
-#: ipam/forms/bulk_edit.py:388 ipam/forms/filtersets.py:399
+#: ipam/forms/bulk_edit.py:388 ipam/forms/filtersets.py:406
 msgid "Authentication key"
 msgstr "Clé d'authentification"
 
-#: ipam/forms/bulk_edit.py:405 ipam/forms/filtersets.py:376
-#: ipam/forms/model_forms.py:463 netbox/navigation/menu.py:369
+#: ipam/forms/bulk_edit.py:405 ipam/forms/filtersets.py:383
+#: ipam/forms/model_forms.py:472 netbox/navigation/menu.py:370
 #: templates/ipam/fhrpgroup.html:49
 #: templates/wireless/inc/authentication_attrs.html:5
 #: wireless/forms/bulk_edit.py:91 wireless/forms/bulk_edit.py:138
@@ -8487,11 +8528,11 @@ msgstr "VID VLAN minimum pour enfants"
 msgid "Maximum child VLAN VID"
 msgstr "VID VLAN maximum pour enfants"
 
-#: ipam/forms/bulk_edit.py:429 ipam/forms/model_forms.py:557
+#: ipam/forms/bulk_edit.py:429 ipam/forms/model_forms.py:566
 msgid "Scope type"
 msgstr "Type de portée"
 
-#: ipam/forms/bulk_edit.py:491 ipam/forms/model_forms.py:632
+#: ipam/forms/bulk_edit.py:491 ipam/forms/model_forms.py:641
 #: ipam/tables/vlans.py:71 templates/ipam/vlangroup.html:38
 msgid "Scope"
 msgstr "Champ"
@@ -8500,8 +8541,8 @@ msgstr "Champ"
 msgid "Site & Group"
 msgstr "Site et groupe"
 
-#: ipam/forms/bulk_edit.py:577 ipam/forms/model_forms.py:696
-#: ipam/forms/model_forms.py:728 ipam/tables/services.py:19
+#: ipam/forms/bulk_edit.py:577 ipam/forms/model_forms.py:705
+#: ipam/forms/model_forms.py:737 ipam/tables/services.py:19
 #: ipam/tables/services.py:49 templates/ipam/service.html:36
 #: templates/ipam/servicetemplate.html:23
 msgid "Ports"
@@ -8524,15 +8565,15 @@ msgstr "RIR attribué"
 msgid "VLAN's group (if any)"
 msgstr "Le groupe du VLAN (le cas échéant)"
 
-#: ipam/forms/bulk_import.py:184 ipam/forms/model_forms.py:216
-#: ipam/models/vlans.py:214 ipam/tables/ip.py:254
-#: templates/ipam/prefix.html:60 templates/ipam/vlan.html:12
-#: templates/ipam/vlan/base.html:6 templates/ipam/vlan_edit.html:10
-#: templates/wireless/wirelesslan.html:30 vpn/forms/bulk_import.py:304
-#: vpn/forms/filtersets.py:284 vpn/forms/model_forms.py:433
-#: vpn/forms/model_forms.py:452 wireless/forms/bulk_edit.py:55
-#: wireless/forms/bulk_import.py:48 wireless/forms/model_forms.py:48
-#: wireless/models.py:101
+#: ipam/forms/bulk_import.py:184 ipam/forms/filtersets.py:256
+#: ipam/forms/model_forms.py:216 ipam/models/vlans.py:214
+#: ipam/tables/ip.py:254 templates/ipam/prefix.html:60
+#: templates/ipam/vlan.html:12 templates/ipam/vlan/base.html:6
+#: templates/ipam/vlan_edit.html:10 templates/wireless/wirelesslan.html:30
+#: vpn/forms/bulk_import.py:304 vpn/forms/filtersets.py:284
+#: vpn/forms/model_forms.py:433 vpn/forms/model_forms.py:452
+#: wireless/forms/bulk_edit.py:55 wireless/forms/bulk_import.py:48
+#: wireless/forms/model_forms.py:48 wireless/models.py:101
 msgid "VLAN"
 msgstr "VLAN"
 
@@ -8541,7 +8582,7 @@ msgid "Parent device of assigned interface (if any)"
 msgstr "Appareil parent auquel est attribuée l'interface (le cas échéant)"
 
 #: ipam/forms/bulk_import.py:310 ipam/forms/bulk_import.py:496
-#: ipam/forms/model_forms.py:722 virtualization/filtersets.py:284
+#: ipam/forms/model_forms.py:731 virtualization/filtersets.py:284
 #: virtualization/filtersets.py:323 virtualization/forms/bulk_edit.py:200
 #: virtualization/forms/bulk_edit.py:326
 #: virtualization/forms/bulk_import.py:146
@@ -8647,8 +8688,8 @@ msgstr "Exporté par VRF"
 msgid "Private"
 msgstr "Privé"
 
-#: ipam/forms/filtersets.py:105 ipam/forms/filtersets.py:190
-#: ipam/forms/filtersets.py:265 ipam/forms/filtersets.py:319
+#: ipam/forms/filtersets.py:105 ipam/forms/filtersets.py:191
+#: ipam/forms/filtersets.py:272 ipam/forms/filtersets.py:326
 msgid "Address family"
 msgstr "Famille d'adresses"
 
@@ -8664,53 +8705,57 @@ msgstr "Démarrer"
 msgid "End"
 msgstr "Fin"
 
-#: ipam/forms/filtersets.py:185
+#: ipam/forms/filtersets.py:171
+msgid "VLAN Assignment"
+msgstr "Attribution de VLAN"
+
+#: ipam/forms/filtersets.py:186
 msgid "Search within"
 msgstr "Rechercher dans"
 
-#: ipam/forms/filtersets.py:206 ipam/forms/filtersets.py:335
+#: ipam/forms/filtersets.py:207 ipam/forms/filtersets.py:342
 msgid "Present in VRF"
 msgstr "Présent en VRF"
 
-#: ipam/forms/filtersets.py:304
+#: ipam/forms/filtersets.py:311
 msgid "Device/VM"
 msgstr "Appareil/VM"
 
-#: ipam/forms/filtersets.py:314
+#: ipam/forms/filtersets.py:321
 msgid "Parent Prefix"
 msgstr "Préfixe parent"
 
-#: ipam/forms/filtersets.py:340
+#: ipam/forms/filtersets.py:347
 msgid "Assigned Device"
 msgstr "Appareil attribué"
 
-#: ipam/forms/filtersets.py:345
+#: ipam/forms/filtersets.py:352
 msgid "Assigned VM"
 msgstr "Machine virtuelle attribuée"
 
-#: ipam/forms/filtersets.py:359
+#: ipam/forms/filtersets.py:366
 msgid "Assigned to an interface"
 msgstr "Affecté à une interface"
 
-#: ipam/forms/filtersets.py:366 templates/ipam/ipaddress.html:51
+#: ipam/forms/filtersets.py:373 templates/ipam/ipaddress.html:51
 msgid "DNS Name"
 msgstr "Nom DNS"
 
-#: ipam/forms/filtersets.py:409 ipam/forms/filtersets.py:513
+#: ipam/forms/filtersets.py:416 ipam/forms/filtersets.py:520
 #: ipam/models/vlans.py:156 templates/ipam/vlan.html:31
 msgid "VLAN ID"
 msgstr "IDENTIFIANT DE VLAN"
 
-#: ipam/forms/filtersets.py:441
+#: ipam/forms/filtersets.py:448
 msgid "Minimum VID"
 msgstr "VID minimum"
 
-#: ipam/forms/filtersets.py:447
+#: ipam/forms/filtersets.py:454
 msgid "Maximum VID"
 msgstr "VID maximum"
 
-#: ipam/forms/filtersets.py:556 ipam/forms/model_forms.py:318
-#: ipam/forms/model_forms.py:750 ipam/forms/model_forms.py:776
+#: ipam/forms/filtersets.py:563 ipam/forms/model_forms.py:318
+#: ipam/forms/model_forms.py:759 ipam/forms/model_forms.py:785
 #: ipam/tables/vlans.py:191 templates/virtualization/virtualdisk.html:21
 #: templates/virtualization/virtualmachine.html:12
 #: templates/virtualization/vminterface.html:21
@@ -8748,7 +8793,7 @@ msgid "IP Range"
 msgstr "Plage IP"
 
 #: ipam/forms/model_forms.py:293 ipam/forms/model_forms.py:319
-#: ipam/forms/model_forms.py:462 templates/ipam/fhrpgroup.html:19
+#: ipam/forms/model_forms.py:471 templates/ipam/fhrpgroup.html:19
 msgid "FHRP Group"
 msgstr "Groupe FHRP"
 
@@ -8761,11 +8806,11 @@ msgstr ""
 msgid "NAT IP (Inside)"
 msgstr "IP NAT (interne)"
 
-#: ipam/forms/model_forms.py:373
+#: ipam/forms/model_forms.py:382
 msgid "An IP address can only be assigned to a single object."
 msgstr "Une adresse IP ne peut être attribuée qu'à un seul objet."
 
-#: ipam/forms/model_forms.py:379 ipam/models/ip.py:896
+#: ipam/forms/model_forms.py:388 ipam/models/ip.py:897
 msgid ""
 "Cannot reassign IP address while it is designated as the primary IP for the "
 "parent object"
@@ -8773,32 +8818,32 @@ msgstr ""
 "Impossible de réattribuer l'adresse IP lorsqu'elle est désignée comme "
 "adresse IP principale pour l'objet parent"
 
-#: ipam/forms/model_forms.py:389
+#: ipam/forms/model_forms.py:398
 msgid ""
 "Only IP addresses assigned to an interface can be designated as primary IPs."
 msgstr ""
 "Seules les adresses IP attribuées à une interface peuvent être désignées "
 "comme adresses IP principales."
 
-#: ipam/forms/model_forms.py:464
+#: ipam/forms/model_forms.py:473
 msgid "Virtual IP Address"
 msgstr "Adresse IP virtuelle"
 
-#: ipam/forms/model_forms.py:549
+#: ipam/forms/model_forms.py:558
 msgid "Assignment already exists"
 msgstr "L'affectation existe déjà"
 
-#: ipam/forms/model_forms.py:628 ipam/forms/model_forms.py:670
+#: ipam/forms/model_forms.py:637 ipam/forms/model_forms.py:679
 #: ipam/tables/ip.py:250 templates/ipam/vlan_edit.html:37
 #: templates/ipam/vlangroup.html:27
 msgid "VLAN Group"
 msgstr "Groupe VLAN"
 
-#: ipam/forms/model_forms.py:629
+#: ipam/forms/model_forms.py:638
 msgid "Child VLANs"
 msgstr "VLAN pour enfants"
 
-#: ipam/forms/model_forms.py:701 ipam/forms/model_forms.py:733
+#: ipam/forms/model_forms.py:710 ipam/forms/model_forms.py:742
 msgid ""
 "Comma-separated list of one or more port numbers. A range may be specified "
 "using a hyphen."
@@ -8806,32 +8851,32 @@ msgstr ""
 "Liste séparée par des virgules d'un ou de plusieurs numéros de port. Une "
 "plage peut être spécifiée à l'aide d'un trait d'union."
 
-#: ipam/forms/model_forms.py:706 templates/ipam/servicetemplate.html:12
+#: ipam/forms/model_forms.py:715 templates/ipam/servicetemplate.html:12
 msgid "Service Template"
 msgstr "Modèle de service"
 
-#: ipam/forms/model_forms.py:753
+#: ipam/forms/model_forms.py:762
 msgid "Port(s)"
 msgstr "Port (x)"
 
-#: ipam/forms/model_forms.py:754 ipam/forms/model_forms.py:782
+#: ipam/forms/model_forms.py:763 ipam/forms/model_forms.py:791
 #: templates/ipam/service.html:21
 msgid "Service"
 msgstr "Service"
 
-#: ipam/forms/model_forms.py:767
+#: ipam/forms/model_forms.py:776
 msgid "Service template"
 msgstr "Modèle de service"
 
-#: ipam/forms/model_forms.py:779
+#: ipam/forms/model_forms.py:788
 msgid "From Template"
 msgstr "À partir du modèle"
 
-#: ipam/forms/model_forms.py:780
+#: ipam/forms/model_forms.py:789
 msgid "Custom"
 msgstr "Personnalisé"
 
-#: ipam/forms/model_forms.py:810
+#: ipam/forms/model_forms.py:819
 msgid ""
 "Must specify name, protocol, and port(s) if not using a service template."
 msgstr ""
@@ -8900,43 +8945,43 @@ msgstr "Affectation au groupe FHRP"
 msgid "FHRP group assignments"
 msgstr "Missions du groupe FHRP"
 
-#: ipam/models/ip.py:64
+#: ipam/models/ip.py:65
 msgid "private"
 msgstr "privé"
 
-#: ipam/models/ip.py:65
+#: ipam/models/ip.py:66
 msgid "IP space managed by this RIR is considered private"
 msgstr "L'espace IP géré par ce RIR est considéré comme privé"
 
-#: ipam/models/ip.py:71 netbox/navigation/menu.py:169
+#: ipam/models/ip.py:72 netbox/navigation/menu.py:169
 msgid "RIRs"
 msgstr "IR"
 
-#: ipam/models/ip.py:83
+#: ipam/models/ip.py:84
 msgid "IPv4 or IPv6 network"
 msgstr "Réseau IPv4 ou IPv6"
 
-#: ipam/models/ip.py:90
+#: ipam/models/ip.py:91
 msgid "Regional Internet Registry responsible for this IP space"
 msgstr "Registre Internet régional responsable de cet espace IP"
 
-#: ipam/models/ip.py:100
+#: ipam/models/ip.py:101
 msgid "date added"
 msgstr "date d'ajout"
 
-#: ipam/models/ip.py:114
+#: ipam/models/ip.py:115
 msgid "aggregate"
 msgstr "global"
 
-#: ipam/models/ip.py:115
+#: ipam/models/ip.py:116
 msgid "aggregates"
 msgstr "agrégats"
 
-#: ipam/models/ip.py:131
+#: ipam/models/ip.py:132
 msgid "Cannot create aggregate with /0 mask."
 msgstr "Impossible de créer un agrégat avec le masque /0."
 
-#: ipam/models/ip.py:143
+#: ipam/models/ip.py:144
 #, python-brace-format
 msgid ""
 "Aggregates cannot overlap. {prefix} is already covered by an existing "
@@ -8945,7 +8990,7 @@ msgstr ""
 "Les agrégats ne peuvent pas se chevaucher. {prefix} est déjà couvert par un "
 "agrégat existant ({aggregate})."
 
-#: ipam/models/ip.py:157
+#: ipam/models/ip.py:158
 #, python-brace-format
 msgid ""
 "Prefixes cannot overlap aggregates. {prefix} covers an existing aggregate "
@@ -8954,163 +8999,163 @@ msgstr ""
 "Les préfixes ne peuvent pas chevaucher des agrégats. {prefix} couvre un "
 "agrégat existant ({aggregate})."
 
-#: ipam/models/ip.py:199 ipam/models/ip.py:736 vpn/models/tunnels.py:114
+#: ipam/models/ip.py:200 ipam/models/ip.py:737 vpn/models/tunnels.py:114
 msgid "role"
 msgstr "rôle"
 
-#: ipam/models/ip.py:200
+#: ipam/models/ip.py:201
 msgid "roles"
 msgstr "rôles"
 
-#: ipam/models/ip.py:216 ipam/models/ip.py:292
+#: ipam/models/ip.py:217 ipam/models/ip.py:293
 msgid "prefix"
 msgstr "préfixe"
 
-#: ipam/models/ip.py:217
+#: ipam/models/ip.py:218
 msgid "IPv4 or IPv6 network with mask"
 msgstr "Réseau IPv4 ou IPv6 avec masque"
 
-#: ipam/models/ip.py:253
+#: ipam/models/ip.py:254
 msgid "Operational status of this prefix"
 msgstr "État opérationnel de ce préfixe"
 
-#: ipam/models/ip.py:261
+#: ipam/models/ip.py:262
 msgid "The primary function of this prefix"
 msgstr "La fonction principale de ce préfixe"
 
-#: ipam/models/ip.py:264
+#: ipam/models/ip.py:265
 msgid "is a pool"
 msgstr "est une piscine"
 
-#: ipam/models/ip.py:266
+#: ipam/models/ip.py:267
 msgid "All IP addresses within this prefix are considered usable"
 msgstr ""
 "Toutes les adresses IP comprises dans ce préfixe sont considérées comme "
 "utilisables"
 
-#: ipam/models/ip.py:269 ipam/models/ip.py:536
+#: ipam/models/ip.py:270 ipam/models/ip.py:537
 msgid "mark utilized"
 msgstr "marque utilisée"
 
-#: ipam/models/ip.py:293
+#: ipam/models/ip.py:294
 msgid "prefixes"
 msgstr "préfixes"
 
-#: ipam/models/ip.py:316
+#: ipam/models/ip.py:317
 msgid "Cannot create prefix with /0 mask."
 msgstr "Impossible de créer un préfixe avec le masque /0."
 
-#: ipam/models/ip.py:323 ipam/models/ip.py:873
+#: ipam/models/ip.py:324 ipam/models/ip.py:874
 #, python-brace-format
 msgid "VRF {vrf}"
 msgstr "VRF {vrf}"
 
-#: ipam/models/ip.py:323 ipam/models/ip.py:873
+#: ipam/models/ip.py:324 ipam/models/ip.py:874
 msgid "global table"
 msgstr "tableau global"
 
-#: ipam/models/ip.py:325
+#: ipam/models/ip.py:326
 #, python-brace-format
 msgid "Duplicate prefix found in {table}: {prefix}"
 msgstr "Préfixe dupliqué trouvé dans {table}: {prefix}"
 
-#: ipam/models/ip.py:494
+#: ipam/models/ip.py:495
 msgid "start address"
 msgstr "adresse de départ"
 
-#: ipam/models/ip.py:495 ipam/models/ip.py:499 ipam/models/ip.py:711
+#: ipam/models/ip.py:496 ipam/models/ip.py:500 ipam/models/ip.py:712
 msgid "IPv4 or IPv6 address (with mask)"
 msgstr "Adresse IPv4 ou IPv6 (avec masque)"
 
-#: ipam/models/ip.py:498
+#: ipam/models/ip.py:499
 msgid "end address"
 msgstr "adresse finale"
 
-#: ipam/models/ip.py:525
+#: ipam/models/ip.py:526
 msgid "Operational status of this range"
 msgstr "État opérationnel de cette gamme"
 
-#: ipam/models/ip.py:533
+#: ipam/models/ip.py:534
 msgid "The primary function of this range"
 msgstr "La principale fonction de cette gamme"
 
-#: ipam/models/ip.py:547
+#: ipam/models/ip.py:548
 msgid "IP range"
 msgstr "plage IP"
 
-#: ipam/models/ip.py:548
+#: ipam/models/ip.py:549
 msgid "IP ranges"
 msgstr "Plages IP"
 
-#: ipam/models/ip.py:564
+#: ipam/models/ip.py:565
 msgid "Starting and ending IP address versions must match"
 msgstr "Les versions des adresses IP de début et de fin doivent correspondre"
 
-#: ipam/models/ip.py:570
+#: ipam/models/ip.py:571
 msgid "Starting and ending IP address masks must match"
 msgstr "Les masques d'adresse IP de début et de fin doivent correspondre"
 
-#: ipam/models/ip.py:577
+#: ipam/models/ip.py:578
 #, python-brace-format
 msgid ""
 "Ending address must be greater than the starting address ({start_address})"
 msgstr ""
 "L'adresse de fin doit être supérieure à l'adresse de début ({start_address})"
 
-#: ipam/models/ip.py:589
+#: ipam/models/ip.py:590
 #, python-brace-format
 msgid "Defined addresses overlap with range {overlapping_range} in VRF {vrf}"
 msgstr ""
 "Les adresses définies se chevauchent avec la plage {overlapping_range} en "
 "VRF {vrf}"
 
-#: ipam/models/ip.py:598
+#: ipam/models/ip.py:599
 #, python-brace-format
 msgid "Defined range exceeds maximum supported size ({max_size})"
 msgstr ""
 "La plage définie dépasse la taille maximale prise en charge ({max_size})"
 
-#: ipam/models/ip.py:710 tenancy/models/contacts.py:82
+#: ipam/models/ip.py:711 tenancy/models/contacts.py:82
 msgid "address"
 msgstr "adresse"
 
-#: ipam/models/ip.py:733
+#: ipam/models/ip.py:734
 msgid "The operational status of this IP"
 msgstr "L'état opérationnel de cette adresse IP"
 
-#: ipam/models/ip.py:740
+#: ipam/models/ip.py:741
 msgid "The functional role of this IP"
 msgstr "Le rôle fonctionnel de cette propriété intellectuelle"
 
-#: ipam/models/ip.py:764 templates/ipam/ipaddress.html:72
+#: ipam/models/ip.py:765 templates/ipam/ipaddress.html:72
 msgid "NAT (inside)"
 msgstr "NAT (intérieur)"
 
-#: ipam/models/ip.py:765
+#: ipam/models/ip.py:766
 msgid "The IP for which this address is the \"outside\" IP"
 msgstr ""
 "L'adresse IP pour laquelle cette adresse est l'adresse IP « extérieure »"
 
-#: ipam/models/ip.py:772
+#: ipam/models/ip.py:773
 msgid "Hostname or FQDN (not case-sensitive)"
 msgstr "Nom d'hôte ou FQDN (pas de distinction majuscules/minuscules)"
 
-#: ipam/models/ip.py:788 ipam/models/services.py:93
+#: ipam/models/ip.py:789 ipam/models/services.py:93
 msgid "IP addresses"
 msgstr "Adresses IP"
 
-#: ipam/models/ip.py:844
+#: ipam/models/ip.py:845
 msgid "Cannot create IP address with /0 mask."
 msgstr "Impossible de créer une adresse IP avec le masque /0."
 
-#: ipam/models/ip.py:850
+#: ipam/models/ip.py:851
 #, python-brace-format
 msgid "{ip} is a network ID, which may not be assigned to an interface."
 msgstr ""
 "{ip} est un identifiant réseau, qui ne peut pas être attribué à une "
 "interface."
 
-#: ipam/models/ip.py:861
+#: ipam/models/ip.py:862
 #, python-brace-format
 msgid ""
 "{ip} is a broadcast address, which may not be assigned to an interface."
@@ -9118,12 +9163,12 @@ msgstr ""
 "{ip} est une adresse de diffusion, qui ne peut pas être attribuée à une "
 "interface."
 
-#: ipam/models/ip.py:875
+#: ipam/models/ip.py:876
 #, python-brace-format
 msgid "Duplicate IP address found in {table}: {ipaddress}"
 msgstr "Adresse IP dupliquée trouvée dans {table}: {ipaddress}"
 
-#: ipam/models/ip.py:902
+#: ipam/models/ip.py:903
 msgid "Only IPv6 addresses can be assigned SLAAC status"
 msgstr "Seules les adresses IPv6 peuvent se voir attribuer le statut SLAAC"
 
@@ -9220,7 +9265,7 @@ msgid "The primary function of this VLAN"
 msgstr "La principale fonction de ce VLAN"
 
 #: ipam/models/vlans.py:215 ipam/tables/ip.py:175 ipam/tables/vlans.py:78
-#: ipam/views.py:957 netbox/navigation/menu.py:180
+#: ipam/views.py:978 netbox/navigation/menu.py:180
 #: netbox/navigation/menu.py:182
 msgid "VLANs"
 msgstr "VLAN"
@@ -9296,7 +9341,7 @@ msgid "Added"
 msgstr "Ajouté"
 
 #: ipam/tables/ip.py:127 ipam/tables/ip.py:165 ipam/tables/vlans.py:138
-#: ipam/views.py:348 netbox/navigation/menu.py:152
+#: ipam/views.py:349 netbox/navigation/menu.py:152
 #: netbox/navigation/menu.py:154 templates/ipam/vlan.html:84
 msgid "Prefixes"
 msgstr "Préfixes"
@@ -9399,23 +9444,23 @@ msgstr ""
 "Seuls les caractères alphanumériques, les astérisques, les tirets, les "
 "points et les traits de soulignement sont autorisés dans les noms DNS"
 
-#: ipam/views.py:535
+#: ipam/views.py:541
 msgid "Child Prefixes"
 msgstr "Préfixes pour enfants"
 
-#: ipam/views.py:570
+#: ipam/views.py:576
 msgid "Child Ranges"
 msgstr "Plages pour enfants"
 
-#: ipam/views.py:886
+#: ipam/views.py:902
 msgid "Related IPs"
 msgstr "IP associées"
 
-#: ipam/views.py:1112
+#: ipam/views.py:1133
 msgid "Device Interfaces"
 msgstr "Interfaces des appareils"
 
-#: ipam/views.py:1129
+#: ipam/views.py:1150
 msgid "VM Interfaces"
 msgstr "Interfaces de machines virtuelles"
 
@@ -9986,39 +10031,43 @@ msgstr "Groupes de clusters"
 msgid "Circuit Types"
 msgstr "Types de circuits"
 
-#: netbox/navigation/menu.py:264 netbox/navigation/menu.py:266
+#: netbox/navigation/menu.py:261
+msgid "Circuit Terminations"
+msgstr "Terminaisons de circuits"
+
+#: netbox/navigation/menu.py:265 netbox/navigation/menu.py:267
 msgid "Providers"
 msgstr "Prestataires"
 
-#: netbox/navigation/menu.py:267 templates/circuits/provider.html:51
+#: netbox/navigation/menu.py:268 templates/circuits/provider.html:51
 msgid "Provider Accounts"
 msgstr "Comptes des fournisseurs"
 
-#: netbox/navigation/menu.py:268
+#: netbox/navigation/menu.py:269
 msgid "Provider Networks"
 msgstr "Réseaux de fournisseurs"
 
-#: netbox/navigation/menu.py:282
+#: netbox/navigation/menu.py:283
 msgid "Power Panels"
 msgstr "Panneaux d'alimentation"
 
-#: netbox/navigation/menu.py:293
+#: netbox/navigation/menu.py:294
 msgid "Configurations"
 msgstr "Configurations"
 
-#: netbox/navigation/menu.py:295
+#: netbox/navigation/menu.py:296
 msgid "Config Contexts"
 msgstr "Contextes de configuration"
 
-#: netbox/navigation/menu.py:296
+#: netbox/navigation/menu.py:297
 msgid "Config Templates"
 msgstr "Modèles de configuration"
 
-#: netbox/navigation/menu.py:303 netbox/navigation/menu.py:307
+#: netbox/navigation/menu.py:304 netbox/navigation/menu.py:308
 msgid "Customization"
 msgstr "Personnalisation"
 
-#: netbox/navigation/menu.py:309 templates/dcim/device_edit.html:103
+#: netbox/navigation/menu.py:310 templates/dcim/device_edit.html:103
 #: templates/dcim/htmx/cable_edit.html:81
 #: templates/dcim/virtualchassis_add.html:31
 #: templates/dcim/virtualchassis_edit.html:40
@@ -10028,107 +10077,107 @@ msgstr "Personnalisation"
 msgid "Custom Fields"
 msgstr "Champs personnalisés"
 
-#: netbox/navigation/menu.py:310
+#: netbox/navigation/menu.py:311
 msgid "Custom Field Choices"
 msgstr "Choix de champs personnalisés"
 
-#: netbox/navigation/menu.py:311
+#: netbox/navigation/menu.py:312
 msgid "Custom Links"
 msgstr "Liens personnalisés"
 
-#: netbox/navigation/menu.py:312
+#: netbox/navigation/menu.py:313
 msgid "Export Templates"
 msgstr "Modèles d'exportation"
 
-#: netbox/navigation/menu.py:313
+#: netbox/navigation/menu.py:314
 msgid "Saved Filters"
 msgstr "Filtres enregistrés"
 
-#: netbox/navigation/menu.py:315
+#: netbox/navigation/menu.py:316
 msgid "Image Attachments"
 msgstr "Pièces jointes à des images"
 
-#: netbox/navigation/menu.py:333
+#: netbox/navigation/menu.py:334
 msgid "Operations"
 msgstr "Opérations"
 
-#: netbox/navigation/menu.py:337
+#: netbox/navigation/menu.py:338
 msgid "Integrations"
 msgstr "Intégrations"
 
-#: netbox/navigation/menu.py:339
+#: netbox/navigation/menu.py:340
 msgid "Data Sources"
 msgstr "Sources de données"
 
-#: netbox/navigation/menu.py:340
+#: netbox/navigation/menu.py:341
 msgid "Event Rules"
 msgstr "Règles de l'événement"
 
-#: netbox/navigation/menu.py:341
+#: netbox/navigation/menu.py:342
 msgid "Webhooks"
 msgstr "Webhooks"
 
-#: netbox/navigation/menu.py:345 netbox/navigation/menu.py:349
+#: netbox/navigation/menu.py:346 netbox/navigation/menu.py:350
 #: netbox/views/generic/feature_views.py:151
 #: templates/extras/report/base.html:37 templates/extras/script/base.html:36
 msgid "Jobs"
 msgstr "Emplois"
 
-#: netbox/navigation/menu.py:355
+#: netbox/navigation/menu.py:356
 msgid "Logging"
 msgstr "Journalisation"
 
-#: netbox/navigation/menu.py:357
+#: netbox/navigation/menu.py:358
 msgid "Journal Entries"
 msgstr "Entrées de journal"
 
-#: netbox/navigation/menu.py:358 templates/extras/objectchange.html:8
+#: netbox/navigation/menu.py:359 templates/extras/objectchange.html:8
 #: templates/extras/objectchange_list.html:4
 msgid "Change Log"
 msgstr "Journal des modifications"
 
-#: netbox/navigation/menu.py:365 templates/inc/user_menu.html:11
+#: netbox/navigation/menu.py:366 templates/inc/user_menu.html:11
 msgid "Admin"
 msgstr "Administrateur"
 
-#: netbox/navigation/menu.py:373 templates/users/group.html:29
+#: netbox/navigation/menu.py:374 templates/users/group.html:29
 #: users/forms/model_forms.py:233 users/forms/model_forms.py:245
 #: users/forms/model_forms.py:297 users/tables.py:102
 msgid "Users"
 msgstr "Utilisateurs"
 
-#: netbox/navigation/menu.py:393 users/forms/model_forms.py:182
+#: netbox/navigation/menu.py:394 users/forms/model_forms.py:182
 #: users/forms/model_forms.py:194 users/forms/model_forms.py:302
 #: users/tables.py:35 users/tables.py:106
 msgid "Groups"
 msgstr "Groupes"
 
-#: netbox/navigation/menu.py:413 templates/account/base.html:21
+#: netbox/navigation/menu.py:414 templates/account/base.html:21
 #: templates/inc/user_menu.html:36
 msgid "API Tokens"
 msgstr "Jetons d'API"
 
-#: netbox/navigation/menu.py:420 users/forms/model_forms.py:188
+#: netbox/navigation/menu.py:421 users/forms/model_forms.py:188
 #: users/forms/model_forms.py:196 users/forms/model_forms.py:239
 #: users/forms/model_forms.py:246
 msgid "Permissions"
 msgstr "Autorisations"
 
-#: netbox/navigation/menu.py:428 netbox/navigation/menu.py:432
+#: netbox/navigation/menu.py:429 netbox/navigation/menu.py:433
 #: templates/core/system.html:7
 msgid "System"
 msgstr "Système"
 
-#: netbox/navigation/menu.py:437
+#: netbox/navigation/menu.py:438
 msgid "Configuration History"
 msgstr "Historique de configuration"
 
-#: netbox/navigation/menu.py:443 templates/core/rq_task.html:8
+#: netbox/navigation/menu.py:444 templates/core/rq_task.html:8
 #: templates/core/rq_task_list.html:22
 msgid "Background Tasks"
 msgstr "Tâches d'arrière-plan"
 
-#: netbox/navigation/menu.py:482 templates/500.html:35
+#: netbox/navigation/menu.py:483 templates/500.html:35
 #: templates/account/preferences.html:22 templates/core/system.html:80
 msgid "Plugins"
 msgstr "Plug-ins"
@@ -10269,33 +10318,45 @@ msgstr "Impossible d'ajouter des magasins au registre après l'initialisation"
 msgid "Cannot delete stores from registry"
 msgstr "Impossible de supprimer des magasins du registre"
 
-#: netbox/settings.py:715
+#: netbox/settings.py:722
+msgid "German"
+msgstr "allemand"
+
+#: netbox/settings.py:723
 msgid "English"
 msgstr "Anglais"
 
-#: netbox/settings.py:716
+#: netbox/settings.py:724
 msgid "Spanish"
 msgstr "espagnol"
 
-#: netbox/settings.py:717
+#: netbox/settings.py:725
 msgid "French"
 msgstr "français"
 
-#: netbox/settings.py:718
+#: netbox/settings.py:726
 msgid "Japanese"
 msgstr "japonais"
 
-#: netbox/settings.py:719
+#: netbox/settings.py:727
 msgid "Portuguese"
 msgstr "portugais"
 
-#: netbox/settings.py:720
+#: netbox/settings.py:728
 msgid "Russian"
 msgstr "russe"
 
-#: netbox/settings.py:721
+#: netbox/settings.py:729
 msgid "Turkish"
 msgstr "Turc"
+
+#: netbox/settings.py:730
+msgid "Ukrainian"
+msgstr "Ukrainien"
+
+#: netbox/settings.py:731
+msgid "Chinese"
+msgstr "chinois"
 
 #: netbox/tables/columns.py:185
 msgid "Toggle all"
@@ -10309,16 +10370,16 @@ msgstr "Basculer vers le menu déroulant"
 msgid "Error"
 msgstr "Erreur"
 
-#: netbox/tables/tables.py:56
+#: netbox/tables/tables.py:57
 #, python-brace-format
 msgid "No {model_name} found"
 msgstr "Non {model_name} trouvé"
 
-#: netbox/tables/tables.py:246 templates/generic/bulk_import.html:117
+#: netbox/tables/tables.py:248 templates/generic/bulk_import.html:117
 msgid "Field"
 msgstr "Champ"
 
-#: netbox/tables/tables.py:249
+#: netbox/tables/tables.py:251
 msgid "Value"
 msgstr "Valeur"
 
@@ -10430,7 +10491,7 @@ msgstr "Modifier le mot de passe"
 #: templates/dcim/devicebay_populate.html:34
 #: templates/dcim/virtualchassis_add_member.html:26
 #: templates/dcim/virtualchassis_edit.html:103
-#: templates/extras/object_journal.html:26 templates/extras/script.html:37
+#: templates/extras/object_journal.html:26 templates/extras/script.html:38
 #: templates/generic/bulk_add_component.html:67
 #: templates/generic/bulk_delete.html:65 templates/generic/bulk_edit.html:106
 #: templates/generic/bulk_import.html:56 templates/generic/bulk_import.html:78
@@ -10523,7 +10584,8 @@ msgstr "Groupes assignés"
 #: templates/account/profile.html:58
 #: templates/circuits/circuit_terminations_swap.html:18
 #: templates/circuits/circuit_terminations_swap.html:26
-#: templates/circuits/inc/circuit_termination.html:154
+#: templates/circuits/circuittermination.html:34
+#: templates/circuits/inc/circuit_termination.html:68
 #: templates/dcim/devicebay.html:59
 #: templates/dcim/inc/panels/inventory_items.html:45
 #: templates/dcim/interface.html:296 templates/dcim/modulebay.html:76
@@ -10640,13 +10702,6 @@ msgstr "Ajouter un circuit"
 msgid "Circuit Type"
 msgstr "Type de circuit"
 
-#: templates/circuits/inc/circuit_termination.html:6
-#: templates/circuits/inc/circuit_termination.html:41
-#: templates/dcim/cable.html:68 templates/dcim/cable.html:72
-#: vpn/forms/bulk_import.py:100 vpn/forms/filtersets.py:77
-msgid "Termination"
-msgstr "Résiliation"
-
 #: templates/circuits/inc/circuit_termination.html:10
 #: templates/dcim/devicetype/component_templates.html:33
 #: templates/dcim/manufacturer.html:11
@@ -10659,7 +10714,7 @@ msgid "Add"
 msgstr "Ajouter"
 
 #: templates/circuits/inc/circuit_termination.html:15
-#: templates/circuits/inc/circuit_termination.html:62
+#: templates/circuits/inc/circuit_termination_fields.html:36
 #: templates/dcim/inc/panels/inventory_items.html:32
 #: templates/dcim/moduletype/component_templates.html:20
 #: templates/dcim/powerpanel.html:56 templates/extras/script_list.html:32
@@ -10674,33 +10729,33 @@ msgstr "Modifier"
 msgid "Swap"
 msgstr "Échange"
 
-#: templates/circuits/inc/circuit_termination.html:45
+#: templates/circuits/inc/circuit_termination_fields.html:19
 #: templates/dcim/consoleport.html:59 templates/dcim/consoleserverport.html:60
 #: templates/dcim/powerfeed.html:114
 msgid "Marked as connected"
 msgstr "Marqué comme connecté"
 
-#: templates/circuits/inc/circuit_termination.html:47
+#: templates/circuits/inc/circuit_termination_fields.html:21
 msgid "to"
 msgstr "pour"
 
-#: templates/circuits/inc/circuit_termination.html:57
-#: templates/circuits/inc/circuit_termination.html:58
+#: templates/circuits/inc/circuit_termination_fields.html:31
+#: templates/circuits/inc/circuit_termination_fields.html:32
 #: templates/dcim/frontport.html:80
 #: templates/dcim/inc/connection_endpoints.html:7
 #: templates/dcim/interface.html:154 templates/dcim/rearport.html:76
 msgid "Trace"
 msgstr "Trace"
 
-#: templates/circuits/inc/circuit_termination.html:61
+#: templates/circuits/inc/circuit_termination_fields.html:35
 msgid "Edit cable"
 msgstr "Modifier le câble"
 
-#: templates/circuits/inc/circuit_termination.html:66
+#: templates/circuits/inc/circuit_termination_fields.html:40
 msgid "Remove cable"
 msgstr "Retirez le câble"
 
-#: templates/circuits/inc/circuit_termination.html:67
+#: templates/circuits/inc/circuit_termination_fields.html:41
 #: templates/dcim/bulk_disconnect.html:5
 #: templates/dcim/device/consoleports.html:12
 #: templates/dcim/device/consoleserverports.html:12
@@ -10712,7 +10767,7 @@ msgstr "Retirez le câble"
 msgid "Disconnect"
 msgstr "Déconnectez"
 
-#: templates/circuits/inc/circuit_termination.html:74
+#: templates/circuits/inc/circuit_termination_fields.html:48
 #: templates/dcim/consoleport.html:69 templates/dcim/consoleserverport.html:70
 #: templates/dcim/frontport.html:102 templates/dcim/interface.html:180
 #: templates/dcim/interface.html:200 templates/dcim/powerfeed.html:127
@@ -10721,19 +10776,19 @@ msgstr "Déconnectez"
 msgid "Connect"
 msgstr "Connecter"
 
-#: templates/circuits/inc/circuit_termination.html:96
+#: templates/circuits/inc/circuit_termination_fields.html:70
 msgid "Downstream"
 msgstr "En aval"
 
-#: templates/circuits/inc/circuit_termination.html:97
+#: templates/circuits/inc/circuit_termination_fields.html:71
 msgid "Upstream"
 msgstr "En amont"
 
-#: templates/circuits/inc/circuit_termination.html:106
+#: templates/circuits/inc/circuit_termination_fields.html:80
 msgid "Cross-Connect"
 msgstr "Connexion croisée"
 
-#: templates/circuits/inc/circuit_termination.html:110
+#: templates/circuits/inc/circuit_termination_fields.html:84
 msgid "Patch Panel/Port"
 msgstr "Panneau de raccordement et port"
 
@@ -12153,10 +12208,14 @@ msgstr "Rapport"
 msgid "You do not have permission to run scripts"
 msgstr "Vous n'êtes pas autorisé à exécuter des scripts"
 
-#: templates/extras/script.html:40 templates/extras/script.html:44
+#: templates/extras/script.html:41 templates/extras/script.html:45
 #: templates/extras/script_list.html:88
 msgid "Run Script"
 msgstr "Exécuter le script"
+
+#: templates/extras/script.html:51 templates/extras/script/source.html:10
+msgid "Error loading script"
+msgstr "Erreur lors du chargement du script"
 
 #: templates/extras/script/jobs.html:16
 msgid "Script no longer exists in the source file."
