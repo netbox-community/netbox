@@ -67,6 +67,7 @@ export function initQuickSearch(): void {
           quicksearch.value = '';
           await new Promise(f => setTimeout(f, 100));
           quicksearch.dispatchEvent(search);
+          clearLinkParams();
         },
         {
           passive: true,
