@@ -16,6 +16,8 @@ from extras.events import enqueue_object, flush_events, serialize_for_event
 from extras.models import EventRule, Tag, Webhook
 from extras.webhooks import generate_signature, send_webhook
 from utilities.testing import APITestCase
+from netbox.tests.dummy_plugin.models import DummyModel
+from netbox.context import events_queue
 
 
 class EventRuleTest(APITestCase):
@@ -31,6 +33,7 @@ class EventRuleTest(APITestCase):
     def setUpTestData(cls):
 
         site_type = ObjectType.objects.get_for_model(Site)
+        dummy_type = ObjectType.objects.get_for_model(DummyModel)
         DUMMY_URL = 'http://localhost:9000/'
         DUMMY_SECRET = 'LOOKATMEIMASECRETSTRING'
 
@@ -65,7 +68,7 @@ class EventRuleTest(APITestCase):
             ),
         ))
         for event_rule in event_rules:
-            event_rule.object_types.set([site_type])
+            event_rule.object_types.set([site_type, dummy_type])
 
         Tag.objects.bulk_create((
             Tag(name='Foo', slug='foo'),
@@ -377,3 +380,45 @@ class EventRuleTest(APITestCase):
         # Patch the Session object with our dummy_send() method, then process the webhook for sending
         with patch.object(Session, 'send', dummy_send) as mock_send:
             send_webhook(**job.kwargs)
+
+    def test_webhook_double_save_create(self):
+        data = {
+            'name': 'Dummy',
+        }
+        url = reverse('plugins-api:dummy_plugin-api:dummymodel-list')
+        self.add_permissions('dummy_plugin.add_dummymodel')
+        response = self.client.post(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_201_CREATED)
+        self.assertEqual(DummyModel.objects.count(), 1)
+
+        dummy = DummyModel.objects.first()
+
+        self.assertEqual(self.queue.count, 1)
+        job = self.queue.jobs[0]
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_create=True))
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_CREATE)
+        self.assertEqual(job.kwargs['model_name'], 'dummymodel')
+        self.assertEqual(job.kwargs['data']['id'], dummy.pk)
+        self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'Dummy')
+
+    def test_webhook_double_save_update(self):
+        dummy = DummyModel.objects.create(name='Dummy')
+
+        data = {
+            'name': 'New Dummy',
+            'number': 42,
+        }
+        url = reverse('plugins-api:dummy_plugin-api:dummymodel-detail', kwargs={'pk': dummy.pk})
+        self.add_permissions('dummy_plugin.change_dummymodel')
+        response = self.client.patch(url, data, format='json', **self.header)
+        self.assertHttpStatus(response, status.HTTP_200_OK)
+        self.assertEqual(DummyModel.objects.count(), 1)
+
+        self.assertEqual(self.queue.count, 1)
+        job = self.queue.jobs[0]
+        self.assertEqual(job.kwargs['event_rule'], EventRule.objects.get(type_update=True))
+        self.assertEqual(job.kwargs['event'], ObjectChangeActionChoices.ACTION_UPDATE)
+        self.assertEqual(job.kwargs['model_name'], 'dummymodel')
+        self.assertEqual(job.kwargs['data']['id'], dummy.pk)
+        self.assertEqual(job.kwargs['snapshots']['postchange']['name'], 'New Dummy')
+        self.assertEqual(job.kwargs['snapshots']['postchange']['number'], 42)

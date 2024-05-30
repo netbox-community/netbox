@@ -13,3 +13,7 @@ class DummyModel(EventRulesMixin, ChangeLoggingMixin, models.Model):
 
     class Meta:
         ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        super().save()
+        super().save()
