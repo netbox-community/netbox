@@ -33,7 +33,7 @@ table a {
   filter: brightness(110%);
 }
 
-// Override 
+// Override background color alpha value
 ::selection {
   background-color: rgba(var(--tblr-primary-rgb),.48)
 }
