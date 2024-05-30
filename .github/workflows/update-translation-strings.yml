@@ -1,9 +1,15 @@
 name: Update translation strings
 
-on: workflow_dispatch
+on:
+  schedule:
+    - cron: '0 5 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
+
+env:
+  LOCALE: "en"
 
 jobs:
   makemessages:
@@ -29,7 +35,7 @@ jobs:
         pip install -r requirements.txt
 
     - name: Run makemessages
-      run: python netbox/manage.py makemessages -l en
+      run: python netbox/manage.py makemessages -l ${{ env.LOCALE }}
 
     - name: Commit changes
       uses: EndBug/add-and-commit@v9
