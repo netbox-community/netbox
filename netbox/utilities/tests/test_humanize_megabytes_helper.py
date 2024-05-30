@@ -10,11 +10,11 @@ class TestConvertByteSize(TestCase):
 
     def test_humanize_megabytes_converts_to_gigabytes(self):
         """Test that humanize_megabytes converts megabytes to gigabytes."""
-        self.assertEqual(humanize_megabytes(1024), "1.00 GB")
+        self.assertEqual(humanize_megabytes(1000), "1.00 GB")
 
     def test_humanize_megabytes_converts_to_terabytes(self):
         """Test that humanize_megabytes converts megabytes to terabytes."""
-        self.assertEqual(humanize_megabytes(1048576), "1.00 TB")
+        self.assertEqual(humanize_megabytes(1000000), "1.00 TB")
 
     def test_humanize_megabytes_returns_empty_for_none(self):
         """Test that humanize_megabytes returns empty for None."""
@@ -22,4 +22,4 @@ class TestConvertByteSize(TestCase):
 
     def test_humanize_megabytes_without_unit(self):
         """Test that humanize_megabytes returns the value without unit."""
-        self.assertEqual(humanize_megabytes(123456789), "117.74 TB")
+        self.assertEqual(humanize_megabytes(123456789), "123.46 TB")

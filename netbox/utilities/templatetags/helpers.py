@@ -98,15 +98,15 @@ def humanize_megabytes(mb):
 
     # Factors in bytes
     factors = {
-        "mega": 1024 ** 2,
-        "giga": 1024 ** 3,
-        "tera": 1024 ** 4,
+        "mega": 1000 ** 2,
+        "giga": 1000 ** 3,
+        "tera": 1000 ** 4,
     }
 
     if not mb:
         return ""
 
-    bytes = int(mb * 1024**2)
+    bytes = int(mb * 1000**2)
 
     if bytes >= factors["tera"]:
         return f"{bytes / factors['tera']:.2f} TB"
