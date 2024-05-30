@@ -8,6 +8,7 @@ class DummyModel(models.Model):
     number = models.IntegerField(
         default=100
     )
+    serializer_label = 'netbox.tests.dummy_plugin'
 
     class Meta:
         ordering = ['name']

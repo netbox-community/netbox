@@ -30,7 +30,12 @@ def get_serializer_for_model(model, prefix=''):
     """
     Return the appropriate REST API serializer for the given model.
     """
-    app_label, model_name = model._meta.label.split('.')
+    if hasattr(model, 'serializer_label'):
+        app_label = model.serializer_label
+        model_name = model._meta.label.split('.')[1]
+    else:
+        app_label, model_name = model._meta.label.split('.')
+
     serializer_name = f'{app_label}.api.serializers.{prefix}{model_name}Serializer'
     try:
         return import_string(serializer_name)
