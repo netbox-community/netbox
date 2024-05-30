@@ -1,7 +1,8 @@
 from django.db import models
 
+from netbox.models import EventRulesMixin, ChangeLoggingMixin
 
-class DummyModel(models.Model):
+class DummyModel(EventRulesMixin, ChangeLoggingMixin, models.Model):
     name = models.CharField(
         max_length=20
     )
