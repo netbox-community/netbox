@@ -20,7 +20,10 @@ jobs:
       with:
         python-version: 3.11
 
-    - name: Install dependencies & set up configuration
+    - name: Install system dependencies
+      run: sudo apt install -y gettext
+
+    - name: Install Python dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
