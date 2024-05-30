@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 from netbox.tests.dummy_plugin.models import DummyModel
 
 
-class DummySerializer(ModelSerializer):
+class DummyModelSerializer(ModelSerializer):
 
     class Meta:
         model = DummyModel
