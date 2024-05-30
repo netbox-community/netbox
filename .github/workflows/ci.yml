@@ -1,7 +1,18 @@
 name: CI
-on: [push, pull_request]
+
+on:
+  push:
+    paths-ignore:
+      - 'contrib/**'
+      - 'docs/**'
+  pull_request:
+    paths-ignore:
+      - 'contrib/**'
+      - 'docs/**'
+
 permissions:
   contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
