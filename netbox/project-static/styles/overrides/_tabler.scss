@@ -32,3 +32,8 @@ table a {
   // Adjust table anchor link contrast as not enough contrast in dark mode
   filter: brightness(110%);
 }
+
+// Override 
+::selection {
+  background-color: rgba(var(--tblr-primary-rgb),.48)
+}
