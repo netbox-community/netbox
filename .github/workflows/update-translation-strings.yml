@@ -1,0 +1,35 @@
+name: Update translation strings
+
+on: workflow_dispatch
+
+permissions:
+  contents: read
+
+jobs:
+  makemessages:
+    runs-on: ubuntu-latest
+    env:
+      NETBOX_CONFIGURATION: netbox.configuration_testing
+
+    steps:
+    - name: Check out repo
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+
+    - name: Install dependencies & set up configuration
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Run makemessages
+      run: python netbox/manage.py makemessages -l en
+
+    - name: Commit changes
+      uses: EndBug/add-and-commit@v9
+      with:
+        add: 'netbox/translations/'
+        message: 'Update source translation strings'
