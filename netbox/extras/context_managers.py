@@ -13,13 +13,14 @@ def event_tracking(request):
     :param request: WSGIRequest object with a unique `id` set
     """
     current_request.set(request)
-    events_queue.set([])
+    events_queue.set({})
 
     yield
 
     # Flush queued webhooks to RQ
-    flush_events(events_queue.get())
+    if events := list(events_queue.get().values()):
+        flush_events(events)
 
     # Clear context vars
     current_request.set(None)
-    events_queue.set([])
+    events_queue.set({})
