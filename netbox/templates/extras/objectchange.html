@@ -111,12 +111,8 @@
             <h5 class="card-header">{% trans "Pre-Change Data" %}</h5>
             <div class="card-body">
             {% if object.prechange_data %}
-              {% spaceless %}
-                  <pre class="change-data">{% for text, changed in text_before %}{% spaceless %}
-                      <span{% if changed %} class="removed"{% endif %}>{{ text }}</span>
-                      {% endspaceless %}{% endfor %}
+                  <pre class="change-data">{% for text, changed in text_before %}<span{% if changed %} class="removed"{% endif %}>{{ text }}<br></span>{% endfor %}
                   </pre>
-              {% endspaceless %}
             {% elif non_atomic_change %}
               {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
             {% else %}
@@ -130,12 +126,8 @@
             <h5 class="card-header">{% trans "Post-Change Data" %}</h5>
             <div class="card-body">
                 {% if object.postchange_data %}
-                  {% spaceless %}
-                    <pre class="change-data">{% for text,changed in text_after %}{% spaceless %}
-                      <span{% if changed %} class="added"{% endif %}>{{ text }}</span>
-                      {% endspaceless %}{% endfor %}
+                    <pre class="change-data">{% for text,changed in text_after %}<span{% if changed %} class="added"{% endif %}>{{ text }}<br></span>{% endfor %}
                     </pre>
-                  {% endspaceless %}
                 {% else %}
                   <span class="text-muted">{% trans "None" %}</span>
                 {% endif %}
