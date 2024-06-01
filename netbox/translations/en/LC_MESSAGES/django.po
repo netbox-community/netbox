@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-05-30 14:23+0000\n"
+"POT-Creation-Date: 2024-06-01 05:02+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1097,7 +1097,7 @@ msgstr ""
 #: netbox/extras/models/configs.py:45 netbox/extras/models/configs.py:219
 #: netbox/extras/models/customfields.py:123 netbox/extras/models/models.py:60
 #: netbox/extras/models/models.py:186 netbox/extras/models/models.py:424
-#: netbox/extras/models/models.py:539 netbox/extras/models/staging.py:31
+#: netbox/extras/models/models.py:539 netbox/extras/models/staging.py:32
 #: netbox/extras/models/tags.py:32 netbox/netbox/models/__init__.py:109
 #: netbox/netbox/models/__init__.py:144 netbox/netbox/models/__init__.py:190
 #: netbox/users/models/permissions.py:24 netbox/users/models/tokens.py:58
@@ -1138,7 +1138,7 @@ msgstr ""
 #: netbox/extras/models/models.py:181 netbox/extras/models/models.py:324
 #: netbox/extras/models/models.py:420 netbox/extras/models/models.py:529
 #: netbox/extras/models/models.py:624 netbox/extras/models/scripts.py:30
-#: netbox/extras/models/staging.py:26 netbox/ipam/models/asns.py:18
+#: netbox/extras/models/staging.py:27 netbox/ipam/models/asns.py:18
 #: netbox/ipam/models/fhrp.py:25 netbox/ipam/models/services.py:52
 #: netbox/ipam/models/services.py:88 netbox/ipam/models/vlans.py:26
 #: netbox/ipam/models/vlans.py:164 netbox/ipam/models/vrfs.py:22
@@ -1918,7 +1918,7 @@ msgid "completed"
 msgstr ""
 
 #: netbox/core/models/jobs.py:91 netbox/extras/models/models.py:121
-#: netbox/extras/models/staging.py:87
+#: netbox/extras/models/staging.py:88
 msgid "data"
 msgstr ""
 
@@ -6740,33 +6740,33 @@ msgstr ""
 msgid "Invalid format. URL parameters must be passed as a dictionary."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:283
+#: netbox/extras/dashboard/widgets.py:284
 msgid "RSS Feed"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:288
+#: netbox/extras/dashboard/widgets.py:289
 msgid "Embed an RSS feed from an external website."
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:295
+#: netbox/extras/dashboard/widgets.py:296
 msgid "Feed URL"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:300
+#: netbox/extras/dashboard/widgets.py:301
 msgid "The maximum number of objects to display"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:305
+#: netbox/extras/dashboard/widgets.py:306
 msgid "How long to stored the cached content (in seconds)"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:357 netbox/templates/account/base.html:10
+#: netbox/extras/dashboard/widgets.py:358 netbox/templates/account/base.html:10
 #: netbox/templates/account/bookmarks.html:7
 #: netbox/templates/inc/user_menu.html:30
 msgid "Bookmarks"
 msgstr ""
 
-#: netbox/extras/dashboard/widgets.py:361
+#: netbox/extras/dashboard/widgets.py:362
 msgid "Show your personal bookmarks"
 msgstr ""
 
@@ -7385,7 +7385,7 @@ msgstr ""
 msgid "request ID"
 msgstr ""
 
-#: netbox/extras/models/change_logging.py:52 netbox/extras/models/staging.py:69
+#: netbox/extras/models/change_logging.py:52 netbox/extras/models/staging.py:70
 msgid "action"
 msgstr ""
 
@@ -8096,19 +8096,19 @@ msgstr ""
 msgid "cached values"
 msgstr ""
 
-#: netbox/extras/models/staging.py:44
+#: netbox/extras/models/staging.py:45
 msgid "branch"
 msgstr ""
 
-#: netbox/extras/models/staging.py:45
+#: netbox/extras/models/staging.py:46
 msgid "branches"
 msgstr ""
 
-#: netbox/extras/models/staging.py:97
+#: netbox/extras/models/staging.py:98
 msgid "staged change"
 msgstr ""
 
-#: netbox/extras/models/staging.py:98
+#: netbox/extras/models/staging.py:99
 msgid "staged changes"
 msgstr ""
 
