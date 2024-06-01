@@ -112,15 +112,10 @@
             <div class="card-body">
             {% if object.prechange_data %}
               {% spaceless %}
-                <pre class="change-data">{% for k, v in object.prechange_data.items %}{% spaceless %}
-                    {% if k != 'custom_fields' or not cfr_list %}
-                        <span{% if k in diff_removed %} class="removed"{% endif %}>{{ k }}: {{ v|json }}</span>
-                    {% else %}
-                    <span>{{ k }}: {</span>{% for cfr_data in cfr_list %}<span{% if cfr_data.2 %} class="removed"{% endif %}>    {{ cfr_data.0|json }}: {{ cfr_data.1|json|fixindent }}</span>
-                    {% endfor %}<span>}</span>
-                    {% endif %}
-                {% endspaceless %}{% endfor %}
-                </pre>
+                  <pre class="change-data">{% for text, changed in text_before %}{% spaceless %}
+                      <span{% if changed %} class="removed"{% endif %}>{{ text }}</span>
+                      {% endspaceless %}{% endfor %}
+                  </pre>
               {% endspaceless %}
             {% elif non_atomic_change %}
               {% trans "Warning: Comparing non-atomic change to previous change record" %} (<a href="{% url 'extras:objectchange' pk=prev_change.pk %}">{{ prev_change.pk }}</a>)
@@ -136,14 +131,9 @@
             <div class="card-body">
                 {% if object.postchange_data %}
                   {% spaceless %}
-                    <pre class="change-data">{% for k, v in object.postchange_data.items %}{% spaceless %}
-                        {% if k != 'custom_fields' or not cfa_list %}
-                            <span{% if k in diff_added %} class="added"{% endif %}>{{ k }}: {{ v|json }}</span>
-                        {% else %}
-                            <span>{{ k }}: {</span>{% for cfa_data in cfa_list %}<span{% if cfa_data.2 %} class="added"{% endif %}>    {{ cfa_data.0|json }}: {{ cfa_data.1|json|fixindent }}</span>
-{% endfor %}<span>}</span>
-                        {% endif %}
-                        {% endspaceless %}{% endfor %}
+                    <pre class="change-data">{% for text,changed in text_after %}{% spaceless %}
+                      <span{% if changed %} class="added"{% endif %}>{{ text }}</span>
+                      {% endspaceless %}{% endfor %}
                     </pre>
                   {% endspaceless %}
                 {% else %}

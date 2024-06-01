@@ -1,3 +1,4 @@
+import json
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.contenttypes.models import ContentType
@@ -19,7 +20,7 @@ from extras.dashboard.utils import get_widget_class
 from netbox.constants import DEFAULT_ACTION_PERMISSIONS
 from netbox.views import generic
 from netbox.views.generic.mixins import TableMixin
-from utilities.data import deep_compare_dict
+from utilities.data import deep_compare_dict, make_diff
 from utilities.forms import ConfirmationForm, get_field_value
 from utilities.htmx import htmx_partial
 from utilities.paginator import EnhancedPaginator, get_paginate_count
@@ -730,27 +731,19 @@ class ObjectChangeView(generic.ObjectView):
 
         if prechange_data and instance.postchange_data:
             diff_added, diff_removed = deep_compare_dict(prechange_data, instance.postchange_data, exclude=('last_updated'))
-            custom_fields_added = diff_added['custom_fields'] if 'custom_fields' in diff_added else None
-            custom_fields_removed = diff_removed['custom_fields'] if 'custom_fields' in diff_removed else None
-            cfr_list = []
-            if custom_fields_added:
-                for cf, cf_value in prechange_data['custom_fields'].items():
-                    cfr_list.append((cf, cf_value, cf in custom_fields_added))
-            cfa_list = []
-            if custom_fields_removed:
-                for cf, cf_value in instance.postchange_data['custom_fields'].items():
-                    cfa_list.append((cf, cf_value, cf in custom_fields_removed))
+            text_before, text_after = make_diff(json.dumps(prechange_data, indent=2, sort_keys=True), json.dumps(instance.postchange_data, indent=2, sort_keys=True))
+
         else:
             diff_added = None
             diff_removed = None
-            cfa_list = None
-            cfr_list = None
+            text_before = None
+            text_after = None
 
         return {
             'diff_added': diff_added,
             'diff_removed': diff_removed,
-            "cfa_list": cfa_list,
-            "cfr_list": cfr_list,
+            'text_before': text_before,
+            'text_after': text_after,
             'next_change': next_change,
             'prev_change': prev_change,
             'related_changes_table': related_changes_table,
