@@ -3,6 +3,7 @@
 {% load plugins %}
 {% load tz %}
 {% load i18n %}
+{% load l10n %}
 {% load mptt %}
 
 {% block breadcrumbs %}
@@ -95,7 +96,7 @@
             {% if object.latitude and object.longitude %}
               {% if config.MAPS_URL %}
                 <div class="position-absolute top-50 end-0 translate-middle-y d-print-none">
-                  <a href="{{ config.MAPS_URL }}{{ object.latitude }},{{ object.longitude }}" target="_blank" class="btn btn-primary">
+                  <a href="{{ config.MAPS_URL }}{{ object.latitude|unlocalize }},{{ object.longitude|unlocalize }}" target="_blank" class="btn btn-primary">
                     <i class="mdi mdi-map-marker"></i> {% trans "Map It" %}
                   </a>
                 </div>
