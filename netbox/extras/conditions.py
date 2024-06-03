@@ -139,8 +139,7 @@ class ConditionSet:
         if len(ruleset) == 1:
             self.logic = (list(ruleset.keys())[0]).lower()
             if self.logic not in (AND, OR):
-                raise ValueError(_(
-                    f"Invalid logic type: {self.logic} (must be 'AND' or 'OR'). Please check documentation."))
+                raise ValueError(_("Invalid logic type: must be 'AND' or 'OR'. Please check documentation."))
 
             # Compile the set of Conditions
             self.conditions = [
