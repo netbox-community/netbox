@@ -265,6 +265,7 @@ class ObjectListWidget(DashboardWidget):
         parameters = self.config.get('url_params') or {}
         if page_size := self.config.get('page_size'):
             parameters['per_page'] = page_size
+        parameters['embedded'] = True
 
         if parameters:
             try:
