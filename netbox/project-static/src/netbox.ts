@@ -42,9 +42,15 @@ function initWindow(): void {
     if (documentForm.method.toUpperCase() == 'GET') {
       documentForm.addEventListener('formdata', function (event: FormDataEvent) {
         const formData: FormData = event.formData;
-        for (const [name, value] of Array.from(formData.entries())) {
-          if (value === '') formData.delete(name);
-        }
+        // formData may have multiple values associated with a given key
+        // (see netbox/templates/django/forms/widgets/checkbox.html).
+	for (const name of Array.from(new Set(formData.keys()))) {
+	  const values = formData.getAll(name);
+	  formData.delete(name);
+	  values.forEach(value => {
+	    if (value !== '') formData.append(name, value)
+	  });
+	}
       });
     }
   }
