@@ -118,7 +118,9 @@ def handle_changed_object(sender, instance, **kwargs):
 
 @receiver(pre_delete)
 def handle_deleted_object(sender, instance, **kwargs):
-    """Fires when an object is deleted."""
+    """
+    Fires when an object is deleted.
+    """
     # Run any deletion protection rules for the object. Note that this must occur prior
     # to queueing any events for the object being deleted, in case a validation error is
     # raised, causing the deletion to fail.
