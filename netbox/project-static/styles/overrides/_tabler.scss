@@ -1,3 +1,10 @@
+// Disable font-ligatures for Chromium based browsers
+// Chromium requires `font-variant-ligatures: none` in addition to `font-feature-settings "liga" 0`
+* {
+  font-feature-settings: "liga" 0;
+  font-variant-ligatures: none;
+}
+
 // Restore default foreground & background colors for <pre> blocks
 pre {
   background-color: transparent;

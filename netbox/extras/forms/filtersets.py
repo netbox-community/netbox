@@ -464,13 +464,10 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         required=False,
         label=_('User')
     )
-    assigned_object_type_id = DynamicModelMultipleChoiceField(
-        queryset=ObjectType.objects.all(),
+    assigned_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.with_feature('journaling'),
         required=False,
         label=_('Object Type'),
-        widget=APISelectMultiple(
-            api_url='/api/extras/content-types/',
-        )
     )
     kind = forms.ChoiceField(
         label=_('Kind'),
@@ -507,11 +504,8 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         required=False,
         label=_('User')
     )
-    changed_object_type_id = DynamicModelMultipleChoiceField(
-        queryset=ObjectType.objects.all(),
+    changed_object_type_id = ContentTypeMultipleChoiceField(
+        queryset=ObjectType.objects.with_feature('change_logging'),
         required=False,
         label=_('Object Type'),
-        widget=APISelectMultiple(
-            api_url='/api/extras/content-types/',
-        )
     )
