@@ -39,6 +39,9 @@ class MyModelSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:myplugin-api:mymodel-detail'
     )
+    display_url = serializers.HyperlinkedIdentityField(
+        view_name='plugins:myplugin:mymodel-detail'
+    )
 
     class Meta:
         model = MyModel
@@ -65,6 +68,9 @@ from my_plugin.models import MyModel
 class NestedMyModelSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='plugins-api:myplugin-api:mymodel-detail'
+    )
+    display_url = serializers.HyperlinkedIdentityField(
+        view_name='plugins:myplugin:mymodel-detail'
     )
 
     class Meta:

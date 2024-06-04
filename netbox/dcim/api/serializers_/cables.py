@@ -22,6 +22,7 @@ __all__ = (
 
 class CableSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable-detail')
     a_terminations = GenericObjectSerializer(many=True, required=False)
     b_terminations = GenericObjectSerializer(many=True, required=False)
     status = ChoiceField(choices=LinkStatusChoices, required=False)
@@ -31,8 +32,9 @@ class CableSerializer(NetBoxModelSerializer):
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant', 'label', 'color',
-            'length', 'length_unit', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'type', 'a_terminations', 'b_terminations', 'status', 'tenant',
+            'label', 'color', 'length', 'length_unit', 'description', 'comments', 'tags', 'custom_fields', 'created',
+            'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'label', 'description')
 
@@ -42,16 +44,18 @@ class TracedCableSerializer(serializers.ModelSerializer):
     Used only while tracing a cable path.
     """
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cable-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cable-detail')
 
     class Meta:
         model = Cable
         fields = [
-            'id', 'url', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'description',
+            'id', 'url', 'display_url', 'type', 'status', 'label', 'color', 'length', 'length_unit', 'description',
         ]
 
 
 class CableTerminationSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='dcim-api:cabletermination-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='dcim:cabletermination-detail')
     termination_type = ContentTypeField(
         queryset=ContentType.objects.filter(CABLE_TERMINATION_MODELS)
     )
@@ -60,8 +64,8 @@ class CableTerminationSerializer(NetBoxModelSerializer):
     class Meta:
         model = CableTermination
         fields = [
-            'id', 'url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id', 'termination',
-            'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'cable', 'cable_end', 'termination_type', 'termination_id',
+            'termination', 'created', 'last_updated',
         ]
 
     @extend_schema_field(serializers.JSONField(allow_null=True))

@@ -23,20 +23,22 @@ __all__ = [
 )
 class NestedTenantGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenantgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:tenantgroup-detail')
     tenant_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = TenantGroup
-        fields = ['id', 'url', 'display', 'name', 'slug', 'tenant_count', '_depth']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'tenant_count', '_depth']
 
 
 class NestedTenantSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:tenant-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:tenant-detail')
 
     class Meta:
         model = Tenant
-        fields = ['id', 'url', 'display', 'name', 'slug']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug']
 
 
 #
@@ -48,35 +50,39 @@ class NestedTenantSerializer(WritableNestedSerializer):
 )
 class NestedContactGroupSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactgroup-detail')
     contact_count = serializers.IntegerField(read_only=True)
     _depth = serializers.IntegerField(source='level', read_only=True)
 
     class Meta:
         model = ContactGroup
-        fields = ['id', 'url', 'display', 'name', 'slug', 'contact_count', '_depth']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'contact_count', '_depth']
 
 
 class NestedContactRoleSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactrole-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactrole-detail')
 
     class Meta:
         model = ContactRole
-        fields = ['id', 'url', 'display', 'name', 'slug']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug']
 
 
 class NestedContactSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contact-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contact-detail')
 
     class Meta:
         model = Contact
-        fields = ['id', 'url', 'display', 'name']
+        fields = ['id', 'url', 'display_url', 'display', 'name']
 
 
 class NestedContactAssignmentSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='tenancy-api:contactassignment-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='tenancy:contactassignment-detail')
     contact = NestedContactSerializer()
     role = NestedContactRoleSerializer
 
     class Meta:
         model = ContactAssignment
-        fields = ['id', 'url', 'display', 'contact', 'role', 'priority']
+        fields = ['id', 'url', 'display_url', 'display', 'contact', 'role', 'priority']

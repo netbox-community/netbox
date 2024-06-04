@@ -17,6 +17,7 @@ __all__ = (
 
 class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfieldchoiceset-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfieldchoiceset-detail')
     base_choices = ChoiceField(
         choices=CustomFieldChoiceSetBaseChoices,
         required=False
@@ -31,14 +32,15 @@ class CustomFieldChoiceSetSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomFieldChoiceSet
         fields = [
-            'id', 'url', 'display', 'name', 'description', 'base_choices', 'extra_choices', 'order_alphabetically',
-            'choices_count', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'base_choices', 'extra_choices',
+            'order_alphabetically', 'choices_count', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description', 'choices_count')
 
 
 class CustomFieldSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:customfield-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:customfield-detail')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.with_feature('custom_fields'),
         many=True
@@ -62,10 +64,10 @@ class CustomFieldSerializer(ValidatedModelSerializer):
     class Meta:
         model = CustomField
         fields = [
-            'id', 'url', 'display', 'object_types', 'type', 'related_object_type', 'data_type', 'name', 'label',
-            'group_name', 'description', 'required', 'search_weight', 'filter_logic', 'ui_visible', 'ui_editable',
-            'is_cloneable', 'default', 'weight', 'validation_minimum', 'validation_maximum', 'validation_regex',
-            'choice_set', 'comments', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'object_types', 'type', 'related_object_type', 'data_type',
+            'name', 'label', 'group_name', 'description', 'required', 'search_weight', 'filter_logic', 'ui_visible',
+            'ui_editable', 'is_cloneable', 'default', 'weight', 'validation_minimum', 'validation_maximum',
+            'validation_regex', 'choice_set', 'comments', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

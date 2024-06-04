@@ -15,6 +15,7 @@ __all__ = (
 
 class BookmarkSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:bookmark-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:bookmark-detail')
     object_type = ContentTypeField(
         queryset=ObjectType.objects.with_feature('bookmarks'),
     )
@@ -24,7 +25,7 @@ class BookmarkSerializer(ValidatedModelSerializer):
     class Meta:
         model = Bookmark
         fields = [
-            'id', 'url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
+            'id', 'url', 'display_url', 'display', 'object_type', 'object_id', 'object', 'user', 'created',
         ]
         brief_fields = ('id', 'url', 'display', 'object_id', 'object_type')
 

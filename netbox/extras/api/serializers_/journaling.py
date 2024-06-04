@@ -17,6 +17,7 @@ __all__ = (
 
 class JournalEntrySerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:journalentry-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:journalentry-detail')
     assigned_object_type = ContentTypeField(
         queryset=ObjectType.objects.all()
     )
@@ -35,8 +36,8 @@ class JournalEntrySerializer(NetBoxModelSerializer):
     class Meta:
         model = JournalEntry
         fields = [
-            'id', 'url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object', 'created',
-            'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'assigned_object_type', 'assigned_object_id', 'assigned_object',
+            'created', 'created_by', 'kind', 'comments', 'tags', 'custom_fields', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'created')
 

@@ -21,10 +21,11 @@ __all__ = [
 
 class NestedProviderNetworkSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:providernetwork-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:providernetwork-detail')
 
     class Meta:
         model = ProviderNetwork
-        fields = ['id', 'url', 'display', 'name']
+        fields = ['id', 'url', 'display_url', 'display', 'name']
 
 
 #
@@ -36,11 +37,12 @@ class NestedProviderNetworkSerializer(WritableNestedSerializer):
 )
 class NestedProviderSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provider-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:provider-detail')
     circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = Provider
-        fields = ['id', 'url', 'display', 'name', 'slug', 'circuit_count']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'circuit_count']
 
 
 #
@@ -49,10 +51,11 @@ class NestedProviderSerializer(WritableNestedSerializer):
 
 class NestedProviderAccountSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:provideraccount-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:provideraccount-detail')
 
     class Meta:
         model = ProviderAccount
-        fields = ['id', 'url', 'display', 'name', 'account']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'account']
 
 
 #
@@ -64,25 +67,28 @@ class NestedProviderAccountSerializer(WritableNestedSerializer):
 )
 class NestedCircuitTypeSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittype-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuittype-detail')
     circuit_count = RelatedObjectCountField('circuits')
 
     class Meta:
         model = CircuitType
-        fields = ['id', 'url', 'display', 'name', 'slug', 'circuit_count']
+        fields = ['id', 'url', 'display_url', 'display', 'name', 'slug', 'circuit_count']
 
 
 class NestedCircuitSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuit-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuit-detail')
 
     class Meta:
         model = Circuit
-        fields = ['id', 'url', 'display', 'cid']
+        fields = ['id', 'url', 'display_url', 'display', 'cid']
 
 
 class NestedCircuitTerminationSerializer(WritableNestedSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='circuits-api:circuittermination-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='circuits:circuittermination-detail')
     circuit = NestedCircuitSerializer()
 
     class Meta:
         model = CircuitTermination
-        fields = ['id', 'url', 'display', 'circuit', 'term_side', 'cable', '_occupied']
+        fields = ['id', 'url', 'display_url', 'display', 'circuit', 'term_side', 'cable', '_occupied']

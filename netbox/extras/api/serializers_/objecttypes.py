@@ -10,7 +10,8 @@ __all__ = (
 
 class ObjectTypeSerializer(BaseModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:objecttype-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:objecttype-detail')
 
     class Meta:
         model = ObjectType
-        fields = ['id', 'url', 'display', 'app_label', 'model']
+        fields = ['id', 'url', 'display_url', 'display', 'app_label', 'model']

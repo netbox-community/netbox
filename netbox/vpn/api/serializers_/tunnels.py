@@ -24,6 +24,7 @@ __all__ = (
 
 class TunnelGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='vpn-api:tunnelgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='vpn:tunnelgroup-detail')
 
     # Related object counts
     tunnel_count = RelatedObjectCountField('tunnels')
@@ -31,8 +32,8 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
     class Meta:
         model = TunnelGroup
         fields = [
-            'id', 'url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields', 'created', 'last_updated',
-            'tunnel_count',
+            'id', 'url', 'display_url', 'display', 'name', 'slug', 'description', 'tags', 'custom_fields',
+            'created', 'last_updated', 'tunnel_count',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'slug', 'description', 'tunnel_count')
 
@@ -40,6 +41,9 @@ class TunnelGroupSerializer(NetBoxModelSerializer):
 class TunnelSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='vpn-api:tunnel-detail'
+    )
+    display_url = serializers.HyperlinkedIdentityField(
+        view_name='vpn:tunnel-detail'
     )
     status = ChoiceField(
         choices=TunnelStatusChoices
@@ -70,8 +74,9 @@ class TunnelSerializer(NetBoxModelSerializer):
     class Meta:
         model = Tunnel
         fields = (
-            'id', 'url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile', 'tenant', 'tunnel_id',
-            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'terminations_count',
+            'id', 'url', 'display_url', 'display', 'name', 'status', 'group', 'encapsulation', 'ipsec_profile',
+            'tenant', 'tunnel_id', 'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated',
+            'terminations_count',
         )
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 
@@ -79,6 +84,9 @@ class TunnelSerializer(NetBoxModelSerializer):
 class TunnelTerminationSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(
         view_name='vpn-api:tunneltermination-detail'
+    )
+    display_url = serializers.HyperlinkedIdentityField(
+        view_name='vpn:tunneltermination-detail'
     )
     tunnel = TunnelSerializer(
         nested=True
@@ -101,8 +109,8 @@ class TunnelTerminationSerializer(NetBoxModelSerializer):
     class Meta:
         model = TunnelTermination
         fields = (
-            'id', 'url', 'display', 'tunnel', 'role', 'termination_type', 'termination_id', 'termination', 'outside_ip',
-            'tags', 'custom_fields', 'created', 'last_updated',
+            'id', 'url', 'display_url', 'display', 'tunnel', 'role', 'termination_type', 'termination_id',
+            'termination', 'outside_ip', 'tags', 'custom_fields', 'created', 'last_updated',
         )
         brief_fields = ('id', 'url', 'display')
 

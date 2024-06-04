@@ -13,6 +13,7 @@ __all__ = (
 
 class ObjectPermissionSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='users-api:objectpermission-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='users:objectpermission-detail')
     object_types = ContentTypeField(
         queryset=ObjectType.objects.all(),
         many=True
@@ -35,8 +36,8 @@ class ObjectPermissionSerializer(ValidatedModelSerializer):
     class Meta:
         model = ObjectPermission
         fields = (
-            'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'actions', 'constraints',
-            'groups', 'users',
+            'id', 'url', 'display_url', 'display', 'name', 'description', 'enabled', 'object_types', 'actions',
+            'constraints', 'groups', 'users',
         )
         brief_fields = (
             'id', 'url', 'display', 'name', 'description', 'enabled', 'object_types', 'actions',

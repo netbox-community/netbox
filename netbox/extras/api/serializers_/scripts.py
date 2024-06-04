@@ -15,6 +15,7 @@ __all__ = (
 
 class ScriptSerializer(ValidatedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='extras-api:script-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='extras:script-detail')
     description = serializers.SerializerMethodField(read_only=True)
     vars = serializers.SerializerMethodField(read_only=True)
     result = JobSerializer(nested=True, read_only=True)
@@ -22,7 +23,7 @@ class ScriptSerializer(ValidatedModelSerializer):
     class Meta:
         model = Script
         fields = [
-            'id', 'url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_executable',
+            'id', 'url', 'display_url', 'module', 'name', 'description', 'vars', 'result', 'display', 'is_executable',
         ]
         brief_fields = ('id', 'url', 'display', 'name', 'description')
 

@@ -16,19 +16,21 @@ __all__ = (
 
 class FHRPGroupSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroup-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroup-detail')
     ip_addresses = IPAddressSerializer(nested=True, many=True, read_only=True)
 
     class Meta:
         model = FHRPGroup
         fields = [
-            'id', 'name', 'url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key', 'description', 'comments',
-            'tags', 'custom_fields', 'created', 'last_updated', 'ip_addresses',
+            'id', 'name', 'url', 'display_url', 'display', 'protocol', 'group_id', 'auth_type', 'auth_key',
+            'description', 'comments', 'tags', 'custom_fields', 'created', 'last_updated', 'ip_addresses',
         ]
         brief_fields = ('id', 'url', 'display', 'protocol', 'group_id', 'description')
 
 
 class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name='ipam-api:fhrpgroupassignment-detail')
+    display_url = serializers.HyperlinkedIdentityField(view_name='ipam:fhrpgroupassignment-detail')
     group = FHRPGroupSerializer(nested=True)
     interface_type = ContentTypeField(
         queryset=ContentType.objects.all()
@@ -38,8 +40,8 @@ class FHRPGroupAssignmentSerializer(NetBoxModelSerializer):
     class Meta:
         model = FHRPGroupAssignment
         fields = [
-            'id', 'url', 'display', 'group', 'interface_type', 'interface_id', 'interface', 'priority', 'created',
-            'last_updated',
+            'id', 'url', 'display_url', 'display', 'group', 'interface_type', 'interface_id', 'interface',
+            'priority', 'created', 'last_updated',
         ]
         brief_fields = ('id', 'url', 'display', 'group', 'interface_type', 'interface_id', 'priority')
 
