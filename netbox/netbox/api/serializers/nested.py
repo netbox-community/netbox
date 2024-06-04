@@ -23,7 +23,7 @@ class WritableNestedSerializer(BaseModelSerializer):
 
 # Declared here for use by PrimaryModelSerializer, but should be imported from extras.api.nested_serializers
 class NestedTagSerializer(WritableNestedSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detai')
+    url = serializers.HyperlinkedIdentityField(view_name='extras-api:tag-detail')
     display_url = serializers.HyperlinkedIdentityField(view_name='extras:tag')
 
     class Meta:
