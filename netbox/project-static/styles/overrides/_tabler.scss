@@ -41,6 +41,6 @@ table a {
 }
 
 // Override background color alpha value
-::selection {
+[data-bs-theme=dark] ::selection {
   background-color: rgba(var(--tblr-primary-rgb),.48)
 }
