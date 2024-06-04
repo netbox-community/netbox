@@ -32,21 +32,13 @@ def register_template_extensions(class_list):
                     template_extension=template_extension
                 )
             )
-        if template_extension.model is None:
-            raise TypeError(
-                _("PluginTemplateExtension class {template_extension} does not define a valid model!").format(
-                    template_extension=template_extension
-                )
-            )
 
         registry['plugins']['template_extensions'][template_extension.model].append(template_extension)
 
 
 def register_menu(menu):
     if not isinstance(menu, PluginMenu):
-        raise TypeError(_("{item} must be an instance of netbox.plugins.PluginMenuItem").format(
-            item=menu_link
-        ))
+        raise TypeError(_("{item} must be an instance of netbox.plugins.PluginMenuItem").format(item=menu))
     registry['plugins']['menus'].append(menu)
 
 
