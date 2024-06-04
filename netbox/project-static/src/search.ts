@@ -57,7 +57,9 @@ export function initQuickSearch(): void {
     quicksearch.addEventListener('search', quickSearchEventHandler, {
       passive: true,
     });
-    quicksearch.addEventListener('change', handleQuickSearchParams);
+    quicksearch.addEventListener('change', handleQuickSearchParams, {
+      passive: true,
+    });
 
     if (isTruthy(clearbtn)) {
       clearbtn.addEventListener(
