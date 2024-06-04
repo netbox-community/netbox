@@ -912,10 +912,6 @@ class VLANGroupFilterSet(OrganizationalModelFilterSet):
         method='filter_scope'
     )
 
-    # TODO: Remove in v4.1
-    sitegroup = site_group
-    clustergroup = cluster_group
-
     class Meta:
         model = VLANGroup
         fields = ('id', 'name', 'slug', 'min_vid', 'max_vid', 'description', 'scope_id')
@@ -1105,10 +1101,6 @@ class ServiceFilterSet(NetBoxModelFilterSet):
         field_name='ports',
         lookup_expr='contains'
     )
-
-    # TODO: Remove in v4.1
-    ipaddress = ip_address
-    ipaddress_id = ip_address_id
 
     class Meta:
         model = Service
