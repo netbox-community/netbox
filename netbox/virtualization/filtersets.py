@@ -240,7 +240,10 @@ class VirtualMachineFilterSet(
 
     class Meta:
         model = VirtualMachine
-        fields = ('id', 'cluster', 'vcpus', 'memory', 'disk', 'description', 'interface_count', 'virtual_disk_count')
+        fields = (
+            'id', 'cluster', 'vcpus', 'memory', 'disk', 'description', 'interface_count', 'virtual_disk_count',
+            'serial_number'
+        )
 
     def search(self, queryset, name, value):
         if not value.strip():
