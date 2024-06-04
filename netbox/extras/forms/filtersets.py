@@ -465,7 +465,7 @@ class JournalEntryFilterForm(NetBoxModelFilterSetForm):
         label=_('User')
     )
     assigned_object_type_id = ContentTypeMultipleChoiceField(
-        queryset=ObjectType.objects.with_feature('custom_links'),
+        queryset=ObjectType.objects.with_feature('journaling'),
         required=False,
         label=_('Object Type'),
     )
@@ -505,7 +505,7 @@ class ObjectChangeFilterForm(SavedFiltersMixin, FilterForm):
         label=_('User')
     )
     changed_object_type_id = ContentTypeMultipleChoiceField(
-        queryset=ObjectType.objects.with_feature('custom_links'),
+        queryset=ObjectType.objects.with_feature('change_logging'),
         required=False,
         label=_('Object Type'),
     )
