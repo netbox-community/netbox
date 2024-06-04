@@ -355,11 +355,11 @@ class CableTermination(ChangeLoggedModel):
         super().save(*args, **kwargs)
 
         # Set the cable on the terminating object
-        termination_model = self.termination._meta.model
-        termination_model.objects.filter(pk=self.termination_id).update(
-            cable=self.cable,
-            cable_end=self.cable_end
-        )
+        termination = self.termination._meta.model.objects.get(pk=self.termination_id)
+        termination.snapshot()
+        termination.cable = self.cable
+        termination.cable_end = self.cable_end
+        termination.save()
 
     def delete(self, *args, **kwargs):
 
