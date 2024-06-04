@@ -1195,6 +1195,7 @@ class ScriptResultView(TableMixin, generic.ObjectView):
                     tests = job.data['tests']
 
                 for log in job.data['log']:
+                    print(log)
                     index += 1
                     result = {
                         'index': index,
@@ -1214,6 +1215,8 @@ class ScriptResultView(TableMixin, generic.ObjectView):
             for method, test_data in tests.items():
                 if 'log' in test_data:
                     for time, status, obj, url, message in test_data['log']:
+                        if status == 'success' and message == 'None':
+                            continue
                         index += 1
                         result = {
                             'index': index,
