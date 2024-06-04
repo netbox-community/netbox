@@ -99,8 +99,9 @@ class PluginTest(TestCase):
         """
         Check that plugin TemplateExtensions are registered.
         """
-        from netbox.tests.dummy_plugin.template_content import SiteContent
+        from netbox.tests.dummy_plugin.template_content import GlobalContent, SiteContent
 
+        self.assertIn(GlobalContent, registry['plugins']['template_extensions'][None])
         self.assertIn(SiteContent, registry['plugins']['template_extensions']['dcim.site'])
 
     def test_registered_columns(self):

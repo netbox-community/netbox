@@ -2,6 +2,7 @@
 {% extends 'base/base.html' %}
 {% load helpers %}
 {% load navigation %}
+{% load plugins %}
 {% load static %}
 {% load i18n %}
 
@@ -51,8 +52,12 @@ Blocks:
       <div class="container-fluid">
 
         <div class="navbar-nav flex-row align-items-center order-md-last">
+
+          {# Plugin content #}
+          {% plugin_navbar %}
+
           {# Dark/light mode toggle #}
-          <div class="d-none d-md-flex">
+          <div class="d-none d-md-flex ms-2">
             <button class="btn color-mode-toggle hide-theme-dark" title="{% trans "Enable dark mode" %}" data-bs-toggle="tooltip" data-bs-placement="bottom">
               <i class="mdi mdi-lightbulb"></i>
             </button>

@@ -1,6 +1,12 @@
 from netbox.plugins.templates import PluginTemplateExtension
 
 
+class GlobalContent(PluginTemplateExtension):
+
+    def navbar(self):
+        return "GLOBAL CONTENT - NAVBAR"
+
+
 class SiteContent(PluginTemplateExtension):
     model = 'dcim.site'
 
@@ -20,4 +26,4 @@ class SiteContent(PluginTemplateExtension):
         return "SITE CONTENT - LIST BUTTONS"
 
 
-template_extensions = [SiteContent]
+template_extensions = [GlobalContent, SiteContent]

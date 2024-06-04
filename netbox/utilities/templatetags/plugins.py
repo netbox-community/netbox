@@ -22,7 +22,7 @@ def _get_registered_content(obj, method, template_context):
         'perms': template_context['perms'],
     }
 
-    model_name = obj._meta.label_lower
+    model_name = obj._meta.label_lower if obj is not None else None
     template_extensions = registry['plugins']['template_extensions'].get(model_name, [])
     for template_extension in template_extensions:
 
@@ -41,6 +41,14 @@ def _get_registered_content(obj, method, template_context):
         html += content
 
     return mark_safe(html)
+
+
+@register.simple_tag(takes_context=True)
+def plugin_navbar(context):
+    """
+    Render any navbar content embedded by plugins
+    """
+    return _get_registered_content(None, 'navbar', context)
 
 
 @register.simple_tag(takes_context=True)
