@@ -51,3 +51,8 @@ The amount of running memory provisioned, in megabytes.
 ### Disk
 
 The amount of disk storage provisioned, in gigabytes.
+
+### Serial Number
+
+Optional serial number assigned to this VM.
+
